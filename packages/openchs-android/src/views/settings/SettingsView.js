@@ -32,28 +32,6 @@ class SettingsView extends AbstractComponent {
         super.componentWillMount();
     }
 
-    forceSync() {
-        const entityQueueService = this.context.getService(EntityQueueService);
-        entityQueueService.requeueAll();
-    }
-
-    onForceSync() {
-        Alert.alert(
-            this.I18n.t('forceSyncWarning'),
-            this.I18n.t('forceSyncWarningMessage'),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => this.forceSync()
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    },
-                    style: 'cancel'
-                }
-            ]
-        )
-    }
-
     render() {
         const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
         return (
@@ -61,29 +39,13 @@ class SettingsView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
-                        <Text style={Styles.settingsTitle}>
-                            {this.state.userInfo.organisationName ?
-                                this.state.userInfo.username ?
-                                    `${this.state.userInfo.username} (${this.state.userInfo.organisationName})`
-                                    : this.state.userInfo.organisationName
-                                : I18n.t('syncRequired')
-                            }
-                        </Text>
                         <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
                                     labelValuePairs={localeLabelValuePairs}
                                     labelKey='locale'
+                                    inPairs={true}
                                     selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
                                     validationError={null}
                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
-
-                        <View style={Styles.listContainer}>
-                            <Text style={Styles.textList}>Server: <Text
-                                style={{color: 'black', fontSize: Styles.normalTextSize}}>{this.state.serverURL}</Text></Text>
-                            <Text style={Styles.textList}>Database Schema : <Text
-                                style={{color: 'black', fontSize: Styles.normalTextSize}}>{Schema.schemaVersion}</Text></Text>
-                            <Text style={Styles.textList}>BuildVersion: <Text
-                                style={{color: 'black', fontSize: Styles.normalTextSize}}>{DeviceInfo.getVersion()}</Text></Text>
-                        </View>
 
                         <Text style={Styles.formLabel}>{this.I18n.t('location')}</Text>
                         <View style={{

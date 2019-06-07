@@ -248,5 +248,7 @@
   "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
   "clearDataAndLogin": "Delete data and login",
   "Dashboard": "Dashboard",
-  "Sync": "Sync"
+  "Sync": "Sync",
+  "submit": "Submit",
+  "editSettings": "Edit Settings"
 }

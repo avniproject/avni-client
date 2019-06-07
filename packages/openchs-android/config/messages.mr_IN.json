@@ -270,5 +270,8 @@
   "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
   "clearDataAndLogin": "Delete data and login",
   "Dashboard": "डॅशबोर्ड",
-  "Sync": "समक्रमण"
+  "Sync": "समक्रमण",
+  "submit": "सबमिट",
+  "editSettings": "सेटिंग्ज संपादित करा",
+  "entitySyncStatus": "सिंक स्थिती"
 }

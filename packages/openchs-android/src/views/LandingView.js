@@ -66,13 +66,13 @@ class LandingView extends SyncComponent {
                     fontSize: Styles.smallerTextSize,
                     fontStyle: 'normal',
                     color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
-                    lineHeight: 10,
+                    lineHeight: 12,
                     alignSelf: 'center', paddingTop: 3
                 }}>{menuMessageKey}</Text>
             </View>);
     }
 
-    static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 35};
+    static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
 
     render() {
         General.logDebug("LandingView", "render");

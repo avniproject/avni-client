@@ -21,8 +21,6 @@ import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
 
-import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
-
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
     static propTypes = {
@@ -110,19 +108,18 @@ class IndividualSearchView extends AbstractComponent {
                                           onPress={() => this.searchIndividual()}
                                           style={{
                                               height: 40,
-                                              width: 40,
+                                              width: 70,
                                               alignItems: 'center',
                                               justifyContent: 'center',
                                               backgroundColor: Colors.AccentColor,
                                               elevation: 2,
-                                              borderRadius: 12,
+                                              borderRadius: 5,
                                           }}>
-                            <MCIIcon name="chevron-right" style={{
+                            <Text style={{
                                 color: 'white',
-                                opacity: 0.8,
                                 alignSelf: 'center',
-                                fontSize: 35
-                            }}/>
+                                fontSize: Styles.normalTextSize
+                            }}>{this.I18n.t('submit')}</Text>
                         </TouchableOpacity>
                     </View>
 

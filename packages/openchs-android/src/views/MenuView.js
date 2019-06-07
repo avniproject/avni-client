@@ -3,7 +3,8 @@ import {
     SectionList, StyleSheet,
     Text,
     TouchableNativeFeedback,
-    View
+    View,
+    ScrollView
 } from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
@@ -28,14 +29,17 @@ import RuleEvaluationService from "../service/RuleEvaluationService";
 import Distances from "./primitives/Distances";
 import Fonts from "./primitives/Fonts";
 import CHSContainer from "./common/CHSContainer";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import {Icon} from 'native-base';
 import Separator from "./primitives/Separator";
 import EntitySyncStatusView from "./entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "./settings/DevSettingsView";
 import UserInfoService from "../service/UserInfoService";
 import SettingsView from "./settings/SettingsView";
-
+import Styles from "./primitives/Styles";
+import DeviceInfo from "react-native-device-info";
+import {Schema} from 'openchs-models';
+import SettingsService from "../service/SettingsService";
+import MCIIcon from "react-native-vector-icons/FontAwesome";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -45,8 +49,10 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        const settings = context.getService(SettingsService).getSettings();
         this.state = {
-            userInfo: context.getService(UserInfoService).getUserInfo()
+            userInfo: context.getService(UserInfoService).getUserInfo(),
+            serverURL: settings.serverURL
         };
     }
 
@@ -166,13 +172,26 @@ class MenuView extends AbstractComponent {
                     flexDirection: 'row',
                     height: 56,
                     elevation: 3,
+                    paddingHorizontal: 16
                 }}>
+                    <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
+                          name={'user-circle'}/>
                     <View style={{flexDirection: 'column', alignSelf: 'center'}}>
                         <Text style={[{
                             color: Colors.headerTextColor,
                             fontSize: 18,
                             marginLeft: 20
-                        }]}>{this.state.userInfo.username}</Text>
+                        }]}>{this.state.userInfo.organisationName ?
+                            this.state.userInfo.username ?
+                                `${this.state.userInfo.username} (${this.state.userInfo.organisationName})`
+                                : this.state.userInfo.organisationName
+                            : this.I18n.t('syncRequired')
+                        }</Text>
+                        <Text style={[{
+                            color: Colors.headerTextColor,
+                            fontSize: 12,
+                            marginLeft: 20
+                        }]}>{this.I18n.t('editSettings')}</Text>
                     </View>
                 </View>
             </TouchableNativeFeedback>);
@@ -184,16 +203,12 @@ class MenuView extends AbstractComponent {
             {
                 title: 'otherItems', data: [
                     [this.props.menuIcon("video-library", MenuView.iconStyle), this.I18n.t("VideoList"), this.videoListView.bind(this)],
-                    [this.props.menuIcon("sync", MenuView.iconStyle), this.I18n.t("EntitySyncStatus"), this.entitySyncStatusView.bind(this)]
+                    [this.props.menuIcon("sync", MenuView.iconStyle), this.I18n.t("entitySyncStatus"), this.entitySyncStatusView.bind(this)]
                 ]
             },
             {
-                title: 'changePassword', data: [
+                title: 'changePass-logout', data: [
                     [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-                ]
-            },
-            {
-                title: 'logout', data: [
                     [this.props.menuIcon("logout", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), this.I18n.t("logout"), this.logout.bind(this)]
                 ]
             },
@@ -211,7 +226,7 @@ class MenuView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.renderTitle()}
                 <CHSContent>
-                    <View>
+                    <ScrollView>
                         <SectionList
                             contentContainerStyle={{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
@@ -224,7 +239,30 @@ class MenuView extends AbstractComponent {
                             renderItem={(data) => this.renderItem(data)}
                             keyExtractor={(item, index) => index}
                         />
-                    </View>
+                        <View style={[{
+                            marginRight: Distances.ScaledContentDistanceFromEdge,
+                            marginLeft: Distances.ScaledContentDistanceFromEdge,
+                        }]}>
+                            <View style={styles.infoContainer}>
+                                <Text style={Styles.textList}>Server: <Text
+                                    style={{
+                                        color: 'black',
+                                        fontSize: Styles.normalTextSize
+                                    }}>{this.state.serverURL}</Text></Text>
+                                <Text style={Styles.textList}>Database Schema : <Text
+                                    style={{
+                                        color: 'black',
+                                        fontSize: Styles.normalTextSize
+                                    }}>{Schema.schemaVersion}</Text></Text>
+                                <Text style={Styles.textList}>BuildVersion: <Text
+                                    style={{
+                                        color: 'black',
+                                        fontSize: Styles.normalTextSize
+                                    }}>{DeviceInfo.getVersion()}</Text></Text>
+                            </View>
+                        </View>
+                    </ScrollView>
+                    <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>
         );
@@ -262,6 +300,13 @@ const styles = StyleSheet.create({
             opacity: 0.8,
             alignSelf: 'center',
             fontSize: 40
+        },
+        infoContainer: {
+            padding: Distances.ScaledContentDistanceFromEdge,
+            margin: 4,
+            elevation: 2,
+            backgroundColor: '#fefefe',
+            marginVertical: 16,
         }
     }
 );
