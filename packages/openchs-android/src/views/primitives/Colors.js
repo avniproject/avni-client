@@ -36,6 +36,11 @@ class Colors {
     static headerIconColor = '#FFFFFF';
     static headerTextColor = '#FFFFFF';
     static headerBackgroundColor = '#212121';
+    static bottomBarColor = "white";
+    static bottomBarIconColor = 'black';
+
+    static iconSelectedColor = '#126CB4';
+    static cardBackgroundColor = '#fefefe';
 }
 
 export default Colors;

@@ -1,4 +1,3 @@
-
 import EntityService from "../../service/EntityService";
 import {Encounter, Individual, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import _ from 'lodash';
@@ -32,7 +31,8 @@ class ProgramEnrolmentDashboardActions {
             enrolment: ProgramEnrolment.createEmptyInstance(),
             encounter: Encounter.create(),
             encounterTypes: [],
-            displayActionSelector: false
+            displayActionSelector: false,
+            expandEnrolmentInfo: false,
         };
     }
 
@@ -77,7 +77,8 @@ class ProgramEnrolmentDashboardActions {
             dashboardButtons: state.dashboardButtons,
             enrolmentSummary: state.enrolmentSummary,
             hideExit: state.hideExit,
-            hideEnrol: state.hideEnrol
+            hideEnrol: state.hideEnrol,
+            expandEnrolmentInfo: state.expandEnrolmentInfo
         };
     }
 
@@ -246,6 +247,10 @@ class ProgramEnrolmentDashboardActions {
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
+    static onEnrolmentToggle(state) {
+        return {...state, expandEnrolmentInfo: !state.expandEnrolmentInfo}
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -258,7 +263,8 @@ const ProgramEnrolmentDashboardActionsNames = {
     RESET: 'PEDA.RESET',
     SHOW_MORE: 'PEDA.SHOW_MORE',
     LAUNCH_ENCOUNTER_SELECTOR: "PEDA.LAUNCH_ENCOUNTER_SELECTOR",
-    HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR"
+    HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
+    ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -274,6 +280,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
     [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
+    [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

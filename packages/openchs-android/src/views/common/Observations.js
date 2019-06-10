@@ -35,7 +35,6 @@ class Observations extends AbstractComponent {
         this.styles = highlight ?
             {
                 observationTable: {
-                    marginHorizontal: 3,
                     backgroundColor: Colors.HighlightBackgroundColor
                 },
                 observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
@@ -50,8 +49,7 @@ class Observations extends AbstractComponent {
             :
             {
                 observationTable: {
-                    marginHorizontal: 3,
-                    backgroundColor: Colors.GreyContentBackground
+                    backgroundColor: Colors.cardBackgroundColor
                 },
                 observationRow: {borderRightWidth: 1, borderColor: 'rgba(0, 0, 0, 0.12)'},
                 observationColumn: {
@@ -99,7 +97,7 @@ class Observations extends AbstractComponent {
             .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), obs.concept.datatype]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
-            <View style={[{flexDirection: "column", paddingBottom: 10}, this.props.style]}>
+            <View style={[{flexDirection: "column"}, this.props.style]}>
                 {this.renderTitle()}
                 <ListView
                     enableEmptySections={true}

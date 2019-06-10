@@ -1,4 +1,4 @@
-import {ScrollView, ToastAndroid, View} from "react-native";
+import {ScrollView, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -27,6 +27,9 @@ import FormMappingService from "../../service/FormMappingService";
 import {Form, WorkItem, WorkList, WorkLists} from 'openchs-models';
 import _ from "lodash";
 import ActionSelector from "../common/ActionSelector";
+import Distances from "../primitives/Distances";
+import ObservationsSectionActions from "../common/ObservationsSectionOptions";
+import Icon from 'react-native-vector-icons/AntDesign'
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -122,25 +125,67 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     renderExitObservations() {
         const enrolmentIsActive = this.state.enrolment.isActive;
         return enrolmentIsActive ? (<View/>) :
-            (<View>
-                <ObservationsSectionTitle
-                    contextActions={this.getEnrolmentContextActions(true)}
-                    title={this.getExitHeaderMessage(this.state.enrolment)}/>
+            (<View style={{
+                padding: Distances.ScaledContentDistanceFromEdge,
+                margin: 4,
+                elevation: 2,
+                backgroundColor: Colors.cardBackgroundColor,
+                marginVertical: 16
+            }}>
+                <Text style={[Fonts.MediumBold]}>{this.getExitHeaderMessage(this.state.enrolment)}</Text>
                 <Observations form={this.getForm()}
                               observations={_.defaultTo(this.state.enrolment.programExitObservations, [])}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
+                <ObservationsSectionActions contextActions={this.getEnrolmentContextActions(true)}/>
             </View>);
     }
 
     renderSummary() {
         return _.isEmpty(this.state.enrolmentSummary) ? (<View/>) :
-            (<View>
-                <ObservationsSectionTitle
-                    contextActions={[]}
-                    title={this.I18n.t('summary')}/>
-                <Observations observations={_.defaultTo(this.state.enrolmentSummary, [])}
+            (<View style={{
+                    padding: Distances.ScaledContentDistanceFromEdge,
+                    margin: 4,
+                    elevation: 2,
+                    backgroundColor: Colors.cardBackgroundColor,
+                    marginVertical: 16
+                }}>
+                    <View>
+                        <Text style={[Fonts.MediumBold]}>{this.I18n.t('summary')}</Text>
+                        <Text>{this.getEnrolmentHeaderMessage(this.state.enrolment)}</Text>
+                        {!_.isNil(this.state.enrolment.programExitDateTime) ?
+                            < Text>{this.getExitHeaderMessage(this.state.enrolment)}</Text> : <View/>}
+                    </View>
+                    <Observations observations={_.defaultTo(this.state.enrolmentSummary, [])}
+                                  style={{marginVertical: DGS.resizeHeight(8)}}/>
+                </View>
+            );
+    }
+
+    renderEnrolmentDetails() {
+        return (<View style={{
+            padding: Distances.ScaledContentDistanceFromEdge,
+            margin: 4,
+            elevation: 2,
+            backgroundColor: Colors.cardBackgroundColor,
+            marginVertical: 16
+        }}>
+            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+                <Text style={[Fonts.MediumBold]}>{this.I18n.t('enrolmentDetails')}</Text>
+                <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}
+                                  style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
+                    {this.state.expandEnrolmentInfo === false ?
+                        <Icon name={'down'} size={25}/> :
+                        <Icon name={'up'} size={25}/>}
+                </TouchableOpacity>
+            </View>
+            <View style={{height: this.state.expandEnrolmentInfo === false ? 0 : null, overflow: 'hidden'}}>
+                <Observations form={this.getForm()}
+                              observations={this.state.enrolment.observations}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
-            </View>);
+                <ObservationsSectionActions contextActions={this.getEnrolmentContextActions(true)}
+                                            primaryAction={this.getPrimaryEnrolmentContextAction()}/>
+            </View>
+        </View>);
     }
 
     displayMessage(message) {
@@ -169,7 +214,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }));
         this.displayMessage(this.props.message || this.props.params && this.props.params.message);
         return (
-            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
+            <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
                     <ActionSelector
                         title={this.I18n.t("followupTypes")}
@@ -177,18 +222,21 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         visible={this.state.displayActionSelector}
                         actions={encounterActions}
                     />
-                    <View>
-                        <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
-                        <IndividualProfile style={{marginHorizontal: 16}} individual={this.state.enrolment.individual}
-                                           viewContext={IndividualProfile.viewContext.Program}
-                                           programsAvailable={this.state.programsAvailable}
-                                           hideEnrol={this.state.hideEnrol}
-                        />
+                    <View style={{backgroundColor: Colors.GreyContentBackground}}>
+                        <View style={{backgroundColor: Styles.defaultBackground}}>
+                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+                            <IndividualProfile style={{marginHorizontal: 16}}
+                                               individual={this.state.enrolment.individual}
+                                               viewContext={IndividualProfile.viewContext.Program}
+                                               programsAvailable={this.state.programsAvailable}
+                                               hideEnrol={this.state.hideEnrol}
+                            />
+                        </View>
                         <ScrollView style={{
                             flexDirection: 'column',
                             borderRadius: 5,
                             marginHorizontal: 16,
-                            backgroundColor: Styles.whiteColor
+                            backgroundColor: Colors.GreyContentBackground
                         }}>
                             <View style={{marginHorizontal: 8}}>
                                 {this.state.enrolment.individual.voided &&
@@ -220,17 +268,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>
                             </View>
                             {enrolments.length === 0 ? <View/> :
-                                <View style={{marginHorizontal: 8}}>
+                                <View>
                                     {this.renderSummary()}
                                     {this.renderExitObservations()}
-                                    <View>
-                                        <ObservationsSectionTitle contextActions={this.getEnrolmentContextActions()}
-                                                                  primaryAction={this.getPrimaryEnrolmentContextAction()}
-                                                                  title={this.getEnrolmentHeaderMessage(this.state.enrolment)}/>
-                                        <Observations form={this.getForm()}
-                                                      observations={this.state.enrolment.observations}
-                                                      style={{marginVertical: DGS.resizeHeight(8)}}/>
-                                    </View>
+                                    {this.renderEnrolmentDetails()}
                                     <PreviousEncounters encounters={this.state.enrolment.nonVoidedEncounters()}
                                                         formType={Form.formTypes.ProgramEncounter}
                                                         onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
