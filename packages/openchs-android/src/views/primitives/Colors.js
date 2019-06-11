@@ -41,6 +41,12 @@ class Colors {
 
     static iconSelectedColor = '#126CB4';
     static cardBackgroundColor = '#fefefe';
+
+    static OverdueVisitColor = '#d0011b';
+    static FutureVisitColor = 'gold';
+    static ScheduledVisitColor = '#009688';
+    static VisitActionColor = '#9013fe';
+    static CancelledVisitColor = '#f5a623'
 }
 
 export default Colors;

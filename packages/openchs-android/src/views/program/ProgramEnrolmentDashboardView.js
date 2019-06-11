@@ -285,7 +285,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         showCount={this.state.showCount} showPartial={true}
                                                         title={this.I18n.t('visitsCompleted')}
                                                         expandCollapseView={true}
-                                                        onToggleAction={Actions.ON_Encounter_TOGGLE}/>
+                                                        onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}/>
                                 </View>}
                         </ScrollView>
                     </View>

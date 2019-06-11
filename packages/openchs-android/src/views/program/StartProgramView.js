@@ -63,7 +63,7 @@ class StartProgramView extends AbstractComponent {
     renderItem(encounter) {
         const encounterName = this.I18n.t(encounter.name || encounter.encounterType.name);
         const displayDate = encounter.earliestVisitDateTime && General.toDisplayDate(encounter.earliestVisitDateTime) || '';
-        const color = moment().isAfter(encounter.maxVisitDateTime) ? '#d0011b' : moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime) ? Colors.AccentColor : 'gold';
+        const color = moment().isAfter(encounter.maxVisitDateTime) ? Colors.OverdueVisitColor : moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime) ? Colors.ScheduledVisitColor : Colors.FutureVisitColor;
         return (
             <TouchableNativeFeedback onPress={() => {
                 this.proceed(encounter)

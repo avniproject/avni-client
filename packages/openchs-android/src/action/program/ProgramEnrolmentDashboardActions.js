@@ -275,7 +275,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     LAUNCH_ENCOUNTER_SELECTOR: "PEDA.LAUNCH_ENCOUNTER_SELECTOR",
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
-    ON_Encounter_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
+    ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -292,7 +292,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
-    [ProgramEnrolmentDashboardActionsNames.ON_Encounter_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
+    [ProgramEnrolmentDashboardActionsNames.ON_ENCOUNTER_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

@@ -89,14 +89,22 @@ class PreviousEncounters extends AbstractComponent {
         </View>
     }
 
+    renderVisitStatus = (status, color) => <Text style={{color: color}}>{status}</Text>;
+
     renderNormalView(encounter) {
         const formMappingService = this.context.getService(FormMappingService);
+        const status = _.isNil(encounter.encounterDateTime) && moment().isAfter(encounter.maxVisitDateTime) ? this.renderVisitStatus(this.I18n.t('overdue'), Colors.OverdueVisitColor) :
+            (!_.isNil(encounter.cancelDateTime) ? this.renderVisitStatus(this.I18n.t('cancelled'), Colors.CancelledVisitColor) :
+                (_.isNil(encounter.encounterDateTime) ? this.renderVisitStatus(this.I18n.t('scheduled'), Colors.ScheduledVisitColor) : ''));
         return <View>
             {this.renderTitle(encounter)}
             <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
                 this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
-            <ObservationsSectionOptions contextActions={this.encounterActions(encounter)}
-                                        primaryAction={this.cancelVisitAction(encounter)}/>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                {status}
+                <ObservationsSectionOptions contextActions={this.encounterActions(encounter)}
+                                            primaryAction={this.cancelVisitAction(encounter)}/>
+            </View>
         </View>
     }
 
@@ -105,8 +113,7 @@ class PreviousEncounters extends AbstractComponent {
         const scheduledInfo = !_.isNil(encounter.earliestVisitDateTime) ? `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}` : '';
         const completedInfo = !_.isNil(encounter.encounterDateTime) ? `${this.I18n.t('completedVisits')}: ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}` : '';
         const cancellationInformation = encounter.isCancelled() ? `${this.I18n.t('cancelled')}: ${moment(encounter.cancelDateTime).format('DD-MM-YYYY')}` : '';
-        const status = moment();
-        return <View>
+        return <View style={{marginRight: 10}}>
             <Text>{name}</Text>
             <View style={{flexDirection: 'column'}}>
                 {[scheduledInfo, completedInfo, cancellationInformation].filter(e => !_.isEmpty(e)).map((e, index) =>
