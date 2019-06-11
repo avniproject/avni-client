@@ -25,11 +25,15 @@ class ObservationsSectionOptions extends AbstractComponent {
         let primaryActionButton = primaryAction &&
             <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}/>;
         return (
-            <View style={this.appendedStyle({flexDirection: 'row', alignItems: 'center'})}>
-                <View style={{flexDirection: 'row', alignItems: 'center', flex: 4, flexWrap: 'wrap'}}>
+            <View style={this.appendedStyle({
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'flex-end'
+            })}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     {contextActionButtons}
                 </View>
-                <View style={{flexDirection: 'row', alignItems: 'center', flex: 2, justifyContent: 'flex-end'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     {primaryActionButton}
                 </View>
             </View>

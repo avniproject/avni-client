@@ -105,10 +105,10 @@
   "programList": "Program List",
   "newProgramVisit": "New Program Visit",
   "newGeneralVisit": "New Form",
-  "edit": "(edit)",
-  "cancelled": "(CANCELLED)",
-  "cancelVisit": "CANCEL VISIT",
-  "exitProgram": "EXIT PROGRAM",
+  "edit": "Edit",
+  "cancelled": "Cancelled",
+  "cancelVisit": "Cancel",
+  "exitProgram": "Exit",
   "encounterDate": "Visit Date",
   "visitDetails": "Visit Details",
   "registrationDate": "Date of Registration",
@@ -250,5 +250,7 @@
   "clearDataAndLogin": "Delete data and login",
   "Dashboard": "Dashboard",
   "Sync": "Sync",
-  "enrolmentDetails" : "Enrolment details"
+  "enrolmentDetails" : "Enrolment details",
+  "visitsPlanned": "Visits planned",
+  "visitsCompleted": "Completed visits"
 }

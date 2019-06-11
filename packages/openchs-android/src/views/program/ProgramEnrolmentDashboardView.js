@@ -16,7 +16,6 @@ import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ContextAction from "../viewmodel/ContextAction";
-import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
 import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
@@ -28,7 +27,7 @@ import {Form, WorkItem, WorkList, WorkLists} from 'openchs-models';
 import _ from "lodash";
 import ActionSelector from "../common/ActionSelector";
 import Distances from "../primitives/Distances";
-import ObservationsSectionActions from "../common/ObservationsSectionOptions";
+import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/AntDesign'
 
 @Path('/ProgramEnrolmentDashboardView')
@@ -136,7 +135,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 <Observations form={this.getForm()}
                               observations={_.defaultTo(this.state.enrolment.programExitObservations, [])}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
-                <ObservationsSectionActions contextActions={this.getEnrolmentContextActions(true)}/>
+                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true)}/>
             </View>);
     }
 
@@ -169,20 +168,19 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             backgroundColor: Colors.cardBackgroundColor,
             marginVertical: 16
         }}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
                 <Text style={[Fonts.MediumBold]}>{this.I18n.t('enrolmentDetails')}</Text>
-                <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}
-                                  style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
+                <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {this.state.expandEnrolmentInfo === false ?
                         <Icon name={'down'} size={25}/> :
                         <Icon name={'up'} size={25}/>}
-                </TouchableOpacity>
-            </View>
+                </View>
+            </TouchableOpacity>
             <View style={{height: this.state.expandEnrolmentInfo === false ? 0 : null, overflow: 'hidden'}}>
                 <Observations form={this.getForm()}
                               observations={this.state.enrolment.observations}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
-                <ObservationsSectionActions contextActions={this.getEnrolmentContextActions(true)}
+                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true)}
                                             primaryAction={this.getPrimaryEnrolmentContextAction()}/>
             </View>
         </View>);
@@ -213,6 +211,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             backgroundColor: Colors.ActionButtonColor
         }));
         this.displayMessage(this.props.message || this.props.params && this.props.params.message);
+        const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+        const actualEncounters = this.state.completedEncounters;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
@@ -271,11 +271,21 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 <View>
                                     {this.renderSummary()}
                                     {this.renderExitObservations()}
-                                    {this.renderEnrolmentDetails()}
-                                    <PreviousEncounters encounters={this.state.enrolment.nonVoidedEncounters()}
+                                    <PreviousEncounters encounters={scheduledEncounters}
                                                         formType={Form.formTypes.ProgramEncounter}
                                                         onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
-                                                        showCount={this.state.showCount} showPartial={true}/>
+                                                        showCount={this.state.showCount} showPartial={false}
+                                                        title={this.I18n.t('visitsPlanned')}
+                                                        emptyTitle={this.I18n.t('noEncounters')}
+                                                        expandCollapseView={false}/>
+                                    {this.renderEnrolmentDetails()}
+                                    <PreviousEncounters encounters={actualEncounters}
+                                                        formType={Form.formTypes.ProgramEncounter}
+                                                        onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
+                                                        showCount={this.state.showCount} showPartial={true}
+                                                        title={this.I18n.t('visitsCompleted')}
+                                                        expandCollapseView={true}
+                                                        onToggleAction={Actions.ON_Encounter_TOGGLE}/>
                                 </View>}
                         </ScrollView>
                     </View>

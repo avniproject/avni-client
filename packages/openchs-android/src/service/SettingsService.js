@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 @Service("settingsService")
 class SettingsService extends BaseService {
-    static IncrementalEncounterDisplayCount = 4;
+    static IncrementalEncounterDisplayCount = 3;
 
     constructor(db, beanStore) {
         super(db, beanStore);

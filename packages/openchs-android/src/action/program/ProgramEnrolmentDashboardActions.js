@@ -33,6 +33,7 @@ class ProgramEnrolmentDashboardActions {
             encounterTypes: [],
             displayActionSelector: false,
             expandEnrolmentInfo: false,
+            completedEncounters: []
         };
     }
 
@@ -78,7 +79,8 @@ class ProgramEnrolmentDashboardActions {
             enrolmentSummary: state.enrolmentSummary,
             hideExit: state.hideExit,
             hideEnrol: state.hideEnrol,
-            expandEnrolmentInfo: state.expandEnrolmentInfo
+            expandEnrolmentInfo: state.expandEnrolmentInfo,
+            completedEncounters: state.completedEncounters,
         };
     }
 
@@ -98,6 +100,8 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
+        newState.completedEncounters = _.filter(newState.enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
+            .map(encounter => ({encounter, expand: false}));
         //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
         // TODO Proper solution will roles and privilege based
         newState.hideExit = context.get(UserInfoService).getUserSettings().hideExit;
@@ -251,6 +255,12 @@ class ProgramEnrolmentDashboardActions {
         return {...state, expandEnrolmentInfo: !state.expandEnrolmentInfo}
     }
 
+    static onEncounterToggle(state, action) {
+        const nonEqual = _.filter(state.completedEncounters, (e) => !_.isEqualWith(e, action.encounterInfo, (e1, e2) => e1.encounter.uuid === e2.encounter.uuid));
+        const completedEncounters = [...nonEqual, action.encounterInfo];
+        return {...state, completedEncounters};
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -265,6 +275,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     LAUNCH_ENCOUNTER_SELECTOR: "PEDA.LAUNCH_ENCOUNTER_SELECTOR",
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
+    ON_Encounter_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -281,6 +292,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
+    [ProgramEnrolmentDashboardActionsNames.ON_Encounter_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],
