@@ -324,7 +324,7 @@ class IndividualService extends BaseService {
                     }
                 };
             })
-            .reduce(this._uniqIndividualsFrom, new Map())
+            .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
