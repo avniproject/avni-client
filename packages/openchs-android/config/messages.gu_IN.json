@@ -255,5 +255,7 @@
   "Sync": "સમન્વય",
   "submit": "સબમિટ",
   "editSettings": "સેટિંગ્સ સંપાદિત કરો",
-  "entitySyncStatus": "સિંક સ્થિતિ"
+  "entitySyncStatus": "સિંક સ્થિતિ",
+  "noCompletedEncounters": "કોઈ પૂર્ણ મુલાકાતો નથી",
+  "noPlannedEncounters": "કોઈ આયોજન મુલાકાત નથી"
 }

@@ -1,4 +1,4 @@
-import {View, ListView, TouchableNativeFeedback, TouchableOpacity} from "react-native";
+import {View, ListView, TouchableNativeFeedback, TouchableOpacity, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import {Text, Button} from "native-base";
@@ -131,16 +131,8 @@ class PreviousEncounters extends AbstractComponent {
                 onFilterApply: this.props.onFilterApply,
                 selectedEncounterType: this.props.selectedEncounterType,
             }).to(CompletedVisitsFilterView)}
-            style={{
-                right: Distances.ScaledContentDistanceFromEdge,
-                position: 'absolute',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: Colors.VisitFilterButtonColor,
-                borderRadius: 5,
-            }}>
-            <Text
-                style={{paddingHorizontal: 14, paddingVertical: 2, color: Colors.TextOnPrimaryColor}}>{'FILTER TYPES'}</Text>
+            style={styles.filterButtonContainer}>
+            <Text style={styles.filterButtonText}>{'FILTER TYPES'}</Text>
         </TouchableOpacity>
     }
 
@@ -161,19 +153,19 @@ class PreviousEncounters extends AbstractComponent {
                     style={[Fonts.MediumBold, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
                 {this.props.expandCollapseView ? this.renderFilter() : <View/>}
             </View>
+            {_.isEmpty(toDisplayEncounters) ?
+                (<View style={styles.container}>
+                    <Text style={{fontSize: Fonts.Large}}>{this.props.emptyTitle}</Text>
+                </View>)
+                :
+                <View/>}
             <ListView
                 enableEmptySections={true}
                 dataSource={dataSource}
                 pageSize={1}
                 initialListSize={1}
                 removeClippedSubviews={true}
-                renderRow={(encounter) => <View style={{
-                    padding: Distances.ScaledContentDistanceFromEdge,
-                    margin: 4,
-                    elevation: 2,
-                    backgroundColor: Colors.cardBackgroundColor,
-                    marginVertical: 3
-                }}>
+                renderRow={(encounter) => <View style={styles.container}>
                     {this.props.expandCollapseView ? this.renderExpandCollapseView(encounter) : this.renderNormalView(encounter)}
                 </View>}
             />
@@ -195,3 +187,27 @@ class PreviousEncounters extends AbstractComponent {
 }
 
 export default PreviousEncounters;
+
+
+const styles = StyleSheet.create({
+    container: {
+        padding: Distances.ScaledContentDistanceFromEdge,
+        margin: 4,
+        elevation: 2,
+        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 3
+    },
+    filterButtonContainer: {
+        right: Distances.ScaledContentDistanceFromEdge,
+        position: 'absolute',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: Colors.VisitFilterButtonColor,
+        borderRadius: 5,
+    },
+    filterButtonText: {
+        paddingHorizontal: 14,
+        paddingVertical: 2,
+        color: Colors.TextOnPrimaryColor
+    }
+});

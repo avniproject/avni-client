@@ -281,7 +281,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
                                                         showCount={this.state.showCount} showPartial={false}
                                                         title={this.I18n.t('visitsPlanned')}
-                                                        emptyTitle={this.I18n.t('noEncounters')}
+                                                        emptyTitle={this.I18n.t('noPlannedEncounters')}
                                                         expandCollapseView={false}/>
                                     {this.renderEnrolmentDetails()}
                                     <PreviousEncounters encounters={actualEncounters}
@@ -293,7 +293,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
                                                         encounterTypes={this.state.enrolment.uuid && this.state.enrolment.allEncounterTypes()}
                                                         onFilterApply={Actions.ON_FILTER_APPLY}
-                                                        selectedEncounterType={this.state.selectedEncounterType}/>
+                                                        selectedEncounterType={this.state.selectedEncounterType}
+                                                        emptyTitle={this.I18n.t('noCompletedEncounters')}/>
                                 </View>}
                         </ScrollView>
                     </View>

@@ -254,5 +254,7 @@
   "visitsPlanned": "Visits planned",
   "visitsCompleted": "Completed visits",
   "submit": "Submit",
-  "editSettings": "Edit Settings"
+  "editSettings": "Edit Settings",
+  "noCompletedEncounters": "No completed visits",
+  "noPlannedEncounters": "No planned visits"
 }

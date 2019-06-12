@@ -273,5 +273,7 @@
   "Sync": "समक्रमण",
   "submit": "सबमिट",
   "editSettings": "सेटिंग्ज संपादित करा",
-  "entitySyncStatus": "सिंक स्थिती"
+  "entitySyncStatus": "सिंक स्थिती",
+  "noCompletedEncounters": "पूर्ण झालेले कोणतेही भेटी नाहीत",
+  "noPlannedEncounters": "नियोजित भेटी नाहीत"
 }
