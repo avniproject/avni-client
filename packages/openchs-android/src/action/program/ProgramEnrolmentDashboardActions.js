@@ -94,7 +94,7 @@ class ProgramEnrolmentDashboardActions {
             newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
             newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         }
-        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
+        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, context);
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
         //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
@@ -239,7 +239,7 @@ class ProgramEnrolmentDashboardActions {
         const ruleService = context.get(RuleEvaluationService);
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.enrolment = newState.enrolment.individual.findEnrolment(action.enrolmentUUID);
-        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
+        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, context);
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
 
