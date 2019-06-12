@@ -1,5 +1,4 @@
 import Registry from '../Registry';
-import _ from 'lodash';
 
 class BeanRegistry extends Registry {
     constructor() {
@@ -8,11 +7,13 @@ class BeanRegistry extends Registry {
     }
 
     init(db, app) {
-        this.entities = new Map(Array.from(this.entities).map(([name, beanClass]) => {
+        this.entities = Array.from(this.entities).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
-            return [beanClass, beanInstance];
-        }));
-        _.map(Array.from(this.entities.entries()), ([name, bean]) => bean.init(app));
+            map.set(beanClass, beanInstance);
+            map.set(name, beanInstance);
+            return map;
+        }, new Map());
+        new Set(this.entities.values()).forEach(bean => bean.init(app));
         return this.entities;
     }
 }

@@ -54,6 +54,7 @@ class RuleEvaluationService extends BaseService {
             entityRule.setFunctions(entityRule.ruleFile);
         });
         this.formMappingService = this.getService(FormMappingService);
+        this.conceptService = this.getService(ConceptService);
     }
 
     getEntityDecision(form, entity, context) {
@@ -87,10 +88,13 @@ class RuleEvaluationService extends BaseService {
         const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
         const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", "Program")
             .reduce((summaries, rule) => rule.fn.exec(enrolment, summaries, context, new Date()), summaries);
-        const conceptService = this.getService(ConceptService);
+        const conceptFor = name => this.conceptService.conceptFor(name);
         const summaryObservations = _.map(updatedSummaries, (summary) => {
-            let concept = conceptService.conceptFor(summary.name);
-            return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
+            const concept = conceptFor(summary.name);
+            const value = _.isArray(summary.value)
+                ? _.map(_.map(summary.value, conceptFor), 'uuid')
+                : summary.value;
+            return Observation.create(concept, concept.getValueWrapperFor(value), summary.abnormal);
         });
         General.logDebug("RuleEvaluationService - Summary Observations", summaryObservations);
         return summaryObservations;
