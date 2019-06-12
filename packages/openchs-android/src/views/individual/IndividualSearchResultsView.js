@@ -71,14 +71,14 @@ class IndividualSearchResultsView extends AbstractComponent {
         const width = Dimensions.get('window').width;
 
         return (
-            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
+            <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t("searchResults")}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
                 <CHSContent>
                         <ListView enableEmptySections={true}
                                   dataSource={dataSource}
-                                  style={{backgroundColor: Styles.greyBackground}}
+                                  style={{backgroundColor: Colors.cardBackgroundColor}}
                                   renderRow={(item) =>
                                       <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
                                                                background={this.background()}>

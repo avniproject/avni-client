@@ -1,4 +1,4 @@
-import {Button, View, Text, TouchableOpacity} from "react-native";
+import {Button, View, Text, TouchableOpacity, KeyboardAvoidingView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -56,6 +56,7 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
+        const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 20;
         return (
             <CHSContainer>
                 <CHSContent>
@@ -70,6 +71,7 @@ class IndividualSearchView extends AbstractComponent {
                                             onSelect={(subjectType) =>
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                         }
+                        <Separator height={25} backgroundColor={Styles.whiteColor}/>
                         <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                          element={new StaticFormElement('name')}
                                          style={Styles.simpleTextFormElement}
@@ -101,26 +103,26 @@ class IndividualSearchView extends AbstractComponent {
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
-                <View style={{height: 90, position: 'absolute', bottom: 0, width: '100%'}}>
-                    <TouchableOpacity activeOpacity={0.5}
-                                      onPress={() => this.searchIndividual()}
-                                      style={{
-                                          position: 'absolute',
-                                          width: '100%',
-                                          height: 40,
-                                          alignSelf: 'stretch',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          backgroundColor: Colors.AccentColor,
-                                          elevation: 2,
-                                      }}>
-                        <Text style={{
-                            fontSize: Styles.normalTextSize,
-                            color: Colors.TextOnPrimaryColor,
-                            alignSelf: "center"
-                        }}>{this.I18n.t("search")}</Text>
-                    </TouchableOpacity>
-                </View>
+
+                    <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
+                        <TouchableOpacity activeOpacity={0.5}
+                                          onPress={() => this.searchIndividual()}
+                                          style={{
+                                              height: 40,
+                                              width: 80,
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              backgroundColor: Colors.AccentColor,
+                                              elevation: 2,
+                                          }}>
+                            <Text style={{
+                                color: 'white',
+                                alignSelf: 'center',
+                                fontSize: Styles.normalTextSize
+                            }}>{this.I18n.t('submit')}</Text>
+                        </TouchableOpacity>
+                    </View>
+
             </CHSContainer>
         );
     }

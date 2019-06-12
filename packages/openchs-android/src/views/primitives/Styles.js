@@ -77,7 +77,7 @@ Styles.settingsTitle = {
 Styles.menuTitle = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
-    color: Styles.whiteColor,
+    color: Styles.blackColor,
     lineHeight: 28,
     alignSelf: 'center',
 };

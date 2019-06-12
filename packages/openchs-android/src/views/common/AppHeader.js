@@ -8,7 +8,6 @@ import {Text, TouchableNativeFeedback, View, Platform} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import SettingsView from "../settings/SettingsView";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
 
 class AppHeader extends AbstractComponent {
@@ -20,7 +19,6 @@ class AppHeader extends AbstractComponent {
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
         iconComponent: PropTypes.object,
-        showSettings: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -32,25 +30,6 @@ class AppHeader extends AbstractComponent {
             TypedTransition.from(this).goBack();
         else
             this.props.func();
-    }
-    
-    renderSettings() {
-        return <TouchableNativeFeedback
-            onPress={() => TypedTransition.from(this).to(SettingsView)}
-            background={this.background()}>
-            <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'flex-start',
-                height: 30,
-                width: 30,
-                paddingRight: 2,
-                alignSelf: 'center',
-                marginRight: 16,
-            }}>
-                <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={'settings'}/>
-            </View>
-        </TouchableNativeFeedback>
     }
 
     onHome() {
@@ -118,7 +97,6 @@ class AppHeader extends AbstractComponent {
                         {this.renderIcon()}
                     </View>
                 </TouchableNativeFeedback>
-                {this.props.showSettings ? this.renderSettings() : <View/>}
             </View>
         );
     }

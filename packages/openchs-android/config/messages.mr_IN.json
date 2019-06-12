@@ -256,13 +256,13 @@
   "programSavedProceedEncounterMsg" : "{{program}} प्रोग्राम पूर्ण",
   "encounterSavedProceedEncounterMsg" : "{{encounter}} एंकॉउंटर जतन",
   "saved": "जतन",
-  "NotEnoughId": "पुरेसे ओळखक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
-  "NotEnoughIdForAnotherRegistration": "इतर नोंदणीसाठी पुरेसे अभिज्ञापक उपलब्ध नाहीत. कृपया मेनू मिळवा आणि सिंक दाबा",
+  "NotEnoughId": "पुरेसे ओळखक उपलब्ध नाहीत. कृपया होम मिळवा आणि सिंक दाबा",
+  "NotEnoughIdForAnotherRegistration": "इतर नोंदणीसाठी पुरेसे अभिज्ञापक उपलब्ध नाहीत. कृपया होम मिळवा आणि सिंक दाबा",
   "syncNow": "आता संकालन करा",
   "syncLater": "नंतर संकालन करा",
-  "RecentRegistration": "अलीकडील नोंदणी",
-  "RecentEnrollment": "अलीकडील एनरोलमेण्ट",
-  "RecentVisits": "अलीकडील भेटी",
+  "RecentRegistration": "शेवटचे 24 तास नोंदणी",
+  "RecentEnrollment": "शेवटचे 24 तास एनरोलमेण्ट",
+  "RecentVisits": "शेवटचे 24 तास भेटी",
   "overdue": "अतिदेय",
   "total": "एकूण",
   "The locale of the switching user is not known. That's why these are in English.": "",
@@ -270,5 +270,8 @@
   "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
   "clearDataAndLogin": "Delete data and login",
   "Dashboard": "डॅशबोर्ड",
-  "Sync": "समक्रमण"
+  "Sync": "समक्रमण",
+  "submit": "सबमिट",
+  "editSettings": "सेटिंग्ज संपादित करा",
+  "entitySyncStatus": "सिंक स्थिती"
 }

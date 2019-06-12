@@ -57,7 +57,7 @@ export default class AppliedFilters extends AbstractComponent {
 
         return (
             <View style={AppliedFilters.styles.container}>
-                <Text style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
+                <Text>
                     {this.renderFilteredLocations()}
                 </Text>
                 {this.renderFilteredPrograms()}

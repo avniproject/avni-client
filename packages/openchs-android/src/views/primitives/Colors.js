@@ -47,6 +47,7 @@ class Colors {
     static ScheduledVisitColor = '#009688';
     static VisitActionColor = '#9013fe';
     static CancelledVisitColor = '#f5a623'
+
 }
 
 export default Colors;

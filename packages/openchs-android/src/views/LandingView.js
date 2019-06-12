@@ -12,7 +12,7 @@ import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
 import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import {Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
 import {SubjectType} from "openchs-models";
 import _ from "lodash";
@@ -58,21 +58,21 @@ class LandingView extends SyncComponent {
             (<View key={idx} style={[{
                 alignItems: 'center',
                 flexDirection: 'column',
-            }, isSelected && {borderBottomWidth: 2, borderColor: Colors.ActionButtonColor, marginBottom: 1}]}>
+            }, isSelected && {borderBottomWidth: 2, borderColor: Colors.iconSelectedColor, marginBottom: 1}]}>
                 <TouchableOpacity style={{height: 35, width: 35}} onPress={pressHandler}>
                     {icon}
                 </TouchableOpacity>
                 <Text style={{
                     fontSize: Styles.smallerTextSize,
                     fontStyle: 'normal',
-                    color: isSelected ? Colors.ActionButtonColor : 'white',
-                    lineHeight: 10,
-                    alignSelf: 'center', paddingTop: 2
+                    color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
+                    lineHeight: 12,
+                    alignSelf: 'center', paddingTop: 3
                 }}>{menuMessageKey}</Text>
             </View>);
     }
 
-    static barIconStyle = {color: 'white', opacity: 0.8, alignSelf: 'center', fontSize: 35};
+    static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
 
     render() {
         General.logDebug("LandingView", "render");
@@ -91,20 +91,24 @@ class LandingView extends SyncComponent {
             <CHSContainer>
                 {this.state.home && <MyDashboardView iconComponent={this.syncIcon} iconFunc={this.sync.bind(this)}/>}
                 {this.state.search && <IndividualSearchView
-                    onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}/>}
+                    onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                    buttonElevated={true}/>}
                 {this.state.register && <RegisterView/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
 
                 {this.renderSyncModal()}
                 <View style={{
-                    height: 50,
+                    height: 55,
                     position: 'absolute',
                     bottom: 0,
                     width: '100%',
-                    backgroundColor: Styles.blackColor,
+                    backgroundColor: Colors.bottomBarColor,
                     flexDirection: 'row',
                     justifyContent: 'space-around',
                     elevation: 3,
+                    alignItems: 'center',
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderTopColor: '#C0C0C0'
                 }}>
 
                     {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarIcons(icon, display, cb, isSelected, idx))}

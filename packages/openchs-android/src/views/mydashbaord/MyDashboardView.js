@@ -46,6 +46,7 @@ class MyDashboardView extends AbstractComponent {
             textAlign: 'center',
             fontSize: 20,
             color: Colors.DefaultPrimaryColor,
+            paddingBottom: 10
         }}>{this.state.selectedSubjectType && this.state.selectedSubjectType.name}</Text>
     }
 
@@ -56,7 +57,7 @@ class MyDashboardView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('home')} func={this.onBackCallback.bind(this)}
                            hideBackButton={true} iconComponent={this.props.iconComponent}
-                           iconFunc={this.props.iconFunc} showSettings={true}/>
+                           iconFunc={this.props.iconFunc}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}

@@ -209,7 +209,7 @@ class SyncComponent extends AbstractComponent {
         //Arjun: TODO someday we need to have one single icon library.
         const style = iconStyle ? (isSelected ? {
             ...iconStyle,
-            color: Colors.ActionButtonColor
+            color: Colors.iconSelectedColor
         } : iconStyle) : MenuView.iconStyle;
         if (_.startsWith(iconName, 'video')) {
             return <NBIcon name={iconName} style={style}/>

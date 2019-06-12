@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
         elevation: 3,
         minHeight: 48,
         marginVertical: 4,
-        backgroundColor: '#fefefe',
+        backgroundColor: Colors.cardBackgroundColor,
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'center',
