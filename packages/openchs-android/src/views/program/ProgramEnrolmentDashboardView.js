@@ -49,6 +49,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
+        this.dispatchAction(Actions.RESET_APPLIED_FILTERS);
         return super.componentWillMount();
     }
 
@@ -193,11 +194,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }
     }
 
-    onBackPress() {
-        this.dispatchAction(Actions.RESET_APPLIED_FILTERS);
-        _.isNil(this.props.backFunction) ? this.goBack() : this.props.backFunction()
-    }
-
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
@@ -229,7 +225,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     />
                     <View style={{backgroundColor: Colors.GreyContentBackground}}>
                         <View style={{backgroundColor: Styles.defaultBackground}}>
-                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.onBackPress.bind(this)}/>
+                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                             <IndividualProfile style={{marginHorizontal: 16}}
                                                individual={this.state.enrolment.individual}
                                                viewContext={IndividualProfile.viewContext.Program}
