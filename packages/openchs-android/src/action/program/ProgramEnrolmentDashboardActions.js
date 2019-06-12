@@ -33,7 +33,8 @@ class ProgramEnrolmentDashboardActions {
             encounterTypes: [],
             displayActionSelector: false,
             expandEnrolmentInfo: false,
-            completedEncounters: []
+            completedEncounters: [],
+            selectedEncounterType: null,
         };
     }
 
@@ -81,6 +82,7 @@ class ProgramEnrolmentDashboardActions {
             hideEnrol: state.hideEnrol,
             expandEnrolmentInfo: state.expandEnrolmentInfo,
             completedEncounters: state.completedEncounters,
+            selectedEncounterType: state.selectedEncounterType,
         };
     }
 
@@ -100,7 +102,9 @@ class ProgramEnrolmentDashboardActions {
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, {});
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
-        newState.completedEncounters = _.filter(newState.enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
+        const filterSelectedEncounters = (encounter) => _.isNil(state.selectedEncounterType) ? encounter.encounterDateTime || encounter.cancelDateTime :
+            (encounter.encounterDateTime || encounter.cancelDateTime) && encounter.encounterType.uuid === state.selectedEncounterType.uuid;
+        newState.completedEncounters = _.filter(newState.enrolment.nonVoidedEncounters(), (encounter) => filterSelectedEncounters(encounter))
             .map(encounter => ({encounter, expand: false}));
         //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
         // TODO Proper solution will roles and privilege based
@@ -261,6 +265,17 @@ class ProgramEnrolmentDashboardActions {
         return {...state, completedEncounters};
     }
 
+    static onFilterApply(state, action) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.selectedEncounterType = action.selectedEncounterType;
+        newState.completedEncounters = _.filter(state.completedEncounters, (e) => e.encounter.encounterType.uuid === action.selectedEncounterType.uuid);
+        return newState;
+    }
+
+    static resetAppliedFilters(state) {
+        return {...state, selectedEncounterType: null}
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -276,6 +291,8 @@ const ProgramEnrolmentDashboardActionsNames = {
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
     ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
+    ON_FILTER_APPLY: "PEDA.ON_FILTER_APPLY",
+    RESET_APPLIED_FILTERS: "PEDA.RESET_APPLIED_FILTERS"
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -293,6 +310,8 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
     [ProgramEnrolmentDashboardActionsNames.ON_ENCOUNTER_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
+    [ProgramEnrolmentDashboardActionsNames.ON_FILTER_APPLY, ProgramEnrolmentDashboardActions.onFilterApply],
+    [ProgramEnrolmentDashboardActionsNames.RESET_APPLIED_FILTERS, ProgramEnrolmentDashboardActions.resetAppliedFilters],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

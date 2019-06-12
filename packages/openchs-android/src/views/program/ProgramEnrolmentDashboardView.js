@@ -193,6 +193,11 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         }
     }
 
+    onBackPress() {
+        this.dispatchAction(Actions.RESET_APPLIED_FILTERS);
+        _.isNil(this.props.backFunction) ? this.goBack() : this.props.backFunction()
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
@@ -224,7 +229,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     />
                     <View style={{backgroundColor: Colors.GreyContentBackground}}>
                         <View style={{backgroundColor: Styles.defaultBackground}}>
-                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
+                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.onBackPress.bind(this)}/>
                             <IndividualProfile style={{marginHorizontal: 16}}
                                                individual={this.state.enrolment.individual}
                                                viewContext={IndividualProfile.viewContext.Program}
@@ -285,7 +290,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         showCount={this.state.showCount} showPartial={true}
                                                         title={this.I18n.t('visitsCompleted')}
                                                         expandCollapseView={true}
-                                                        onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}/>
+                                                        onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
+                                                        encounterTypes={this.state.enrolment.uuid && this.state.enrolment.allEncounterTypes()}
+                                                        onFilterApply={Actions.ON_FILTER_APPLY}
+                                                        selectedEncounterType={this.state.selectedEncounterType}/>
                                 </View>}
                         </ScrollView>
                     </View>

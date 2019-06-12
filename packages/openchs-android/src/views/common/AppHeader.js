@@ -9,6 +9,7 @@ import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
+import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/program/ProgramEnrolmentDashboardActions";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -34,7 +35,8 @@ class AppHeader extends AbstractComponent {
 
     onHome() {
         CHSNavigator.goHome(this);
-        this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK)
+        this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
+        this.dispatchAction(Actions.RESET_APPLIED_FILTERS);
     }
 
     background() {

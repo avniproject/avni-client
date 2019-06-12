@@ -20,6 +20,8 @@ import {Form} from 'openchs-models';
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/AntDesign'
+import TypedTransition from "../../framework/routing/TypedTransition";
+import CompletedVisitsFilterView from "../filter/CompletedVisitsFilterView";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -122,6 +124,26 @@ class PreviousEncounters extends AbstractComponent {
         </View>;
     }
 
+    renderFilter() {
+        return <TouchableOpacity
+            onPress={() => TypedTransition.from(this).with({
+                encounterTypes: this.props.encounterTypes,
+                onFilterApply: this.props.onFilterApply,
+                selectedEncounterType: this.props.selectedEncounterType,
+            }).to(CompletedVisitsFilterView)}
+            style={{
+                right: Distances.ScaledContentDistanceFromEdge,
+                position: 'absolute',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: Colors.VisitFilterButtonColor,
+                borderRadius: 5,
+            }}>
+            <Text
+                style={{paddingHorizontal: 14, paddingVertical: 2, color: Colors.TextOnPrimaryColor}}>{'FILTER TYPES'}</Text>
+        </TouchableOpacity>
+    }
+
     render() {
         let toDisplayEncounters;
         let showingPartial = this.props.showPartial && (this.props.showCount < this.props.encounters.length);
@@ -133,30 +155,29 @@ class PreviousEncounters extends AbstractComponent {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
         }
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
-        const renderable = _.isEmpty(toDisplayEncounters) ? (
-            <View style={[DGS.common.content]}>
-                <Text style={{fontSize: Fonts.Large}}>{this.props.emptyTitle}</Text>
-            </View>) : (
-            <View>
+        const renderable = (<View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text
                     style={[Fonts.MediumBold, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={dataSource}
-                    pageSize={1}
-                    initialListSize={1}
-                    removeClippedSubviews={true}
-                    renderRow={(encounter) => <View style={{
-                        padding: Distances.ScaledContentDistanceFromEdge,
-                        margin: 4,
-                        elevation: 2,
-                        backgroundColor: Colors.cardBackgroundColor,
-                        marginVertical: 3
-                    }}>
-                        {this.props.expandCollapseView ? this.renderExpandCollapseView(encounter) : this.renderNormalView(encounter)}
-                    </View>}
-                />
-            </View>);
+                {this.props.expandCollapseView ? this.renderFilter() : <View/>}
+            </View>
+            <ListView
+                enableEmptySections={true}
+                dataSource={dataSource}
+                pageSize={1}
+                initialListSize={1}
+                removeClippedSubviews={true}
+                renderRow={(encounter) => <View style={{
+                    padding: Distances.ScaledContentDistanceFromEdge,
+                    margin: 4,
+                    elevation: 2,
+                    backgroundColor: Colors.cardBackgroundColor,
+                    marginVertical: 3
+                }}>
+                    {this.props.expandCollapseView ? this.renderExpandCollapseView(encounter) : this.renderNormalView(encounter)}
+                </View>}
+            />
+        </View>);
         return (
             <View>
                 {renderable}

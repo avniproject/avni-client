@@ -42,7 +42,7 @@ class ProgramEnrolment extends BaseEntity {
         programEnrolment.programExitObservations = [];
         programEnrolment.encounters = [];
         programEnrolment.checklists = [];
-        programEnrolment.individual = individual? individual.cloneForEdit() : Individual.createEmptyInstance();
+        programEnrolment.individual = individual ? individual.cloneForEdit() : Individual.createEmptyInstance();
         programEnrolment.voided = false;
         programEnrolment.program = program;
         ObservationsHolder.convertObsForSave(programEnrolment.individual.observations);
@@ -64,10 +64,10 @@ class ProgramEnrolment extends BaseEntity {
         });
 
 
-        if(!_.isNil(this.enrolmentLocation)) {
+        if (!_.isNil(this.enrolmentLocation)) {
             resource["enrolmentLocation"] = this.enrolmentLocation.toResource;
         }
-        if(!_.isNil(this.exitLocation)) {
+        if (!_.isNil(this.exitLocation)) {
             resource["exitLocation"] = this.exitLocation.toResource;
         }
 
@@ -92,10 +92,10 @@ class ProgramEnrolment extends BaseEntity {
             programEnrolment.programOutcome = entityService.findByKey("uuid", programOutcomeUUID, ProgramOutcome.schema.name);
         }
 
-        if(!_.isNil(resource.enrolmentLocation))
+        if (!_.isNil(resource.enrolmentLocation))
             programEnrolment.enrolmentLocation = Point.fromResource(resource.enrolmentLocation);
 
-        if(!_.isNil(resource.exitLocation))
+        if (!_.isNil(resource.exitLocation))
             programEnrolment.exitLocation = Point.fromResource(resource.exitLocation);
 
         return programEnrolment;
@@ -220,6 +220,10 @@ class ProgramEnrolment extends BaseEntity {
 
     getEncountersOfType(encounterTypeName, removeCancelledEncounters) {
         return this.getEncounters(removeCancelledEncounters).filter((enc) => enc.encounterType.name === encounterTypeName);
+    }
+
+    allEncounterTypes() {
+        return _.uniqBy(_.map(this.encounters, enc => enc.encounterType), 'uuid');
     }
 
     findObservationValueInEntireEnrolment(conceptName, checkInEnrolment) {
@@ -422,12 +426,12 @@ class ProgramEnrolment extends BaseEntity {
         return encounterTypeNames.some(it => this.hasEncounterOfType(it));
     }
 
-    hasEncounterWithObservationValueAfterDate(encounterTypeName,afterDate,conceptName,value){
+    hasEncounterWithObservationValueAfterDate(encounterTypeName, afterDate, conceptName, value) {
         const obsAfterDate =
             _(this.getEncounters())
-            .filter(en => moment(en.encounterDateTime).isAfter(afterDate))
-            .filter(en => en.encounterType.name === encounterTypeName)
-            .find(en => en.getObservationReadableValue(conceptName) === value);
+                .filter(en => moment(en.encounterDateTime).isAfter(afterDate))
+                .filter(en => en.encounterType.name === encounterTypeName)
+                .find(en => en.getObservationReadableValue(conceptName) === value);
         return !_.isNil(obsAfterDate);
     }
 
