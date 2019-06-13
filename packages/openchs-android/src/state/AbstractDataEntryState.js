@@ -12,6 +12,7 @@ import moment from "moment/moment";
 
 class AbstractDataEntryState {
     locationError;
+
     constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists) {
         this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists);
     }
@@ -47,6 +48,10 @@ class AbstractDataEntryState {
         if (!validationResult.success) {
             this.validationResults.push(validationResult);
         }
+    }
+
+    removeHiddenFormValidationResults(hiddenFormElementStatus) {
+        this.validationResults = _.differenceWith(this.validationResults, hiddenFormElementStatus, (a, b) => a.formIdentifier === b.uuid);
     }
 
     handleValidationResults(validationResults, context) {
@@ -113,7 +118,7 @@ class AbstractDataEntryState {
                 decisions = this.executeRule(ruleService, context);
                 checklists = this.getChecklists(ruleService, context);
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
-                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context),() => this.getWorkContext());
+                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
@@ -131,7 +136,7 @@ class AbstractDataEntryState {
     }
 
     updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits, context) {
-        if(_.isNil(oldWorkLists))
+        if (_.isNil(oldWorkLists))
             return null;
         let workLists = oldWorkLists;
         if (!_.isEmpty(nextScheduledVisits)) {
@@ -139,7 +144,7 @@ class AbstractDataEntryState {
         }
 
         let currentWorkItem = workLists.getCurrentWorkItem();
-        if(!workLists.peekNextWorkItem() && currentWorkItem.type === WorkItem.type.REGISTRATION) {
+        if (!workLists.peekNextWorkItem() && currentWorkItem.type === WorkItem.type.REGISTRATION) {
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
         }
 

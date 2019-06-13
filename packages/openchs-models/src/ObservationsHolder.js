@@ -37,8 +37,9 @@ class ObservationsHolder {
 
     removeNonApplicableObs(allFormElements, applicableFormElements) {
         const inApplicableFormElements = _.differenceBy(allFormElements, applicableFormElements, (fe) => fe.uuid);
-        inApplicableFormElements
-            .map((fe) => _.remove(this.observations, (obs) => obs.concept.uuid === fe.concept.uuid));
+        return _.flatten(
+            inApplicableFormElements
+                .map((fe) => _.remove(this.observations, (obs) => obs.concept.uuid === fe.concept.uuid)));
     }
 
     updatePrimitiveObs(applicableFormElements, formElementStatuses) {
