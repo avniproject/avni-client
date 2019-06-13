@@ -48,6 +48,9 @@ export default class WorkListState {
 
     saveAndProceedButtonLabel(i18n) {
         const nextWorkItem = this.peekNextWorkItem();
+        if (nextWorkItem.parameters.name) {
+            return i18n.t('saveAndAnotherActivity', {anotherActivity: nextWorkItem.parameters.name})
+        }
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 return this.labelOrDefault(nextWorkItem, 'anotherRegistration', i18n);

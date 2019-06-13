@@ -178,6 +178,8 @@ class LoginView extends AbstractComponent {
                                              value={new PrimitiveValue(this.state.userId)}
                                              style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                              multiline={false}
+                                             autoCapitalize={"none"}
+                                             autoCompleteType={"username"}
                                 // autoFocus={true}
                             />
                             <TextFormElement element={new StaticFormElement('password')}
@@ -249,6 +251,10 @@ class LoginView extends AbstractComponent {
 
     safeLogin() {
         if (!this.state.validationResult.success) {
+            return;
+        }
+        if (_.isEmpty(this.state.userId) || _.isEmpty(this.state.password)) {
+            this.dispatchAction(Actions.ON_EMPTY_LOGIN);
             return;
         }
         if (this.state.loggedInUser && this.state.loggedInUser !== this.state.userId) {
