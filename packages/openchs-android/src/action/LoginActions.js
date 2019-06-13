@@ -20,12 +20,11 @@ class LoginActions {
     }
 
     static onUserIdChange(state, action) {
-        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('','Username is incorrect, please correct it') : ValidationResult.successful();
-        return Object.assign({}, state, {userId: action.value}, {validationResult:validationResult});
+        return Object.assign({}, state, {userId: action.value.trim()}, {loginError: ''});
     }
 
     static onPasswordChange(state, action) {
-        return Object.assign({}, state, {password: action.value});
+        return Object.assign({}, state, {password: action.value, loginError: ''});
     }
 
     static onLoginStarted(state, action, context) {
@@ -60,6 +59,10 @@ class LoginActions {
     static onToggleShowPassword(state) {
         return Object.assign({}, state, {showPassword: !state.showPassword})
     }
+
+    static onEmptyLogin(state) {
+        return Object.assign({}, state, {loginError: 'Please fill in User Id and Password'});
+    }
 }
 
 const LoginActionsNames = {
@@ -69,6 +72,7 @@ const LoginActionsNames = {
     ON_LOGIN: 'ff805a17-8397-4a2a-ab13-e01117a8c113',
     ON_STATE_CHANGE: '3da34606-897a-43ac-b41f-0ef31abc7a01',
     ON_TOGGLE_SHOW_PASSWORD: "9afb6cdc-aa96-4377-b092-44b218c6d9af",
+    ON_EMPTY_LOGIN: "e17aa8ec-b24b-43e5-bcc8-63f5234c04a3",
     ON_LOAD: '8c4b600f-f000-4b9b-80d2-423069bf52b7',
 };
 
@@ -79,6 +83,7 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_STATE_CHANGE, LoginActions.onStateChange],
     [LoginActionsNames.ON_TOGGLE_SHOW_PASSWORD, LoginActions.onToggleShowPassword],
     [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
+    [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;
