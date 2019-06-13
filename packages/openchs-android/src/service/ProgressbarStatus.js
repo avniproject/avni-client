@@ -4,7 +4,6 @@ class ProgressbarStatus {
 
     constructor(onprogress, progressSteps) {
         this.progressSteps = progressSteps;
-        this.initialCount = progressSteps.length;
         this.onprogress = onprogress;
         this.progress = 0.0;
     }
@@ -15,6 +14,10 @@ class ProgressbarStatus {
         const syncWeight = !_.isNil(entityMetaData) ? (entityMetaData.name === 'SyncTelemetry' ? entityMetaData.syncWeight / 2 : entityMetaData.syncWeight) : 0;
         this.progress += (syncWeight / ((numberOfPages === 0 ? 1 : numberOfPages) * 100));
         this.onprogress(this.progress);
+    }
+
+    onSyncComplete() {
+        this.onprogress(this.progress = 1);
     }
 
 }
