@@ -1,16 +1,25 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import {  ValidationResult  } from 'openchs-models';
+import {ValidationResult} from 'openchs-models';
 import UserInfoService from "../service/UserInfoService";
 
 class LoginActions {
     static getInitialState() {
-        return {loggedInUser: '', userId: '', password: '', showPassword: false, loggingIn: false, loginError: '', loginSuccess: false, validationResult: ValidationResult.successful()};
+        return {
+            loggedInUser: '',
+            userId: '',
+            password: '',
+            showPassword: false,
+            loggingIn: false,
+            loginError: '',
+            loginSuccess: false,
+            validationResult: ValidationResult.successful()
+        };
     }
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return Object.assign({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username}: {});
+        return Object.assign({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username} : {});
     }
 
     static changeValue(state, key, value) {
@@ -20,8 +29,8 @@ class LoginActions {
     }
 
     static onUserIdChange(state, action) {
-        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('','Username is incorrect, please correct it') : ValidationResult.successful();
-        return Object.assign({}, state, {userId: action.value}, {validationResult:validationResult});
+        const validationResult = /\s/.test(action.value) ? ValidationResult.failure('', 'Username is incorrect, please correct it') : ValidationResult.successful();
+        return Object.assign({}, state, {userId: action.value}, {validationResult: validationResult});
     }
 
     static onPasswordChange(state, action) {
@@ -29,27 +38,23 @@ class LoginActions {
     }
 
     static onLoginStarted(state, action, context) {
-        const authService = context.get(AuthService);
-        authService.authenticate(state.userId, state.password)
-            .then(
-                (response) => {
-                    if (response.status === "LOGIN_SUCCESS") {
-                        action.success();
-                        return;
-                    }
-                    if (response.status === "NEWPASSWORD_REQUIRED") {
-                        action.newPasswordRequired(response.user);
-                        return;
-                    }
-                    General.logError("Unreachable code");
-                },
-                (error) => {
-                    General.logError("LoginActions", error);
-                    const errorMsg = _.includes(error.message,"Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
-                    action.failure(errorMsg);
+        context.get(AuthService)
+            .authenticate(state.userId, state.password)
+            .then((response) => {
+                if (response.status === "LOGIN_SUCCESS") {
+                    action.success();
                     return;
-                },
-            );
+                }
+                if (response.status === "NEWPASSWORD_REQUIRED") {
+                    action.newPasswordRequired(response.user);
+                    return;
+                }
+                General.logError("Unreachable code");
+            }, (error) => {
+                General.logError("LoginActions", error);
+                const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
+                action.failure(errorMsg);
+            });
         return Object.assign({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
     }
 
