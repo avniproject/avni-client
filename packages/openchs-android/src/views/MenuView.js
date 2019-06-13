@@ -121,7 +121,9 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).clearData().then(() => this.reset());
+        this.getService(AuthService).clearData()
+            .then(() => this.reset())
+            .then(() => CHSNavigator.navigateToLoginView(this, false));
     }
 
     onDelete() {
