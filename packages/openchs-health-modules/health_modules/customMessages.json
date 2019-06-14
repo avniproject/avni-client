@@ -1813,7 +1813,8 @@
     "Preconception Counselling husband for RTI treatment":"Counsel husband for RTI treatment",
     "Preconception Counselling for hypothyroidism treatment":"Counsel her for hypothyroidism treatment",
     "Preconception Counselling for other illness treatment":"Counsel her for other illness treatment",
-    "registerAChild": "register baby"
+    "registerAChild": "register baby",
+    "MenstrualDisorderCounselling for SR": "70% girls have some kind of discomfort worldwide.\nTake tablet to subside menstrual cramps, it has no side effects.\nUse home remedies like drinking tea or lamonade to feel better.\nDrink plenty of fluids.\nConsult a doctor whenever you require.\nMaintain hyigiene while menstruating"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -2218,7 +2219,23 @@
     "REG_ENROL_DISPLAY-Pregnancy": "ગર્ભાવસ્થા ",
     "REG_ENROL_DISPLAY-Sickle Cell Screening": "સિકલ સેલ સ્ક્રિનિંગ ",
     "REG_ENROL_DISPLAY-Maternal Death": "માતાના મૃત્યુ ",
-    "registerAChild": "બાળકની નોંધણી કરો"
+    "registerAChild": "બાળકની નોંધણી કરો",
+    "MenstrualDisorderCounselling for SR": "7 0 % કિશોરીઓને માસિક વખતે કોઈ ને કોઈ તકલીફ થાય છે.\nમાસિક વખતે પેડુમા દુ:ખાવો થાયતો ગોળી લઈ શકાય, તેની કોઈ આડઅસર નથી.\nઘરગથ્થુ ઉપાયો તરીકે ચા અથવા લીમ્બુ પાણી પી શકાય\nખૂબ પ્રવાહી લેવુ\nજરુર લાગે ત્યારે ડોક્ટરને બતાવવુ\nમાસિક વખતે સ્વચ્છતાનુ ધ્યાન રાખવુ",
+    "Have you been referred to hospital?": "શું તમને હોસ્પિટલમાં રેફર કર્યા છે?",
+    "Have you visited Hospital?": "શું તમે હોસ્પિટલની મુલાકાત લીધી છે?",
+    "Have you taken treatment?": "શું તમે સારવાર લીધી છે?",
+    "Is your complaint resolved?": "શું તમારી ફરીયાદો દૂર થઈ છે?",
+    "do you still remain absent due to menstrual problem?": "શું તમે હજી પણ માસિક ના કારણે શાળામાં ગેરહાજર રહો છો?",
+    "Counseling done?": "જાણકારી આપી?",
+    "video shown?": "વિડીઓ બતાવ્યો?",
+    "Do you know what problem do you have?": "તમને તમારી બિમારી વિશે ખબર છે?",
+    "Have you been referred?": "શું તમને હોસ્પિટલમાં રેફર કર્યા છે?",
+    "Have you visited hospital?": "શું તમે હોસ્પિટલની મુલાકાત લીધી છે?",
+    "Are you taking treatment regularly?": "શું તમે નિયમિત સારવાર લો છો?",
+    "Is your condition cured?": "શું તમને હવે સારું છે?",
+    "If not cured reffer to hospital again": "જો સારુંના હોય તો દવાખાને  ફરીરીફર કરો?",
+    "Home visit done?": "ઘર મુલાકાત કરી?",
+    "cured ? ": "સારું થયું?"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
