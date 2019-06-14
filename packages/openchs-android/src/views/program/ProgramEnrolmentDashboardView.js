@@ -181,7 +181,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 <Observations form={this.getForm()}
                               observations={this.state.enrolment.observations}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
-                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true)}
+                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions()}
                                             primaryAction={this.getPrimaryEnrolmentContextAction()}/>
             </View>
         </View>);
