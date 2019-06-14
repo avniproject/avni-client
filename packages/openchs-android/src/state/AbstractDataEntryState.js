@@ -8,6 +8,7 @@ import Geo from "../framework/geo";
 import UserInfoService from "../service/UserInfoService";
 import WorkListState from "./WorkListState";
 import moment from "moment/moment";
+import Config from '../framework/Config';
 
 class AbstractDataEntryState {
     locationError;
@@ -105,6 +106,11 @@ class AbstractDataEntryState {
         const validationResults = this.validateEntity(context);
         const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
         this.handleValidationResults(allValidationResults, context);
+        if(Config.ENV === "dev" && Config.goToLastPageOnNext) {
+            while (!this.wizard.isLastPage()) {
+                this.moveNext();
+            }
+        }
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
         } else if (this.wizard.isLastPage()) {
