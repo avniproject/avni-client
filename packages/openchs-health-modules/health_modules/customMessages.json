@@ -1814,7 +1814,8 @@
     "Preconception Counselling for hypothyroidism treatment":"Counsel her for hypothyroidism treatment",
     "Preconception Counselling for other illness treatment":"Counsel her for other illness treatment",
     "registerAChild": "register baby",
-    "MenstrualDisorderCounselling for SR": "70% girls have some kind of discomfort worldwide.\nTake tablet to subside menstrual cramps, it has no side effects.\nUse home remedies like drinking tea or lamonade to feel better.\nDrink plenty of fluids.\nConsult a doctor whenever you require.\nMaintain hyigiene while menstruating"
+    "MenstrualDisorderCounselling for SR": "70% girls have some kind of discomfort worldwide.\nTake tablet to subside menstrual cramps, it has no side effects.\nUse home remedies like drinking tea or lamonade to feel better.\nDrink plenty of fluids.\nConsult a doctor whenever you require.\nMaintain hyigiene while menstruating",
+    "ChronicSicknessCounselling for SR": "1 Maintain Personal hygine\n2 Prefer to eat home cooked food, and do not eat stale food\n3 Sleep properly for at least 8 hours\n4 Eat seasonal fruits if possible\n5 See the doctor if you are advised"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
@@ -2235,7 +2236,8 @@
     "Is your condition cured?": "શું તમને હવે સારું છે?",
     "If not cured reffer to hospital again": "જો સારુંના હોય તો દવાખાને  ફરીરીફર કરો?",
     "Home visit done?": "ઘર મુલાકાત કરી?",
-    "cured ? ": "સારું થયું?"
+    "cured ? ": "સારું થયું?",
+    "ChronicSicknessCounselling for SR": "૧ વ્યક્તિગત સ્વચ્છતા જાળવો\n૨. બને ત્યાં સુધી ઘરનું બનાવેલું ભોજન આરોગો અને વાસી ખોરાક ના લેશો\n૩. ઓછામાં ઓછી ૮ કલાકની પૂરતી ઊંઘ લો\n૪. શક્ય હોય તો મોસમી ફળો લેવા\n૫. જો કહેવામાં આવ્યું હોય તો ડોક્ટરની મુલાકાત લેવી"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
