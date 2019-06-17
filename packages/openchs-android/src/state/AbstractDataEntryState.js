@@ -1,10 +1,9 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult, WorkItem, SubjectType, WorkLists} from "openchs-models";
+import {BaseEntity, ValidationResult, WorkItem, WorkLists} from "openchs-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
-import EntityService from "../service/EntityService";
 import Geo from "../framework/geo";
 import UserInfoService from "../service/UserInfoService";
 import WorkListState from "./WorkListState";
@@ -148,22 +147,30 @@ class AbstractDataEntryState {
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
         }
 
-        return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
+        let updateWorkLists1 = ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
+        return updateWorkLists1;
     }
 
     _addNextScheduledVisitToWorkList(workLists: WorkLists, nextScheduledVisits): WorkLists {
         if (_.isEmpty(nextScheduledVisits)) return workLists;
 
-        const applicableScheduledVisit = _.find(nextScheduledVisits, (visit) => {
+        const applicableScheduledVisits = _.filter(nextScheduledVisits, (visit) => {
             return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
-        if (applicableScheduledVisit) {
+        _.forEach(applicableScheduledVisits, (applicableScheduledVisit) => {
+            const parameters = _.merge({}, this.getWorkContext(), applicableScheduledVisit);
+            const sameVisitTypeExists = workLists.currentWorkList.workItems.find(
+                    (workItem) => {
+                        const {programEnrolmentUUID, encounterType} = workItem.parameters;
+                        return programEnrolmentUUID === parameters.programEnrolmentUUID && encounterType === parameters.encounterType;
+                    });
+            if (sameVisitTypeExists) return;
             workLists.currentWorkList.addWorkItems(
                 new WorkItem(
                     General.randomUUID(),
                     WorkItem.type.PROGRAM_ENCOUNTER,
-                    applicableScheduledVisit));
-        }
+                    parameters));
+        });
         return workLists;
     }
 
