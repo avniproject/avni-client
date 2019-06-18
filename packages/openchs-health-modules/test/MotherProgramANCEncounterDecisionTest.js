@@ -1,6 +1,6 @@
 import ProgramFactory from "openchs-models/test/ref/ProgramFactory";
 import IndividualBuilder from "openchs-models/test/ref/IndividualBuilder";
-import program from "../health_modules/adolescent/metadata/adolescentProgram.json";
+import program from "../health_modules/mother/metadata/motherProgram";
 import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
