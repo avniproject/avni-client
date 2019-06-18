@@ -35,6 +35,7 @@ import General from "./General";
 import WorkListState from "../state/WorkListState";
 import SubjectType from "../../../openchs-models/src/SubjectType";
 import EntityService from "../service/EntityService";
+import ProgramEncounterService from "../service/program/ProgramEncounterService";
 
 
 class CHSNavigator {
@@ -285,11 +286,26 @@ class CHSNavigator {
                 break;
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
-                const enrolment = context.getService(ProgramEnrolmentService).findByUUID(nextWorkItem.parameters.programEnrolmentUUID);
-                let programEncounter = ProgramEncounter.createEmptyInstance();
-                programEncounter.encounterType = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.encounterType, EncounterType.schema.name);
-
-                programEncounter.programEnrolment = enrolment;
+                let programEncounter;
+                if (_.isEmpty(nextWorkItem.parameters.uuid)) {
+                    const {programEnrolmentUUID, encounterType} = nextWorkItem.parameters;
+                    const enrolment = context.getService(ProgramEnrolmentService).findByUUID(programEnrolmentUUID);
+                    const programEncounterService = context.getService(ProgramEncounterService);
+                    //Use a due encounter if available
+                    const dueEncounter = programEncounterService.findDueEncounter({
+                        enrolmentUUID: programEnrolmentUUID,
+                        encounterTypeName: encounterType
+                    });
+                    if (dueEncounter) {
+                        programEncounter = dueEncounter.cloneForEdit();
+                    } else {
+                        programEncounter = ProgramEncounter.createEmptyInstance();
+                        programEncounter.encounterType = context.getService(EntityService).findByKey('name', encounterType, EncounterType.schema.name);
+                        programEncounter.programEnrolment = enrolment;
+                    }
+                } else {
+                    programEncounter = context.getService(ProgramEncounterService).findByUUID(nextWorkItem.parameters.uuid).cloneForEdit();
+                }
                 TypedTransition.from(recommendationsView)
                     .resetStack([
                             SystemRecommendationView,
@@ -303,7 +319,7 @@ class CHSNavigator {
                         [{individualUUID: nextWorkItem.parameters.subjectUUID},
                             {
                                 params: {
-                                    enrolmentUUID: enrolment.uuid,
+                                    enrolmentUUID: programEncounter.programEnrolment.uuid,
                                     encounterType: nextWorkItem.parameters.encounterType,
                                     workLists: workListState.workLists,
                                     message: message,

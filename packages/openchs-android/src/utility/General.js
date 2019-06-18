@@ -223,9 +223,9 @@ class General {
             let levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
             let logMessage = `[${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
             if (level >= General.getCurrentLogLevel())
-                console.log(logMessage);
+                console[levelName.toLowerCase()](logMessage);
         } catch (e) {
-            console.log('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
+            console.error('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
         }
     }
 

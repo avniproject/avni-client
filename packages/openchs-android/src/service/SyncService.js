@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import { EntitySyncStatus, SyncTelemetry } from 'openchs-models';
+import {EntitySyncStatus, SyncTelemetry} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -106,17 +106,18 @@ class SyncService extends BaseService {
 
         this.dispatchAction(SyncTelemetryActions.START_SYNC);
 
+        const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
+            .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
+            .then(() => progressBarStatus.onSyncComplete());
+
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
         return mediaUploadRequired ?
             firstDataServerSync
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
                 .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
-                .then(() => this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
-                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
-            : firstDataServerSync
-                .then(() => this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
-                .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity));
+                .then(syncCompleted)
+            : firstDataServerSync.then(syncCompleted);
     }
 
     imageSync(statusMessageCallBack) {
@@ -168,7 +169,10 @@ class SyncService extends BaseService {
             }));
 
         const onGetOfFirstPage = (entityName, page) =>
-            this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {entityName, totalElements: page.totalElements});
+            this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
+                entityName,
+                totalElements: page.totalElements
+            });
 
         return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled);
     }
@@ -202,7 +206,10 @@ class SyncService extends BaseService {
         entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
 
-        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {entityName: entityMetaData.entityName, numberOfPulledEntities: entities.length});
+        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+            entityName: entityMetaData.entityName,
+            numberOfPulledEntities: entities.length
+        });
     }
 
     pushData(allTxEntityMetaData, afterEachEntityTypePushed) {
