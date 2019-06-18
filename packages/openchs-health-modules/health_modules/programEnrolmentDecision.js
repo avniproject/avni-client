@@ -1,10 +1,9 @@
 import * as Mother from './mother/motherProgramEnrolmentDecision';
 import * as Child from './child/childProgramEnrolmentDecision';
-import * as Adolescent from './adolescent/adolescentProgramEnrolmentDecision';
 import * as LoadAndForget from './common/formFilters/exitFormFilter';
 import {FormElementStatus} from "rules-config/rules";
 
-const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
+const allImports = {Mother: Mother, Child: Child};
 
 export function getDecisions(enrolment, usage) {
     return executeProgramEnrolmentFunc({

@@ -1,9 +1,8 @@
 import * as Mother from './mother/motherProgramEncounterDecision';
 import * as Child from './child/childProgramEncounterDecision';
-import * as Adolescent from './adolescent/adolescentProgramEncounterDecision';
 import * as LoadAndForget from './common/formFilters/cancelFormFilters';
 import {FormElementStatus} from "rules-config/rules";
-const allImports = {Mother: Mother, Child: Child, Adolescent: Adolescent};
+const allImports = {Mother: Mother, Child: Child};
 
 function targetFunction(fn, programName) {
     return allImports && allImports[programName] && allImports[programName][fn];
