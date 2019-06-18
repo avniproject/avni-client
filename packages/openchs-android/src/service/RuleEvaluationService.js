@@ -46,6 +46,7 @@ class RuleEvaluationService extends BaseService {
             ['Individual', (individual) => this.formMappingService.findRegistrationForm(individual.subjectType)],
             ['Encounter', (encounter) => this.formMappingService.findFormForEncounterType(encounter.encounterType, Encounter.schema.name, encounter.individual.subjectType)],
             ['ProgramEnrolment', (programEnrolment) => this.formMappingService.findFormForProgramEnrolment(programEnrolment.program, programEnrolment.individual.subjectType)],
+            ['ProgramExit', (programEnrolment) => this.formMappingService.findFormForProgramExit(programEnrolment.program, programEnrolment.individual.subjectType)],
             ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.programEnrolment.individual.subjectType)],
             ['ChecklistItem', (checklistItem) => checklistItem.detail.form],
             ['ProgramEncounterCancellation', (programEncounter) => this.formMappingService.findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program, programEncounter.programEnrolment.individual.subjectType)],
@@ -74,7 +75,8 @@ class RuleEvaluationService extends BaseService {
     }
 
     getDecisions(entity, entityName, context) {
-        const form = this.entityFormMap.get(entityName)(entity);
+        const formMapKey = _.get(context, 'usage') === 'Exit' ? 'ProgramExit': entityName;
+        const form = this.entityFormMap.get(formMapKey)(entity)
         return this.getEntityDecision(form, entity, context);
     }
 
@@ -142,6 +144,8 @@ class RuleEvaluationService extends BaseService {
     getAllRuleItemsFor(entity, type, entityTypeHardCoded) {
         const entityType = _.get(entity, 'constructor.schema.name', entityTypeHardCoded);
         const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type, entityType);
+
+
         const additionalRules = this.getService(RuleService).getApplicableRules(entity, type, entityType);
         return _.sortBy(applicableRules.concat(additionalRules), (r) => r.executionOrder);
     }
