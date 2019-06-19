@@ -93,10 +93,7 @@ class RuleEvaluationService extends BaseService {
         const conceptFor = name => this.conceptService.conceptFor(name);
         const summaryObservations = _.map(updatedSummaries, (summary) => {
             const concept = conceptFor(summary.name);
-            const value = _.isArray(summary.value)
-                ? _.map(_.map(summary.value, conceptFor), 'uuid')
-                : summary.value;
-            return Observation.create(concept, concept.getValueWrapperFor(value), summary.abnormal);
+            return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
         });
         General.logDebug("RuleEvaluationService - Summary Observations", summaryObservations);
         return summaryObservations;
