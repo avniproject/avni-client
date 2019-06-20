@@ -56,11 +56,11 @@ class IndividualSearchView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
-        const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 20;
+        const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('search')} hideBackButton={true} hideIcon={true}/>
+                    <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,

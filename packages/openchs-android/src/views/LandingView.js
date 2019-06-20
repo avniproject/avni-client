@@ -92,7 +92,8 @@ class LandingView extends SyncComponent {
                 {this.state.home && <MyDashboardView iconComponent={this.syncIcon} iconFunc={this.sync.bind(this)}/>}
                 {this.state.search && <IndividualSearchView
                     onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                    buttonElevated={true}/>}
+                    buttonElevated={true}
+                    hideBackButton={true}/>}
                 {this.state.register && <RegisterView/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
 

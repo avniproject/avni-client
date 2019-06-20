@@ -28,7 +28,7 @@ class IndividualFormElement extends AbstractFormElement {
     search(){
         TypedTransition.from(this).bookmark().with(
             {
-            showHeader: true, headerMessage : this.props.searchHeaderMessage,
+            showHeader: true, headerMessage : this.props.searchHeaderMessage, hideBackButton: false,
             onIndividualSelection : (source, individual) => {
                 TypedTransition.from(source).popToBookmark();
                 this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: individual});
