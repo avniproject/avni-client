@@ -42,7 +42,9 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     get registrationType() {
-        return _.get(this, 'props.params.workLists.currentWorkList.name') || 'REG_DISPLAY-Individual';
+        const workListName = _.get(this, 'props.params.workLists.currentWorkList.name');
+        const regName = workListName === 'Enrolment' ? _.get(_.find(this.props.params.workLists.currentWorkList.workItems, wl => wl.type === 'PROGRAM_ENROLMENT'), "parameters.programName") : workListName;
+        return regName + ' ' || 'REG_DISPLAY-Individual';
     }
 
     componentWillMount() {
