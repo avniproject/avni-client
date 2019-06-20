@@ -18,7 +18,10 @@ var authenticate = function (poolId, clientId, username, password) {
         onFailure: function (error) {
             console.log("Check Credentials. " + "PoolId=" + poolId + " ClientId=" + clientId + " Username=" + username + " Password=" + password);
         },
-        newPasswordRequired: function (userAttributes, requiredAttributes) {
+        newPasswordRequired: function (_userAttributes, requiredAttributes) {
+            const userAttributes = Object.assign({}, _userAttributes);
+            delete userAttributes.phone_number_verified;
+            delete userAttributes.email_verified;
             cognitoUser.completeNewPasswordChallenge(password, userAttributes, this);
         }
     })
