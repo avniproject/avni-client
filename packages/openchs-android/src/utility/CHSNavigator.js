@@ -298,6 +298,7 @@ class CHSNavigator {
                     });
                     if (dueEncounter) {
                         programEncounter = dueEncounter.cloneForEdit();
+                        programEncounter.encounterDateTime = new Date();
                     } else {
                         programEncounter = ProgramEncounter.createEmptyInstance();
                         programEncounter.encounterType = context.getService(EntityService).findByKey('name', encounterType, EncounterType.schema.name);
@@ -305,6 +306,7 @@ class CHSNavigator {
                     }
                 } else {
                     programEncounter = context.getService(ProgramEncounterService).findByUUID(nextWorkItem.parameters.uuid).cloneForEdit();
+                    programEncounter.encounterDateTime = programEncounter.encounterDateTime || new Date();
                 }
                 TypedTransition.from(recommendationsView)
                     .resetStack([

@@ -35,7 +35,7 @@ class AbstractEncounter extends BaseEntity {
     cloneForEdit(encounter) {
         encounter.uuid = this.uuid;
         encounter.encounterType = _.isNil(this.encounterType) ? null : this.encounterType.clone();
-        encounter.encounterDateTime = this.encounterDateTime || new Date();
+        encounter.encounterDateTime = this.encounterDateTime;
         encounter.observations = ObservationsHolder.clone(this.observations);
         encounter.voided = this.voided;
         return encounter;
