@@ -80,11 +80,13 @@ class PreviousEncounters extends AbstractComponent {
                         <Icon name={'arrow-up'} size={12}/>}
                 </View>
             </TouchableOpacity>
-            <View style={{height: encounterInfo.expand === false ? 0 : null, overflow: 'hidden'}}>
-                <Observations form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType,
-                    this.props.formType, encounterInfo.encounter.subjectType)}
-                              observations={encounterInfo.encounter.getObservations()}/>
-            </View>
+            {encounterInfo.expand === true ?
+                <View>
+                    <Observations
+                        form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType,
+                            this.props.formType, encounterInfo.encounter.subjectType)}
+                        observations={encounterInfo.encounter.getObservations()}/>
+                </View> : <View/>}
             <ObservationsSectionOptions contextActions={this.encounterActions(encounterInfo.encounter)}
                                         primaryAction={this.cancelVisitAction(encounterInfo.encounter)}/>
         </View>
