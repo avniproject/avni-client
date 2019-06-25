@@ -40,6 +40,7 @@ import DeviceInfo from "react-native-device-info";
 import {Schema} from 'openchs-models';
 import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
+import Config from "../framework/Config";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -260,7 +261,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{DeviceInfo.getVersion()}</Text></Text>
+                                    }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
                             </View>
                         </View>
                     </ScrollView>

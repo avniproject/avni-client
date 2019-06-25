@@ -1,3 +1,4 @@
+import DeviceInfo from "react-native-device-info";
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
@@ -26,8 +27,9 @@ import _ from "lodash";
 import {Button, CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
 import AuthService from "../service/AuthService";
-import { ConfirmDialog } from 'react-native-simple-dialogs';
+import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from "./primitives/Fonts";
+import Config from '../framework/Config';
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -146,7 +148,10 @@ class LoginView extends AbstractComponent {
                     fontSize: Fonts.Large,
                     color: Colors.InputNormal,
                 }}>
-                    {this.I18n.t("cannotChangeUserDesc", {oldUser: this.state.loggedInUser, newUser: this.state.userId})}
+                    {this.I18n.t("cannotChangeUserDesc", {
+                        oldUser: this.state.loggedInUser,
+                        newUser: this.state.userId
+                    })}
                 </Text>
             </View>
         </ConfirmDialog>);
@@ -231,7 +236,8 @@ class LoginView extends AbstractComponent {
                                 :
                                 <View/>
                             }
-                            <TouchableNativeFeedback onPress={this.safeLogin} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <TouchableNativeFeedback onPress={this.safeLogin}
+                                                     background={TouchableNativeFeedback.SelectableBackground()}>
                                 <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
                                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
                                 </View>
@@ -239,14 +245,27 @@ class LoginView extends AbstractComponent {
                         </View>
                     </View>
                 </CHSContent>
+                <View style={{
+                    alignSelf: 'center',
+                    position: 'absolute',
+                    bottom: 35
+                }}>
+                    <Text style={{
+                        fontSize: Styles.normalTextSize,
+                        fontStyle: 'normal',
+                        color: Styles.blackColor,
+                        alignSelf: 'center',
+                    }}>{Config.ENV !== 'prod' && Config.ENV}</Text>
+                    <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
+                </View>
             </CHSContainer>
         );
     }
 
     clearDataAndLogin() {
         this.getService(AuthService).clearData()
-            .then(()=> this.reset())
-            .then(()=> this.justLogin());
+            .then(() => this.reset())
+            .then(() => this.justLogin());
     }
 
     safeLogin() {
