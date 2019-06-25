@@ -1,4 +1,4 @@
-import {ScrollView, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {ScrollView, ToastAndroid, TouchableOpacity, View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -28,7 +28,8 @@ import _ from "lodash";
 import ActionSelector from "../common/ActionSelector";
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
-import Icon from 'react-native-vector-icons/AntDesign'
+import Icon from 'react-native-vector-icons/SimpleLineIcons'
+import Separator from "../primitives/Separator";
 
 @Path('/ProgramEnrolmentDashboardView')
 class ProgramEnrolmentDashboardView extends AbstractComponent {
@@ -141,8 +142,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     renderSummary() {
-        return _.isEmpty(this.state.enrolmentSummary) ? (<View/>) :
-            (<View style={{
+        return <View style={{
                     padding: Distances.ScaledContentDistanceFromEdge,
                     margin: 4,
                     elevation: 2,
@@ -158,7 +158,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                     <Observations observations={_.defaultTo(this.state.enrolmentSummary, [])}
                                   style={{marginVertical: DGS.resizeHeight(8)}}/>
                 </View>
-            );
     }
 
     renderEnrolmentDetails() {
@@ -173,17 +172,17 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                 <Text style={[Fonts.MediumBold]}>{this.I18n.t('enrolmentDetails')}</Text>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {this.state.expandEnrolmentInfo === false ?
-                        <Icon name={'down'} size={25}/> :
-                        <Icon name={'up'} size={25}/>}
+                        <Icon name={'arrow-down'} size={12}/> :
+                        <Icon name={'arrow-up'} size={12}/>}
                 </View>
             </TouchableOpacity>
             <View style={{height: this.state.expandEnrolmentInfo === false ? 0 : null, overflow: 'hidden'}}>
                 <Observations form={this.getForm()}
                               observations={this.state.enrolment.observations}
                               style={{marginVertical: DGS.resizeHeight(8)}}/>
-                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions()}
-                                            primaryAction={this.getPrimaryEnrolmentContextAction()}/>
             </View>
+            <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions()}
+                                        primaryAction={this.getPrimaryEnrolmentContextAction()}/>
         </View>);
     }
 
@@ -294,6 +293,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                 </View>}
                         </ScrollView>
                     </View>
+                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>
         );

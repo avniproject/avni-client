@@ -1,6 +1,7 @@
 import {typography} from './MaterialDesign';
 
 class Fonts {
+    static Small = 13;
     static Normal = 15;
     static Medium = 15;
     static Large = 17;

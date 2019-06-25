@@ -4,6 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Button, Text} from "native-base";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
+import {TouchableOpacity} from 'react-native'
 
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
@@ -18,11 +19,13 @@ class ContextActionButton extends AbstractComponent {
     render() {
         const color = this.props.textColor || Colors.ActionButtonColor;
         return (
-            <Button transparent onPress={() => this.props.onPress()}><Text style={{
-                fontSize: Fonts.Medium,
-                color: color,
-                paddingHorizontal: 5
-            }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></Button>
+            <TouchableOpacity onPress={() => this.props.onPress()} style={{marginHorizontal: 8}}>
+                <Text style={{
+                    fontSize: Fonts.Medium,
+                    fontWeight: 'bold',
+                    color: color,
+                    paddingHorizontal: 5
+                }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></TouchableOpacity>
         );
     }
 }

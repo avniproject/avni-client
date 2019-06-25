@@ -1,7 +1,7 @@
 import {View, ListView, TouchableNativeFeedback, TouchableOpacity, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Text, Button} from "native-base";
+import {Text, Button, Badge} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
 import DGS from "../primitives/DynamicGlobalStyles";
@@ -12,14 +12,13 @@ import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import FormMappingService from "../../service/FormMappingService";
 import EncounterService from "../../service/EncounterService";
-import {Badge} from "../filter/AppliedFilters";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import {Form} from 'openchs-models';
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
-import Icon from 'react-native-vector-icons/AntDesign'
+import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CompletedVisitsFilterView from "../filter/CompletedVisitsFilterView";
 
@@ -59,13 +58,13 @@ class PreviousEncounters extends AbstractComponent {
         CHSNavigator.navigateToProgramEncounterCancelView(this, encounter);
     }
 
-    cancelVisitAction(encounter) {
+    cancelVisitAction(encounter, textColor) {
         const encounterService = this.context.getService(EncounterService);
-        if (encounterService.isEncounterTypeCancellable(encounter)) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter));
+        if (encounterService.isEncounterTypeCancellable(encounter)) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
-    encounterActions(encounter) {
-        return [new ContextAction('edit', () => this.editEncounter(encounter))];
+    encounterActions(encounter, actionName, textColor) {
+        return [new ContextAction(actionName || 'edit', () => this.editEncounter(encounter), textColor)];
     }
 
     renderExpandCollapseView(encounterInfo) {
@@ -74,52 +73,81 @@ class PreviousEncounters extends AbstractComponent {
             <TouchableOpacity onPress={() => this.dispatchAction(this.props.onToggleAction, {
                 encounterInfo: {...encounterInfo, expand: !encounterInfo.expand}
             })}>
-                {this.renderTitle(encounterInfo.encounter)}
-                <View style={{flex: 1, right: 2, position: 'absolute', alignSelf: 'center'}}>
+                {this.renderTitleAndDetails(encounterInfo.encounter)}
+                <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {encounterInfo.expand === false ?
-                        <Icon name={'down'} size={25}/> :
-                        <Icon name={'up'} size={25}/>}
+                        <Icon name={'arrow-down'} size={12}/> :
+                        <Icon name={'arrow-up'} size={12}/>}
                 </View>
             </TouchableOpacity>
             <View style={{height: encounterInfo.expand === false ? 0 : null, overflow: 'hidden'}}>
                 <Observations form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType,
                     this.props.formType, encounterInfo.encounter.subjectType)}
                               observations={encounterInfo.encounter.getObservations()}/>
-                <ObservationsSectionOptions contextActions={this.encounterActions(encounterInfo.encounter)}
-                                            primaryAction={this.cancelVisitAction(encounterInfo.encounter)}/>
             </View>
+            <ObservationsSectionOptions contextActions={this.encounterActions(encounterInfo.encounter)}
+                                        primaryAction={this.cancelVisitAction(encounterInfo.encounter)}/>
         </View>
     }
 
-    renderVisitStatus = (status, color) => <Text style={{color: color}}>{status}</Text>;
+    badge = (status, color) => <View style={{
+        backgroundColor: color,
+        borderRadius: 9,
+        paddingHorizontal: 10,
+        justifyContent: 'center',
+        paddingVertical: 2
+    }}>
+        <Text style={{color: 'white', fontSize: 10}}>{status}</Text>
+    </View>;
+
+    isOverdue = encounter => moment().isAfter(encounter.maxVisitDateTime);
+
+    isDue = encounter => moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime);
+
+    scheduledVisitBadge(encounter) {
+        return this.isOverdue(encounter) ? this.badge(this.I18n.t('overdue'), Colors.OverdueVisitColor) :
+            this.isDue(encounter) ? this.badge(this.I18n.t('due'), Colors.ScheduledVisitColor) :
+                this.badge(this.I18n.t('scheduled'), Colors.FutureVisitColor);
+    }
+
+    cancelledVisitBadge(encounter) {
+        return encounter.isCancelled() ? this.badge(this.I18n.t('cancelled'), Colors.CancelledVisitColor) : <View/>
+    }
+
+    renderStatus(encounter) {
+        return encounter.isScheduled() ? this.scheduledVisitBadge(encounter) : this.cancelledVisitBadge(encounter)
+    }
 
     renderNormalView(encounter) {
         const formMappingService = this.context.getService(FormMappingService);
-        const status = _.isNil(encounter.encounterDateTime) && moment().isAfter(encounter.maxVisitDateTime) ? this.renderVisitStatus(this.I18n.t('overdue'), Colors.OverdueVisitColor) :
-            (!_.isNil(encounter.cancelDateTime) ? this.renderVisitStatus(this.I18n.t('cancelled'), Colors.CancelledVisitColor) :
-                (_.isNil(encounter.encounterDateTime) ? this.renderVisitStatus(this.I18n.t('scheduled'), Colors.ScheduledVisitColor) : ''));
         return <View>
-            {this.renderTitle(encounter)}
-            <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
-                this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                {status}
-                <ObservationsSectionOptions contextActions={this.encounterActions(encounter)}
-                                            primaryAction={this.cancelVisitAction(encounter)}/>
-            </View>
+            <TouchableOpacity onPress={() => this.editEncounter(encounter)}>
+                {this.renderTitleAndDetails(encounter)}
+                <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
+                    this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
+            </TouchableOpacity>
+            <ObservationsSectionOptions
+                contextActions={this.encounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor)}
+                primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
         </View>
     }
 
-    renderTitle(encounter) {
-        const name = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
-        const scheduledInfo = !_.isNil(encounter.earliestVisitDateTime) ? `${this.I18n.t('scheduled')}: ${moment(encounter.earliestVisitDateTime).format('DD-MM-YYYY')}` : '';
-        const completedInfo = !_.isNil(encounter.encounterDateTime) ? `${this.I18n.t('completedVisits')}: ${moment(encounter.encounterDateTime).format('DD-MM-YYYY')}` : '';
-        const cancellationInformation = encounter.isCancelled() ? `${this.I18n.t('cancelled')}: ${moment(encounter.cancelDateTime).format('DD-MM-YYYY')}` : '';
-        return <View style={{marginRight: 10}}>
-            <Text>{name}</Text>
-            <View style={{flexDirection: 'column'}}>
-                {[scheduledInfo, completedInfo, cancellationInformation].filter(e => !_.isEmpty(e)).map((e, index) =>
-                    <Text key={index}>{e}</Text>)}
+    renderTitleAndDetails(encounter) {
+        const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
+        const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
+        const secondaryDate = !encounter.isScheduled() ? <Text style={{
+            fontSize: Fonts.Small,
+            color: Colors.SecondaryText
+        }}>{`Scheduled : ${General.toDisplayDate(encounter.earliestVisitDateTime)}`}</Text> : <View/>;
+        return <View>
+            <View
+                style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
+                <View style={{flexDirection: 'column'}}>
+                    <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
+                    <Text style={{fontSize: Fonts.Small}}>{General.toDisplayDate(primaryDate)}</Text>
+                    {secondaryDate}
+                </View>
+                {this.renderStatus(encounter)}
             </View>
         </View>;
     }
@@ -132,7 +160,10 @@ class PreviousEncounters extends AbstractComponent {
                 selectedEncounterType: this.props.selectedEncounterType,
             }).to(CompletedVisitsFilterView)}
             style={styles.filterButtonContainer}>
-            <Text style={styles.filterButtonText}>{'FILTER TYPES'}</Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Icon name={'equalizer'} size={25}/>
+                <Text style={styles.filterButtonText}>{this.I18n.t('sortFilter')}</Text>
+            </View>
         </TouchableOpacity>
     }
 
@@ -200,14 +231,11 @@ const styles = StyleSheet.create({
     filterButtonContainer: {
         right: Distances.ScaledContentDistanceFromEdge,
         position: 'absolute',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: Colors.VisitFilterButtonColor,
-        borderRadius: 5,
+        alignItems: 'center'
     },
     filterButtonText: {
-        paddingHorizontal: 14,
+        paddingHorizontal: 7,
         paddingVertical: 2,
-        color: Colors.TextOnPrimaryColor
+        color: Colors.ActionButtonColor
     }
 });

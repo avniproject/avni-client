@@ -109,7 +109,7 @@ class LandingView extends SyncComponent {
                     elevation: 3,
                     alignItems: 'center',
                     borderTopWidth: StyleSheet.hairlineWidth,
-                    borderTopColor: '#C0C0C0'
+                    borderTopColor: Colors.Separator
                 }}>
 
                     {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarIcons(icon, display, cb, isSelected, idx))}

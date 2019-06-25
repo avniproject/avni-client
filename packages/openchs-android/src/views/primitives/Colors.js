@@ -45,9 +45,11 @@ class Colors {
     static OverdueVisitColor = '#d0011b';
     static FutureVisitColor = 'gold';
     static ScheduledVisitColor = '#009688';
-    static VisitActionColor = '#9013fe';
-    static CancelledVisitColor = '#f5a623';
+    static VisitActionColor = '#009688';
+    static CancelledVisitColor = '#d0011b';
     static VisitFilterButtonColor = '#4a90e2';
+    static Separator = '#C0C0C0';
+    static SecondaryText = '#929292';
 
 }
 

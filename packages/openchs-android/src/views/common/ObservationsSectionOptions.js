@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -20,12 +20,13 @@ class ObservationsSectionOptions extends AbstractComponent {
         let contextActionButtons = this.props.contextActions.map((contextAction, idx) => {
             return <ContextActionButton labelKey={contextAction.labelKey}
                                         onPress={() => contextAction.onPressFunc()}
-                                        textColor={Colors.VisitActionColor}
+                                        textColor={contextAction.color || Colors.VisitActionColor}
                                         key={idx}/>
         });
         let primaryAction = this.props.primaryAction;
         let primaryActionButton = primaryAction &&
-            <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()} textColor={Colors.VisitActionColor}/>;
+            <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}
+                                 textColor={primaryAction.color || Colors.VisitActionColor}/>;
         return (
             <View style={this.appendedStyle({
                 flex: 1,
@@ -33,12 +34,8 @@ class ObservationsSectionOptions extends AbstractComponent {
                 alignItems: 'center',
                 justifyContent: 'flex-end'
             })}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    {contextActionButtons}
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    {primaryActionButton}
-                </View>
+                {primaryActionButton}
+                {contextActionButtons}
             </View>
         );
     }

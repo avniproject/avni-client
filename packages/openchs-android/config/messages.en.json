@@ -256,5 +256,8 @@
   "submit": "Submit",
   "editSettings": "Edit Settings",
   "noCompletedEncounters": "No completed visits",
-  "noPlannedEncounters": "No planned visits"
+  "noPlannedEncounters": "No planned visits",
+  "due": "Due",
+  "sortFilter": "Sort/Filter",
+  "do": "Do"
 }

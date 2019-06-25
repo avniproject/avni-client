@@ -82,7 +82,7 @@ class Observations extends AbstractComponent {
         return (
             <Text style={[{
                 textAlign: 'left',
-                fontSize: Fonts.Medium,
+                fontSize: Fonts.Small,
                 color: isAbnormal ? Styles.redColor : Styles.blackColor
             }, this.styles.observationColumn]}>{obs}</Text>
         )
@@ -97,7 +97,7 @@ class Observations extends AbstractComponent {
             .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), obs.concept.datatype]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
-            <View style={[{flexDirection: "column"}, this.props.style]}>
+            <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
                 {this.renderTitle()}
                 <ListView
                     enableEmptySections={true}
@@ -112,7 +112,7 @@ class Observations extends AbstractComponent {
                         < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
                             <Text style={[{
                                 textAlign: 'left',
-                                fontSize: Fonts.Normal,
+                                fontSize: Fonts.Small,
                                 color: Styles.greyText
                             }, this.styles.observationColumn]}>{name}</Text>
                             {this.renderValue(obs, isAbnormal, renderType)}
