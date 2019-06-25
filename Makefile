@@ -11,7 +11,7 @@ endif
 
 update-npm:
 ifneq ($(shell npm -v),$(shell cat .npmrc))
-	@echo -e '\nUpdating npm to $(shell cat .npmrc)\n`
+	@echo -e '\nUpdating npm to $(shell cat .npmrc)\n'
 	@npm install --global npm@$(shell cat .npmrc)
 	@exit 1
 endif
