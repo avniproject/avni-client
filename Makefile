@@ -1,5 +1,13 @@
 # Objects: env, apk, packager, app
 # <makefile>
+default: ; @echo 'no target provided'
+
+check-node-v:
+ifneq ($(shell node -v),$(shell cat .nvmrc))
+	@echo -e '\nPlease run `nvm install $(shell cat .nvmrc) && nvm use $(shell cat .nvmrc)`\n'
+	@exit 1
+endif
+	@echo "node => $(shell node -v)"
 
 include makefiles/codepush.mk
 include makefiles/fastlane.mk
@@ -331,3 +339,5 @@ get-token-staging:
 
 get-token-uat:
 	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=$(username) password=$(password)
+
+$(MAKECMDGOALS): check-node-v ;
