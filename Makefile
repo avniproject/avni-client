@@ -340,4 +340,4 @@ get-token-staging:
 get-token-uat:
 	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=$(username) password=$(password)
 
-$(MAKECMDGOALS): check-node-v ;
+#$(MAKECMDGOALS): check-node-v ;
