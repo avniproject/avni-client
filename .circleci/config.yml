@@ -2,13 +2,10 @@ version: 2
 jobs:
   install_deps:
     docker:
-      - image: circleci/node:8.5.0
+      - image: openchs/react-native-image:latest
     working_directory: ~/openchs-client
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -37,13 +34,10 @@ jobs:
 
   test_android:
     docker:
-      - image: circleci/node:8.5.0
+      - image: openchs/react-native-image:latest
     working_directory: ~/openchs-client
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -55,13 +49,10 @@ jobs:
 
   test_health_modules:
     docker:
-      - image: circleci/node:8.5.0
+      - image: openchs/react-native-image:latest
     working_directory: ~/openchs-client
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -73,13 +64,10 @@ jobs:
 
   test_models:
     docker:
-      - image: circleci/node:8.5.0
+      - image: openchs/react-native-image:latest
     working_directory: ~/openchs-client
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -99,9 +87,6 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
-      - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -137,9 +122,6 @@ jobs:
       working_directory: ~/openchs-client
       steps:
         - checkout
-        - run:
-            name: update-npm
-            command: 'sudo npm install -g npm@$(cat .npmrc)'
         - restore_cache:
             keys:
             - v1-dependencies-{{ checksum "package.json" }}
