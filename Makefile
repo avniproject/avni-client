@@ -58,7 +58,7 @@ ignore_deps_changes:
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 #for default Andoird Emulator
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
-sha:=$(shell git rev-parse --short HEAD)
+sha:=$(shell git rev-parse --short=4 HEAD)
 
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
@@ -98,7 +98,7 @@ upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
 
 define _create_config
 	@echo "Creating config for $1"
-	@echo "import config from \"../../config/env/$1.json\";export default config;" > packages/openchs-android/src/framework/Config.js
+	@echo "module.exports = {...require('../../config/env/$(1).json'), COMMIT_ID: '$(sha)'};" > packages/openchs-android/src/framework/Config.js
 endef
 
 as_dev: ; $(call _create_config,dev)
