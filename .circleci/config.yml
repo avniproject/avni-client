@@ -6,6 +6,9 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -38,6 +41,9 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -53,6 +59,9 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -68,6 +77,9 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -87,6 +99,9 @@ jobs:
     working_directory: ~/openchs-client
     steps:
       - checkout
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@$(cat .npmrc)'
       - restore_cache:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
@@ -122,6 +137,9 @@ jobs:
       working_directory: ~/openchs-client
       steps:
         - checkout
+        - run:
+            name: update-npm
+            command: 'sudo npm install -g npm@$(cat .npmrc)'
         - restore_cache:
             keys:
             - v1-dependencies-{{ checksum "package.json" }}
