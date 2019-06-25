@@ -33,8 +33,6 @@ ci:
 	$(eval ci_flag_set:=true)
 
 define test
-	$(call _setup_hosts)
-	$(call _create_config,dev)
 	cd packages/openchs-$1; npm run $(if $(ci_flag_set),test-ci,test)
 endef
 
@@ -62,18 +60,17 @@ ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cu
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short HEAD)
 
-define _setup_hosts
+setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
-endef
 
 # <test>
-test-health-modules: ##
+test-health-modules: setup_hosts as_dev
 	$(call test,health-modules)
 
-test-android: ##
+test-android: setup_hosts as_dev
 	$(call test,android)
 
-test-models: ##
+test-models: setup_hosts as_dev
 	$(call test,models)
 
 test: test-models test-health-modules test-android  ##
@@ -104,6 +101,12 @@ define _create_config
 	@echo "import config from \"../../config/env/$1.json\";export default config;" > packages/openchs-android/src/framework/Config.js
 endef
 
+as_dev: ; $(call _create_config,dev)
+as_staging: ; $(call _create_config,staging)
+as_uat: ; $(call _create_config,uat)
+as_prerelease: ; $(call _create_config,prerelease)
+as_prod: ; $(call _create_config,prod)
+
 release_clean:
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
@@ -119,30 +122,21 @@ create_apk:
 
 release: release_clean create_apk
 
-release_dev: ##
-	$(call _setup_hosts)
-	$(call _create_config,dev)
-	make release
+release_dev: setup_hosts as_dev release
 
-release_prod: renew_env
-	$(call _create_config,prod)
-	make release
+release_prod: renew_env as_prod release
 	$(call _upload_release_sourcemap)
 
-release_staging: renew_env
-	$(call _create_config,staging)
+release_staging: renew_env as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
-release_staging_without_clean: ##
-	$(call _create_config,staging)
+release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
-release_uat: renew_env
-	$(call _create_config,uat)
+release_uat: renew_env as_uat
 	enableSeparateBuildPerCPUArchitecture=false make release
 
-release_prerelease: renew_env
-	$(call _create_config,prerelease)
+release_prerelease: renew_env as_prerelease
 	enableSeparateBuildPerCPUArchitecture=false make release
 
 release-offline: ##
@@ -239,8 +233,7 @@ run_packager: ##
 
 
 # sometimes there are errors for which we need to run the following to get the exact problem
-run_app_debug: ##
-	$(call _setup_hosts)
+run_app_debug: setup_hosts
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 # </app>
 

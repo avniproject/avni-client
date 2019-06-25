@@ -38,31 +38,17 @@ open_playstore_openchs:
 
 
 # Run application from the code
-run_app: ##
-	$(call _setup_hosts)
-	$(call _create_config,dev)
-	cd packages/openchs-android && react-native run-android
+_run_app: ; cd packages/openchs-android && react-native run-android
+_run_app_release: ; cd packages/openchs-android && react-native run-android --variant=release
 
-run_app_release:
-	$(call _create_config,dev)
-	cd packages/openchs-android && react-native run-android --variant=release
+run_app: setup_hosts as_dev _run_app
 
-run_app_staging:
-	$(call _create_config,staging)
-	cd packages/openchs-android && react-native run-android
+run_app_release: as_dev _run_app_release
 
-run_app_prerelease:
-	$(call _create_config,prerelease)
-	cd packages/openchs-android && react-native run-android
-
-run_app_uat:
-	$(call _create_config,uat)
-	cd packages/openchs-android && react-native run-android
-
-run_app_prod:
-	$(call _create_config,prod)
-	cd packages/openchs-android && react-native run-android
-
+run_app_staging: as_staging _run_app
+run_app_uat: as_uat _run_app
+run_app_prerelease: as_prerelease _run_app
+run_app_prod: as_prod _run_app
 
 open_app_bundle:
 	cd ..
