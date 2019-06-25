@@ -9,15 +9,6 @@ ifneq ($(shell node -v),$(shell cat .nvmrc))
 endif
 	@echo "node => $(shell node -v)"
 
-update-npm:
-ifneq ($(shell npm -v),$(shell cat .npmrc))
-	@echo -e '\nUpdating npm to $(shell cat .npmrc)\n'
-	@npm install --global npm@$(shell cat .npmrc)
-	@exit 1
-endif
-	@echo "npm => $(shell npm -v)"
-	@echo
-
 include makefiles/codepush.mk
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
@@ -349,4 +340,4 @@ get-token-staging:
 get-token-uat:
 	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=$(username) password=$(password)
 
-$(MAKECMDGOALS): check-node-v update-npm ;
+$(MAKECMDGOALS): check-node-v ;
