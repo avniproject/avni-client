@@ -259,5 +259,8 @@
   "noPlannedEncounters": "No planned visits",
   "due": "Due",
   "sortFilter": "Sort/Filter",
-  "do": "Do"
+  "do": "Do",
+  "completedEncounters": "Completed Encounters",
+  "viewAll": "VIEW ALL",
+  "unplannedVisit": "Unplanned Visit"
 }

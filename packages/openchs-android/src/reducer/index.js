@@ -37,6 +37,7 @@ import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subje
 import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewActions";
 import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
 import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
+import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -70,6 +71,7 @@ export default class Reducers {
         syncTelemetryActions: "syncTelemetryActions",
         filterAction: "filterAction",
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
+        completedEncounters: "CompletedEncounters"
     };
 
     static createReducers(beanStore) {
@@ -103,6 +105,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.landingView] = Reducers._add(LandingViewActionsMap, LandingViewActions, beanStore);
         reducerMap[Reducers.reducerKeys.syncTelemetryActions] = Reducers._add(SyncTelemetryActionsMap, SyncTelemetryActions, beanStore);
         reducerMap[Reducers.reducerKeys.completedVisitsFilterAction] = Reducers._add(CompletedVisitsFilterActionMap, CompletedVisitsFilterAction, beanStore);
+        reducerMap[Reducers.reducerKeys.completedEncounters] = Reducers._add(CompletedEncountersActionMap, CompletedEncountersActions, beanStore);
         return reducerMap;
     };
 

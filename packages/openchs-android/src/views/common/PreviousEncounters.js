@@ -18,16 +18,15 @@ import General from "../../utility/General";
 import {Form} from 'openchs-models';
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
-import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import TypedTransition from "../../framework/routing/TypedTransition";
-import CompletedVisitsFilterView from "../filter/CompletedVisitsFilterView";
+import CompletedEncountersView from "../../encounter/CompletedEncountersView";
+import CollapsibleEncounters from "./CollapsibleEncounters";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
         encounters: PropTypes.any.isRequired,
         formType: PropTypes.string.isRequired,
         style: PropTypes.object,
-        onShowMore: PropTypes.func.isRequired,
         showCount: PropTypes.number,
         showPartial: PropTypes.bool.isRequired,
         emptyTitle: PropTypes.string,
@@ -67,31 +66,6 @@ class PreviousEncounters extends AbstractComponent {
         return [new ContextAction(actionName || 'edit', () => this.editEncounter(encounter), textColor)];
     }
 
-    renderExpandCollapseView(encounterInfo) {
-        const formMappingService = this.context.getService(FormMappingService);
-        return <View>
-            <TouchableOpacity onPress={() => this.dispatchAction(this.props.onToggleAction, {
-                encounterInfo: {...encounterInfo, expand: !encounterInfo.expand}
-            })}>
-                {this.renderTitleAndDetails(encounterInfo.encounter)}
-                <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
-                    {encounterInfo.expand === false ?
-                        <Icon name={'arrow-down'} size={12}/> :
-                        <Icon name={'arrow-up'} size={12}/>}
-                </View>
-            </TouchableOpacity>
-            {encounterInfo.expand === true ?
-                <View>
-                    <Observations
-                        form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType,
-                            this.props.formType, encounterInfo.encounter.subjectType)}
-                        observations={encounterInfo.encounter.getObservations()}/>
-                </View> : <View/>}
-            <ObservationsSectionOptions contextActions={this.encounterActions(encounterInfo.encounter)}
-                                        primaryAction={this.cancelVisitAction(encounterInfo.encounter)}/>
-        </View>
-    }
-
     badge = (status, color) => <View style={{
         backgroundColor: color,
         borderRadius: 9,
@@ -127,10 +101,12 @@ class PreviousEncounters extends AbstractComponent {
                 {this.renderTitleAndDetails(encounter)}
                 <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
                     this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
+                <View style={{paddingTop: 6}}>
+                    <ObservationsSectionOptions
+                        contextActions={this.encounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor)}
+                        primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
+                </View>
             </TouchableOpacity>
-            <ObservationsSectionOptions
-                contextActions={this.encounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor)}
-                primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
         </View>
     }
 
@@ -138,9 +114,10 @@ class PreviousEncounters extends AbstractComponent {
         const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
         const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
-            fontSize: Fonts.Small,
-            color: Colors.SecondaryText
-        }}>{`Scheduled : ${General.toDisplayDate(encounter.earliestVisitDateTime)}`}</Text> : <View/>;
+                fontSize: Fonts.Small,
+                color: Colors.SecondaryText
+            }}>{encounter.earliestVisitDateTime && `Scheduled : ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
+            <View/>;
         return <View>
             <View
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
@@ -154,17 +131,18 @@ class PreviousEncounters extends AbstractComponent {
         </View>;
     }
 
-    renderFilter() {
+    renderViewAll(encountersInfo) {
         return <TouchableOpacity
             onPress={() => TypedTransition.from(this).with({
-                encounterTypes: this.props.encounterTypes,
-                onFilterApply: this.props.onFilterApply,
-                selectedEncounterType: this.props.selectedEncounterType,
-            }).to(CompletedVisitsFilterView)}
-            style={styles.filterButtonContainer}>
+                encountersInfo,
+                renderTitleAndDetails: (encounter) => this.renderTitleAndDetails(encounter),
+                encounterActions: (encounter) => this.encounterActions(encounter),
+                cancelVisitAction: (encounter) => this.cancelVisitAction(encounter),
+                enrolment: this.props.enrolment
+            }).to(CompletedEncountersView)}
+            style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Icon name={'equalizer'} size={25}/>
-                <Text style={styles.filterButtonText}>{this.I18n.t('sortFilter')}</Text>
+                <Text style={styles.viewAllText}>{this.I18n.t('viewAll')}</Text>
             </View>
         </TouchableOpacity>
     }
@@ -174,7 +152,7 @@ class PreviousEncounters extends AbstractComponent {
         let showingPartial = this.props.showPartial && (this.props.showCount < this.props.encounters.length);
         General.logDebug('PreviousEncounters.render', `ShowingPartial:${showingPartial}, ShowCount:${this.props.showCount}, Total:${this.props.encounters.length}`);
         if (this.props.showPartial) {
-            let chronologicalEncounters = _.orderBy(this.props.encounters, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime, 'desc');
+            let chronologicalEncounters = _.orderBy(this.props.encounters, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
             toDisplayEncounters = _.slice(chronologicalEncounters, 0, this.props.showCount);
         } else {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
@@ -184,7 +162,8 @@ class PreviousEncounters extends AbstractComponent {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text
                     style={[Fonts.MediumBold, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
-                {this.props.expandCollapseView ? this.renderFilter() : <View/>}
+                {this.props.expandCollapseView && this.props.encounters.length > 3 ? this.renderViewAll(this.props.encounters) :
+                    <View/>}
             </View>
             {_.isEmpty(toDisplayEncounters) ?
                 (<View style={styles.container}>
@@ -199,21 +178,19 @@ class PreviousEncounters extends AbstractComponent {
                 initialListSize={1}
                 removeClippedSubviews={true}
                 renderRow={(encounter) => <View style={styles.container}>
-                    {this.props.expandCollapseView ? this.renderExpandCollapseView(encounter) : this.renderNormalView(encounter)}
+                    {this.props.expandCollapseView ?
+                        <CollapsibleEncounters encountersInfo={encounter}
+                                               onToggleAction={this.props.onToggleAction}
+                                               renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
+                                               encounterActions={() => this.encounterActions(encounter.encounter)}
+                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}/>
+                        : this.renderNormalView(encounter)}
                 </View>}
             />
         </View>);
         return (
             <View>
                 {renderable}
-                {(showingPartial) ?
-                    <Button onPress={() => this.props.onShowMore()}
-                            style={[Styles.basicSecondaryButtonView, {alignSelf: 'center'}]}><Text
-                        style={{
-                            fontSize: Fonts.Medium,
-                            color: Colors.DarkPrimaryColor
-                        }}>{this.I18n.t('showMoreVisits')}</Text></Button> : null
-                }
             </View>
         );
     }
@@ -230,14 +207,17 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.cardBackgroundColor,
         marginVertical: 3
     },
-    filterButtonContainer: {
+    viewAllContainer: {
         right: Distances.ScaledContentDistanceFromEdge,
         position: 'absolute',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 5,
     },
-    filterButtonText: {
+    viewAllText: {
         paddingHorizontal: 7,
         paddingVertical: 2,
-        color: Colors.ActionButtonColor
+        color: Colors.ActionButtonColor,
+        fontWeight: 'bold'
     }
 });

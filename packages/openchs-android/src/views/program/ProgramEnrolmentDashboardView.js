@@ -182,8 +182,12 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                   observations={this.state.enrolment.observations}
                                   style={{marginVertical: DGS.resizeHeight(8)}}/>
                 </View> : <View/>}
-            <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions()}
-                                        primaryAction={this.getPrimaryEnrolmentContextAction()}/>
+            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
+                <View style={{paddingTop: 6}}>
+                    <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions()}
+                                                primaryAction={this.getPrimaryEnrolmentContextAction()}/>
+                </View>
+            </TouchableOpacity>
         </View>);
     }
 
@@ -197,7 +201,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
-        const programEncounterTypeState = this.state.programEncounterTypeState;
         const dashboardButtons = this.state.dashboardButtons || [];
         const encounterActions = this.state.encounterTypes.map(encounterType => ({
             fn: () => {
@@ -274,23 +277,21 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     {this.renderExitObservations()}
                                     <PreviousEncounters encounters={scheduledEncounters}
                                                         formType={Form.formTypes.ProgramEncounter}
-                                                        onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
-                                                        showCount={this.state.showCount} showPartial={false}
+                                                        showCount={this.state.showCount}
+                                                        showPartial={false}
                                                         title={this.I18n.t('visitsPlanned')}
                                                         emptyTitle={this.I18n.t('noPlannedEncounters')}
                                                         expandCollapseView={false}/>
                                     {this.renderEnrolmentDetails()}
                                     <PreviousEncounters encounters={actualEncounters}
                                                         formType={Form.formTypes.ProgramEncounter}
-                                                        onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
-                                                        showCount={this.state.showCount} showPartial={true}
+                                                        showCount={this.state.showCount}
+                                                        showPartial={true}
                                                         title={this.I18n.t('visitsCompleted')}
+                                                        emptyTitle={this.I18n.t('noCompletedEncounters')}
                                                         expandCollapseView={true}
                                                         onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
-                                                        encounterTypes={this.state.enrolment.uuid && this.state.enrolment.allEncounterTypes()}
-                                                        onFilterApply={Actions.ON_FILTER_APPLY}
-                                                        selectedEncounterType={this.state.selectedEncounterType}
-                                                        emptyTitle={this.I18n.t('noCompletedEncounters')}/>
+                                                        enrolment={this.state.enrolment}/>
                                 </View>}
                         </ScrollView>
                     </View>
