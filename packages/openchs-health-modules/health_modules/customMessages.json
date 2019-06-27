@@ -2276,7 +2276,14 @@
     "Are you taking more food than previous, as you are malnourished?" : "તમે કુપોષિત છો તો શું તમે પહેલા કરતા વધારે ખોરાક લો છો?",
     "Do you know your weight is less?": "શું તને તારું વજન ઓછુ છે તે ખ્યાલ છે?",
     "what will happen if your weight is less?": "ઓછા વજનથી શું થાય?",
-    "Malnutrition video shown?": "તમે કુપોષણ વિડીઓ બતાવ્યો?"
+    "Malnutrition video shown?": "તમે કુપોષણ વિડીઓ બતાવ્યો?",
+    "Sickle Cell Followup": "સિકલ સેલ ની ફોલોઅપ મુલાકાત",
+    "Chronic Sickness Followup": "ગંભીર બીમારી ની ફોલોઅપ મુલાકાત",
+    "Menstrual Disorder Followup": "માસિક દરમિયાનની તકલીફો ની ફોલોઅપ મુલાકાત",
+    "Severe Anemia Followup": "ગંભીર એનિમિયા ની ફોલોઅપ મુલાકાત",
+    "Moderate Anemia Followup": "મધ્યમ એનિમિયા ની ફોલોઅપ મુલાકાત",
+    "Addiction Followup": "વ્યસન ની ફોલોઅપ મુલાકાત",
+    "Severe Malnutrition Followup": "ગંભીર કુપોષણ ની ફોલોઅપ મુલાકાત"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
