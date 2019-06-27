@@ -1,4 +1,4 @@
-import {TouchableNativeFeedback, ListView, Text, View} from "react-native";
+import {TouchableNativeFeedback, ListView, Text, View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -6,6 +6,9 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {Icon, Button} from "native-base";
+import IndividualDetailsCard from "./IndividualDetailsCard";
+import Distances from "../primitives/Distances";
+
 class Relatives extends AbstractComponent {
     static propTypes = {
         relatives: PropTypes.array.isRequired,
@@ -71,7 +74,7 @@ class Relatives extends AbstractComponent {
                       marginLeft: 4,
                       marginRight: 4,
                       borderRadius: 2,
-                      paddingHorizontal:4,
+                      paddingHorizontal: 4,
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
                       textAlignVertical: 'center'
@@ -81,73 +84,77 @@ class Relatives extends AbstractComponent {
 
     renderRelativeActionButton(individualRelative) {
         return (<View>
-        <View style={{flex:0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-    <Button transparent onPress={() => this.props.onRelativeDeletion(individualRelative)}><Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-        paddingHorizontal: 5}}>delete</Text></Button>
+            <View style={{flex: 0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
+                <Button transparent onPress={() => this.props.onRelativeDeletion(individualRelative)}><Text style={{
+                    fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
+                    paddingHorizontal: 5
+                }}>delete</Text></Button>
 
-    </View>
+            </View>
         </View>);
 
     }
 
+    renderNoRelativeMessage() {
+        return <View style={styles.container}>
+            <Text style={{
+                fontSize: Fonts.Large,
+                color: Colors.DefaultPrimaryColor
+            }}>{this.I18n.t("noRelativeAdded")}</Text>
+        </View>
+    }
+
     render() {
         const editDeleteFeatureToggle = true;
-        //TODO there is lot of duplication between this and ISRV but there are differences as well.Fix it.
-        if (this.props.relatives.length === 0) return <View/>;
-        const i18n = this.I18n;
-         const relatives = this.props.relatives;
+        const relatives = this.props.relatives;
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(relatives);
         return (
-            <View style={{flexDirection: "column", paddingBottom: 10}}>
-                {this.renderTitle()}
-                <ListView enableEmptySections={true}
-                          dataSource={dataSource}
-                          style={{backgroundColor: Styles.greyBackground}}
-                          renderRow={(relative) =>
-                              <TouchableNativeFeedback onPress={() => this.onResultRowPress(relative.relative)}
-                                                       background={TouchableNativeFeedback.SelectableBackground()}>
-                                  <View>
-                                      <View style={{ flexDirection: 'row', flexWrap: 'nowrap',
-                                          paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge, alignItems: 'center',
-                                          alignSelf: 'center', flex:1}}>
-                                          <View style={{flex:0.75}}>
-                                              <Text style={Styles.relativeRelationText}>{i18n.t(relative.relation.name)}</Text>
+            relatives.length > 0 ?
+                (<View style={{flexDirection: "column", paddingBottom: 10}}>
+                    {this.renderTitle()}
+                    <ListView enableEmptySections={true}
+                              dataSource={dataSource}
+                              renderRow={(relative) =>
+                                  <TouchableNativeFeedback onPress={() => this.onResultRowPress(relative.relative)}
+                                                           background={TouchableNativeFeedback.SelectableBackground()}>
+                                      <View style={styles.container}>
+                                          <View style={styles.relativeDetails}>
+                                              <View style={{flex: 0.75}}>
+                                                  <Text
+                                                      style={Styles.relativeRelationText}>{this.I18n.t(relative.relation.name)}</Text>
+                                              </View>
+                                              {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) :
+                                                  <View/>}
                                           </View>
-                                          {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) : <View/>}
+                                          <IndividualDetailsCard individual={relative.relative}/>
                                       </View>
-                                      <View style={{ flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
-                                          alignSelf: 'center', height: 86, paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}}>
-                                          <Icon name='person-pin' style={{color: Colors.AccentColor, fontSize: 56, paddingRight: 16}}/>
-                                          <View style={{ flexDirection: 'column', alignItems: 'flex-start', flex: 1}}>
-                                              <Text style={Styles.textStyle}>{relative.relative.name}</Text>
-                                              <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start'}}>
-                                                  <Text style={Styles.userProfileSubtext}>{this.I18n.t(relative.relative.gender.name)}</Text>
-                                                  <Text style={Styles.userProfileSubtext}>{relative.relative.getDisplayAge(i18n)}</Text>
-                                              </View>
-                                          </View>
-                                          <View style={{
-                                              flexDirection: 'column',
-                                              justifyContent: 'center',
-                                              alignItems: 'flex-end',
-                                              flex: 1
-                                          }}>
-                                              <View style={{justifyContent: 'flex-end'}}>
-                                                  <Text style={Styles.textStyle}>{this.I18n.t(relative.relative.lowestAddressLevel.name)}</Text>
-                                              </View>
-                                              <View style={{ flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                                  {_.filter(relative.relative.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
-                                              </View>
-                                          </View>
-                                      </View>
-                                      <View style={{borderBottomColor: Colors.GreyBackground, borderBottomWidth: 1,}}/>
-                                  </View>
-                              </TouchableNativeFeedback>
-                          }>
+                                  </TouchableNativeFeedback>
+                              }>
 
-                </ListView>
-            </View>
+                    </ListView>
+                </View>)
+                : this.renderNoRelativeMessage()
         );
     }
 }
 
 export default Relatives;
+
+
+const styles = StyleSheet.create({
+    container: {
+        padding: Distances.ScaledContentDistanceFromEdge,
+        margin: 4,
+        elevation: 2,
+        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 3
+    },
+    relativeDetails: {
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+        alignItems: 'center',
+        alignSelf: 'center',
+        flex: 1
+    }
+});

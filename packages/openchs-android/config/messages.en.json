@@ -263,5 +263,7 @@
   "completedEncounters": "Completed Encounters",
   "viewAll": "VIEW ALL",
   "unplannedVisit": "Unplanned Visit",
-  "registrationInformation": "Registration Details"
+  "registrationInformation": "Registration Details",
+  "addRelative": "Add Relative",
+  "noRelativeAdded": "No Relative Added"
 }

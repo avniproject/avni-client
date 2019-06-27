@@ -12,6 +12,8 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import SearchResultsHeader from "./SearchResultsHeader";
+import IndividualDetailsCard from "../common/IndividualDetailsCard";
+import Distances from "../primitives/Distances";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -66,7 +68,6 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const i18n = this.I18n;
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
         const width = Dimensions.get('window').width;
 
@@ -76,88 +77,33 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
                 <CHSContent>
-                        <ListView enableEmptySections={true}
-                                  dataSource={dataSource}
-                                  style={{backgroundColor: Colors.cardBackgroundColor}}
-                                  renderRow={(item) =>
-                                      <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
-                                                               background={this.background()}>
-                                          <View>
-                                              <View style={{
-                                                  flexDirection: 'row',
-                                                  flexWrap: 'nowrap',
-                                                  alignItems: 'center',
-                                                  alignSelf: 'center',
-                                                  height: 86,
-                                                  paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
-                                              }}>
-                                                  <Icon name={item.icon()} style={{
-                                                      color: Colors.AccentColor,
-                                                      fontSize: 56,
-                                                      paddingRight: 16
-                                                  }}/>
-                                                  <View
-                                                      style={{
-                                                          flexDirection: 'column',
-                                                          alignItems: 'flex-start',
-                                                          flex: 1
-                                                      }}>
-                                                      <Text style={Styles.textStyle}>
-                                                          {item.nameString}
-                                                          {item.voided &&
-                                                          <Text style={{color: Styles.redColor}}>
-                                                              {` ${this.I18n.t("voidedLabel")}`}
-                                                          </Text>
-                                                          }
-                                                      </Text>
-                                                      <View style={{
-                                                          flexDirection: 'row',
-                                                          justifyContent: 'flex-start',
-                                                          alignItems: 'flex-start'
-                                                      }}>
-                                                          <Text
-                                                              style={Styles.userProfileSubtext}>{item.userProfileSubtext1(i18n)}</Text>
-                                                          <Text
-                                                              style={Styles.userProfileSubtext}>{item.userProfileSubtext2(i18n)}</Text>
-                                                      </View>
-                                                  </View>
-                                                  <View style={{
-                                                      flexDirection: 'column',
-                                                      justifyContent: 'center',
-                                                      alignItems: 'flex-end',
-                                                      flex: 1
-                                                  }}>
-                                                      <View style={{justifyContent: 'flex-end'}}>
-                                                          <Text
-                                                              style={Styles.textStyle}>{this.I18n.t(item.lowestAddressLevel.name)}</Text>
-                                                      </View>
-                                                      <View style={{
-                                                          flexDirection: 'row',
-                                                          justifyContent: 'flex-end'
-                                                      }}>
-                                                          {_.filter(item.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
-                                                      </View>
-                                                  </View>
-                                              </View>
-                                              <View style={{
-                                                  borderBottomColor: Colors.GreyBackground,
-                                                  borderBottomWidth: 1,
-                                              }}/>
-                                          </View>
-                                      </TouchableNativeFeedback>
-                                  }>
-
-                        </ListView>
-                        {this.renderZeroResultsMessageIfNeeded()}
+                    <ListView enableEmptySections={true}
+                              dataSource={dataSource}
+                              style={{backgroundColor: Colors.cardBackgroundColor}}
+                              renderRow={(item) =>
+                                  <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
+                                                           background={this.background()}>
+                                      <View style={{
+                                          padding: Distances.ScaledContentDistanceFromEdge,
+                                          margin: 4,
+                                          elevation: 2,
+                                          backgroundColor: Colors.cardBackgroundColor,
+                                          marginVertical: 3
+                                      }}>
+                                          <IndividualDetailsCard individual={item}/>
+                                      </View>
+                                  </TouchableNativeFeedback>
+                              }/>
+                    {this.renderZeroResultsMessageIfNeeded()}
                 </CHSContent>
             </CHSContainer>
-    );
+        );
     }
 
     onResultRowPress(individual) {
         this.props.onIndividualSelection(this, individual);
         // CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
     }
-    }
+}
 
-    export default IndividualSearchResultsView;
+export default IndividualSearchResultsView;

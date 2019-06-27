@@ -47,7 +47,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 
     getRelativeActions() {
-        return [new ContextAction('add', () => {
+        return [new ContextAction(this.I18n.t('addRelative'), () => {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
                 (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
             )
@@ -97,9 +97,11 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     renderRelatives() {
         const individualToComeBackTo = this.state.individual;
         return (
-            <View>
-                <ObservationsSectionTitle contextActions={this.getRelativeActions()}
-                                          title={'Relatives'}/>
+            <View style={{marginTop: 20}}>
+                <View style={{paddingLeft: 10}}>
+                    <ObservationsSectionTitle contextActions={this.getRelativeActions()}
+                                              title={'Relatives'}/>
+                </View>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
                            onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual, () => this.goBackFromRelative(individualToComeBackTo))}
@@ -143,9 +145,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                         <View style={styles.container}>
                             {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
                         </View>
-                        <View style={styles.container}>
-                            {relativesFeatureToggle ? this.renderRelatives() : <View/>}
-                        </View>
+                        {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     </View>
                     <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
