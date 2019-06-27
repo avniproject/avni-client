@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
+import {View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import {Card, Container, Content} from "native-base";
 import AppHeader from "../common/AppHeader";
@@ -12,10 +12,11 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import PreviousEncounters from "../common/PreviousEncounters";
 import _ from "lodash";
 import Colors from '../primitives/Colors';
-import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import {Form} from 'openchs-models';
+import Styles from "../primitives/Styles";
+import Separator from "../primitives/Separator";
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -43,20 +44,26 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     render() {
         return (
             <CHSContainer>
-                <CHSContent style={{backgroundColor: Colors.BlackBackground}}>
+                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                     <AppHeader title={this.I18n.t('generalHistory')}/>
-                    <IndividualProfile viewContext={IndividualProfile.viewContext.General} individual={this.state.individual} style={DGS.common.content}
-                                       programsAvailable={this.state.programsAvailable}/>
-                    <Card style={{
-                        flexDirection: 'column',
-                        marginHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
-                        borderRadius: 5,
-                        paddingHorizontal: Distances.ScaledContentDistanceWithinContainer
-                    }}>
-                        <PreviousEncounters encounters={this.state.individual.nonVoidedEncounters()}
+                    <View style={{backgroundColor: Styles.defaultBackground}}>
+                        <IndividualProfile viewContext={IndividualProfile.viewContext.General}
+                                           individual={this.state.individual} style={DGS.common.content}
+                                           programsAvailable={this.state.programsAvailable}/>
+                    </View>
+                    <View style={{marginHorizontal: 8}}>
+                        <PreviousEncounters encounters={this.state.encounters}
                                             formType={Form.formTypes.Encounter}
-                                            style={{marginBottom: 21}} onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)} showPartial={true} showCount={this.state.showCount}/>
-                    </Card>
+                                            style={{marginBottom: 21}}
+                                            onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
+                                            showPartial={true}
+                                            showCount={this.state.showCount}
+                                            title={this.I18n.t('completedEncounters')}
+                                            emptyTitle={this.I18n.t('noEncounters')}
+                                            expandCollapseView={true}
+                                            onToggleAction={Actions.ON_TOGGLE}/>
+                    </View>
+                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>
         );

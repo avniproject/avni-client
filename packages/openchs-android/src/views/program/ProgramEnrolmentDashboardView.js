@@ -23,7 +23,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
-import {Form, WorkItem, WorkList, WorkLists} from 'openchs-models';
+import {Form} from 'openchs-models';
 import _ from "lodash";
 import ActionSelector from "../common/ActionSelector";
 import Distances from "../primitives/Distances";
@@ -219,14 +219,13 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const actualEncounters = this.state.completedEncounters;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
+                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                     <ActionSelector
                         title={this.I18n.t("followupTypes")}
                         hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
                         visible={this.state.displayActionSelector}
                         actions={encounterActions}
                     />
-                    <View style={{backgroundColor: Colors.GreyContentBackground}}>
                         <View style={{backgroundColor: Styles.defaultBackground}}>
                             <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                             <IndividualProfile style={{marginHorizontal: 16}}
@@ -294,7 +293,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         enrolment={this.state.enrolment}/>
                                 </View>}
                         </ScrollView>
-                    </View>
                     <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>
