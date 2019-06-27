@@ -66,7 +66,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
 
     didFocus() {
         super.didFocus();
-        this.dispatchOnLoad();
+        this.dispatchAction(Actions.ON_FOCUS, this.props);
     }
 
     editEnrolment() {

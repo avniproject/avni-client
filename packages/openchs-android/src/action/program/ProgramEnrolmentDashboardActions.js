@@ -1,6 +1,5 @@
-
 import EntityService from "../../service/EntityService";
-import {Encounter, Individual, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
+import {Encounter, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";
@@ -15,6 +14,8 @@ import UserInfoService from "../../service/UserInfoService";
 import WorkLists from "openchs-models/src/application/WorkLists";
 import WorkList from "openchs-models/src/application/WorkList";
 import WorkItem from "openchs-models/src/application/WorkItem";
+import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import IndividualService from "../../service/IndividualService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -82,27 +83,16 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onLoad(state, action, context) {
+        const {enrolmentUUID, individualUUID} = action;
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         ProgramEnrolmentDashboardActions._updateStateWithBackFunction(action, newState, state);
-        const entityService = context.get(EntityService);
-        const ruleService = context.get(RuleEvaluationService);
-        if (_.isNil(action.enrolmentUUID)) {
-            const individual = entityService.findByUUID(action.individualUUID, Individual.schema.name);
-            newState.enrolment = individual.nonVoidedEnrolments().length === 0 ? new NullProgramEnrolment(individual) : individual.firstActiveOrRecentEnrolment;
-            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
-        } else {
-            newState.enrolment = entityService.findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
-            newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
-        }
-        newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, context);
         newState.programsAvailable = context.get(ProgramService).programsAvailable;
-        newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
         //TODO This hiding buttons this way is a temporary fix to avoid flood of issues from DDM.
         // TODO Proper solution will roles and privilege based
         newState.hideExit = context.get(UserInfoService).getUserSettings().hideExit;
         newState.hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
-
-        return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
+        const enrolment = ProgramEnrolmentDashboardActions._getEnrolment(newState, context, individualUUID, enrolmentUUID);
+        return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
     }
 
     static _updateStateWithBackFunction(action, newState, state) {
@@ -235,10 +225,20 @@ class ProgramEnrolmentDashboardActions {
 
     static onEnrolmentChange(state, action, context) {
         if (action.enrolmentUUID === state.enrolment.uuid) return state;
-
-        const ruleService = context.get(RuleEvaluationService);
+        const enrolment = state.enrolment.individual.findEnrolment(action.enrolmentUUID);
         const newState = ProgramEnrolmentDashboardActions.clone(state);
-        newState.enrolment = newState.enrolment.individual.findEnrolment(action.enrolmentUUID);
+        return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
+    }
+
+    static onFocus(state, {individualUUID, enrolmentUUID}, context) {
+        const enrolment = ProgramEnrolmentDashboardActions._getEnrolment(state, context, individualUUID, enrolmentUUID);
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
+    }
+
+    static _onEnrolmentChange(newState, context, enrolment) {
+        const ruleService = context.get(RuleEvaluationService);
+        newState.enrolment = enrolment;
         newState.enrolmentSummary = ruleService.getEnrolmentSummary(newState.enrolment, ProgramEnrolment.schema.name, context);
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
@@ -246,11 +246,24 @@ class ProgramEnrolmentDashboardActions {
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
+    static _getEnrolment(state, context, individualUUID, enrolmentUUID) {
+        const enrolmentService = context.get(ProgramEnrolmentService);
+        if (enrolmentService.existsByUuid(enrolmentUUID)) {
+            return enrolmentService.findByUUID(enrolmentUUID);
+        }
+        if (state.enrolment.individual.uuid === individualUUID && enrolmentService.existsByUuid(state.enrolment.uuid)) {
+            return enrolmentService.findByUUID(state.enrolment.uuid);
+        }
+        const individual = context.get(IndividualService).findByUUID(individualUUID);
+        return individual.firstActiveOrRecentEnrolment || new NullProgramEnrolment(individual);
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
+    ON_FOCUS: 'PEDA.ON_FOCUS',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
     ON_EDIT_ENROLMENT_EXIT: 'PEDA.ON_EDIT_ENROLMENT_EXIT',
     ON_EXIT_ENROLMENT: 'PEDA.ON_EXIT_ENROLMENT',
@@ -266,6 +279,7 @@ const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTE
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
+    [ProgramEnrolmentDashboardActionsNames.ON_FOCUS, ProgramEnrolmentDashboardActions.onFocus],
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
