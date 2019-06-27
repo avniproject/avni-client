@@ -50,16 +50,6 @@ class IndividualProfile extends AbstractComponent {
         CHSNavigator.navigateToIndividualRegistrationDetails(this, this.props.individual);
     }
 
-    editProfile() {
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList(`${this.props.individual.subjectType.name} `,
-                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                    {
-                        uuid: this.props.individual.uuid,
-                        subjectTypeName: this.props.individual.subjectType.name
-                    })])));
-    }
-
     renderViewEnrolmentsIfNecessary() {
         if (this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program) {
             return this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments())
@@ -137,13 +127,11 @@ class IndividualProfile extends AbstractComponent {
                         style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                     {this.programProfileHeading()}
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
-                        {this.props.viewContext === IndividualProfile.viewContext.Individual ?
-                            this.renderProfileActionButton('mode-edit', 'editProfile', () => {
-                                this.editProfile()
-                            }) :
+                        {this.props.viewContext !== IndividualProfile.viewContext.Individual ?
                             this.renderProfileActionButton('person', 'viewProfile', () => {
                                 this.viewProfile()
                             })
+                            : <View/>
                         }
                         {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
                         {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :

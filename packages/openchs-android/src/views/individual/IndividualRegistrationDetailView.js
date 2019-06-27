@@ -1,4 +1,4 @@
-import {View, Alert, Text} from "react-native";
+import {View, Alert, Text, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -21,6 +21,11 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
+import Colors from "../primitives/Colors";
+import {WorkItem, WorkList, WorkLists} from "openchs-models";
+import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
+import Separator from "../primitives/Separator";
+import Distances from "../primitives/Distances";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -42,30 +47,35 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 
     getRelativeActions() {
-        return [new ContextAction('add', () => {CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
-            (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
-        )})];
+        return [new ContextAction('add', () => {
+            CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
+                (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
+            )
+        })];
     }
 
-    goBackFromRelative(individual){
+    goBackFromRelative(individual) {
         CHSNavigator.goBack(this);
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: individual.uuid});
 
     }
 
-    onRelativeDeletePress(individualRelative){
+    onRelativeDeletePress(individualRelative) {
         Alert.alert(
             this.I18n.t('deleteRelativeNoticeTitle'),
-            this.I18n.t('deleteRelativeConfirmationMessage', {individualA: individualRelative.individual.name, individualB: individualRelative.relative.name}),
+            this.I18n.t('deleteRelativeConfirmationMessage', {
+                individualA: individualRelative.individual.name,
+                individualB: individualRelative.relative.name
+            }),
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                    this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative})
-                }
+                        this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative})
+                    }
                 },
                 {
                     text: this.I18n.t('no'), onPress: () => {
-                },
+                    },
                     style: 'cancel'
                 }
             ]
@@ -73,8 +83,18 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     }
 
+    editProfile() {
+        CHSNavigator.navigateToRegisterView(this, new WorkLists(
+            new WorkList(`${this.state.individual.subjectType.name} `,
+                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                    {
+                        uuid: this.state.individual.uuid,
+                        subjectTypeName: this.state.individual.subjectType.name
+                    })])));
+    }
 
-    renderRelatives(){
+
+    renderRelatives() {
         const individualToComeBackTo = this.state.individual;
         return (
             <View>
@@ -82,9 +102,29 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                                           title={'Relatives'}/>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
-                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual, () => this.goBackFromRelative(individualToComeBackTo))} onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
+                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual, () => this.goBackFromRelative(individualToComeBackTo))}
+                           onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
             </View>
         );
+    }
+
+    renderVoided() {
+        return (
+            <Text style={{fontSize: Fonts.Large, color: Styles.redColor}}>
+                {this.I18n.t("thisIndividualHasBeenVoided")}
+            </Text>
+        );
+    }
+
+    renderProfile() {
+        return <View>
+            <Text
+                style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>{this.I18n.t("registrationInformation")}</Text>
+            <Observations observations={this.state.individual.observations}
+                          style={{marginVertical: 3}}/>
+            <ObservationsSectionOptions
+                contextActions={[new ContextAction('edit', () => this.editProfile())]}/>
+        </View>
     }
 
     render() {
@@ -92,20 +132,22 @@ class IndividualRegistrationDetailView extends AbstractComponent {
         const relativesFeatureToggle = this.state.individual.isIndividual();
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
-                <CHSContent style={{backgroundColor: Styles.defaultBackground}}>
-                    <AppHeader title={this.I18n.t('viewProfile')} func={this.props.params.backFunction}/>
-                    <IndividualProfile individual={this.state.individual} viewContext={IndividualProfile.viewContext.Individual} programsAvailable={this.state.programsAvailable}/>
-
-                    <Card style={{ flexDirection: 'column', borderRadius: 5, marginHorizontal: 16, backgroundColor: Styles.whiteColor, paddingHorizontal:8}}>
-                        {this.state.individual.voided &&
-                            <Text style={{
-                                fontSize: Fonts.Large,
-                                color: Styles.redColor
-                            }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
-                        }
-                        <Observations observations={this.state.individual.observations} style={{marginVertical: 21}}/>
-                        {relativesFeatureToggle ? this.renderRelatives() : <View/>}
-                    </Card>
+                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
+                    <View style={{backgroundColor: Styles.defaultBackground}}>
+                        <AppHeader title={this.I18n.t('viewProfile')} func={this.props.params.backFunction}/>
+                        <IndividualProfile individual={this.state.individual}
+                                           viewContext={IndividualProfile.viewContext.Individual}
+                                           programsAvailable={this.state.programsAvailable}/>
+                    </View>
+                    <View style={{marginHorizontal: 10, marginTop: 10}}>
+                        <View style={styles.container}>
+                            {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
+                        </View>
+                        <View style={styles.container}>
+                            {relativesFeatureToggle ? this.renderRelatives() : <View/>}
+                        </View>
+                    </View>
+                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>
         );
@@ -113,3 +155,14 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 }
 
 export default IndividualRegistrationDetailView;
+
+
+const styles = StyleSheet.create({
+    container: {
+        padding: Distances.ScaledContentDistanceFromEdge,
+        margin: 4,
+        elevation: 2,
+        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 3
+    }
+});

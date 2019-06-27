@@ -51,7 +51,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                                            individual={this.state.individual} style={DGS.common.content}
                                            programsAvailable={this.state.programsAvailable}/>
                     </View>
-                    <View style={{marginHorizontal: 8}}>
+                    <View style={{marginHorizontal: 10}}>
                         <PreviousEncounters encounters={this.state.encounters}
                                             formType={Form.formTypes.Encounter}
                                             style={{marginBottom: 21}}

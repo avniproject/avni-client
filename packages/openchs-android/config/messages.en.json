@@ -262,5 +262,6 @@
   "do": "Do",
   "completedEncounters": "Completed Encounters",
   "viewAll": "VIEW ALL",
-  "unplannedVisit": "Unplanned Visit"
+  "unplannedVisit": "Unplanned Visit",
+  "registrationInformation": "Registration Details"
 }
