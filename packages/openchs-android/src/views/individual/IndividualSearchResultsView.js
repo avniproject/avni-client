@@ -88,7 +88,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                                   flexWrap: 'nowrap',
                                                   alignItems: 'center',
                                                   alignSelf: 'center',
-                                                  height: 86,
+                                                  minHeight: 86,
                                                   paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                                               }}>
                                                   <Icon name={item.icon()} style={{
