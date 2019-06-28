@@ -45,7 +45,7 @@ class IndividualDetailsCard extends AbstractComponent {
                     flexWrap: 'nowrap',
                     alignItems: 'center',
                     alignSelf: 'center',
-                    height: 86,
+                    minHeight: 86,
                     paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                 }}>
                     <Icon name={this.props.individual.icon()} style={{
