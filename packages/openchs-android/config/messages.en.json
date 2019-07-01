@@ -264,6 +264,7 @@
   "viewAll": "VIEW ALL",
   "unplannedVisit": "Unplanned Visit",
   "registrationInformation": "Registration Details",
+  "registeredOn" : "Registration Date: ",
   "addRelative": "Add Relative",
   "noRelativeAdded": "No Relative Added"
 }

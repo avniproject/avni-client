@@ -120,12 +120,20 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     renderProfile() {
         return <View>
-            <Text
-                style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>{this.I18n.t("registrationInformation")}</Text>
-            <Observations observations={this.state.individual.observations}
-                          style={{marginVertical: 3}}/>
-            <ObservationsSectionOptions
-                contextActions={[new ContextAction('edit', () => this.editProfile())]}/>
+            <View styel={{flexDirection: 'column'}}>
+                <Text style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>
+                    {this.I18n.t("registrationInformation")}
+                </Text>
+                <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
+                    {`${this.I18n.t("registeredOn")}${General.toDisplayDate(this.state.individual.registrationDate)}`}
+                </Text>
+            </View>
+            <View style={{marginTop: 3}}>
+                <Observations observations={this.state.individual.observations}
+                              style={{marginVertical: 3}}/>
+                <ObservationsSectionOptions
+                    contextActions={[new ContextAction('edit', () => this.editProfile())]}/>
+            </View>
         </View>
     }
 
