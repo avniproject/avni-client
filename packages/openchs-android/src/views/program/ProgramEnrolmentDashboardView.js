@@ -50,7 +50,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.RESET_APPLIED_FILTERS);
         return super.componentWillMount();
     }
 
