@@ -189,28 +189,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];
-        const encounterActions = this.state.encounterTypes.map(encounterType => ({
-            fn: () => {
-                this.state.encounter.encounterType = encounterType;
-                CHSNavigator.navigateToIndividualEncounterLandingView(
-                    this,
-                    this.state.enrolment.individual.uuid,
-                    this.state.encounter
-                );
-            },
-            label: encounterType.displayName,
-            backgroundColor: Colors.ActionButtonColor
-        }));
         const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         const actualEncounters = this.state.completedEncounters;
         return (
                 <View style={{backgroundColor: Colors.GreyContentBackground}}>
-                    <ActionSelector
-                        title={this.I18n.t("followupTypes")}
-                        hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
-                        visible={this.state.displayActionSelector}
-                        actions={encounterActions}
-                    />
                         <View style={{backgroundColor: Styles.defaultBackground}}>
                         </View>
                         <ScrollView style={{
@@ -244,7 +226,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                         enrolment={this.state.enrolment}
                                                         onOpenChecklist={() => this.openChecklist()}
-                                                        encounterTypes={this.state.encounterTypes}
                                     />
                                 </View>
                             </View>

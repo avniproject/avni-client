@@ -22,14 +22,8 @@ class ProgramActionsView extends AbstractComponent {
 
     static propTypes = {
         programDashboardButtons: PropTypes.array.isRequired,
-        enrolment: PropTypes.object.isRequired,
-        encounterTypes: PropTypes.array.isRequired
+        enrolment: PropTypes.object.isRequired
     };
-
-    startEncounter() {
-        this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
-        this.dispatchAction(ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR);
-    }
 
     startProgramEncounter() {
         CHSNavigator.navigateToStartProgramView(this, this.props.enrolment.uuid);
@@ -53,7 +47,7 @@ class ProgramActionsView extends AbstractComponent {
                     <Text style={{
                         fontSize: Fonts.Medium,
                         color: textColor
-                    }}>{text.toUpperCase()}</Text>
+                    }}>{text}</Text>
                 </View>
             </TouchableNativeFeedback>
         );
@@ -63,10 +57,6 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
-                {_.isEmpty(this.props.encounterTypes) ? <View/> :
-                    this.renderButton(() => this.startEncounter(), Styles.basicSecondaryButtonView,
-                        this.I18n.t('newGeneralVisit'), Colors.DarkPrimaryColor)
-                }
                 {this.props.enrolment.isActive ?
                     this.renderButton(() => this.startProgramEncounter(), Styles.basicPrimaryButtonView,
                         this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
