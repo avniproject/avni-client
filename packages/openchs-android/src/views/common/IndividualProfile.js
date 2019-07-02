@@ -3,9 +3,7 @@ import {View, Alert, TouchableNativeFeedback} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
-import TypedTransition from "../../framework/routing/TypedTransition";
 import {Actions} from "../../action/individual/IndividualProfileActions";
-import IndividualGeneralHistoryView from "../individual/IndividualGeneralHistoryView";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
@@ -21,7 +19,7 @@ import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "openchs-models";
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
         individual: PropTypes.object.isRequired,
-        viewContext: PropTypes.string.isRequired,
+        viewContext: PropTypes.string,
         programsAvailable: PropTypes.bool,
         hideEnrol: PropTypes.bool,
         style: PropTypes.object
@@ -44,10 +42,6 @@ class IndividualProfile extends AbstractComponent {
 
     componentDidMount() {
         setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual: this.props.individual}), 300);
-    }
-
-    viewProfile() {
-        CHSNavigator.navigateToIndividualRegistrationDetails(this, this.props.individual);
     }
 
     renderViewEnrolmentsIfNecessary() {
@@ -127,20 +121,8 @@ class IndividualProfile extends AbstractComponent {
                         style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                     {this.programProfileHeading()}
                     <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
-                        {this.props.viewContext !== IndividualProfile.viewContext.Individual ?
-                            this.renderProfileActionButton('person', 'viewProfile', () => {
-                                this.viewProfile()
-                            })
-                            : <View/>
-                        }
                         {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
-                        {this.props.viewContext !== IndividualProfile.viewContext.General ? this.renderProfileActionButton('mode-edit', 'generalHistory', () => this.viewGeneralHistory()) :
-                            <View/>}
                         {this.renderViewEnrolmentsIfNecessary()}
-                        {this.props.viewContext === IndividualProfile.viewContext.Individual &&
-                        !this.props.individual.voided &&
-                        this.renderProfileActionButton('delete', 'void', () => this.voidIndividual())
-                        }
                     </View>
                 </View>
 
@@ -174,34 +156,7 @@ class IndividualProfile extends AbstractComponent {
         this.dispatchAction(Actions.LAUNCH_ACTION_SELECTOR);
     }
 
-    voidIndividual() {
-        Alert.alert(
-            this.I18n.t('voidIndividualConfirmationTitle'),
-            this.I18n.t('voidIndividualConfirmationMessage'),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.VOID_INDIVIDUAL,
-                            {
-                                individualUUID: this.props.individual.uuid,
-                                cb: () => {
-                                }
-                            },
-                        );
-                    }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    },
-                    style: 'cancel'
-                }
-            ]
-        )
-    }
 
-    viewGeneralHistory() {
-        TypedTransition.from(this).with({individualUUID: this.props.individual.uuid}).to(IndividualGeneralHistoryView);
-    }
 }
 
 export default IndividualProfile;

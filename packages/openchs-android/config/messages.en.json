@@ -266,5 +266,8 @@
   "registrationInformation": "Registration Details",
   "registeredOn" : "Registration Date: ",
   "addRelative": "Add Relative",
-  "noRelativeAdded": "No Relative Added"
+  "noRelativeAdded": "No Relative Added",
+  "profile": "Profile",
+  "programs": "Programs",
+  "general": "General"
 }

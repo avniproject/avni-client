@@ -38,6 +38,7 @@ import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewAc
 import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
 import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
+import {ProgramEnrolmentTabActions, ProgramEnrolmentTabActionsMap} from '../action/program/ProgramEnrolmentTabActions'
 
 export default class Reducers {
     static reducerKeys = {
@@ -71,7 +72,8 @@ export default class Reducers {
         syncTelemetryActions: "syncTelemetryActions",
         filterAction: "filterAction",
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
-        completedEncounters: "CompletedEncounters"
+        completedEncounters: "CompletedEncounters",
+        programEnrolmentTab: "ProgramEnrolmentTabView"
     };
 
     static createReducers(beanStore) {
@@ -106,6 +108,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.syncTelemetryActions] = Reducers._add(SyncTelemetryActionsMap, SyncTelemetryActions, beanStore);
         reducerMap[Reducers.reducerKeys.completedVisitsFilterAction] = Reducers._add(CompletedVisitsFilterActionMap, CompletedVisitsFilterAction, beanStore);
         reducerMap[Reducers.reducerKeys.completedEncounters] = Reducers._add(CompletedEncountersActionMap, CompletedEncountersActions, beanStore);
+        reducerMap[Reducers.reducerKeys.programEnrolmentTab] = Reducers._add(ProgramEnrolmentTabActionsMap, ProgramEnrolmentTabActions, beanStore);
         return reducerMap;
     };
 

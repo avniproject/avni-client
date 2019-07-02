@@ -1,11 +1,9 @@
 // @flow
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
-import ProgramEnrolmentDashboardView from "../views/program/ProgramEnrolmentDashboardView";
 import ProgramExitView from "../views/program/ProgramExitView";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
-import IndividualRegistrationDetailView from "../views/individual/IndividualRegistrationDetailView";
 import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
@@ -36,6 +34,7 @@ import WorkListState from "../state/WorkListState";
 import SubjectType from "../../../openchs-models/src/SubjectType";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
+import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
 
 
 class CHSNavigator {
@@ -63,14 +62,15 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         if (isFromWizard) {
-            from.resetStack([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentDashboardView, {
+            from.resetStack([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentTabView, {
                 individualUUID: individualUUID,
                 enrolmentUUID: selectedEnrolmentUUID,
                 message,
-                backFunction: backFn
+                backFunction: backFn,
+                tab: 2,
             }, true);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn}).to(ProgramEnrolmentDashboardView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(ProgramEnrolmentTabView, true);
         }
     }
 
@@ -105,11 +105,12 @@ class CHSNavigator {
         TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterCancelView);
     }
 
-    static navigateToIndividualRegistrationDetails(source, individual, backFunction) {
+    static navigateToIndividualRegistrationDetails(source, individualUUID, backFunction) {
         TypedTransition.from(source).with({
-            individualUUID: individual.uuid,
-            backFunction: backFunction
-        }).to(IndividualRegistrationDetailView);
+            individualUUID: individualUUID,
+            backFunction: backFunction,
+            tab: 1
+        }).to(ProgramEnrolmentTabView);
     }
 
     static navigateToRegisterView(source, workLists, message) {
@@ -141,7 +142,7 @@ class CHSNavigator {
             TypedTransition
                 .from(source)
                 .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
-                    ProgramEnrolmentDashboardView, {individualUUID: encounter.individual.uuid, message}, true,);
+                    ProgramEnrolmentTabView, {individualUUID: encounter.individual.uuid, message, tab: 3}, true,);
         };
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, workListState, message);
     }
@@ -212,9 +213,10 @@ class CHSNavigator {
         TypedTransition
             .from(recommendationsView)
             .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
-                ProgramEnrolmentDashboardView, {
+                ProgramEnrolmentTabView, {
                     individualUUID,
-                    message: recommendationsView.I18n.t("registrationSavedMsg")
+                    message: recommendationsView.I18n.t("registrationSavedMsg"),
+                    tab: 1
                 }, true,);
     }
 
@@ -275,12 +277,13 @@ class CHSNavigator {
                             ProgramEncounterView,
                             ProgramEnrolmentView
                         ],
-                        [ProgramEnrolmentDashboardView, ProgramEnrolmentView],
+                        [ProgramEnrolmentTabView, ProgramEnrolmentView],
                         [{individualUUID: nextWorkItem.parameters.subjectUUID},
                             {
                                 enrolment: enrolment,
                                 workLists: workListState.workLists,
-                                message: message
+                                message: message,
+                                tab: 2
                             }], true
                     );
                 break;
@@ -317,7 +320,7 @@ class CHSNavigator {
                             ProgramEncounterView,
                             ProgramEnrolmentView
                         ],
-                        [ProgramEnrolmentDashboardView, ProgramEncounterView],
+                        [ProgramEnrolmentTabView, ProgramEncounterView],
                         [{individualUUID: nextWorkItem.parameters.subjectUUID},
                             {
                                 params: {
@@ -326,6 +329,7 @@ class CHSNavigator {
                                     workLists: workListState.workLists,
                                     message: message,
                                     programEncounter,
+                                    tab: 2
                                 }
                             }], true);
                 break;

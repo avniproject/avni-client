@@ -43,14 +43,7 @@ class IndividualGeneralHistoryView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer>
-                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
-                    <AppHeader title={this.I18n.t('generalHistory')}/>
-                    <View style={{backgroundColor: Styles.defaultBackground}}>
-                        <IndividualProfile viewContext={IndividualProfile.viewContext.General}
-                                           individual={this.state.individual} style={DGS.common.content}
-                                           programsAvailable={this.state.programsAvailable}/>
-                    </View>
+                <View style={{backgroundColor: Colors.GreyContentBackground}}>
                     <View style={{marginHorizontal: 10}}>
                         <PreviousEncounters encounters={this.state.encounters}
                                             formType={Form.formTypes.Encounter}
@@ -63,9 +56,8 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                                             expandCollapseView={true}
                                             onToggleAction={Actions.ON_TOGGLE}/>
                     </View>
-                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
-            </CHSContainer>
+                    <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                </View>
         );
     }
 }

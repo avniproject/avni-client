@@ -18,16 +18,25 @@ class IndividualRegistrationDetailsActions {
         const relatives = context.get(IndividualRelationshipService).getRelatives(state.individual);
         return {individual: state.individual, relatives: relatives, programsAvailable: state.programsAvailable};
     }
+
+    static voidIndividual(state, action, beans) {
+        const individualService = beans.get(IndividualService);
+        individualService.voidIndividual(action.individualUUID);
+        action.cb();
+        return state;
+    }
 }
 
 const IndividualRegistrationDetailsActionsNames = {
     ON_LOAD: 'IRDA.ON_LOAD',
-    ON_DELETE_RELATIVE: 'IRDA.ON_DELETE_RELATIVE'
+    ON_DELETE_RELATIVE: 'IRDA.ON_DELETE_RELATIVE',
+    VOID_INDIVIDUAL: "IRDA.VOID_INDIVIDUAL",
 };
 
 const IndividualRegistrationDetailsActionsMap = new Map([
     [IndividualRegistrationDetailsActionsNames.ON_LOAD, IndividualRegistrationDetailsActions.onLoad],
     [IndividualRegistrationDetailsActionsNames.ON_DELETE_RELATIVE, IndividualRegistrationDetailsActions.onDeleteRelative],
+    [IndividualRegistrationDetailsActionsNames.VOID_INDIVIDUAL, IndividualRegistrationDetailsActions.voidIndividual]
 ]);
 
 export {

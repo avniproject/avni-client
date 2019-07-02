@@ -37,27 +37,18 @@ export class IndividualProfileActions {
         newState.eligiblePrograms = individualService.eligiblePrograms(action.individual.uuid);
         return newState;
     }
-
-    static voidIndividual(state, action, beans) {
-        const individualService = beans.get(IndividualService);
-        individualService.voidIndividual(action.individualUUID);
-        action.cb();
-        return state;
-    }
 }
 
 const actions = {
     INDIVIDUAL_SELECTED: "IPA.INDIVIDUAL_SELECTED",
     LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
     HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
-    VOID_INDIVIDUAL: "IPA.VOID_INDIVIDUAL"
 };
 
 export default new Map([
     [actions.INDIVIDUAL_SELECTED, IndividualProfileActions.individualSelected],
     [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
     [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
-    [actions.VOID_INDIVIDUAL, IndividualProfileActions.voidIndividual]
 ]);
 
 export {actions as Actions};

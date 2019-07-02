@@ -4,8 +4,6 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import AppHeader from "../common/AppHeader";
-import IndividualProfile from "../common/IndividualProfile";
 import {ProgramEnrolmentDashboardActionsNames as Actions} from "../../action/program/ProgramEnrolmentDashboardActions";
 import Observations from "../common/Observations";
 import {Card, Text} from "native-base";
@@ -19,8 +17,6 @@ import ContextAction from "../viewmodel/ContextAction";
 import Fonts from '../primitives/Fonts';
 import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
-import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
 import {Form} from 'openchs-models';
@@ -46,7 +42,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
         this.getForm = this.getForm.bind(this);
-        this.state = {displayed: true}
     }
 
     componentWillMount() {
@@ -190,13 +185,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         </View>);
     }
 
-    displayMessage(message) {
-        if (message && this.state.displayed) {
-            ToastAndroid.show(message, ToastAndroid.SHORT);
-            this.setState({displayed: false})
-        }
-    }
-
     render() {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
@@ -213,12 +201,10 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             label: encounterType.displayName,
             backgroundColor: Colors.ActionButtonColor
         }));
-        this.displayMessage(this.props.message || this.props.params && this.props.params.message);
         const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         const actualEncounters = this.state.completedEncounters;
         return (
-            <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
+                <View style={{backgroundColor: Colors.GreyContentBackground}}>
                     <ActionSelector
                         title={this.I18n.t("followupTypes")}
                         hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
@@ -226,13 +212,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                         actions={encounterActions}
                     />
                         <View style={{backgroundColor: Styles.defaultBackground}}>
-                            <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
-                            <IndividualProfile style={{marginHorizontal: 16}}
-                                               individual={this.state.enrolment.individual}
-                                               viewContext={IndividualProfile.viewContext.Program}
-                                               programsAvailable={this.state.programsAvailable}
-                                               hideEnrol={this.state.hideEnrol}
-                            />
                         </View>
                         <ScrollView style={{
                             flexDirection: 'column',
@@ -292,9 +271,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                                         enrolment={this.state.enrolment}/>
                                 </View>}
                         </ScrollView>
-                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
-            </CHSContainer>
+                    <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                </View>
         );
     }
 }

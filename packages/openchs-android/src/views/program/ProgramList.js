@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -6,6 +6,8 @@ import {Button, Text} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
+import Distances from "../primitives/Distances";
+import Colors from "../primitives/Colors";
 
 class ProgramList extends AbstractComponent {
     static propTypes = {
@@ -59,7 +61,11 @@ class ProgramList extends AbstractComponent {
         return (
             <View style={{flexDirection: 'column'}}>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {sortedEnrolments.length === 0 ? <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text> :
+                    {sortedEnrolments.length === 0 ?
+                        <View style={styles.container}>
+                            <Text>{this.I18n.t('notEnrolledInAnyProgram')}</Text>
+                        </View>
+                         :
                         sortedEnrolments.map((enrolment) => {
                             const buttonStyle = this.getButtonStyle(enrolment);
                             return <Button key={enrolment.uuid}
@@ -73,3 +79,12 @@ class ProgramList extends AbstractComponent {
 }
 
 export default ProgramList;
+
+const styles = StyleSheet.create({
+    container: {
+        padding: Distances.ScaledContentDistanceFromEdge,
+        margin: 4,
+        elevation: 2,
+        backgroundColor: Colors.cardBackgroundColor,
+    }
+});

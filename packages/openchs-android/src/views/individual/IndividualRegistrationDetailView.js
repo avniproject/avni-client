@@ -4,14 +4,10 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import AppHeader from "../common/AppHeader";
-import IndividualProfile from "../common/IndividualProfile";
 import Observations from "../common/Observations";
 import {Card} from "native-base";
 import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action/individual/IndividualRegistrationDetailsActions";
 import General from "../../utility/General";
-import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
 import ObservationsSectionTitle from '../common/ObservationsSectionTitle';
@@ -26,6 +22,8 @@ import {WorkItem, WorkList, WorkLists} from "openchs-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
+import ProgramEnrolmentTabView from "../program/ProgramEnrolmentTabView";
+import {ProgramEnrolmentTabActionsNames as TabActions} from "../../action/program/ProgramEnrolmentTabActions";
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -49,7 +47,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     getRelativeActions() {
         return [new ContextAction(this.I18n.t('addRelative'), () => {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
-                (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], IndividualRegistrationDetailView, {individualUUID: this.state.individual.uuid})
+                (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], ProgramEnrolmentTabView,
+                    {individualUUID: this.state.individual.uuid, tab: 1})
             )
         })];
     }
@@ -93,6 +92,10 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                     })])));
     }
 
+    onRelativeSelection(individualUUID) {
+        this.dispatchAction(Actions.ON_LOAD, {individualUUID});
+        this.dispatchAction(TabActions.ON_LOAD, {individualUUID, tab: 1});
+    }
 
     renderRelatives() {
         const individualToComeBackTo = this.state.individual;
@@ -104,7 +107,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 </View>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
-                           onRelativeSelection={(source, individual) => CHSNavigator.navigateToIndividualRegistrationDetails(source, individual, () => this.goBackFromRelative(individualToComeBackTo))}
+                           onRelativeSelection={(source, individual) => this.onRelativeSelection(individual.uuid)}
                            onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
             </View>
         );
@@ -116,6 +119,31 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 {this.I18n.t("thisIndividualHasBeenVoided")}
             </Text>
         );
+    }
+
+    voidIndividual() {
+        Alert.alert(
+            this.I18n.t('voidIndividualConfirmationTitle'),
+            this.I18n.t('voidIndividualConfirmationMessage'),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                        this.dispatchAction(Actions.VOID_INDIVIDUAL,
+                            {
+                                individualUUID: this.props.params.individualUUID,
+                                cb: () => {
+                                }
+                            },
+                        );
+                    }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                    },
+                    style: 'cancel'
+                }
+            ]
+        )
     }
 
     renderProfile() {
@@ -132,7 +160,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 <Observations observations={this.state.individual.observations}
                               style={{marginVertical: 3}}/>
                 <ObservationsSectionOptions
-                    contextActions={[new ContextAction('edit', () => this.editProfile())]}/>
+                    contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
             </View>
         </View>
     }
@@ -141,23 +169,17 @@ class IndividualRegistrationDetailView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const relativesFeatureToggle = this.state.individual.isIndividual();
         return (
-            <CHSContainer theme={{iconFamily: 'MaterialIcons'}}>
-                <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
-                    <View style={{backgroundColor: Styles.defaultBackground}}>
-                        <AppHeader title={this.I18n.t('viewProfile')} func={this.props.params.backFunction}/>
-                        <IndividualProfile individual={this.state.individual}
-                                           viewContext={IndividualProfile.viewContext.Individual}
-                                           programsAvailable={this.state.programsAvailable}/>
+            <View style={{backgroundColor: Colors.GreyContentBackground}}>
+                <View style={{backgroundColor: Styles.defaultBackground}}>
+                </View>
+                <View style={{marginHorizontal: 10, marginTop: 10}}>
+                    <View style={styles.container}>
+                        {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
                     </View>
-                    <View style={{marginHorizontal: 10, marginTop: 10}}>
-                        <View style={styles.container}>
-                            {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
-                        </View>
-                        {relativesFeatureToggle ? this.renderRelatives() : <View/>}
-                    </View>
-                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
-            </CHSContainer>
+                    {relativesFeatureToggle ? this.renderRelatives() : <View/>}
+                </View>
+                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+            </View>
         );
     }
 }
