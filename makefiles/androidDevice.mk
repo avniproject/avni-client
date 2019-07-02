@@ -50,6 +50,29 @@ run_app_uat: as_uat _run_app
 run_app_prerelease: as_prerelease _run_app
 run_app_prod: as_prod _run_app
 
+switch_app_to_env:
+ifeq ($(env),dev)
+	$(call _setup_hosts)
+endif
+	make clear_app_data
+	$(call _create_config,$(env))
+	make start_app
+
+switch_app_to_dev:
+	make switch_app_to_env env=dev
+
+switch_app_to_staging:
+	make switch_app_to_env env=staging
+
+switch_app_to_uat:
+	make switch_app_to_env env=uat
+
+switch_app_to_prerelease:
+	make switch_app_to_env env=prerelease
+
+switch_app_to_prod:
+	make switch_app_to_env env=prod
+
 open_app_bundle:
 	cd ..
 	-mkdir ./temp
