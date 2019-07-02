@@ -63,6 +63,23 @@ run_app_prod:
 	$(call _create_config,prod)
 	cd packages/openchs-android && react-native run-android
 
+switch_app_to_env:
+ifeq ($(env),dev)
+	$(call _setup_hosts)
+endif
+	make clear_app_data
+	$(call _create_config,$(env))
+	make start_app
+
+switch_app_to_dev:
+	make switch_app_to_env env=dev
+
+switch_app_to_staging:
+	make switch_app_to_env env=staging
+
+switch_app_to_uat:
+	make switch_app_to_env env=uat
+
 
 open_app_bundle:
 	cd ..
