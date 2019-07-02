@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {View, Alert, TouchableNativeFeedback} from "react-native";
+import {View, Alert, TouchableNativeFeedback, StyleSheet} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -44,17 +44,11 @@ class IndividualProfile extends AbstractComponent {
         setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual: this.props.individual}), 300);
     }
 
-    renderViewEnrolmentsIfNecessary() {
-        if (this.props.individual.hasEnrolments && this.props.viewContext !== IndividualProfile.viewContext.Program) {
-            return this.renderProfileActionButton('view-module', 'enrolments', () => this.viewEnrolments())
-        }
-    }
-
 
     programProfileHeading() {
         return this.props.individual.subjectType.isIndividual() ?
             <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
+                style={Styles.programProfileSubheading}>{this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
             <Text
                 style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
     }
@@ -98,9 +92,8 @@ class IndividualProfile extends AbstractComponent {
         return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
             (
                 <View style={{
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    marginVertical: 28,
+                    marginVertical: 10,
+                    marginHorizontal: 10,
                     backgroundColor: Styles.defaultBackground
                 }}>
                     <ActionSelector
@@ -109,23 +102,35 @@ class IndividualProfile extends AbstractComponent {
                         visible={this.state.displayActionSelector}
                         actions={programActions}
                     />
-                    <View style={{justifyContent: 'center', alignSelf: 'center'}}>
-                        <Icon name={this.props.individual.icon()} style={{
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{
+                            paddingHorizontal: 20,
                             justifyContent: 'center',
-                            alignSelf: 'stretch',
-                            fontSize: DGS.resizeWidth(75),
-                            color: Colors.AccentColor
-                        }}/>
+                        }}>
+                            <Icon name={this.props.individual.icon()} style={{
+                                fontSize: DGS.resizeWidth(75),
+                                color: Colors.AccentColor,
+                                alignSelf: 'center'
+                            }}/>
+                        </View>
+                        <View style={{flex: 1, paddingHorizontal: 5}}>
+                            <Text
+                                style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}, {this.I18n.t(this.props.individual.gender.name)}</Text>
+                            <View
+                                style={{
+                                    borderColor: '#929292',
+                                    borderBottomWidth: 1,
+                                    marginTop: 5,
+                                    marginBottom: 3,
+                                }}/>
+                            {this.programProfileHeading()}
+                        </View>
                     </View>
-                    <Text
-                        style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
-                    {this.programProfileHeading()}
-                    <View style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 16}}>
+                    <View
+                        style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingVertical: 8}}>
                         {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
-                        {this.renderViewEnrolmentsIfNecessary()}
                     </View>
                 </View>
-
             ) :
             (
                 <View style={this.appendedStyle({
@@ -146,10 +151,6 @@ class IndividualProfile extends AbstractComponent {
                     }
                 </View>
             );
-    }
-
-    viewEnrolments() {
-        CHSNavigator.navigateToProgramEnrolmentDashboardView(this, this.props.individual.uuid);
     }
 
     launchChooseProgram() {

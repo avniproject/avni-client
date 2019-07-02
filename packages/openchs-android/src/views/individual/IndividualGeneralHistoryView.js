@@ -5,17 +5,11 @@ import Path from "../../framework/routing/Path";
 import {View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import {Card, Container, Content} from "native-base";
-import AppHeader from "../common/AppHeader";
-import IndividualProfile from "../common/IndividualProfile";
 import Reducers from "../../reducer";
-import DGS from "../primitives/DynamicGlobalStyles";
 import PreviousEncounters from "../common/PreviousEncounters";
 import _ from "lodash";
 import Colors from '../primitives/Colors';
-import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import {Form} from 'openchs-models';
-import Styles from "../primitives/Styles";
 import Separator from "../primitives/Separator";
 
 @Path('/IndividualGeneralHistoryView')
