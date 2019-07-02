@@ -4,13 +4,20 @@ import IndividualRelationshipService from "../../service/relationship/Individual
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
-        return {};
+        return {
+            expand: false,
+        };
     }
 
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
         const relatives = context.get(IndividualRelationshipService).getRelatives(individual);
-        return {individual: individual, relatives: relatives, programsAvailable: context.get(ProgramService).programsAvailable};
+        return {
+            ...state,
+            individual,
+            relatives,
+            programsAvailable: context.get(ProgramService).programsAvailable
+        };
     }
 
     static onDeleteRelative(state, action, context) {
@@ -25,18 +32,24 @@ class IndividualRegistrationDetailsActions {
         action.cb();
         return state;
     }
+
+    static onToggle(state) {
+        return {...state, expand: !state.expand};
+    }
 }
 
 const IndividualRegistrationDetailsActionsNames = {
     ON_LOAD: 'IRDA.ON_LOAD',
     ON_DELETE_RELATIVE: 'IRDA.ON_DELETE_RELATIVE',
     VOID_INDIVIDUAL: "IRDA.VOID_INDIVIDUAL",
+    ON_TOGGLE: "IRDA.ON_TOGGLE",
 };
 
 const IndividualRegistrationDetailsActionsMap = new Map([
     [IndividualRegistrationDetailsActionsNames.ON_LOAD, IndividualRegistrationDetailsActions.onLoad],
     [IndividualRegistrationDetailsActionsNames.ON_DELETE_RELATIVE, IndividualRegistrationDetailsActions.onDeleteRelative],
-    [IndividualRegistrationDetailsActionsNames.VOID_INDIVIDUAL, IndividualRegistrationDetailsActions.voidIndividual]
+    [IndividualRegistrationDetailsActionsNames.VOID_INDIVIDUAL, IndividualRegistrationDetailsActions.voidIndividual],
+    [IndividualRegistrationDetailsActionsNames.ON_TOGGLE, IndividualRegistrationDetailsActions.onToggle],
 ]);
 
 export {

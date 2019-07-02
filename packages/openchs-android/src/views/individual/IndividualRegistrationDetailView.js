@@ -1,4 +1,4 @@
-import {View, Alert, Text, StyleSheet} from "react-native";
+import {View, Alert, Text, StyleSheet, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -24,6 +24,7 @@ import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
 import ProgramEnrolmentTabView from "../program/ProgramEnrolmentTabView";
 import {ProgramEnrolmentTabActionsNames as TabActions} from "../../action/program/ProgramEnrolmentTabActions";
+import Icon from 'react-native-vector-icons/SimpleLineIcons';
 
 @Path('/IndividualRegistrationDetailView')
 class IndividualRegistrationDetailView extends AbstractComponent {
@@ -148,19 +149,29 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     renderProfile() {
         return <View>
-            <View styel={{flexDirection: 'column'}}>
-                <Text style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>
-                    {this.I18n.t("registrationInformation")}
-                </Text>
-                <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
-                    {`${this.I18n.t("registeredOn")}${General.toDisplayDate(this.state.individual.registrationDate)}`}
-                </Text>
-            </View>
+            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
+                <View styel={{flexDirection: 'column'}}>
+                    <Text style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>
+                        {this.I18n.t("registrationInformation")}
+                    </Text>
+                    <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
+                        {`${this.I18n.t("registeredOn")}${General.toDisplayDate(this.state.individual.registrationDate)}`}
+                    </Text>
+                </View>
+                <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
+                    {this.state.expand === false ?
+                        <Icon name={'arrow-down'} size={12}/> :
+                        <Icon name={'arrow-up'} size={12}/>}
+                </View>
+            </TouchableOpacity>
             <View style={{marginTop: 3}}>
-                <Observations observations={this.state.individual.observations}
-                              style={{marginVertical: 3}}/>
-                <ObservationsSectionOptions
-                    contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
+                {this.state.expand === true ?
+                    <Observations observations={this.state.individual.observations}
+                                  style={{marginVertical: 3}}/> : <View/>}
+                <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
+                    <ObservationsSectionOptions
+                        contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
+                </TouchableOpacity>
             </View>
         </View>
     }

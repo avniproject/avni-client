@@ -21,7 +21,6 @@ import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
 import {Form} from 'openchs-models';
 import _ from "lodash";
-import ActionSelector from "../common/ActionSelector";
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
