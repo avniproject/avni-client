@@ -80,6 +80,11 @@ switch_app_to_staging:
 switch_app_to_uat:
 	make switch_app_to_env env=uat
 
+switch_app_to_prerelease:
+	make switch_app_to_env env=prerelease
+
+switch_app_to_prod:
+	make switch_app_to_env env=prod
 
 open_app_bundle:
 	cd ..
