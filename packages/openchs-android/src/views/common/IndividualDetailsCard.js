@@ -5,7 +5,6 @@ import {Text, View, TouchableNativeFeedback} from "react-native";
 import {Icon} from "native-base";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
-import Distances from "../primitives/Distances";
 
 class IndividualDetailsCard extends AbstractComponent {
 
@@ -45,7 +44,7 @@ class IndividualDetailsCard extends AbstractComponent {
                     flexWrap: 'nowrap',
                     alignItems: 'center',
                     alignSelf: 'center',
-                    minHeight: 86,
+                    minHeight: this.props.minHeight || 86,
                     paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                 }}>
                     <Icon name={this.props.individual.icon()} style={{

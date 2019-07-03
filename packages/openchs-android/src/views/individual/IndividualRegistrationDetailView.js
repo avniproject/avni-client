@@ -54,12 +54,6 @@ class IndividualRegistrationDetailView extends AbstractComponent {
         })];
     }
 
-    goBackFromRelative(individual) {
-        CHSNavigator.goBack(this);
-        this.dispatchAction(Actions.ON_LOAD, {individualUUID: individual.uuid});
-
-    }
-
     onRelativeDeletePress(individualRelative) {
         Alert.alert(
             this.I18n.t('deleteRelativeNoticeTitle'),
@@ -95,7 +89,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     onRelativeSelection(individualUUID) {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID});
-        this.dispatchAction(TabActions.ON_LOAD, {individualUUID, tab: 1});
+        this.dispatchAction(TabActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
     }
 
     renderRelatives() {
@@ -166,8 +160,10 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             </TouchableOpacity>
             <View style={{marginTop: 3}}>
                 {this.state.expand === true ?
-                    <Observations observations={this.state.individual.observations}
-                                  style={{marginVertical: 3}}/> : <View/>}
+                    <View style={{paddingHorizontal: 10}}>
+                        <Observations observations={this.state.individual.observations}
+                                      style={{marginVertical: 3}}/>
+                    </View> : <View/>}
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
                     <ObservationsSectionOptions
                         contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>

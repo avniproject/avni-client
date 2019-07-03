@@ -1,6 +1,7 @@
 import UserInfoService from "../../service/UserInfoService";
 import ProgramService from "../../service/program/ProgramService";
 import IndividualService from "../../service/IndividualService";
+import _ from 'lodash';
 
 class ProgramEnrolmentTabActions {
     static getInitialState() {
@@ -22,7 +23,7 @@ class ProgramEnrolmentTabActions {
     }
 
     static onLoad(state, action, context) {
-        const {enrolmentUUID, individualUUID, backFunction, tab} = action;
+        const {enrolmentUUID, individualUUID, backFunction, tab, messageDisplayed} = action;
         const newState = ProgramEnrolmentTabActions.reset(state);
         const hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
         const programsAvailable = context.get(ProgramService).programsAvailable;
@@ -37,7 +38,7 @@ class ProgramEnrolmentTabActions {
             enrolmentUUID,
             individualUUID,
             backFunction,
-            messageDisplayed: true,
+            messageDisplayed: !!_.isNil(messageDisplayed),
         };
     }
 

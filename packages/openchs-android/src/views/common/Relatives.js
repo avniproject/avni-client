@@ -126,7 +126,7 @@ class Relatives extends AbstractComponent {
                                               {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) :
                                                   <View/>}
                                           </View>
-                                          <IndividualDetailsCard individual={relative.relative}/>
+                                          <IndividualDetailsCard individual={relative.relative} minHeight={10}/>
                                       </View>
                                   </TouchableNativeFeedback>
                               }>
@@ -143,7 +143,6 @@ export default Relatives;
 
 const styles = StyleSheet.create({
     container: {
-        padding: Distances.ScaledContentDistanceFromEdge,
         margin: 4,
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,

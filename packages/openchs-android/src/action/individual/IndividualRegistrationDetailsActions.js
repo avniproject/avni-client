@@ -16,7 +16,8 @@ class IndividualRegistrationDetailsActions {
             ...state,
             individual,
             relatives,
-            programsAvailable: context.get(ProgramService).programsAvailable
+            programsAvailable: context.get(ProgramService).programsAvailable,
+            expand: false
         };
     }
 
