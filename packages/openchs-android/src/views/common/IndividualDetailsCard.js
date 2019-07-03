@@ -49,7 +49,7 @@ class IndividualDetailsCard extends AbstractComponent {
                 }}>
                     <Icon name={this.props.individual.icon()} style={{
                         color: Colors.AccentColor,
-                        fontSize: 56,
+                        fontSize: this.props.iconSize || 56,
                         paddingRight: 16
                     }}/>
                     <View

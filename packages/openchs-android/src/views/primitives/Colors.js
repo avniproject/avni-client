@@ -38,6 +38,8 @@ class Colors {
     static headerBackgroundColor = '#212121';
     static bottomBarColor = "white";
     static bottomBarIconColor = 'black';
+    static programEnrolmentBottomBarColor = "#212121";
+    static programEnrolmentBottomBarIconColor = "white";
 
     static iconSelectedColor = '#126CB4';
     static cardBackgroundColor = '#fefefe';

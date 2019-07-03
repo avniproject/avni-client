@@ -48,7 +48,7 @@ class IndividualProfile extends AbstractComponent {
     programProfileHeading() {
         return this.props.individual.subjectType.isIndividual() ?
             <Text
-                style={Styles.programProfileSubheading}>{this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
             <Text
                 style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
     }
@@ -115,14 +115,7 @@ class IndividualProfile extends AbstractComponent {
                         </View>
                         <View style={{flex: 1, paddingHorizontal: 5}}>
                             <Text
-                                style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}, {this.I18n.t(this.props.individual.gender.name)}</Text>
-                            <View
-                                style={{
-                                    borderColor: '#929292',
-                                    borderBottomWidth: 1,
-                                    marginTop: 5,
-                                    marginBottom: 3,
-                                }}/>
+                                style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                             {this.programProfileHeading()}
                         </View>
                     </View>

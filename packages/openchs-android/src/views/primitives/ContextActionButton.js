@@ -22,7 +22,6 @@ class ContextActionButton extends AbstractComponent {
             <TouchableOpacity onPress={() => this.props.onPress()} style={{paddingHorizontal: 25}}>
                 <Text style={{
                     fontSize: Fonts.Medium,
-                    fontWeight: 'bold',
                     color: color,
                     paddingHorizontal: 5
                 }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></TouchableOpacity>

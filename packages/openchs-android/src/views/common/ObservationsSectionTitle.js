@@ -34,7 +34,7 @@ class ObservationsSectionTitle extends AbstractComponent {
                 justifyContent: 'space-between',
                 flexWrap: 'wrap'
             })}>
-                <Text style={[Fonts.MediumBold]}>{this.props.title}</Text>
+                <Text style={this.props.titleStyle || [Fonts.MediumBold]}>{this.props.title}</Text>
                 {contextActionButtons}
                 {primaryActionButton}
             </View>

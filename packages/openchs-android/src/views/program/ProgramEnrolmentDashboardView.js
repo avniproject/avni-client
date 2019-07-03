@@ -143,7 +143,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             marginVertical: 16
         }}>
             <View>
-                <Text style={[Fonts.MediumBold]}>{this.I18n.t('summary')}</Text>
+                <Text style={Styles.cardTitle}>{this.I18n.t('summary')}</Text>
                 <Text>{this.getEnrolmentHeaderMessage(this.state.enrolment)}</Text>
                 {!_.isNil(this.state.enrolment.programExitDateTime) ?
                     < Text>{this.getExitHeaderMessage(this.state.enrolment)}</Text> : <View/>}
@@ -162,7 +162,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
             marginVertical: 16
         }}>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
-                <Text style={[Fonts.MediumBold]}>{this.I18n.t('enrolmentDetails')}</Text>
+                <Text style={Styles.cardTitle}>{this.I18n.t('enrolmentDetails')}</Text>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {this.state.expandEnrolmentInfo === false ?
                         <Icon name={'arrow-down'} size={12}/> :
@@ -191,68 +191,68 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         const actualEncounters = this.state.completedEncounters;
         return (
-                <View style={{backgroundColor: Colors.GreyContentBackground}}>
-                        <View style={{backgroundColor: Styles.defaultBackground}}>
-                        </View>
-                        <ScrollView style={{
-                            flexDirection: 'column',
-                            borderRadius: 5,
-                            marginHorizontal: 16,
-                            backgroundColor: Colors.GreyContentBackground
-                        }}>
-                            <View style={{marginHorizontal: 8}}>
-                                {this.state.enrolment.individual.voided &&
-                                <Text style={{
-                                    fontSize: Fonts.Large,
-                                    color: Styles.redColor
-                                }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
-                                }
-                                <Text style={{
-                                    fontSize: Fonts.Large,
-                                    color: Colors.InputNormal
-                                }}>{this.I18n.t('programList')}</Text>
-                                <View style={{
-                                    flex: 2,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'stretch'
-                                }}>
-                                    <View style={{justifyContent: 'flex-start', flex: 1}}>
-                                        <ProgramList enrolments={enrolments}
-                                                     selectedEnrolment={this.state.enrolment}
-                                                     onProgramSelect={(enrolment) => this.enrolmentSelect(enrolment.uuid)}/>
-                                    </View>
-                                    <ProgramActionsView programDashboardButtons={dashboardButtons}
-                                                        enrolment={this.state.enrolment}
-                                                        onOpenChecklist={() => this.openChecklist()}
-                                    />
-                                </View>
-                            </View>
-                            {enrolments.length === 0 ? <View/> :
-                                <View>
-                                    {this.renderSummary()}
-                                    {this.renderExitObservations()}
-                                    <PreviousEncounters encounters={scheduledEncounters}
-                                                        formType={Form.formTypes.ProgramEncounter}
-                                                        showCount={this.state.showCount}
-                                                        showPartial={false}
-                                                        title={this.I18n.t('visitsPlanned')}
-                                                        emptyTitle={this.I18n.t('noPlannedEncounters')}
-                                                        expandCollapseView={false}/>
-                                    {this.renderEnrolmentDetails()}
-                                    <PreviousEncounters encounters={actualEncounters}
-                                                        formType={Form.formTypes.ProgramEncounter}
-                                                        showCount={this.state.showCount}
-                                                        showPartial={true}
-                                                        title={this.I18n.t('visitsCompleted')}
-                                                        emptyTitle={this.I18n.t('noCompletedEncounters')}
-                                                        expandCollapseView={true}
-                                                        onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
-                                                        enrolment={this.state.enrolment}/>
-                                </View>}
-                        </ScrollView>
-                    <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+            <View style={{backgroundColor: Colors.GreyContentBackground}}>
+                <View style={{backgroundColor: Styles.defaultBackground}}>
                 </View>
+                <ScrollView style={{
+                    flexDirection: 'column',
+                    borderRadius: 5,
+                    marginHorizontal: 16,
+                    backgroundColor: Colors.GreyContentBackground
+                }}>
+                    <View style={{marginHorizontal: 8}}>
+                        {this.state.enrolment.individual.voided &&
+                        <Text style={{
+                            fontSize: Fonts.Large,
+                            color: Styles.redColor
+                        }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
+                        }
+                        <Text style={{
+                            fontSize: Fonts.Large,
+                            color: Colors.InputNormal
+                        }}>{this.I18n.t('programList')}</Text>
+                        <View style={{
+                            flex: 2,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'stretch'
+                        }}>
+                            <View style={{justifyContent: 'flex-start', flex: 1}}>
+                                <ProgramList enrolments={enrolments}
+                                             selectedEnrolment={this.state.enrolment}
+                                             onProgramSelect={(enrolment) => this.enrolmentSelect(enrolment.uuid)}/>
+                            </View>
+                            <ProgramActionsView programDashboardButtons={dashboardButtons}
+                                                enrolment={this.state.enrolment}
+                                                onOpenChecklist={() => this.openChecklist()}
+                            />
+                        </View>
+                    </View>
+                    {enrolments.length === 0 ? <View/> :
+                        <View>
+                            {this.renderSummary()}
+                            {this.renderExitObservations()}
+                            <PreviousEncounters encounters={scheduledEncounters}
+                                                formType={Form.formTypes.ProgramEncounter}
+                                                showCount={this.state.showCount}
+                                                showPartial={false}
+                                                title={this.I18n.t('visitsPlanned')}
+                                                emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                                expandCollapseView={false}/>
+                            {this.renderEnrolmentDetails()}
+                            <PreviousEncounters encounters={actualEncounters}
+                                                formType={Form.formTypes.ProgramEncounter}
+                                                showCount={this.state.showCount}
+                                                showPartial={true}
+                                                title={this.I18n.t('visitsCompleted')}
+                                                emptyTitle={this.I18n.t('noCompletedEncounters')}
+                                                expandCollapseView={true}
+                                                onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
+                                                enrolment={this.state.enrolment}/>
+                        </View>}
+                </ScrollView>
+                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+            </View>
         );
     }
 }

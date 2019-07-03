@@ -217,7 +217,7 @@ Styles.userProfileSubtext = {
 };
 
 Styles.relativeRelationText = {
-    fontSize: Styles.titleSize,
+    fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
     paddingRight: 8
@@ -288,5 +288,12 @@ Styles.textList = {
 //     color: Styles.greyText,
 //     lineHeight: Styles.normalTextSize + 8,
 // }
+
+Styles.cardTitle = {
+    fontSize: 17,
+    fontStyle: 'normal',
+    color: Styles.blackColor,
+    letterSpacing: 0.1
+};
 
 export default Styles;

@@ -96,9 +96,9 @@ class Relatives extends AbstractComponent {
     }
 
     renderNoRelativeMessage() {
-        return <View style={styles.container}>
+        return <View style={[styles.container, {paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge}]}>
             <Text style={{
-                fontSize: Fonts.Large,
+                fontSize: Fonts.Medium,
                 color: Colors.DefaultPrimaryColor
             }}>{this.I18n.t("noRelativeAdded")}</Text>
         </View>
@@ -126,7 +126,7 @@ class Relatives extends AbstractComponent {
                                               {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) :
                                                   <View/>}
                                           </View>
-                                          <IndividualDetailsCard individual={relative.relative} minHeight={10}/>
+                                          <IndividualDetailsCard individual={relative.relative} minHeight={10} iconSize={30}/>
                                       </View>
                                   </TouchableNativeFeedback>
                               }>
@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
         margin: 4,
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 3
+        marginVertical: 3,
+        paddingBottom: 5,
     },
     relativeDetails: {
         flexDirection: 'row',

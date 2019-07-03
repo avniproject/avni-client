@@ -84,11 +84,10 @@ class IndividualSearchResultsView extends AbstractComponent {
                                   <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
                                                            background={this.background()}>
                                       <View style={{
-                                          padding: Distances.ScaledContentDistanceFromEdge,
-                                          margin: 4,
                                           elevation: 2,
                                           backgroundColor: Colors.cardBackgroundColor,
-                                          marginVertical: 3
+                                          marginVertical: 3,
+                                          paddingBottom: 5,
                                       }}>
                                           <IndividualDetailsCard individual={item}/>
                                       </View>

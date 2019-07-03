@@ -49,7 +49,7 @@ class ProgramEnrolmentTabView extends AbstractComponent {
 
     }
 
-    static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20};
+    static iconStyle = {color: Colors.programEnrolmentBottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 20};
 
     icon = (Icon, iconName, isSelected) => {
         return <Icon name={iconName}
@@ -71,7 +71,7 @@ class ProgramEnrolmentTabView extends AbstractComponent {
                         <Text style={{
                             fontSize: Fonts.Small,
                             fontWeight: isSelected ? 'bold' : 'normal',
-                            color: isSelected ? Colors.iconSelectedColor : Colors.DefaultPrimaryColor
+                            color: isSelected ? Colors.iconSelectedColor : Colors.programEnrolmentBottomBarIconColor
                         }}>{name}</Text>
                     </View>
                 </TouchableOpacity>
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
         width: '100%',
         position: 'absolute',
         bottom: 0,
-        backgroundColor: Colors.bottomBarColor,
+        backgroundColor: Colors.programEnrolmentBottomBarColor,
         elevation: 3,
         alignItems: 'center',
         borderTopWidth: StyleSheet.hairlineWidth,

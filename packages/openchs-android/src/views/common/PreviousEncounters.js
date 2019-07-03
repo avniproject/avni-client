@@ -161,13 +161,13 @@ class PreviousEncounters extends AbstractComponent {
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text
-                    style={[Fonts.MediumBold, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
+                    style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
                 {this.props.expandCollapseView && this.props.encounters.length > 3 ? this.renderViewAll(this.props.encounters) :
                     <View/>}
             </View>
             {_.isEmpty(toDisplayEncounters) ?
                 (<View style={styles.container}>
-                    <Text style={{fontSize: Fonts.Large}}>{this.props.emptyTitle}</Text>
+                    <Text style={{fontSize: Fonts.Medium}}>{this.props.emptyTitle}</Text>
                 </View>)
                 :
                 <View/>}
@@ -218,6 +218,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 7,
         paddingVertical: 2,
         color: Colors.ActionButtonColor,
-        fontWeight: 'bold'
     }
 });

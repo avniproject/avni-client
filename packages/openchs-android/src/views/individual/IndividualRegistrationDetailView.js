@@ -98,7 +98,8 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             <View style={{marginTop: 20}}>
                 <View style={{paddingLeft: 10}}>
                     <ObservationsSectionTitle contextActions={this.getRelativeActions()}
-                                              title={'Relatives'}/>
+                                              title={'Relatives'}
+                                              titleStyle={Styles.cardTitle}/>
                 </View>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
@@ -145,7 +146,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
         return <View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
                 <View styel={{flexDirection: 'column'}}>
-                    <Text style={[Fonts.Title, {color: Colors.DefaultPrimaryColor}]}>
+                    <Text style={[Styles.cardTitle, {color: Colors.DefaultPrimaryColor}]}>
                         {this.I18n.t("registrationInformation")}
                     </Text>
                     <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
