@@ -98,7 +98,7 @@ upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
 
 define _create_config
 	@echo "Creating config for $1"
-	@echo "module.exports = {...require('../../config/env/$(1).json'), COMMIT_ID: '$(sha)'};" > packages/openchs-android/src/framework/Config.js
+	@echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js
 endef
 
 as_dev: ; $(call _create_config,dev)
@@ -136,7 +136,16 @@ release_staging_without_clean: as_staging
 release_uat: renew_env as_uat
 	enableSeparateBuildPerCPUArchitecture=false make release
 
+release_uat_without_clean: as_uat
+	$(call _create_config,uat)
+	enableSeparateBuildPerCPUArchitecture=false make release
+
 release_prerelease: renew_env as_prerelease
+	$(call _create_config,prerelease)
+	enableSeparateBuildPerCPUArchitecture=false make release
+
+release_prerelease_without_clean: as_prerelease
+	$(call _create_config,prerelease)
 	enableSeparateBuildPerCPUArchitecture=false make release
 
 release-offline: ##
