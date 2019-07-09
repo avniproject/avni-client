@@ -214,12 +214,6 @@ clean_env:  ##
 	rm -rf packages/utilities/node_modules
 
 clean_all:  clean_env clean_packager_cache
-	rm -rf packages/openchs-android/package-lock.json
-	rm -rf packages/openchs-health-modules/package-lock.json
-	rm -rf packages/openchs-models/package-lock.json
-	rm -rf packages/openchs-org/package-lock.json
-	rm -rf packages/unminifiy/package-lock.json
-	rm -rf packages/utilities/package-lock.json
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
 
 setup_env: ##
