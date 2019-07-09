@@ -14,9 +14,9 @@ import {
     SingleCodedValue,
     MultipleCodedValues,
     Individual,
-    SubjectType,
-    EntityFactory
+    SubjectType
 } from 'openchs-models';
+import EntityFactory from '../helpers/EntityFactory';
 import moment from "moment";
 
 describe("Malaria medications", () => {

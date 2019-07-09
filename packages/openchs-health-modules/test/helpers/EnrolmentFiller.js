@@ -1,5 +1,5 @@
-import EntityFactory from "../EntityFactory";
-import General from "../../src/utility/General";
+import EntityFactory from "./EntityFactory";
+import {ModelGeneral as General} from 'openchs-models';
 
 export default class EnrolmentFiller {
     constructor(programData, individual, enrolmentDateTime = new Date()) {

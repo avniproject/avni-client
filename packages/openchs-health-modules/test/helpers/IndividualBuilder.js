@@ -1,7 +1,5 @@
-import Individual from "../../src/Individual";
-import General from "../../src/utility/General";
-import Gender from "../../src/Gender";
-import EntityFactory from "../EntityFactory";
+import {Individual, ModelGeneral as General, Gender} from 'openchs-models';
+import EntityFactory from "./EntityFactory";
 import moment from "moment";
 
 export default class IndividualBuilder {

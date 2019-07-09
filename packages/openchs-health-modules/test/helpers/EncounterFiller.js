@@ -1,4 +1,4 @@
-import EntityFactory from "../EntityFactory";
+import EntityFactory from "./EntityFactory";
 
 export default class EncounterFiller {
     constructor(programData, enrolment, encounterType, encounterDateTime = new Date()) {
