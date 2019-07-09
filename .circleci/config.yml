@@ -130,9 +130,6 @@ workflows:
   test_all:
     jobs:
       - install_deps
-      - test_models:
-          requires:
-            - install_deps
       - test_android:
           requires:
             - install_deps
@@ -144,13 +141,11 @@ workflows:
           requires:
             - test_android
             - test_health_modules
-            - test_models
       - hold_live:
           type: approval
           requires:
             - test_android
             - test_health_modules
-            - test_models
       - release_android_staging:
           requires:
             - hold_staging
