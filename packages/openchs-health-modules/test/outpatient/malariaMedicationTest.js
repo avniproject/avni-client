@@ -13,11 +13,11 @@ import {
     Gender,
     SingleCodedValue,
     MultipleCodedValues,
-    Individual
+    Individual,
+    SubjectType,
+    EntityFactory
 } from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
 import moment from "moment";
-import SubjectType from "../../../openchs-models/src/SubjectType";
 
 describe("Malaria medications", () => {
     let encounter, weightConcept, paracheckConcept, complaintsConcept, complaintsObs, availableTabletsACTObs, availableTabletsConcept;

@@ -15,6 +15,7 @@
   "dependencies": {
     "lodash": "4.17.11",
     "moment": "2.19.3",
+    "openchs-models": "0.0.5",
     "rules-config": "github:openchs/rules-config#e2d7baccda66c8d18e0f9cb6fff3d14f746e2fa4"
   },
   "devDependencies": {
@@ -23,15 +24,14 @@
     "@babel/register": "7.4.4",
     "@babel/runtime": "7.4.4",
     "@babel/preset-env": "7.4.4",
-    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-flow": "7.0.0",
     "babel-plugin-transform-class-properties": "6.24.1",
     "@babel/plugin-proposal-decorators": "7.4.4",
     "@babel/plugin-proposal-class-properties": "7.4.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
-    "babel-jest": "^24.7.1",
+    "@babel/plugin-proposal-object-rest-spread": "7.4.4",
+    "babel-jest": "24.7.1",
     "chai": "4.2.0",
-    "jest": "^24.7.1",
-    "openchs-models": "0.0.5",
+    "jest": "24.7.1",
     "webpack": "3.5.5",
     "webpack-node-externals": "1.6.0"
   }
