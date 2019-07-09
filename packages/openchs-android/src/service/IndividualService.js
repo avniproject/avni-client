@@ -357,7 +357,7 @@ class IndividualService extends BaseService {
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
             .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
             .map((enrolment) => {
-                return {...enrolment.individual, addressUUID: enrolment.individual.lowestAddressLevel.uuid};
+                return _.assignIn({},enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
             });
     }
 

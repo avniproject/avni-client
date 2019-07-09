@@ -165,8 +165,7 @@ class SyncService extends BaseService {
             .reverse()
             .map((entityMetadata) => _.assignIn({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
-                ...entityMetadata
-            }));
+            }, entityMetadata));
 
         const onGetOfFirstPage = (entityName, page) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {

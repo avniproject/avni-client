@@ -54,8 +54,7 @@ class AddressLevelsState {
     addLevel(type, selectedLevel, newLevels = []) {
         let levelMap = new Map(this.levels);
         const levels = levelMap.get(type);
-        levelMap.set(type, levels.map(l => ({
-            ...l,
+        levelMap.set(type, levels.map(l => _.assignIn({},l,{
             isSelected: l.uuid === selectedLevel.uuid ? !l.isSelected : l.isSelected
         })));
         return new AddressLevelsState(this._asList(levelMap)).addOrRemoveLevels(selectedLevel.uuid, newLevels).removeUnwantedLevels();

@@ -79,10 +79,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const programConfig = {
-            ...ruleService
-                .findByKey("program.uuid", this.programEncounter.programEnrolment.program.uuid, ProgramConfig.schema.name)
-        };
+        const programConfig = ruleService
+                .findByKey("program.uuid", this.programEncounter.programEnrolment.program.uuid, ProgramConfig.schema.name);
         return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
             .map(k => _.assignIn({}, k)));
     }
