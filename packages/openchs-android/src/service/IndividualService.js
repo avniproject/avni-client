@@ -3,7 +3,7 @@ import Service from "../framework/bean/Service";
 import {EntityQueue, ObservationsHolder, Program, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import _ from 'lodash';
 import moment from 'moment';
-import Individual from "openchs-models/src/Individual";
+import {Individual} from "openchs-models";
 import MediaQueueService from "./MediaQueueService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import FormMappingService from "./FormMappingService";

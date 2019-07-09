@@ -23,7 +23,6 @@ import TextFormElement from "../form/formElement/TextFormElement";
 import AddressLevels from "../common/AddressLevels";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
-import Form from "openchs-models/src/application/Form";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
 

@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {Encounter, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
+import {Encounter, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment, WorkLists, WorkList, WorkItem} from 'openchs-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";
@@ -11,9 +11,6 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ProgramService from "../../service/program/ProgramService";
 import SettingsService from "../../service/SettingsService";
 import UserInfoService from "../../service/UserInfoService";
-import WorkLists from "openchs-models/src/application/WorkLists";
-import WorkList from "openchs-models/src/application/WorkList";
-import WorkItem from "openchs-models/src/application/WorkItem";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import IndividualService from "../../service/IndividualService";
 

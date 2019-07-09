@@ -1,0 +1,1139 @@
+commit 169cf6158d2f9d0cbcd0143dacd12ae8068cf3c0
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Tue Jun 18 12:02:32 2019 +0530
+
+    1495 | Enrol decisions were being fired for exit form
+
+commit 36157b1291ade7a97acf6139b72459d24286f468
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon Jun 17 09:58:58 2019 +0530
+
+    1370 | Multiple changes. Read on.
+    1. Remove saveAndAnotherActivity label. This was a merge miss.
+    2. Add all scheduled visits to the worklists so that implementations can find out what is coming, and can adjust worklists with multiple individuals. (in AbstractDataEntryState)
+    3. When creating scheduled visits, ensure all details such as programEnrolmentUUID is populated in the workItem.
+    4. When moving to a programEncounter, check if there is already a scheduled encounter of the same type before creating a new one
+
+commit de2876bc81dd916308fc6b55dddff862cd01b2fb
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu Jun 13 17:18:48 2019 +0530
+
+    1485 | Fix validation reset when form element is hidden
+    - remove all the validations for the hidden forms.
+    - while removing any non-applicable observation rescan the form again to hide any remaining elements.
+
+commit 58c0c7bab340d3f62eff8e15d1d762fa29fb31ad
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri Jun 14 09:04:29 2019 +0530
+
+    Revert "0000 | Always do a console.log."
+    In dev mode, this does not show real errors. These are not shown in release mode
+    
+    This reverts commit 952d8e3ac5d4a09f8a291be74b66aa156cf0f9ec.
+
+commit b300c99f96ab4591ff0be3fa9fdd82e3cffc695e
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu Jun 13 16:04:29 2019 +0530
+
+    1483 | Progress bar must go to 1 when sync completes
+
+commit 49872b58fb565c75caaa525bb98cd035163a08f5
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu Jun 13 14:19:34 2019 +0530
+
+    1486 | fix app breaking after delete data
+
+commit 9dff915c37b0aa9a1a9e3a2b8cc6990392c46196
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu Jun 13 12:34:00 2019 +0530
+
+    1484 | Do not show sync telemetry numbers on badge
+
+commit 29276b3cc6de69a7cb60c47119bac265951c9b88
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu Jun 13 12:05:22 2019 +0530
+
+    1482 | Fix common issues during login
+
+commit 952d8e3ac5d4a09f8a291be74b66aa156cf0f9ec
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu Jun 13 12:04:03 2019 +0530
+
+    0000 | Always do a console.log.
+
+commit c9e21520cbeb779f8db50b605c82b6cf842a1974
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu Jun 13 10:26:42 2019 +0530
+
+    0000 | More translation feedback from IHMP
+
+commit af3525f8887ab4314e3d2c05c47998b2dec0786f
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed Jun 12 11:05:49 2019 +0530
+
+    0000 | Some translations based on feedback
+
+commit 5d2b36fd5c970afcfe08c84e7d811d54aa3054a0
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri Jun 7 14:39:43 2019 +0530
+
+    1370 | Use translations for messages provided by work item
+
+commit 2b5c7c487ca602cacd832501eb5eb4f6e3c0974a
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu Jun 6 12:27:44 2019 +0530
+
+    1370 | Create program encounter when moving to program encounter screen. Apply parameters to current and next work items so that history is preserved.
+
+commit b79d69e71287a5d97136877f93d8f6909d5d4b45
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Wed Jun 12 14:59:44 2019 +0530
+
+    0000 | use correct function to get recently enrolled individuals
+
+commit 71e218f67dec80e366a503b9b8a11f577ce3a70a
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed Jun 12 11:03:18 2019 +0530
+
+    0000 | Fix translations
+
+commit 6113e89a22980cbe5e523ea9aeac7aabe8c7322c
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon Jun 10 12:10:50 2019 +0530
+
+    0000 | use lat 24 hours message instead of recent in dashboard
+
+commit 3154d0bfd20dd8c1ce805500a1fdcdf40f44ee30
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri Jun 7 19:59:04 2019 +0530
+
+    0000 | increase gap between different components
+
+commit ef1ea5b5226f8f44f498fda958001be62ae1e516
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri Jun 7 17:24:20 2019 +0530
+
+    0000| adjust search buttom margin and length
+
+commit 28ae5d49683bdfd3b4b41379ca8e217f64d9c2ad
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri Jun 7 16:54:55 2019 +0530
+
+    0000 | remove border radius from submit button
+
+commit 389c1fd7ef994698cffb081e6adf19a733b8b683
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri Jun 7 16:39:03 2019 +0530
+
+    0000 | SettingView UI changes
+
+commit 4cb6dfdec8a51ea615ad75e6a1ff305045393357
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri Jun 7 14:18:51 2019 +0530
+
+    0000 | MenuView UI changes
+
+commit f74fa138afb087e8f960aaf45627ceddb3a6f153
+Author: nupoorkhandelwal <nupoor.khadelwal@gmail.com>
+Date:   Thu Jun 6 23:18:27 2019 +0530
+
+    precocneption counselling messages
+
+commit 672ae760700bfaf065184d03434c1ca6ddda1e35
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Thu Jun 6 10:45:29 2019 +0530
+
+    1434 | Replace ConfirmationModal with 'react-native-simple-dialogs'/ConfirmDialog
+
+commit 5bdaad8ae264d251420455649857e6844f658b82
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Wed Jun 5 15:22:48 2019 +0530
+
+    0000 | some IHMP Translation
+
+commit 8a4a7a2f62aa57811e1e2a23aa1b7960364053c9
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Wed Jun 5 15:21:23 2019 +0530
+
+    0000 | check for individual subject type
+
+commit 729662819abff976c534e9c6a52c18f1ef8fc3fa
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Wed Jun 5 14:28:28 2019 +0530
+
+    0000 | translation added
+
+commit 35875db987707cddd1b41476b9463766231b8a31
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed Jun 5 13:04:12 2019 +0530
+
+    1421 | Run EncounterType eligibility rules for IndividualEncounter
+
+commit 6a653e311b00d511bf843bd60c7747e4451c8a01
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed Jun 5 13:02:07 2019 +0530
+
+    1421 | Upgrade healthmodules/rules-config version
+
+commit 027742a55edc074f8ed9213eff94089e826cae62
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed Jun 5 12:31:52 2019 +0530
+
+    1421 | Fix bug caused in previous commit
+
+commit 9863abce123c4d920279cf04469f6b2f9736b954
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed Jun 5 10:58:22 2019 +0530
+
+    1421 | Run EncounterType eligibility rules for ProgramEncounter
+
+commit 7f9c755ce2e2e70edebb27d12125f1779b60c90d
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue Jun 4 18:05:14 2019 +0530
+
+    0000 | Add babel preset to strip flow types for unit tests
+
+commit b7f1a4928595e14361db535bc624f2e63322fd1c
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue Jun 4 17:36:25 2019 +0530
+
+    1450 | If an implementation of AbstractDataEntryState do not want WorkItems then we should not crash the app
+
+commit 785e6193e6249f7c88257cebf371769bb8483f15
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Tue Jun 4 16:57:35 2019 +0530
+
+    0000 | Revert flow type annotations as flow isn't configured properly
+
+commit 29a5f37bb2fb85b2427cbe17e97228cd5b4c9321
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Tue Jun 4 16:48:05 2019 +0530
+
+    1421 | Use entity field from rules api response instead of deprecated fields-formUUID&programUUID
+
+commit 668014fcf4104f44badc58f8cdf28ec125fdcc39
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue Jun 4 15:47:50 2019 +0530
+
+    0000 | Fix a marathi translation
+
+commit cfcf2c46ce1905fc1b3b626a10b87813df7d44a9
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue Jun 4 15:06:29 2019 +0530
+
+    0000 | Showing view by subjectType
+
+commit 11b66e24924b1e6d30d1ee46765538e7035f75f4
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Tue Jun 4 14:35:16 2019 +0530
+
+    1398 | Ensure second round of registration is for the same subject type
+
+commit 37bc6a8d9bb1ec8f6366571d174185ff57396e87
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Tue Jun 4 11:55:57 2019 +0530
+
+    0000 | Ensure views are reset when deleting data.
+
+commit 7656939d42b0d10fffbab7a157f17a7302aeac2c
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue Jun 4 08:51:27 2019 +0530
+
+    0000 | Consider Patient also as individual. we need to have a proper solution for this in place
+
+commit e504f8f7118b6c5c8f12f907e49e13717ed51152
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue Jun 4 08:50:52 2019 +0530
+
+    0000 | Translation for enrol keys
+
+commit 2fab0a040c3f3656d964705087776e4936d386d9
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Tue Jun 4 08:50:30 2019 +0530
+
+    1398 | Ensure first time load without data does not fail
+
+commit 234bd23c02a098b2e454d831495b2387c030b323
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon Jun 3 17:45:16 2019 +0530
+
+    1398 | Do not show subject type filter on dashboard
+
+commit 8acb6628ea728176a2e6f98298ed0349e66d5eb9
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon Jun 3 17:42:26 2019 +0530
+
+    1398 | Ensure subject type filter does not get reset when moving between screens
+
+commit 348b5cd808e2cac47061e0ea739ddd7058ffecb3
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon Jun 3 17:36:31 2019 +0530
+
+    0000 | correct text styling in GrowthChartView
+
+commit a03e74b385dbbc59b923d823a4fa762806f48a01
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon Jun 3 17:14:50 2019 +0530
+
+    1398 | Fix dashboard filters.
+    1. Initial load and filter load show different values.
+    2. If no filters applied manually for subject type, program or visits, show all visits
+
+commit 05751b8c16730fab44b84b8e3108856505d434e2
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Mon Jun 3 14:46:45 2019 +0530
+
+    0000 | Do not deploy locations from core health modules as they are moved to resptective implementations
+
+commit f8b493aa92d37bece0fc96183518ab782bc88846
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon Jun 3 11:52:18 2019 +0530
+
+    1416 | on edit registration display proper subject name
+
+commit dc7e044dd70519693d27fa2b8e1807c0881c0e3f
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon Jun 3 10:11:37 2019 +0530
+
+    1432 | hide register button whenever not required
+
+commit d0df94c412eb0663fcebd45fec845d3097cdc461
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon Jun 3 09:55:36 2019 +0530
+
+    1398 | Make subject type filter two column
+
+commit ed9476d83dbb5932c97cb8d28f9137f0427e3aaf
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Sat Jun 1 16:59:17 2019 +0530
+
+    1398 | Show only relevant programs based on subject type
+
+commit ff43a6e646b24d9bfa65e8f9775e7e717810fa03
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Sat Jun 1 16:40:17 2019 +0530
+
+    1398 | Allow existence of subjects without a registration forms
+
+commit b24a4d6a7cf9510c9f6f6f4dab8d530fa66e3a26
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Sat Jun 1 16:09:11 2019 +0530
+
+    1398 | Do not show subject types when there is only one
+
+commit f572b62f88bc2081939800ffeddc07c19f728a53
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Sat Jun 1 14:52:56 2019 +0530
+
+    1398 | Add subject type search filter to dashboard
+
+commit ef2f66ed02bce393b9d710e4d5b3e6a62965255f
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri May 31 19:39:05 2019 +0530
+
+    1432 | bottom menu bar changes
+    make dashboard as home screen
+    increase AppHeader title size
+    underline on icons when selected
+
+commit ed078e2dcd89678efc589194eab98738a759110f
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 31 13:19:57 2019 +0530
+
+    0000 | Ensure empty subject types during first time load does not fail the app
+
+commit f1910f8ef4f1b474d5c78eff33d5ddc48c87acd7
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 31 12:38:13 2019 +0530
+
+    0000 | Remove unnecessary method
+
+commit 9a3d5232fc48f75eec5f53d3bd1593d6888836e8
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri May 31 12:01:51 2019 +0530
+
+    1432 | move bottom menu bar to top view
+
+commit 3fd49e27f917f2b4447874e2f64157790b4168ae
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 31 11:58:44 2019 +0530
+
+    1421 | Simplify code in Rule,ResourceUtil
+
+commit aa8fe6b5d91d97c6f83dbe563d91f3ec9767521b
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 31 09:09:20 2019 +0530
+
+    1398 | Add subject type criteria in Search screen
+
+commit 6c627ac2c0c388c1854900014deedaa2ca228ba8
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed May 29 11:48:02 2019 +0530
+
+    0000 | Remove unnecessary code
+
+commit 2b1d194b254757ad36961af771fa56ef041f13bb
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Thu May 30 17:36:17 2019 +0530
+
+    1420 | Pick the right due visit for filling after cancelling another visit in a stitched workflow
+
+commit 825c9f995f1caed6954f2d85ef5d75c1800bb9a9
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu May 30 12:04:06 2019 +0530
+
+    1432 | start sync on user log-in
+
+commit 01cf6eefc88b60e0f82932597aff0811a5dc2d53
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu May 30 11:33:13 2019 +0530
+
+    0000 | change status bar color of app
+
+commit cbd7654bf2826a55d9379d94a8887f4d27e688e2
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Wed May 29 13:59:17 2019 +0530
+
+    1432 | new menu bottom bar
+
+commit cbfe41a522f79205214246f9d7cf2a7ec23ee89f
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 29 14:13:19 2019 +0530
+
+    Add clear_app_data task to Makefile
+
+commit 77ad03d1414db13b41909cd60284f76af2954bd1
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed May 29 11:12:01 2019 +0530
+
+    Fix Dashboard search page. Make subjectType optional in findEncounterTypesForProgram
+
+commit 6826e65018c8dffb6f79fb46b0ad95131a8fd1d4
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Wed May 29 10:50:59 2019 +0530
+
+    1210 : Marathi transation of IHMP counselling
+
+commit 83b3bc88e6beea994b1cc9327c8ddbda92f44016
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed May 29 10:50:12 2019 +0530
+
+    0000 | Show dashboard view
+
+commit 8edff0cc083b6032748f18472d6fbb50b19f3910
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Tue May 28 15:26:30 2019 +0530
+
+    1397 | Allow registration of multiple subject types.
+
+commit 5332283af0acf15a703e7ae0287f61765342378c
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 23 13:18:24 2019 +0530
+
+    1398 | Add SubjectType to FormMapping
+
+commit 885791a0de65dc8454576188a77203957e18ebf2
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Tue May 28 18:29:33 2019 +0530
+
+    1434 | Show delete button in red color in MultipleUserNotSupported popup
+
+commit 534fbffc2ec76dbd95fedd2db6dd30833f08c272
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Tue May 28 18:28:18 2019 +0530
+
+    1434 | Introduce ConfirmationModal component
+    
+    Alert.alert has limited styling. So added this component.
+
+commit 5ae1f95c71dd39e7366cf52f7e6d54397cedb0cf
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Tue May 28 16:37:00 2019 +0530
+
+    1434 | Pull AuthService.clearData method out of MenuView
+
+commit 76ddc5ba2a1991a03d957de42a7bf4be46784c9c
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 28 12:43:44 2019 +0530
+
+    0000| mydashboard filter encounter as per the selected program
+
+commit aedf5e8873cc225fb92cec8c6b2a4dbe7ae275e8
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Mon May 27 19:45:55 2019 +0530
+
+    1434 | Require user to delete App Data when trying to login as different user
+
+commit feda219f733b22ffcb7e918b8ae35dacac595db2
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Mon May 27 18:58:52 2019 +0530
+
+    1434 | Show already logged in username if available when logging in
+
+commit e9f5bcd28874db68308eedf2304e36581190c9fe
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Mon May 27 18:46:47 2019 +0530
+
+    1434 | Store username in UserInfo object
+
+commit d77eb12ff3b9d06421f7f1c9245c6c6e1e17a342
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 27 19:14:43 2019 +0530
+
+    0000 | change individual details styling in MyDashboard
+
+commit 2addf22b64f830f10ea90617e90bef71b79cfd0d
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 27 18:38:32 2019 +0530
+
+    1433 | Filter in Individual List
+
+commit adc670cc6722a1a6f0c1b3511c4f4d9668201eb3
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Mon May 27 16:42:07 2019 +0530
+
+    1420 | Load first form element group without fail while editing enrolment
+
+commit d7d0a73e6f493253f89463672b4ddfe307f05ab0
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 27 13:25:08 2019 +0530
+
+    0000 | enrolment instead of enrollment
+
+commit e15708efac1745518a21f3a98c9c20f60731baa5
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 27 12:56:15 2019 +0530
+
+    1424 | section list to display individual list in my dashboard
+
+commit ee108f37f849d618de41e4e98b0d34bbeb14d683
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Mon May 27 09:12:25 2019 +0530
+
+    0000 | Translation for Preconception registration
+
+commit 952d04ae9f658ae043b0abcbb40889c44e0f40ce
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Mon May 27 09:11:56 2019 +0530
+
+    0000 | Age field to open numeric keyboard
+
+commit 05c6b1593e25d43d99a03d5add3d300aa816587c
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 24 20:53:54 2019 +0530
+
+    0000 | Ensure watchman reset cache doesn't fail during app-build
+
+commit 6e97d8cbcbd881140fffed6367c57b70124abec8
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 24 20:36:44 2019 +0530
+
+    0000 | Fix ci build failure caused by prev commit
+
+commit aae9c5ff2b7cc6aa3526781fe2f40f96a6e85659
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 24 20:28:52 2019 +0530
+
+    0000 | Make builds faster by sharing node_modules caches b/w jobs
+
+commit 9dc41a67bdcbf0049be02b3000db89120555fa3d
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 24 19:58:33 2019 +0530
+
+    0000 | Fix test failures
+
+commit 7b17e4dbaa0dc3d1b509a3cb26059f4fdc8d0c8f
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Fri May 24 11:15:31 2019 +0530
+
+    0000 | Fix release staging not working
+
+commit 215204cc32c91f97e940830edd139806029750e6
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed May 22 17:57:27 2019 +0530
+
+    1420 | Setup Worklist for ProgramEncounter(new/edit/cancel), ProgramEnrolment(new/edit/exit/edit-exit), Encounter(new/edit)
+
+commit 2923c939f9ab6a2772f67904264b186b2a6706e0
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Thu May 23 16:01:02 2019 +0530
+
+    0000 | Fix double deploy_metadata problem :Create refer to hospital in common and add answers in specifc health modules
+
+commit 936bc0f379259cbd6e923896f514353a75585651
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Thu May 23 14:07:21 2019 +0530
+
+    1425 | Start Program page to use section list
+
+commit 58ba79ebe6bc27a4bc5b53b78ada3915359b59d3
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 22 13:11:51 2019 +0530
+
+    1419 | Fix stiching bugs - add registration after another registration
+
+commit 276383be494aa31798f026b707d1eba91a82e60f
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 22 12:54:46 2019 +0530
+
+    Revert "make release_android_staging parellel to speed up debugging"
+    
+    This reverts commit 8430f4f6db6a33680914294fc19b75365b257d7a.
+
+commit 8c0e9c9cdabf7e498e66551463383fbeb7446b67
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 22 12:52:16 2019 +0530
+
+    0000 | fixing build
+
+commit 015da3bd5ba0a06fe7bbe8ca7ced26086e02f216
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 22 12:38:09 2019 +0530
+
+    1419 | Fix stiching bugs - part 1
+
+commit 17091fb9f5956c084c658098db56c6a40a913d4c
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 22 12:34:41 2019 +0530
+
+    0000 | Enanble Type Checking using Flow
+
+commit 0f9ccfa0594d660a0d2a74627dc3bec50b61ad8e
+Author: Charles <charlesj@gmail.com>
+Date:   Wed May 22 12:22:07 2019 +0530
+
+    Revert '1408 | Fix missing Menu > Settings button on low resolution devices'
+
+commit 4856b34572fdfcc4e2391f3601fb099ccae520ef
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 21 18:44:12 2019 +0530
+
+    display user-info using SectionList in IndividualList
+
+commit 34c2ad8e0751cf92f96d2ecaa2f835d32865c886
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 21 17:10:03 2019 +0530
+
+    0000 | fix enableSeparateBuildPerCPUArchitecture
+
+commit ee1a7b02134f124fbb0da5aa9b9e78fc016c824e
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Tue May 21 15:31:09 2019 +0530
+
+    0000 | Faster release
+
+commit 4131ab934cc7076579a1983a610675e88bbe9dc1
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Fri May 17 13:29:50 2019 +0530
+
+    adding help to makefiles
+
+commit 09d7353f7c5b08a3fdd343b0981a311a6d59bced
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Wed May 15 18:49:07 2019 +0530
+
+    0000 | Fastlane-CodePush | utility target to open playstore with openchs automatically. Display name to have version code. ignored the derived release notes
+
+commit 76fd35726078a2b49c56fa223afbebdd9ba4a272
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue May 21 14:36:20 2019 +0530
+
+    0000 | Generated single apk for non prod environments. Also clean deps while release
+
+commit f20487810ec38c35508f2c47fc4bd0bd9b843057
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 21 12:12:46 2019 +0530
+
+    0000| remove plugin-proposal-class-properties to support SectionList. This plugin is already included in metro
+
+commit 7d8901e7ebf31795ec7d1788b75b86df84e65fb2
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue May 21 10:19:44 2019 +0530
+
+    0000 | Script for converting the translations csv into json
+
+commit b08019e1a83cf4ebeedc58f14a2a88869ae9a127
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Tue May 21 10:18:42 2019 +0530
+
+    1210 | IHMP Translations
+
+commit e9a1a69926f0b18a7ddd28e5ac8c6fe00a549978
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 20 17:08:25 2019 +0530
+
+    1412 | added padding on filter card text
+
+commit f5b95265c808fe31963174192b7494938eaa3b94
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 20 16:21:11 2019 +0530
+
+    1412 | adding location and program filters for all type of queries
+
+commit 5eeed87f837b590d5f951012119bbbd6a5c5fb36
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 20 15:27:59 2019 +0530
+
+    Update nvmrc for node 8.5.0
+
+commit 65cc9f2dafd2b7a3327079a66052707952ab1794
+Author: Charles <charlesj@gmail.com>
+Date:   Mon May 20 14:52:04 2019 +0530
+
+    1408 | Fix missing Menu > Settings button on low resolution devices
+
+commit c0f606b1b25eaae6edfb88fee6ff6234ee45df7e
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 20 13:01:18 2019 +0530
+
+    1392 | fix for program text showing empty for non selected program in PDV
+
+commit bece8a41407760d433403d5f162d910bd1ba83c2
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon May 20 13:09:21 2019 +0530
+
+    0000 | Make sure double ids are not assigned at the time of editing enrolment
+
+commit ae49288148e85a4d1ad86d18197f1c22e8cf4516
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Mon May 20 12:51:05 2019 +0530
+
+    0000 | Do not fail when editing enrolments. Add worklist when editing enrolments.
+
+commit d5ee09fd73184947473978f546ffa276abcce5a3
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 20 11:46:35 2019 +0530
+
+    1412| My Dashboard issues
+
+commit 0831390e6eabd2378e1cfdee94293f4ebc375d33
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Mon May 20 12:16:09 2019 +0530
+
+    0000 | Translation
+
+commit 19b2c269b8325554c0c7af0e6500070ce296737f
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Fri May 17 16:29:42 2019 +0530
+
+    Fix APK generation
+     - Downgrades Realm to older version because newer version is causing issues on emulator
+     - Sets react-native to a fixed version
+     - Removes unnecessary bundle creation task as .gradlew assembleRelease already creates a bundle
+     - Adds back deleted package-lock.json files inside each package of our mono repo
+     - Removes wrong arguments being passed to react bundle task by android/app/build.gradle. Specially we were giving entry file as index.js instead of index.android.js which ends up creating wrong bundle with almost no code.
+     - Revert to node 8.5 on CI
+
+commit c7c73407b161bf260634b35421897bc122b8090e
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Fri May 17 16:41:00 2019 +0530
+
+    Revert "Fix APK generation"
+    
+    This reverts commit 1c250b9321b434857e5e713242c77140fdac9f8d.
+
+commit 1c250b9321b434857e5e713242c77140fdac9f8d
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Fri May 17 16:29:42 2019 +0530
+
+    Fix APK generation
+     - Downgrades Realm to older version because newer version is causing issues on emulator
+     - Sets react-native to a fixed version
+     - Removes unnecessary bundle creation task as .gradlew assembleRelease already creates a bundle
+     - Adds back deleted package-lock.json files inside each package of our mono repo
+     - Removes wrong arguments being passed to react bundle task by android/app/build.gradle. Specially we were giving entry file as index.js instead of index.android.js which ends up creating wrong bundle with almost no code.
+
+commit c4f2d4dd1eb561d32d48be7ab992ec619eb3106a
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Fri May 17 15:51:59 2019 +0530
+
+    0000 | move unicef locations from core to imp
+
+commit 99ff9d3b23886cdadf27120a100844183d0f8437
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 17 15:46:31 2019 +0530
+
+    1381 | Multiple changes
+    1. Upgrade rules config to use the new lib structure
+    2. Add parameters to RuleService so that entityType is recognized.
+    3. Correct eligibility check for mother program
+
+commit 92a0663f10925b32dd752b499c8d4643deb69783
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 17 14:56:26 2019 +0530
+
+    1381 | Add new rule type for eligible programs. Ensure pregnancy program does not show for anyone except females above 5 years of age.
+
+commit a79fa3f4a094f03c5f7f1fb0af01ce66102a7965
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Fri May 17 09:48:56 2019 +0530
+
+    0000 | Remove unused package
+
+commit e16a90c0e755a260bead25743357893e6b39d6bf
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Fri May 17 14:48:37 2019 +0530
+
+    1406 | Determine whether an address is lowest in the current selection not entire db
+    
+    Consider the following address heirarchy
+    District(level 4)->Block(level 3)->phc area(level 2.6)
+                   ""->Block(level 3)---------->Village(level 1)
+    If the inidividual.lowestAddressLevel is set to phc area it was failing
+    and is fixed in this commit.
+
+commit 3b4b6a770289f69d674fbec25458e18305c4738c
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:30:25 2019 +0530
+
+    1370 | Add utility function to easily add a work item
+
+commit 0d046c93ad07fa4919a2e458ac76bc1b152d1e60
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:30:09 2019 +0530
+
+    1370 | Fix saving toasts to make them show the right thing.
+
+commit 2e417883aab9df363f73141fdbaf724068a1ffa3
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:29:28 2019 +0530
+
+    1370 | Add parameter to show enrolment save button
+
+commit 65d3b2d7e3827b0c8af7551a9e6dbf06b7d0cc66
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:29:05 2019 +0530
+
+    1370 | Add null check condition while adding scheduled visits
+
+commit 8d6eb2de9b48f1708815038917e55a667e7ad98a
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:28:14 2019 +0530
+
+    1370 | Ability for implementations to use openchs-models
+
+commit 0b911bb534fc53e267eeb150a3319ee6eca1c8d9
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 16 16:27:46 2019 +0530
+
+    1370 | Make enrolment button say the type of enrolment
+
+commit cc54f9839a87a08f03dbe88b0005adb25730b788
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Thu May 16 15:08:17 2019 +0530
+
+    update openchs-models version to 0.0.3 for publishing to npm
+
+commit f42275c8e95e4f5fe0dce95f5d095498b75a5233
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Thu May 16 11:47:17 2019 +0530
+
+    0000 | Add reinstall make task that was deleted by mistake.
+
+commit 376d4f86b905b5539658024f6019a9b205df9f91
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Thu May 16 10:34:58 2019 +0530
+
+    0000 | Update moment version in response to github alerts
+
+commit 153750b34a9a6c73fcb9c72d5a465fe3a3251ba4
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed May 15 20:38:58 2019 +0530
+
+    1406 | Sync locations by new API which is OperatingIndividualScopeAware
+
+commit 4a8f49c8a0d1b70f801b7a47441cb74beb911495
+Author: sidtharthan <sidthunagarajan@gmail.com>
+Date:   Wed May 15 20:37:02 2019 +0530
+
+    0000 | Install react-native-cli
+
+commit 8430f4f6db6a33680914294fc19b75365b257d7a
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 17:42:39 2019 +0530
+
+    make release_android_staging parellel to speed up debugging
+
+commit 5a31847d3cb83bdf8a6ad3adeddf01f856666d14
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 17:38:34 2019 +0530
+
+    trying to fix apk generation on ci
+
+commit e7dcaaf784b848ddf10e4815598d40d08dfb2de4
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 17:03:46 2019 +0530
+
+    Update CI release android apk job
+
+commit 4131a5de222282648e9dd7e010055853b785a8c6
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 16:16:58 2019 +0530
+
+    Updating CI and local machines to use Node 10.15.3. Upgrade Realm to work with Node 10
+
+commit 1bff729b311b0256030aa644e292632ac3865776
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed May 15 15:44:09 2019 +0530
+
+    1370 | Fix tests
+
+commit 1073202f937118fedae7b6c658f8ef740987570d
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Wed May 15 15:41:17 2019 +0530
+
+    0000 | Update lodash versions in response to github alerts
+
+commit 2dda6dfb7b6904b414b1839378634d9b5f61c7f3
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Sun May 12 12:02:32 2019 +0530
+
+    1370 | Allow implementations to update worklists using rules
+
+commit 6fb0d04298bd4492fc8db6cfcca9465a3e5c3c96
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 9 14:21:55 2019 +0530
+
+    1370 | Use worklists to handle stitching workflows
+
+commit 7a96286b7e6f2f83da6eac3488d9583d780b7c09
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 2 13:05:59 2019 +0530
+
+    1370 | Add new WorkList and WorkItem that will now be used for stitching forms
+
+commit 32e1d47e16e4923ecbb89ab0656f3d74e8d79079
+Author: Vinay Venu <ijkvinay@gmail.com>
+Date:   Thu May 2 12:12:53 2019 +0530
+
+    0000 | Remove unnecessary imports
+
+commit fa988ec822d2a6278e92b94d8b89fd2015c34b40
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 15:16:51 2019 +0530
+
+    Remove lerna depedency in starting packager
+
+commit c2d9221cbce0aa07ab83835b6241f665fe287f0b
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Wed May 15 11:41:05 2019 +0530
+
+    fixed makefile target
+
+commit 2b74086d37d02ead2282d566011858cbd5498c09
+Author: Arjun <arjunk@thoughtworks.com>
+Date:   Wed May 15 11:24:40 2019 +0530
+
+    1392 : UI fixes on IndividualDetail
+
+commit c5b794d4428dffe9e32b8407f5712a4a6e913e49
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 17:08:41 2019 +0530
+
+    0000 | don't pass theme to CHSContainer directly
+
+commit 324629813de9420bd5725a7829af1497514b4274
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 14 16:47:28 2019 +0530
+
+    0000 | Individual search list and PEDV UI fixes
+
+commit b9f10d3e10f687fb2c1534bb4e7829e6d6f89867
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 16:47:05 2019 +0530
+
+    0000 | use native-base Text instead of react-native Text inside native-base button
+
+commit 8781b920979c9fea73297feacfd4567b702aa7ee
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 16:27:43 2019 +0530
+
+    0000 | remove unused code
+
+commit 5e9d536ddee6ac6a956b659eca5d811a137e8047
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 14:42:26 2019 +0530
+
+    0000 | set btnUppercaseAndroidText to false
+
+commit d6c94b35d369d8703272c07c09ae4b55aecfcabe
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 14 14:41:14 2019 +0530
+
+    0000| react native upgrade UI changes
+
+commit 234310b5b8dbc9cbf14a2c122606969df1dbd22b
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Tue May 14 11:59:42 2019 +0530
+
+    0000 | radio button color and check box spacing aligned
+
+commit e0bfc2c6ff801493386547a118ea45f78084f92d
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 11:57:07 2019 +0530
+
+    0000 | add back exclude bundleReleaseJsAndAssets to release task
+
+commit 1e8e28bc68032829cdacda0f8243e26ca1c8d4a6
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 11:19:47 2019 +0530
+
+    0000 | fix WizardButtons styling issues
+
+commit e83888a2a022d289e305cff58ed1d965712c2c59
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Tue May 14 10:35:09 2019 +0530
+
+    0000 | fix ci build
+
+commit cc120c81def6362f8fc103082f720681f0067624
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 13 18:34:43 2019 +0530
+
+    0000| add borderRadius prop for borderStyle: dashed to work
+
+commit 9b8664c93a3f29ae9bf2d3396ffd49a8c970d8a5
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Mon May 13 17:40:19 2019 +0530
+
+    0000 | Fastlane-CodePush | Generate release notes required only for uploading not for release. Moved it to fastlane makefile.
+
+commit 27e2a5870c7ccf6550a11456257decdfc31929b9
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 13 17:30:22 2019 +0530
+
+    0000 | progress bar text alignment
+
+commit 47e8359d1372d47186d98cab51ead9441a395b31
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 13 17:26:51 2019 +0530
+
+    0000 | NativeBase theme related changes
+
+commit 45b35555baf6d7095cf92c965a4a867b10f7b73c
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 13 17:26:35 2019 +0530
+
+    0000 | NativeBase custom theme as required by new version of native-base
+
+commit 1ef233be37f91ab40013fc1d1c1709acd8d75489
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 13 15:43:31 2019 +0530
+
+    0000 | fix command to run tests that fails on ci
+
+commit 59c2ad7526e7e34c9204ad2f8606a27406a12353
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 13 15:07:25 2019 +0530
+
+    RNUPGRADE | minor fixes and added missing prop-types package
+
+commit 0ef0f015de215257263e22fed1176745ddf3116a
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Mon May 13 14:56:54 2019 +0530
+
+    1382 | Make progress bar smoother
+
+commit 30114590929d0ad2b9309a43f34775447f45f3c0
+Author: Hiren Thacker <hithacker@gmail.com>
+Date:   Mon May 13 13:05:41 2019 +0530
+
+    fix PropTypes in master change
+
+commit 322cefa19811d99bbda7b9903c4f13af1579fac8
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Mon May 13 12:57:25 2019 +0530
+
+    RNUPGRADE-2 | Codepush related improvements, incomplete
+
+commit 2cea463397d87f6ac2d48f1645a0415588e26669
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Sun May 12 13:34:55 2019 +0530
+
+    RNUPGRADE-2 | Upload to playstore working with release notes. Modularised makes files.
+
+commit 12b33312fd20d938266955bfcbabc38c2f4137be
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Thu May 9 15:46:40 2019 +0530
+
+    RNUPGRADE-2 | Upload apk to playstore
+
+commit 5c12c11561b328fc405e230a8808668589631402
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Tue May 7 16:01:32 2019 +0530
+
+    RNUPGRADE-2 | Make release working. Removed react-native-config usage.
+
+commit 9d437791734001d957a9c1b7cd0afbb9f2ae7a03
+Author: Sidtharthan A N <sidthunagarajan@gmail.com>
+Date:   Mon May 6 11:54:26 2019 +0530
+
+    RNUPGRADE-2 | Revert "Update build tasks. Fix metro config to use relative paths instead of using lerna's symlinks"
+    
+    This reverts commit b4861e9f25506a33cf0fd21207573ac0b9ceb281.
+
+commit b4861e9f25506a33cf0fd21207573ac0b9ceb281
+Author: Sidtharthan A N <sidthunagarajan@gmail.com>
+Date:   Mon May 6 11:45:30 2019 +0530
+
+    RNUPGRADE-2 | Update build tasks. Fix metro config to use relative paths instead of using lerna's symlinks
+
+commit 3fbc3f61d26e87df1c353cfdac94f63d3ea7b98c
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Sun May 5 12:48:22 2019 +0530
+
+    RNUPGRADE-2 | Code Push Integration and some fixes for creating APK
+
+commit 72f8be01e051823b18759b448780d32bc1ee2fa6
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Sat May 4 15:04:48 2019 +0530
+
+    RNUPGRADE-2 | Fastlane initial setup
+
+commit f430ad7e2f83cd6e8a76938313918d37aaee39ec
+Author: Vivek Singh <petmongrels@gmail.com>
+Date:   Fri May 3 21:11:54 2019 +0530
+
+    RNUPGRADE-2 | Fixes post the merge
+
+commit fbdec6c1f6258d9c074ecadaf8de8950969ecd06
+Author: Vinod Deolal <vinoddeolal@gmail.com>
+Date:   Wed Apr 10 19:21:20 2019 +0530
+
+    user feedback message fix
+    
+    RNUPGRADE | Try rn-diff-purge tool and upgrade from 42 to 58
+    
+    RNUPGRADE | Module resolution and some problems got resolved
+    
+    RNUPGRADE | Fix openchs-health-modules resolution
+    
+    RNUPGRADE | Fix resolution of openchs-models and health-modules in metro config
+    
+    RNUPGRADE | Remove temporary fix to resolve openchs-models and health-modules
+    
+    RNUPGRADE | Change BackAndroid to BackHandler
+    
+    RNUPGRADE | Added round icons, Removed deprecated library for cognito, Moved to 0.59.
+    
+    RNUPGRADE | Login is working.
+    
+    RNUPGRADE | Added react-native-device-info and removed older approach for getting device info
+    
+    RNUPGRADE | Introduced text inside buttons
+    
+    RNUPGRADE | Scrolling work for NativeBase Content
+    
+    RNUPGRADE | Graph is working. Removed wrong logging.
+    
+    RNUPGRADE | Use appropriate console. methods for logging based on the level
+    
+    RNUPGRADE | Changed error to warning as it is not an error
+    
+    RNUPGRADE | Logger changes to Model's as done in openchs-android module
+    
+    RNUPGRADE | Test models and Health Modules working
+    
+    RNUPGRADE | Removed unused jest config in package.json
+    
+    RNUPGRADE | OpenCHS Android tests working

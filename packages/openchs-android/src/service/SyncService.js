@@ -13,7 +13,7 @@ import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import _ from "lodash";
-import EntityMetaData from "openchs-models/src/EntityMetaData";
+import {EntityMetaData} from "openchs-models";
 import RuleService from "./RuleService";
 
 @Service("syncService")

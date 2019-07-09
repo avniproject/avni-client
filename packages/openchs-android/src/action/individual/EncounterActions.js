@@ -5,9 +5,7 @@ import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Encounter, Form, Point} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
-import WorkLists from "openchs-models/src/application/WorkLists";
-import WorkList from "openchs-models/src/application/WorkList";
-import WorkItem from "openchs-models/src/application/WorkItem";
+import {WorkLists, WorkList, WorkItem} from "openchs-models";
 import General from "../../utility/General";
 
 export class EncounterActions {

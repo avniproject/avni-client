@@ -1,10 +1,8 @@
 import IndividualService from "../../service/IndividualService";
 import EntityService from "../../service/EntityService";
-import {  IndividualRelation  } from 'openchs-models';
-import {  IndividualRelative  } from 'openchs-models';
+import {  ValidationResult, IndividualRelation, IndividualRelative  } from 'openchs-models';
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
-import {ValidationResult} from 'openchs-models';
 import _ from "lodash";
 
 
