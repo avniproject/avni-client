@@ -1,16 +1,13 @@
 import {expect} from "chai";
 import {EncounterActions} from "../../src/action/individual/EncounterActions";
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
-import {Encounter, Observation, Individual, FormElement, Concept, ConceptAnswer, PrimitiveValue} from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import {WorkItem, WorkLists, WorkList, Encounter, Observation, Individual, FormElement, Concept, ConceptAnswer, PrimitiveValue} from 'openchs-models';
+import EntityFactory from "../EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";
 import WizardNextActionStub from './WizardNextActionStub';
 import TestContext from "./views/testframework/TestContext";
 import General from "../../src/utility/General";
-import WorkItem from "openchs-models/src/application/WorkItem";
-import WorkLists from "openchs-models/src/application/WorkLists";
-import WorkList from "openchs-models/src/application/WorkList";
 import WorkListState from "../../src/state/WorkListState";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {

@@ -2,7 +2,7 @@ import {expect} from "chai";
 import _ from "lodash";
 import ConceptService from "../../../src/service/ConceptService";
 import {Concept} from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../../EntityFactory";
 
 function findObsForConcept(observations, conceptName) {
     return _.find(observations, (observation) => observation.concept.name === conceptName)

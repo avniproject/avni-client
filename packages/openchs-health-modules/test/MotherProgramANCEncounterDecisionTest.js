@@ -1,12 +1,12 @@
-import ProgramFactory from "openchs-models/test/ref/ProgramFactory";
-import IndividualBuilder from "openchs-models/test/ref/IndividualBuilder";
+import ProgramFactory from "./helpers/ProgramFactory";
+import IndividualBuilder from "./helpers/IndividualBuilder";
 import program from "../health_modules/mother/metadata/motherProgram";
 import motherConcepts from "../health_modules/mother/metadata/motherConcepts.json";
 import commonConcepts from "../health_modules/commonConcepts.json";
 import enrolmentForm from "../health_modules/mother/metadata/motherProgramEnrolmentForm.json";
 import ancForm from "../health_modules/mother/metadata/motherANCForm";
-import EnrolmentFiller from "openchs-models/test/ref/EnrolmentFiller";
-import EncounterFiller from "openchs-models/test/ref/EncounterFiller";
+import EnrolmentFiller from "./helpers/EnrolmentFiller";
+import EncounterFiller from "./helpers/EncounterFiller";
 import TestHelper from "./TestHelper";
 
 const moment = require('moment');

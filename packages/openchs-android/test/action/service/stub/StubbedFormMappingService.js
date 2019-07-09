@@ -1,5 +1,5 @@
 import {Form} from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../../../EntityFactory";
 
 class StubbedFormMappingService {
     constructor(serviceData) {

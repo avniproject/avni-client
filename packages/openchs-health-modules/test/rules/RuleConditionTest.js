@@ -1,11 +1,10 @@
 import {assert} from "chai";
 import {
     ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues,
-    Individual, Gender
+    Individual, Gender, AddressLevel
 } from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../helpers/EntityFactory";
 import {RuleCondition} from "rules-config/rules";
-import AddressLevel from "openchs-models/src/AddressLevel";
 
 describe('RuleConditions', () => {
     var programEncounter, form, a1, a2, codedConceptA1;

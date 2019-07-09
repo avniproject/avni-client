@@ -6,7 +6,7 @@ import {
     ProgramEnrolment, Individual
 } from 'openchs-models';
 import {getDecisions} from "../../../health_modules/child/anthropometricDecision";
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../../helpers/EntityFactory";
 import moment from "moment";
 import C from "../../../health_modules/common";
 
@@ -58,11 +58,11 @@ describe("Anthropometric Decisions", () => {
         boy.dateOfBirth = new Date("January 19, 2018");
         enrolment.individual = boy;
 
-        let [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter] = 
+        let [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter] =
             _.times(4, () => ProgramEncounter.createEmptyInstance());
         let encounters = [firstEncounter, secondEncounter, thirdEncounter, fourthEncounter];
         encounters.forEach(e => e.programEnrolment = enrolment);
-        
+
         let sd2Neg = 4.3;
         firstEncounter.encounterDateTime = moment(boy.dateOfBirth)
             .add(2, "months")

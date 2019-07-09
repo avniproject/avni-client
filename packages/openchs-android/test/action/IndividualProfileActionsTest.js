@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {IndividualProfileActions as IPA} from "../../src/action/individual/IndividualProfileActions";
 import TestContext from "./views/testframework/TestContext";
 import {Individual} from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../EntityFactory";
 
 describe('IndividualProfileActionsTest', () => {
     xit('programEnrolmentFlow', () => {

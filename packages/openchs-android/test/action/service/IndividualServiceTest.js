@@ -4,7 +4,7 @@ import TestContext from '../views/testframework/TestContext'
 
 import Realm from 'realm';
 import {Schema, Individual, Gender} from 'openchs-models';
-import EntityFactory from "openchs-models/test/EntityFactory";
+import EntityFactory from "../../EntityFactory";
 import IndividualSearchCriteria from "../../../src/service/query/IndividualSearchCriteria";
 import General from '../../../src/utility/General';
 
@@ -66,13 +66,13 @@ describe('IndividualServiceTest', () => {
             const individualSearchCriteria = IndividualSearchCriteria.empty();
             individualSearchCriteria.addNameCriteria("test");
             individualSearchCriteria.addVoidedCriteria(true);
-    
+
             const indi1 = createIndividual(false);
             const indi2 = createIndividual(true);
 
             individualService.register(indi1);
             individualService.register(indi2);
-            
+
             const results = individualService.search(individualSearchCriteria).results;
             assert.lengthOf(results, 2);
         });
@@ -82,13 +82,13 @@ describe('IndividualServiceTest', () => {
             //so we do not need to set it
             const individualSearchCriteria = IndividualSearchCriteria.empty();
             individualSearchCriteria.addNameCriteria("test");
-    
+
             const indi1 = createIndividual(false);
             const indi2 = createIndividual(true);
 
             individualService.register(indi1);
             individualService.register(indi2);
-            
+
             const results = individualService.search(individualSearchCriteria).results;
             assert.lengthOf(results, 1);
         });

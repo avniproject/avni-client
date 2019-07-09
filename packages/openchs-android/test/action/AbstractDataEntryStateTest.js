@@ -1,14 +1,11 @@
 import {expect} from "chai";
-import {ValidationResult, Observation, PrimitiveValue, Concept} from 'openchs-models';
+import {ValidationResult, Observation, PrimitiveValue, Concept, WorkItem, WorkList, WorkLists} from 'openchs-models';
 import Wizard from "../../src/state/Wizard";
 import WizardNextActionStub from "./WizardNextActionStub";
 import StubbedDataEntryState from "./StubbedDataEntryState";
 import ObservationsHolderActions from '../../src/action/common/ObservationsHolderActions';
 import TestContext from "./views/testframework/TestContext";
-import EntityFactory from "openchs-models/test/EntityFactory";
-import WorkItem from "openchs-models/src/application/WorkItem";
-import WorkLists from "openchs-models/src/application/WorkLists";
-import WorkList from "openchs-models/src/application/WorkList";
+import EntityFactory from "../EntityFactory";
 
 describe('AbstractDataEntryStateTest', () => {
     var formElementGroup;

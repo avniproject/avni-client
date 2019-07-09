@@ -1,8 +1,6 @@
 import AbstractDataEntryState from "../../src/state/AbstractDataEntryState";
 import {ObservationsHolder} from 'openchs-models';
 import WorkListState from "../../src/state/WorkListState";
-import WorkLists from "openchs-models/src/application/WorkLists";
-import WorkList from "openchs-models/src/application/WorkList";
 
 class StubbedDataEntryState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, observations, workLists) {
