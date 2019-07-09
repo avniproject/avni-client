@@ -57,20 +57,6 @@ jobs:
       - run: make deps_ci
       - run: make ci test-health-modules
 
-  test_models:
-    docker:
-      - image: circleci/node:8.5.0
-    working_directory: ~/openchs-client
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          - v1-dependencies-
-      - run: sudo apt-get install make
-      - run: make deps_ci
-      - run: make ci test-models
-
   release_android_staging:
     docker:
       - image: openchs/react-native-image:latest

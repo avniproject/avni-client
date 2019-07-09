@@ -70,10 +70,7 @@ test-health-modules: setup_hosts as_dev
 test-android: setup_hosts as_dev
 	$(call test,android)
 
-test-models: setup_hosts as_dev
-	$(call test,models)
-
-test: test-models test-health-modules test-android  ##
+test: test-health-modules test-android  ##
 # </test>
 
 # <bugsnag>
