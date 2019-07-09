@@ -2,6 +2,7 @@ import AuthService from "../service/AuthService";
 import General from "../utility/General";
 import {ValidationResult} from 'openchs-models';
 import UserInfoService from "../service/UserInfoService";
+import _ from 'lodash';
 
 class LoginActions {
     static getInitialState() {
@@ -19,18 +20,18 @@ class LoginActions {
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return Object.assign({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username} : {});
+        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username} : {});
     }
 
     static changeValue(state, key, value) {
         let newValue = {};
         newValue[key] = value;
-        return Object.assign({}, state, newValue);
+        return _.assignIn({}, state, newValue);
     }
 
     static onUserIdChange(state, action) {
         const validationResult = /\s/.test(action.value) ? ValidationResult.failure('', 'Username is incorrect, please correct it') : ValidationResult.successful();
-        return Object.assign({}, state, {
+        return _.assignIn({}, state, {
             userId: action.value.trim(),
             validationResult: validationResult,
             loginError: ''
@@ -38,7 +39,7 @@ class LoginActions {
     }
 
     static onPasswordChange(state, action) {
-        return Object.assign({}, state, {password: action.value, loginError: ''});
+        return _.assignIn({}, state, {password: action.value, loginError: ''});
     }
 
     static onLoginStarted(state, action, context) {
@@ -59,19 +60,19 @@ class LoginActions {
                 const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
                 action.failure(errorMsg);
             });
-        return Object.assign({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
+        return _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
     }
 
     static onStateChange(state, action, context) {
-        return Object.assign({}, state, action.newState);
+        return _.assignIn({}, state, action.newState);
     }
 
     static onToggleShowPassword(state) {
-        return Object.assign({}, state, {showPassword: !state.showPassword})
+        return _.assignIn({}, state, {showPassword: !state.showPassword})
     }
 
     static onEmptyLogin(state) {
-        return Object.assign({}, state, {loginError: 'Please fill in User Id and Password'});
+        return _.assignIn({}, state, {loginError: 'Please fill in User Id and Password'});
     }
 }
 

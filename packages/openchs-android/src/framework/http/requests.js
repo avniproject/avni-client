@@ -36,7 +36,7 @@ const makeHeader = (type) => new Map([['json', {
     }
 }], ['text', {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}}]]).get(type);
 
-const makeRequest = (type, opts = {}) => Object.assign({...makeHeader(type), ...opts});
+const makeRequest = (type, opts = {}) => _.assignIn({...makeHeader(type), ...opts});
 
 const addAuthIfRequired = (request, authToken) => {
     return _.isEmpty(authToken)? request: _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});

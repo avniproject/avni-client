@@ -35,7 +35,7 @@ class EntityQueueService extends BaseService {
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
         return {
             metaData: entityMetadata,
-            entities: items.map((item) => Object.assign({
+            entities: items.map((item) => _.assignIn({
                 resource: getEntity(item).toResource
             }))
         };

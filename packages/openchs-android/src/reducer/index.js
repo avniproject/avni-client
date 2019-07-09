@@ -113,7 +113,7 @@ export default class Reducers {
     };
 
     static onPossibleExternalStateChange(state, action, context) {
-        const newState = Object.assign({}, state);
+        const newState = _.assignIn({}, state);
         newState.possibleExternalStateChange = true;
         return newState;
     }

@@ -30,7 +30,7 @@ class ANCFormHandler {
             ["PV leaking", [2, 3]]]);
         const statusBuilder = this._formStatusBuilder(programEncounter, formElement);
         formElement.concept.getAnswers()
-            .map((answer) => Object.assign({
+            .map((answer) => _.assignIn({
                 name: answer.concept.name,
                 uuid: answer.concept.uuid
             }))

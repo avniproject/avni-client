@@ -84,7 +84,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
                 .findByKey("program.uuid", this.programEncounter.programEnrolment.program.uuid, ProgramConfig.schema.name)
         };
         return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
-            .map(k => Object.assign({}, k)));
+            .map(k => _.assignIn({}, k)));
     }
 
     getEffectiveDataEntryDate() {

@@ -163,7 +163,7 @@ class SyncService extends BaseService {
     getData(entitiesMetadata, afterEachPagePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
-            .map((entityMetadata) => Object.assign({
+            .map((entityMetadata) => _.assignIn({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
                 ...entityMetadata
             }));

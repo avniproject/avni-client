@@ -117,7 +117,7 @@ export default class ProgramBuilder {
     }
 
     build() {
-        return Object.assign(this.program, {
+        return _.assignIn(this.program, {
             forms: this.forms,
             concepts: this.concepts.filter(c => c.name != undefined),
             encounterTypes: this.encounterTypes,

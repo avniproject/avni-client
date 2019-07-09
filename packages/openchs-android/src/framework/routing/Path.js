@@ -1,8 +1,9 @@
 import PathRegistry from './PathRegistry';
+import _ from 'lodash';
 
 export default function Path(path) {
     return (view) => {
-        Object.assign(view, {component: () => view, path: () => path});
+        _.assignIn(view, {component: () => view, path: () => path});
         PathRegistry.register(view);
     };
 }

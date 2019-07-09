@@ -34,7 +34,7 @@ module.exports = concepts;
 module.exports.findConcept = function (conceptName) {
     let conceptData = _.find(concepts, (concept) => concept.name === conceptName);
     let concept = _.isNil(conceptData.concept) ? conceptData : conceptData.concept;
-    return Object.assign(new Concept(), concept);
+    return _.assignIn(new Concept(), concept);
 };
 
 let findConcept = function (conceptName) {

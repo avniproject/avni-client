@@ -120,7 +120,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         };
         return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name,
             [..._.get(programConfig, "visitSchedule", [])]
-                .map(k => Object.assign({}, k))) : null;
+                .map(k => _.assignIn({}, k))) : null;
     }
 
     static isInitialised(programEnrolmentState) {
