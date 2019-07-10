@@ -16,3 +16,5 @@
 #   public *;
 #}
 
+#https://github.com/realm/realm-js/issues/2391#issuecomment-506573272
+-keep class io.realm.react.**
