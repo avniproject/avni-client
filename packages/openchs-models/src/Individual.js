@@ -360,6 +360,7 @@ class Individual extends BaseEntity {
         individual.lowestAddressLevel = _.isNil(this.lowestAddressLevel) ? null : {...this.lowestAddressLevel};
         individual.observations = ObservationsHolder.clone(this.observations);
         individual.registrationLocation = _.isNil(this.registrationLocation) ? null : this.registrationLocation.clone();
+        individual.relationships = this.relationships;
         return individual;
     }
 
