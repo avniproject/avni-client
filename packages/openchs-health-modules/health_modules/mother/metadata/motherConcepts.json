@@ -3721,6 +3721,10 @@
       {
         "name": "Abdominal pain",
         "uuid": "7b8829db-9a5a-4177-bab3-6f8e3bb3832c"
+      },
+      {
+        "name": "Urine not passed for more than 48 hours after birth",
+        "uuid": "5fd4d65f-70ab-4a22-a3f7-d7ab3aa2b8a3"
       }
     ]
   },
