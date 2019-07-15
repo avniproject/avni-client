@@ -39,6 +39,7 @@ import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelem
 import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
 import {ProgramEnrolmentTabActions, ProgramEnrolmentTabActionsMap} from '../action/program/ProgramEnrolmentTabActions'
+import {SyncActions, SyncActionMap} from '../action/SyncActions';
 
 export default class Reducers {
     static reducerKeys = {
@@ -73,7 +74,8 @@ export default class Reducers {
         filterAction: "filterAction",
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
         completedEncounters: "CompletedEncounters",
-        programEnrolmentTab: "ProgramEnrolmentTabView"
+        programEnrolmentTab: "ProgramEnrolmentTabView",
+        syncComponentAction: "syncComponent"
     };
 
     static createReducers(beanStore) {
@@ -109,6 +111,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.completedVisitsFilterAction] = Reducers._add(CompletedVisitsFilterActionMap, CompletedVisitsFilterAction, beanStore);
         reducerMap[Reducers.reducerKeys.completedEncounters] = Reducers._add(CompletedEncountersActionMap, CompletedEncountersActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolmentTab] = Reducers._add(ProgramEnrolmentTabActionsMap, ProgramEnrolmentTabActions, beanStore);
+        reducerMap[Reducers.reducerKeys.syncComponentAction] = Reducers._add(SyncActionMap, SyncActions, beanStore);
         return reducerMap;
     };
 

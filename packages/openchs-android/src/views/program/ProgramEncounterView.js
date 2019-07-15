@@ -37,7 +37,6 @@ class ProgramEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounter);
-        this.state = {displayed:true};
     }
 
     componentWillMount() {
@@ -90,9 +89,9 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     displayMessage(message) {
-        if (message && this.state.displayed){
+        if (message && this.state.messageDisplayed){
             ToastAndroid.show(message, ToastAndroid.SHORT);
-            this.setState({displayed:false});
+            this.dispatchAction(Actions.DISPLAY_MESSAGE);
         }
     }
 

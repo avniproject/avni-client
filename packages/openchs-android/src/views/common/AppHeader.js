@@ -9,16 +9,14 @@ import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
+import SyncComponent from "../SyncComponent";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
         title: PropTypes.string.isRequired,
         func: PropTypes.func,
-        icon: PropTypes.string,
-        iconFunc: PropTypes.func,
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
-        iconComponent: PropTypes.object,
     };
 
     constructor(props, context) {
@@ -43,14 +41,27 @@ class AppHeader extends AbstractComponent {
             TouchableNativeFeedback.SelectableBackground();
     }
 
-    renderIcon() {
-        if (!_.isNil(this.props.iconComponent)) {
-            return this.props.iconComponent;
-        } else {
-            return _.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
-                <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
-                <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>
-        }
+    renderHomeIcon() {
+        return <TouchableNativeFeedback
+            onPress={() => this.onHome()}
+            background={this.background()}>
+            <View style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'flex-end',
+                height: 56,
+                width: 72,
+                paddingHorizontal: 16,
+            }}>
+                {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
+                    <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
+                    <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>}
+            </View>
+        </TouchableNativeFeedback>;
+    }
+
+    renderSyncIcon() {
+        return <SyncComponent startSync={this.props.startSync} icon={this.props.icon}/>
     }
 
     render() {
@@ -83,20 +94,7 @@ class AppHeader extends AbstractComponent {
                     }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
                 </View>
 
-                <TouchableNativeFeedback
-                    onPress={() => (_.isNil(this.props.iconFunc) ? this.onHome() : this.props.iconFunc())}
-                    background={this.background()}>
-                    <View style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'flex-end',
-                        height: 56,
-                        width: 72,
-                        paddingHorizontal: 16,
-                    }}>
-                        {this.renderIcon()}
-                    </View>
-                </TouchableNativeFeedback>
+                {this.props.renderSync ? this.renderSyncIcon() : this.renderHomeIcon()}
             </View>
         );
     }

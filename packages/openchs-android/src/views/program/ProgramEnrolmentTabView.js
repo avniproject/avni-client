@@ -17,7 +17,7 @@ import General from "../../utility/General";
 import Fonts from "../primitives/Fonts";
 import {ProgramEnrolmentTabActionsNames as Actions} from "../../action/program/ProgramEnrolmentTabActions";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import FAIcon from "react-native-vector-icons/FontAwesome5";
+import OIcon from "react-native-vector-icons/Octicons";
 
 
 @Path('/ProgramEnrolmentTabView')
@@ -84,7 +84,7 @@ class ProgramEnrolmentTabView extends AbstractComponent {
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [
             [this.icon(MCIcon, 'face-profile', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile],
-            [this.icon(FAIcon, 'sourcetree', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program],
+            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program],
             [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history],
         ];
         this.displayMessage(this.props.message || this.props.params && this.props.params.message);

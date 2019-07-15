@@ -12,7 +12,9 @@ import General from "../../utility/General";
 
 class ProgramEncounterActions {
     static getInitialState() {
-        return {};
+        return {
+            messageDisplayed: true
+        };
     }
 
     static filterFormElements(formElementGroup, context, programEncounter) {
@@ -112,6 +114,12 @@ class ProgramEncounterActions {
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         return newState;
     }
+
+    static displayMessage(state) {
+        const newState = state.clone();
+        newState.messageDisplayed = false;
+        return newState;
+    }
 }
 
 const ProgramEncounterActionsNames = {
@@ -127,7 +135,8 @@ const ProgramEncounterActionsNames = {
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
     SAVE: "PEncA.SAVE",
     SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION",
-    SET_LOCATION_ERROR: "PEncA.SET_LOCATION_ERROR"
+    SET_LOCATION_ERROR: "PEncA.SET_LOCATION_ERROR",
+    DISPLAY_MESSAGE: "PEncA.DISPLAY_MESSAGE",
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -144,6 +153,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave],
     [ProgramEncounterActionsNames.SET_ENCOUNTER_LOCATION, ProgramEncounterActions.setEncounterLocation],
     [ProgramEncounterActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [ProgramEncounterActionsNames.DISPLAY_MESSAGE, ProgramEncounterActions.displayMessage],
 ]);
 
 export {

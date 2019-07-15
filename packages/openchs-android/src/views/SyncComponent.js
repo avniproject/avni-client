@@ -7,24 +7,21 @@ import MessageService from "../service/MessageService";
 import RuleService from "../service/RuleService";
 import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
 import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
+import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, Modal, NetInfo, Text, View} from "react-native";
+import {Alert, Dimensions, Modal, NetInfo, Text, View, TouchableNativeFeedback} from "react-native";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
 import {EntityMetaData} from "openchs-models";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
-import Styles from "./primitives/Styles";
-import {Icon as NBIcon} from "native-base";
-import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
-import MenuView from "./MenuView";
 import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 
 const {width, height} = Dimensions.get('window');
@@ -32,14 +29,9 @@ const {width, height} = Dimensions.get('window');
 class SyncComponent extends AbstractComponent {
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.landingView);
-        this.state = {
-            syncing: false,
-            error: false,
-            isConnected: true
-        };
+        super(props, context, Reducers.reducerKeys.syncComponentAction);
+
         this.createStyles();
-        this.renderSyncModal = this.renderSyncModal.bind(this);
     }
 
     viewName() {
@@ -66,7 +58,7 @@ class SyncComponent extends AbstractComponent {
     }
 
     _preSync() {
-        this.setState({syncing: true, error: false, syncMessage: "syncingData"});
+        this.dispatchAction(SyncActions.PRE_SYNC);
     }
 
     reset() {
@@ -81,24 +73,23 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(MyDashboardActionNames.ON_LOAD);
 
         //To re-render LandingView after sync
-        this.dispatchAction(LandingViewActions.ON_LOAD);
+        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
     }
 
     progressBarUpdate(progress) {
-        this.dispatchAction(LandingViewActions.ON_UPDATE, {progress})
+        this.dispatchAction(SyncActions.ON_UPDATE, {progress})
     }
 
     messageCallBack(message) {
-        this.dispatchAction(LandingViewActions.ON_MESSAGE_CALLBACK, {message})
+        this.dispatchAction(SyncActions.ON_MESSAGE_CALLBACK, {message})
     }
 
     _postSync() {
-        this.reset();
+        this.dispatchAction(SyncActions.POST_SYNC);
+        setTimeout(() => this.reset(), 1);
 
         const userInfoService = this.context.getService(UserInfoService);
         const userSettings = userInfoService.getUserSettings();
-
-        this.setState({syncing: false, error: false, hideRegister: userSettings.hideRegister});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
@@ -106,7 +97,7 @@ class SyncComponent extends AbstractComponent {
         General.logError(`${this.viewName()}-Sync`, error);
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         bugsnag.notify(error);
-        this.setState({syncing: false});
+        this.dispatchAction(SyncActions.ON_ERROR);
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
@@ -129,18 +120,18 @@ class SyncComponent extends AbstractComponent {
 
     componentWillMount() {
         super.componentWillMount();
-        if (this.state.startSync) {
-            this.sync();
-        }
     }
 
     onConnectionChange(isConnected) {
         if (!this.state.syncing) {
-            isConnected ? this.setState({isConnected: true}) : this.setState({isConnected: false});
+            this.dispatchAction(SyncActions.ON_CONNECTION_CHANGE, {isConnected})
         }
     }
 
     componentDidMount() {
+        if (this.props.startSync) {
+            this.sync();
+        }
         NetInfo.isConnected.addEventListener('connectionChange', this._handleConnectivityChange);
         NetInfo.isConnected.fetch().done((isConnected) => {
             this.onConnectionChange(isConnected)
@@ -194,7 +185,7 @@ class SyncComponent extends AbstractComponent {
     }
 
     get syncIcon() {
-        const icon = this.Icon("sync", {
+        const icon = this.props.icon("sync", {
             color: Colors.headerIconColor,
             alignSelf: 'center',
             fontSize: 30
@@ -204,17 +195,25 @@ class SyncComponent extends AbstractComponent {
         return !this.state.syncing && totalPending > 0 ? Badge(totalPending)(icon) : icon;
     }
 
-    Icon(iconName, iconStyle, isSelected) {
-        //Arjun: i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
-        //Arjun: TODO someday we need to have one single icon library.
-        const style = iconStyle ? (isSelected ? {
-            ...iconStyle,
-            color: Colors.iconSelectedColor
-        } : iconStyle) : MenuView.iconStyle;
-        if (_.startsWith(iconName, 'video')) {
-            return <NBIcon name={iconName} style={style}/>
-        }
-        return <MCIIcon name={iconName} style={style}/>
+    render() {
+        return (
+            <View>
+                {this.renderSyncModal()}
+                <TouchableNativeFeedback
+                    onPress={() => this.sync()}>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'flex-end',
+                        height: 56,
+                        width: 72,
+                        paddingHorizontal: 16,
+                    }}>
+                        {this.syncIcon}
+                    </View>
+                </TouchableNativeFeedback>
+            </View>
+        );
     }
 
 }

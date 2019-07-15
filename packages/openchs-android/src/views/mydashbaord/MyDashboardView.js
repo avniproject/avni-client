@@ -27,8 +27,12 @@ class MyDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        // this.dispatchAction(Actions.ON_LOAD);
         super.componentWillMount();
+    }
+
+    componentDidMount() {
+        this.dispatchAction(Actions.ON_LOAD);
     }
 
     onBackCallback() {
@@ -55,9 +59,8 @@ class MyDashboardView extends AbstractComponent {
         const date = this.state.date;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('home')} func={this.onBackCallback.bind(this)}
-                           hideBackButton={true} iconComponent={this.props.iconComponent}
-                           iconFunc={this.props.iconFunc}/>
+                <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={this.props.startSync}
+                           renderSync={true} icon={this.props.icon}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}

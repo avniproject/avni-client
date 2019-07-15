@@ -32,8 +32,7 @@ class ProgramEnrolmentDashboardActions {
             encounterTypes: [],
             displayActionSelector: false,
             expandEnrolmentInfo: false,
-            completedEncounters: [],
-            selectedEncounterType: null,
+            completedEncounters: []
         };
     }
 

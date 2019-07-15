@@ -5,9 +5,10 @@ import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists) {
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed) {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.programEncounter = programEncounter;
+        this.messageDisplayed = messageDisplayed;
     }
 
     getEntity() {
@@ -18,9 +19,9 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ProgramEncounter.schema.name;
     }
 
-    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
+    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
         const formElementGroupPageNumber = formElementGroup.displayOrder;
-        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements, workLists);
+        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
         return state;
     }
@@ -29,6 +30,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
         const programEncounterState = super.clone(new ProgramEncounterState());
         programEncounterState.locationError = this.locationError;
         programEncounterState.programEncounter = this.programEncounter;
+        programEncounterState.messageDisplayed = this.messageDisplayed;
         return programEncounterState;
     }
 

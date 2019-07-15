@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 class LandingViewActions {
     static getInitialState() {
         return {
@@ -6,8 +8,7 @@ class LandingViewActions {
             search: false,
             register: false,
             menu: false,
-            progress: 0,
-            message: '',
+            syncRequired: true,
         };
     }
 
@@ -21,12 +22,14 @@ class LandingViewActions {
         }
     }
 
-    static onLoad(state) {
+    static onLoad(state, action) {
         const newState = LandingViewActions.reset(state);
+        const syncRequired = _.isNil(action.syncRequired) ? true : action.syncRequired;
         return {
             ...newState,
             dummy: !state.dummy,
-            home: true
+            home: true,
+            syncRequired
         };
     }
 
@@ -61,20 +64,6 @@ class LandingViewActions {
             menu: true,
         }
     }
-
-    static onUpdate(state, action, context) {
-        return {
-            ...state,
-            progress: action.progress
-        }
-    }
-
-    static onMessageCallback(state, action, context) {
-        return {
-            ...state,
-            message: action.message
-        }
-    }
 }
 
 const LandingViewActionsNames = {
@@ -83,8 +72,6 @@ const LandingViewActionsNames = {
     ON_SEARCH_CLICK: 'LVA.ON_SEARCH_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
-    ON_UPDATE: `LVA.ON_UPDATE`,
-    ON_MESSAGE_CALLBACK: `LVA.ON_MESSAGE_CALLBACK`
 };
 
 const LandingViewActionsMap = new Map([
@@ -93,8 +80,6 @@ const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_SEARCH_CLICK, LandingViewActions.onSearchClick],
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
-    [LandingViewActionsNames.ON_UPDATE, LandingViewActions.onUpdate],
-    [LandingViewActionsNames.ON_MESSAGE_CALLBACK, LandingViewActions.onMessageCallback],
 ]);
 
 export {
