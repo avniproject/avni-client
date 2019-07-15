@@ -1084,6 +1084,36 @@
       {
         "name": "Child PNC eye problems",
         "uuid": "2010e1e0-468d-424c-85ef-290612f3eae8"
+      },
+      {
+        "name": "Urine not passed for more than 48 hours after birth",
+        "uuid": "5fd4d65f-70ab-4a22-a3f7-d7ab3aa2b8a3",
+        "abnormal": true
+      },
+      {
+        "name": "Child PNC stool related complaints",
+        "uuid": "bcd4495f-41fa-494b-a5d9-a766c87f37f9",
+        "abnormal": false
+      },
+      {
+        "name": "Child PNC activity related complaints",
+        "uuid": "ad5d7bf8-932a-4eb2-8e8a-7c38dc4bbe2b",
+        "abnormal": false
+      },
+      {
+        "name": "Meconium not passed for more than 48 hours after birth",
+        "uuid": "b2837699-5590-47e5-9489-856d185e86df",
+        "abnormal": false
+      },
+      {
+        "name": "Child PNC breathing problems",
+        "uuid": "17d5ed6e-b571-4e02-bebe-0c9db2c8f5ca",
+        "abnormal": false
+      },
+      {
+        "name": "Fever/Chills",
+        "uuid": "2441879f-4f53-4755-9474-3168c68095a5",
+        "abnormal": false
       }
     ]
   }
