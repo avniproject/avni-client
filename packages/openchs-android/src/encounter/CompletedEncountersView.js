@@ -1,4 +1,4 @@
-import {TouchableOpacity, View, StyleSheet, Text, ListView} from "react-native";
+import {TouchableOpacity, View, StyleSheet, Text, ListView, ActivityIndicator} from "react-native";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";
@@ -35,12 +35,18 @@ class CompletedEncountersView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    didFocus() {
+        if (this.state.encountersToDisplay.length !== this.state.chronologicalEncounters.length) {
+            super.didFocus();
+            this.dispatchAction(Actions.HANDLE_MORE)
+        }
+    }
+
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const encountersInfo = _.isNil(this.state.selectedEncounterType) ? this.state.encountersInfo : _.filter(this.state.encountersInfo, (e) => (e.encounter.encounterType.uuid === this.state.selectedEncounterType.uuid));
-        const encountersToDisplay = encountersInfo.slice(0, 50);
-        const chronologicalEncounters = _.orderBy(encountersToDisplay, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(chronologicalEncounters);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.state.encountersToDisplay);
         const programEnrolment = this.props.params.enrolment;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
@@ -59,7 +65,7 @@ class CompletedEncountersView extends AbstractComponent {
                         paddingRight: DGS.resizeWidth(3)
                     }}>{programEnrolment && `${programEnrolment.individual.name}, ${programEnrolment.program.operationalProgramName || programEnrolment.program.name}`}</Text>
                     <SearchResultsHeader totalCount={encountersInfo.length}
-                                         displayedCount={encountersToDisplay.length}/>
+                                         displayedCount={this.state.encountersToDisplay.length}/>
                 </View>
                 <CHSContent>
                     <View>
@@ -80,6 +86,8 @@ class CompletedEncountersView extends AbstractComponent {
                                 </View>}/>
                     </View>
                     <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
+                    {this.state.encountersToDisplay.length !== this.state.chronologicalEncounters.length ?
+                        <ActivityIndicator size="large" style={{marginTop: 20}}/> : <View/>}
                 </CHSContent>
                 <TouchableOpacity
                     onPress={() => TypedTransition.from(this).with({

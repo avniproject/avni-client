@@ -21,6 +21,7 @@ import ProgramFilter from "../common/ProgramFilter";
 import ProgramService from "../../service/program/ProgramService";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
+import General from "../../utility/General";
 
 
 @Path('/FilterView')
@@ -119,6 +120,11 @@ class FilterView extends AbstractComponent {
         this.goBack();
     }
 
+    onHardwareBackPress() {
+        this.props.onBack();
+        return true;
+    }
+
     onVisitSelect(name, uuid) {
         this.dispatchAction(FilterActionNames.ADD_VISITS, {encounterUUID: uuid})
     }
@@ -172,6 +178,7 @@ class FilterView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
 

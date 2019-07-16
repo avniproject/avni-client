@@ -5,7 +5,6 @@ import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelState from '../common/AddressLevelsState';
-import FormMappingService from "../../service/FormMappingService";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -25,11 +24,16 @@ class MyDashboardActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
+            totalItemsToDisplay: 50,
+            itemsToDisplay: [],
+            fetchFromDB: true,
+            scheduled: 0,
+            overdue: 0,
+            recentlyCompletedVisits: 0,
+            recentlyCompletedRegistration: 0,
+            recentlyCompletedEnrolment: 0,
+            total: 0,
         };
-    }
-
-    static clone(state) {
-        return {};
     }
 
     static applyFilters(filters) {
@@ -70,13 +74,25 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals] =
-            [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
-                individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
-                individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
-                individualService.recentlyRegistered(state.date.value, individualFilters),
-                individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
-                individualService.allIn(state.date.value, individualFilters)
-            ].map(MyDashboardActions.applyFilters(filters));
+            state.fetchFromDB ? [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
+                    individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
+                    individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
+                    individualService.recentlyRegistered(state.date.value, individualFilters),
+                    individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
+                    individualService.allIn(state.date.value, individualFilters)
+                ].map(MyDashboardActions.applyFilters(filters))
+                : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total];
+
+        const queryResult = {
+            scheduled: allIndividualsWithScheduledVisits,
+            overdue: allIndividualsWithOverDueVisits,
+            recentlyCompletedVisits: allIndividualsWithRecentlyCompletedVisits,
+            recentlyCompletedRegistration: allIndividualsWithRecentRegistrations,
+            recentlyCompletedEnrolment: allIndividualsWithRecentEnrolments,
+            total: allIndividuals,
+        };
+
+
         let row1 = {
             visits: {
                 scheduled: {count: 0, abnormal: false},
@@ -106,34 +122,59 @@ class MyDashboardActions {
 
         return {
             ...state,
+            ...queryResult,
             visits: results,
             filters: filters,
             selectedSubjectType: subjectType,
             individualFilters,
             encountersFilters,
-            enrolmentFilters
+            enrolmentFilters,
+            itemsToDisplay: [],
+            fetchFromDB: false,
         };
     }
 
     static onListLoad(state, action, context) {
+        const {listType} = action;
         const individualService = context.get(IndividualService);
+        const getResult = (db, local) => state.fetchFromDB ? db : local;
+
         const methodMap = new Map([
-            ["scheduled", individualService.allScheduledVisitsIn],
-            ["overdue", individualService.allOverdueVisitsIn],
-            ["recentlyCompletedVisits", individualService.recentlyCompletedVisitsIn],
-            ["recentlyCompletedRegistration", individualService.recentlyRegistered],
-            ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
-            ["total", individualService.allIn]
+            ["scheduled", getResult(individualService.allScheduledVisitsIn, state.scheduled)],
+            ["overdue", getResult(individualService.allOverdueVisitsIn, state.overdue)],
+            ["recentlyCompletedVisits", getResult(individualService.recentlyCompletedVisitsIn, state.recentlyCompletedVisits)],
+            ["recentlyCompletedRegistration", getResult(individualService.recentlyRegistered, state.recentlyCompletedRegistration)],
+            ["recentlyCompletedEnrolment", getResult(individualService.recentlyEnrolled, state.recentlyCompletedEnrolment)],
+            ["total", getResult(individualService.allIn, state.total)]
         ]);
-        const filters = action.listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
-            (action.listType === 'total' || action.listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = methodMap.get(action.listType)(state.date.value, filters);
+        const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
+            (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
+        const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters) : methodMap.get(listType);
+        const totalToDisplay = _.orderBy(allIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, state.totalItemsToDisplay);
         return {
             ...state,
             individuals: {
-                data: MyDashboardActions.applyFilters(state.filters)([...allIndividuals]),
-            }
+                data: allIndividuals,
+            },
+            totalToDisplay: totalToDisplay,
+            itemsToDisplay: totalToDisplay.slice(0, 5),
         };
+    }
+
+    static handleMore(state) {
+        const {totalToDisplay, itemsToDisplay} = state;
+        const itemToDisplay = totalToDisplay.slice(5, state.totalItemsToDisplay);
+        return {
+            ...state,
+            itemsToDisplay: [...itemsToDisplay, ...itemToDisplay]
+        }
+    }
+
+    static onFilterBack(state) {
+        return {
+            ...state,
+            itemsToDisplay: state.totalToDisplay.slice(0, 5),
+        }
     }
 
     static onDate(state, action, context) {
@@ -141,12 +182,10 @@ class MyDashboardActions {
     }
 
 
-    static resetList(state, action, context) {
+    static resetList(state) {
         return {
             ...state,
-            individuals: {
-                data: [],
-            }
+            itemsToDisplay: [],
         }
     }
 
@@ -172,9 +211,9 @@ class MyDashboardActions {
         const addressUUIDs = action.locationSearchCriteria.clone().getAllAddressLevelUUIDs();
         const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
         const subjectTypeQuery = (path) => `${path} = "${action.selectedSubjectType.uuid}"`;
-        const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`): '';
-        const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`): '';
-        const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null`: '';
+        const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`) : '';
+        const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
+        const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
 
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
@@ -215,6 +254,7 @@ class MyDashboardActions {
             encountersFilters,
             enrolmentFilters,
             selectedSubjectType: action.selectedSubjectType,
+            fetchFromDB: true,
         };
 
         return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
@@ -230,6 +270,8 @@ const MyDashboardActionNames = {
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
     ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`,
     APPLY_FILTERS: `${MyDashboardPrefix}.APPLY_FILTERS`,
+    HANDLE_MORE: `${MyDashboardPrefix}.HANDLE_MORE`,
+    ON_FILTER_BACK: `${MyDashboardPrefix}.ON_FILTER_BACK`,
 };
 
 const MyDashboardActionsMap = new Map([
@@ -239,6 +281,8 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
     [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
     [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],
+    [MyDashboardActionNames.HANDLE_MORE, MyDashboardActions.handleMore],
+    [MyDashboardActionNames.ON_FILTER_BACK, MyDashboardActions.onFilterBack],
 ]);
 
 export {

@@ -1,10 +1,8 @@
-import PropTypes from 'prop-types';
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal, SectionList} from 'react-native';
+import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal, SectionList, ActivityIndicator} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
@@ -17,7 +15,6 @@ import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
 import SearchResultsHeader from "../individual/SearchResultsHeader";
 import _ from 'lodash';
-import Styles from "../primitives/Styles";
 import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
 
@@ -31,7 +28,6 @@ class IndividualList extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
-        this.ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     }
 
     static styles = StyleSheet.create({
@@ -48,19 +44,24 @@ class IndividualList extends AbstractComponent {
         }
     });
 
-    onBackCallback() {
-        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-        this.goBack();
-    }
-
-
     componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
         super.componentWillMount();
     }
 
+    _onBack(){
+        this.dispatchAction(Actions.ON_FILTER_BACK);
+        this.goBack();
+    }
+
+    onHardwareBackPress() {
+        this.props.params.backFunction();
+        return true;
+    }
+
     _onFilterPress() {
+        this.dispatchAction(Actions.RESET_LIST);
         CHSNavigator.navigateToFilterView(this, {
             filters: this.state.filters,
             locationSearchCriteria: this.state.locationSearchCriteria,
@@ -69,21 +70,27 @@ class IndividualList extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
-            onBack: this.props.params.onBack,
+            onBack: this._onBack.bind(this),
             actionName: Actions.APPLY_FILTERS,
             filterDate: this.state.date,
             listType: this.props.params.listType
         });
     }
 
+    didFocus() {
+        if (this.state.itemsToDisplay.length !== this.state.totalToDisplay.length) {
+            super.didFocus();
+            this.dispatchAction(Actions.HANDLE_MORE)
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        const individualsWithMetadata = _.orderBy(this.state.individuals.data, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
-        const allUniqueGroups = _.uniqBy(_.map(individualsWithMetadata, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
+        const allUniqueGroups = _.uniqBy(_.map(this.state.itemsToDisplay, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
         const data = allUniqueGroups.map(({groupingBy}) => {
             return {
                 title: groupingBy,
-                data: _.get(_.groupBy(individualsWithMetadata, 'visitInfo.groupingBy'), groupingBy, [])
+                data: _.get(_.groupBy(this.state.itemsToDisplay, 'visitInfo.groupingBy'), groupingBy, [])
             }
         });
 
@@ -102,7 +109,7 @@ class IndividualList extends AbstractComponent {
                     title={`${this.I18n.t(this.props.params.cardTitle)}`}
                     func={this.props.params.backFunction} icon={"filter"} iconFunc={() => this._onFilterPress()}/>
                 <SearchResultsHeader totalCount={this.state.individuals.data.length}
-                                     displayedCount={individualsWithMetadata.length}/>
+                                     displayedCount={this.state.itemsToDisplay.length}/>
                 <CHSContent style={{backgroundColor: '#f7f7f7'}}>
                     <SectionList
                         contentContainerStyle={{
@@ -116,10 +123,13 @@ class IndividualList extends AbstractComponent {
                             <IndividualDetails
                                 individualWithMetadata={individualWithMetadata.item}
                                 header={individualWithMetadata.section.title}
-                                backFunction={() => this.onBackCallback()}/>}
+                                backFunction={() => this.goBack()}/>}
                         SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
                             <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
-                        keyExtractor={(item, index) =>  index}/>
+                        keyExtractor={(item, index) => index}
+                    />
+                    {this.state.itemsToDisplay.length !== this.state.totalToDisplay.length ?
+                        <ActivityIndicator size="large" style={{marginTop: 20}}/> : <View/>}
                 </CHSContent>
             </CHSContainer>
         );

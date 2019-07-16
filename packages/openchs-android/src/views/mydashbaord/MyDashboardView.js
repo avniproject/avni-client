@@ -7,11 +7,12 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import AddressVisitRow from './AddressVisitRow';
+import StatusCountRow from './StatusCountRow';
 import Separator from '../primitives/Separator';
 import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
+import General from "../../utility/General";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -27,12 +28,8 @@ class MyDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        // this.dispatchAction(Actions.ON_LOAD);
-        super.componentWillMount();
-    }
-
-    componentDidMount() {
         this.dispatchAction(Actions.ON_LOAD);
+        super.componentWillMount();
     }
 
     onBackCallback() {
@@ -55,6 +52,7 @@ class MyDashboardView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug(this.viewName(), 'render');
         const dataSource = this.ds.cloneWithRows((this.state.visits));
         const date = this.state.date;
         return (
@@ -87,11 +85,8 @@ class MyDashboardView extends AbstractComponent {
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderHeader={() => this.renderHeader()}
-                                  renderRow={(rowData) => <AddressVisitRow address={rowData.address}
-                                                                           visits={rowData.visits}
-                                                                           backFunction={() => this.onBackCallback()}
-                                                                           onBack={() => this._onBack()}
-                                  />}/>
+                                  renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
+                                                                          backFunction={() => this.onBackCallback()}/>}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>

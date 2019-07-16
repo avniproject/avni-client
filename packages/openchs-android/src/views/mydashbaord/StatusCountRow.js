@@ -6,9 +6,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import TitleNumberBlock from './TitleNumberBlock';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualList from "../individuallist/IndividualList";
-import Distances from "../primitives/Distances";
 
-class AddressVisitRow extends AbstractComponent {
+class StatusCountRow extends AbstractComponent {
     static propTypes = {
         address: PropTypes.object,
         visits: PropTypes.object,
@@ -25,14 +24,12 @@ class AddressVisitRow extends AbstractComponent {
         }
     });
 
-    onPressHandler(address, title, count, backFunction, cardTitle) {
+    onPressHandler(title, count, backFunction, cardTitle) {
         return () => TypedTransition.from(this).with({
-            address: address,
             listType: title,
             total: count,
             backFunction: backFunction,
             cardTitle: cardTitle,
-            onBack: this.props.onBack,
         }).to(IndividualList);
     }
 
@@ -41,18 +38,18 @@ class AddressVisitRow extends AbstractComponent {
             const cardTitle = _.has(numberObj, "label") ? numberObj.label : title;
             return (<View style={{paddingLeft: 3}} key={idx}>
                 <TitleNumberBlock
-                                  highlight={numberObj.abnormal}
-                                  onPress={this.onPressHandler.bind(this)(this.props.address, title, numberObj.count, this.props.backFunction, cardTitle)}
-                                  title={cardTitle}
-                                  number={numberObj.count}/>
+                    highlight={numberObj.abnormal}
+                    onPress={this.onPressHandler.bind(this)(title, numberObj.count, this.props.backFunction, cardTitle)}
+                    title={cardTitle}
+                    number={numberObj.count}/>
             </View>)
         });
         return (
-            <View style={AddressVisitRow.styles.visitBlockContainer}>
+            <View style={StatusCountRow.styles.visitBlockContainer}>
                 {visitBlocks}
             </View>
         );
     }
 }
 
-export default AddressVisitRow;
+export default StatusCountRow;
