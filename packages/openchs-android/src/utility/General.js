@@ -67,21 +67,21 @@ class General {
     }
 
     static formatDateTime(date) {
-      const hour = General.toTwoChars(date.getHours());
-      const minutes = General.toTwoChars(date.getMinutes());
+        const hour = General.toTwoChars(date.getHours());
+        const minutes = General.toTwoChars(date.getMinutes());
 
-      return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
+        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
     }
 
     static isoFormat(date) {
         return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
     }
 
-    static toISOFormatTime(hour, minute){
-        return moment({hour: hour, minute:minute}).format("HH:mm");
+    static toISOFormatTime(hour, minute) {
+        return moment({hour: hour, minute: minute}).format("HH:mm");
     }
 
-    static toDisplayTime(isoFormatTime){
+    static toDisplayTime(isoFormatTime) {
         const time = this.toTimeObject(isoFormatTime);
         return moment(time).format("LT");
     }
@@ -118,7 +118,7 @@ class General {
     static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
-                dest[fieldName] = _.isNil(source[fieldName])? null: new Date(source[fieldName]);
+                dest[fieldName] = _.isNil(source[fieldName]) ? null : new Date(source[fieldName]);
             });
         }
     }
@@ -172,12 +172,24 @@ class General {
         if (_.isNil(a) !== _.isNil(b))
             return false;
 
-        if (!_.isEmpty(_.xor(_.keys(a),_.keys(b))))
+        if (!_.isEmpty(_.xor(_.keys(a), _.keys(b))))
             return false;
 
-        return _.every(_.keys(a), (key)=>{
+        return _.every(_.keys(a), (key) => {
             return a[key] === b[key];
         });
+    }
+
+    static changedKeys(a, b) {
+        let changedKeys = [];
+        changedKeys = changedKeys.concat(_.xor(_.keys(a), _.keys(b)));
+
+        const keysExistingInBothObjects = _.intersection(_.keys(a), _.keys(b));
+        changedKeys = changedKeys.concat(_.filter(keysExistingInBothObjects, (key) => {
+            return a[key] !== b[key];
+        }));
+
+        return changedKeys;
     }
 
     static dateWithoutTime(date) {
@@ -254,10 +266,10 @@ class General {
     static isEmptyOrBlank(value) {
         return _.overSome([_.isNil, _.isNaN])(value) ? true :
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
-                    _.isEmpty(value);
+                _.isEmpty(value);
     }
 
-    static dlog(str,...values) {
+    static dlog(str, ...values) {
         console.log(_.pad(str, 40, '-'));
         console.log(...values);
     }

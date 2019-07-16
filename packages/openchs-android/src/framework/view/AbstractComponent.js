@@ -82,10 +82,14 @@ class AbstractComponent extends Component {
 
     refreshState() {
         const nextState = this.getContextState(this.topLevelStateVariable);
-        if (!General.areEqualShallow(nextState, this.state)) {
+        let changedKeys = General.changedKeys(nextState, this.state);
+        if (!_.isEmpty(changedKeys)) {
             if (!_.isNil(nextState.error))
                 this.showError(nextState.error.message);
-            this.setState(nextState);
+
+            let newState = {};
+            this.changedKeys.forEach((key) => newState[key] = nextState[key]);
+            this.setState(newState);
         }
     }
 

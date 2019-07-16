@@ -35,17 +35,41 @@ describe('General', () => {
 
     it('isEmptyOrBlank', () => {
         const isEmptyOrBlank = General.isEmptyOrBlank;
-        expect(isEmptyOrBlank()).to.be.true; 
-        expect(isEmptyOrBlank({})).to.be.true; 
-        expect(isEmptyOrBlank([])).to.be.true; 
+        expect(isEmptyOrBlank()).to.be.true;
+        expect(isEmptyOrBlank({})).to.be.true;
+        expect(isEmptyOrBlank([])).to.be.true;
         expect(isEmptyOrBlank("")).to.be.true;
-        expect(isEmptyOrBlank(new String(""))).to.be.true; 
-        expect(isEmptyOrBlank(null)).to.be.true; 
-        expect(isEmptyOrBlank(NaN)).to.be.true; 
+        expect(isEmptyOrBlank(new String(""))).to.be.true;
+        expect(isEmptyOrBlank(null)).to.be.true;
+        expect(isEmptyOrBlank(NaN)).to.be.true;
         expect(isEmptyOrBlank(0)).to.be.false;
-        expect(isEmptyOrBlank("abc")).to.be.false; 
-        expect(isEmptyOrBlank(false)).to.be.false; 
-        expect(isEmptyOrBlank(true)).to.be.false; 
+        expect(isEmptyOrBlank("abc")).to.be.false;
+        expect(isEmptyOrBlank(false)).to.be.false;
+        expect(isEmptyOrBlank(true)).to.be.false;
     });
 
+    describe('changedKeys', () => {
+        const state = {
+            a: 10,
+            b: {c: {d: 10}},
+            p: {q: 10, r: {x: 10}}
+        };
+
+        it('does not show any change when nothing has changed', () => {
+            expect(General.changedKeys(state, state)).to.be.an('array').that.is.empty;
+            expect(General.changedKeys(state, {})).to.be.an('array').that.is.not.empty;
+        });
+
+        it('provides the keys that have changes', () => {
+            expect(General.changedKeys({a: 10, b: 20}, {a: 10, b: 10})).to.have.lengthOf(1);
+            expect(General.changedKeys({a: 10, b: 20}, {a: 10, b: 10})[0]).to.equal('b');
+        });
+
+        it('should not fail for null entries anywhere', () => {
+            expect(General.changedKeys(state, null)).to.be.an('array');
+            expect(General.changedKeys(state, undefined)).to.be.an('array');
+            expect(General.changedKeys(state, false)).to.be.an('array');
+            expect(General.changedKeys(null, null)).to.be.an('array').that.is.empty;
+        });
+    });
 });
