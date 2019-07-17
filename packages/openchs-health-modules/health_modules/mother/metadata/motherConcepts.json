@@ -2425,6 +2425,10 @@
         "uuid": "df6303d5-0b78-48e0-8a3c-1a7fec61a9f1",
         "comment": "Government Hospital",
         "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+      },
+      {
+        "name": "Private hospital",
+        "uuid": "8767f6a6-6ca9-41d1-b60e-2c5addf22168"
       }
     ]
   },
