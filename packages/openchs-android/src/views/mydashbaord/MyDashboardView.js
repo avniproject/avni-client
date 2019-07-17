@@ -41,6 +41,16 @@ class MyDashboardView extends AbstractComponent {
         this.goBack();
     }
 
+    filterStateChanged = (prev, next) => {
+        return prev.individualFilters === next.individualFilters ||
+            prev.encountersFilters === next.encountersFilters ||
+            next.enrolmentFilters === prev.enrolmentFilters;
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.filterStateChanged(this.state, nextState) || this.state.fetchFromDB;
+    }
+
     renderHeader() {
         return <Text style={{
             paddingTop: 10,
