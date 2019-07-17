@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableOpacity, Modal, SectionList, ActivityIndicator} from 'react-native';
+import {ActivityIndicator, ListView, Modal, SectionList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -7,7 +7,6 @@ import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDash
 import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import Distances from '../primitives/Distances'
 import IndividualDetails from './IndividualDetails';
 import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
@@ -50,9 +49,16 @@ class IndividualList extends AbstractComponent {
         super.componentWillMount();
     }
 
-    _onBack(){
-        this.dispatchAction(Actions.ON_FILTER_BACK);
+    _onBack() {
         this.goBack();
+    }
+
+    filterStateNotChanged = (prev, next) => {
+        return prev.individualFilters === next.individualFilters || prev.encountersFilters === next.encountersFilters || next.enrolmentFilters === prev.enrolmentFilters;
+    };
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return !(this.state.itemsToDisplay.length === nextState.itemsToDisplay.length && this.filterStateNotChanged(this.state, nextState));
     }
 
     onHardwareBackPress() {
@@ -61,7 +67,6 @@ class IndividualList extends AbstractComponent {
     }
 
     _onFilterPress() {
-        this.dispatchAction(Actions.RESET_LIST);
         CHSNavigator.navigateToFilterView(this, {
             filters: this.state.filters,
             locationSearchCriteria: this.state.locationSearchCriteria,
@@ -77,12 +82,21 @@ class IndividualList extends AbstractComponent {
         });
     }
 
-    didFocus() {
-        if (this.state.itemsToDisplay.length !== this.state.totalToDisplay.length) {
-            super.didFocus();
-            this.dispatchAction(Actions.HANDLE_MORE)
-        }
-    }
+    renderHeader = ({section: {title}}) => (
+        <Text style={[Fonts.typography("paperFontTitle"), {
+            color: "rgba(0, 0, 0, 0.87)",
+            fontWeight: 'normal',
+            fontSize: 15,
+            paddingTop: 15
+        }]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
+    );
+
+    renderItems = (individualWithMetadata) => (
+        <IndividualDetails
+            individualWithMetadata={individualWithMetadata.item}
+            header={individualWithMetadata.section.title}
+            backFunction={this.goBack}/>
+    );
 
     render() {
         General.logDebug(this.viewName(), 'render');
@@ -94,15 +108,6 @@ class IndividualList extends AbstractComponent {
             }
         });
 
-        const renderHeader = (title) => {
-            return <Text style={[Fonts.typography("paperFontTitle"), {
-                color: "rgba(0, 0, 0, 0.87)",
-                fontWeight: 'normal',
-                fontSize: 15,
-                paddingTop: 15
-            }]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
-        };
-
         return (
             <CHSContainer>
                 <AppHeader
@@ -110,27 +115,19 @@ class IndividualList extends AbstractComponent {
                     func={this.props.params.backFunction} icon={"filter"} iconFunc={() => this._onFilterPress()}/>
                 <SearchResultsHeader totalCount={this.state.individuals.data.length}
                                      displayedCount={this.state.itemsToDisplay.length}/>
-                <CHSContent style={{backgroundColor: '#f7f7f7'}}>
-                    <SectionList
-                        contentContainerStyle={{
-                            marginRight: Distances.ScaledContentDistanceFromEdge,
-                            marginLeft: Distances.ScaledContentDistanceFromEdge,
-                            marginTop: Distances.ScaledContentDistanceFromEdge,
-                        }}
-                        sections={data}
-                        renderSectionHeader={({section: {title}}) => renderHeader(title)}
-                        renderItem={(individualWithMetadata) =>
-                            <IndividualDetails
-                                individualWithMetadata={individualWithMetadata.item}
-                                header={individualWithMetadata.section.title}
-                                backFunction={() => this.goBack()}/>}
-                        SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                            <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
-                        keyExtractor={(item, index) => index}
-                    />
-                    {this.state.itemsToDisplay.length !== this.state.totalToDisplay.length ?
-                        <ActivityIndicator size="large" style={{marginTop: 20}}/> : <View/>}
-                </CHSContent>
+                <SectionList
+                    contentContainerStyle={{
+                        marginRight: Distances.ScaledContentDistanceFromEdge,
+                        marginLeft: Distances.ScaledContentDistanceFromEdge,
+                        marginTop: Distances.ScaledContentDistanceFromEdge,
+                    }}
+                    sections={data}
+                    renderSectionHeader={this.renderHeader}
+                    renderItem={this.renderItems}
+                    SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
+                        <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
+                    keyExtractor={(item, index) => index}
+                />
             </CHSContainer>
         );
     }

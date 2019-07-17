@@ -24,7 +24,6 @@ class MyDashboardActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
-            totalItemsToDisplay: 50,
             itemsToDisplay: [],
             fetchFromDB: true,
             scheduled: 0,
@@ -150,31 +149,14 @@ class MyDashboardActions {
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
         const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters) : methodMap.get(listType);
-        const totalToDisplay = _.orderBy(allIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, state.totalItemsToDisplay);
+        const totalToDisplay = _.orderBy(allIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
         return {
             ...state,
             individuals: {
                 data: allIndividuals,
             },
-            totalToDisplay: totalToDisplay,
-            itemsToDisplay: totalToDisplay.slice(0, 5),
+            itemsToDisplay: totalToDisplay,
         };
-    }
-
-    static handleMore(state) {
-        const {totalToDisplay, itemsToDisplay} = state;
-        const itemToDisplay = totalToDisplay.slice(5, state.totalItemsToDisplay);
-        return {
-            ...state,
-            itemsToDisplay: [...itemsToDisplay, ...itemToDisplay]
-        }
-    }
-
-    static onFilterBack(state) {
-        return {
-            ...state,
-            itemsToDisplay: state.totalToDisplay.slice(0, 5),
-        }
     }
 
     static onDate(state, action, context) {
@@ -270,8 +252,6 @@ const MyDashboardActionNames = {
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
     ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`,
     APPLY_FILTERS: `${MyDashboardPrefix}.APPLY_FILTERS`,
-    HANDLE_MORE: `${MyDashboardPrefix}.HANDLE_MORE`,
-    ON_FILTER_BACK: `${MyDashboardPrefix}.ON_FILTER_BACK`,
 };
 
 const MyDashboardActionsMap = new Map([
@@ -281,8 +261,6 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
     [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
     [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],
-    [MyDashboardActionNames.HANDLE_MORE, MyDashboardActions.handleMore],
-    [MyDashboardActionNames.ON_FILTER_BACK, MyDashboardActions.onFilterBack],
 ]);
 
 export {
