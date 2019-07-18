@@ -49,10 +49,6 @@ class IndividualList extends AbstractComponent {
         super.componentWillMount();
     }
 
-    _onBack() {
-        this.goBack();
-    }
-
     filterStateNotChanged = (prev, next) => {
         return prev.individualFilters === next.individualFilters || prev.encountersFilters === next.encountersFilters || next.enrolmentFilters === prev.enrolmentFilters;
     };
@@ -75,7 +71,7 @@ class IndividualList extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
-            onBack: this._onBack.bind(this),
+            onBack: this.goBack.bind(this),
             actionName: Actions.APPLY_FILTERS,
             filterDate: this.state.date,
             listType: this.props.params.listType
@@ -95,7 +91,7 @@ class IndividualList extends AbstractComponent {
         <IndividualDetails
             individualWithMetadata={individualWithMetadata.item}
             header={individualWithMetadata.section.title}
-            backFunction={this.goBack}/>
+            backFunction={this.goBack.bind(this)}/>
     );
 
     render() {
