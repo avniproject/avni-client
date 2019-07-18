@@ -8,10 +8,10 @@ import CHSContainer from "../common/CHSContainer";
 import {Text, TouchableOpacity, View} from "react-native";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import SingleSelectFilter from "./SingleSelectFilter";
-import {SingleSelectFilter as SingleSelectFilterModel} from "openchs-models";
+import {MultiSelectFilter as MultiSelectFilterModel} from "openchs-models";
 import {CompletedVisitsFilterActionNames as Actions} from "../../action/program/CompletedVisitsFilterAction";
 import Reducers from "../../reducer";
+import MultiSelectFilter from "./MultiSelectFilter";
 
 
 @Path('/CompletedVisitsFilterView')
@@ -32,21 +32,22 @@ class CompletedVisitsFilterView extends AbstractComponent {
     }
 
     onApply() {
-        this.dispatchAction(this.props.params.onFilterApply, {selectedEncounterType: this.state.selectedEncounterType});
+        this.dispatchAction(this.props.params.onFilterApply, {selectedEncounterTypes: this.state.selectedEncounterTypes});
         this.goBack();
     }
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const selectedVisit = _.isNil(this.state.selectedEncounterType) ? null : this.state.selectedEncounterType.operationalEncounterTypeName;
+        const selectedVisit = this.state.selectedEncounterTypes.map(e => e.operationalEncounterTypeName);
         const optsFnMap = this.state.encounterTypes.reduce((visitTypesMap, visitType) => visitTypesMap.set(visitType.operationalEncounterTypeName, visitType), new Map());
-        const filterModel = new SingleSelectFilterModel("Choose Visit Type", optsFnMap).selectOption(selectedVisit);
+        const filterModel = new MultiSelectFilterModel("Choose Visit Type", optsFnMap, new Map(), selectedVisit).selectOption(selectedVisit);
+
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('Filter')}/>
                 <CHSContent>
                     <View style={{margin: Styles.VerticalSpacingBetweenFormElements}}>
-                        <SingleSelectFilter filter={filterModel}
+                        <MultiSelectFilter filter={filterModel}
                                             onSelect={(encounterTypeName) => this.dispatchAction(Actions.ON_VISIT_SELECT, {encounterTypeName})}/>
                     </View>
                 </CHSContent>

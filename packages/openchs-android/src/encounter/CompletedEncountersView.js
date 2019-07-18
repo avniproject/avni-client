@@ -1,4 +1,4 @@
-import {TouchableOpacity, View, StyleSheet, Text, ListView} from "react-native";
+import {ListView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";
@@ -36,7 +36,9 @@ class CompletedEncountersView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const encountersInfo = _.isNil(this.state.selectedEncounterType) ? this.state.encountersInfo : _.filter(this.state.encountersInfo, (e) => (e.encounter.encounterType.uuid === this.state.selectedEncounterType.uuid));
+        const selectedEncounterTypesUuid = this.state.selectedEncounterTypes.map(e => e.uuid);
+        const encountersInfo = _.isEmpty(this.state.selectedEncounterTypes) ? this.state.encountersInfo :
+            _.filter(this.state.encountersInfo, e => _.includes(selectedEncounterTypesUuid, e.encounter.encounterType.uuid));
         const encountersToDisplay = encountersInfo.slice(0, 50);
         const chronologicalEncounters = _.orderBy(encountersToDisplay, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(chronologicalEncounters);
@@ -60,29 +62,29 @@ class CompletedEncountersView extends AbstractComponent {
                     <SearchResultsHeader totalCount={encountersInfo.length}
                                          displayedCount={encountersToDisplay.length}/>
                 </View>
-                    <View>
-                        <ListView
-                            enableEmptySections={true}
-                            dataSource={dataSource}
-                            pageSize={1}
-                            initialListSize={1}
-                            removeClippedSubviews={true}
-                            renderRow={(encounter) =>
-                                <View style={styles.container}>
-                                    <CollapsibleEncounters encountersInfo={encounter}
-                                                           onToggleAction={Actions.ON_EXPAND_TOGGLE}
-                                                           renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
-                                                           encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
-                                                           cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
-                                                           style={styles.textContainer}/>
-                                </View>}/>
-                    </View>
-                    <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
+                <View>
+                    <ListView
+                        enableEmptySections={true}
+                        dataSource={dataSource}
+                        pageSize={1}
+                        initialListSize={1}
+                        removeClippedSubviews={true}
+                        renderRow={(encounter) =>
+                            <View style={styles.container}>
+                                <CollapsibleEncounters encountersInfo={encounter}
+                                                       onToggleAction={Actions.ON_EXPAND_TOGGLE}
+                                                       renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
+                                                       encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
+                                                       cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
+                                                       style={styles.textContainer}/>
+                            </View>}/>
+                </View>
+                <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 <TouchableOpacity
                     onPress={() => TypedTransition.from(this).with({
                         encounterTypes: this.state.encounterTypes,
                         onFilterApply: Actions.ON_FILTER_APPLY,
-                        selectedEncounterType: this.state.selectedEncounterType,
+                        selectedEncounterTypes: this.state.selectedEncounterTypes,
                     }).to(CompletedVisitsFilterView)}
                     style={styles.filterButtonContainer}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>

@@ -6,7 +6,7 @@ class CompletedEncountersActions {
         return {
             encountersInfo: [],
             encounterTypes: [],
-            selectedEncounterType: null,
+            selectedEncounterTypes: [],
         };
     }
 
@@ -23,12 +23,12 @@ class CompletedEncountersActions {
     }
 
     static onFilterApply(state, action) {
-        const selectedEncounterType = action.selectedEncounterType;
-        return {...state, selectedEncounterType}
+        const selectedEncounterTypes = action.selectedEncounterTypes;
+        return {...state, selectedEncounterTypes}
     }
 
     static resetAppliedFilters(state) {
-        return {...state, selectedEncounterType: null}
+        return {...state, selectedEncounterTypes: []}
     }
 }
 

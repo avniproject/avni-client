@@ -1,22 +1,24 @@
 class CompletedVisitsFilterAction {
     static getInitialState() {
         return {
-            selectedEncounterType: null,
-            encounterTypes: []
+            encounterTypes: [],
+            selectedEncounterTypes: []
         };
     }
 
     static onLoad(state, action) {
         return {
             ...state,
-            selectedEncounterType: action.selectedEncounterType,
-            encounterTypes: action.encounterTypes
+            encounterTypes: action.encounterTypes,
+            selectedEncounterTypes: action.selectedEncounterTypes
         }
     }
 
     static onVisitSelect(state, action) {
         const selectedEncounterType = state.encounterTypes.find(e => e.operationalEncounterTypeName === action.encounterTypeName);
-        return {...state, selectedEncounterType}
+        const selectedEncounterTypes = _.includes(state.selectedEncounterTypes, selectedEncounterType) ?
+            state.selectedEncounterTypes.filter(e => e.uuid !== selectedEncounterType.uuid) : [...state.selectedEncounterTypes, selectedEncounterType];
+        return {...state, selectedEncounterType, selectedEncounterTypes};
     }
 }
 
