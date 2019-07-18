@@ -244,20 +244,19 @@ class LoginView extends AbstractComponent {
                             </TouchableNativeFeedback>
                         </View>
                     </View>
-                </CHSContent>
-                <View style={{
-                    alignSelf: 'center',
-                    position: 'absolute',
-                    bottom: 35
-                }}>
-                    <Text style={{
-                        fontSize: Styles.normalTextSize,
-                        fontStyle: 'normal',
-                        color: Styles.blackColor,
+                    <View style={{
                         alignSelf: 'center',
-                    }}>{Config.ENV !== 'prod' && Config.ENV}</Text>
-                    <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
-                </View>
+                        marginTop: 28
+                    }}>
+                        <Text style={{
+                            fontSize: Styles.normalTextSize,
+                            fontStyle: 'normal',
+                            color: Styles.blackColor,
+                            alignSelf: 'center',
+                        }}>{Config.ENV !== 'prod'? Config.ENV : ''}</Text>
+                        <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
+                    </View>
+                </CHSContent>
             </CHSContainer>
         );
     }
