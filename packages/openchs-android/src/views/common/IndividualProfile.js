@@ -85,7 +85,7 @@ class IndividualProfile extends AbstractComponent {
                     })
                 ])));
             },
-            label: program.displayName,
+            label: this.I18n.t(program.displayName),
             backgroundColor: program.colour,
         }));
 
