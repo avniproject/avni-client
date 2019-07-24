@@ -2,6 +2,7 @@ import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
 import {Concept, EntityQueue, FormElement, IdentifierAssignment, ObservationsHolder} from 'openchs-models';
 import _ from "lodash";
+import General from "../utility/General";
 
 @Service("identifierAssignmentService")
 class IdentifierAssignmentService extends BaseService {
@@ -31,8 +32,8 @@ class IdentifierAssignmentService extends BaseService {
     haveEnoughIdentifiers(form) {
         if (_.isNil(form)) return true;
         const formElements = form.getFormElementsOfType(Concept.dataType.Id);
-        const idSources = _.uniq(_.map(formElements, (fe)=> fe.recordValueByKey(FormElement.keys.IdSourceUUID)));
-        const totalFreeIds = _.sum(_.map(idSources, (idSource)=> this.getFreeIdentifiers(idSource).length));
+        const idSources = _.uniq(_.map(formElements, (fe) => fe.recordValueByKey(FormElement.keys.IdSourceUUID)));
+        const totalFreeIds = _.sum(_.map(idSources, (idSource) => this.getFreeIdentifiers(idSource).length));
         return totalFreeIds >= _.size(formElements);
     }
 
@@ -64,11 +65,16 @@ class IdentifierAssignmentService extends BaseService {
                 const id = observation.getValue();
                 const identifierSource = formElement.recordValueByKey(FormElement.keys.IdSourceUUID);
                 const identifierAssignment = this.getIdentifierByIdAndSource(id, identifierSource);
-                
-                identifierAssignment.individual = individual;
-                identifierAssignment.programEnrolment = programEnrolment;
-                identifiersToBeSaved.push(identifierAssignment);
-                entityQueueItems.push(EntityQueue.create(identifierAssignment, IdentifierAssignment.schema.name));
+
+                if (!_.isNil(identifierAssignment)) {
+                    identifierAssignment.individual = individual;
+                    identifierAssignment.programEnrolment = programEnrolment;
+                    identifiersToBeSaved.push(identifierAssignment);
+                    entityQueueItems.push(EntityQueue.create(identifierAssignment, IdentifierAssignment.schema.name));
+                } else {
+                    // in case identifiers are not there in db like in case of data migration
+                    General.logDebug(`Identifier ${id} not found`);
+                }
             }
         });
 
