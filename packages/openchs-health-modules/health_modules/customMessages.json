@@ -2101,7 +2101,9 @@
     "SR ModerateAnemiaCounselling": "✓ You must eat green leafy vegetables.\n✓ You should consume iron rich foods like dates, jaggery, bajari.\n✓ Take IFA tablets regularly for 3 months.",
     "SR SevereMalnutritionCounselling": "✓ Eat balanced diet.\n✓ Eat all types of food.\n✓ Eat fruits and vegetables in a good amount.\n✓ Water is very important for digestion.",
     "MaleEnrolmentToECNotAllowed": "Male Enrolment to Eligible Couple not allowed",
-    "MaleEnrolmentToPregnancyNotAllowed": "Male Enrolment to Pregnancy not allowed"
+    "MaleEnrolmentToPregnancyNotAllowed": "Male Enrolment to Pregnancy not allowed",
+    "REG_ENROL_DISPLAY-Lactating mother": "Lactating mother",
+    "REG_ENROL_DISPLAY-Pregnant Woman": "Pregnant woman"
   },
   "gu_IN": {
     "LOGIN": "પ્રવેશ કરો",
