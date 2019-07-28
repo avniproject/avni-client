@@ -23,7 +23,7 @@
   "Other": "Other",
   "name": "नाव",
   "obsKeyword": "इतर डेटा",
-  "firstName": "पहिले नाव",
+  "firstName": "पहिले नाव, दूसरे नाव (वडील/पती इत्यादि)",
   "lastName": "आडनाव",
   "lowestAddressLevel": "गाव",
   "save": "सेव्ह करा ",
@@ -119,7 +119,7 @@
   "Debug": "डीबग करा",
   "checklistPreview": "Will create {{name}} and it's upcoming items are on {{date}}",
   "individualDashboard": "डॅशबोर्ड",
-  "scheduled": "निनियोजित",
+  "scheduled": "नियोजित",
   "observations": "निरीक्षण",
   "deleteSchemaConfirmationMessage": "तुम्हाला सर्व डाटा डीलीट करायचा आहे काय",
   "deleteSchemaNoticeTitle": "डाटा डीलीट?",
@@ -264,8 +264,8 @@
   "RecentRegistration": "शेवटचे 24 तास नोंदणी",
   "RecentEnrollment": "शेवटचे 24 तास एनरोलमेण्ट",
   "RecentVisits": "शेवटचे 24 तास भेटी",
-  "overdue": "अतिदेय",
-  "total": "एकूण",
+  "overdue": "दिलेल्या मुदतीत न झालेल्या परंतु द्यावयाच्या भेटी",
+  "total": "एकूण नोंदणी",
   "The locale of the switching user is not known. That's why these are in English.": "",
   "cannotChangeUserTitle": "Multiple users cannot login",
   "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
@@ -276,5 +276,11 @@
   "editSettings": "सेटिंग्ज संपादित करा",
   "entitySyncStatus": "सिंक स्थिती",
   "noCompletedEncounters": "पूर्ण झालेले कोणतेही भेटी नाहीत",
-  "noPlannedEncounters": "नियोजित भेटी नाहीत"
+  "noPlannedEncounters": "नियोजित भेटी नाहीत",
+  "visitsBeingScheduled": "द्यावयाच्या घरभेटी",
+  "visitName": "घर भेटीचा प्रकार",
+  "schedulingFor": "घर भेटीची नियोजित तारीख",
+  "overdueBy": "घर भेटीची मुदत संपण्याची तारीख",
+  "uniqueAnswerConflict": "'{{answer}}' इतर उत्तरांसह निवडले जाऊ शकत नाही"
+
 }
