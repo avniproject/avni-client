@@ -62,23 +62,21 @@ class CompletedEncountersView extends AbstractComponent {
                     <SearchResultsHeader totalCount={encountersInfo.length}
                                          displayedCount={encountersToDisplay.length}/>
                 </View>
-                <View>
-                    <ListView
-                        enableEmptySections={true}
-                        dataSource={dataSource}
-                        pageSize={1}
-                        initialListSize={1}
-                        removeClippedSubviews={true}
-                        renderRow={(encounter) =>
-                            <View style={styles.container}>
-                                <CollapsibleEncounters encountersInfo={encounter}
-                                                       onToggleAction={Actions.ON_EXPAND_TOGGLE}
-                                                       renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
-                                                       encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
-                                                       cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
-                                                       style={styles.textContainer}/>
-                            </View>}/>
-                </View>
+                <ListView
+                    enableEmptySections={true}
+                    dataSource={dataSource}
+                    pageSize={1}
+                    initialListSize={1}
+                    removeClippedSubviews={true}
+                    renderRow={(encounter) =>
+                        <View style={styles.container}>
+                            <CollapsibleEncounters encountersInfo={encounter}
+                                                   onToggleAction={Actions.ON_EXPAND_TOGGLE}
+                                                   renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
+                                                   encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
+                                                   cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
+                                                   style={styles.textContainer}/>
+                        </View>}/>
                 <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 <TouchableOpacity
                     onPress={() => TypedTransition.from(this).with({
