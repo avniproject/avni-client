@@ -22,6 +22,7 @@ import ProgramService from "../../service/program/ProgramService";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
 import General from "../../utility/General";
+import CustomFilters from "./CustomFilters";
 
 
 @Path('/FilterView')
@@ -116,6 +117,7 @@ class FilterView extends AbstractComponent {
             selectedEncounterTypes: this.state.selectedEncounterTypes,
             listType: this.props.listType,
             selectedSubjectType: this.state.selectedSubjectType,
+            selectedCustomFilters: this.state.selectedCustomFilters,
         });
         this.goBack();
     }
@@ -211,7 +213,8 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
-                            <Separator height={50} backgroundColor={Styles.whiteColor}/>
+                                <CustomFilters/>
+                            <Separator height={100} backgroundColor={Styles.whiteColor}/>
                         </View>
                     </View>
                 </CHSContent>

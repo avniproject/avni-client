@@ -32,6 +32,7 @@ class MyDashboardActions {
             recentlyCompletedRegistration: 0,
             recentlyCompletedEnrolment: 0,
             total: 0,
+            selectedCustomFilters: []
         };
     }
 
@@ -66,6 +67,12 @@ class MyDashboardActions {
             encountersFilters = state.encountersFilters;
             enrolmentFilters = state.enrolmentFilters;
         }
+        const selectedAnswerValues = _.map(state.selectedCustomFilters, c => c.name);
+        const customFilteredIndividuals = individualService.customEncounterFilter(selectedAnswerValues);
+        const commonIndividuals = (otherFilteredIndividuals) => {
+            return (_.isEmpty(selectedAnswerValues) || _.isEmpty(otherFilteredIndividuals)) ?
+                otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividuals, iInfo.individual.uuid));
+        };
 
         const [allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
@@ -73,13 +80,13 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals] =
-            state.fetchFromDB ? [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
-                    individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
-                    individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
-                    individualService.recentlyRegistered(state.date.value, individualFilters),
-                    individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
-                    individualService.allIn(state.date.value, individualFilters)
-                ].map(MyDashboardActions.applyFilters(filters))
+            state.fetchFromDB ? [commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters)),
+                    commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters)),
+                    commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters)),
+                    commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters)),
+                    commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters)),
+                    commonIndividuals(individualService.allIn(state.date.value, individualFilters))
+                ]
                 : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total];
 
         const queryResult = {
@@ -236,6 +243,7 @@ class MyDashboardActions {
             encountersFilters,
             enrolmentFilters,
             selectedSubjectType: action.selectedSubjectType,
+            selectedCustomFilters: action.selectedCustomFilters,
             fetchFromDB: true,
         };
 

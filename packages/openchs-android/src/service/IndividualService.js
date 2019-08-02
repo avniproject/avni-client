@@ -100,6 +100,21 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
+    customEncounterFilter(selectedCustomFilters) {
+        //TODO: right now concept and Visit type is hard coded for testing should come from configuration/custom_filter table
+        return [...this.db.objects(ProgramEncounter.schema.name)
+            .filtered('voided = false ')
+            .filtered('encounterType.name = "Annual Visit" ')
+            .sorted('encounterDateTime', true)
+            .map(enc => ({
+                individualUUID: enc.programEnrolment.individual.uuid,
+                concept : enc.getObservationReadableValue("Standard"),
+            }))
+            .filter(result => result && _.includes(selectedCustomFilters, result.concept) || false)
+            .values()]
+            .map(t => t.individualUUID);
+    }
+
     allScheduledVisitsIn(date, queryAdditions) {
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();

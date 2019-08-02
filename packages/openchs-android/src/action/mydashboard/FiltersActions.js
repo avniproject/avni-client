@@ -2,6 +2,7 @@ import AddressLevelService from "../../service/AddressLevelService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
+import ConceptService from "../../service/ConceptService";
 
 class FiltersActions {
 
@@ -15,8 +16,9 @@ class FiltersActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
-            subjectTypes:[],
-            selectedSubjectType:null
+            subjectTypes: [],
+            selectedSubjectType: null,
+            selectedCustomFilters: [],
         };
     }
 
@@ -32,7 +34,7 @@ class FiltersActions {
             encounterTypes: action.encounterTypes,
             selectedEncounterTypes: action.selectedEncounterTypes,
             subjectTypes: action.subjectTypes,
-            selectedSubjectType:action.selectedSubjectType,
+            selectedSubjectType: action.selectedSubjectType,
         }
     }
 
@@ -87,7 +89,7 @@ class FiltersActions {
     }
 
     static addSubjectType(state, action, context) {
-        const selectedSubjectType = state.subjectTypes.find(subjectType => subjectType.name=== action.subjectTypeName);
+        const selectedSubjectType = state.subjectTypes.find(subjectType => subjectType.name === action.subjectTypeName);
         const programs = context.get(FormMappingService).findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : [];
         const encounterTypes = programs.length === 1 ? context.get(FormMappingService).findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : [];
@@ -130,6 +132,19 @@ class FiltersActions {
     static getEncounterByUUID(encounters, uuid) {
         return _.filter(encounters, (encounter) => encounter.uuid === uuid);
     }
+
+    static onCustomFilterSelect(state, action, context) {
+        const conceptService = context.get(ConceptService);
+        //TODO: right now concept is hard coded for testing should come from configuration/custom_filter table
+        const conceptAnswers = conceptService.findConcept("Standard").getAnswers();
+        const selectedConceptAnswer = conceptAnswers.filter(a => a.concept.name === action.name).map(c => ({
+            "name": c.concept.name,
+            "uuid": c.concept.uuid
+        }));
+        const selectedCustomFilters = _.intersectionBy(state.selectedCustomFilters, selectedConceptAnswer, "uuid").length > 0 ?
+            state.selectedCustomFilters.filter(a => a.name !== action.name) : [...state.selectedCustomFilters, ...selectedConceptAnswer];
+        return {...state, selectedCustomFilters};
+    }
 }
 
 const ActionPrefix = 'FilterA';
@@ -142,6 +157,7 @@ const FilterActionNames = {
     ADD_VISITS: `${ActionPrefix}.ADD_VISITS`,
     ADD_PROGRAM: `${ActionPrefix}.ADD_PROGRAM`,
     ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
+    ON_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CUSTOM_FILTER_SELECT`,
 };
 const FilterActionMap = new Map([
     [FilterActionNames.ON_LOAD, FiltersActions.onLoad],
@@ -152,6 +168,7 @@ const FilterActionMap = new Map([
     [FilterActionNames.ADD_VISITS, FiltersActions.addVisits],
     [FilterActionNames.ADD_PROGRAM, FiltersActions.addProgram],
     [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
+    [FilterActionNames.ON_CUSTOM_FILTER_SELECT, FiltersActions.onCustomFilterSelect],
 ]);
 
 export {
