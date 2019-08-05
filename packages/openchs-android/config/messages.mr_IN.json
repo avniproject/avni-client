@@ -281,6 +281,7 @@
   "visitName": "घर भेटीचा प्रकार",
   "schedulingFor": "घर भेटीची नियोजित तारीख",
   "overdueBy": "घर भेटीची मुदत संपण्याची तारीख",
-  "uniqueAnswerConflict": "'{{answer}}' इतर उत्तरांसह निवडले जाऊ शकत नाही"
-
+  "uniqueAnswerConflict": "'{{answer}}' इतर उत्तरांसह निवडले जाऊ शकत नाही",
+  "enrolIntoProgram": "{{program}} मध्ये इंरोल करा",
+  "saveAnd": "सेव्ह आणि"
 }
