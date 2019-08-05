@@ -100,19 +100,26 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    customEncounterFilter(selectedCustomFilters) {
-        //TODO: right now concept and Visit type is hard coded for testing should come from configuration/custom_filter table
+    _latestEncounter = (indWithEncounterDates, indWithEncounterDate) => {
+        if (!indWithEncounterDates.has(indWithEncounterDate.individualUUID)) {
+            indWithEncounterDates.set(indWithEncounterDate.individualUUID, indWithEncounterDate)
+        }
+        return indWithEncounterDates;
+    };
+
+    customEncounterFilter(selectedAnswerUUID, encounterName) {
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('voided = false ')
-            .filtered('encounterType.name = "Annual Visit" ')
+            .filtered('encounterType.name = $0 ', encounterName)
+            .filtered(_.isEmpty(selectedAnswerUUID) ? 'uuid != null' : `${selectedAnswerUUID}`)
             .sorted('encounterDateTime', true)
             .map(enc => ({
                 individualUUID: enc.programEnrolment.individual.uuid,
-                concept : enc.getObservationReadableValue("Standard"),
+                encounterDateTime: enc.encounterDateTime
             }))
-            .filter(result => result && _.includes(selectedCustomFilters, result.concept) || false)
+            .reduce(this._latestEncounter, new Map())
             .values()]
-            .map(t => t.individualUUID);
+            .map(t => t && t.individualUUID);
     }
 
     allScheduledVisitsIn(date, queryAdditions) {
@@ -197,14 +204,14 @@ class IndividualService extends BaseService {
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
-                const programName =  enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
+                const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,
                     visitInfo: {
                         uuid: individual.uuid,
                         visitName: [{
-                            visit: [programName , visitName , General.formatDate(maxVisitDateTime)],
+                            visit: [programName, visitName, General.formatDate(maxVisitDateTime)],
                             encounter: enc,
                             color: '#d0011b',
                         }],
@@ -372,7 +379,7 @@ class IndividualService extends BaseService {
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
             .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
             .map((enrolment) => {
-                return _.assignIn({},enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
+                return _.assignIn({}, enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
             });
     }
 

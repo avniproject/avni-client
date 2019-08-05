@@ -67,10 +67,12 @@ class MyDashboardActions {
             encountersFilters = state.encountersFilters;
             enrolmentFilters = state.enrolmentFilters;
         }
-        const selectedAnswerValues = _.map(state.selectedCustomFilters, c => c.name);
-        const customFilteredIndividuals = individualService.customEncounterFilter(selectedAnswerValues);
+
+        const selectedAnswerUUID = MyDashboardActions.orQuery(_.map(state.selectedCustomFilters, c => `observations.valueJSON = '{"answer":"${c.uuid}"}'`));
+        //TODO: right now Visit type is hard coded for testing should come from configuration/custom_filter table
+        const customFilteredIndividuals = _.isEmpty(selectedAnswerUUID) ? [] : individualService.customEncounterFilter(selectedAnswerUUID, 'Annual Visit');
         const commonIndividuals = (otherFilteredIndividuals) => {
-            return (_.isEmpty(selectedAnswerValues) || _.isEmpty(otherFilteredIndividuals)) ?
+            return (_.isEmpty(selectedAnswerUUID) || _.isEmpty(otherFilteredIndividuals)) ?
                 otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividuals, iInfo.individual.uuid));
         };
 
