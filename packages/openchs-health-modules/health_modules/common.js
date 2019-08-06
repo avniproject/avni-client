@@ -136,6 +136,10 @@ function C() {
         return getZScore(programEncounter.programEnrolment.individual, programEncounter.encounterDateTime, weight, height);
     };
 
+    this.getZScore = (individual, asOnDate, weight, height) => {
+        return getZScore(individual, asOnDate, weight, height);
+    };
+
     this.weeksBetween = (arg1, arg2) => {
         return moment.duration(moment(arg1).diff(moment(arg2))).asWeeks();
     }    
