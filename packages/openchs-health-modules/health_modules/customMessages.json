@@ -2883,8 +2883,6 @@
     "Wheat (cereal)":"ઘઉં",
     "Pulses":"દાળ",
     "Salt":"મીઠું", 
-    "1 Packet":"૧ પેકેટ (૫૦૦ મિલી લિટર)",
-    "2 Packets":"૨ પેકેટ",
     "Doesn't have information":"જાણકારી નથી",
     "Social Media":"સોશીયલ મીડીયા",
     "Print or electronic media":"છાપા અથવા ઇલેક્ટ્રોનિકમાધ્યમ",
@@ -3118,7 +3116,7 @@
      "Other reason for child's death":"બાળક જીવિત ના રહેવાનું અન્ય કોઈ કારણ જણાવો",
      "Reason for miscarriage":"કસુવાવડ થવાના કારણો જણાવો",
      "Other reason for miscarriage":"કસુવાવડ થવાના અન્ય કારણો જણાવો",
-     "months":"મહિના",
+     "month":"મહિના",
      "Other person who did investigation":"અન્ય કોની પાસે તમે તપાસ કરવી હતી",
      "Services Received in Previous Pregnancy":"પાછલી ગર્ભાવસ્થામાં સેવાઓ પ્રાપ્ત થઈ",
      "Other place form where IFA tablets received":"અન્ય કોની પાસેથી અને ક્યાંથી તમે લોહી વધારવાની ગોળીઓ મેળવો છો",
@@ -3138,7 +3136,22 @@
      "Information about government programme/scheme received from":"તમને આ યોજનાઓ અંગેની જાણકારી કોણે આપી",
      "Other who gave you information about government programme/scheme":"યોજનાઓ અંગેની માહિતી અન્ય કોણે આપી",
      "Reason for not using any contraception method":"જો ના, તો ગર્ભનિરોધક સાધનોનો વપરાશ કેમ નથી કર્યો",
-     "Other reason for not using any contraception method":"અન્ય કયા કારણોસર ગર્ભ નિરોધક સાધનોનો ઉપયોગ નથી કર્યો"
+     "Other reason for not using any contraception method":"અન્ય કયા કારણોસર ગર્ભ નિરોધક સાધનોનો ઉપયોગ નથી કર્યો",
+     "Miscarriage":"કસુવાવડ",
+     "Pre term child":"અધૂરા મહિને જન્મ",
+     "Died after birth":"જન્મ બાદ તરત મૃત્યુ",
+     "Still birth":"મૃત જન્મ",
+     "Low birth weight child":"ઓછા વજન વાળું બાળક", 
+     "Medical complication":"તબીબી કારણો",
+    "Anaemia":"એનીમિયા",
+    "Undernourished mother":"કુપોષિત માતા",
+    "Semi-solid food":"અર્ધ-ઘન ખોરાક",
+    "Half Packet":"અડધુ પેકેટ (૨૫૦ ગ્રામ)",
+    "1 Packet":"૧ પેકેટ (૫૦૦ ગ્રામ)",
+    "2 Packets":"૨ પેકેટ (૧ કિલો)"
+
+
+
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
