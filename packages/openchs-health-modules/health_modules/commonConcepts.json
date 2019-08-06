@@ -2575,5 +2575,11 @@
     "dataType": "Coded",
     "answers": [
     ]
+  },
+  {
+    "name": "Anaemia",
+    "uuid": "43ea47d8-8c92-4564-a9df-eee28191f85c",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
+
 ]
