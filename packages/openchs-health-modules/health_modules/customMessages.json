@@ -2273,7 +2273,7 @@
     "Number of brothers": "કેટલા ભાઈઓ",
     "Number of sisters": "કેટલા બહેનો",
     "Family Details": "કૌટુંબિક વિગતો",
-    "Mother": "મધર",
+    "Mother": "માતા",
     "Child": "બાળક",
     "Parents' life status": "માતાપિતાના જીવનની દરજ્જો",
     "Standard": "ધોરણ",
@@ -2827,7 +2827,7 @@
     "At what age child should be got complementary food":"બાળકને ઉપરી આહાર કઈ ઉંમરથી આપવો જોઈએ",
     "What should be kept in mind when preparing a food for child":"બાળક માટે ઉપરી આહાર બનાવતી વખતે શું ધ્યાન રાખવું જોઇએ",
     "What should be kept in mind while feed the child":"બાળક માટે ઉપરી આહાર ખવડાવતી વખતે શું ધ્યાન રાખવું જોઇએ",
-    "What types of complementary food should be given to the child":"અન્ય",
+    "What types of complementary food should be given to the child":"બાળકને ઉપરી આહારમાં શું આપવું જોઈએ",
     "How often food should be given to the child":"બાળકને ઉપરી આહાર દિવસમાં કેટલી વાર આપવો જોઈએ",
     "How much food should be given to the child":"બાળકને ઉપરી આહાર દિવસમાં કેટલા પ્રમાણમાં આપવો જોઈએ?(પ્રમાણ માટે વાડકી દેખાડી પ્રશ્નનો જવાબ લેવો.)",
     "How long child should be breast fed":"બાળકને માતાનું ધાવણ કઈ ઉંમર સુધી આપવું જોઈએ",
@@ -3035,9 +3035,9 @@
      "Other types of complementary food given to the child":"તમે બાળકને ઉપરી આહારમાં અન્ય શું આપો છો",
      "How much do you give complementary food to the child":"બાળકને ઉપરી આહાર કેટલા પ્રમાણમાં આપો છો",
      "How often do you give complementary food to the children":"બાળકને ઉપરી આહાર દિવસમાં કેટલી વાર આપો છો",
-     "What are the points you kept in a mind while preparing a food for the child":"બાળક માટે ઉપરી આહાર બનાવતી વખતે શું ધ્યાન ધ્યાન રાખો છો?",
+     "What are the points you kept in a mind while preparing a food for the child":"બાળક માટે ઉપરી આહાર બનાવતી વખતે શું ધ્યાન રાખો છો",
      "Other points you kept in a mind while preparing a food for the child":"બાળક માટે ઉપરી આહાર બનાવતી વખતે અન્ય શું ધ્યાન રાખો છો",
-     "What are the points you kept in a mind while feed the child":"બાળકને ઉપરી આહાર ખવડાવતી વખતે શું ધ્યાન ધ્યાન રાખો છો?",
+     "What are the points you kept in a mind while feed the child":"બાળકને ઉપરી આહાર ખવડાવતી વખતે શું ધ્યાન રાખો છો",
      "Other points you kept in a mind while feed the child":"બાળકને ઉપરી આહાર ખવડાવતી વખતે અન્ય શું ધ્યાન રાખો છો",
      "Do you give complementary food along with breast feeding":"બાળકને ઉપરી આહાર અને માતાનું ધાવણ બંને આપો છો",
      "When do you breastfeed to your child":"જો હા, તો ધાવણ ક્યારે આપો છો",
@@ -3196,8 +3196,8 @@
      "No one can drop the child":"કોઈ પણ બાળકને છોડી શકે નહીં",
      "Child is not seating alone in AWC":"બાળક AWC માં એકલા બેઠા નથી",
      "Safety issue":"સલામતીનો મુદ્દો",
-      "Bhuva":"ભુવા"
-     
+     "Bhuva":"ભુવા",
+     "Improve immunity of child":"રોગ પ્રતિકારક શક્તિ વધારે છે"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
