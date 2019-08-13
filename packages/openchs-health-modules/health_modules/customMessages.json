@@ -2409,7 +2409,6 @@
     "Fever": "તાવ",
     "Diarrhoea": "ઝાડા",
     "Abdominal pain": "પેટનો દુ:ખાવો",
-    "Common cold": "શરદી-ખાંસી",
     "Jaundice": "કમળો",
     "Yes": "હા",
     "No": "ના",
@@ -3228,7 +3227,17 @@
      "Specify Other":"અન્ય સ્પષ્ટ કરો",
      "Dense food":"ઘટ્ટ ખોરાક",
      "Packaged food-Biscuit":"બહારનો ખોરાક- બિસ્કીટ વગેરે",
-     "Birth Weight":"જન્મ વજન"
+     "Birth Weight":"જન્મ વજન",
+     "Malaria":"મેલેરિયા", 
+     "Typhoid":"ટાયફોઈડ", 
+     "Warm":"કરમિયા", 
+     "Cough":"શરદી", 
+    "Common cold":"ઉધરસ", 
+    "Diarrhea":"ઝાડા", 
+    "Skin disease":"ચામડીનો રોગ", 
+    "Measle":"ઓરી", 
+    "Stomache":"પેટમાં દુખાવો", 
+    "Vomitting":"ઉલ્ટી"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
