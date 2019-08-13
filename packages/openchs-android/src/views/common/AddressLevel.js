@@ -29,7 +29,7 @@ class AddressLevel extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const valueLabelPairs = this.props.levels.map(({uuid, name}) => new RadioLabelValue(name, uuid));
+        const valueLabelPairs = this.props.levels.map(({uuid, name}) => new RadioLabelValue(this.I18n.t(name.replace(/\./g, "")), uuid));
         return (
             <RadioGroup
                 multiSelect={this.props.multiSelect}
