@@ -3225,7 +3225,10 @@
      "No Card":"કાર્ડ નથી",
      "NA":"લાગુ નથી પડતું",
      "Place of Vaccination":"રસીકરણ સ્થળ",
-     "Specify Other":"અન્ય સ્પષ્ટ કરો"
+     "Specify Other":"અન્ય સ્પષ્ટ કરો",
+     "Dense food":"ઘટ્ટ ખોરાક",
+     "Packaged food-Biscuit":"બહારનો ખોરાક- બિસ્કીટ વગેરે",
+     "Birth Weight":"જન્મ વજન"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
