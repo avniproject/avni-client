@@ -3237,7 +3237,8 @@
     "Skin disease":"ચામડીનો રોગ", 
     "Measle":"ઓરી", 
     "Stomache":"પેટમાં દુખાવો", 
-    "Vomitting":"ઉલ્ટી"
+    "Vomitting":"ઉલ્ટી",
+    "Whether Vaccination applicable": "રસીકરણ લાગુ છે કે નહીં"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
