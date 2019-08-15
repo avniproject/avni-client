@@ -1442,6 +1442,7 @@
     "Preparation for delivery": "बाळंतपणाची तयारी",
     "Priest": "धर्मगुरु",
     "Private hospital": "खाजगी दवाखाना",
+    "Private Hospital":"खाजगी दवाखाना",
     "Private Job": "खाजगी नोकरी",
     "Problems with chest area": "छातीच्या भागामध्ये समस्या",
     "Professional/Technical": "वकील , डॉक्टर , चार्टर्ड अकाउंटेंट , इंजिनियर , इत्यादि",
@@ -1924,7 +1925,6 @@
     "Completed":"पूर्ण झाले",
     "Overdue":"द्यावयाचे बाकी",
     "Expired":"मुदत संपली"
-   
   },
   "en": {
     "LOGIN": "Login",
