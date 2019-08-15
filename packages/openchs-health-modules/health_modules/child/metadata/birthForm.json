@@ -75,29 +75,6 @@
           },
           "displayOrder": 6,
           "mandatory": true
-        },
-        {
-          "name": "Did breast feeding start within 1 hour of birth?",
-          "uuid": "c11bc3cd-7b58-49ba-b085-040378958a57",
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "ae2b1a14-4c76-415c-8520-656f57bcb48d",
-            "name": "Breast feeding within 1 hour of birth"
-          },
-          "displayOrder": 7,
-          "mandatory": true,
-          "voided": true
-        },
-        {
-          "name": "When did breast feeding start?",
-          "uuid": "8977ed9d-ef91-4c97-8cc1-2515c827eff1",
-          "concept": {
-            "uuid": "05a76d7c-aa02-4023-9d98-639c36a269a7",
-            "name": "Breast feeding started"
-          },
-          "displayOrder": 8,
-          "mandatory": true,
-          "voided": true
         }
       ]
     },
@@ -214,17 +191,6 @@
       "displayOrder": 4,
       "display": "Physical Examination",
       "formElements": [
-        {
-          "name": "Jaundice (Icterus)",
-          "uuid": "1f0bbcce-801e-4736-b5ab-c8afee6e8521",
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "78cb1fb0-9e7c-4012-872c-00589fda661d"
-          },
-          "displayOrder": 4,
-          "mandatory": true,
-          "voided": true
-        }
       ],
       "voided": true
     }

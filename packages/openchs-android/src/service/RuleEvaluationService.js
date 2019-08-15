@@ -27,6 +27,7 @@ import General from "../utility/General";
 import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import IndividualEncounterService from "./IndividualEncounterService";
+import {Rule} from 'openchs-models';
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {

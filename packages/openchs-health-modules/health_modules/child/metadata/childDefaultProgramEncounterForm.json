@@ -77,19 +77,6 @@
           },
           "displayOrder": 4,
           "mandatory": false
-        },
-        {
-          "voided": true,
-          "name": "Is baby exclusively breastfeeding",
-          "uuid": "0311c913-eb2b-4478-b435-dc142e7fe584",
-          "keyValues": [],
-          "type": "SingleSelect",
-          "concept": {
-            "uuid": "5a3b65c1-1647-47d0-ad66-d8b22722c472",
-            "name": "Is baby exclusively breastfeeding"
-          },
-          "displayOrder": 5,
-          "mandatory": false
         }
       ]
     },

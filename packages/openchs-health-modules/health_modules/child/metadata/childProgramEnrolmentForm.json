@@ -11,17 +11,6 @@
       "display": "Basic Details",
       "formElements": [
         {
-          "name": "Birth Weight",
-          "uuid": "03daf5f7-9689-4eaa-a1f3-c95b609329b5",
-          "keyValues": [],
-          "concept": {
-            "uuid": "7ff327c5-8678-41e3-af39-c86f214c6f14"
-          },
-          "displayOrder": 1,
-          "mandatory": false,
-          "voided": true
-        },
-        {
           "name": "Birth Defects",
           "uuid": "0e656272-03c2-41a9-8935-60444909082f",
           "keyValues": [],
