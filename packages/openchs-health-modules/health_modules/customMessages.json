@@ -1959,7 +1959,9 @@
     "Weight of baby 3":"बाळ 3 चे जन्मतः वजन (ग्रॅम)",
     "Preconception outcome length of baby 1":"बाळ 1 चे जन्मतः लांबी (सें.मी.)",
     "Preconception outcome length of baby 2":"बाळ 2 चे जन्मतः लांबी (सें.मी.)",
-    "Preconception outcome length of baby 3":"बाळ 3 चे जन्मतः लांबी (सें.मी.)"  
+    "Preconception outcome length of baby 3":"बाळ 3 चे जन्मतः लांबी (सें.मी.)",
+    "Hb trend":"एच बी ट्रेंड",
+    "BMI trend":"बीएमआय ट्रेंड"
   },
   "en": {
     "LOGIN": "Login",
