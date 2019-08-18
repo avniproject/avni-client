@@ -1685,6 +1685,8 @@
     "Protein % RDA": "प्रथिने -% RDA",
     "Preconception baseline advice for diet": "✓ आहार तक्त्यानुसार  वजन वाढवण्यासाठी / वजन कमी करण्यासाठी  सल्ला द्यावा",
     "Preconception baseline counselling for parity": "✓ विविध गर्भनिरोधक  पद्धती सांगून  तिला प्राथमिक आरोग्य केंद्र / आरएच / सिविल हॉस्पिटल येथे जाण्याचा सल्ला द्यावा",
+    "Preconception baseline counselling for parity and age": "✓ विविध गर्भनिरोधक  पद्धती सांगून  तिला प्राथमिक आरोग्य केंद्र / आरएच / सिविल हॉस्पिटल येथे जाण्याचा सल्ला द्यावा",
+    "Preconception baseline counselling for child spacing": "✓ मुलाला अंतर देण्याची आणि वेगवेगळ्या गर्भनिरोधक पद्धतींचा वापर करण्याबद्दल तिला सल्ला द्या",
     "Preconception baseline counselling for other than live birth": "✓ गर्भधारणेपूर्व योग्य काळजी घेणे आणि प्राथमिक आरोग्य केंद्रात दाखवण्याचा सल्ला द्यावा",
     "Preconception baseline counselling for congenital anomalies": "✓ गर्भधारणेपूर्वी योग्य काळजी घेण्याचा सल्ला तिला द्यावा",
     "Preconception baseline counselling for tobacco consumption":"✓ तंबाखू सेवनाने गर्भावर होणाऱ्या  परिणामांविषयी माहिती सांगून तिला तंबाखू सोडण्याचा सल्ला द्यावा",
@@ -1732,7 +1734,7 @@
     "BCC-3- Voice and text messages": "BCC-3- ध्वनि आणि मजकूर संदेश",
     "Age": "वय",
     "Hb/ Anaemia": "हिमोग्लोबिन (ग्रॅम%)/ रक्तक्षय रोग",
-    "Blood group negative": "रक्तगट नकारात्मक",
+    "Blood group negative": "रक्तगट नेगेटिव",
     "Sickle cell anaemia": "सिकल सेल रक्तक्षय रोग",
     "RTI/STI": "लैंगिक आजार",
     "TSH": "थायरॉईड",
@@ -1874,7 +1876,8 @@
     "Permanent migration":"कायमस्वरूपी स्थलांतर",
     "Loss to follow-up":"पाठपुरावा करण्यासाठी अनुपस्थित",
     "TSH > 10":"टीएसएच > 10",
-    "High Risk Woman":"अति जोखमीची महिला ",
+    "High Risk Mother":"अति जोखमीची आई"
+    "High Risk Woman":"अति जोखमीची महिला",
     "MO Examination":"वैद्यकीय अधिकाऱ्यांद्वारे तपासणी ",
     "VDRL test Result positive":"व्हीडीआरएल चाचणी निष्कर्ष सकारात्मक",
     "RTI Symptoms for Husband positive":"पतीला लैंगिक आजार लक्षणे",
@@ -1961,7 +1964,9 @@
     "Preconception outcome length of baby 2":"बाळ 2 चे जन्मतः लांबी (सें.मी.)",
     "Preconception outcome length of baby 3":"बाळ 3 चे जन्मतः लांबी (सें.मी.)",
     "Hb trend":"एच बी ट्रेंड",
-    "BMI trend":"बीएमआय ट्रेंड"
+    "BMI trend":"बीएमआय ट्रेंड",
+    "High BMI":"अधिक बीएमआय",
+    "Woman is Rh negative and husband is Rh positive":"स्त्री आरएच नेगेटिव आहे आणि नवरा आरएच पॉझिटिव्ह आहे"
   },
   "en": {
     "LOGIN": "Login",
