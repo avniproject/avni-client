@@ -17,7 +17,7 @@ export default class TypedTransition {
         General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}`);
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
-        const route = this.createRoute(viewClass, this.queryParams, isTyped);
+        const route = TypedTransition.createRoute(viewClass, this.queryParams, isTyped);
         if (replace) {
             this.navigator.replace(route);
         } else {
@@ -26,9 +26,8 @@ export default class TypedTransition {
         return this;
     }
 
-    createRoute(viewClass, params, isTyped) {
-        const path = viewClass.path();
-        return {path, queryParams: params || {}, isTyped: _.isNil(isTyped) ? false : isTyped};
+    static createRoute(viewClass, queryParams = {}, isTyped = false) {
+        return {path: viewClass.path(), queryParams, isTyped};
     }
 
     get navigator() {
@@ -60,20 +59,16 @@ export default class TypedTransition {
         return this;
     }
 
-    resetStack(itemsToBeRemoved, newViewClass, params, isTyped) {
+    resetStack(toBePopped, toBePushed = []) {
         this.safeDismissKeyboard();
         const currentRoutes = this.navigator.getCurrentRoutes();
-        const newRouteStack = _.filter(currentRoutes, (route) => !_.some(itemsToBeRemoved, item => item.path() === route.path));
+        const newRouteStack = _.filter(currentRoutes, (route) => !_.some(toBePopped, item => item.path() === route.path));
 
-        if (_.isArray(newViewClass)) {
-            _.forEach(_.zip(newViewClass, params), ([view, param]) => newRouteStack.push(this.createRoute(view, param, isTyped)))
-        } else if (_.isNil(newViewClass)) {
+        if (_.isEmpty(toBePushed)) {
             this._popN(currentRoutes.length - newRouteStack.length);
             return;
-        } else {
-            newRouteStack.push(this.createRoute(newViewClass, params, isTyped));
         }
-
+        newRouteStack.push(...toBePushed);
         this.navigator.immediatelyResetRouteStack(_.uniq(newRouteStack));
         General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Final: ${newRouteStack.length}`);
     }

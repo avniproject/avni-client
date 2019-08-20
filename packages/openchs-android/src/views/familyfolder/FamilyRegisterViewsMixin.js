@@ -10,10 +10,13 @@ import FamilyFolderView from "../familyfolder/FamilyFolderView";
 
 class FamilyRegisterViewsMixin {
     static next(view) {
+        const toBeRemoved = [SystemRecommendationView, FamilyRegisterFormView, FamilyRegisterView];
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors) => {
                 const onSaveCallback = (source) => {
-                    TypedTransition.from(source).resetStack([SystemRecommendationView, FamilyRegisterFormView, FamilyRegisterView], FamilyFolderView, {familyUUID: view.state.family.uuid}, true);
+                    TypedTransition.from(source).resetStack(toBeRemoved, [
+                        TypedTransition.createRoute(FamilyFolderView, {familyUUID: view.state.family.uuid}, true),
+                    ]);
                 };
                 const headerMessage = `${view.I18n.t('familyRegistration')} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.family, state.family.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, null, null, null, state.workListState);

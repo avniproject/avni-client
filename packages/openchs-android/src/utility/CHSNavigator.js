@@ -25,7 +25,7 @@ import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
-import {ProgramEnrolment, WorkItem, ProgramEncounter, EncounterType, SubjectType} from "openchs-models";
+import {EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
 import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
@@ -60,14 +60,18 @@ class CHSNavigator {
 
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
+        const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView];
         if (isFromWizard) {
-            from.resetStack([SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView, ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView], ProgramEnrolmentTabView, {
-                individualUUID: individualUUID,
-                enrolmentUUID: selectedEnrolmentUUID,
-                message,
-                backFunction: backFn,
-                tab: 2,
-            }, true);
+            from.resetStack(toBeRemoved, [
+                TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                    individualUUID: individualUUID,
+                    enrolmentUUID: selectedEnrolmentUUID,
+                    message,
+                    backFunction: backFn,
+                    tab: 2,
+                }, true)
+            ]);
         } else {
             from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(ProgramEnrolmentTabView, true);
         }
@@ -140,8 +144,11 @@ class CHSNavigator {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
-                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView],
-                    ProgramEnrolmentTabView, {individualUUID: encounter.individual.uuid, message, tab: 3}, true,);
+                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], [
+                    TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                        individualUUID: encounter.individual.uuid, message, tab: 3
+                    }, true)
+                ]);
         };
         CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, workListState, message);
     }
@@ -209,14 +216,16 @@ class CHSNavigator {
     }
 
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
+        const toBeRemoved = [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView];
         TypedTransition
             .from(recommendationsView)
-            .resetStack([SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView],
-                ProgramEnrolmentTabView, {
+            .resetStack(toBeRemoved, [
+                TypedTransition.createRoute(ProgramEnrolmentTabView, {
                     individualUUID,
                     message: recommendationsView.I18n.t("registrationSavedMsg"),
                     tab: 1
-                }, true,);
+                }, true)
+            ]);
     }
 
     static getMessage(i18n, workItem: WorkItem) {
@@ -239,28 +248,28 @@ class CHSNavigator {
         const message = this.getMessage(recommendationsView.I18n, currentWorkItem);
         const nextWorkItem = workListState.moveToNextWorkItem();
 
+        const toBePoped = [
+            SystemRecommendationView,
+            IndividualRegisterFormView,
+            IndividualRegisterView,
+            SubjectRegisterView,
+            ProgramEncounterView,
+            ProgramEnrolmentView
+        ];
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
                 const target = SubjectType.create(nextWorkItem.parameters.subjectTypeName).isIndividual() ? IndividualRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
-                    .resetStack([
-                            SystemRecommendationView,
-                            IndividualRegisterFormView,
-                            IndividualRegisterView,
-                            SubjectRegisterView,
-                            ProgramEncounterView,
-                            ProgramEnrolmentView
-                        ],
-                        [target],
-                        [{
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(target, {
                             subjectUUID: uuid,
                             individualUUID: uuid,
                             editing: !_.isNil(uuid),
                             workLists: workListState.workLists,
                             message: message
-                        }]
-                    );
+                        })
+                    ]);
                 break;
             }
             case WorkItem.type.PROGRAM_ENROLMENT: {
@@ -268,23 +277,15 @@ class CHSNavigator {
                 const program = context.getService(ProgramService).allPrograms().find((program) => program.name === nextWorkItem.parameters.programName);
                 const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
                 TypedTransition.from(recommendationsView)
-                    .resetStack([
-                            SystemRecommendationView,
-                            IndividualRegisterFormView,
-                            IndividualRegisterView,
-                            SubjectRegisterView,
-                            ProgramEncounterView,
-                            ProgramEnrolmentView
-                        ],
-                        [ProgramEnrolmentTabView, ProgramEnrolmentView],
-                        [{individualUUID: nextWorkItem.parameters.subjectUUID},
-                            {
-                                enrolment: enrolment,
-                                workLists: workListState.workLists,
-                                message: message,
-                                tab: 2
-                            }], true
-                    );
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(ProgramEnrolmentView, {
+                            enrolment: enrolment,
+                            workLists: workListState.workLists,
+                            message: message,
+                            tab: 2
+                        }, true)
+                    ]);
                 break;
             }
             case WorkItem.type.PROGRAM_ENCOUNTER: {
@@ -311,46 +312,30 @@ class CHSNavigator {
                     programEncounter.encounterDateTime = programEncounter.encounterDateTime || new Date();
                 }
                 TypedTransition.from(recommendationsView)
-                    .resetStack([
-                            SystemRecommendationView,
-                            IndividualRegisterFormView,
-                            IndividualRegisterView,
-                            SubjectRegisterView,
-                            ProgramEncounterView,
-                            ProgramEnrolmentView
-                        ],
-                        [ProgramEnrolmentTabView, ProgramEncounterView],
-                        [{individualUUID: nextWorkItem.parameters.subjectUUID},
-                            {
-                                params: {
-                                    enrolmentUUID: programEncounter.programEnrolment.uuid,
-                                    encounterType: nextWorkItem.parameters.encounterType,
-                                    workLists: workListState.workLists,
-                                    message: message,
-                                    programEncounter,
-                                    tab: 2
-                                }
-                            }], true);
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(ProgramEncounterView, {
+                            params: {
+                                enrolmentUUID: programEncounter.programEnrolment.uuid,
+                                encounterType: nextWorkItem.parameters.encounterType,
+                                workLists: workListState.workLists,
+                                message: message,
+                                programEncounter,
+                                tab: 2
+                            }
+                        }, true)
+                    ]);
                 break;
             }
             default: {
                 General.logError('CHSNavigator', 'Cannot navigate to this work item. Resetting view.');
-                TypedTransition.from(recommendationsView)
-                    .resetStack([
-                        SystemRecommendationView,
-                        IndividualRegisterFormView,
-                        IndividualRegisterView,
-                        SubjectRegisterView,
-                        ProgramEncounterView,
-                        ProgramEnrolmentView
-                    ]);
+                TypedTransition.from(recommendationsView).resetStack(toBePoped);
             }
         }
     }
 
     static navigateToFirstPage(source, itemsToBeRemoved) {
-        TypedTransition.from(source)
-            .resetStack(itemsToBeRemoved, null)
+        TypedTransition.from(source).resetStack(itemsToBeRemoved)
     }
 
     static navigateToFilterView(source, props) {

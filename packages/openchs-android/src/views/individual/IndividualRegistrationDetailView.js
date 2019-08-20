@@ -1,4 +1,4 @@
-import {View, Alert, Text, StyleSheet, TouchableOpacity} from "react-native";
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -48,8 +48,10 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     getRelativeActions() {
         return [new ContextAction(this.I18n.t('addRelative'), () => {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
-                (source) => TypedTransition.from(source).resetStack([IndividualAddRelativeView], ProgramEnrolmentTabView,
-                    {individualUUID: this.state.individual.uuid, tab: 1})
+                (source) => TypedTransition.from(source)
+                    .resetStack([IndividualAddRelativeView], [
+                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: this.state.individual.uuid, tab: 1})
+                    ])
             )
         })];
     }
