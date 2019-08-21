@@ -86,7 +86,7 @@ export class SubjectRegisterActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        return state.clone().handleNext(action, context, state.subject, Individual.schema.name, state.formElementGroup);
     }
 
     static onPrevious(state, action, context) {

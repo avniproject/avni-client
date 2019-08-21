@@ -122,7 +122,7 @@ export class IndividualRegisterActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        return state.clone().handleNext(action, context, state.individual, Individual.schema.name, state.formElementGroup);
     }
 
     static onPrevious(state, action, context) {
