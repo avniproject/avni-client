@@ -15,9 +15,10 @@ class BaseService {
     }
 
     dispatchAction(action, params) {
+        const type = action instanceof Function? action.Id: action;
         if (General.canLog(General.LogLevel.Debug))
-            General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(action)}`);
-        return this.reduxStore.dispatch({"type": action, ...params});
+            General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(type)}`);
+        return this.reduxStore.dispatch({type, ...params});
     }
 
     init() {
