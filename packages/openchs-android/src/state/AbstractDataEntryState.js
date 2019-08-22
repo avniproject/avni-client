@@ -74,7 +74,7 @@ class AbstractDataEntryState {
     }
 
     get observationsHolder() {
-        throw Error('Should be overridden');
+        throw Error('observationsHolder Should be overridden');
     }
 
     get hasValidationError() {
@@ -201,7 +201,7 @@ class AbstractDataEntryState {
     }
 
     validateEntity(context) {
-        throw Error('Should be overridden');
+        throw Error('validateEntity Should be overridden');
     }
 
     static getValidationError(state, formElementIdentifier) {

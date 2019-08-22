@@ -1,3 +1,4 @@
+// @flow
 import _ from "lodash";
 import General from "../utility/General";
 
@@ -139,6 +140,17 @@ class BaseService {
 
     filtered(...args) {
         return this.db.objects(this.getSchema()).filtered(...args);
+    }
+
+    filterBy(fn: Function) {
+        const result = [];
+        this.getAll().forEach(it=> fn(it) && result.push(it));
+        return result;
+    }
+
+    findUniqBy(fn: Function) {
+        const result = this.filterBy(fn);
+        if(result.length === 1) return result[0];
     }
 }
 
