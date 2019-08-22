@@ -34,6 +34,7 @@ import WorkListState from "../state/WorkListState";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
 import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
+import BeneficiaryDashboard from "../views/beneficiarymode/BeneficiaryDashboard";
 
 
 class CHSNavigator {
@@ -340,6 +341,10 @@ class CHSNavigator {
 
     static navigateToFilterView(source, props) {
         TypedTransition.from(source).with(props).to(FilterView, true);
+    }
+
+    static navigateToBeneficiaryDashboard(source, props) {
+        TypedTransition.from(source).with(props).to(BeneficiaryDashboard, true);
     }
 }
 

@@ -31,9 +31,9 @@ class FormElementGroup extends AbstractComponent {
         filteredFormElements: PropTypes.any,
         observationHolder: PropTypes.object.isRequired,
         actions: PropTypes.object.isRequired,
-        validationResults: PropTypes.array.isRequired,
+        validationResults: PropTypes.array,
         formElementsUserState: PropTypes.object,
-        dataEntryDate: PropTypes.object.isRequired
+        dataEntryDate: PropTypes.object,
     };
 
     constructor(props, context) {

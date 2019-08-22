@@ -2,6 +2,8 @@ import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
+import BeneficiaryIdentificationActions from '../action/beneficiarymode/BeneficiaryIdentificationActions';
+import BeneficiaryDashboardActions from '../action/beneficiarymode/BeneficiaryDashboardActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {EncounterActions, IndividualEncounterViewActionsMap} from "../action/individual/EncounterActions";
 import {ProgramEnrolmentsActions, ProgramEnrolmentsActionsMap} from "../action/program/ProgramEnrolmentsActions";
@@ -43,6 +45,8 @@ import {SyncActions, SyncActionMap} from '../action/SyncActions';
 
 export default class Reducers {
     static reducerKeys = {
+        beneficiaryIdentification: 'beneficiaryIdentification',
+        beneficiaryDashboard: 'beneficiaryDashboard',
         programEnrolment: "programEnrolment",
         individualGeneralHistory: "individualGeneralHistory",
         encounter: "encounter",
@@ -86,6 +90,8 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolment] = Reducers._add(ProgramEnrolmentActionMap, ProgramEnrolmentActions, beanStore);
+        reducerMap[Reducers.reducerKeys.beneficiaryIdentification] = Reducers._add(BeneficiaryIdentificationActions.Map, BeneficiaryIdentificationActions, beanStore);
+        reducerMap[Reducers.reducerKeys.beneficiaryDashboard] = Reducers._add(BeneficiaryDashboardActions.Map, BeneficiaryDashboardActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualGeneralHistory] = Reducers._add(IndividualGeneralHistoryActionsMap, IndividualGeneralHistoryActions, beanStore);
         reducerMap[Reducers.reducerKeys.encounter] = Reducers._add(IndividualEncounterViewActionsMap, EncounterActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolments] = Reducers._add(ProgramEnrolmentsActionsMap, ProgramEnrolmentsActions, beanStore);
