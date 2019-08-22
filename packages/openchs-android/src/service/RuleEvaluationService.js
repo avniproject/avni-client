@@ -102,14 +102,16 @@ class RuleEvaluationService extends BaseService {
     validateDecisions(d, ruleUUID, individualUUID) {
         return _.merge(..._.map(d, (decisions, decisionType) => {
             return {
-                [decisionType]: decisions.map(obj => this.filterValues(obj, ruleUUID, individualUUID))
-                    .filter(obj => this.checkConceptForRule(obj.name, ruleUUID, individualUUID))
+                [decisionType]: decisions.filter(obj => this.checkConceptForRule(obj.name, ruleUUID, individualUUID))
+                    .map(obj => this.filterValues(obj, ruleUUID, individualUUID))
+
             }
         }));
     }
 
     filterValues(object, ruleUUID, individualUUID) {
-        object.value = object.value.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
+        const nameConcept = this.conceptService.findConcept(object.name);
+        object.value = nameConcept.datatype !== 'Coded' ? object.value : object.value.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
         return object;
     }
 
