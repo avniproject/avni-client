@@ -32,6 +32,10 @@ Styles.programProfileHeading = {
     lineHeight: 24
 };
 
+Styles.container = {
+    paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+};
+
 Styles.programProfileSubheading = {
     fontSize: 14,
     color: Styles.whiteColor,

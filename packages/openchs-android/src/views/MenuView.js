@@ -14,6 +14,7 @@ import Path from "../framework/routing/Path";
 import TypedTransition from "../framework/routing/TypedTransition";
 import FamilyFolderView from "./familyfolder/FamilyFolderView";
 import VideoListView from "./videos/VideoListView";
+import BeneficiaryModeStartView from "./beneficiaryMode/BeneficiaryModeStartView";
 import CHSNavigator from "../utility/CHSNavigator";
 import General from "../utility/General";
 import CHSContent from "./common/CHSContent";
@@ -92,6 +93,10 @@ class MenuView extends AbstractComponent {
 
     videoListView() {
         TypedTransition.from(this).to(VideoListView);
+    }
+
+    beneficiaryModeView() {
+        TypedTransition.from(this).to(BeneficiaryModeStartView);
     }
 
     entitySyncStatusView() {
@@ -211,6 +216,7 @@ class MenuView extends AbstractComponent {
             },
             {
                 title: 'changePass-logout', data: [
+                    [this.props.menuIcon("account-supervisor", MenuView.iconStyle), "Beneficiary Mode", this.beneficiaryModeView.bind(this)],
                     [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
                     [this.props.menuIcon("logout", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), this.I18n.t("logout"), this.logout.bind(this)]
                 ]
