@@ -30,13 +30,17 @@ class ObservationsHolderActions {
         return newState;
     }
 
+    static checkValidationResult(ruleValidationErrors, validationResult) {
+       return _.map(ruleValidationErrors, error => (error.formIdentifier === validationResult.formIdentifier && !validationResult.success) ? validationResult : error)
+    }
+
     static onPrimitiveObsEndEditing(state, action, context) {
         const newState = state.clone();
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         const validationResult = action.formElement.validate(action.value);
-        newState.handleValidationResults(_.union(validationResult, ruleValidationErrors), context);
+        newState.handleValidationResults(ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
     }
@@ -49,7 +53,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
-        newState.handleValidationResults(_.union(validationResult, ruleValidationErrors), context);
+        newState.handleValidationResults(ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
     }
@@ -71,7 +75,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
-        newState.handleValidationResults(_.union(validationResult, ruleValidationErrors), context);
+        newState.handleValidationResults(ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
     }
@@ -92,7 +96,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         const validationResult = action.formElement.validate(dateValue);
-        newState.handleValidationResults(_.union(validationResult, ruleValidationErrors), context);
+        newState.handleValidationResults(ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
 
         return newState;
@@ -107,7 +111,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
-        newState.handleValidationResults(_.union(validationResult, ruleValidationErrors), context);
+        newState.handleValidationResults(ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
     }
