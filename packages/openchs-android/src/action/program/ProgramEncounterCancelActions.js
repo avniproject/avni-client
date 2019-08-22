@@ -50,7 +50,7 @@ class ProgramEncounterCancelActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context, state.programEncounter, ProgramEncounter.schema.name, state.formElementGroup);
+        return state.clone().handleNext(action, context);
     }
 
     static onPrevious(state, action, context) {

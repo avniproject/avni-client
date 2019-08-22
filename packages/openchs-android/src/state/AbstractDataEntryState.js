@@ -101,12 +101,10 @@ class AbstractDataEntryState {
         return this;
     }
 
-    handleNext(action, context, entity, entityName, formElementGroup) {
+    handleNext(action, context) {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);
-        const ruleValidationErrors = _.flatMap(ruleService.getValidationErrors(entity, entityName, formElementGroup),
-            status => new ValidationResult(false, status.uuid, status.validationErrors));
-        const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements), ruleValidationErrors);
+        const allValidationResults = _.union(validationResults, this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements));
         this.handleValidationResults(allValidationResults, context);
         if(Config.ENV === "dev" && Config.goToLastPageOnNext) {
             while (!this.wizard.isLastPage()) {
@@ -135,7 +133,7 @@ class AbstractDataEntryState {
             this.observationsHolder.updatePrimitiveObs(this.filteredFormElements, formElementStatuses);
             if (this.hasNoFormElements()) {
                 General.logDebug("No form elements here. Moving to next screen");
-                return this.handleNext(action, context, entity, entityName, formElementGroup);
+                return this.handleNext(action, context);
             }
             if (_.isFunction(action.movedNext)) action.movedNext(this);
         }

@@ -14,20 +14,12 @@ class StubbedRuleEvaluationService {
         return [];
     }
 
-    getValidationErrors(entity, entityName, formElementGroup) {
-        return entity && entityName && formElementGroup ?
-            this.getFormElementsStatuses(entity, entityName, formElementGroup).filter(e => !_.isEmpty(e.validationErrors)) :
-            [];
-    }
-
     getNextScheduledVisits() {
         return null;
     }
-
     updateWorkLists(workLists, context) {
         return workLists;
     }
-
     isEligibleForEncounter() {
         return true;
     }

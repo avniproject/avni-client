@@ -95,7 +95,7 @@ export class ProgramEnrolmentActions {
     }
 
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context, state.enrolment, ProgramEnrolment.schema.name, state.formElementGroup);
+        return state.clone().handleNext(action, context);
     }
 
     static onPrevious(state, action, context) {

@@ -229,12 +229,6 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    getValidationErrors(entity, entityName, formElementGroup) {
-        const formElementStatus = entity && entityName && formElementGroup ? this.getFormElementsStatuses(entity, entityName, formElementGroup) : [];
-        return formElementStatus
-            .filter(e => !_.isEmpty(e.validationErrors));
-    }
-
     getAllRuleItemsFor(entity, type, entityTypeHardCoded) {
         const entityType = _.get(entity, 'constructor.schema.name', entityTypeHardCoded);
         const applicableRules = RuleRegistry.getRulesFor(entity.uuid, type, entityType);

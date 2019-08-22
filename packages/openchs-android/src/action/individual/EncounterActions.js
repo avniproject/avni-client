@@ -40,7 +40,7 @@ export class EncounterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        newState.handleNext(action, context, state.encounter, Encounter.schema.name, state.formElementGroup);
+        newState.handleNext(action, context);
         return newState;
     }
 
