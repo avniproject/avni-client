@@ -34,7 +34,7 @@ import WorkListState from "../state/WorkListState";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
 import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
-import BeneficiaryDashboard from "../views/beneficiaryMode/BeneficiaryDashboard";
+import BeneficiaryDashboard from "../views/beneficiarymode/BeneficiaryDashboard";
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 
 
