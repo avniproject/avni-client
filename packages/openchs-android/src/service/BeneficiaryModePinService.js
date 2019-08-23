@@ -1,12 +1,10 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {BeneficiaryModePin} from 'openchs-models';
-import General from "../utility/General";
 
 @Service("beneficiaryModePinService")
 class BeneficiaryModePinService extends BaseService {
     constructor(db, beanStore) {
-        console.log('calling constructor');
         super(db, beanStore);
     }
 

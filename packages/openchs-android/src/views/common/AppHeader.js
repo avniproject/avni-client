@@ -10,6 +10,7 @@ import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
 import SyncComponent from "../SyncComponent";
+import ExitBeneficiaryModeButton from "../beneficiaryMode/ExitBeneficiaryModeButton";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -17,6 +18,11 @@ class AppHeader extends AbstractComponent {
         func: PropTypes.func,
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
+        icons: PropTypes.array,
+    };
+
+    static defaultProps = {
+        icons: []
     };
 
     constructor(props, context) {
@@ -64,6 +70,10 @@ class AppHeader extends AbstractComponent {
         return <SyncComponent startSync={this.props.startSync} icon={this.props.icon}/>
     }
 
+    renderExitBeneficiaryMode() {
+        return <ExitBeneficiaryModeButton/>;
+    }
+
     render() {
         return (
             <View style={{
@@ -93,8 +103,9 @@ class AppHeader extends AbstractComponent {
                         fontSize: 18
                     }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
                 </View>
-
-                {this.props.renderSync ? this.renderSyncIcon() : this.renderHomeIcon()}
+                {this.props.renderSync && this.renderSyncIcon()}
+                {this.props.renderExitBeneficiaryMode && this.renderExitBeneficiaryMode()}
+                {!this.props.renderSync && !this.props.renderExitBeneficiaryMode && this.renderHomeIcon()}
             </View>
         );
     }

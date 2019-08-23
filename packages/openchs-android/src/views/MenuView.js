@@ -211,7 +211,6 @@ class MenuView extends AbstractComponent {
 
     render() {
         General.logDebug("MenuView", "render");
-        console.log(this.context.getService(UserInfoService).getUserInfo());
         const dataGroup1 = [
             {
                 title: 'otherItems', data: [
