@@ -1,11 +1,4 @@
-import {
-    Alert, Platform,
-    SectionList, StyleSheet,
-    Text,
-    TouchableNativeFeedback,
-    View,
-    ScrollView
-} from "react-native";
+import {Alert, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -58,8 +51,12 @@ class MenuView extends AbstractComponent {
         };
     }
 
+    icon(name, style = {}) {
+        return this.props.menuIcon(name, [MenuView.iconStyle, style]);
+    }
+
     beneficiaryModeStatus() {
-        return this.state.userInfo.getSettings().showBeneficiaryMode;
+        return !!this.state.userInfo.getSettings().showBeneficiaryMode;
     }
 
     viewName() {
@@ -156,19 +153,18 @@ class MenuView extends AbstractComponent {
             TouchableNativeFeedback.SelectableBackground();
     }
 
-    renderItem(menuOption) {
-        const [icon, menuMessageKey, pressHandler, shouldRender] = menuOption.item;
-        return (shouldRender === undefined || shouldRender()) ?
-            (<TouchableNativeFeedback onPress={pressHandler}
+    static Item({I18n, icon, titleKey, onPress, visible = true}) {
+        return visible ?
+            (<TouchableNativeFeedback onPress={onPress}
                                       background={TouchableNativeFeedback.SelectableBackground()}>
                 <View
                     style={styles.container}>
                     {icon}
                     <View style={styles.textContainer}>
                         <Text
-                            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{menuMessageKey}</Text>
+                            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(menuMessageKey === 'Logout' || menuMessageKey === 'Delete Data') ? <View/> :
+                    {(titleKey === 'logout' || titleKey === 'Delete Data') ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right'/>}
                 </View>
             </TouchableNativeFeedback>)
@@ -187,7 +183,7 @@ class MenuView extends AbstractComponent {
                     paddingHorizontal: 16
                 }}>
                     <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
-                          name={'user-circle'}/>
+                             name={'user-circle'}/>
                     <View style={{flexDirection: 'column', alignSelf: 'center'}}>
                         <Text style={[{
                             color: Colors.headerTextColor,
@@ -211,29 +207,39 @@ class MenuView extends AbstractComponent {
 
     render() {
         General.logDebug("MenuView", "render");
-        const dataGroup1 = [
+        const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
+        const dataGroup = [
             {
                 title: 'otherItems', data: [
-                    [this.props.menuIcon("video-library", MenuView.iconStyle), this.I18n.t("VideoList"), this.videoListView.bind(this)],
-                    [this.props.menuIcon("sync", MenuView.iconStyle), this.I18n.t("entitySyncStatus"), this.entitySyncStatusView.bind(this)]
+                    <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
+                    <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
+                          onPress={() => this.entitySyncStatusView()}/>
                 ]
             },
             {
                 title: 'beneficiaryMode', data: [
-                    [this.props.menuIcon("account-supervisor", MenuView.iconStyle), this.I18n.t("beneficiaryMode"), this.beneficiaryModeView.bind(this), () => this.beneficiaryModeStatus()],
+                    <Item icon={this.icon("account-supervisor")}
+                          titleKey="beneficiaryMode"
+                          onPress={this.beneficiaryModeView.bind(this)}
+                          visible={this.beneficiaryModeStatus()}/>
                 ]
             },
             {
                 title: 'changePass-logout', data: [
-                    [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
-                    [this.props.menuIcon("logout", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), this.I18n.t("logout"), this.logout.bind(this)]
+                    <Item icon={this.icon("account-key")} titleKey="changePassword"
+                          onPress={() => this.changePasswordView()}/>,
+                    <Item icon={this.icon("logout", {color: Colors.NegativeActionButtonColor})} titleKey="logout"
+                          onPress={this.logout.bind(this)}/>
                 ]
             },
             {
                 title: 'dev', data: [
-                    [this.props.menuIcon("delete", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), "Delete Data", this.onDelete.bind(this), () => __DEV__],
-                    [this.props.menuIcon("account-multiple", MenuView.iconStyle), "Family Folder", this.familyFolder.bind(this), () => __DEV__],
-                    [this.props.menuIcon("settings", MenuView.iconStyle), "Dev Settings", this.devSettingsView.bind(this), () => __DEV__],
+                    <Item icon={this.icon("delete", {color: Colors.NegativeActionButtonColor})} titleKey="Delete Data"
+                          onPress={this.onDelete.bind(this)} visible={__DEV__}/>,
+                    <Item icon={this.icon("account-multiple")} titleKey="Family Folder"
+                          onPress={this.familyFolder.bind(this)} visible={__DEV__}/>,
+                    <Item icon={this.icon("settings")} titleKey="Dev Settings"
+                          onPress={this.devSettingsView.bind(this)} visible={__DEV__}/>
                 ]
             }
         ];
@@ -250,10 +256,10 @@ class MenuView extends AbstractComponent {
                                 marginLeft: Distances.ScaledContentDistanceFromEdge,
                                 marginTop: Distances.ScaledContentDistanceFromEdge
                             }}
-                            sections={dataGroup1}
-                            renderSectionHeader={() => <Separator height={30}
-                                                                  backgroundColor={Colors.GreyContentBackground}/>}
-                            renderItem={(data) => this.renderItem(data)}
+                            sections={dataGroup}
+                            renderSectionHeader={() =>
+                                <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
+                            renderItem={({item}) => item}
                             keyExtractor={(item, index) => index}
                         />
                         <View style={[{
