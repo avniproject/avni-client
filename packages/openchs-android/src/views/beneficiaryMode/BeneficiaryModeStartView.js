@@ -6,6 +6,7 @@ import AppHeader from "../common/AppHeader";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Pin from "../common/Pin";
+import BeneficiaryModePinService from "../../service/BeneficiaryModePinService";
 
 @Path('/beneficiaryModeLoginView')
 class BeneficiaryModeStartView extends AbstractComponent {
@@ -21,12 +22,17 @@ class BeneficiaryModeStartView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    onPinEnter(pin) {
+        this.getService(BeneficiaryModePinService).setPin(pin);
+        //todo: Go to the new screen, which is not defined yet.
+    }
+
     render() {
         return (
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('beneficiaryMode')}/>
-                    <Pin/>
+                    <Pin onComplete={(pin) => this.onPinEnter(pin)}/>
                 </CHSContent>
             </CHSContainer>
         );

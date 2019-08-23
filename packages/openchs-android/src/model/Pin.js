@@ -13,12 +13,10 @@ export default class Pin {
 
     setValue(text, index) {
         const character = this.getCharacter(text);
-        console.log('char is', character);
         if (!_.isEmpty(character)) {
             this.values[index] = character;
             this.position = _.min([this.values.length - 1, index + 1]);
         }
-        console.log('values', this.position, this.values);
     }
 
     isFilled() {

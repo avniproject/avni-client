@@ -78,7 +78,7 @@ export default class Pin extends React.Component {
                     paddingVertical: 5
                 }, Styles.formBodyText]}>{this.props.individualNameValue}</Text>
                 <TouchableOpacity activeOpacity={0.5}
-                                  onPress={this.props.onComplete}
+                                  onPress={() => this.props.onComplete(this.state.pin.getValue())}
                                   style={Styles.basicPrimaryButtonView}>
                     <Text style={{
                         color: 'white',
