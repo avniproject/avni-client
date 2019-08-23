@@ -1,6 +1,5 @@
 import React from "react";
 import {Alert, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
-import _ from 'lodash';
 import AbstractComponent from "../../src/framework/view/AbstractComponent";
 import Path from "../../src/framework/routing/Path";
 import Reducers from '../../src/reducer';
