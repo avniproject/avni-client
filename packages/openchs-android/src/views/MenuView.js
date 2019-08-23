@@ -54,8 +54,12 @@ class MenuView extends AbstractComponent {
         const settings = context.getService(SettingsService).getSettings();
         this.state = {
             userInfo: context.getService(UserInfoService).getUserInfo(),
-            serverURL: settings.serverURL
+            serverURL: settings.serverURL,
         };
+    }
+
+    beneficiaryModeStatus() {
+        return this.state.userInfo.getSettings().showBeneficiaryMode;
     }
 
     viewName() {
@@ -207,6 +211,7 @@ class MenuView extends AbstractComponent {
 
     render() {
         General.logDebug("MenuView", "render");
+        console.log(this.context.getService(UserInfoService).getUserInfo());
         const dataGroup1 = [
             {
                 title: 'otherItems', data: [
@@ -215,8 +220,12 @@ class MenuView extends AbstractComponent {
                 ]
             },
             {
+                title: 'beneficiaryMode', data: [
+                    [this.props.menuIcon("account-supervisor", MenuView.iconStyle), this.I18n.t("beneficiaryMode"), this.beneficiaryModeView.bind(this), () => this.beneficiaryModeStatus()],
+                ]
+            },
+            {
                 title: 'changePass-logout', data: [
-                    [this.props.menuIcon("account-supervisor", MenuView.iconStyle), "Beneficiary Mode", this.beneficiaryModeView.bind(this)],
                     [this.props.menuIcon("account-key", MenuView.iconStyle), this.I18n.t("changePassword"), this.changePasswordView.bind(this)],
                     [this.props.menuIcon("logout", [MenuView.iconStyle, {color: Colors.NegativeActionButtonColor}]), this.I18n.t("logout"), this.logout.bind(this)]
                 ]

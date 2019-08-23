@@ -7,6 +7,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Pin from "../common/Pin";
 import BeneficiaryModePinService from "../../service/BeneficiaryModePinService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 @Path('/beneficiaryModeLoginView')
 class BeneficiaryModeStartView extends AbstractComponent {
@@ -24,7 +25,7 @@ class BeneficiaryModeStartView extends AbstractComponent {
 
     onPinEnter(pin) {
         this.getService(BeneficiaryModePinService).setPin(pin);
-        //todo: Go to the new screen, which is not defined yet.
+        CHSNavigator.navigateToBeneficiaryIdentificationPage(this);
     }
 
     render() {

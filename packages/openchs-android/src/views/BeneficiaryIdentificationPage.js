@@ -50,7 +50,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return <CHSContainer>
             <CHSContent ref="scroll">
-                <AppHeader title={'BeneficiaryIdentification'}/>
+                <AppHeader title={'BeneficiaryIdentification'} hideBackButton={true}/>
                 <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                     <FormElementGroup
                         observationHolder={new ObservationsHolder(this.state.observations)}

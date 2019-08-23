@@ -34,7 +34,8 @@ import WorkListState from "../state/WorkListState";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
 import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
-import BeneficiaryDashboard from "../views/beneficiarymode/BeneficiaryDashboard";
+import BeneficiaryDashboard from "../views/beneficiaryMode/BeneficiaryDashboard";
+import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 
 
 class CHSNavigator {
@@ -345,6 +346,10 @@ class CHSNavigator {
 
     static navigateToBeneficiaryDashboard(source, props) {
         TypedTransition.from(source).with(props).to(BeneficiaryDashboard, true);
+    }
+
+    static navigateToBeneficiaryIdentificationPage(source) {
+        TypedTransition.from(source).toBeginning().to(BeneficiaryIdentificationPage, true, true);
     }
 }
 
