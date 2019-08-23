@@ -36,10 +36,10 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                 this.resetState();
                 CHSNavigator.navigateToLoginView(this, true);
             }
-            this.setState((state) => ({
-                attempts: state.attempts + 1,
+            this.setState({
+                attempts: this.state.attempts + 1,
                 errorMessage: true
-            }));
+            });
         }
     }
 
@@ -59,11 +59,14 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                         <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='logout'/>
                     </View>
                 </TouchableNativeFeedback>
-                {this.state.showPinModal && (
-                    <Modal>
-                        <Pin onComplete={(pin) => this.exitBeneficiaryMode(pin)}/>
-                    </Modal>
-                )}
+                <Modal onRequestClose={() => this.resetState()}
+                       visible={this.state.showPinModal}
+                >
+                    {this.state.attempts > 0 && (
+                        <Text style={{color: 'red'}}>{this.I18n.t("invalidLogoutAttempt", {attempts: this.state.attempts})}</Text>
+                    )}
+                    <Pin onComplete={(pin) => this.exitBeneficiaryMode(pin)}/>
+                </Modal>
             </View>
         );
     }

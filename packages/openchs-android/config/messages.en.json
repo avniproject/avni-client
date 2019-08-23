@@ -270,5 +270,6 @@
   "profile": "Profile",
   "programs": "Programs",
   "general": "General",
-  "beneficiaryMode": "Beneficiary Mode"
+  "beneficiaryMode": "Beneficiary Mode",
+  "invalidLogoutAttempt": "Incorrect PIN ({{attempts}} out of 3)"
 }

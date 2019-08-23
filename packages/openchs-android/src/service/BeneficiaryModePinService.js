@@ -37,7 +37,7 @@ class BeneficiaryModePinService extends BaseService {
     }
 
     pinMatches(pin) {
-        return this.findByKey('pin', pin);
+        return this.isPinGood(pin) && this.findByKey('pin', pin);
     }
 
     resetPin() {
