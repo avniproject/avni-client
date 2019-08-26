@@ -26,7 +26,7 @@ class ProgramActionsView extends AbstractComponent {
     };
 
     startProgramEncounter() {
-        CHSNavigator.navigateToStartProgramView(this, this.props.enrolment.uuid);
+        CHSNavigator.navigateToStartEncounterPage(this, this.props.enrolment.uuid);
     }
 
     openChecklist() {

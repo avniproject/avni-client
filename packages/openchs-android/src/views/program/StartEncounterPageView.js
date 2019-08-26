@@ -9,10 +9,10 @@ import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
 import General from "../../utility/General";
 import {ProgramEncounter} from "openchs-models";
-import StartProgramView from "./StartProgramView";
+import StartEncounterView from "./StartEncounterView";
 
-@Path("/StartProgramPageView")
-class StartProgramPageView extends AbstractComponent {
+@Path("/StartEncounterPageView")
+class StartEncounterPageView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
@@ -22,7 +22,7 @@ class StartProgramPageView extends AbstractComponent {
     }
 
     viewName() {
-        return "StartProgramPageView";
+        return "StartEncounterPageView";
     }
 
     render() {
@@ -33,7 +33,7 @@ class StartProgramPageView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}/>
                     <View>
-                        <StartProgramView
+                        <StartEncounterView
                             params={this.props.params}
                         />
                     </View>
@@ -43,4 +43,4 @@ class StartProgramPageView extends AbstractComponent {
     }
 }
 
-export default StartProgramPageView;
+export default StartEncounterPageView;

@@ -8,7 +8,7 @@ import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
-import StartProgramPageView from "../views/program/StartProgramPageView";
+import StartEncounterPageView from "../views/program/StartEncounterPageView";
 import LoginView from "../views/LoginView";
 import LandingView from "../views/LandingView";
 import MenuView from "../views/MenuView";
@@ -83,8 +83,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({enrolment, workLists, editing}).to(ProgramExitView);
     }
 
-    static navigateToStartProgramView(source, enrolmentUUID) {
-        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartProgramPageView);
+    static navigateToStartEncounterPage(source, enrolmentUUID) {
+        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartEncounterPageView);
     }
 
     static goBack(source) {

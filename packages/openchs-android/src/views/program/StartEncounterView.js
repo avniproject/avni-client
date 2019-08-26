@@ -16,7 +16,7 @@ import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-class StartProgramView extends AbstractComponent {
+class StartEncounterView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
@@ -26,7 +26,7 @@ class StartProgramView extends AbstractComponent {
     }
 
     viewName() {
-        return "StartProgramView";
+        return "StartEncounterView";
     }
 
     componentWillMount() {
@@ -119,7 +119,7 @@ class StartProgramView extends AbstractComponent {
     }
 }
 
-export default StartProgramView;
+export default StartEncounterView;
 
 const styles = StyleSheet.create({
     container: {
