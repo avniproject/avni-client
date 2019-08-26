@@ -1,4 +1,4 @@
-import {ScrollView, ToastAndroid, TouchableOpacity, View, StyleSheet} from "react-native";
+import {ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -116,6 +116,30 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return _.isEmpty(nonVoidedEnrolments) ? [] : nonVoidedEnrolments;
     }
 
+    renderPlannedVisits() {
+        const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+        return (<PreviousEncounters encounters={scheduledEncounters}
+                                    formType={Form.formTypes.ProgramEncounter}
+                                    showCount={this.state.showCount}
+                                    showPartial={false}
+                                    title={this.I18n.t('visitsPlanned')}
+                                    emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                    expandCollapseView={false}/>);
+    }
+
+    renderCompletedVisits() {
+        const actualEncounters = this.state.completedEncounters;
+        return (<PreviousEncounters encounters={actualEncounters}
+                                    formType={Form.formTypes.ProgramEncounter}
+                                    showCount={this.state.showCount}
+                                    showPartial={true}
+                                    title={this.I18n.t('visitsCompleted')}
+                                    emptyTitle={this.I18n.t('noCompletedEncounters')}
+                                    expandCollapseView={true}
+                                    onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
+                                    enrolment={this.state.enrolment}/>);
+    }
+
     renderExitObservations() {
         const enrolmentIsActive = this.state.enrolment.isActive;
         return enrolmentIsActive ? (<View/>) :
@@ -188,8 +212,6 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];
-        const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
-        const actualEncounters = this.state.completedEncounters;
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.defaultBackground}}>
@@ -228,28 +250,17 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                             />
                         </View>
                     </View>
-                    {enrolments.length === 0 ? <View/> :
+                    {enrolments.length > 0 ? (
                         <View>
                             {this.renderSummary()}
                             {this.renderExitObservations()}
-                            <PreviousEncounters encounters={scheduledEncounters}
-                                                formType={Form.formTypes.ProgramEncounter}
-                                                showCount={this.state.showCount}
-                                                showPartial={false}
-                                                title={this.I18n.t('visitsPlanned')}
-                                                emptyTitle={this.I18n.t('noPlannedEncounters')}
-                                                expandCollapseView={false}/>
+                            {this.renderPlannedVisits()}
                             {this.renderEnrolmentDetails()}
-                            <PreviousEncounters encounters={actualEncounters}
-                                                formType={Form.formTypes.ProgramEncounter}
-                                                showCount={this.state.showCount}
-                                                showPartial={true}
-                                                title={this.I18n.t('visitsCompleted')}
-                                                emptyTitle={this.I18n.t('noCompletedEncounters')}
-                                                expandCollapseView={true}
-                                                onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
-                                                enrolment={this.state.enrolment}/>
-                        </View>}
+                            {this.renderCompletedVisits()}
+                        </View>
+                    ) : (
+                        <View/>
+                    )}
                 </ScrollView>
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </View>
