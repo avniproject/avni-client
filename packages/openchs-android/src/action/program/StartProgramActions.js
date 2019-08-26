@@ -2,11 +2,10 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
 import MessageService from "../../service/MessageService";
-import moment from "moment";
-import {ProgramEncounter} from "openchs-models";
 import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {Action} from "../util";
 
 class StartProgramActions {
     static clone(state) {
@@ -29,7 +28,6 @@ class StartProgramActions {
                     selected: encounterType.selected
                 };
             }),
-            selectedEncounter: state.selectedEncounter
         };
     }
 
@@ -45,17 +43,7 @@ class StartProgramActions {
             enrolment: null,
             encounters: [],
             encounterTypes: [],
-            selectedEncounter: null
         };
-    }
-
-    static newProgramEncounter(state, encounterType) {
-        const programEncounter = ProgramEncounter.createEmptyInstance();
-        programEncounter.programEnrolment = state.enrolment;
-        programEncounter.encounterDateTime = moment().toDate();
-        programEncounter.encounterType = encounterType;
-
-        return programEncounter;
     }
 
     static preselectEncounterTypeIfRequired(state) {
@@ -64,6 +52,7 @@ class StartProgramActions {
         }
     }
 
+    @Action()
     static onLoad(state, action, context) {
         const newState = {};
         let enrolment = context.get(ProgramEnrolmentService).findByUUID(action.enrolmentUUID);
@@ -101,50 +90,16 @@ class StartProgramActions {
 
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
-        newState.selectedEncounter = StartProgramActions.selectedEncounter(newState);
         newState.hideUnplanned = context.get(UserInfoService).getUserSettings().hideUnplanned;
 
         return newState;
     }
-
-    static selectedEncounter(state) {
-        let selectedExistingEncounter = _.find(state.encounters, item => item.selected);
-        let selectedNewEncounterType = _.find(state.encounterTypes, item => item.selected);
-        return (
-            (selectedExistingEncounter && selectedExistingEncounter.data) ||
-            (selectedNewEncounterType && StartProgramActions.newProgramEncounter(state, selectedNewEncounterType.data))
-        );
-    }
-
-    static updateSelection(items, uuid) {
-        return _.map(items, item => {
-            return {key: item.key, label: item.label, data: item.data, selected: uuid === item.key};
-        });
-    }
-
-    static selectEncounter(state, uuid) {
-        const newState = StartProgramActions.clone(state);
-
-        newState.encounters = StartProgramActions.updateSelection(state.encounters, uuid);
-        newState.encounterTypes = StartProgramActions.updateSelection(state.encounterTypes, uuid);
-        newState.selectedEncounter = StartProgramActions.selectedEncounter(newState);
-
-        return newState;
-    }
-
-    static onSelectionChange(state, action) {
-        return StartProgramActions.selectEncounter(state, action.key);
-    }
 }
 
-const StartProgramActionsNames = {
-    ON_LOAD: "0e498a2e-4aaa-429b-b39f-d0fa256f44a5",
-    ON_SELECTION_CHANGE: "b6ad3b30-daab-49d1-a55f-c2312c174ebb"
-};
+const StartProgramActionsNames = {};
 
 const StartProgramActionsMap = new Map([
-    [StartProgramActionsNames.ON_LOAD, StartProgramActions.onLoad],
-    [StartProgramActionsNames.ON_SELECTION_CHANGE, StartProgramActions.onSelectionChange]
+    [StartProgramActions.onLoad.Id, StartProgramActions.onLoad],
 ]);
 
 export {StartProgramActions, StartProgramActionsNames, StartProgramActionsMap};

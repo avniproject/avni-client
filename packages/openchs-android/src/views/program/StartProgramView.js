@@ -4,7 +4,7 @@ import React from "react";
 import {Text, TouchableNativeFeedback, View, ToastAndroid, SectionList, StyleSheet} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import {StartProgramActionsNames as Actions} from "../../action/program/StartProgramActions";
+import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
 import PresetOptionItem from "../primitives/PresetOptionItem";
 import Reducers from "../../reducer/index";
 import Styles from "../primitives/Styles";
@@ -37,7 +37,7 @@ class StartProgramView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props.params);
+        this.dispatchAction(Actions.onLoad, this.props.params);
         return super.componentWillMount();
     }
 

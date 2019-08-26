@@ -90,45 +90,6 @@ describe("ProgramActions", () => {
         });
     });
 
-    describe("On selection change", () => {
-        it("sets the selected encounter to true and others to false", () => {
-            const oldState = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
-
-            const newState = Actions.onSelectionChange(oldState, {key: oldState.encounters[2].key}, testContext);
-
-            expect(newState.encounters[2].selected).to.be.true;
-        });
-
-        it ("sets everything to false if uuid not provided", () => {
-            const oldState = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
-
-            let newState = Actions.onSelectionChange(oldState, {}, testContext);
-
-            expect(newState.encounters[0].selected).to.be.false;
-            expect(newState.encounters[1].selected).to.be.false;
-            expect(newState.encounters[2].selected).to.be.false;
-
-            newState = Actions.onSelectionChange(oldState, {key: "non-existent"}, testContext);
-        });
-
-        it("sets the selected encounter to the one selected", () => {
-            let state = {};
-            enrolment.encounters[0].earliestVisitDateTime = moment().add(5, 'days');
-            enrolment.encounters[1].earliestVisitDateTime = moment().add(10, 'days');
-            enrolment.encounters[2].earliestVisitDateTime = moment().add(15, 'days');
-
-            state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
-            expect(state.selectedEncounter.uuid).to.equal(enrolment.encounters[0].uuid);
-
-            state = Actions.onSelectionChange(state, {key: enrolment.encounters[1].uuid}, testContext);
-            expect(state.selectedEncounter.uuid).to.equal(enrolment.encounters[1].uuid);
-
-            let encounterTypeSelected = serviceData.programEncounterTypes[0].uuid;
-            state = Actions.onSelectionChange(state, {key: encounterTypeSelected});
-            expect(state.selectedEncounter.encounterType.uuid).to.equal(encounterTypeSelected);
-        });
-    });
-
     describe("Utility functions", () => {
        it("asDisplayDate formats dates in the right display format", () => {
            const encounter =  ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment);
