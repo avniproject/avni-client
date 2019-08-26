@@ -34,6 +34,7 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
         } else {
             if (this.state.attempts >= 2) {
                 this.resetState();
+                beneficiaryModePinService.resetPin();
                 CHSNavigator.navigateToLoginView(this, true);
             }
             this.setState({
