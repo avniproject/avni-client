@@ -1,19 +1,13 @@
 // @flow
 import PropTypes from "prop-types";
 import React from "react";
-import {Text, TouchableNativeFeedback, View, ToastAndroid, SectionList, StyleSheet} from "react-native";
+import {SectionList, StyleSheet, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Path from "../../framework/routing/Path";
 import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
-import PresetOptionItem from "../primitives/PresetOptionItem";
 import Reducers from "../../reducer/index";
 import Styles from "../primitives/Styles";
 import CHSNavigator from "../../utility/CHSNavigator";
 import moment from "moment";
-import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
-import AppHeader from "../common/AppHeader";
-import themes from "../primitives/themes";
 import Distances from "../primitives/Distances";
 import General from "../../utility/General";
 import _ from "lodash";
@@ -22,7 +16,6 @@ import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-@Path("/StartProgramView")
 class StartProgramView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
@@ -69,8 +62,8 @@ class StartProgramView extends AbstractComponent {
         const color = moment().isAfter(encounter.maxVisitDateTime)
             ? Colors.OverdueVisitColor
             : moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime)
-            ? Colors.ScheduledVisitColor
-            : Colors.FutureVisitColor;
+                ? Colors.ScheduledVisitColor
+                : Colors.FutureVisitColor;
         return (
             <TouchableNativeFeedback
                 onPress={() => {
@@ -79,7 +72,7 @@ class StartProgramView extends AbstractComponent {
                 background={TouchableNativeFeedback.SelectableBackground()}
             >
                 <View style={styles.container}>
-                    <View style={[styles.strip, !_.isEmpty(displayDate) && {backgroundColor: color}]} />
+                    <View style={[styles.strip, !_.isEmpty(displayDate) && {backgroundColor: color}]}/>
                     <View style={styles.textContainer}>
                         <Text style={[Fonts.typography("paperFontSubhead"), styles.encounterStyle]}>
                             {encounterName}
@@ -87,10 +80,10 @@ class StartProgramView extends AbstractComponent {
                         {!_.isEmpty(displayDate) ? (
                             <Text style={[Fonts.typography("paperFontSubhead"), styles.dateStyle]}>{displayDate}</Text>
                         ) : (
-                            <View style={{marginLeft: "auto"}} />
+                            <View style={{marginLeft: "auto"}}/>
                         )}
                     </View>
-                    <Icon style={[styles.iconStyle, !_.isEmpty(displayDate) && {color: color}]} name="chevron-right" />
+                    <Icon style={[styles.iconStyle, !_.isEmpty(displayDate) && {color: color}]} name="chevron-right"/>
                 </View>
             </TouchableNativeFeedback>
         );
@@ -111,24 +104,17 @@ class StartProgramView extends AbstractComponent {
         const data = _.zip(types, visits).map(([t, v]) => ({title: t, data: v}));
 
         return (
-            <CHSContainer>
-                <CHSContent>
-                    <AppHeader title={this.I18n.t("chooseVisit")} />
-                    <View>
-                        <SectionList
-                            contentContainerStyle={{
-                                marginRight: Distances.ScaledContentDistanceFromEdge,
-                                marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                marginTop: Distances.ScaledContentDistanceFromEdge
-                            }}
-                            sections={data}
-                            renderSectionHeader={({section: {title}}) => this.renderHeader(title)}
-                            renderItem={data => this.renderItem(data.item.data)}
-                            keyExtractor={(item, index) => index}
-                        />
-                    </View>
-                </CHSContent>
-            </CHSContainer>
+            <SectionList
+                contentContainerStyle={{
+                    marginRight: Distances.ScaledContentDistanceFromEdge,
+                    marginLeft: Distances.ScaledContentDistanceFromEdge,
+                    marginTop: Distances.ScaledContentDistanceFromEdge
+                }}
+                sections={data}
+                renderSectionHeader={({section: {title}}) => this.renderHeader(title)}
+                renderItem={data => this.renderItem(data.item.data)}
+                keyExtractor={(item, index) => index}
+            />
         );
     }
 }

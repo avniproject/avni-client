@@ -25,7 +25,7 @@ import IndividualRegisterFormView from "../individual/IndividualRegisterFormView
 import ProgramEncounterView from "../program/ProgramEncounterView";
 import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
 import ProgramExitView from "../program/ProgramExitView";
-import StartProgramView from "../program/StartProgramView";
+import StartProgramPageView from "../program/StartProgramPageView";
 import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
 
 @Path('/SystemRecommendationView')
@@ -117,7 +117,7 @@ class SystemRecommendationView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
-        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, StartProgramView,
+        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, StartProgramPageView,
             ProgramEnrolmentView];
         return (
             <CHSContainer>

@@ -8,7 +8,7 @@ import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
-import StartProgramView from "../views/program/StartProgramView";
+import StartProgramPageView from "../views/program/StartProgramPageView";
 import LoginView from "../views/LoginView";
 import LandingView from "../views/LandingView";
 import MenuView from "../views/MenuView";
@@ -84,7 +84,7 @@ class CHSNavigator {
     }
 
     static navigateToStartProgramView(source, enrolmentUUID) {
-        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartProgramView);
+        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartProgramPageView);
     }
 
     static goBack(source) {
