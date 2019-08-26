@@ -2,8 +2,8 @@ import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
-import BeneficiaryIdentificationActions from '../action/beneficiarymode/BeneficiaryIdentificationActions';
-import BeneficiaryDashboardActions from '../action/beneficiarymode/BeneficiaryDashboardActions';
+import BeneficiaryIdentificationActions from '../action/beneficiaryMode/BeneficiaryIdentificationActions';
+import BeneficiaryDashboardActions from '../action/beneficiaryMode/BeneficiaryDashboardActions';
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {EncounterActions, IndividualEncounterViewActionsMap} from "../action/individual/EncounterActions";
 import {ProgramEnrolmentsActions, ProgramEnrolmentsActionsMap} from "../action/program/ProgramEnrolmentsActions";

@@ -4,7 +4,7 @@ import AbstractComponent from "../../src/framework/view/AbstractComponent";
 import Path from "../../src/framework/routing/Path";
 import Reducers from '../../src/reducer';
 import General from "../utility/General";
-import Actions from "../action/beneficiarymode/BeneficiaryIdentificationActions";
+import Actions from "../action/beneficiaryMode/BeneficiaryIdentificationActions";
 import CHSContent from "./common/CHSContent";
 import AppHeader from "./common/AppHeader";
 import CHSNavigator from "../utility/CHSNavigator";

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {Text, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
-import Actions from '../../action/beneficiarymode/BeneficiaryDashboardActions';
+import Actions from '../../action/beneficiaryMode/BeneficiaryDashboardActions';
 import Path from "../../framework/routing/Path";
 
 @Path('/BeneficiaryDashboard')

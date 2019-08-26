@@ -40,6 +40,10 @@ class BeneficiaryModePinService extends BaseService {
         return this.isPinGood(pin) && this.findByKey('pin', pin);
     }
 
+    inBeneficiaryMode() {
+        return this.getAll().length > 0;
+    }
+
     resetPin() {
         const db = this.db;
         const schema = this.getSchema();

@@ -4,6 +4,7 @@ import Path, {PathRoot} from "../framework/routing/Path";
 import {View} from "react-native";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
+import BeneficiaryModePinService from "../service/BeneficiaryModePinService";
 
 
 @Path('/rootView')
@@ -22,6 +23,11 @@ class RootView extends AbstractComponent {
      */
     componentWillMount() {
         const authService = this.context.getService(AuthService);
+        const beneficiaryModePinService = this.context.getService(BeneficiaryModePinService);
+        if (beneficiaryModePinService.inBeneficiaryMode()) {
+            CHSNavigator.navigateToBeneficiaryIdentificationPage(this);
+            return;
+        }
         authService.userExists().then(
             (userExists) => userExists ? CHSNavigator.navigateToLandingView(this, true) : CHSNavigator.navigateToLoginView(this, false),
             CHSNavigator.navigateToLandingView(this, true));

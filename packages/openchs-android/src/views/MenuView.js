@@ -7,7 +7,7 @@ import Path from "../framework/routing/Path";
 import TypedTransition from "../framework/routing/TypedTransition";
 import FamilyFolderView from "./familyfolder/FamilyFolderView";
 import VideoListView from "./videos/VideoListView";
-import BeneficiaryModeStartView from "./beneficiarymode/BeneficiaryModeStartView";
+import BeneficiaryModeStartView from "./beneficiaryMode/BeneficiaryModeStartView";
 import CHSNavigator from "../utility/CHSNavigator";
 import General from "../utility/General";
 import CHSContent from "./common/CHSContent";
