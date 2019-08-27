@@ -12,7 +12,7 @@ export default class BeneficiaryDashboardActions {
         const newState = {...state};
         newState.beneficiary = action.beneficiary;
         newState.enrolment = newState.beneficiary.firstActiveOrRecentEnrolment;
-        newState.completedEncounters = _.filter(newState.enrolment.nonVoidedEncounters(),
+        newState.completedEncounters = _.filter(newState.enrolment && newState.enrolment.nonVoidedEncounters(),
                 it => it.encounterDateTime || it.cancelDateTime
         ).map(encounter => ({encounter, expand: false}));
         return newState;
@@ -21,10 +21,9 @@ export default class BeneficiaryDashboardActions {
     @Action()
     static onEncounterToggle(state, action) {
         const newState = {...state};
-        const completedEncounters = _.reject(newState.completedEncounters,
+        newState.completedEncounters = _.reject(newState.completedEncounters,
                 it => it.encounter.uuid === action.encounterInfo.encounter.uuid
         ).concat(action.encounterInfo);
-        newState.completedEncounters = completedEncounters;
         return newState;
     }
 }

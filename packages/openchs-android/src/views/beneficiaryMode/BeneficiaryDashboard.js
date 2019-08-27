@@ -37,7 +37,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
     }
 
     renderCompletedVisits() {
-        return (<PreviousEncounters encounters={this.state.completedEncounters}
+        return (this.state.enrolment && <PreviousEncounters encounters={this.state.completedEncounters}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={5}
                                     showPartial={true}
@@ -48,8 +48,12 @@ export default class BeneficiaryDashboard extends AbstractComponent {
                                     enrolment={this.state.enrolment}/>);
     }
 
-    render() {
+    renderEncountersSection() {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
+        return (enrolmentUUID && <StartEncounterView params={{enrolmentUUID}}/>);
+    }
+
+    render() {
         return <CHSContainer>
             <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.defaultBackground}}>
@@ -61,7 +65,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
                     />
                 </View>
                 <View style={{marginHorizontal: 8}}>
-                    <StartEncounterView params={{enrolmentUUID}}/>
+                    {this.renderEncountersSection()}
                 </View>
                 <View style={{marginHorizontal: 16, marginTop: 12}}>
                     {this.renderCompletedVisits()}
