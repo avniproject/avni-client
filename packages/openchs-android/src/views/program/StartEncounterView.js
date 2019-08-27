@@ -48,7 +48,7 @@ class StartEncounterView extends AbstractComponent {
             : encounter;
         let programEncounter = selectedEncounter.cloneForEdit();
         programEncounter.encounterDateTime = moment().toDate();
-        CHSNavigator.navigateToProgramEncounterView(this, programEncounter);
+        CHSNavigator.navigateToProgramEncounterView(this, programEncounter, undefined, undefined, undefined, undefined, undefined, this.props.params.onSaveCallback);
     }
 
     renderHeader(title) {

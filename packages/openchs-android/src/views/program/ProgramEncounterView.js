@@ -71,10 +71,10 @@ class ProgramEncounterView extends AbstractComponent {
                 const {programEncounter} = state;
                 const {programEnrolment} = programEncounter;
                 const encounterName = programEncounter.name || programEncounter.encounterType.name;
-                const onSaveCallback = (source) => {
+                const onSaveCallback = this.props.params.onSaveCallback || (source => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, programEnrolment.individual.uuid, programEnrolment.uuid, true,
                         this.props.params.backFunction, this.I18n.t('encounterSavedMsg', {encounterName}));
-                };
+                });
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);

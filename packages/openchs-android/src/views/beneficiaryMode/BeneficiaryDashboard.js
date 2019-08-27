@@ -14,6 +14,8 @@ import CHSContainer from "../common/CHSContainer";
 import StartEncounterView from "../program/StartEncounterView";
 import PreviousEncounters from "../common/PreviousEncounters";
 import {Form} from 'openchs-models';
+import CHSNavigator from "../../utility/CHSNavigator";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 
 @Path('/BeneficiaryDashboard')
 export default class BeneficiaryDashboard extends AbstractComponent {
@@ -50,7 +52,9 @@ export default class BeneficiaryDashboard extends AbstractComponent {
 
     renderEncountersSection() {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
-        return (enrolmentUUID && <StartEncounterView params={{enrolmentUUID}}/>);
+        const onSaveCallback = (view: SystemRecommendationView) =>
+            CHSNavigator.navigateToBeneficiaryDashboard(view, this.props);
+        return (enrolmentUUID && <StartEncounterView params={{enrolmentUUID, onSaveCallback}}/>);
     }
 
     render() {

@@ -34,7 +34,7 @@ class StartEncounterPageView extends AbstractComponent {
                     <AppHeader title={this.I18n.t("chooseVisit")}/>
                     <View>
                         <StartEncounterView
-                            params={this.props.params}
+                            params={{enrolmentUUID:this.props.params.enrolmentUUID}}
                         />
                     </View>
                 </CHSContent>

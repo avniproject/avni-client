@@ -63,7 +63,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, StartEncounterPageView, ProgramEnrolmentTabView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
                 TypedTransition.createRoute(ProgramEnrolmentTabView, {
@@ -91,14 +91,15 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message, backFn) {
+    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message, backFn, onSaveCallback) {
         TypedTransition.from(source).with({
             programEncounter: programEncounter,
             editing,
             encounterTypeName,
             enrolmentUUID,
             message,
-            backFunction: backFn
+            backFunction: backFn,
+            onSaveCallback
         }).to(ProgramEncounterView);
     }
 
@@ -345,7 +346,10 @@ class CHSNavigator {
     }
 
     static navigateToBeneficiaryDashboard(source, props) {
-        TypedTransition.from(source).with(props).to(BeneficiaryDashboard, true);
+        TypedTransition.from(source)
+            .resetStack([BeneficiaryDashboard, ProgramEncounterView, SystemRecommendationView], [
+                TypedTransition.createRoute(BeneficiaryDashboard, props, true)
+            ]);
     }
 
     static navigateToBeneficiaryIdentificationPage(source) {
