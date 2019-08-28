@@ -31,6 +31,7 @@ class PreviousEncounters extends AbstractComponent {
         showPartial: PropTypes.bool.isRequired,
         emptyTitle: PropTypes.string,
         title: PropTypes.string,
+        subjectInfo: PropTypes.string,
         expandCollapseView: PropTypes.bool,
         onToggleAction: PropTypes.string,
     };
@@ -138,7 +139,7 @@ class PreviousEncounters extends AbstractComponent {
                 renderTitleAndDetails: (encounter) => this.renderTitleAndDetails(encounter),
                 encounterActions: (encounter) => this.encounterActions(encounter),
                 cancelVisitAction: (encounter) => this.cancelVisitAction(encounter),
-                enrolment: this.props.enrolment
+                subjectInfo: this.props.subjectInfo
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>

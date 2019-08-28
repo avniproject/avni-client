@@ -39,7 +39,7 @@ class FakeDataService extends BaseService {
                 const enrolment = ProgramEnrolment.createEmptyInstance();
                 enrolment.individual = individual;
                 enrolment.program = program;
-                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                let programEncounter = ProgramEncounter.createScheduled(encounterType, enrolment);
                 programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
                 programEncounter.maxVisitDateTime = moment(new Date()).add(2, 'days').toDate();
                 programEncounter.programEnrolment = enrolment;
@@ -78,7 +78,7 @@ class FakeDataService extends BaseService {
                 const enrolment = ProgramEnrolment.createEmptyInstance();
                 enrolment.individual = individual;
                 enrolment.program = program;
-                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                let programEncounter = ProgramEncounter.createScheduled(encounterType, enrolment);
                 programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
                 programEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
                 programEncounter.programEnrolment = enrolment;
@@ -116,7 +116,7 @@ class FakeDataService extends BaseService {
                 enrolment.observations = this.createFakeObs(20);
                 enrolment.individual = individual;
                 enrolment.program = program;
-                let programEncounter = ProgramEncounter.createScheduledProgramEncounter(encounterType, enrolment);
+                let programEncounter = ProgramEncounter.createScheduled(encounterType, enrolment);
                 programEncounter.earliestVisitDateTime = moment(new Date()).subtract(2, 'days').toDate();
                 programEncounter.maxVisitDateTime = moment(new Date()).subtract(1, 'days').toDate();
                 programEncounter.encounterDateTime = new Date();

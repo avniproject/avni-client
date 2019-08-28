@@ -117,17 +117,20 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 
     renderPlannedVisits() {
-        const scheduledEncounters = _.filter(this.state.enrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+        const programEnrolment = this.state.enrolment;
+        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         return (<PreviousEncounters encounters={scheduledEncounters}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={this.state.showCount}
                                     showPartial={false}
                                     title={this.I18n.t('visitsPlanned')}
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                    subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
                                     expandCollapseView={false}/>);
     }
 
     renderCompletedVisits() {
+        const programEnrolment = this.state.enrolment;
         const actualEncounters = this.state.completedEncounters;
         return (<PreviousEncounters encounters={actualEncounters}
                                     formType={Form.formTypes.ProgramEncounter}
@@ -137,7 +140,8 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     emptyTitle={this.I18n.t('noCompletedEncounters')}
                                     expandCollapseView={true}
                                     onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
-                                    enrolment={this.state.enrolment}/>);
+                                    subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
+                                    />);
     }
 
     renderExitObservations() {

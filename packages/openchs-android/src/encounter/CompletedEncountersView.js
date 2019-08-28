@@ -42,7 +42,6 @@ class CompletedEncountersView extends AbstractComponent {
         const encountersToDisplay = encountersInfo.slice(0, 50);
         const chronologicalEncounters = _.orderBy(encountersToDisplay, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(chronologicalEncounters);
-        const programEnrolment = this.props.params.enrolment;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('completedEncounters')}/>
@@ -58,7 +57,7 @@ class CompletedEncountersView extends AbstractComponent {
                         paddingVertical: DGS.resizeHeight(5),
                         paddingLeft: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         paddingRight: DGS.resizeWidth(3)
-                    }}>{programEnrolment && `${programEnrolment.individual.name}, ${programEnrolment.program.operationalProgramName || programEnrolment.program.name}`}</Text>
+                    }}>{this.props.params.subjectInfo}</Text>
                     <SearchResultsHeader totalCount={encountersInfo.length}
                                          displayedCount={encountersToDisplay.length}/>
                 </View>

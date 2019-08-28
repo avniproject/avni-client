@@ -16,9 +16,9 @@ describe("ProgramActions", () => {
         ancEncounterType = new EncounterType("e81c86e8-f744-4730-a3ee-ad0752af380f", "ANC");
         enrolment = ProgramEnrolment.createEmptyInstance();
         enrolment.encounters = [
-            ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment),
-            ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment),
-            ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment)
+            ProgramEncounter.createScheduled(ancEncounterType, enrolment),
+            ProgramEncounter.createScheduled(ancEncounterType, enrolment),
+            ProgramEncounter.createScheduled(ancEncounterType, enrolment)
         ];
 
         serviceData[enrolment.uuid] = enrolment;
@@ -92,7 +92,7 @@ describe("ProgramActions", () => {
 
     describe("Utility functions", () => {
        it("asDisplayDate formats dates in the right display format", () => {
-           const encounter =  ProgramEncounter.createScheduledProgramEncounter(ancEncounterType, enrolment);
+           const encounter =  ProgramEncounter.createScheduled(ancEncounterType, enrolment);
            encounter.name = "ANC 1";
            encounter.earliestVisitDateTime = moment("1995-12-25");
            let i18n = {

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import {View} from 'react-native';
+import {Text, TouchableNativeFeedback, View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import Reducers from "../../reducer";
 import PreviousEncounters from "../common/PreviousEncounters";
@@ -14,7 +14,6 @@ import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ActionSelector from "../common/ActionSelector";
-import {Text, TouchableNativeFeedback} from 'react-native';
 
 @Path('/IndividualGeneralHistoryView')
 class IndividualGeneralHistoryView extends AbstractComponent {
@@ -58,6 +57,33 @@ class IndividualGeneralHistoryView extends AbstractComponent {
         this.dispatchAction(Actions.LAUNCH_ENCOUNTER_SELECTOR);
     }
 
+    renderPlannedVisits() {
+        const scheduledEncounters = _.filter(_.map(this.state.encounters, 'encounter'), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+        return (<PreviousEncounters encounters={scheduledEncounters}
+                                    formType={Form.formTypes.Encounter}
+                                    style={{marginBottom: 21}}
+                                    showPartial={false}
+                                    showCount={this.state.showCount}
+                                    title={this.I18n.t('visitsPlanned')}
+                                    emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                    expandCollapseView={false}
+                                    subjectInfo={this.state.individual.name}/>);
+    }
+
+    renderCompletedVisits() {
+        const actualEncounters = _.filter(this.state.encounters, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime);
+        return (<PreviousEncounters encounters={actualEncounters}
+                                    formType={Form.formTypes.Encounter}
+                                    style={{marginBottom: 21}}
+                                    showPartial={true}
+                                    showCount={this.state.showCount}
+                                    title={this.I18n.t('completedEncounters')}
+                                    emptyTitle={this.I18n.t('noEncounters')}
+                                    expandCollapseView={true}
+                                    subjectInfo={this.state.individual.name}
+                                    onToggleAction={Actions.ON_TOGGLE}/>);
+    }
+
     render() {
         const encounterActions = this.state.encounterTypes.map(encounterType => ({
             fn: () => {
@@ -86,16 +112,8 @@ class IndividualGeneralHistoryView extends AbstractComponent {
                                 this.I18n.t('newGeneralVisit'), Colors.TextOnPrimaryColor)
                         }
                     </View>
-                    <PreviousEncounters encounters={this.state.encounters}
-                                        formType={Form.formTypes.Encounter}
-                                        style={{marginBottom: 21}}
-                                        onShowMore={() => this.dispatchAction(Actions.SHOW_MORE)}
-                                        showPartial={true}
-                                        showCount={this.state.showCount}
-                                        title={this.I18n.t('completedEncounters')}
-                                        emptyTitle={this.I18n.t('noEncounters')}
-                                        expandCollapseView={true}
-                                        onToggleAction={Actions.ON_TOGGLE}/>
+                    {this.renderPlannedVisits()}
+                    {this.renderCompletedVisits()}
                 </View>
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </View>
