@@ -28,7 +28,7 @@ import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
 import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
-import IndividualEncounterService from "./IndividualEncounterService";
+import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
 
 @Service("ruleEvaluationService")
@@ -254,20 +254,18 @@ class RuleEvaluationService extends BaseService {
         const conceptService = this.getService(ConceptService);
         const programEnrolmentService = this.getService(ProgramEnrolmentService);
         const individualService = this.getService(IndividualService);
-        const encounterService = this.getService(IndividualEncounterService);
+        const encounterService = this.getService(EncounterService);
         const programEncounterService = this.getService(ProgramEncounterService);
         const getAllEntitiesOfType = {
             "Individual": () => this.getAll(Individual.schema.name).filtered('voided = null or voided = false'),
-            "Encounter": () => this.getAll(Encounter.schema.name),
-            "ProgramEnrolment": () =>
-                this.getAll(ProgramEnrolment.schema.name).filtered('programExitDateTime!=null'),
+            "Encounter": () => this.getAll(Encounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null'),
+            "ProgramEnrolment": () => this.getAll(ProgramEnrolment.schema.name).filtered('programExitDateTime!=null'),
             "ProgramEncounter": () => this.getAll(ProgramEncounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null')
         };
         const saveEntityOfType = {
-            "Individual": (individual) => individualService.register(individual),
-            "Encounter": (encounter) => encounterService.saveOrUpdate(encounter),
-            "ProgramEnrolment": (enrolment, nextScheduledVisits) =>
-                programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
+            "Individual": (individual, nextScheduledVisits) => individualService.register(individual, nextScheduledVisits),
+            "Encounter": (encounter, nextScheduledVisits) => encounterService.saveOrUpdate(encounter, nextScheduledVisits),
+            "ProgramEnrolment": (enrolment, nextScheduledVisits) => programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
             "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
         rulesToRun.map(([schema, type]) => {

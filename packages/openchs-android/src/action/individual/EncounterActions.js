@@ -1,4 +1,4 @@
-import IndividualEncounterService from "../../service/IndividualEncounterService";
+import EncounterService from "../../service/EncounterService";
 import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
@@ -75,13 +75,13 @@ export class EncounterActions {
     static onToggleShowingPreviousEncounter(state, action, context) {
         const newState = state.clone();
         newState.previousEncountersDisplayed = !newState.previousEncountersDisplayed;
-        newState.previousEncounters = context.get(IndividualEncounterService).getEncounters(state.encounter.individual);
+        newState.previousEncounters = context.get(EncounterService).getEncounters(state.encounter.individual);
         return newState;
     }
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualEncounterService).saveOrUpdate(newState.encounter);
+        context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits);
         action.cb();
         return state;
     }

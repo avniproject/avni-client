@@ -143,7 +143,7 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -153,7 +153,20 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
-        CHSNavigator.navigateToSystemsRecommendationView(source, decisions, ruleValidationErrors, encounter.individual, encounter.observations, action, onSaveCallback, headerMessage, null, null, form, workListState, message);
+        CHSNavigator.navigateToSystemsRecommendationView(source,
+            decisions,
+            ruleValidationErrors,
+            encounter.individual,
+            encounter.observations,
+            action,
+            onSaveCallback,
+            headerMessage,
+            null,
+            nextScheduledVisits,
+            form,
+            workListState,
+            message
+        );
     }
 
     static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message) {

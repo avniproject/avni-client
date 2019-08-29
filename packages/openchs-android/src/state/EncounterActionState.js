@@ -73,6 +73,10 @@ class EncounterActionState extends AbstractDataEntryState {
     getEffectiveDataEntryDate() {
         return this.encounter.encounterDateTime;
     }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, []);
+    }
 }
 
 export default EncounterActionState;

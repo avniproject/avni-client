@@ -9,7 +9,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
 import IndividualService from "./IndividualService";
-import IndividualEncounterService from "./IndividualEncounterService";
+import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import * as mime from 'react-native-mime-types';
@@ -95,7 +95,7 @@ class MediaQueueService extends BaseService {
             case Individual.schema.name:
                 return this.getService(IndividualService).register(entity);
             case Encounter.schema.name:
-                this.getService(IndividualEncounterService).saveOrUpdate(entity);
+                this.getService(EncounterService).saveOrUpdate(entity);
                 break;
             case ProgramEncounter.schema.name:
                 this.getService(ProgramEncounterService).saveOrUpdate(entity);

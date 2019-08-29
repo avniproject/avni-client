@@ -11,8 +11,8 @@ import IndividualService from "../../../../src/service/IndividualService";
 import FormMappingService from "../../../../src/service/FormMappingService";
 import ProgramEnrolmentService from "../../../../src/service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../../../src/service/RuleEvaluationService";
-import IndividualEncounterService from "../../../../src/service/IndividualEncounterService";
-import StubbedIndividualEncounterService from "../../service/stub/StubbedIndividualEncounterService";
+import EncounterService from "../../../../src/service/EncounterService";
+import StubbedEncounterService from "../../service/stub/StubbedEncounterService";
 import EntityService from "../../../../src/service/EntityService";
 import StubbedEntityService from "../../service/stub/StubbedEntityService";
 import SettingsService from "../../../../src/service/SettingsService";
@@ -32,7 +32,7 @@ class TestContext {
         [FormMappingService, (serviceData) => new StubbedFormMappingService(serviceData)],
         [ProgramEnrolmentService, (serviceData) => new StubbedProgramEnrolmentService(serviceData)],
         [RuleEvaluationService, (serviceData) => new StubbedRuleEvaluationService(serviceData)],
-        [IndividualEncounterService, (serviceData) => new StubbedIndividualEncounterService(serviceData)],
+        [EncounterService, (serviceData) => new StubbedEncounterService(serviceData)],
         [EntityService, (serviceData) => new StubbedEntityService(serviceData)],
         [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)],
         [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)],

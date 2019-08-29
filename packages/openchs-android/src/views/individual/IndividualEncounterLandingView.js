@@ -55,11 +55,22 @@ class IndividualEncounterLandingView extends AbstractComponent {
             movedNext: () => {
                 TypedTransition.from(this).to(IndividualEncounterView);
             },
-            completed: (newState, encounterDecisions, ruleValidationErrors) => {
+            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);
-                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, this.state.encounter, Actions.SAVE, headerMessage, form, newState.workListState, this.I18n.t('encounterSavedMsg', {encounterName:this.state.encounter.encounterType.name}));
+                const message = this.I18n.t('encounterSavedMsg', {encounterName:this.state.encounter.encounterType.name});
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this,
+                    encounterDecisions,
+                    ruleValidationErrors,
+                    this.state.encounter,
+                    Actions.SAVE,
+                    headerMessage,
+                    form,
+                    newState.workListState,
+                    message,
+                    nextScheduledVisits
+                );
             }
         });
     }

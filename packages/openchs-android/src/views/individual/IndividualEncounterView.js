@@ -1,16 +1,14 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import PropTypes from 'prop-types';
 import React from "react";
 import {View} from "react-native";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import FormElementGroup from "../form/FormElementGroup";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, Form} from 'openchs-models';
+import {Form, ObservationsHolder} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
@@ -40,11 +38,22 @@ class IndividualEncounterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (newState, encounterDecisions, ruleValidationErrors) => {
+            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const headerMessage = `${this.I18n.t(newState.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(newState.encounter.encounterType, Form.formTypes.Encounter, newState.encounter.individual.subjectType);
-                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this, encounterDecisions, ruleValidationErrors, newState.encounter, Actions.SAVE, headerMessage, form,newState.workListState, this.I18n.t('encounterSavedMsg', {encounterName: newState.encounter.encounterType.displayName}));
+                const message = this.I18n.t('encounterSavedMsg', {encounterName: newState.encounter.encounterType.displayName});
+                CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this,
+                    encounterDecisions,
+                    ruleValidationErrors,
+                    newState.encounter,
+                    Actions.SAVE,
+                    headerMessage,
+                    form,
+                    newState.workListState,
+                    message,
+                    nextScheduledVisits
+                );
             },
             movedNext: this.scrollToTop,
             validationFailed: (newState) => {

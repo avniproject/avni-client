@@ -2,7 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
-import {EntityQueue, Individual, EncounterType,Encounter} from 'openchs-models';
+import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder} from 'openchs-models';
 import _ from 'lodash';
 import MediaQueueService from "./MediaQueueService";
 
@@ -10,6 +10,15 @@ import MediaQueueService from "./MediaQueueService";
 class EncounterService extends BaseService {
     constructor(db, context) {
         super(db, context);
+    }
+
+    getSchema() {
+        return Encounter.schema.name;
+    }
+
+    getEncounters(individual) {
+        const db = this.db;
+        return this.db.objects(Encounter.schema.name).filtered(`individual.uuid="${individual.uuid}"`);
     }
 
     isEncounterTypeCancellable(encounter) {
@@ -23,7 +32,7 @@ class EncounterService extends BaseService {
             encounter.encounterType,
             encounter.programEnrolment.program,
             encounter.subjectType
-            );
+        );
         if (_.isNil(form)) {
             General.logDebug('EncounterService.isEncounterTypeCancellable', `No form associated with ET=${encounter.encounterType.uuid} and Program=${encounter.programEnrolment.program.uuid}`);
             return false;
@@ -57,6 +66,19 @@ class EncounterService extends BaseService {
         return nextScheduledVisits.map(nSV => {
             return this.saveScheduledVisit(individual, nSV, db, schedulerDate);
         });
+    }
+
+    saveOrUpdate(encounter, nextScheduledVisits = []) {
+        General.logDebug('EncounterService', `New Encounter UUID: ${encounter.uuid}`);
+        ObservationsHolder.convertObsForSave(encounter.observations);
+        ObservationsHolder.convertObsForSave(encounter.cancelObservations);
+
+        const db = this.db;
+        this.db.write(() => {
+            this._saveEncounter(encounter, db);
+            this.saveScheduledVisits(encounter.individual, nextScheduledVisits, db, encounter.encounterDateTime);
+        });
+        return encounter;
     }
 }
 
