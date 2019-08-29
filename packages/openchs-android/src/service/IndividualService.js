@@ -9,6 +9,7 @@ import FormMappingService from "./FormMappingService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import General from "../utility/General";
 import Colors from "../views/primitives/Colors";
+import EncounterService from "./EncounterService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -28,6 +29,10 @@ class IndividualService extends BaseService {
         return Individual.schema.name;
     }
 
+    init() {
+        this.encounterService = this.getService(EncounterService);
+    }
+
     search(criteria) {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults;
@@ -45,15 +50,16 @@ class IndividualService extends BaseService {
         return {results: searchResults.slice(0, 50), count: searchResults.length};
     }
 
-    register(individual) {
+    register(individual, nextScheduledVisits) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(individual.subjectType);
         this.db.write(() => {
-            db.create(Individual.schema.name, individual, true);
+            const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);
+            this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
         });
     }
 

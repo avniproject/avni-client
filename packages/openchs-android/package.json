@@ -31,7 +31,7 @@
     "moment": "2.19.3",
     "native-base": "2.12.1",
     "openchs-health-modules": "0.0.2",
-    "openchs-models": "0.0.28",
+    "openchs-models": "0.0.29",
     "prop-types": "15.7.2",
     "react": "16.8.3",
     "react-native": "0.59.5",

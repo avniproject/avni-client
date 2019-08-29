@@ -131,7 +131,7 @@ export class IndividualRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualService).register(newState.individual);
+        context.get(IndividualService).register(newState.individual, action.nextScheduledVisits);
         action.cb();
         return newState;
     }

@@ -90,6 +90,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     getEffectiveDataEntryDate() {
         return this.individual.registrationDate;
     }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
+    }
 }
 
 export default IndividualRegistrationState;

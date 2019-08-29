@@ -17,7 +17,7 @@ class Mixin {
                 });
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, null, null, state.workListState);
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, nextScheduledVisits, null, state.workListState);
             },
             movedNext: (state) => {
                 if (state.wizard.isFirstFormPage())
