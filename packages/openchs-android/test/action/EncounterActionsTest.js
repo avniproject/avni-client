@@ -1,13 +1,24 @@
 import {expect} from "chai";
 import {EncounterActions} from "../../src/action/individual/EncounterActions";
 import ObservationsHolderActions from "../../src/action/common/ObservationsHolderActions";
-import {WorkItem, WorkLists, WorkList, Encounter, Observation, Individual, FormElement, Concept, ConceptAnswer, PrimitiveValue} from 'openchs-models';
+import {
+    Concept,
+    ConceptAnswer,
+    Encounter,
+    EncounterType,
+    FormElement,
+    Individual,
+    Observation,
+    PrimitiveValue,
+    WorkItem,
+    WorkList,
+    WorkLists
+} from 'openchs-models';
 import EntityFactory from "../EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";
 import WizardNextActionStub from './WizardNextActionStub';
 import TestContext from "./views/testframework/TestContext";
-import General from "../../src/utility/General";
 import WorkListState from "../../src/state/WorkListState";
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
@@ -34,10 +45,11 @@ let createIntialState = function (dataType, firstFormElementMandatory, secondFor
     state.getNextScheduledVisits = () => ({});
     state.encounter.individual = Individual.createEmptyInstance();
     state.encounter.encounterDateTime = new Date();
-    state.workListState = new WorkListState(new WorkLists(new WorkList('Test', [ new WorkItem('100', WorkItem.type.ENCOUNTER, {
+    state.encounter.encounterType = EncounterType.create('ZeeType');
+    state.workListState = new WorkListState(new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
         subjectUUID: state.encounter.individual.uuid,
-        encounter: state.encounter,
-    })])), ()=> ({}));
+        encounterType: state.encounter.encounterType.name,
+    })])), () => ({}));
     return {state, formElement, formElement2};
 };
 

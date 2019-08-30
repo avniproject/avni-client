@@ -23,7 +23,7 @@ describe('AbstractDataEntryStateTest', () => {
 
         const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
             subjectUUID:'100100100',
-            encounter:{},
+            encounterType:'Foo',
         })]));
 
         var dataEntryState = new StubbedDataEntryState([ValidationResult.failureForEmpty('h')], formElementGroup, new Wizard(1, 1), [], workLists);
@@ -51,7 +51,7 @@ describe('AbstractDataEntryStateTest', () => {
 
         const workLists = new WorkLists(new WorkList('Test', [new WorkItem('100', WorkItem.type.ENCOUNTER, {
             subjectUUID:'100100100',
-            encounter:{},
+            encounterType: 'Zoo',
         })]));
 
         var dataEntryState = new StubbedDataEntryState([], formElementGroup, new Wizard(1, 1), [], workLists);
