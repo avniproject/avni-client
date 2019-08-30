@@ -3,39 +3,54 @@ import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter, Form, Point} from 'openchs-models';
+import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'openchs-models';
 import GeolocationActions from "../common/GeolocationActions";
-import {WorkLists, WorkList, WorkItem} from "openchs-models";
 import General from "../../utility/General";
+import EntityService from "../../service/EntityService";
 
 export class EncounterActions {
     static getInitialState(context) {
         return {};
     }
 
-    static onEncounterLandingViewLoad(state, action, context) {
-        if (!action.encounter.encounterType) return state;
+    static filterFormElements(formElementGroup, context, encounter) {
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounter, Encounter.schema.name, formElementGroup);
+        return formElementGroup.filterElements(formElementStatuses);
+    };
 
-        let encounter = action.encounter;
-        const isNewEncounter = _.isNil(encounter);
-        if (isNewEncounter) {
-            encounter = action.encounter;
-            encounter.individual = context.get(IndividualService).findByUUID(action.individualUUID);
+    static onEncounterLandingViewLoad(state, action, context) {
+        const formMapping = context.get(FormMappingService)
+            .allFormMappings()
+            .forEncounterType(action.encounter.encounterType)
+            .forFormType(Form.formTypes.Encounter)
+            .forSubjectType(action.encounter.individual.subjectType)
+            .bestMatch();
+
+        const form = formMapping && formMapping.form;
+
+        if (_.isNil(form)) {
+            throw new Error(`No form setup for EncounterType: ${action.encounter.encounterType.name}`);
         }
 
-        const form = context.get(FormMappingService)
-            .findFormForEncounterType(encounter.encounterType, Form.formTypes.Encounter, encounter.individual.subjectType);
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, form.firstFormElementGroup);
-        let filteredElements = form.firstFormElementGroup.filterElements(formElementStatuses);
-        const workLists = new WorkLists(new WorkList('Encounter', [new WorkItem(
-            General.randomUUID(),
-            WorkItem.type.ENCOUNTER,
-            {encounter, subjectUUID: encounter.individual.uuid})
-        ]));
+        const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+            return o.displayOrder
+        }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
 
-        let encounterActionState = EncounterActionState.createOnLoadState(form, encounter, isNewEncounter, filteredElements, workLists);
-        encounterActionState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
-        return encounterActionState;
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
+            throw new Error("No form element group with visible form element");
+        }
+
+        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.encounter.uuid, Encounter.schema.name));
+        const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
+            General.randomUUID(), WorkItem.type.ENCOUNTER, {
+                encounterType: action.encounter.encounterType.name,
+                subjectUUID: action.encounter.individual.uuid
+            }
+        )]));
+
+        return EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
     }
 
     static onNext(state, action, context) {

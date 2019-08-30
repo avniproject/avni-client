@@ -58,6 +58,9 @@ export default class WorkListState {
             case WorkItem.type.PROGRAM_ENCOUNTER: {
                 return this.labelOrDefault(nextWorkItem, 'proceedEncounter', i18n);
             }
+            case WorkItem.type.ENCOUNTER: {
+                return this.labelOrDefault(nextWorkItem, 'proceedEncounter', i18n);
+            }
         }
     }
 }

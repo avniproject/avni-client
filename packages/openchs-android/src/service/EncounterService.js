@@ -80,6 +80,12 @@ class EncounterService extends BaseService {
         });
         return encounter;
     }
+
+    findDueEncounter({encounterTypeUUID, individualUUID, encounterTypeName}) {
+        return this.filtered('encounterType.name == $0 OR encounterType.uuid == $1', encounterTypeName, encounterTypeUUID)
+            .filtered('individual.uuid == $0', individualUUID)
+            .filtered('encounterDateTime == null AND cancelDateTime == null')[0];
+    }
 }
 
 export default EncounterService;

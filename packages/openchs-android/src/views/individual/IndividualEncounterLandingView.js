@@ -23,6 +23,7 @@ import CHSContainer from "../common/CHSContainer";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import EncounterService from "../../service/EncounterService";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -40,7 +41,16 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, this.props);
+        const {encounterType, individualUUID, encounter, workLists} = this.props;
+        if (encounter) {
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists});
+            return super.componentWillMount();
+        }
+        const encounterByType = this.context.getService(EncounterService)
+            .findDueEncounter({encounterTypeName: encounterType, individualUUID})
+            .cloneForEdit();
+        encounterByType.encounterDateTime = moment().toDate();
+        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType});
         return super.componentWillMount();
     }
 

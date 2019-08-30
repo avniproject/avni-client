@@ -173,11 +173,8 @@ class AbstractDataEntryState {
                         return programEnrolmentUUID === parameters.programEnrolmentUUID && encounterType === parameters.encounterType;
                     });
             if (sameVisitTypeExists) return;
-            workLists.currentWorkList.addWorkItems(
-                new WorkItem(
-                    General.randomUUID(),
-                    WorkItem.type.PROGRAM_ENCOUNTER,
-                    parameters));
+            const workItemType = WorkItem.type[parameters.programEnrolmentUUID? 'PROGRAM_ENCOUNTER' : 'ENCOUNTER'];
+            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), workItemType, parameters));
         });
         return workLists;
     }

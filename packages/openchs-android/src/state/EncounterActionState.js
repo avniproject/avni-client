@@ -5,10 +5,11 @@ import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists) {
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
+        this.messageDisplayed = messageDisplayed;
     }
 
     getEntity() {
@@ -23,6 +24,7 @@ class EncounterActionState extends AbstractDataEntryState {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
         newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
+        newState.messageDisplayed = this.messageDisplayed;
         if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;
         }
@@ -44,8 +46,10 @@ class EncounterActionState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static createOnLoadState(form, encounter, isNewEncounter, filteredFormElements, workLists) {
-        return new EncounterActionState([], form.firstFormElementGroup, new Wizard(form.numberOfPages, 1), isNewEncounter, encounter, filteredFormElements, workLists);
+    static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
+        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
+        state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
+        return state;
     }
 
     validateEntityAgainstRule(ruleService) {

@@ -1,4 +1,5 @@
 // @flow
+import {Encounter} from 'openchs-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -36,6 +37,7 @@ import ProgramEncounterService from "../service/program/ProgramEncounterService"
 import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
 import BeneficiaryDashboard from "../views/beneficiaryMode/BeneficiaryDashboard";
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
+import EncounterService from "../service/EncounterService";
 
 
 class CHSNavigator {
@@ -339,6 +341,43 @@ class CHSNavigator {
                                 programEncounter,
                                 tab: 2
                             }
+                        }, true)
+                    ]);
+                break;
+            }
+            case WorkItem.type.ENCOUNTER: {
+                let encounter;
+                if (_.isEmpty(nextWorkItem.parameters.uuid)) {
+                    const {subjectUUID, encounterType} = nextWorkItem.parameters;
+                    const subject = context.getService(ProgramEnrolmentService).findByUUID(subjectUUID);
+                    const encounterService = context.getService(EncounterService);
+                    //Use a due encounter if available
+                    const dueEncounter = encounterService.findDueEncounter({
+                        individualUUID: subjectUUID,
+                        encounterTypeName: encounterType
+                    });
+                    if (dueEncounter) {
+                        encounter = dueEncounter.cloneForEdit();
+                        encounter.encounterDateTime = new Date();
+                    } else {
+                        encounter = Encounter.createEmptyInstance();
+                        encounter.encounterType = context.getService(EntityService).findByKey('name', encounterType, EncounterType.schema.name);
+                        encounter.individual = subject;
+                    }
+                } else {
+                    encounter = context.getService(EncounterService).findByUUID(nextWorkItem.parameters.uuid).cloneForEdit();
+                    encounter.encounterDateTime = encounter.encounterDateTime || new Date();
+                }
+                TypedTransition.from(recommendationsView)
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(IndividualEncounterLandingView, {
+                                individualUUID: nextWorkItem.parameters.subjectUUID,
+                                encounterType: nextWorkItem.parameters.encounterType,
+                                workLists: workListState.workLists,
+                                message: message,
+                                encounter,
+                                tab: 2
                         }, true)
                     ]);
                 break;
