@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntitySyncStatus, SyncTelemetry} from 'openchs-models';
+import {EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -108,7 +108,8 @@ class SyncService extends BaseService {
 
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
-            .then(() => progressBarStatus.onSyncComplete());
+            .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
+            .then(() => this.clearDataIn([RuleFailureTelemetry]));
 
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required

@@ -153,15 +153,24 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
+    failedRuleExistsInDB(ruleUUID, errorMessage, individualUUID) {
+        return this.findAllByCriteria(
+            `ruleUuid="${ruleUUID}" AND errorMessage="${errorMessage}" AND individualUuid="${individualUUID}"`,
+            RuleFailureTelemetry.schema.name)
+            .length > 0;
+    }
+
     saveFailedRules(error, ruleUUID, individualUUID) {
-        const entityService = this.getService(EntityService);
-        let ruleFailureTelemetry = RuleFailureTelemetry.create({
-            errorMessage: error.message,
-            stacktrace: error.stack,
-            ruleUUID: ruleUUID,
-            individualUUID: individualUUID,
-        });
-        entityService.saveAndPushToEntityQueue(ruleFailureTelemetry, RuleFailureTelemetry.schema.name);
+        if (!this.failedRuleExistsInDB(ruleUUID, error.message, individualUUID)) {
+            const entityService = this.getService(EntityService);
+            let ruleFailureTelemetry = RuleFailureTelemetry.create({
+                errorMessage: error.message,
+                stacktrace: error.stack,
+                ruleUUID: ruleUUID,
+                individualUUID: individualUUID,
+            });
+            entityService.saveAndPushToEntityQueue(ruleFailureTelemetry, RuleFailureTelemetry.schema.name);
+        }
     }
 
     //check if summary name is present in concepts
@@ -169,8 +178,17 @@ class RuleEvaluationService extends BaseService {
         return s.filter(obj => this.checkConceptForRule(obj.name, ruleUUID, individualUUID))
     }
 
+    getEnrolmentSummaryFromCore(entityName, enrolment, context) {
+        try {
+            return this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
+        } catch (error) {
+            this.saveFailedRules(error, '', this.getIndividualUUID(enrolment, entityName));
+            return [];
+        }
+    }
+
     getEnrolmentSummary(enrolment, entityName = 'ProgramEnrolment', context) {
-        const summaries = this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
+        const summaries = this.getEnrolmentSummaryFromCore(entityName, enrolment, context);
         const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", "Program")
             .reduce((summaries, rule) => {
                 const s = this.runRuleAndSaveFailure(rule, entityName, enrolment, summaries, new Date(), context);
