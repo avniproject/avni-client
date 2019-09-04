@@ -88,6 +88,10 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     getEffectiveDataEntryDate() {
         return this.subject.registrationDate;
     }
+
+    getNextScheduledVisits(ruleService, context) {
+        return ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, []);
+    }
 }
 
 export default SubjectRegistrationState;

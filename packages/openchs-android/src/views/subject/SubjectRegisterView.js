@@ -77,7 +77,7 @@ class SubjectRegisterView extends AbstractComponent {
 
     next() {
         this.dispatchAction(Actions.NEXT, {
-            completed: (state, decisions, ruleValidationErrors) => {
+            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const observations = state.subject.observations;
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true, null, this.I18n.t('registrationSavedMsg'));
@@ -85,7 +85,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null,null,null, state.workListState);
+                    null, nextScheduledVisits, null, state.workListState);
             },
             movedNext: this.scrollToTop
         });
