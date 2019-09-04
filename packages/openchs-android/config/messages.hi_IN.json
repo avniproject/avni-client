@@ -263,5 +263,8 @@
   "editSettings": "सेटिंग्स बदलें",
   "entitySyncStatus": "सिंक स्थिति",
   "noCompletedEncounters": "कोई पूर्ण विज़िट नहीं",
-  "noPlannedEncounters": "कोई नियोजित विज़िट नहीं"
+  "noPlannedEncounters": "कोई नियोजित विज़िट नहीं",
+  "asOnDate": "As on date",
+  "filter": "FILTER"
+
 }

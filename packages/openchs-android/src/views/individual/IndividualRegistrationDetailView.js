@@ -98,7 +98,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             <View style={{marginTop: 20}}>
                 <View style={{paddingLeft: 10}}>
                     <ObservationsSectionTitle contextActions={this.getRelativeActions()}
-                                              title={'Relatives'}
+                                              title={this.I18n.t('Relatives')}
                                               titleStyle={Styles.cardTitle}/>
                 </View>
                 <Relatives relatives={this.state.relatives}

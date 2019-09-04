@@ -68,7 +68,7 @@ class IndividualAddRelativeView extends AbstractComponent {
                 inPairs={true}
                 onPress={({label, value}) => this.toggleRelation(value)}
                 selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
-                labelKey='Relation'
+                labelKey={this.I18n.t('Relation')}
                 mandatory={true}
                 labelValuePairs={valueLabelPairs}
                 validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}

@@ -269,5 +269,9 @@
   "noRelativeAdded": "No Relative Added",
   "profile": "Profile",
   "programs": "Programs",
-  "general": "General"
+  "general": "General",
+  "asOnDate": "As on date",
+  "filter": "FILTER",
+  "Relatives": "Relatives",
+  "Relation": "Relation"
 }
