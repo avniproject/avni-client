@@ -259,5 +259,7 @@
   "entitySyncStatus": "સિંક સ્થિતિ",
   "noCompletedEncounters": "કોઈ પૂર્ણ મુલાકાતો નથી",
   "noPlannedEncounters": "કોઈ આયોજન મુલાકાત નથી",
-  "beneficiaryMode": "Beneficiary Mode"
+  "beneficiaryMode": "Beneficiary Mode",
+  "asOnDate": "As on date",
+  "filter": "FILTER"
 }

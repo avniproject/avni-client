@@ -55,7 +55,7 @@ class ChecklistItemDisplay extends AbstractComponent {
                     <Text style={{fontSize: Fonts.Normal}}
                           onPress={this.completeChecklistItem(this.props.checklistItem)}>{this.I18n.t(this.props.checklistItem.detail.concept.name)}</Text>
                     <Text style={{fontSize: Fonts.Normal}}
-                          onPress={this.completeChecklistItem(this.props.checklistItem)}>{_.startCase(statusText)}</Text>
+                          onPress={this.completeChecklistItem(this.props.checklistItem)}>{this.I18n.t(_.startCase(statusText))}</Text>
                     <Text style={{fontSize: Fonts.Normal}}
                           onPress={this.completeChecklistItem(this.props.checklistItem)}>{maxDateText}</Text>
                 </View>

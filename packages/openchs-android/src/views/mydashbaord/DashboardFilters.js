@@ -53,7 +53,7 @@ export default class DashboardFilters extends AbstractComponent {
                 <View style={DashboardFilters.styles.itemContent}>
                     <View style={DashboardFilters.styles.buttons}>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>As on date
+                            <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>{this.I18n.t("asOnDate")}
                                 : {this.dateDisplay(this.props.date.value)}</Text>
                             <TouchableOpacity
                                 onPress={this.showPicker.bind(this, 'simple', {
@@ -74,7 +74,7 @@ export default class DashboardFilters extends AbstractComponent {
                                 borderRadius: 3
                             }}
                             onPress={this.props.onPress}>
-                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: Styles.normalTextSize}}>FILTER</Text>
+                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: Styles.normalTextSize}}>{this.I18n.t("filter")}</Text>
                         </TouchableOpacity>
                     </View>
                     <AppliedFilters filters={this.props.filters}

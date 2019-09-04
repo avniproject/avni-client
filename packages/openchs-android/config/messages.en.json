@@ -272,4 +272,8 @@
   "general": "General",
   "beneficiaryMode": "Beneficiary Mode",
   "invalidLogoutAttempt": "Incorrect PIN ({{attempts}} out of 3)"
+  "asOnDate": "As on date",
+  "filter": "FILTER",
+  "Relatives": "Relatives",
+  "Relation": "Relation"
 }

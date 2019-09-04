@@ -12,7 +12,7 @@ import Distances from "../primitives/Distances";
 import ChecklistItemDisplay from "./ChecklistItemDisplay";
 
 
-export default ({data, onSave}) => (
+export default (props) => (
     <View style={{
         marginHorizontal: DGS.resizeWidth(Distances.ContentDistanceFromEdge),
         backgroundColor: Styles.whiteColor,
@@ -21,12 +21,12 @@ export default ({data, onSave}) => (
         flexWrap: "nowrap",
         paddingHorizontal: DGS.resizeWidth(13)
     }}>
-        <Text style={{fontSize: Fonts.Large}}>{data.name}</Text>
-        {Object.entries(data.groupedItems).map(([state, items], idx) =>
+        <Text style={{fontSize: Fonts.Large}}>{props.data.name}</Text>
+        {Object.entries(props.data.groupedItems).map(([state, items], idx) =>
             <View key={idx}
                   style={{marginTop: DGS.resizeHeight(10)}}>
                 <Text
-                    style={{fontSize: Fonts.Medium}}>{_.startCase(state)}</Text>
+                    style={{fontSize: Fonts.Medium}}>{props.i18n.t(_.startCase(state))}</Text>
                 <View style={{
                     flexDirection: 'row',
                     flexWrap: 'wrap',

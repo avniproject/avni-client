@@ -69,7 +69,7 @@ class ChecklistView extends AbstractComponent {
     render() {
         General.logDebug('ChecklistView', this.props.enrolmentUUID);
         const checklists = this.state.checklists.map((checklist, idx) => <ChecklistDisplay key={idx}
-                                                                                           data={checklist}/>);
+                                                                                           data={checklist} i18n={this.I18n}/>);
         return (
             <CHSContainer  style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
