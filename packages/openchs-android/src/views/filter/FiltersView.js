@@ -184,12 +184,12 @@ class FilterView extends AbstractComponent {
 
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
-                <AppHeader title={this.I18n.t('Filter')} func={this.props.onBack}/>
+                <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
                         <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
                             <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
-                                <Text style={{fontSize: 15, color: Styles.greyText}}>Date</Text>
+                                <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("date")}</Text>
                                 <DatePicker
                                     nonRemovable={true}
                                     actionName={FilterActionNames.ON_DATE}

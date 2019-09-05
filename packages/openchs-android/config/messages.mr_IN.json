@@ -307,5 +307,9 @@
   "plannedVisits": "नियोजित भेट",
   "visitsCompleted": "दिलेल्या भेटी",
   "unplannedVisit": "अनियोजित भेट",
-  "registeredOn" : "नोंदणीची तारीख: "
+  "registeredOn" : "नोंदणीची तारीख: ",
+  "home": "होम",
+  "Program": "कार्यक्रम",
+  "Choose type":"पर्याय निवडा",
+  "cancelVisit": "रद्द"
 }
