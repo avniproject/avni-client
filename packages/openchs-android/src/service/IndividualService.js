@@ -1,6 +1,14 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {EntityQueue, ObservationsHolder, Program, ProgramEncounter, ProgramEnrolment, Individual} from "openchs-models";
+import {
+    Encounter,
+    EntityQueue,
+    Individual,
+    ObservationsHolder,
+    Program,
+    ProgramEncounter,
+    ProgramEnrolment
+} from "openchs-models";
 import _ from 'lodash';
 import moment from 'moment';
 import MediaQueueService from "./MediaQueueService";
@@ -106,10 +114,10 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    allScheduledVisitsIn(date, queryAdditions) {
+    allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
-        return [...this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
@@ -120,7 +128,7 @@ class IndividualService extends BaseService {
                 'AND voided = false ',
                 dateMidnight,
                 dateMorning)
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
@@ -131,7 +139,7 @@ class IndividualService extends BaseService {
                     visitInfo: {
                         uuid: individual.uuid,
                         visitName: [{
-                            visit: [programName , visitName , General.formatDate(earliestVisitDateTime)],
+                            visit: [programName, visitName, General.formatDate(earliestVisitDateTime)],
                             encounter: enc,
                             color: Colors.AccentColor,
                         }],
@@ -139,10 +147,41 @@ class IndividualService extends BaseService {
                         sortingBy: earliestVisitDateTime
                     }
                 };
-            })
-            .reduce(this._uniqIndividualWithVisitName, new Map())
-            .values()]
-            .map(_.identity);
+            });
+        const encounters = this.db.objects(Encounter.schema.name)
+            .filtered('earliestVisitDateTime <= $0 ' +
+                'AND maxVisitDateTime >= $1 ' +
+                'AND encounterDateTime = null ' +
+                'AND cancelDateTime = null ' +
+                'AND individual.voided = false ' +
+                'AND voided = false ',
+                dateMidnight,
+                dateMorning)
+            .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
+            .map((enc) => {
+                const individual = enc.individual;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const earliestVisitDateTime = enc.earliestVisitDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [{
+                            visit: [visitName, General.formatDate(earliestVisitDateTime)],
+                            encounter: enc,
+                            color: Colors.AccentColor,
+                        }],
+                        groupingBy: General.formatDate(earliestVisitDateTime),
+                        sortingBy: earliestVisitDateTime
+                    }
+                };
+            });
+        const allEncounters = [...
+            [...programEncounters, ...encounters]
+                .reduce(this._uniqIndividualWithVisitName, new Map())
+                .values()
+        ];
+        return allEncounters;
     }
 
     allScheduledVisitsCount() {
@@ -173,9 +212,9 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(date, queryAdditions) {
+    allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria) {
         const dateMorning = moment(date).startOf('day').toDate();
-        return [...this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
@@ -184,18 +223,18 @@ class IndividualService extends BaseService {
                 'AND programEnrolment.individual.voided = false ' +
                 'AND voided = false ',
                 dateMorning)
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
-                const programName =  enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
+                const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,
                     visitInfo: {
                         uuid: individual.uuid,
                         visitName: [{
-                            visit: [programName , visitName , General.formatDate(maxVisitDateTime)],
+                            visit: [programName, visitName, General.formatDate(maxVisitDateTime)],
                             encounter: enc,
                             color: '#d0011b',
                         }],
@@ -203,10 +242,39 @@ class IndividualService extends BaseService {
                         sortingBy: maxVisitDateTime
                     }
                 };
-            })
-            .reduce(this._uniqIndividualWithVisitName, new Map())
-            .values()]
-            .map(_.identity);
+            });
+        const encounters = this.db.objects(Encounter.schema.name)
+            .filtered('maxVisitDateTime < $0 ' +
+                'AND cancelDateTime = null ' +
+                'AND encounterDateTime = null ' +
+                'AND individual.voided = false ' +
+                'AND voided = false ',
+                dateMorning)
+            .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
+            .map((enc) => {
+                const individual = enc.individual;
+                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const maxVisitDateTime = enc.maxVisitDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [{
+                            visit: [visitName, General.formatDate(maxVisitDateTime)],
+                            encounter: enc,
+                            color: '#d0011b',
+                        }],
+                        groupingBy: General.formatDate(maxVisitDateTime),
+                        sortingBy: maxVisitDateTime
+                    }
+                };
+            });
+        const allEncounters = [...
+            [...programEncounters, ...encounters]
+                .reduce(this._uniqIndividualWithVisitName, new Map())
+                .values()
+        ];
+        return allEncounters;
     }
 
     overdueVisits(program, addressLevel, encounterType) {
@@ -248,10 +316,10 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyCompletedVisitsIn(date, queryAdditions) {
+    recentlyCompletedVisitsIn(date, programEncounterCriteria, encounterCriteria) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
-        return [...this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('voided = false ' +
                 'AND programEnrolment.voided = false ' +
                 'AND programEnrolment.individual.voided = false ' +
@@ -259,7 +327,7 @@ class IndividualService extends BaseService {
                 'AND encounterDateTime >= $1 ',
                 tillDate,
                 fromDate)
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const encounterDateTime = enc.encounterDateTime;
@@ -272,7 +340,29 @@ class IndividualService extends BaseService {
                         sortingBy: encounterDateTime
                     }
                 };
-            })
+            });
+        const encounters = this.db.objects(Encounter.schema.name)
+            .filtered('voided = false ' +
+                'AND individual.voided = false ' +
+                'AND encounterDateTime <= $0 ' +
+                'AND encounterDateTime >= $1 ',
+                tillDate,
+                fromDate)
+            .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
+            .map((enc) => {
+                const individual = enc.individual;
+                const encounterDateTime = enc.encounterDateTime;
+                return {
+                    individual,
+                    visitInfo: {
+                        uuid: individual.uuid,
+                        visitName: [],
+                        groupingBy: General.formatDate(encounterDateTime),
+                        sortingBy: encounterDateTime
+                    }
+                };
+            });
+        return [...[...programEncounters,...encounters]
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
@@ -363,7 +453,7 @@ class IndividualService extends BaseService {
         return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
             .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
             .map((enrolment) => {
-                return _.assignIn({},enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
+                return _.assignIn({}, enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
             });
     }
 

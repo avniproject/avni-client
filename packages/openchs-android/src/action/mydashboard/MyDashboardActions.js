@@ -17,6 +17,7 @@ class MyDashboardActions {
             locationSearchCriteria: IndividualSearchCriteria.empty(),
             individualFilters: [],
             encountersFilters: [],
+            generalEncountersFilters: [],
             enrolmentFilters: [],
             selectedLocations: [],
             addressLevelState: new AddressLevelState(),
@@ -55,32 +56,36 @@ class MyDashboardActions {
             filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
         }
 
-        let individualFilters, encountersFilters, enrolmentFilters;
+        let individualFilters, encountersFilters, enrolmentFilters, generalEncountersFilters;
         if (_.isEmpty(state.individualFilters)) {
             const subjectTypeQuery = (path) => [`${path} = "${subjectType.uuid}"`];
             individualFilters = subjectTypeQuery('subjectType.uuid');
             encountersFilters = subjectTypeQuery('programEnrolment.individual.subjectType.uuid');
             enrolmentFilters = subjectTypeQuery('individual.subjectType.uuid');
+            generalEncountersFilters = subjectTypeQuery('individual.subjectType.uuid');
         } else {
             individualFilters = state.individualFilters;
             encountersFilters = state.encountersFilters;
             enrolmentFilters = state.enrolmentFilters;
+            generalEncountersFilters = state.generalEncountersFilters;
         }
 
-        const [allIndividualsWithScheduledVisits,
+        const [
+            allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
             allIndividualsWithRecentlyCompletedVisits,
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
-            allIndividuals] =
-            state.fetchFromDB ? [individualService.allScheduledVisitsIn(state.date.value, encountersFilters),
-                    individualService.allOverdueVisitsIn(state.date.value, encountersFilters),
-                    individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters),
-                    individualService.recentlyRegistered(state.date.value, individualFilters),
-                    individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
-                    individualService.allIn(state.date.value, individualFilters)
-                ].map(MyDashboardActions.applyFilters(filters))
-                : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total];
+            allIndividuals
+        ] = state.fetchFromDB ? [
+                individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
+                individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
+                individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
+                individualService.recentlyRegistered(state.date.value, individualFilters),
+                individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
+                individualService.allIn(state.date.value, individualFilters)
+            ].map(MyDashboardActions.applyFilters(filters))
+            : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total];
 
         const queryResult = {
             scheduled: allIndividualsWithScheduledVisits,
@@ -213,6 +218,12 @@ class MyDashboardActions {
             validEnrolmentQuery("programEnrolment")
         ].filter(Boolean).join(" AND ");
 
+        const generalEncountersFilters = [
+            subjectTypeQuery('individual.subjectType.uuid'),
+            MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
+            MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))
+        ].filter(Boolean).join(" AND ");
+
         const enrolmentFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
@@ -235,6 +246,7 @@ class MyDashboardActions {
             individualFilters,
             encountersFilters,
             enrolmentFilters,
+            generalEncountersFilters,
             selectedSubjectType: action.selectedSubjectType,
             fetchFromDB: true,
         };

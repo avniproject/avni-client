@@ -12,6 +12,7 @@ import Styles from "../primitives/Styles";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Distances from "../primitives/Distances";
 import moment from "moment";
+import {Encounter} from 'openchs-models';
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {
@@ -98,17 +99,15 @@ class IndividualDetails extends AbstractComponent {
     }
 
     proceed(encounter) {
-        let programEncounter = encounter.cloneForEdit();
-        programEncounter.encounterDateTime = moment().toDate();
-        CHSNavigator.navigateToProgramEncounterView(
-            this,
-            programEncounter,
-            false,
-            null,
-            null,
-            null,
-            this.props.backFunction
-        );
+        encounter = encounter.cloneForEdit();
+        encounter.encounterDateTime = moment().toDate();
+        if(encounter instanceof Encounter) {
+            CHSNavigator.navigateToIndividualEncounterLandingView(
+                this, null, encounter, false, null, null, null, this.props.backFunction);
+        } else {
+            CHSNavigator.navigateToProgramEncounterView(
+                this, encounter, false, null, null, null, this.props.backFunction);
+        }
     }
 
     render() {

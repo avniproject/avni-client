@@ -44,7 +44,8 @@ class MyDashboardView extends AbstractComponent {
     filterStateChanged = (prev, next) => {
         return prev.individualFilters === next.individualFilters ||
             prev.encountersFilters === next.encountersFilters ||
-            next.enrolmentFilters === prev.enrolmentFilters;
+            prev.enrolmentFilters === next.enrolmentFilters ||
+            prev.generalEncountersFilters === next.generalEncountersFilters;
     };
 
     shouldComponentUpdate(nextProps, nextState) {

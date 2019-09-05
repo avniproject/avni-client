@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {Filter, SubjectType, SingleSelectFilter as SingleSelectFilterModel} from 'openchs-models';
+import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'openchs-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -18,7 +18,6 @@ import _ from "lodash";
 import DatePicker from "../primitives/DatePicker";
 import Separator from "../primitives/Separator";
 import ProgramFilter from "../common/ProgramFilter";
-import ProgramService from "../../service/program/ProgramService";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
 import General from "../../utility/General";
@@ -135,20 +134,19 @@ class FilterView extends AbstractComponent {
         this.dispatchAction(FilterActionNames.ADD_PROGRAM, {programUUID: uuid});
     }
 
-    renderProgramEncounterList() {
-        const programs = <ProgramFilter
+    renderProgramEncounterGroup() {
+        const programFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
             visits={this.state.programs}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Program'}/>;
-        const encounters = this.state.encounterTypes.length > 0 ? <ProgramFilter
+        const programEncounterFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
             visits={this.state.encounterTypes}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
-            name={'Visits'}/> : <View/>;
-
+            name={'Visits'}/>;
         return <View style={{
             marginTop: Styles.VerticalSpacingBetweenFormElements,
             marginBottom: Styles.VerticalSpacingBetweenFormElements,
@@ -161,16 +159,11 @@ class FilterView extends AbstractComponent {
                 paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
             }}>
                 {this.state.programs.length === 1 ?
-                    <ProgramFilter
-                        onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
-                        visits={this.state.encounterTypes}
-                        multiSelect={true}
-                        selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
-                        name={'Visits'}/>
+                    programEncounterFilter
                     :
                     <View>
-                        {programs}
-                        {encounters}
+                        {programFilter}
+                        {this.state.encounterTypes.length > 0 ? programEncounterFilter : <View/>}
                     </View>
                 }
             </View>
@@ -202,7 +195,7 @@ class FilterView extends AbstractComponent {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                             }}/>)
                             }
-                            {this.renderProgramEncounterList()}
+                            {this.renderProgramEncounterGroup()}
                             <AddressLevels
                                 addressLevelState={this.state.addressLevelState}
                                 onSelect={(addressLevelState) => {
