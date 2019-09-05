@@ -30,7 +30,7 @@ export default class AppliedFilters extends AbstractComponent {
     renderFilteredLocations() {
         if (this.props.selectedLocations.length > 0) {
             const allUniqueTypes = _.uniqBy(_.map(this.props.selectedLocations, ({type}) => ({type})), 'type');
-            return allUniqueTypes.map((l, index) => this.renderContent(l.type,
+            return allUniqueTypes.map((l, index) => this.renderContent(this.I18n.t(l.type),
                 _.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => this.I18n.t(locations.name.replace(/\./g, ""))).join(", "),
                 index === this.props.selectedLocations.length - 1 ? ' ' : ' | '));
         }
@@ -38,15 +38,15 @@ export default class AppliedFilters extends AbstractComponent {
 
     renderFilteredPrograms() {
         if (this.props.programs.length > 1 && this.props.selectedPrograms.length > 0) {
-            const programNames = this.props.selectedPrograms.map((prog) => prog.operationalProgramName || prog.name);
+            const programNames = this.props.selectedPrograms.map((prog) => this.I18n.t(prog.operationalProgramName || prog.name));
             return this.renderContent(this.I18n.t('Program'), programNames.join(', '))
         }
     }
 
     renderFilteredVisits() {
         if (this.props.selectedEncounterTypes.length > 0) {
-            const visitNames = this.props.selectedEncounterTypes.map((enc) => _.isNil(enc.encounterType) ? enc.name : enc.encounterType.operationalEncounterTypeName);
-            return this.renderContent('Visit', visitNames.join(', '))
+            const visitNames = this.props.selectedEncounterTypes.map((encType) => this.I18n.t(encType.operationalEncounterTypeName));
+            return this.renderContent(this.I18n.t('Visit'), visitNames.join(', '))
         }
     }
 

@@ -314,5 +314,6 @@
   "cancelVisit": "रद्द",
   "undoExit": "Undo Exit",
   "undoExitProgramTitle": "Undo program exit",
-  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?"
+  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?",
+  "Visit": "भेटी"
 }

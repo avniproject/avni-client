@@ -58,7 +58,7 @@ class MyDashboardView extends AbstractComponent {
             fontSize: 20,
             color: Colors.DefaultPrimaryColor,
             paddingBottom: 10
-        }}>{this.state.selectedSubjectType && this.state.selectedSubjectType.name}</Text>
+        }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
     }
 
     render() {
