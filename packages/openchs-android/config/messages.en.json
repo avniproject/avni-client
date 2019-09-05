@@ -275,5 +275,8 @@
   "asOnDate": "As on date",
   "filter": "FILTER",
   "Relatives": "Relatives",
-  "Relation": "Relation"
+  "Relation": "Relation",
+  "undoExit": "Undo Exit",
+  "undoExitProgramTitle": "Undo program exit",
+  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?"
 }

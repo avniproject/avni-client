@@ -266,5 +266,8 @@
   "noPlannedEncounters": "कोई नियोजित विज़िट नहीं",
   "beneficiaryMode": "Beneficiary Mode",
   "asOnDate": "As on date",
-  "filter": "FILTER"
+  "filter": "FILTER",
+  "undoExit": "अनडू एग्जिट",
+  "undoExitProgramTitle": "प्रोग्राम एग्जिट अनडू करे",
+  "undoExitProgramConfirmationMessage": "क्या आप प्रोग्राम को दोबारा ज्वाइन करना चाहते है?"
 }

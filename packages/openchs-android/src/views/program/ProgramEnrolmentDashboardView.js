@@ -1,4 +1,4 @@
-import {ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Alert, ScrollView, StyleSheet, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -105,9 +105,24 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
         return [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
     }
 
+    joinProgram() {
+        Alert.alert(
+            this.I18n.t('undoExitProgramTitle'),
+            this.I18n.t('undoExitProgramConfirmationMessage'),
+            [
+                {text: this.I18n.t('yes'), onPress: () => this.dispatchAction(Actions.ON_PROGRAM_REJOIN)},
+                {
+                    text: this.I18n.t('no'), onPress: _.noop, style: 'cancel'
+                }
+            ]
+        )
+    }
+
     getPrimaryEnrolmentContextAction() {
-        if (!this.state.hideExit && this.state.enrolment.isActive) {
-            return new ContextAction('exitProgram', () => this.exitProgram());
+        if (!this.state.hideExit) {
+            return _.isNil(this.state.enrolment.programExitDateTime) ?
+                new ContextAction('exitProgram', () => this.exitProgram()) :
+                new ContextAction('undoExit', () => this.joinProgram());
         }
     }
 
@@ -141,7 +156,7 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
                                     expandCollapseView={true}
                                     onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
-                                    />);
+        />);
     }
 
     renderExitObservations() {

@@ -1,5 +1,13 @@
 import EntityService from "../../service/EntityService";
-import {Encounter, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment, WorkLists, WorkList, WorkItem} from 'openchs-models';
+import {
+    Encounter,
+    NullProgramEnrolment,
+    ProgramEncounter,
+    ProgramEnrolment,
+    WorkLists,
+    WorkList,
+    WorkItem, ObservationsHolder
+} from 'openchs-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";
@@ -271,6 +279,23 @@ class ProgramEnrolmentDashboardActions {
         return individual.firstActiveOrRecentEnrolment || new NullProgramEnrolment(individual);
     }
 
+    static onProgramReJoin(state, action, context) {
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        const programEnrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
+        const newProgramEnrolmentWithExitRemoved = ProgramEnrolmentDashboardActions.cloneEnrolmentForRejoin(programEnrolment);
+        context.get(ProgramEnrolmentService).reJoinProgram(newProgramEnrolmentWithExitRemoved);
+        newState.enrolment = newProgramEnrolmentWithExitRemoved;
+        return newState;
+    }
+
+    static cloneEnrolmentForRejoin(programEnrolment) {
+        const newProgramEnrolment = programEnrolment.cloneForEdit();
+        newProgramEnrolment.programExitDateTime = null;
+        newProgramEnrolment.programExitObservations = [];
+        newProgramEnrolment.exitLocation = null;
+        return newProgramEnrolment;
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -287,6 +312,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
     ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
+    ON_PROGRAM_REJOIN: "PEDA.ON_PROGRAM_REJOIN"
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -305,6 +331,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
     [ProgramEnrolmentDashboardActionsNames.ON_ENCOUNTER_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
+    [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_REJOIN, ProgramEnrolmentDashboardActions.onProgramReJoin],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

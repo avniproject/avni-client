@@ -311,5 +311,8 @@
   "home": "होम",
   "Program": "कार्यक्रम",
   "Choose type":"पर्याय निवडा",
-  "cancelVisit": "रद्द"
+  "cancelVisit": "रद्द",
+  "undoExit": "Undo Exit",
+  "undoExitProgramTitle": "Undo program exit",
+  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?"
 }

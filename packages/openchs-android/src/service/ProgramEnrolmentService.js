@@ -8,6 +8,7 @@ import ChecklistService from "./ChecklistService";
 import MediaQueueService from "./MediaQueueService";
 import FormMappingService from "./FormMappingService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
+import EntityService from "./EntityService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -93,6 +94,12 @@ class ProgramEnrolmentService extends BaseService {
 
     getAllEnrolments(programUUID) {
         return this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
+    }
+
+    reJoinProgram(programEnrolment) {
+        ProgramEnrolmentService.convertObsForSave(programEnrolment);
+        const entityService = this.getService(EntityService);
+        entityService.saveAndPushToEntityQueue(programEnrolment, ProgramEnrolment.schema.name);
     }
 }
 

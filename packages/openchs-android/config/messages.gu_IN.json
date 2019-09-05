@@ -261,5 +261,8 @@
   "noPlannedEncounters": "કોઈ આયોજન મુલાકાત નથી",
   "beneficiaryMode": "Beneficiary Mode",
   "asOnDate": "As on date",
-  "filter": "FILTER"
+  "filter": "FILTER",
+  "undoExit": "Undo Exit",
+  "undoExitProgramTitle": "Undo program exit",
+  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?"
 }
