@@ -49,12 +49,8 @@ class IndividualList extends AbstractComponent {
         super.componentWillMount();
     }
 
-    filterStateNotChanged = (prev, next) => {
-        return prev.individualFilters === next.individualFilters || prev.encountersFilters === next.encountersFilters || next.enrolmentFilters === prev.enrolmentFilters;
-    };
-
     shouldComponentUpdate(nextProps, nextState) {
-        return !(this.state.itemsToDisplay.length === nextState.itemsToDisplay.length && this.filterStateNotChanged(this.state, nextState));
+        return !General.arraysShallowEquals(this.state.itemsToDisplay, nextState.itemsToDisplay, x=>x.individual.uuid);
     }
 
     onHardwareBackPress() {
@@ -71,6 +67,8 @@ class IndividualList extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
+            generalEncounterTypes: this.state.generalEncounterTypes,
+            selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
             onBack: this.goBack.bind(this),
             actionName: Actions.APPLY_FILTERS,
             filterDate: this.state.date,

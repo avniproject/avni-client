@@ -1,5 +1,4 @@
 import {StyleSheet, Text, View} from "react-native";
-import PropTypes from 'prop-types';
 import React from 'react';
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -50,6 +49,15 @@ export default class AppliedFilters extends AbstractComponent {
         }
     }
 
+    renderFilteredGeneralVisits() {
+        if (!_.isEmpty(this.props.selectedGeneralEncounterTypes)) {
+            const visitNames = _.map(this.props.selectedGeneralEncounterTypes, 'operationalEncounterTypeName')
+                .map(x => this.I18n.t(x))
+                .join(', ');
+            return this.renderContent(this.I18n.t('General Visit'), visitNames);
+        }
+    }
+
     render() {
         const appliedFilters = [...this.props.filters.values()]
             .filter(f => f.isApplied())
@@ -62,6 +70,7 @@ export default class AppliedFilters extends AbstractComponent {
                 </Text>
                 {this.renderFilteredPrograms()}
                 {this.renderFilteredVisits()}
+                {this.renderFilteredGeneralVisits()}
                 {appliedFilters}
             </View>
         );

@@ -58,6 +58,18 @@ class FormMappingService extends BaseService {
             .filter(et => !_.isEmpty(et)), 'uuid');
     }
 
+    findEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
+        let criteria = `voided = false AND entityUUID=null AND form.formType="${Form.formTypes.Encounter}"`;
+        if (subjectType) {
+            criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
+        }
+        const formMappings = this.findAllByCriteria(criteria);
+        return _.uniqBy(formMappings
+            .map(this._findEncounterTypesForFormMapping)
+            .filter(this.unVoided)
+            .filter(et => !_.isEmpty(et)), 'uuid');
+    }
+
     findEncounterTypesForEncounter(subjectType: SubjectType): Array<EncounterType> {
         //TODO: There are some encounter types whose mapping is synchronised to the client but the encounter types themselves are not, as form mapping API doesn't return mappings based on the organisation yet.
         let criteria = `voided = false AND form.formType="${Form.formTypes.Encounter}" and subjectType.uuid="${subjectType.uuid}"`;

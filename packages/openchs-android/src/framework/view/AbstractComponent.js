@@ -83,7 +83,7 @@ class AbstractComponent extends Component {
 
     refreshState() {
         const nextState = this.getContextState(this.topLevelStateVariable);
-        if (!General.areEqualShallow(nextState, this.state)) {
+        if (!General.objectsShallowEquals(nextState, this.state)) {
             if (!_.isNil(nextState.error))
                 this.showError(nextState.error.message);
             this.setState(nextState);

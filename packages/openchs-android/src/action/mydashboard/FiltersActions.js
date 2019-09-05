@@ -15,12 +15,15 @@ class FiltersActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
+            generalEncounterTypes: [],
+            selectedGeneralEncounterTypes: [],
             subjectTypes:[],
             selectedSubjectType:null
         };
     }
 
     static onLoad(state, action, context) {
+        const generalEncounterTypes = context.get(FormMappingService).findEncounterTypesForSubjectType(action.selectedSubjectType);
         return {
             ...state,
             filters: FiltersActions.cloneFilters(action.filters),
@@ -31,6 +34,8 @@ class FiltersActions {
             selectedPrograms: action.selectedPrograms,
             encounterTypes: action.encounterTypes,
             selectedEncounterTypes: action.selectedEncounterTypes,
+            generalEncounterTypes: generalEncounterTypes,
+            selectedGeneralEncounterTypes: action.selectedGeneralEncounterTypes,
             subjectTypes: action.subjectTypes,
             selectedSubjectType:action.selectedSubjectType,
         }
@@ -70,6 +75,14 @@ class FiltersActions {
         }
     }
 
+    static addGeneralVisits(state, action, context) {
+        const selected = _.find(state.generalEncounterTypes, e=> e.uuid === action.encounterUUID);
+        return {
+            ...state,
+            selectedGeneralEncounterTypes: _.xorBy(state.selectedGeneralEncounterTypes, [selected], 'uuid'),
+        };
+    }
+
     static addVisits(state, action, context) {
         const isPresent = FiltersActions.isPresent(state.selectedEncounterTypes, action.encounterUUID);
         const encounter = FiltersActions.getEncounterByUUID(state.encounterTypes, action.encounterUUID);
@@ -91,6 +104,7 @@ class FiltersActions {
         const programs = context.get(FormMappingService).findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : [];
         const encounterTypes = programs.length === 1 ? context.get(FormMappingService).findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : [];
+        const generalEncounterTypes = context.get(FormMappingService).findEncounterTypesForSubjectType(selectedSubjectType);
         return {
             ...state,
             selectedSubjectType,
@@ -98,6 +112,8 @@ class FiltersActions {
             selectedPrograms,
             encounterTypes,
             selectedEncounterTypes: [],
+            generalEncounterTypes,
+            selectedGeneralEncounterTypes: [],
         }
     }
 
@@ -140,6 +156,7 @@ const FilterActionNames = {
     INDIVIDUAL_SEARCH_ADDRESS_LEVEL: `${ActionPrefix}.INDIVIDUAL_SEARCH_ADDRESS_LEVEL`,
     LOAD_ENCOUNTERS: `${ActionPrefix}.LOAD_ENCOUNTERS`,
     ADD_VISITS: `${ActionPrefix}.ADD_VISITS`,
+    ADD_GENERAL_VISITS: `${ActionPrefix}.ADD_GENERAL_VISITS`,
     ADD_PROGRAM: `${ActionPrefix}.ADD_PROGRAM`,
     ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
 };
@@ -150,6 +167,7 @@ const FilterActionMap = new Map([
     [FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, FiltersActions.addressLevelCriteria],
     [FilterActionNames.LOAD_ENCOUNTERS, FiltersActions.loadEncounters],
     [FilterActionNames.ADD_VISITS, FiltersActions.addVisits],
+    [FilterActionNames.ADD_GENERAL_VISITS, FiltersActions.addGeneralVisits],
     [FilterActionNames.ADD_PROGRAM, FiltersActions.addProgram],
     [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
 ]);
