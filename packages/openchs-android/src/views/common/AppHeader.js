@@ -11,6 +11,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import {LandingViewActionsNames} from "../../action/LandingViewActions";
 import SyncComponent from "../SyncComponent";
 import ExitBeneficiaryModeButton from "../beneficiaryMode/ExitBeneficiaryModeButton";
+import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -39,6 +40,7 @@ class AppHeader extends AbstractComponent {
     onHome() {
         CHSNavigator.goHome(this);
         this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: true});
     }
 
     background() {

@@ -77,7 +77,7 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals
-        ] = state.fetchFromDB ? [
+        ] = action.fetchFromDB || state.fetchFromDB ? [
                 individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
                 individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
                 individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
