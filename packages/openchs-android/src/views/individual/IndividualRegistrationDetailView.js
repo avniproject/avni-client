@@ -50,7 +50,10 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
                 (source) => TypedTransition.from(source)
                     .resetStack([IndividualAddRelativeView], [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: this.state.individual.uuid, tab: 1})
+                        TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                            individualUUID: this.state.individual.uuid,
+                            tab: 1
+                        })
                     ])
             )
         })];
@@ -113,22 +116,27 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     renderVoided() {
         return (
-            <Text style={{fontSize: Fonts.Large, color: Styles.redColor}}>
-                {this.I18n.t("thisIndividualHasBeenVoided")}
-            </Text>
+            <View>
+                <Text style={{fontSize: Fonts.Large, color: Styles.redColor}}>
+                    {this.I18n.t("thisIndividualHasBeenVoided")}
+                </Text>
+                <ObservationsSectionOptions
+                    contextActions={[new ContextAction('unVoid', () => this.unVoidIndividual())]}/>
+            </View>
         );
     }
 
-    voidIndividual() {
+    voidUnVoidAlert(title, message, setVoided) {
         Alert.alert(
-            this.I18n.t('voidIndividualConfirmationTitle'),
-            this.I18n.t('voidIndividualConfirmationMessage'),
+            this.I18n.t(title),
+            this.I18n.t(message),
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.VOID_INDIVIDUAL,
+                        this.dispatchAction(Actions.VOID_UN_VOID_INDIVIDUAL,
                             {
                                 individualUUID: this.props.params.individualUUID,
+                                setVoided: setVoided,
                                 cb: () => {
                                 }
                             },
@@ -142,6 +150,14 @@ class IndividualRegistrationDetailView extends AbstractComponent {
                 }
             ]
         )
+    }
+
+    voidIndividual() {
+        this.voidUnVoidAlert('voidIndividualConfirmationTitle', 'voidIndividualConfirmationMessage', true)
+    }
+
+    unVoidIndividual() {
+        this.voidUnVoidAlert('unVoidIndividualConfirmationTitle', 'unVoidIndividualConfirmationMessage', false)
     }
 
     renderProfile() {

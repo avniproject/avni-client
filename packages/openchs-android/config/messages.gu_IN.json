@@ -264,5 +264,8 @@
   "filter": "FILTER",
   "undoExit": "Undo Exit",
   "undoExitProgramTitle": "Undo program exit",
-  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?"
+  "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?",
+  "unVoid": "Unvoid",
+  "unVoidIndividualConfirmationTitle": "Unvoid this individual",
+  "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?"
 }

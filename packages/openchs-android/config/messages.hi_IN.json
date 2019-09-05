@@ -269,5 +269,8 @@
   "filter": "FILTER",
   "undoExit": "अनडू एग्जिट",
   "undoExitProgramTitle": "प्रोग्राम एग्जिट अनडू करे",
-  "undoExitProgramConfirmationMessage": "क्या आप प्रोग्राम को दोबारा ज्वाइन करना चाहते है?"
+  "undoExitProgramConfirmationMessage": "क्या आप प्रोग्राम को दोबारा ज्वाइन करना चाहते है?",
+  "unVoid": "अनवोयड",
+  "unVoidIndividualConfirmationTitle": "इस व्यक्ति को अनवोयड करें",
+  "unVoidIndividualConfirmationMessage": "क्या आप इस व्यक्ति को अनवोयड करना चाहते है?"
 }

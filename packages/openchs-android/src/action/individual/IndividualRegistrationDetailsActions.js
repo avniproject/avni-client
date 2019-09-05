@@ -27,11 +27,11 @@ class IndividualRegistrationDetailsActions {
         return {individual: state.individual, relatives: relatives, programsAvailable: state.programsAvailable};
     }
 
-    static voidIndividual(state, action, beans) {
+    static voidUnVoidIndividual(state, action, beans) {
         const individualService = beans.get(IndividualService);
-        individualService.voidIndividual(action.individualUUID);
+        individualService.voidUnVoidIndividual(action.individualUUID, action.setVoided);
         action.cb();
-        return state;
+        return IndividualRegistrationDetailsActions.onLoad(state, action, beans);
     }
 
     static onToggle(state) {
@@ -42,14 +42,14 @@ class IndividualRegistrationDetailsActions {
 const IndividualRegistrationDetailsActionsNames = {
     ON_LOAD: 'IRDA.ON_LOAD',
     ON_DELETE_RELATIVE: 'IRDA.ON_DELETE_RELATIVE',
-    VOID_INDIVIDUAL: "IRDA.VOID_INDIVIDUAL",
+    VOID_UN_VOID_INDIVIDUAL: "IRDA.VOID_INDIVIDUAL",
     ON_TOGGLE: "IRDA.ON_TOGGLE",
 };
 
 const IndividualRegistrationDetailsActionsMap = new Map([
     [IndividualRegistrationDetailsActionsNames.ON_LOAD, IndividualRegistrationDetailsActions.onLoad],
     [IndividualRegistrationDetailsActionsNames.ON_DELETE_RELATIVE, IndividualRegistrationDetailsActions.onDeleteRelative],
-    [IndividualRegistrationDetailsActionsNames.VOID_INDIVIDUAL, IndividualRegistrationDetailsActions.voidIndividual],
+    [IndividualRegistrationDetailsActionsNames.VOID_UN_VOID_INDIVIDUAL, IndividualRegistrationDetailsActions.voidUnVoidIndividual],
     [IndividualRegistrationDetailsActionsNames.ON_TOGGLE, IndividualRegistrationDetailsActions.onToggle],
 ]);
 

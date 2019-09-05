@@ -315,5 +315,8 @@
   "undoExit": "Undo Exit",
   "undoExitProgramTitle": "Undo program exit",
   "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?",
-  "Visit": "भेटी"
+  "Visit": "भेटी",
+  "unVoid": "Unvoid",
+  "unVoidIndividualConfirmationTitle": "Unvoid this individual",
+  "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?"
 }
