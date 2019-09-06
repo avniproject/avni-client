@@ -54,7 +54,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
         const onSaveCallback = (view: SystemRecommendationView) =>
             CHSNavigator.navigateToBeneficiaryDashboard(view, this.props);
-        return (enrolmentUUID && <NewVisitMenuView params={{enrolmentUUID, onSaveCallback}}/>);
+        return (enrolmentUUID && <NewVisitMenuView enrolmentUUID={enrolmentUUID} onSaveCallback={onSaveCallback}/>);
     }
 
     render() {

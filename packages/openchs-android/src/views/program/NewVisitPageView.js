@@ -29,9 +29,7 @@ class NewVisitPageView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}/>
                     <View>
-                        <NewVisitMenuView
-                            params={{enrolmentUUID:this.props.params.enrolmentUUID}}
-                        />
+                        <NewVisitMenuView enrolmentUUID={this.props.params.enrolmentUUID}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

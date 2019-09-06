@@ -1,46 +1,14 @@
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
-import MessageService from "../../service/MessageService";
-import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Action} from "../util";
 
 class StartProgramActions {
-    static clone(state) {
-        return {
-            I18n: state.I18n,
-            enrolment: state.enrolment,
-            encounters: _.map(state.encounters, encounter => {
-                return {
-                    key: encounter.key,
-                    label: StartProgramActions.displayLabel(encounter.data, state.I18n),
-                    data: encounter.data,
-                    selected: encounter.selected
-                };
-            }),
-            encounterTypes: _.map(state.encounterTypes, encounterType => {
-                return {
-                    key: encounterType.key,
-                    label: state.I18n.t(encounterType.data.name),
-                    data: encounterType.data,
-                    selected: encounterType.selected
-                };
-            }),
-        };
-    }
-
-    static displayLabel(encounter, I18n) {
-        const encounterName = I18n.t(encounter.name || encounter.encounterType.name);
-        const displayDate =
-            (encounter.earliestVisitDateTime && `(${General.toDisplayDate(encounter.earliestVisitDateTime)})`) || "";
-        return `${encounterName} ${displayDate}`;
-    }
 
     static getInitialState() {
         return {
-            enrolment: null,
             encounters: [],
             encounterTypes: [],
         };
@@ -54,39 +22,39 @@ class StartProgramActions {
 
     @Action()
     static onLoad(state, action, context) {
-        const newState = {};
-        let enrolment = context.get(ProgramEnrolmentService).findByUUID(action.enrolmentUUID);
-        if (!enrolment) {
-            return state;
-        }
-        newState.I18n = context.get(MessageService).getI18n();
-        newState.enrolment = enrolment;
-        newState.encounters = _.chain(enrolment.scheduledEncounters())
-            .sortBy("earliestVisitDateTime")
-            .map((encounter, index) => {
-                return {
-                    key: encounter.uuid,
-                    label: StartProgramActions.displayLabel(encounter, newState.I18n),
-                    data: encounter,
-                    selected: index === 0
-                };
-            })
-            .value();
+        const formMappingService = context.get(FormMappingService);
 
-        newState.encounterTypes = context
-            .get(FormMappingService)
-            .findEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType)
-            .filter(encounterType =>
-                context.get(RuleEvaluationService).isEligibleForEncounter(enrolment.individual, encounterType)
-            )
-            .map(encounterType => {
-                return {
-                    key: encounterType.uuid,
-                    label: newState.I18n.t(encounterType.displayName),
-                    data: encounterType,
-                    selected: false
-                };
-            });
+        const newState = {};
+        const enrolment = action.enrolmentUUID && context.get(ProgramEnrolmentService).findByUUID(action.enrolmentUUID);
+        const individual = action.individualUUID && context.get(IndividualService).findByUUID(action.individualUUID);
+
+        const programEncounters = _.isNil(enrolment)
+            ? []
+            : enrolment.scheduledEncounters().map(encounter => ({encounter, parent: enrolment}));
+
+        const individualEncounters = _.isNil(individual)
+            ? []
+            : individual.scheduledEncounters().map(encounter => ({encounter, parent: individual}));
+
+        newState.encounters = _.sortBy([...programEncounters, ...individualEncounters], "earliestVisitDateTime");
+
+        const programEncounterTypes = _.isNil(enrolment)
+            ? []
+            : formMappingService
+                .findEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType)
+                .filter(encounterType =>
+                    context.get(RuleEvaluationService).isEligibleForEncounter(enrolment.individual, encounterType))
+                .map(encounterType => ({encounterType, parent: enrolment}));
+
+        const individualEncounterTypes = _.isNil(individual)
+            ? []
+            : formMappingService
+                .findEncounterTypesForSubjectType(individual.subjectType)
+                .filter(encounterType =>
+                    context.get(RuleEvaluationService).isEligibleForEncounter(individual, encounterType))
+                .map(encounterType => ({encounterType, parent: individual}));
+
+        newState.encounterTypes = [...programEncounterTypes, ...individualEncounterTypes];
 
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 

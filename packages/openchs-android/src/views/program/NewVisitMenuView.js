@@ -11,14 +11,16 @@ import moment from "moment";
 import Distances from "../primitives/Distances";
 import General from "../../utility/General";
 import _ from "lodash";
-import {ProgramEncounter} from "openchs-models";
+import {Encounter, EncounterType, Individual, ProgramEncounter} from "openchs-models";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 class NewVisitMenuView extends AbstractComponent {
     static propTypes = {
-        params: PropTypes.object.isRequired
+        enrolmentUUID: PropTypes.string,
+        individualUUID: PropTypes.string,
+        onSaveCallback: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -26,53 +28,40 @@ class NewVisitMenuView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.onLoad, this.props.params);
+        this.dispatchAction(Actions.onLoad, this.props);
         return super.componentWillMount();
     }
 
-    encounterFromEncounterType(encounterType) {
-        const scheduled = ProgramEncounter.createScheduled(encounterType, this.state.enrolment);
-        scheduled.encounterDateTime = moment().toDate();
-        return scheduled;
-    }
-
-    proceed(encounter) {
-        const selectedEncounter = _.has(encounter, "operationalEncounterTypeName")
-            ? this.encounterFromEncounterType(encounter)
-            : encounter;
-        let programEncounter = selectedEncounter.cloneForEdit();
-        programEncounter.encounterDateTime = moment().toDate();
+    proceed(typeorencounter, parent) {
+        const selectedEncounter = typeorencounter instanceof EncounterType
+            ? parent instanceof Individual
+                ? Encounter.createScheduled(typeorencounter, parent)
+                : ProgramEncounter.createScheduled(typeorencounter, parent)
+            : typeorencounter;
+        const encounter = selectedEncounter.cloneForEdit();
+        encounter.encounterDateTime = moment().toDate();
         CHSNavigator.navigateToEncounterView(this, {
-            encounter: programEncounter,
-            onSaveCallback: this.props.params.onSaveCallback,
+            encounter,
+            onSaveCallback: this.props.onSaveCallback,
         });
     }
 
-    renderHeader(title) {
-        return <Text style={[Fonts.typography("paperFontTitle"), styles.headerStyle]}>{title}</Text>;
-    }
+    static Header = ({section: {title, data}}) => {
+        return !_.isEmpty(data) &&
+            <Text style={[Fonts.typography("paperFontTitle"), styles.headerStyle]}>{title}</Text>;
+    };
 
-    renderItem(encounter) {
-        const encounterName = this.I18n.t(encounter.name || encounter.encounterType.name);
-        const displayDate =
-            (encounter.earliestVisitDateTime && General.toDisplayDate(encounter.earliestVisitDateTime)) || "";
-        const color = moment().isAfter(encounter.maxVisitDateTime)
-            ? Colors.OverdueVisitColor
-            : moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime)
-                ? Colors.ScheduledVisitColor
-                : Colors.FutureVisitColor;
+    static Item = ({name, displayDate, statusColor, onSelect}) => {
         return (
             <TouchableNativeFeedback
-                onPress={() => {
-                    this.proceed(encounter);
-                }}
+                onPress={onSelect}
                 background={TouchableNativeFeedback.SelectableBackground()}
             >
                 <View style={styles.container}>
-                    <View style={[styles.strip, !_.isEmpty(displayDate) && {backgroundColor: color}]}/>
+                    <View style={[styles.strip, !_.isEmpty(displayDate) && {backgroundColor: statusColor}]}/>
                     <View style={styles.textContainer}>
                         <Text style={[Fonts.typography("paperFontSubhead"), styles.encounterStyle]}>
-                            {encounterName}
+                            {name}
                         </Text>
                         {!_.isEmpty(displayDate) ? (
                             <Text style={[Fonts.typography("paperFontSubhead"), styles.dateStyle]}>{displayDate}</Text>
@@ -80,25 +69,46 @@ class NewVisitMenuView extends AbstractComponent {
                             <View style={{marginLeft: "auto"}}/>
                         )}
                     </View>
-                    <Icon style={[styles.iconStyle, !_.isEmpty(displayDate) && {color: color}]} name="chevron-right"/>
+                    <Icon style={[styles.iconStyle, !_.isEmpty(displayDate) && {color: statusColor}]}
+                          name="chevron-right"/>
                 </View>
             </TouchableNativeFeedback>
         );
-    }
+    };
+
+    renderEncounter = ({item: {encounter, parent}}) => {
+        const encounterName = this.I18n.t(encounter.name);
+        const displayDate = General.toDisplayDate(encounter.earliestVisitDateTime);
+        const color = moment().isAfter(encounter.maxVisitDateTime)
+            ? Colors.OverdueVisitColor
+            : moment().isBetween(encounter.earliestVisitDateTime, encounter.maxVisitDateTime)
+                ? Colors.ScheduledVisitColor
+                : Colors.FutureVisitColor;
+        return <NewVisitMenuView.Item name={encounterName}
+                                      displayDate={displayDate}
+                                      statusColor={color}
+                                      onSelect={() => this.proceed(encounter, parent)}/>;
+    };
+
+    renderEncounterType = ({item: {encounterType, parent}}) => {
+        const encounterName = this.I18n.t(encounterType.operationalEncounterTypeName);
+        return <NewVisitMenuView.Item name={encounterName}
+                                      displayDate=''
+                                      statusColor={Colors.FutureVisitColor}
+                                      onSelect={() => this.proceed(encounterType, parent)}/>;
+    };
 
     render() {
         General.logDebug(this.viewName(), "render");
-        const types: string[] = !this.state.hideUnplanned
-            ? !_.isEmpty(this.state.encounters)
-                ? [this.I18n.t("plannedVisits"), this.I18n.t("unplannedVisits")]
-                : [this.I18n.t("unplannedVisits")]
-            : [this.I18n.t("plannedVisits")];
-        const visits = !this.state.hideUnplanned
-            ? !_.isEmpty(this.state.encounters)
-                ? [this.state.encounters, this.state.encounterTypes]
-                : [this.state.encounterTypes]
-            : [this.state.encounters];
-        const data = _.zip(types, visits).map(([t, v]) => ({title: t, data: v}));
+        const encounters = this.state.encounters;
+        const encounterTypes = this.state.encounterTypes;
+        const sections = [
+            {title: this.I18n.t("plannedVisits"), data: encounters, renderItem: this.renderEncounter},
+        ];
+        if (!this.state.hideUnplanned) {
+            sections.push(
+                {title: this.I18n.t("unplannedVisits"), data: encounterTypes, renderItem: this.renderEncounterType});
+        }
 
         return (
             <SectionList
@@ -107,9 +117,8 @@ class NewVisitMenuView extends AbstractComponent {
                     marginLeft: Distances.ScaledContentDistanceFromEdge,
                     marginTop: Distances.ScaledContentDistanceFromEdge
                 }}
-                sections={data}
-                renderSectionHeader={({section: {title}}) => this.renderHeader(title)}
-                renderItem={data => this.renderItem(data.item.data)}
+                sections={sections}
+                renderSectionHeader={NewVisitMenuView.Header}
                 keyExtractor={(item, index) => index}
             />
         );
