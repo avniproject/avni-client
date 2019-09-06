@@ -80,6 +80,25 @@ class CHSNavigator {
         }
     }
 
+    static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {
+        const from = TypedTransition.from(source);
+        const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, ProgramEnrolmentTabView];
+        if (isFromWizard) {
+            from.resetStack(toBeRemoved, [
+                TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                    individualUUID: individualUUID,
+                    encounter: encounter,
+                    message,
+                    backFunction: backFn,
+                    tab: 3,
+                }, true)
+            ]);
+        } else {
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 3}).to(ProgramEnrolmentTabView, true);
+        }
+    }
+
     static navigateToExitProgram(source, enrolment, workLists, editing = false) {
         TypedTransition.from(source).with({enrolment, workLists, editing}).to(ProgramExitView);
     }
@@ -412,11 +431,12 @@ class CHSNavigator {
         const editing = params.editing || false;
         const backFunction = params.backFunction;
         const isCancelPage = encounter.isCancelled() || params.cancel;
-        if(encounter instanceof Encounter) {
+        if (isCancelPage) {
+            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
+        }
+        else if(encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
                 source, params.individualUUID, encounter, editing, null, null, null, backFunction);
-        } else if (isCancelPage) {
-            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
         } else {
             CHSNavigator.navigateToProgramEncounterView(
                 source, encounter, editing, null, null, null, backFunction, params.onSaveCallback);

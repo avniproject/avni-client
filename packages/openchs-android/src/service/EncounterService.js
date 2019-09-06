@@ -22,26 +22,27 @@ class EncounterService extends BaseService {
     }
 
     isEncounterTypeCancellable(encounter) {
-        if (_.isNil(encounter['programEnrolment'])) {
+        if (!_.isNil(encounter['programEnrolment']) || !_.isNil(encounter['individual'])) {
+            let formMappingService = this.getService(FormMappingService);
+            const program = encounter.programEnrolment && encounter.programEnrolment.program || null;
+            let form = formMappingService.findFormForCancellingEncounterType(
+                encounter.encounterType,
+                program,
+                encounter.subjectType
+            );
+            if (_.isNil(form)) {
+                General.logDebug('EncounterService.isEncounterTypeCancellable', `No form associated with ET=${encounter.encounterType.uuid}`);
+                return false;
+            }
+            let cancellable = encounter.isCancellable();
+            if (!cancellable) {
+                General.logDebug('EncounterService.isEncounterTypeCancellable', `${encounter.encounterType.name}, Not Cancellable because of encounter`);
+            }
+            return cancellable;
+        } else {
             General.logDebug('EncounterService.isEncounterTypeCancellable', 'Not a ProgramEncounter');
             return false;
         }
-
-        let formMappingService = this.getService(FormMappingService);
-        let form = formMappingService.findFormForCancellingEncounterType(
-            encounter.encounterType,
-            encounter.programEnrolment.program,
-            encounter.subjectType
-        );
-        if (_.isNil(form)) {
-            General.logDebug('EncounterService.isEncounterTypeCancellable', `No form associated with ET=${encounter.encounterType.uuid} and Program=${encounter.programEnrolment.program.uuid}`);
-            return false;
-        }
-        let cancellable = encounter.isCancellable();
-        if (!cancellable) {
-            General.logDebug('EncounterService.isEncounterTypeCancellable', `${encounter.encounterType.name}, ${encounter.programEnrolment.program.name}, Not Cancellable because of encounter`);
-        }
-        return cancellable;
     }
 
     _saveEncounter(encounter, db) {

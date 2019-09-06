@@ -101,14 +101,28 @@ class FormMappingService extends BaseService {
     }
 
     findFormForCancellingEncounterType(encounterType: EncounterType, program: Program, subjectType: SubjectType) {
-        let matchingFormMapping = this.allFormMappings()
+        const matchingFormMapping = _.isNil(program) ? this.individualEncounterType(encounterType, subjectType) :
+            this.programEncounterType(encounterType, program, subjectType);
+        return _.isNil(matchingFormMapping) ? null : matchingFormMapping.form;
+    }
+
+    programEncounterType(encounterType, program, subjectType) {
+        return this.allFormMappings()
             .unVoided()
             .forFormType(Form.formTypes.ProgramEncounterCancellation)
             .forEncounterType(encounterType)
             .forProgram(program)
             .forSubjectType(subjectType)
             .bestMatch();
-        return _.isNil(matchingFormMapping) ? null : matchingFormMapping.form;
+    }
+
+    individualEncounterType(encounterType, subjectType) {
+        return this.allFormMappings()
+            .unVoided()
+            .forFormType(Form.formTypes.IndividualEncounterCancellation)
+            .forEncounterType(encounterType)
+            .forSubjectType(subjectType)
+            .bestMatch();
     }
 }
 

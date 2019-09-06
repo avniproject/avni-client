@@ -4,9 +4,10 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Point, ProgramEncounter, WorkList, WorkLists} from 'openchs-models';
+import {Point, ProgramEncounter, WorkList, WorkLists, Encounter} from 'openchs-models';
 import EntityService from "../../service/EntityService";
 import GeolocationActions from "../common/GeolocationActions";
+import EncounterService from "../../service/EncounterService";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -14,17 +15,23 @@ class ProgramEncounterCancelActions {
     }
 
     static filterFormElements(formElementGroup, context, programEncounter) {
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(programEncounter, ProgramEncounter.schema.name, formElementGroup);
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(programEncounter, ProgramEncounterCancelActions.getSchema(programEncounter), formElementGroup);
         return formElementGroup.filterElements(formElementStatuses);
     };
 
+    static getSchema(encounter) {
+        return encounter.programEnrolment && ProgramEncounter.schema.name || Encounter.schema.name;
+    }
+
     static onLoad(state, action, context) {
-        let programEncounter = context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name);
+        let programEncounter = context.get(EntityService).findByUUID(action.programEncounter.uuid,
+            ProgramEncounterCancelActions.getSchema(action.programEncounter));
         programEncounter = programEncounter.cloneForEdit();
+        const program = programEncounter.programEnrolment && programEncounter.programEnrolment.program || null;
         const form = context.get(FormMappingService).findFormForCancellingEncounterType(
             programEncounter.encounterType,
-            programEncounter.programEnrolment.program,
-            programEncounter.programEnrolment.individual.subjectType
+            program,
+            programEncounter.individual.subjectType
         );
 
         if (_.isNil(form)) {
@@ -40,12 +47,17 @@ class ProgramEncounterCancelActions {
             throw new Error("No form element group with visible form element");
         }
         let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
-        const workLists = action.workLists || new WorkLists(new WorkList('Encounter').withCancelledEncounter({
-            encounterType: action.programEncounter.encounterType.name,
-            subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
-            programName: action.programEncounter.programEnrolment.program.name,
-        }));
-
+        const workListParams = (encounter) => {
+            return _.isNil(encounter.programEnrolment) ?
+                {encounterType: encounter.encounterType.name, subjectUUID: encounter.individual.uuid} :
+                {
+                    encounterType: encounter.encounterType.name,
+                    subjectUUID: encounter.individual.uuid,
+                    programName: encounter.programEnrolment.program.name,
+                }
+        };
+        const workLists = action.workLists || new WorkLists(new WorkList('Encounter')
+            .withCancelledEncounter(workListParams(action.programEncounter)));
         return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements, workLists);
     }
 
@@ -59,7 +71,9 @@ class ProgramEncounterCancelActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+        _.isNil(newState.programEncounter.programEnrolment) ?
+            context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits) :
+            context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
 
         action.cb();
         return newState;
