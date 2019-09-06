@@ -88,11 +88,10 @@ class IndividualGeneralHistoryView extends AbstractComponent {
         const encounterActions = this.state.encounterTypes.map(encounterType => ({
             fn: () => {
                 this.state.encounter.encounterType = encounterType;
-                CHSNavigator.navigateToIndividualEncounterLandingView(
-                    this,
-                    this.state.individualUUID,
-                    this.state.encounter
-                );
+                CHSNavigator.navigateToEncounterView(this, {
+                    individualUUID:this.state.individualUUID,
+                    encounter:this.state.encounter,
+                });
             },
             label: encounterType.displayName,
             backgroundColor: Colors.ActionButtonColor

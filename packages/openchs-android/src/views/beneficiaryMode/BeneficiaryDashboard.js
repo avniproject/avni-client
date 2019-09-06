@@ -11,7 +11,7 @@ import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import IndividualProfile from "../common/IndividualProfile";
 import CHSContainer from "../common/CHSContainer";
-import StartEncounterView from "../program/StartEncounterView";
+import NewVisitMenuView from "../program/NewVisitMenuView";
 import PreviousEncounters from "../common/PreviousEncounters";
 import {Form} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -54,7 +54,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
         const onSaveCallback = (view: SystemRecommendationView) =>
             CHSNavigator.navigateToBeneficiaryDashboard(view, this.props);
-        return (enrolmentUUID && <StartEncounterView params={{enrolmentUUID, onSaveCallback}}/>);
+        return (enrolmentUUID && <NewVisitMenuView params={{enrolmentUUID, onSaveCallback}}/>);
     }
 
     render() {

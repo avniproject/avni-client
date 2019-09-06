@@ -1,5 +1,5 @@
 // @flow
-import {Encounter} from 'openchs-models';
+import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'openchs-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -9,7 +9,7 @@ import IndividualRegisterView from "../views/individual/IndividualRegisterView";
 import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
-import StartEncounterPageView from "../views/program/StartEncounterPageView";
+import NewVisitPageView from "../views/program/NewVisitPageView";
 import LoginView from "../views/LoginView";
 import LandingView from "../views/LandingView";
 import MenuView from "../views/MenuView";
@@ -26,7 +26,6 @@ import SubjectRegisterView from "../views/subject/SubjectRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
-import {EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from "openchs-models";
 import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
 import ProgramEnrolmentService from "../service/ProgramEnrolmentService";
@@ -65,7 +64,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, StartEncounterPageView, ProgramEnrolmentTabView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, ProgramEnrolmentTabView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
                 TypedTransition.createRoute(ProgramEnrolmentTabView, {
@@ -86,7 +85,7 @@ class CHSNavigator {
     }
 
     static navigateToStartEncounterPage(source, enrolmentUUID) {
-        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(StartEncounterPageView);
+        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(NewVisitPageView);
     }
 
     static goBack(source) {
@@ -247,18 +246,18 @@ class CHSNavigator {
     }
 
     static getMessage(i18n, workItem: WorkItem) {
-        switch (workItem.type) {
-            case WorkItem.type.REGISTRATION:
-                return i18n.t("registrationSavedMsg")
-            case WorkItem.type.PROGRAM_ENROLMENT:
-                return i18n.t("enrolmentSavedMsg", {programName: workItem.parameters.programName});
-            case WorkItem.type.PROGRAM_ENCOUNTER:
-                return i18n.t("encounterSavedMsg", {encounterName: workItem.parameters.encounterType});
-            case WorkItem.type.CANCELLED_ENCOUNTER:
-                return i18n.t("encounterCancelledMsg", {encounterName: workItem.parameters.encounterType});
-            default:
-                throw new Error("Invalid WorkItemType");
+        const args = {programName: workItem.parameters.programName, encounterName: workItem.parameters.encounterType};
+        const tkey = new Map([
+            [WorkItem.type.REGISTRATION, 'registrationSavedMsg'],
+            [WorkItem.type.PROGRAM_ENROLMENT, 'enrolmentSavedMsg'],
+            [WorkItem.type.PROGRAM_ENCOUNTER, 'encounterSavedMsg'],
+            [WorkItem.type.CANCELLED_ENCOUNTER, 'encounterCancelledMsg'],
+            [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
+        ]).get(workItem.type);
+        if (tkey) {
+            return i18n.t(tkey, args);
         }
+        throw new Error(`Invalid WorkItemType '${workItem.type}'`);
     }
 
     static performNextWorkItemFromRecommendationsView(recommendationsView, workListState: WorkListState, context) {
@@ -406,6 +405,22 @@ class CHSNavigator {
 
     static navigateToBeneficiaryIdentificationPage(source) {
         TypedTransition.from(source).toBeginning().to(BeneficiaryIdentificationPage, true, true);
+    }
+
+    static navigateToEncounterView(source, params) {
+        const encounter = params.encounter;
+        const editing = params.editing || false;
+        const backFunction = params.backFunction;
+        const isCancelPage = encounter.isCancelled() || params.cancel;
+        if(encounter instanceof Encounter) {
+            CHSNavigator.navigateToIndividualEncounterLandingView(
+                source, params.individualUUID, encounter, editing, null, null, null, backFunction);
+        } else if (isCancelPage) {
+            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
+        } else {
+            CHSNavigator.navigateToProgramEncounterView(
+                source, encounter, editing, null, null, null, backFunction, params.onSaveCallback);
+        }
     }
 }
 

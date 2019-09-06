@@ -16,7 +16,7 @@ import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-class StartEncounterView extends AbstractComponent {
+class NewVisitMenuView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
@@ -25,21 +25,15 @@ class StartEncounterView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.startProgramActions);
     }
 
-    viewName() {
-        return "StartEncounterView";
-    }
-
     componentWillMount() {
         this.dispatchAction(Actions.onLoad, this.props.params);
         return super.componentWillMount();
     }
 
     encounterFromEncounterType(encounterType) {
-        const programEncounter = ProgramEncounter.createEmptyInstance();
-        programEncounter.programEnrolment = this.state.enrolment;
-        programEncounter.encounterDateTime = moment().toDate();
-        programEncounter.encounterType = encounterType;
-        return programEncounter;
+        const scheduled = ProgramEncounter.createScheduled(encounterType, this.state.enrolment);
+        scheduled.encounterDateTime = moment().toDate();
+        return scheduled;
     }
 
     proceed(encounter) {
@@ -48,7 +42,10 @@ class StartEncounterView extends AbstractComponent {
             : encounter;
         let programEncounter = selectedEncounter.cloneForEdit();
         programEncounter.encounterDateTime = moment().toDate();
-        CHSNavigator.navigateToProgramEncounterView(this, programEncounter, undefined, undefined, undefined, undefined, undefined, this.props.params.onSaveCallback);
+        CHSNavigator.navigateToEncounterView(this, {
+            encounter: programEncounter,
+            onSaveCallback: this.props.params.onSaveCallback,
+        });
     }
 
     renderHeader(title) {
@@ -119,7 +116,7 @@ class StartEncounterView extends AbstractComponent {
     }
 }
 
-export default StartEncounterView;
+export default NewVisitMenuView;
 
 const styles = StyleSheet.create({
     container: {

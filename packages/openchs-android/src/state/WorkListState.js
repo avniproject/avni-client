@@ -1,4 +1,4 @@
-import {WorkLists, WorkList, WorkItem} from 'openchs-models';
+import {WorkItem, WorkList, WorkLists} from 'openchs-models';
 
 export default class WorkListState {
     constructor(workLists: WorkLists, getParametersFn) {
@@ -48,19 +48,12 @@ export default class WorkListState {
 
     saveAndProceedButtonLabel(i18n) {
         const nextWorkItem = this.peekNextWorkItem();
-        switch (nextWorkItem.type) {
-            case WorkItem.type.REGISTRATION: {
-                return this.labelOrDefault(nextWorkItem, 'anotherRegistration', i18n);
-            }
-            case WorkItem.type.PROGRAM_ENROLMENT: {
-                return this.labelOrDefault(nextWorkItem, 'enrolIntoProgram', i18n);
-            }
-            case WorkItem.type.PROGRAM_ENCOUNTER: {
-                return this.labelOrDefault(nextWorkItem, 'proceedEncounter', i18n);
-            }
-            case WorkItem.type.ENCOUNTER: {
-                return this.labelOrDefault(nextWorkItem, 'proceedEncounter', i18n);
-            }
-        }
+        const tkey = new Map([
+            [WorkItem.type.REGISTRATION, 'anotherRegistration'],
+            [WorkItem.type.PROGRAM_ENROLMENT, 'enrolIntoProgram'],
+            [WorkItem.type.PROGRAM_ENCOUNTER, 'proceedEncounter'],
+            [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
+        ]).get(nextWorkItem.type);
+        return this.labelOrDefault(nextWorkItem, tkey, i18n);
     }
 }

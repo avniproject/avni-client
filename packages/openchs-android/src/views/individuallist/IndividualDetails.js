@@ -101,13 +101,10 @@ class IndividualDetails extends AbstractComponent {
     proceed(encounter) {
         encounter = encounter.cloneForEdit();
         encounter.encounterDateTime = moment().toDate();
-        if(encounter instanceof Encounter) {
-            CHSNavigator.navigateToIndividualEncounterLandingView(
-                this, null, encounter, false, null, null, null, this.props.backFunction);
-        } else {
-            CHSNavigator.navigateToProgramEncounterView(
-                this, encounter, false, null, null, null, this.props.backFunction);
-        }
+        CHSNavigator.navigateToEncounterView(this, {
+            encounter,
+            backFunction: this.props.backFunction
+        });
     }
 
     render() {

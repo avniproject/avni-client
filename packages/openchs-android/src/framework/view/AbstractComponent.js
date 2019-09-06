@@ -128,6 +128,10 @@ class AbstractComponent extends Component {
             ]);
         }
     }
+
+    viewName() {
+        return this.constructor.name;
+    }
 }
 
 export default AbstractComponent;
