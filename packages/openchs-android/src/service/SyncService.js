@@ -216,7 +216,7 @@ class SyncService extends BaseService {
                         acc.arr.push(parent);
                     }
                     const alreadyFetchedParent = acc.obj[parentUUID];
-                    alreadyFetchedParent[fieldNameHoldingChildren] = _.xorBy(alreadyFetchedParent[fieldNameHoldingChildren], [child], 'uuid');
+                    alreadyFetchedParent[fieldNameHoldingChildren] = _.unionBy([child], alreadyFetchedParent[fieldNameHoldingChildren], 'uuid');
                     return acc;
                 }, {arr: [], obj: {}}).arr;
             entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
