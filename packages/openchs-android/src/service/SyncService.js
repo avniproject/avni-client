@@ -4,7 +4,14 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import {
+    BaseEntity,
+    EntityMetaData,
+    EntitySyncStatus,
+    ProgramEnrolment,
+    RuleFailureTelemetry,
+    SyncTelemetry
+} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -13,8 +20,8 @@ import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import _ from "lodash";
-import {EntityMetaData} from "openchs-models";
 import RuleService from "./RuleService";
+import General from "../utility/General";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -190,11 +197,28 @@ class SyncService extends BaseService {
         //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
         //`<A Model>.associateChild()` called many times as many children
         if (!_.isEmpty(entityMetaData.parent)) {
-            const parentEntities = _.zip(entityResources, entities)
-                .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
-            const mergedParentEntities =
-                _.values(_.groupBy(parentEntities, 'uuid'))
-                    .map(entityMetaData.parent.entityClass.merge(entityMetaData.entityClass));
+            const clazz = entityMetaData.entityClass;
+            const parentClazz = entityMetaData.parent.entityClass;
+            //when parentClazz is ProgramEnrolment and clazz is ProgramEncounter
+            //linkNameHoldingParentUUID is representing field "programEnrolmentUUID" in programEncounter response json
+            //fieldNameHoldingChildren is representing field "encounters" in ProgramEnrolment class
+            const fieldNameHoldingChildren = parentClazz.childAssociations().get(clazz);
+            const linkNameHoldingParentUUID = clazz.parentAssociations().get(parentClazz);
+            const mergedParentEntities = _([entityResources, entities])
+                .unzip()
+                .map(([childResource, child]) => {
+                    return {parentUUID: General.getLinkPropFromResource(childResource, linkNameHoldingParentUUID), child};
+                }).reduce((acc, {parentUUID, child}) => {
+                    if (!acc.obj[parentUUID]) {
+                        var parent = this.entityService.findByKey("uuid", parentUUID, parentClazz.schema.name);
+                        parent = General.pick(parent, ["uuid"], [fieldNameHoldingChildren]);
+                        acc.obj[parentUUID] = parent;
+                        acc.arr.push(parent);
+                    }
+                    const alreadyFetchedParent = acc.obj[parentUUID];
+                    alreadyFetchedParent[fieldNameHoldingChildren] = _.xorBy(alreadyFetchedParent[fieldNameHoldingChildren], [child], 'uuid');
+                    return acc;
+                }, {arr: [], obj: {}}).arr;
             entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
         }
 

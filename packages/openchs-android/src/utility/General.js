@@ -261,6 +261,10 @@ class General {
         console.log(_.pad(str, 40, '-'));
         console.log(...values);
     }
+
+    static getLinkPropFromResource(resource, property) {
+        return _.get(resource, ['_links', property, 'href']);
+    }
 }
 
 export default General;
