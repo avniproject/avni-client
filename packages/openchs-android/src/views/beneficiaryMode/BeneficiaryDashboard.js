@@ -39,22 +39,36 @@ export default class BeneficiaryDashboard extends AbstractComponent {
     }
 
     renderCompletedVisits() {
-        return (this.state.enrolment && <PreviousEncounters encounters={this.state.completedEncounters}
+        return <React.Fragment>
+            {!_.isEmpty(this.state.completedEncounters) && (
+                <PreviousEncounters encounters={this.state.completedEncounters}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={5}
                                     showPartial={true}
                                     title={this.I18n.t('visitsCompleted')}
                                     emptyTitle={this.I18n.t('noCompletedEncounters')}
                                     expandCollapseView={true}
-                                    onToggleAction={Actions.onEncounterToggle.Id}
-                                    enrolment={this.state.enrolment}/>);
+                                    onToggleAction={Actions.onEncounterToggle}
+                                    enrolment={this.state.enrolment}/>
+            )}
+            {!_.isEmpty(this.state.completedGeneralEncounters) && (
+                <PreviousEncounters encounters={this.state.completedGeneralEncounters}
+                                    formType={Form.formTypes.Encounter}
+                                    showCount={5}
+                                    showPartial={true}
+                                    expandCollapseView={true}
+                                    onToggleAction={Actions.onGeneralEncounterToggle}/>
+            )}
+        </React.Fragment>;
     }
 
     renderEncountersSection() {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
+        const individualUUID = this.props.beneficiary && this.props.beneficiary.uuid;
         const onSaveCallback = (view: SystemRecommendationView) =>
             CHSNavigator.navigateToBeneficiaryDashboard(view, this.props);
-        return (enrolmentUUID && <NewVisitMenuView enrolmentUUID={enrolmentUUID} onSaveCallback={onSaveCallback}/>);
+        return (<NewVisitMenuView
+            enrolmentUUID={enrolmentUUID} individualUUID={individualUUID} onSaveCallback={onSaveCallback}/>);
     }
 
     render() {

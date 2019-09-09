@@ -154,17 +154,21 @@ class PreviousEncounters extends AbstractComponent {
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text
-                    style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
+                {this.props.title &&(
+                    <Text style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>
+                        {this.props.title}
+                    </Text>
+                )}
                 {this.props.expandCollapseView && this.props.encounters.length > 3 ? this.renderViewAll(this.props.encounters) :
                     <View/>}
             </View>
-            {_.isEmpty(toDisplayEncounters) ?
-                (<View style={styles.container}>
+            {(this.props.emptyTitle && _.isEmpty(toDisplayEncounters)) ? (
+                <View style={styles.container}>
                     <Text style={{fontSize: Fonts.Medium}}>{this.props.emptyTitle}</Text>
-                </View>)
-                :
-                <View/>}
+                </View>
+            ):(
+                <View/>
+            )}
             <ListView
                 enableEmptySections={true}
                 dataSource={dataSource}

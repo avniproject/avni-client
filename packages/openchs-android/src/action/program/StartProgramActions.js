@@ -4,6 +4,7 @@ import FormMappingService from "../../service/FormMappingService";
 import UserInfoService from "../../service/UserInfoService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Action} from "../util";
+import IndividualService from "../../service/IndividualService";
 
 class StartProgramActions {
 
