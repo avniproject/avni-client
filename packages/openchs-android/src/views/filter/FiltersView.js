@@ -44,7 +44,9 @@ class FilterView extends AbstractComponent {
         const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
-        const encounterTypes = programs.length === 1 ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : this.props.encounterTypes;
+        const encounterTypes = programs.length === 1
+            ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType)
+            : this.props.encounterTypes;
 
         this.dispatchAction(FilterActionNames.ON_LOAD, {
             filters: this.props.filters,
@@ -55,6 +57,8 @@ class FilterView extends AbstractComponent {
             selectedPrograms: selectedPrograms,
             encounterTypes,
             selectedEncounterTypes: this.props.selectedEncounterTypes,
+            generalEncounterTypes: this.props.generalEncounterTypes,
+            selectedGeneralEncounterTypes: this.props.selectedGeneralEncounterTypes,
             subjectTypes,
             selectedSubjectType
         });
@@ -94,14 +98,6 @@ class FilterView extends AbstractComponent {
         }
     }
 
-    renderFilter(filter, idx) {
-        const Elem = this.filterMap.get(filter.type);
-        return (
-            <View key={idx}>
-                <Elem filter={filter} onSelect={this.onSelect(filter, idx)}/>
-            </View>)
-    }
-
     onApply() {
         this.dispatchAction(this.props.actionName, {
             filters: this.state.filters,
@@ -113,6 +109,8 @@ class FilterView extends AbstractComponent {
             selectedPrograms: this.state.selectedPrograms,
             encounterTypes: this.state.encounterTypes,
             selectedEncounterTypes: this.state.selectedEncounterTypes,
+            generalEncounterTypes: this.state.generalEncounterTypes,
+            selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
             listType: this.props.listType,
             selectedSubjectType: this.state.selectedSubjectType,
         });
@@ -126,6 +124,10 @@ class FilterView extends AbstractComponent {
 
     onVisitSelect(name, uuid) {
         this.dispatchAction(FilterActionNames.ADD_VISITS, {encounterUUID: uuid})
+    }
+
+    onGeneralVisitSelect(name, uuid) {
+        this.dispatchAction(FilterActionNames.ADD_GENERAL_VISITS, {encounterUUID: uuid})
     }
 
     onProgramSelect(name, uuid) {
@@ -170,6 +172,30 @@ class FilterView extends AbstractComponent {
         </View>
     }
 
+    renderEncounterGroup() {
+        return <View style={{
+            marginTop: Styles.VerticalSpacingBetweenFormElements,
+            marginBottom: Styles.VerticalSpacingBetweenFormElements,
+        }}>
+            <View style={{
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderRadius: 1,
+                borderColor: Colors.InputBorderNormal,
+                paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+            }}>
+                {this.state.generalEncounterTypes.length && (
+                    <ProgramFilter
+                        onToggle={(name, uuid) => this.onGeneralVisitSelect(name, uuid)}
+                        visits={this.state.generalEncounterTypes}
+                        multiSelect={true}
+                        selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e=>e.uuid === uuid)}
+                        name={'GeneralVisits'}/>
+                )}
+            </View>
+        </View>
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
@@ -196,6 +222,7 @@ class FilterView extends AbstractComponent {
                             }}/>)
                             }
                             {this.renderProgramEncounterGroup()}
+                            {this.renderEncounterGroup()}
                             <AddressLevels
                                 addressLevelState={this.state.addressLevelState}
                                 onSelect={(addressLevelState) => {

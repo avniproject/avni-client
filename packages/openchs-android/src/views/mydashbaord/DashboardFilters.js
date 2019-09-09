@@ -81,6 +81,7 @@ export default class DashboardFilters extends AbstractComponent {
                                     selectedLocations={this.props.selectedLocations}
                                     selectedPrograms={this.props.selectedPrograms}
                                     selectedEncounterTypes={this.props.selectedEncounterTypes}
+                                    selectedGeneralEncounterTypes={this.props.selectedGeneralEncounterTypes}
                                     programs={this.props.programs}/>
                 </View>
             </View>

@@ -83,7 +83,7 @@ class AbstractComponent extends Component {
 
     refreshState() {
         const nextState = this.getContextState(this.topLevelStateVariable);
-        if (!General.areEqualShallow(nextState, this.state)) {
+        if (!General.objectsShallowEquals(nextState, this.state)) {
             if (!_.isNil(nextState.error))
                 this.showError(nextState.error.message);
             this.setState(nextState);
@@ -127,6 +127,10 @@ class AbstractComponent extends Component {
                 {text: this.I18n.t('okay'), onPress: _.noop}
             ]);
         }
+    }
+
+    viewName() {
+        return this.constructor.name;
     }
 }
 

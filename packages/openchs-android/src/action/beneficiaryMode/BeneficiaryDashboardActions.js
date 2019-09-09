@@ -15,6 +15,9 @@ export default class BeneficiaryDashboardActions {
         newState.completedEncounters = _.filter(newState.enrolment && newState.enrolment.nonVoidedEncounters(),
                 it => it.encounterDateTime || it.cancelDateTime
         ).map(encounter => ({encounter, expand: false}));
+        newState.completedGeneralEncounters = _.filter(newState.beneficiary.nonVoidedEncounters(),
+            it => it.encounterDateTime || it.cancelDateTime
+        ).map(encounter => ({encounter, expand: false}));
         return newState;
     }
 
@@ -22,6 +25,15 @@ export default class BeneficiaryDashboardActions {
     static onEncounterToggle(state, action) {
         const newState = {...state};
         newState.completedEncounters = _.reject(newState.completedEncounters,
+                it => it.encounter.uuid === action.encounterInfo.encounter.uuid
+        ).concat(action.encounterInfo);
+        return newState;
+    }
+
+    @Action()
+    static onGeneralEncounterToggle(state, action) {
+        const newState = {...state};
+        newState.completedGeneralEncounters = _.reject(newState.completedGeneralEncounters,
                 it => it.encounter.uuid === action.encounterInfo.encounter.uuid
         ).concat(action.encounterInfo);
         return newState;
@@ -34,4 +46,5 @@ const actions = BeneficiaryDashboardActions.Names = {
 BeneficiaryDashboardActions.Map = new Map([
     [BeneficiaryDashboardActions.onLoad.Id, BeneficiaryDashboardActions.onLoad],
     [BeneficiaryDashboardActions.onEncounterToggle.Id, BeneficiaryDashboardActions.onEncounterToggle],
+    [BeneficiaryDashboardActions.onGeneralEncounterToggle.Id, BeneficiaryDashboardActions.onGeneralEncounterToggle],
 ]);

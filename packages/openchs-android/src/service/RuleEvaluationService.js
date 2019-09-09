@@ -53,6 +53,7 @@ class RuleEvaluationService extends BaseService {
             ['ProgramEncounter', (programEncounter) => this.formMappingService.findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.programEnrolment.individual.subjectType)],
             ['ChecklistItem', (checklistItem) => checklistItem.detail.form],
             ['ProgramEncounterCancellation', (programEncounter) => this.formMappingService.findFormForCancellingEncounterType(programEncounter.encounterType, programEncounter.programEnrolment.program, programEncounter.programEnrolment.individual.subjectType)],
+            ['IndividualEncounterCancellation', (individualEncounter) => this.formMappingService.findFormForCancellingEncounterType(individualEncounter.encounterType, null, individualEncounter.individual.subjectType)]
         ]);
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);

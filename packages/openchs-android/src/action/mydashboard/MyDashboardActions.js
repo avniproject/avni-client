@@ -25,6 +25,8 @@ class MyDashboardActions {
             selectedPrograms: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
+            generalEncounterTypes: [],
+            selectedGeneralEncounterTypes: [],
             itemsToDisplay: [],
             fetchFromDB: true,
             scheduled: 0,
@@ -153,7 +155,7 @@ class MyDashboardActions {
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters) : methodMap.get(listType);
+        const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters) : methodMap.get(listType);
         const totalToDisplay = _.orderBy(allIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
         return {
             ...state,
@@ -199,6 +201,7 @@ class MyDashboardActions {
         const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
         const subjectTypeQuery = (path) => `${path} = "${action.selectedSubjectType.uuid}"`;
         const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`) : '';
+        const generalVisitQuery = (path) => _.map(action.selectedGeneralEncounterTypes, (encounter) => `${path} = \'${encounter.uuid}\'`);
         const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
         const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
 
@@ -221,7 +224,7 @@ class MyDashboardActions {
         const generalEncountersFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(visitQuery('encounterType.uuid'))
+            MyDashboardActions.orQuery(generalVisitQuery('encounterType.uuid'))
         ].filter(Boolean).join(" AND ");
 
         const enrolmentFilters = [
@@ -243,6 +246,8 @@ class MyDashboardActions {
             selectedPrograms: action.selectedPrograms,
             encounterTypes: action.encounterTypes,
             selectedEncounterTypes: action.selectedEncounterTypes,
+            generalEncounterTypes: action.generalEncounterTypes,
+            selectedGeneralEncounterTypes: action.selectedGeneralEncounterTypes,
             individualFilters,
             encountersFilters,
             enrolmentFilters,

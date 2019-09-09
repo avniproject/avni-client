@@ -168,16 +168,16 @@ class General {
         });
     }
 
-    static areEqualShallow(a, b) {
-        if (_.isNil(a) !== _.isNil(b))
-            return false;
+    static objectsShallowEquals(a: Object, b: Object): Boolean {
+        return _.isNil(a) === _.isNil(b)
+            && _.isEmpty(_.xor(_.keys(a),_.keys(b)))
+            && _.every(_.keys(a), key => a[key] === b[key]);
+    }
 
-        if (!_.isEmpty(_.xor(_.keys(a),_.keys(b))))
-            return false;
-
-        return _.every(_.keys(a), (key)=>{
-            return a[key] === b[key];
-        });
+    static arraysShallowEquals(a: Array, b: Array, prop: String): Boolean {
+        return _.isNil(a) === _.isNil(b)
+            && _.size(a) === _.size(b)
+            && _.isEmpty(_.xorBy(a, b, prop));
     }
 
     static dateWithoutTime(date) {
@@ -260,6 +260,10 @@ class General {
     static dlog(str,...values) {
         console.log(_.pad(str, 40, '-'));
         console.log(...values);
+    }
+
+    static getLinkPropFromResource(resource, property) {
+        return _.get(resource, ['_links', property, 'href']);
     }
 }
 

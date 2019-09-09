@@ -51,16 +51,31 @@ class ProgramEncounterCancelView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS);
     }
 
+    getCancelEncounterForm() {
+        const formMappingService = this.context.getService(FormMappingService);
+        const encounter = this.state.programEncounter;
+        return _.isNil(encounter.programEnrolment) ? formMappingService.findFormForCancellingEncounterType(encounter.encounterType, null, encounter.individual.subjectType) :
+            formMappingService.findFormForCancellingEncounterType(encounter.encounterType, encounter.programEnrolment.program, encounter.individual.subjectType);
+    }
+
+    _header(encounter) {
+        const prefix = _.isNil(encounter.programEnrolment) ? encounter.individual.firstName : encounter.programEnrolment.program.displayName;
+        return `${this.I18n.t(prefix)}, ${this.I18n.t(encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`
+    }
+
+    onSaveCallback(source, encounter) {
+        _.isNil(encounter.programEnrolment) ?
+            CHSNavigator.navigateToIndividualEncounterDashboardView(source, encounter.individual.uuid, encounter, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName})) :
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName}));
+    }
+
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
-                const onSaveCallback = (source) => {
-                    CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.programEncounter.programEnrolment.individual.uuid, state.programEncounter.programEnrolment.uuid, true,null, this.I18n.t('encounterCancelledMsg', {encounterName: state.programEncounter.encounterType.operationalEncounterTypeName}));
-                };
-                const headerMessage = `${this.I18n.t(state.programEncounter.programEnrolment.program.displayName)}, ${this.I18n.t(state.programEncounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
-                const formMappingService = this.context.getService(FormMappingService);
-                const form = formMappingService.findFormForCancellingEncounterType(this.state.programEncounter.encounterType, this.state.programEncounter.programEnrolment.program, this.state.programEncounter.programEnrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.programEnrolment.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
+                const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
+                const headerMessage = this._header(state.programEncounter);
+                const form = this.getCancelEncounterForm();
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
             movedNext: this.scrollToTop
         });
@@ -75,17 +90,17 @@ class ProgramEncounterCancelView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent ref="scroll">
-                    <AppHeader title={this.state.programEncounter.programEnrolment.individual.nameString}
+                    <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() &&
-                            <GeolocationFormElement
-                                location={this.state.programEncounter.cancelLocation}
-                                editing={this.props.params.editing}
-                                actionName={Actions.SET_CANCEL_LOCATION}
-                                errorActionName={Actions.SET_LOCATION_ERROR}
-                                validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.CANCEL_LOCATION)}
-                            />
+                        <GeolocationFormElement
+                            location={this.state.programEncounter.cancelLocation}
+                            editing={this.props.params.editing}
+                            actionName={Actions.SET_CANCEL_LOCATION}
+                            errorActionName={Actions.SET_LOCATION_ERROR}
+                            validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.CANCEL_LOCATION)}
+                        />
                         }
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}

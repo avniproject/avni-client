@@ -1,6 +1,7 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import {Form, ObservationsHolder, ProgramEncounter} from "openchs-models";
+import _ from 'lodash';
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements, workLists) {
@@ -13,7 +14,9 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     getEntityType() {
-        return Form.formTypes.ProgramEncounterCancellation;
+        return _.isNil(this.programEncounter.programEnrolment) ?
+            Form.formTypes.IndividualEncounterCancellation :
+            Form.formTypes.ProgramEncounterCancellation;
     }
 
     get staticFormElementIds() {

@@ -42,20 +42,13 @@ class PreviousEncounters extends AbstractComponent {
 
     editEncounter(encounter) {
         encounter = encounter.cloneForEdit();
-        let editing = !encounter.isScheduled();
+        const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        if (encounter.getName() === 'Encounter') {
-            CHSNavigator.navigateToIndividualEncounterLandingView(this, null, encounter, editing);
-        } else if (encounter.isCancelled()) {
-            CHSNavigator.navigateToProgramEncounterCancelView(this, encounter, editing);
-        } else {
-            CHSNavigator.navigateToProgramEncounterView(this, encounter, editing);
-        }
-
+        CHSNavigator.navigateToEncounterView(this, {encounter, editing});
     }
 
     cancelEncounter(encounter) {
-        CHSNavigator.navigateToProgramEncounterCancelView(this, encounter);
+        CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true});
     }
 
     cancelVisitAction(encounter, textColor) {
@@ -161,17 +154,21 @@ class PreviousEncounters extends AbstractComponent {
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text
-                    style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>{this.props.title}</Text>
+                {this.props.title &&(
+                    <Text style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>
+                        {this.props.title}
+                    </Text>
+                )}
                 {this.props.expandCollapseView && this.props.encounters.length > 3 ? this.renderViewAll(this.props.encounters) :
                     <View/>}
             </View>
-            {_.isEmpty(toDisplayEncounters) ?
-                (<View style={styles.container}>
+            {(this.props.emptyTitle && _.isEmpty(toDisplayEncounters)) ? (
+                <View style={styles.container}>
                     <Text style={{fontSize: Fonts.Medium}}>{this.props.emptyTitle}</Text>
-                </View>)
-                :
-                <View/>}
+                </View>
+            ):(
+                <View/>
+            )}
             <ListView
                 enableEmptySections={true}
                 dataSource={dataSource}
