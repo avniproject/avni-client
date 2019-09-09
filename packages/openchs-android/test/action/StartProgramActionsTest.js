@@ -37,8 +37,7 @@ describe("ProgramActions", () => {
         it("adds list of encounter types for program to state", () => {
             const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
             expect(state.encounterTypes).to.have.lengthOf(3);
-            expect(_.map(state.encounterTypes, (encounterType) => encounterType.data)).to.have.members(serviceData.programEncounterTypes);
-            expect(_.map(state.encounterTypes, (encounterType) => encounterType.selected)).to.have.members([false, false, false]);
+            expect(_.map(state.encounterTypes, 'encounterType')).to.have.members(serviceData.programEncounterTypes);
         });
 
         it("adds existing encounters to state", () => {
@@ -55,52 +54,20 @@ describe("ProgramActions", () => {
         });
 
         it("sorts them by scheduled date", () => {
-            enrolment.encounters[0].earliestVisitDateTime = moment().add(10, 'days');
-            enrolment.encounters[1].earliestVisitDateTime = moment().add(20, 'days');
-            enrolment.encounters[2].earliestVisitDateTime = moment().add(5, 'days');
+            enrolment.encounters[0].earliestVisitDateTime = moment().add(10, 'days').toDate();
+            enrolment.encounters[1].earliestVisitDateTime = moment().add(20, 'days').toDate();
+            enrolment.encounters[2].earliestVisitDateTime = moment().add(5, 'days').toDate();
+
+            enrolment.encounters[0].uuid = '10';
+            enrolment.encounters[1].uuid = '20';
+            enrolment.encounters[2].uuid = '5';
 
             const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
 
-            expect(state.encounters[0].key).to.equal(enrolment.encounters[2].uuid);
-            expect(state.encounters[1].key).to.equal(enrolment.encounters[0].uuid);
-            expect(state.encounters[2].key).to.equal(enrolment.encounters[1].uuid);
-        });
-
-        it("and selects the next scheduled encounter", () => {
-            enrolment.encounters[0].earliestVisitDateTime = moment().add(10, 'days');
-            enrolment.encounters[1].earliestVisitDateTime = moment().add(20, 'days');
-            enrolment.encounters[2].earliestVisitDateTime = moment().add(5, 'days');
-
-            const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
-            expect(state.encounters[0].key).to.equal(enrolment.encounters[2].uuid);
-            expect(state.encounters[0].selected).to.be.true;
-            expect(state.encounters[1].selected).to.be.false;
-            expect(state.encounters[2].selected).to.be.false;
-
-        });
-
-        it("preselects first encounter type if no planned encounter available and only one encounter type ", () => {
-            enrolment.encounters = [];
-            serviceData.programEncounterTypes = [
-                EncounterType.fromResource({uuid: "e1a853a6-7fbb-4ee2-ba56-e67b3e6f7e8f", name: 'ANC'})
-            ];
-
-            const state = Actions.onLoad(null, {enrolmentUUID: enrolment.uuid}, testContext);
-            expect(state.encounterTypes[0].selected).to.be.true;
+            expect(state.encounters[0].encounter.uuid).to.equal('5');
+            expect(state.encounters[1].encounter.uuid).to.equal('10');
+            expect(state.encounters[2].encounter.uuid).to.equal('20');
         });
     });
 
-    describe("Utility functions", () => {
-       it("asDisplayDate formats dates in the right display format", () => {
-           const encounter =  ProgramEncounter.createScheduled(ancEncounterType, enrolment);
-           encounter.name = "ANC 1";
-           encounter.earliestVisitDateTime = moment("1995-12-25");
-           let i18n = {
-               t: function (abc) {
-                   return abc;
-               }
-           };
-           expect(Actions.displayLabel(encounter, i18n)).to.equal("ANC 1 (25-Dec-1995)");
-       });
-    });
 });

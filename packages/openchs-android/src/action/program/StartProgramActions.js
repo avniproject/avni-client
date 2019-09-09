@@ -36,7 +36,7 @@ class StartProgramActions {
             ? []
             : individual.scheduledEncounters().map(encounter => ({encounter, parent: individual}));
 
-        newState.encounters = _.sortBy([...programEncounters, ...individualEncounters], "earliestVisitDateTime");
+        newState.encounters = _.sortBy([...programEncounters, ...individualEncounters], 'encounter.earliestVisitDateTime');
 
         const programEncounterTypes = _.isNil(enrolment)
             ? []
