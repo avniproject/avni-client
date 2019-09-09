@@ -26,17 +26,12 @@ import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import Separator from "../primitives/Separator";
 
-@Path('/ProgramEnrolmentDashboardView')
-class ProgramEnrolmentDashboardView extends AbstractComponent {
+class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
         enrolmentUUID: PropTypes.string,
         individualUUID: PropTypes.string.isRequired,
         backFunction: PropTypes.func
     };
-
-    viewName() {
-        return 'ProgramEnrolmentDashboardView';
-    }
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
@@ -287,4 +282,4 @@ class ProgramEnrolmentDashboardView extends AbstractComponent {
     }
 }
 
-export default ProgramEnrolmentDashboardView;
+export default SubjectDashboardProgramsTab;

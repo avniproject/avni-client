@@ -40,7 +40,7 @@ import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewAc
 import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
 import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
-import {ProgramEnrolmentTabActions, ProgramEnrolmentTabActionsMap} from '../action/program/ProgramEnrolmentTabActions'
+import SubjectDashboardViewActions from '../action/program/SubjectDashboardViewActions'
 import {SyncActions, SyncActionMap} from '../action/SyncActions';
 
 export default class Reducers {
@@ -78,7 +78,7 @@ export default class Reducers {
         filterAction: "filterAction",
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
         completedEncounters: "CompletedEncounters",
-        programEnrolmentTab: "ProgramEnrolmentTabView",
+        subjectDashboardView: "subjectDashboardView",
         syncComponentAction: "syncComponent"
     };
 
@@ -116,7 +116,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.syncTelemetryActions] = Reducers._add(SyncTelemetryActionsMap, SyncTelemetryActions, beanStore);
         reducerMap[Reducers.reducerKeys.completedVisitsFilterAction] = Reducers._add(CompletedVisitsFilterActionMap, CompletedVisitsFilterAction, beanStore);
         reducerMap[Reducers.reducerKeys.completedEncounters] = Reducers._add(CompletedEncountersActionMap, CompletedEncountersActions, beanStore);
-        reducerMap[Reducers.reducerKeys.programEnrolmentTab] = Reducers._add(ProgramEnrolmentTabActionsMap, ProgramEnrolmentTabActions, beanStore);
+        reducerMap[Reducers.reducerKeys.subjectDashboardView] = Reducers._add(SubjectDashboardViewActions.Map, SubjectDashboardViewActions, beanStore);
         reducerMap[Reducers.reducerKeys.syncComponentAction] = Reducers._add(SyncActionMap, SyncActions, beanStore);
         return reducerMap;
     };

@@ -33,7 +33,7 @@ import General from "./General";
 import WorkListState from "../state/WorkListState";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
-import ProgramEnrolmentTabView from "../views/program/ProgramEnrolmentTabView";
+import SubjectDashboardView from "../views/program/SubjectDashboardView";
 import BeneficiaryDashboard from "../views/beneficiaryMode/BeneficiaryDashboard";
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 import EncounterService from "../service/EncounterService";
@@ -64,10 +64,10 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, ProgramEnrolmentTabView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, SubjectDashboardView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
-                TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                TypedTransition.createRoute(SubjectDashboardView, {
                     individualUUID: individualUUID,
                     enrolmentUUID: selectedEnrolmentUUID,
                     message,
@@ -76,17 +76,17 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(ProgramEnrolmentTabView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(SubjectDashboardView, true);
         }
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, ProgramEnrolmentTabView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, SubjectDashboardView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
-                TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                TypedTransition.createRoute(SubjectDashboardView, {
                     individualUUID: individualUUID,
                     encounter: encounter,
                     message,
@@ -95,7 +95,7 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 3}).to(ProgramEnrolmentTabView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 3}).to(SubjectDashboardView, true);
         }
     }
 
@@ -136,7 +136,7 @@ class CHSNavigator {
             individualUUID: individualUUID,
             backFunction: backFunction,
             tab: 1
-        }).to(ProgramEnrolmentTabView);
+        }).to(SubjectDashboardView);
     }
 
     static navigateToRegisterView(source, workLists, message) {
@@ -168,7 +168,7 @@ class CHSNavigator {
             TypedTransition
                 .from(source)
                 .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], [
-                    TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                    TypedTransition.createRoute(SubjectDashboardView, {
                         individualUUID: encounter.individual.uuid, message, tab: 3
                     }, true)
                 ]);
@@ -256,7 +256,7 @@ class CHSNavigator {
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
-                TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                TypedTransition.createRoute(SubjectDashboardView, {
                     individualUUID,
                     message: recommendationsView.I18n.t("registrationSavedMsg"),
                     tab: 1
@@ -314,7 +314,7 @@ class CHSNavigator {
                 const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(ProgramEnrolmentView, {
                             enrolment: enrolment,
                             workLists: workListState.workLists,
@@ -349,7 +349,7 @@ class CHSNavigator {
                 }
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(ProgramEncounterView, {
                             params: {
                                 enrolmentUUID: programEncounter.programEnrolment.uuid,
@@ -388,7 +388,7 @@ class CHSNavigator {
                 }
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(IndividualEncounterLandingView, {
                                 individualUUID: nextWorkItem.parameters.subjectUUID,
                                 encounterType: nextWorkItem.parameters.encounterType,

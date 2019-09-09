@@ -22,19 +22,14 @@ import {WorkItem, WorkList, WorkLists} from "openchs-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
-import ProgramEnrolmentTabView from "../program/ProgramEnrolmentTabView";
-import {ProgramEnrolmentTabActionsNames as TabActions} from "../../action/program/ProgramEnrolmentTabActions";
+import SubjectDashboardView from "../program/SubjectDashboardView";
+import {Names as DashboardActions} from "../../action/program/SubjectDashboardViewActions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 
-@Path('/IndividualRegistrationDetailView')
-class IndividualRegistrationDetailView extends AbstractComponent {
+class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
-
-    viewName() {
-        return 'IndividualRegistrationDetailView';
-    }
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegistrationDetails);
@@ -50,7 +45,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
                 (source) => TypedTransition.from(source)
                     .resetStack([IndividualAddRelativeView], [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                        TypedTransition.createRoute(SubjectDashboardView, {
                             individualUUID: this.state.individual.uuid,
                             tab: 1
                         })
@@ -94,7 +89,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     onRelativeSelection(individualUUID) {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID});
-        this.dispatchAction(TabActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
+        this.dispatchAction(DashboardActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
     }
 
     renderRelatives() {
@@ -210,7 +205,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 }
 
-export default IndividualRegistrationDetailView;
+export default SubjectDashboardProfileTab;
 
 
 const styles = StyleSheet.create({

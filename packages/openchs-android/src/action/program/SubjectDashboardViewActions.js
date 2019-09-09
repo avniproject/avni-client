@@ -3,7 +3,7 @@ import ProgramService from "../../service/program/ProgramService";
 import IndividualService from "../../service/IndividualService";
 import _ from 'lodash';
 
-class ProgramEnrolmentTabActions {
+export default class SubjectDashboardViewActions {
     static getInitialState() {
         return {
             individualProfile: false,
@@ -24,11 +24,11 @@ class ProgramEnrolmentTabActions {
 
     static onLoad(state, action, context) {
         const {enrolmentUUID, individualUUID, backFunction, tab, messageDisplayed} = action;
-        const newState = ProgramEnrolmentTabActions.reset(state);
+        const newState = SubjectDashboardViewActions.reset(state);
         const hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
         const programsAvailable = context.get(ProgramService).programsAvailable;
         const individual = context.get(IndividualService).findByUUID(individualUUID);
-        const tabName = ProgramEnrolmentTabActions.getTabByNumber(tab);
+        const tabName = SubjectDashboardViewActions.getTabByNumber(tab);
         return {
             ...newState,
             ...tabName,
@@ -56,7 +56,7 @@ class ProgramEnrolmentTabActions {
     }
 
     static onProfileClick(state) {
-        const newState = ProgramEnrolmentTabActions.reset(state);
+        const newState = SubjectDashboardViewActions.reset(state);
         return {
             ...newState,
             individualProfile: true,
@@ -64,7 +64,7 @@ class ProgramEnrolmentTabActions {
     }
 
     static onProgramClick(state) {
-        const newState = ProgramEnrolmentTabActions.reset(state);
+        const newState = SubjectDashboardViewActions.reset(state);
         return {
             ...newState,
             program: true,
@@ -73,7 +73,7 @@ class ProgramEnrolmentTabActions {
 
 
     static onHistoryClick(state) {
-        const newState = ProgramEnrolmentTabActions.reset(state);
+        const newState = SubjectDashboardViewActions.reset(state);
         return {
             ...newState,
             history: true,
@@ -91,7 +91,7 @@ class ProgramEnrolmentTabActions {
 
 const ActionPrefix = 'PET';
 
-const ProgramEnrolmentTabActionsNames = {
+export const Names = SubjectDashboardViewActions.Names = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_PROFILE_CLICK: `${ActionPrefix}.ON_PROFILE_CLICK`,
     ON_PROGRAM_CLICK: `${ActionPrefix}.ON_PROGRAM_CLICK`,
@@ -99,16 +99,10 @@ const ProgramEnrolmentTabActionsNames = {
     DISPLAY_MESSAGE: `${ActionPrefix}.DISPLAY_MESSAGE`,
 };
 
-const ProgramEnrolmentTabActionsMap = new Map([
-    [ProgramEnrolmentTabActionsNames.ON_LOAD, ProgramEnrolmentTabActions.onLoad],
-    [ProgramEnrolmentTabActionsNames.ON_PROFILE_CLICK, ProgramEnrolmentTabActions.onProfileClick],
-    [ProgramEnrolmentTabActionsNames.ON_PROGRAM_CLICK, ProgramEnrolmentTabActions.onProgramClick],
-    [ProgramEnrolmentTabActionsNames.ON_HISTORY_CLICK, ProgramEnrolmentTabActions.onHistoryClick],
-    [ProgramEnrolmentTabActionsNames.DISPLAY_MESSAGE, ProgramEnrolmentTabActions.displayMessage],
+SubjectDashboardViewActions.Map = new Map([
+    [Names.ON_LOAD, SubjectDashboardViewActions.onLoad],
+    [Names.ON_PROFILE_CLICK, SubjectDashboardViewActions.onProfileClick],
+    [Names.ON_PROGRAM_CLICK, SubjectDashboardViewActions.onProgramClick],
+    [Names.ON_HISTORY_CLICK, SubjectDashboardViewActions.onHistoryClick],
+    [Names.DISPLAY_MESSAGE, SubjectDashboardViewActions.displayMessage],
 ]);
-
-export {
-    ProgramEnrolmentTabActions,
-    ProgramEnrolmentTabActionsMap,
-    ProgramEnrolmentTabActionsNames
-}
