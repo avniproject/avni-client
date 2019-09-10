@@ -1,6 +1,7 @@
 // @flow
 import {Form, ValidationResult} from 'openchs-models';
 import {Action} from "../util";
+import IndividualService from "../../service/IndividualService";
 
 export default class BeneficiaryDashboardActions {
     static getInitialState(context) {
@@ -10,7 +11,7 @@ export default class BeneficiaryDashboardActions {
     @Action()
     static onLoad(state: Object, action: Object, context: Map) {
         const newState = {...state};
-        newState.beneficiary = action.beneficiary;
+        newState.beneficiary = action.beneficiary || context.get(IndividualService).findByUUID(action.beneficiaryUUID);
         newState.enrolment = newState.beneficiary.firstActiveOrRecentEnrolment;
         newState.completedEncounters = _.filter(newState.enrolment && newState.enrolment.nonVoidedEncounters(),
                 it => it.encounterDateTime || it.cancelDateTime

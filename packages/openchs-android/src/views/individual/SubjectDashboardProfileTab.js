@@ -2,7 +2,6 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
 import {Card} from "native-base";
@@ -22,9 +21,9 @@ import {WorkItem, WorkList, WorkLists} from "openchs-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
-import SubjectDashboardView from "../program/SubjectDashboardView";
 import {Names as DashboardActions} from "../../action/program/SubjectDashboardViewActions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
+import GenericDashboardView from "../program/GenericDashboardView";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -45,7 +44,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
                 (source) => TypedTransition.from(source)
                     .resetStack([IndividualAddRelativeView], [
-                        TypedTransition.createRoute(SubjectDashboardView, {
+                        TypedTransition.createRoute(GenericDashboardView, {
                             individualUUID: this.state.individual.uuid,
                             tab: 1
                         })

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {BackHandler, View} from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
+import General from "../../utility/General";
 
 export default class Router extends Component {
 
@@ -89,7 +90,7 @@ export default class Router extends Component {
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
-        // General.logDebug('Navigator.paths', JSON.stringify(_.map(_.invoke(this.navigator,'getCurrentRoutes'), 'path'),null,2));
+        General.logDebug('Navigator.paths', JSON.stringify(_.map(_.invoke(this.navigator,'getCurrentRoutes'), 'path'),null,2));
     }
 
     render() {

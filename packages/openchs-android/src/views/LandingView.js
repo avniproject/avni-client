@@ -22,7 +22,6 @@ import UserInfoService from "../service/UserInfoService";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import BeneficiaryIdentificationPage from "./BeneficiaryIdentificationPage";
 
 
 @Path('/landingView')
@@ -108,7 +107,6 @@ class LandingView extends AbstractComponent {
                     hideBackButton={true}/>}
                 {this.state.register && <RegisterView/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
-                {false && <BeneficiaryIdentificationPage/>}
 
                 <View style={{
                     height: 55,

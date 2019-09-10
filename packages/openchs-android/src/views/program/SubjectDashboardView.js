@@ -12,19 +12,20 @@ import Reducers from "../../reducer";
 import SubjectDashboardProfileTab from "../individual/SubjectDashboardProfileTab";
 import SubjectDashboardProgramsTab from "./SubjectDashboardProgramsTab";
 import CHSContent from "../common/CHSContent";
-import Path from "../../framework/routing/Path";
 import General from "../../utility/General";
 import Fonts from "../primitives/Fonts";
 import {Names as Actions} from "../../action/program/SubjectDashboardViewActions";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import OIcon from "react-native-vector-icons/Octicons";
 
-@Path('/SubjectDashboardView')
 class SubjectDashboardView extends AbstractComponent {
-
     static propTypes = {
+        enrolmentUUID: PropTypes.string,
         individualUUID: PropTypes.string,
+        message: PropTypes.string,
+        backFunction: PropTypes.func,
         tab: PropTypes.number,
+        messageDisplayed: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -32,7 +33,7 @@ class SubjectDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props.params || this.props);
+        this.dispatchAction(Actions.ON_LOAD, this.props);
         return super.componentWillMount();
     }
 
@@ -82,7 +83,7 @@ class SubjectDashboardView extends AbstractComponent {
             [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program],
             [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history],
         ];
-        this.displayMessage(this.props.message || this.props.params && this.props.params.message);
+        this.displayMessage(this.props.message);
         return (
             <CHSContainer>
                 <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>

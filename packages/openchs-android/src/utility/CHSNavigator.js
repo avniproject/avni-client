@@ -33,10 +33,9 @@ import General from "./General";
 import WorkListState from "../state/WorkListState";
 import EntityService from "../service/EntityService";
 import ProgramEncounterService from "../service/program/ProgramEncounterService";
-import SubjectDashboardView from "../views/program/SubjectDashboardView";
-import BeneficiaryDashboard from "../views/beneficiaryMode/BeneficiaryDashboard";
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 import EncounterService from "../service/EncounterService";
+import GenericDashboardView from "../views/program/GenericDashboardView";
 
 
 class CHSNavigator {
@@ -64,10 +63,10 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, SubjectDashboardView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
-                TypedTransition.createRoute(SubjectDashboardView, {
+                TypedTransition.createRoute(GenericDashboardView, {
                     individualUUID: individualUUID,
                     enrolmentUUID: selectedEnrolmentUUID,
                     message,
@@ -76,17 +75,17 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(SubjectDashboardView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(GenericDashboardView, true);
         }
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, SubjectDashboardView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
-                TypedTransition.createRoute(SubjectDashboardView, {
+                TypedTransition.createRoute(GenericDashboardView, {
                     individualUUID: individualUUID,
                     encounter: encounter,
                     message,
@@ -95,7 +94,7 @@ class CHSNavigator {
                 }, true)
             ]);
         } else {
-            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 3}).to(SubjectDashboardView, true);
+            from.with({individualUUID: individualUUID, backFunction: backFn, tab: 3}).to(GenericDashboardView, true);
         }
     }
 
@@ -136,7 +135,7 @@ class CHSNavigator {
             individualUUID: individualUUID,
             backFunction: backFunction,
             tab: 1
-        }).to(SubjectDashboardView);
+        }).to(GenericDashboardView);
     }
 
     static navigateToRegisterView(source, workLists, message) {
@@ -168,7 +167,7 @@ class CHSNavigator {
             TypedTransition
                 .from(source)
                 .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], [
-                    TypedTransition.createRoute(SubjectDashboardView, {
+                    TypedTransition.createRoute(GenericDashboardView, {
                         individualUUID: encounter.individual.uuid, message, tab: 3
                     }, true)
                 ]);
@@ -256,7 +255,7 @@ class CHSNavigator {
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
-                TypedTransition.createRoute(SubjectDashboardView, {
+                TypedTransition.createRoute(GenericDashboardView, {
                     individualUUID,
                     message: recommendationsView.I18n.t("registrationSavedMsg"),
                     tab: 1
@@ -314,7 +313,7 @@ class CHSNavigator {
                 const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(ProgramEnrolmentView, {
                             enrolment: enrolment,
                             workLists: workListState.workLists,
@@ -349,7 +348,7 @@ class CHSNavigator {
                 }
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(ProgramEncounterView, {
                             params: {
                                 enrolmentUUID: programEncounter.programEnrolment.uuid,
@@ -388,7 +387,7 @@ class CHSNavigator {
                 }
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(SubjectDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(IndividualEncounterLandingView, {
                                 individualUUID: nextWorkItem.parameters.subjectUUID,
                                 encounterType: nextWorkItem.parameters.encounterType,
@@ -417,8 +416,8 @@ class CHSNavigator {
 
     static navigateToBeneficiaryDashboard(source, props) {
         TypedTransition.from(source)
-            .resetStack([BeneficiaryDashboard, ProgramEncounterView, SystemRecommendationView], [
-                TypedTransition.createRoute(BeneficiaryDashboard, props, true)
+            .resetStack([GenericDashboardView, ProgramEncounterView, SystemRecommendationView], [
+                TypedTransition.createRoute(GenericDashboardView, props, true)
             ]);
     }
 
