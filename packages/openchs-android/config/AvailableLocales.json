@@ -18,5 +18,50 @@
     "locale": "gu_IN",
     "displayText": "Gujarati",
     "uuid": "2e7b129a-8c34-4e20-b208-a000a5ce4a08"
+  },
+  {
+    "locale": "be_IN",
+    "displayText": "Bengali",
+    "uuid": "6cce416c-d06c-4756-a664-32ae0fb0d6f0"
+  },
+  {
+    "locale": "te_IN",
+    "displayText": "Telugu",
+    "uuid": "4915a301-ad7c-40b1-abc8-29bca836d18d"
+  },
+  {
+    "locale": "ta_IN",
+    "displayText": "Tamil",
+    "uuid": "e13e1345-6943-4776-bc1b-e237317b0a28"
+  },
+  {
+    "locale": "ka_IN",
+    "displayText": "Kannada",
+    "uuid": "3eebfa11-fd16-49bf-a495-93506f837d01"
+  },
+  {
+    "locale": "od_IN",
+    "displayText": "Odia",
+    "uuid": "a219edfb-3f13-4853-8ec9-01962f358615"
+  },
+  {
+    "locale": "ma_IN",
+    "displayText": "Malayalam",
+    "uuid": "aaea4aed-9cd0-43d2-b9d3-d3e5d0d65b4a"
+  },
+  {
+    "locale": "pu_IN",
+    "displayText": "Punjabi",
+    "uuid": "915ff443-0632-4ca8-a85b-9fd72d1cba38"
+  },
+  {
+    "locale": "sa_IN",
+    "displayText": "Sanskrit",
+    "uuid": "d0bbd099-471f-4d7c-957f-b620d32e40da"
+  },
+  {
+    "locale": "ur_IN",
+    "displayText": "Urdu",
+    "uuid": "c35b7952-5efa-4d45-8717-c84dbcad797c"
   }
 ]

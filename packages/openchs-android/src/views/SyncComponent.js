@@ -23,6 +23,7 @@ import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
+import SettingsService from "../service/SettingsService";
 
 const {width, height} = Dimensions.get('window');
 
@@ -90,6 +91,7 @@ class SyncComponent extends AbstractComponent {
 
         const userInfoService = this.context.getService(UserInfoService);
         const userSettings = userInfoService.getUserSettings();
+        this.context.getService(SettingsService).initLanguages();
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 

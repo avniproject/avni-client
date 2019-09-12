@@ -3,7 +3,7 @@ import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
 import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
-import {ModelGeneral, Settings, LocaleMapping} from 'openchs-models';
+import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'openchs-models';
 import Config from '../framework/Config';
 import _ from 'lodash';
 
@@ -18,10 +18,6 @@ class SettingsService extends BaseService {
     init() {
         const dbInScope = this.db;
         this.db.write(() => {
-            AvailableLocales.forEach((localeMapping) => {
-                dbInScope.create('LocaleMapping', localeMapping, true);
-            });
-
             var settings = this.getSettings();
             if (_.isNil(settings) || Config.ENV === 'dev') {
                 settings = new Settings();
@@ -63,6 +59,18 @@ class SettingsService extends BaseService {
         General.setCurrentLogLevel(level);
         ModelGeneral.setCurrentLogLevel(level);
         return output;
+    }
+
+    initLanguages() {
+        this.clearDataIn([LocaleMapping]);
+        const dbInScope = this.db;
+        const orgConfig = dbInScope.objects(OrganisationConfig.schema.name)[0];
+        const OrgLocales = AvailableLocales.filter(localeMapping => orgConfig.getSettings().languages.includes(localeMapping.locale));
+        this.db.write(() => {
+            OrgLocales.forEach((localeMapping) => {
+                dbInScope.create('LocaleMapping', localeMapping, true);
+            })
+        })
     }
 }
 

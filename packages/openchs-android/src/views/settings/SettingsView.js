@@ -39,13 +39,16 @@ class SettingsView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t('settings')}/>
                     <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
-                        <RadioGroup onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
-                                    labelValuePairs={localeLabelValuePairs}
-                                    labelKey='locale'
-                                    inPairs={true}
-                                    selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
-                                    validationError={null}
-                                    style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        {_.isEmpty(this.state.localeMappings) ? <View/> :
+                            <RadioGroup
+                                onPress={({value}) => this.dispatchAction(Actions.ON_LOCALE_CHANGE, {locale: value.locale})}
+                                labelValuePairs={localeLabelValuePairs}
+                                labelKey='locale'
+                                inPairs={true}
+                                selectionFn={(localeMapping) => this.state.userInfo.getSettings().locale === localeMapping.locale}
+                                validationError={null}
+                                style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                        }
 
                         <Text style={Styles.formLabel}>{this.I18n.t('location')}</Text>
                         <View style={{
@@ -58,7 +61,10 @@ class SettingsView extends AbstractComponent {
                             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
                         }}>
-                            <Text style={{color: 'black', fontSize: Styles.normalTextSize}}>{this.I18n.t('trackLocation')}</Text>
+                            <Text style={{
+                                color: 'black',
+                                fontSize: Styles.normalTextSize
+                            }}>{this.I18n.t('trackLocation')}</Text>
                             <Switch value={this.state.userInfo.getSettings().trackLocation}
                                     onValueChange={() => this.dispatchAction(Actions.ON_CAPTURE_LOCATION_CHANGE)}/>
                         </View>
