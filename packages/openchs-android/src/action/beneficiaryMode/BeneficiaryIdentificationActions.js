@@ -11,7 +11,7 @@ export default class BeneficiaryIdentificationActions {
         return new BeneficiaryIdentificationState([], undefined, []);
     }
 
-    @Action()
+    @Action('BIA.onLoad')
     static onLoad(state: BeneficiaryIdentificationState, action: Object, context: Map) {
         const newState = state.clone();
         const form = context.get(EntityService).findByKey('formType', 'BeneficiaryIdentification', Form.schema.name);
@@ -20,7 +20,7 @@ export default class BeneficiaryIdentificationActions {
         return newState;
     }
 
-    @Action()
+    @Action('BIA.findIndividual')
     static findIndividual(state: BeneficiaryIdentificationState, action: Object, context: Map) {
         const individualService = context.get(IndividualService);
         const individual = individualService.findUniqBy(individual => {
@@ -53,12 +53,12 @@ export default class BeneficiaryIdentificationActions {
 }
 
 const actions = BeneficiaryIdentificationActions.Names = {
-    TOGGLE_MULTISELECT_ANSWER: "BeneficiaryIdentificationActions.TOGGLE_MULTISELECT_ANSWER",
-    TOGGLE_SINGLESELECT_ANSWER: "BeneficiaryIdentificationActions.TOGGLE_SINGLESELECT_ANSWER",
-    PRIMITIVE_VALUE_CHANGE: "BeneficiaryIdentificationActions.PRIMITIVE_VALUE_CHANGE",
-    PRIMITIVE_VALUE_END_EDITING: "BeneficiaryIdentificationActions.PRIMITIVE_VALUE_END_EDITING",
-    DURATION_CHANGE: "BeneficiaryIdentificationActions.DURATION_CHANGE",
-    DATE_DURATION_CHANGE: "BeneficiaryIdentificationActions.DATE_DURATION_CHANGE",
+    TOGGLE_MULTISELECT_ANSWER: "BIA.TOGGLE_MULTISELECT_ANSWER",
+    TOGGLE_SINGLESELECT_ANSWER: "BIA.TOGGLE_SINGLESELECT_ANSWER",
+    PRIMITIVE_VALUE_CHANGE: "BIA.PRIMITIVE_VALUE_CHANGE",
+    PRIMITIVE_VALUE_END_EDITING: "BIA.PRIMITIVE_VALUE_END_EDITING",
+    DURATION_CHANGE: "BIA.DURATION_CHANGE",
+    DATE_DURATION_CHANGE: "BIA.DATE_DURATION_CHANGE",
 };
 
 BeneficiaryIdentificationActions.Map = new Map([

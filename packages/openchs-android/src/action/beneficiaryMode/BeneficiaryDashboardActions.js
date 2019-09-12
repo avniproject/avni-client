@@ -8,7 +8,7 @@ export default class BeneficiaryDashboardActions {
         return {};
     }
 
-    @Action()
+    @Action('BDA.onLoad')
     static onLoad(state: Object, action: Object, context: Map) {
         const newState = {...state};
         newState.beneficiary = action.beneficiary || context.get(IndividualService).findByUUID(action.beneficiaryUUID);
@@ -22,7 +22,7 @@ export default class BeneficiaryDashboardActions {
         return newState;
     }
 
-    @Action()
+    @Action('BDA.onEncounterToggle')
     static onEncounterToggle(state, action) {
         const newState = {...state};
         newState.completedEncounters = _.reject(newState.completedEncounters,
@@ -31,7 +31,7 @@ export default class BeneficiaryDashboardActions {
         return newState;
     }
 
-    @Action()
+    @Action('BDA.onGeneralEncounterToggle')
     static onGeneralEncounterToggle(state, action) {
         const newState = {...state};
         newState.completedGeneralEncounters = _.reject(newState.completedGeneralEncounters,
