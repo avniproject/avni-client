@@ -16,6 +16,7 @@ help:
 
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
+platform:= $(if $(platform),$(platform),Android)
 
 # <env> (Code Environment)
 test_env: ## Run unit tests
@@ -46,6 +47,17 @@ upload = \
 		-H "USER-NAME: admin"  \
 		-H "AUTH-TOKEN: $(token)"
 
+define _curl
+	curl -X POST \
+		-F "translationFile=@translations/platformTranslations.json" \
+		-F "platform=$(platform)" \
+		$(server):$(port)/platformTranslation \
+		-H "USER-NAME: admin"  \
+		-H "AUTH-TOKEN: $(token)"
+	@echo
+	@echo
+endef
+
 # <rules>
 build_rules: ## Create webpack files for all the rules
 	python build-config/json_validation.py health_modules
@@ -58,7 +70,7 @@ build_rules: ## Create webpack files for all the rules
 # </rules>
 
 # <metadata>
-deploy_metadata: auth dev_deploy_metadata ## Upload metadata to server; poolId,clientId,username,password should be set if not deploying to local
+deploy_metadata: auth dev_deploy_metadata dev_deploy_platform_translations ## Upload metadata to server; poolId,clientId,username,password should be set if not deploying to local
 
 dev_deploy_metadata: ## Upload metadata to server
 	@echo "-----------------"
@@ -144,6 +156,12 @@ deploy_referral_concepts_fix: auth
 
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
+
+deploy_platform_translations: auth dev_deploy_platform_translations
+
+dev_deploy_platform_translations:
+	$(call _curl,${platform})
+
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
 

@@ -248,6 +248,9 @@ analyse_crash: ##
 deploy_metadata:  ## Deploy demo metadata
 	cd packages/openchs-health-modules && make deploy_metadata
 
+deploy_platform_translations:  ## Deploy demo metadata
+	cd packages/openchs-health-modules && make deploy_platform_translations
+
 deploy_common_concepts_dev:
 	cd packages/openchs-health-modules && make deploy_common_concepts_dev
 
