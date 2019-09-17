@@ -157,6 +157,8 @@ deploy_referral_concepts_fix: auth
 # <Workflows related, Composite, Convenience and Conventional Actions>
 deploy: deploy_metadata
 
+deploy_translations: deploy_platform_translations
+
 deploy_platform_translations: auth dev_deploy_platform_translations
 
 dev_deploy_platform_translations:
