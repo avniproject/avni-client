@@ -47,17 +47,6 @@ upload = \
 		-H "USER-NAME: admin"  \
 		-H "AUTH-TOKEN: $(token)"
 
-define _curl
-	curl -X POST \
-		-F "translationFile=@translations/platformTranslations.json" \
-		-F "platform=$(platform)" \
-		$(server):$(port)/platformTranslation \
-		-H "USER-NAME: admin"  \
-		-H "AUTH-TOKEN: $(token)"
-	@echo
-	@echo
-endef
-
 # <rules>
 build_rules: ## Create webpack files for all the rules
 	python build-config/json_validation.py health_modules
@@ -162,7 +151,7 @@ deploy_translations: deploy_platform_translations
 deploy_platform_translations: auth dev_deploy_platform_translations
 
 dev_deploy_platform_translations:
-	$(call _curl,${platform})
+	$(call upload,platformTranslation?platform=$(platform),@translations/platformTranslations.json)
 
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
