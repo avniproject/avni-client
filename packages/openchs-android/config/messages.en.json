@@ -271,7 +271,7 @@
   "programs": "Programs",
   "general": "General",
   "beneficiaryMode": "Beneficiary Mode",
-  "invalidLogoutAttempt": "Incorrect PIN ({{attempts}} out of 3)",
+  "invalidLogoutAttempt": "Incorrect PIN (1 out of 3 failed attempts)",
   "asOnDate": "As on date",
   "filter": "FILTER",
   "Relatives": "Relatives",

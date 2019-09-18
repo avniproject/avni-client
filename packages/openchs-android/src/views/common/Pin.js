@@ -1,8 +1,9 @@
 import React from 'react';
 import Styles from "../primitives/Styles";
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View, Button} from "react-native";
 import PropTypes from 'prop-types';
-import ModelPin from '../../model/Pin';
+import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
+import Colors from "../primitives/Colors";
 
 export default class Pin extends React.Component {
 
@@ -12,80 +13,51 @@ export default class Pin extends React.Component {
 
     static defaultProps = {
         onComplete: _.noop,
+        reset: _.noop,
     };
 
     constructor(props, context) {
         super(props, context);
-        this.state = {pin: new ModelPin()}
+        this.state = {code: ''};
+        this.pinInput = React.createRef();
+        this.props.reset(this.reset);
     }
 
-    componentWillMount() {
-    }
+    reset = ()=> {
+        this.setState({code:''});
+    };
 
     componentDidUpdate() {
-        if (!this.state.pin.isFilled()) {
-            this.refs[`pinItem-${this.state.pin.position}`].focus();
-        }
+        this.pinInput.current.focus();
     }
 
     componentDidMount() {
-        this.refs[`pinItem-0`].focus();
-    }
-
-    changeText(text, index) {
-        this.setState((state) => {
-            const newState = Object.assign({}, state);
-            newState.pin.setValue(text, index);
-            return newState;
-        });
-    }
-
-    renderPinItem(index, value) {
-        return (
-            <TextInput
-                ref={`pinItem-${index}`}
-                key={index}
-                style={{
-                    borderWidth: StyleSheet.hairlineWidth,
-                    textAlign: "center", textAlignVertical: "center",
-                    borderColor: 'black',
-                    marginHorizontal: 16,
-                    height: 48,
-                    width: 48,
-                    fontSize: 18,
-                }}
-                keyboardType={"numeric"}
-                value={value}
-                placeholder={"-"}
-                onChangeText={(text) => this.changeText(text, index)}
-            />
-        );
+        this.pinInput.current.focus();
     }
 
     render() {
         return (
             <View style={Styles.container}>
-                <Text style={Styles.menuTitle}>Enter PIN.
-                </Text>
+                <Text style={Styles.menuTitle}>{this.props.I18n.t('Enter PIN')}</Text>
                 <View style={{justifyContent: 'center', flexDirection: 'row', marginVertical: 16}}>
-                    {this.state.pin.values.map((value, index) => {
-                        return this.renderPinItem(index, value, index === this.state.pin.position);
-                    })}
+                    <SmoothPinCodeInput
+                        ref={this.pinInput}
+                        value={this.state.code}
+                        autoFocus={true}
+                        onTextChange={code => this.setState({code})}
+                    />
                 </View>
                 <Text style={[{
                     flex: 1,
                     marginVertical: 0,
                     paddingVertical: 5
                 }, Styles.formBodyText]}>{this.props.individualNameValue}</Text>
-                <TouchableOpacity activeOpacity={0.5}
-                                  onPress={() => this.props.onComplete(this.state.pin.getValue())}
-                                  style={Styles.basicPrimaryButtonView}>
-                    <Text style={{
-                        color: 'white',
-                        alignSelf: 'center',
-                        fontSize: Styles.normalTextSize
-                    }}>{'Done'}</Text>
-                </TouchableOpacity>
+                <Button
+                    title={`${this.props.I18n.t('Done')}`}
+                    color={Colors.ActionButtonColor}
+                    onPress={() => this.props.onComplete(+this.state.code)}
+                    disabled={this.state.code.length < 4}
+                />
             </View>
         )
     }

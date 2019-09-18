@@ -33,7 +33,7 @@ class BeneficiaryModeStartView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('beneficiaryMode')}/>
-                    <Pin onComplete={(pin) => this.onPinEnter(pin)}/>
+                    <Pin I18n={this.I18n} onComplete={(pin) => this.onPinEnter(pin)}/>
                 </CHSContent>
             </CHSContainer>
         );
