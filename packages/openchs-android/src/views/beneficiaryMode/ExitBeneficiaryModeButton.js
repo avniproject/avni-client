@@ -72,7 +72,7 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                     <View style={{height: 32, paddingVertical: 8, paddingHorizontal: 4}}>
                         {this.state.attempts > 0 && (
                             <Text style={{color: 'red'}}>
-                                {this.I18n.t("invalidLogoutAttempt", {attempts: this.state.attempts})}
+                                {this.I18n.t("invalidLogoutAttempt", {used: this.state.attempts, max: 3})}
                             </Text>
                         )}
                     </View>
