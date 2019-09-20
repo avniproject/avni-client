@@ -16,7 +16,6 @@ help:
 
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
-platform:= $(if $(platform),$(platform),Android)
 
 # <env> (Code Environment)
 test_env: ## Run unit tests
@@ -151,7 +150,13 @@ deploy_translations: deploy_platform_translations
 deploy_platform_translations: auth dev_deploy_platform_translations
 
 dev_deploy_platform_translations:
-	$(call upload,platformTranslation?platform=$(platform),@translations/platformTranslations.json)
+	$(call upload,platformTranslation,@translations/en.json)
+	@echo
+	$(call upload,platformTranslation,@translations/gu_IN.json)
+	@echo
+	$(call upload,platformTranslation,@translations/hi_IN.json)
+	@echo
+	$(call upload,platformTranslation,@translations/mr_IN.json)
 
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
