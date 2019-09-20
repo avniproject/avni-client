@@ -3720,7 +3720,7 @@
     "Other reason for miscarriage": "કસુવાવડ થવાના અન્ય કારણો જણાવો",
     "month": "મહિના",
     "(month)": "(મહિના)",
-    "(years)": "(વર્ષો)",
+    "(years)": "(વર્ષ)",
     "Other person who did investigation": "અન્ય કોની પાસે તમે તપાસ કરવી હતી",
     "Services Received in Previous Pregnancy": "પાછલી ગર્ભાવસ્થામાં સેવાઓ પ્રાપ્ત થઈ",
     "Other place form where IFA tablets received": "અન્ય કોની પાસેથી અને ક્યાંથી તમે લોહી વધારવાની ગોળીઓ મેળવો છો",
@@ -3769,7 +3769,6 @@
     "Fruits": "ફળો",
     "Khichadi": "ખીચડી",
     "Milk": "દૂધ",
-    "years": "વર્ષો",
     "Not living together": "સાથે રહેતા નથી",
     "Grandmother": "દાદી",
     "Elder sister": "મોટી બહેન",
@@ -3961,7 +3960,8 @@
     "Roti and sabji":"રોટલી અને શાક",
     "Not eat any home based food":"ઘરનું બનાવેલું ખાતું નથી",
     "Not applicable": "લાગુ પડતું નથી",
-    "Not breastfeeding the child": "બાળકને ધાવણ આપતાં નથી"
+    "Not breastfeeding the child": "બાળકને ધાવણ આપતાં નથી",
+    "Whether ANC check-up done in this month":"શું તમે આ માહિનામાં પૂર્વ પ્રસૂતિ ની તપાસ કરાવી?"
   },
   "hi_IN": {
     "LOGIN": "लॉग इन",
