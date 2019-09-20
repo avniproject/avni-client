@@ -21,6 +21,7 @@ export class EncounterActions {
     static onEncounterLandingViewLoad(state, action, context) {
         const formMapping = context.get(FormMappingService)
             .allFormMappings()
+            .unVoided()
             .forEncounterType(action.encounter.encounterType)
             .forFormType(Form.formTypes.Encounter)
             .forSubjectType(action.encounter.individual.subjectType)
