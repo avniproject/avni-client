@@ -808,6 +808,10 @@
         "name": "Program exit",
         "uuid": "51dfd71b-1b06-4477-9ca3-f88acbafc0db",
         "voided": true
+      },
+      {
+        "uuid": "64f8a277-cd87-4e98-8667-c40f54c76cf6",
+        "name": "Sick"
       }
     ]
   },
