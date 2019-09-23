@@ -2,14 +2,9 @@ import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
 import I18n from 'react-native-i18n';
-import Messages_en from '../../config/messages.en.json';
-import SettingsService from '../service/SettingsService';
-import Messages_hi_IN from '../../config/messages.hi_IN.json';
-import Messages_mr_IN from '../../config/messages.mr_IN.json';
-import Messages_gu_IN from '../../config/messages.gu_IN.json';
-import {EntityMetaData} from 'openchs-models';
-import {customMessages} from 'openchs-health-modules';
+import {EntityMetaData, OrganisationConfig, PlatformTranslation, Translation} from 'openchs-models';
 import UserInfoService from "./UserInfoService";
+import Messages_en from '../../config/beforeSyncMessages.en.json';
 
 @Service("messageService")
 class MessageService extends BaseService {
@@ -19,19 +14,25 @@ class MessageService extends BaseService {
         I18n.t = (param, opts) => t.bind(I18n)(param, {...opts, defaultValue: param});
         this.I18n = I18n;
         this.I18n.fallbacks = true;
-        this.I18n.translations = {
-            en: Messages_en,
-            mr_IN: Messages_mr_IN,
-            hi_IN: Messages_hi_IN,
-            gu_IN: Messages_gu_IN
-        };
-        this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
+        this.I18n.translations = {'en': Messages_en};
     }
 
     init() {
+        this.setTranslationKeys();
+        this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
+        const platformTranslations = this.findAll(PlatformTranslation.schema.name);
+        const implTranslations = this.findAll(Translation.schema.name);
         this.setLocale(this.getService(UserInfoService).getUserSettings().locale);
         this.addEnglishNameTranslations();
-        this.addTranslationsFrom(customMessages);
+        //let impl override platform translations
+        const allTranslations = [...platformTranslations, ...implTranslations];
+        _.forEach(allTranslations, t => this.addTranslationsWithLocale(t.language, t.getTranslations()));
+    }
+
+    setTranslationKeys() {
+        const orgConfig = this.findOnly(OrganisationConfig.schema.name);
+        const OrgLocales = _.isEmpty(orgConfig) ? [] : orgConfig.getSettings().languages;
+        this.I18n.translations = {...OrgLocales.reduce((object, key) => ({...object, [key]: {}}), {}), ...this.I18n.translations};
     }
 
     addEnglishNameTranslations() {
@@ -44,16 +45,17 @@ class MessageService extends BaseService {
         });
     }
 
-    addTranslationsFrom(customMessages) {
-        _.forOwn(customMessages, (translations, locale) => {
-            _.forOwn(translations, (value, key) => {
-                this.addTranslation(locale, key, value);
-            });
+    addTranslationsWithLocale(locale, translations) {
+        _.forOwn(translations, (value, key) => {
+            this.addTranslation(locale, key, value);
         });
+
     }
 
     addTranslation(locale, key, value) {
-        this.I18n.translations[locale][key] = value;
+        if (this.I18n.translations[locale]) {
+            this.I18n.translations[locale][key] = value;
+        }
     }
 
     setLocale(locale) {

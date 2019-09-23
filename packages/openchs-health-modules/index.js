@@ -5,7 +5,6 @@ import * as familyRegistrationDecision from "./health_modules/familyRegistration
 import * as programConfig from "./health_modules/programConfig";
 import * as programEnrolmentDecision from "./health_modules/programEnrolmentDecision";
 import * as programEncounterDecision from "./health_modules/programEncounterDecision";
-import customMessages from "./health_modules/customMessages.json";
 import * as rules from 'rules-config/rules';
 import * as common from './health_modules/common.js';
 import * as motherCalculations from './health_modules/mother/calculations';
@@ -18,7 +17,6 @@ module.exports = _.merge({
     programConfig,
     programEnrolmentDecision,
     programEncounterDecision,
-    customMessages,
     common,
     motherCalculations,
 }, rules);
