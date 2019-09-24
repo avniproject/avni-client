@@ -24,6 +24,7 @@ import Distances from "../primitives/Distances";
 import {Names as DashboardActions} from "../../action/program/SubjectDashboardViewActions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import GenericDashboardView from "../program/GenericDashboardView";
+import FormMappingService from "../../service/FormMappingService";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -155,6 +156,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     renderProfile() {
+        const formMappingService = this.context.getService(FormMappingService);
         return <View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
                 <View styel={{flexDirection: 'column'}}>
@@ -174,7 +176,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             <View style={{marginTop: 3}}>
                 {this.state.expand === true ?
                     <View style={{paddingHorizontal: 10}}>
-                        <Observations observations={this.state.individual.observations}
+                        <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)} observations={this.state.individual.observations}
                                       style={{marginVertical: 3}}/>
                     </View> : <View/>}
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
