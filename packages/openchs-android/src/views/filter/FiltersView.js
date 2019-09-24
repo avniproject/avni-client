@@ -173,27 +173,26 @@ class FilterView extends AbstractComponent {
     }
 
     renderEncounterGroup() {
-        return <View style={{
-            marginTop: Styles.VerticalSpacingBetweenFormElements,
-            marginBottom: Styles.VerticalSpacingBetweenFormElements,
-        }}>
+        return this.state.generalEncounterTypes.length === 0 ? <View/> :
             <View style={{
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderRadius: 1,
-                borderColor: Colors.InputBorderNormal,
-                paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                marginTop: Styles.VerticalSpacingBetweenFormElements,
+                marginBottom: Styles.VerticalSpacingBetweenFormElements,
             }}>
-                {this.state.generalEncounterTypes.length && (
+                <View style={{
+                    borderWidth: 1,
+                    borderStyle: 'dashed',
+                    borderRadius: 1,
+                    borderColor: Colors.InputBorderNormal,
+                    paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                }}>
                     <ProgramFilter
                         onToggle={(name, uuid) => this.onGeneralVisitSelect(name, uuid)}
                         visits={this.state.generalEncounterTypes}
                         multiSelect={true}
-                        selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e=>e.uuid === uuid)}
+                        selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e => e.uuid === uuid)}
                         name={'GeneralVisits'}/>
-                )}
+                </View>
             </View>
-        </View>
     }
 
     render() {
