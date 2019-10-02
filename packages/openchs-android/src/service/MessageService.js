@@ -7,6 +7,7 @@ import SettingsService from '../service/SettingsService';
 import Messages_hi_IN from '../../config/messages.hi_IN.json';
 import Messages_mr_IN from '../../config/messages.mr_IN.json';
 import Messages_gu_IN from '../../config/messages.gu_IN.json';
+import Messages_ta_IN from '../../config/messages.ta_IN.json';
 import {EntityMetaData} from 'openchs-models';
 import {customMessages} from 'openchs-health-modules';
 import UserInfoService from "./UserInfoService";
@@ -18,12 +19,15 @@ class MessageService extends BaseService {
         const t = I18n.t;
         I18n.t = (param, opts) => t.bind(I18n)(param, {...opts, defaultValue: param});
         this.I18n = I18n;
+        //Overriding default separator as default is .
+        this.I18n.defaultSeparator = "::::";
         this.I18n.fallbacks = true;
         this.I18n.translations = {
             en: Messages_en,
             mr_IN: Messages_mr_IN,
             hi_IN: Messages_hi_IN,
-            gu_IN: Messages_gu_IN
+            gu_IN: Messages_gu_IN,
+            ta_IN: Messages_ta_IN,
         };
         this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
     }

@@ -18,5 +18,10 @@
     "locale": "gu_IN",
     "displayText": "Gujarati",
     "uuid": "2e7b129a-8c34-4e20-b208-a000a5ce4a08"
+  },
+  {
+    "locale": "ta_IN",
+    "displayText": "Tamil",
+    "uuid": "4267a3e6-a6fa-4926-aee2-f347ef323fbd"
   }
 ]
