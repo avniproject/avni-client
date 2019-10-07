@@ -13,6 +13,8 @@ class MessageService extends BaseService {
         const t = I18n.t;
         I18n.t = (param, opts) => t.bind(I18n)(param, {...opts, defaultValue: param});
         this.I18n = I18n;
+        //Overriding default separator as default is .
+        this.I18n.defaultSeparator = "::::";
         this.I18n.fallbacks = true;
         this.I18n.translations = {'en': Messages_en};
     }

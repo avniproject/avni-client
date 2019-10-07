@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Path from "../../framework/routing/Path";
 import {Text, TouchableNativeFeedback, View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import Reducers from "../../reducer";
@@ -15,15 +14,10 @@ import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ActionSelector from "../common/ActionSelector";
 
-@Path('/IndividualGeneralHistoryView')
-class IndividualGeneralHistoryView extends AbstractComponent {
+class SubjectDashboardGeneralTab extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
-
-    viewName() {
-        return "IndividualGeneralHistoryView";
-    }
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualGeneralHistory);
@@ -120,4 +114,4 @@ class IndividualGeneralHistoryView extends AbstractComponent {
     }
 }
 
-export default IndividualGeneralHistoryView;
+export default SubjectDashboardGeneralTab;

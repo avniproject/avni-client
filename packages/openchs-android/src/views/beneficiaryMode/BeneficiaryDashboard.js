@@ -17,10 +17,14 @@ import {Form} from 'openchs-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 
-@Path('/BeneficiaryDashboard')
 export default class BeneficiaryDashboard extends AbstractComponent {
     static propTypes = {
-        beneficiary: PropTypes.object.isRequired
+        beneficiary: PropTypes.object.isRequired,
+        beneficiaryUUID: PropTypes.string,
+        message: PropTypes.string,
+        backFunction: PropTypes.func,
+        tab: PropTypes.number,
+        messageDisplayed: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -32,9 +36,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.onLoad, {
-            beneficiary: this.props.beneficiary,
-        });
+        this.dispatchAction(Actions.onLoad, this.props);
         super.componentWillMount();
     }
 
@@ -64,7 +66,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
 
     renderEncountersSection() {
         const enrolmentUUID = this.state.enrolment && this.state.enrolment.uuid;
-        const individualUUID = this.props.beneficiary && this.props.beneficiary.uuid;
+        const individualUUID = this.state.beneficiary && this.state.beneficiary.uuid;
         const onSaveCallback = (view: SystemRecommendationView) =>
             CHSNavigator.navigateToBeneficiaryDashboard(view, this.props);
         return (<NewVisitMenuView
@@ -77,7 +79,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
                 <View style={{backgroundColor: Styles.defaultBackground}}>
                     <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                     <IndividualProfile style={{marginHorizontal: 16}}
-                                       individual={this.props.beneficiary}
+                                       individual={this.state.beneficiary}
                                        viewContext={IndividualProfile.viewContext.General}
                                        hideEnrol={true}
                     />

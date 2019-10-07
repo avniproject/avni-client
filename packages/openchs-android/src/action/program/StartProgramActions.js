@@ -21,7 +21,7 @@ class StartProgramActions {
         }
     }
 
-    @Action()
+    @Action('StartProgramActions.onLoad')
     static onLoad(state, action, context) {
         const formMappingService = context.get(FormMappingService);
 

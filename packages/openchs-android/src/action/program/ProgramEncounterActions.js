@@ -25,6 +25,7 @@ class ProgramEncounterActions {
     static onLoad(state, action, context) {
         const formMapping = context.get(FormMappingService)
             .allFormMappings()
+            .unVoided()
             .forEncounterType(action.programEncounter.encounterType)
             .forProgram(action.programEncounter.programEnrolment.program)
             .forFormType(Form.formTypes.ProgramEncounter)

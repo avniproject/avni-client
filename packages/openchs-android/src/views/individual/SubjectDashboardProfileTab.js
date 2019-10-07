@@ -2,7 +2,6 @@ import {Alert, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
 import {Card} from "native-base";
@@ -22,19 +21,15 @@ import {WorkItem, WorkList, WorkLists} from "openchs-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
-import ProgramEnrolmentTabView from "../program/ProgramEnrolmentTabView";
-import {ProgramEnrolmentTabActionsNames as TabActions} from "../../action/program/ProgramEnrolmentTabActions";
+import {Names as DashboardActions} from "../../action/program/SubjectDashboardViewActions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
+import GenericDashboardView from "../program/GenericDashboardView";
+import FormMappingService from "../../service/FormMappingService";
 
-@Path('/IndividualRegistrationDetailView')
-class IndividualRegistrationDetailView extends AbstractComponent {
+class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
-
-    viewName() {
-        return 'IndividualRegistrationDetailView';
-    }
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegistrationDetails);
@@ -50,7 +45,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             CHSNavigator.navigateToAddRelativeView(this, this.state.individual,
                 (source) => TypedTransition.from(source)
                     .resetStack([IndividualAddRelativeView], [
-                        TypedTransition.createRoute(ProgramEnrolmentTabView, {
+                        TypedTransition.createRoute(GenericDashboardView, {
                             individualUUID: this.state.individual.uuid,
                             tab: 1
                         })
@@ -94,7 +89,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
 
     onRelativeSelection(individualUUID) {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID});
-        this.dispatchAction(TabActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
+        this.dispatchAction(DashboardActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
     }
 
     renderRelatives() {
@@ -161,6 +156,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 
     renderProfile() {
+        const formMappingService = this.context.getService(FormMappingService);
         return <View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
                 <View styel={{flexDirection: 'column'}}>
@@ -180,7 +176,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
             <View style={{marginTop: 3}}>
                 {this.state.expand === true ?
                     <View style={{paddingHorizontal: 10}}>
-                        <Observations observations={this.state.individual.observations}
+                        <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)} observations={this.state.individual.observations}
                                       style={{marginVertical: 3}}/>
                     </View> : <View/>}
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
@@ -210,7 +206,7 @@ class IndividualRegistrationDetailView extends AbstractComponent {
     }
 }
 
-export default IndividualRegistrationDetailView;
+export default SubjectDashboardProfileTab;
 
 
 const styles = StyleSheet.create({

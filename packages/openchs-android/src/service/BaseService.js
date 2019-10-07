@@ -47,11 +47,11 @@ class BaseService {
         return _.isEmpty(all) ? all : all[0];
     }
 
-    findByUUID(uuid, schema) {
-        if (_.isEmpty(uuid)) throw Error("UUID is empty or null");
-        if (_.isNil(schema)) schema = this.getSchema();
-
-        return this.findByKey("uuid", uuid, schema);
+    findByUUID(uuid, schema = this.getSchema()) {
+        if (!_.isEmpty(uuid)) {
+            return this.findByKey("uuid", uuid, schema);
+        }
+        General.logError('BaseService', `Entity ${schema}{uuid=${uuid},..} not found`);
     }
 
     findByCriteria(filterCriteria, schema) {

@@ -27,10 +27,10 @@ class NumericFormElement extends AbstractFormElement {
             if (!_.isNil(this.props.element.concept.hiNormal)) {
                 rangeText = `${this.props.element.concept.lowNormal} - ${this.props.element.concept.hiNormal}`;
             } else {
-                rangeText = `>${this.props.element.concept.lowNormal}`
+                rangeText = `>=${this.props.element.concept.lowNormal}`
             }
         } else if (!_.isNil(this.props.element.concept.hiNormal)) {
-            rangeText = `<${this.props.element.concept.hiNormal}`
+            rangeText = `=<${this.props.element.concept.hiNormal}`
         }
         return _.isNil(rangeText) ? <Text></Text> : <Text style={Styles.formLabel}> ({rangeText}) </Text>;
     }

@@ -85,7 +85,7 @@ class MyDashboardActions {
                 individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters),
                 individualService.recentlyRegistered(state.date.value, individualFilters),
                 individualService.recentlyEnrolled(state.date.value, enrolmentFilters),
-                individualService.allIn(state.date.value, individualFilters)
+                individualService.allIn(state.date.value, individualFilters, generalEncountersFilters)
             ].map(MyDashboardActions.applyFilters(filters))
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total];
 
@@ -205,12 +205,19 @@ class MyDashboardActions {
         const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
         const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
 
+        const restIndividualFilters = [
+            MyDashboardActions.orQuery(programQuery('$enrolment.program.uuid')),
+            MyDashboardActions.orQuery(visitQuery('$enrolment.encounters.encounterType.uuid')),
+            validEnrolmentQuery('$enrolment')
+        ].filter(Boolean).join(" AND ");
+
+        const buildEnrolmentSubQueryForIndividual = () => _.isEmpty(restIndividualFilters) ? '' :
+            'SUBQUERY(enrolments, $enrolment, ' + restIndividualFilters + ' ).@count > 0';
+
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
             MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(programQuery('enrolments.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('enrolments.encounters.encounterType.uuid')),
-            validEnrolmentQuery("enrolments")
+            buildEnrolmentSubQueryForIndividual()
         ].filter(Boolean).join(" AND ");
 
         const encountersFilters = [

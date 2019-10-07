@@ -58,6 +58,8 @@ class ProgramEnrolmentDashboardActions {
             .findEncounterTypesForEncounter(individual.subjectType)
             .filter(encounterType => context.get(RuleEvaluationService)
                 .isEligibleForEncounter(individual, encounterType));
+        newState.completedEncounters = _.filter(enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
+            .map(encounter => ({encounter, expand: false}));
         return newState;
     }
 

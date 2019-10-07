@@ -9,6 +9,11 @@ import CHSNavigator from "../../utility/CHSNavigator";
 
 
 class ExitBeneficiaryModeButton extends AbstractComponent {
+
+    constructor(props, context) {
+        super(props, context);
+    }
+
     viewName() {
         return "ExitBeneficiaryModeButton";
     }
@@ -41,6 +46,7 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                 attempts: this.state.attempts + 1,
                 errorMessage: true
             });
+            this.reset();
         }
     }
 
@@ -63,10 +69,15 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                 <Modal onRequestClose={() => this.resetState()}
                        visible={this.state.showPinModal}
                 >
-                    {this.state.attempts > 0 && (
-                        <Text style={{color: 'red'}}>{this.I18n.t("invalidLogoutAttempt", {attempts: this.state.attempts})}</Text>
-                    )}
-                    <Pin onComplete={(pin) => this.exitBeneficiaryMode(pin)}/>
+                    <View style={{height: 32, paddingVertical: 8, paddingHorizontal: 4}}>
+                        {this.state.attempts > 0 && (
+                            <Text style={{color: 'red'}}>
+                                {this.I18n.t("invalidLogoutAttempt", {used: this.state.attempts, max: 3})}
+                            </Text>
+                        )}
+                    </View>
+                    <Pin reset={reset => this.reset = reset} I18n={this.I18n}
+                         onComplete={(pin) => this.exitBeneficiaryMode(pin)}/>
                 </Modal>
             </View>
         );
