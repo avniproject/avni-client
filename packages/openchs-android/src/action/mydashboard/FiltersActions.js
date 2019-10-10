@@ -17,8 +17,8 @@ class FiltersActions {
             selectedEncounterTypes: [],
             generalEncounterTypes: [],
             selectedGeneralEncounterTypes: [],
-            subjectTypes:[],
-            selectedSubjectType:null
+            subjectTypes: [],
+            selectedSubjectType: null
         };
     }
 
@@ -76,7 +76,7 @@ class FiltersActions {
     }
 
     static addGeneralVisits(state, action, context) {
-        const selected = _.find(state.generalEncounterTypes, e=> e.uuid === action.encounterUUID);
+        const selected = _.find(state.generalEncounterTypes, e => e.uuid === action.encounterUUID);
         return {
             ...state,
             selectedGeneralEncounterTypes: _.xorBy(state.selectedGeneralEncounterTypes, [selected], 'uuid'),
@@ -100,7 +100,7 @@ class FiltersActions {
     }
 
     static addSubjectType(state, action, context) {
-        const selectedSubjectType = state.subjectTypes.find(subjectType => subjectType.name=== action.subjectTypeName);
+        const selectedSubjectType = state.subjectTypes.find(subjectType => subjectType.name === action.subjectTypeName);
         const programs = context.get(FormMappingService).findProgramsForSubjectType(selectedSubjectType);
         const selectedPrograms = programs.length === 1 ? programs : [];
         const encounterTypes = programs.length === 1 ? context.get(FormMappingService).findEncounterTypesForProgram(_.first(programs), selectedSubjectType) : [];
@@ -146,6 +146,10 @@ class FiltersActions {
     static getEncounterByUUID(encounters, uuid) {
         return _.filter(encounters, (encounter) => encounter.uuid === uuid);
     }
+
+    static customFilterChange(state, action) {
+        return {...state, selectedCustomFilters: action.selectedCustomFilters}
+    }
 }
 
 const ActionPrefix = 'FilterA';
@@ -159,6 +163,7 @@ const FilterActionNames = {
     ADD_GENERAL_VISITS: `${ActionPrefix}.ADD_GENERAL_VISITS`,
     ADD_PROGRAM: `${ActionPrefix}.ADD_PROGRAM`,
     ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
+    CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
 };
 const FilterActionMap = new Map([
     [FilterActionNames.ON_LOAD, FiltersActions.onLoad],
@@ -170,6 +175,7 @@ const FilterActionMap = new Map([
     [FilterActionNames.ADD_GENERAL_VISITS, FiltersActions.addGeneralVisits],
     [FilterActionNames.ADD_PROGRAM, FiltersActions.addProgram],
     [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
+    [FilterActionNames.CUSTOM_FILTER_CHANGE, FiltersActions.customFilterChange],
 ]);
 
 export {

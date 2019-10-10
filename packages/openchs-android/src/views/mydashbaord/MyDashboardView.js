@@ -87,6 +87,7 @@ class MyDashboardView extends AbstractComponent {
                                           encounterTypes: this.state.encounterTypes,
                                           selectedEncounterTypes: this.state.selectedEncounterTypes,
                                           generalEncounterTypes: this.state.generalEncounterTypes,
+                                          selectedCustomFilters: this.state.selectedCustomFilters,
                                           selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
                                           onBack: this._onBack.bind(this),
                                           actionName: Actions.APPLY_FILTERS,

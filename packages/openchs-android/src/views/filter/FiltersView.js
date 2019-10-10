@@ -21,50 +21,13 @@ import ProgramFilter from "../common/ProgramFilter";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
 import General from "../../utility/General";
+import CustomFilters from "./CustomFilters";
+import CustomFilterService from "../../service/CustomFilterService";
 
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
     static propTypes = {};
-
-    viewName() {
-        return "FilterView";
-    }
-
-    constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.filterAction);
-        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
-            [Filter.types.MultiSelect, MultiSelectFilter]]);
-        this.formMappingService = context.getService(FormMappingService);
-        this.entityService = context.getService(EntityService);
-    }
-
-    componentWillMount() {
-        const subjectTypes = this.entityService.findAll(SubjectType.schema.name);
-        const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
-        const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
-        const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
-        const encounterTypes = programs.length === 1
-            ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType)
-            : this.props.encounterTypes;
-
-        this.dispatchAction(FilterActionNames.ON_LOAD, {
-            filters: this.props.filters,
-            locationSearchCriteria: this.props.locationSearchCriteria,
-            addressLevelState: this.props.addressLevelState,
-            filterDate: this.props.filterDate,
-            programs: programs,
-            selectedPrograms: selectedPrograms,
-            encounterTypes,
-            selectedEncounterTypes: this.props.selectedEncounterTypes,
-            generalEncounterTypes: this.props.generalEncounterTypes,
-            selectedGeneralEncounterTypes: this.props.selectedGeneralEncounterTypes,
-            subjectTypes,
-            selectedSubjectType
-        });
-        super.componentWillMount();
-    }
-
 
     static styles = StyleSheet.create({
         container: {
@@ -88,6 +51,46 @@ class FilterView extends AbstractComponent {
             color: Colors.TextOnPrimaryColor
         }
     });
+
+    constructor(props, context) {
+        super(props, context, Reducers.reducerKeys.filterAction);
+        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
+            [Filter.types.MultiSelect, MultiSelectFilter]]);
+        this.formMappingService = context.getService(FormMappingService);
+        this.entityService = context.getService(EntityService);
+        this.customFilterService = context.getService(CustomFilterService)
+    }
+
+    viewName() {
+        return "FilterView";
+    }
+
+    componentWillMount() {
+        const subjectTypes = this.entityService.findAll(SubjectType.schema.name);
+        const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
+        const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
+        const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
+        const encounterTypes = programs.length === 1
+            ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType)
+            : this.props.encounterTypes;
+
+        this.dispatchAction(FilterActionNames.ON_LOAD, {
+            filters: this.props.filters,
+            locationSearchCriteria: this.props.locationSearchCriteria,
+            addressLevelState: this.props.addressLevelState,
+            filterDate: this.props.filterDate,
+            programs: programs,
+            selectedPrograms: selectedPrograms,
+            encounterTypes,
+            selectedEncounterTypes: this.props.selectedEncounterTypes,
+            generalEncounterTypes: this.props.generalEncounterTypes,
+            selectedGeneralEncounterTypes: this.props.selectedGeneralEncounterTypes,
+            selectedCustomFilters: this.props.selectedCustomFilters,
+            subjectTypes,
+            selectedSubjectType
+        });
+        super.componentWillMount();
+    }
 
     onSelect(filter, idx) {
         return (val) => {
@@ -113,6 +116,7 @@ class FilterView extends AbstractComponent {
             selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
             listType: this.props.listType,
             selectedSubjectType: this.state.selectedSubjectType,
+            selectedCustomFilters: this.state.selectedCustomFilters,
         });
         this.goBack();
     }
@@ -197,6 +201,7 @@ class FilterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const dashboardCustomFilters = this.customFilterService.getDashboardFilters();
         const {width} = Dimensions.get('window');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
 
@@ -230,6 +235,11 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
+                            {dashboardCustomFilters &&
+                            <CustomFilters filters={dashboardCustomFilters}
+                                           selectedCustomFilters={this.props.selectedCustomFilters}
+                                           onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
+                                           }/>}
                             <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>
                     </View>
