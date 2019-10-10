@@ -1,5 +1,10 @@
 [
   {
+    "uuid": "64f8a277-cd87-4e98-8667-c40f54c76cf6",
+    "name": "Sick",
+    "dataType": "NA"
+  },
+  {
     "name": "NA",
     "uuid": "4d476011-7fc4-432b-98c0-9f6f1847cf39",
     "dataType": "NA"
@@ -1769,11 +1774,6 @@
   {
     "name": "grandmother",
     "uuid": "afdd2740-c46a-4414-8e17-31414b40128a",
-    "dataType": "NA"
-  },
-  {
-    "uuid": "64f8a277-cd87-4e98-8667-c40f54c76cf6",
-    "name": "Sick",
     "dataType": "NA"
   },
   {
