@@ -20,6 +20,8 @@ import CHSContainer from "../common/CHSContainer";
 import Separator from "../primitives/Separator";
 import Colors from "../primitives/Colors";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
+import CustomFilters from "../filter/CustomFilters";
+import CustomFilterService from "../../service/CustomFilterService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -31,6 +33,7 @@ class IndividualSearchView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualSearch);
+        this.customFilterService = context.getService(CustomFilterService)
     }
 
     viewName() {
@@ -55,6 +58,7 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const searchCustomFilters = this.customFilterService.getSearchFilters();
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
         return (
@@ -100,6 +104,10 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
+                        {searchCustomFilters &&
+                        <CustomFilters filters={searchCustomFilters}
+                                       onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
+                                       }/>}
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>

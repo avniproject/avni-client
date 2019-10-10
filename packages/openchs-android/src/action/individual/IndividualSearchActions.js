@@ -3,10 +3,15 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
 import {SubjectType} from "openchs-models";
+import CustomFilterService from "../../service/CustomFilterService";
+import _ from "lodash";
 
 export class IndividualSearchActions {
     static clone(state) {
-        return {searchCriteria: state.searchCriteria.clone(), subjectTypes:state.subjectTypes.map((subjectType => subjectType.clone()))};
+        return {
+            searchCriteria: state.searchCriteria.clone(),
+            subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone()))
+        };
     }
 
     static onLoad(state, action, context) {
@@ -63,10 +68,17 @@ export class IndividualSearchActions {
         const newState = IndividualSearchActions.clone(state);
 
         const individualService = beans.get(IndividualService);
-        const searchResponse = individualService.search(newState.searchCriteria);
-        const individualSearchResults = searchResponse.results;
-        const count = searchResponse.count;
-        action.cb(individualSearchResults, count);
+        const customFilterService = beans.get(CustomFilterService);
+
+        if (customFilterService.isSearchFiltersEmpty(state.selectedCustomFilters)) {
+            const searchResponse = individualService.search(newState.searchCriteria);
+            action.cb(searchResponse.results, searchResponse.count);
+            return newState;
+        }
+        const individualUUIDs = customFilterService.applyCustomFilters(state.selectedCustomFilters, 'searchFilters');
+        const individualUUIDCriteria = _.map(individualUUIDs, uuid => `uuid == "${uuid}"`).join(" OR ");
+        const searchResponse = _.isEmpty(individualUUIDs) ? { results: [], count: 0 } : individualService.search(newState.searchCriteria, individualUUIDCriteria);
+        action.cb(searchResponse.results, searchResponse.count);
         return newState;
     };
 
@@ -77,8 +89,13 @@ export class IndividualSearchActions {
     static reset(state) {
         return {...IndividualSearchActions.getInitialState(), key: Math.random()};
     }
+
+    static customFilterChange(state, action) {
+        return {...state, selectedCustomFilters: action.selectedCustomFilters}
+    }
 }
 
+const ActionPrefix = 'IndSearch';
 const individualSearchActions = {
     ON_LOAD: "dc7cdc96-c4d9-41d5-be1d-1c4c1d588801",
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
@@ -88,7 +105,8 @@ const individualSearchActions = {
     ENTER_SUBJECT_TYPE_CRITERIA: "ENTER_SUBJECT_TYPE_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS",
-    RESET: "ISA.RESET"
+    RESET: "ISA.RESET",
+    CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
 };
 
 const individualSearchActionsMap = new Map([
@@ -101,6 +119,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria],
     [individualSearchActions.RESET, IndividualSearchActions.reset],
     [individualSearchActions.ON_LOAD, IndividualSearchActions.onLoad],
+    [individualSearchActions.CUSTOM_FILTER_CHANGE, IndividualSearchActions.customFilterChange],
 ]);
 
 export {

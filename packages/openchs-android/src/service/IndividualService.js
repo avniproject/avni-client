@@ -40,7 +40,7 @@ class IndividualService extends BaseService {
         this.encounterService = this.getService(EncounterService);
     }
 
-    search(criteria) {
+    search(criteria, uuidCriteria) {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults;
         if (_.isEmpty(filterCriteria)) {
@@ -48,6 +48,7 @@ class IndividualService extends BaseService {
         } else {
             searchResults = this.db
                 .objects(Individual.schema.name)
+                .filtered((_.isEmpty(uuidCriteria) ? 'uuid != null' : `${uuidCriteria}`))
                 .filtered(
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
