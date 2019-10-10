@@ -14,7 +14,8 @@ class CustomFilterActions {
     static onLoad(state, action, context) {
         const customFilterService = context.get(CustomFilterService);
         const selectedCustomFilters = {};
-        _.forEach(customFilterService.getFilterNames(), name => selectedCustomFilters[name] = []);
+        const alreadySelected = action.props.selectedCustomFilters;
+        _.forEach(customFilterService.getFilterNames(), name => selectedCustomFilters[name] = alreadySelected && alreadySelected[name] || []);
         return {...state, selectedCustomFilters};
     }
 

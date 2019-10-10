@@ -38,10 +38,14 @@ import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
 import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subject/SubjectRegisterActions";
 import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewActions";
 import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
-import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
+import {
+    CompletedVisitsFilterAction,
+    CompletedVisitsFilterActionMap
+} from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
 import SubjectDashboardViewActions from '../action/program/SubjectDashboardViewActions'
 import {SyncActions, SyncActionMap} from '../action/SyncActions';
+import {CustomFilterActions, CustomFilterMap} from '../action/mydashboard/CustomFilterActions'
 
 export default class Reducers {
     static reducerKeys = {
@@ -79,7 +83,8 @@ export default class Reducers {
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
         completedEncounters: "CompletedEncounters",
         subjectDashboardView: "subjectDashboardView",
-        syncComponentAction: "syncComponent"
+        syncComponentAction: "syncComponent",
+        customFilterActions: "customFilterActions"
     };
 
     static createReducers(beanStore) {
@@ -118,6 +123,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.completedEncounters] = Reducers._add(CompletedEncountersActionMap, CompletedEncountersActions, beanStore);
         reducerMap[Reducers.reducerKeys.subjectDashboardView] = Reducers._add(SubjectDashboardViewActions.Map, SubjectDashboardViewActions, beanStore);
         reducerMap[Reducers.reducerKeys.syncComponentAction] = Reducers._add(SyncActionMap, SyncActions, beanStore);
+        reducerMap[Reducers.reducerKeys.customFilterActions] = Reducers._add(CustomFilterMap, CustomFilterActions, beanStore);
         return reducerMap;
     };
 

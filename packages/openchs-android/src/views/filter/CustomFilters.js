@@ -1,5 +1,4 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {View} from 'react-native';
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
 import {MultiSelectFilter as MultiSelectFilterModel} from "openchs-models";
@@ -18,7 +17,7 @@ class CustomFilters extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(CustomFilterNames.ON_LOAD);
+        this.dispatchAction(CustomFilterNames.ON_LOAD, {props : this.props});
         super.componentWillMount();
     }
 
@@ -38,11 +37,15 @@ class CustomFilters extends AbstractComponent {
         })
     };
 
+    _invokeCallbacks() {
+        if (_.isFunction(this.props.onSelect)) {
+            this.props.onSelect(this.state.selectedCustomFilters);
+        }
+    }
+
     render() {
-        const filters = this.props.filterType === 'MyDashboard' ? this.customFilterService.getDashboardFilters() : this.customFilterService.getSearchFilters();
-        //TODO : make it proper
-        this.props.onSelect(this.state.selectedCustomFilters);
-        return this.renderFilters(filters)
+        this._invokeCallbacks();
+        return this.renderFilters(this.props.filters)
     }
 
 }
