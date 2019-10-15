@@ -181,7 +181,9 @@ class PreviousEncounters extends AbstractComponent {
                                                onToggleAction={this.props.onToggleAction}
                                                renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
                                                encounterActions={() => this.encounterActions(encounter.encounter)}
-                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}/>
+                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
+                                               formType={this.props.formType}
+                        />
                         : this.renderNormalView(encounter)}
                 </View>}
             />
