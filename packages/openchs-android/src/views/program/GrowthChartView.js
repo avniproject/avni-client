@@ -5,7 +5,7 @@ import {LineChart} from "react-native-charts-wrapper";
 import {Button, Text} from "native-base";
 import PropTypes from "prop-types";
 
-import {View, processColor, StyleSheet} from "react-native";
+import {processColor, StyleSheet, View} from "react-native";
 import moment from "moment";
 
 import _ from "lodash";
@@ -142,26 +142,29 @@ class GrowthChartView extends AbstractComponent {
 
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
         const enrolment = this.props.params.enrolment;
-        let observations = _.chain(enrolment.nonVoidedEncounters())
-            .map((encounter) => {
-                let y = encounter.findObservation(yAxisConceptName);
-                let yValue = y? y.getValue() : null;
-                let xValue;
-                if (xAxisConceptName) {
-                    let x = encounter.findObservation(xAxisConceptName);
-                    xValue = x? x.getValue(): null;
-                } else {
-                    xValue = moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
-                }
-                return xValue && yValue ? {
-                    x: xValue,
-                    y: yValue,
-                    marker: `${yValue} ${suffix}`
-                } : undefined;
-            })
-            .compact()
-            .value();
-        return this.addConfig(_.sortBy(observations, 'x'), "data");
+        const observations = _.map(enrolment.nonVoidedEncounters(), encounter => {
+            const x = xAxisConceptName
+                ? encounter.getObservationValue(xAxisConceptName)
+                : moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+            const y = encounter.getObservationValue(yAxisConceptName);
+            const marker = `${y} ${suffix}`;
+            return (_.isNil(x) || _.isNil(y))
+                ? null
+                : {x, y, marker};
+        });
+
+        const xInEnrolment = xAxisConceptName
+            ? enrolment.getObservationValue(xAxisConceptName)
+            : moment(enrolment.enrolmentDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+        const yInEnrolment = enrolment.getObservationValue(yAxisConceptName);
+        const marker = `${yInEnrolment} ${suffix}`;
+
+        const point = (_.isNil(xInEnrolment) || _.isNil(yInEnrolment))
+            ? null
+            : {x: xInEnrolment, y: yInEnrolment, marker};
+        observations.unshift(point);
+
+        return this.addConfig(_.sortBy(_.compact(observations), 'x'), "data");
     }
 
     getDataSets(array, yAxisConcept, suffix, xAxisConcept) {
