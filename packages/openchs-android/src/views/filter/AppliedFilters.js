@@ -58,6 +58,17 @@ export default class AppliedFilters extends AbstractComponent {
         }
     }
 
+    renderCustomFilters() {
+        if (!_.isEmpty(this.props.selectedCustomFilters)) {
+            const nonEmptyFilters = _.pickBy(this.props.selectedCustomFilters, (v, k) => !_.isEmpty(v));
+            const filters = Object.keys(nonEmptyFilters);
+            return _.map(filters, filter => {
+                const answers = nonEmptyFilters[filter].map(value => this.I18n.t(value.name)).join(", ");
+                return this.renderContent(this.I18n.t(filter), answers);
+            })
+        }
+    }
+
     render() {
         const appliedFilters = [...this.props.filters.values()]
             .filter(f => f.isApplied())
@@ -71,6 +82,7 @@ export default class AppliedFilters extends AbstractComponent {
                 {this.renderFilteredPrograms()}
                 {this.renderFilteredVisits()}
                 {this.renderFilteredGeneralVisits()}
+                {this.renderCustomFilters()}
                 {appliedFilters}
             </View>
         );

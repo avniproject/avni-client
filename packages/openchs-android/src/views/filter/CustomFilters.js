@@ -7,6 +7,9 @@ import Reducers from "../../reducer";
 import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";
 import _ from 'lodash';
 import CustomFilterService from "../../service/CustomFilterService";
+import Styles from "../primitives/Styles";
+import Separator from "../primitives/Separator";
+import {View} from 'react-native';
 
 class CustomFilters extends AbstractComponent {
 
@@ -17,7 +20,7 @@ class CustomFilters extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(CustomFilterNames.ON_LOAD, {props : this.props});
+        this.dispatchAction(CustomFilterNames.ON_LOAD, {props: this.props});
         super.componentWillMount();
     }
 
@@ -27,13 +30,16 @@ class CustomFilters extends AbstractComponent {
             const selectedOne = this.state.selectedCustomFilters[filter.titleKey].map(c => c.name);
             const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
             const filterModel = new MultiSelectFilterModel(filter.titleKey, optsFnMap, new Map(), selectedOne).selectOption(selectedOne);
-            return <MultiSelectFilter filter={filterModel}
-                                      onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CUSTOM_FILTER_SELECT,
-                                          {
-                                              titleKey: filter.titleKey,
-                                              conceptAnswerName,
-                                              conceptAnswers
-                                          })}/>
+            return <View>
+                <MultiSelectFilter filter={filterModel}
+                                   onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CUSTOM_FILTER_SELECT,
+                                       {
+                                           titleKey: filter.titleKey,
+                                           conceptAnswerName,
+                                           conceptAnswers
+                                       })}/>
+                <Separator height={30} backgroundColor={Styles.whiteColor}/>
+            </View>
         })
     };
 

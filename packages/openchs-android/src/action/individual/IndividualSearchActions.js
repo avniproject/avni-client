@@ -72,13 +72,13 @@ export class IndividualSearchActions {
 
         if (customFilterService.isSearchFiltersEmpty(state.selectedCustomFilters)) {
             const searchResponse = individualService.search(newState.searchCriteria);
-            action.cb(searchResponse.results, searchResponse.count);
+            action.cb(searchResponse.slice(0, 50), searchResponse.length);
             return newState;
         }
         const individualUUIDs = customFilterService.applyCustomFilters(state.selectedCustomFilters, 'searchFilters');
-        const individualUUIDCriteria = _.map(individualUUIDs, uuid => `uuid == "${uuid}"`).join(" OR ");
-        const searchResponse = _.isEmpty(individualUUIDs) ? { results: [], count: 0 } : individualService.search(newState.searchCriteria, individualUUIDCriteria);
-        action.cb(searchResponse.results, searchResponse.count);
+        const searchResponse = _.isEmpty(individualUUIDs) ? [] :
+            individualService.search(newState.searchCriteria).filter(i => _.includes(individualUUIDs, i.uuid));
+        action.cb(searchResponse.slice(0, 50), searchResponse.length);
         return newState;
     };
 

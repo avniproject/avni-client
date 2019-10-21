@@ -76,6 +76,7 @@ class MyDashboardView extends AbstractComponent {
                                       selectedPrograms={this.state.selectedPrograms}
                                       selectedEncounterTypes={this.state.selectedEncounterTypes}
                                       selectedGeneralEncounterTypes={this.state.selectedGeneralEncounterTypes}
+                                      selectedCustomFilters={this.state.selectedCustomFilters}
                                       programs={this.state.programs}
                                       onPress={() => CHSNavigator.navigateToFilterView(this, {
                                           filters: this.state.filters,
