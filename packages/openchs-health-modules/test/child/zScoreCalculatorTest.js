@@ -55,6 +55,42 @@ describe("zScoreCalculator", () => {
 
             zScores = zScore(individual, today, 6.2, 54.7);
             assert.equal(zScores.wfa, 3);
+
+
+            //2 year old girl
+            individual.dateOfBirth = moment(today).subtract(24, 'month');
+
+            assert.equal(zScore(individual, today, 8.1, ).wfa, -3);
+            assert.equal(zScore(individual, today, 9).wfa, -2);
+            assert.equal(zScore(individual, today, 10.2).wfa, -1);
+            assert.equal(zScore(individual, today, 11.5).wfa, 0);
+            assert.equal(zScore(individual, today, 13).wfa, 1);
+            assert.equal(zScore(individual, today, 14.8).wfa, 2);
+            assert.equal(zScore(individual, today, 17).wfa, 3);
+
+            //5 year old girl
+            individual.dateOfBirth = moment(today).subtract(60, 'month');
+
+            assert.equal(zScore(individual, today, 12.1).wfa, -3);
+            assert.equal(zScore(individual, today, 13.7).wfa, -2);
+            assert.equal(zScore(individual, today, 15.8).wfa, -1);
+            assert.equal(zScore(individual, today, 18.2).wfa, 0);
+            assert.equal(zScore(individual, today, 21.2).wfa, 1);
+            assert.equal(zScore(individual, today, 24.9).wfa, 2);
+            assert.equal(zScore(individual, today, 29.5).wfa, 3);
+
+            //3 year old boy
+            individual.dateOfBirth = moment(today).subtract(36, 'month');
+            individual.gender = male;
+
+            assert.equal(zScore(individual, today, 10).wfa, -3);
+            assert.equal(zScore(individual, today, 11.3).wfa, -2);
+            assert.equal(zScore(individual, today, 12.7).wfa, -1);
+            assert.equal(zScore(individual, today, 14.3).wfa, 0);
+            assert.equal(zScore(individual, today, 16.2).wfa, 1);
+            assert.equal(zScore(individual, today, 18.3).wfa, 2);
+            assert.equal(zScore(individual, today, 20.7).wfa, 3);
+
         });
 
         it("calculates height for age z-scores for boys and girls between 0 and 5", () => {
