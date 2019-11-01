@@ -285,7 +285,7 @@ class RuleEvaluationService extends BaseService {
             "Individual": (individual, nextScheduledVisits) => individualService.register(individual, nextScheduledVisits),
             "Encounter": (encounter, nextScheduledVisits) => encounterService.saveOrUpdate(encounter, nextScheduledVisits),
             "ProgramEnrolment": (enrolment, nextScheduledVisits) => programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
-            "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
+            "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits).sorted('encounterDateTime')
         };
         rulesToRun.map(([schema, type]) => {
             let allEntities = getAllEntitiesOfType[schema]().map(e => e.cloneForEdit());
