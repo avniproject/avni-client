@@ -1,4 +1,5 @@
 import {WorkItem, WorkList, WorkLists} from 'openchs-models';
+import _ from "lodash";
 
 export default class WorkListState {
     constructor(workLists: WorkLists, getParametersFn) {
@@ -40,9 +41,9 @@ export default class WorkListState {
         const parameterLabel = _.get(workItem, 'parameters.saveAndProceedLabel');
         const label = _.isEmpty(parameterLabel) ? defaultLabel : parameterLabel;
         return `${i18n.t('saveAnd')} ${i18n.t(label, {
-            subject: workItem.parameters.subjectTypeName,
-            program: workItem.parameters.programName,
-            enc: workItem.parameters.encounterType
+            subject: i18n.t(_.defaultTo(workItem.parameters.subjectTypeName, "")),
+            program: i18n.t(_.defaultTo(workItem.parameters.programName, "")),
+            enc: i18n.t(_.defaultTo(workItem.parameters.encounterType, ""))
         })}`;
     }
 

@@ -71,7 +71,7 @@ class NextScheduledVisits extends AbstractComponent {
         if (this.props.nextScheduledVisits.length === 0) return <View/>;
 
         const format = "DD-MMM-YYYY";
-        const nextScheduledVisits = this.props.nextScheduledVisits.map(visit => [ visit.name || visit.encounterType,
+        const nextScheduledVisits = this.props.nextScheduledVisits.map(visit => [ !_.isEmpty(visit.name) ? this.I18n.t(visit.name) : this.I18n.t(visit.encounterType),
             moment(visit.earliestDate).format(format),
             moment(visit.maxDate).format(format) ]);
 
