@@ -1046,7 +1046,7 @@
     "Antenatal care": "गरोदरपणातील काळजी",
     "Anthopometry": "वजन ऊंची मोजमाप",
     "Anthropometry": "वजन ऊंची मोजमाप",
-    "Antyodaya": "रेशन कार्ड",
+    "Antyodaya": "अंतोदय कार्ड",
     "Any problems with chest area": "छातीच्या  तक्रारी",
     "Any problems with legs": "पाय दुखने किंवा पायाच्या तक्रारी",
     "Any symptoms around head and face": "डोके किंवा तोंडाची धोकयाची लक्षणे",
@@ -1610,7 +1610,7 @@
     "Whether neonatal complication addressed": "नवजात बाळाला झालेला त्रास बरा झाला का",
     "Swaddled the baby in cotton cloth": "सुती कपडयात गुंडाळले होते",
     "Swaddled the baby in woolen cloth/dressed baby in woollen clothing": "पाॅलीस्टरच्या कपडयात गुंडाळले",
-    "Individual": "व्यक्तिगत",
+    "Individual": "व्यक्ति",
     "Red Discharge": "अंगावरून लाल जाणे",
     "Gender norms rights": "लिंगभाव",
     "Domestic violence": "कौंटुंबिक हिंसा",
@@ -2511,7 +2511,8 @@
     "Marhai Bk": "मऱ्हळ बु.",
     "Jadhvvasti": "जाधववस्ती",
     "Lalhali": "लहाली",
-    "No wadi/vasti": "वाडी/वस्ती नाही"
+    "No wadi/vasti": "वाडी/वस्ती नाही",
+    "Enrol in Mother program": "गरोदरपणाच्या सेवासाठी नोंद करा"
   },
   "en": {
     "LOGIN": "Login",
