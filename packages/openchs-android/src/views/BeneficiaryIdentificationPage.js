@@ -35,15 +35,23 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
 
     submit() {
         this.dispatchAction(Actions.findIndividual, {
-            cb: beneficiary => {
-                if (beneficiary) {
-                    CHSNavigator.navigateToBeneficiaryDashboard(this, {beneficiary});
+            cb: beneficiaries => {
+                if (beneficiaries.length === 1) {
+                    CHSNavigator.navigateToBeneficiaryDashboard(this, {beneficiary: beneficiaries[0]});
                 } else {
-                    Alert.alert(this.I18n.t("beneficiaryNotFound"),
-                        this.I18n.t("beneficiaryNotFoundMessage"));
+                    this.displayError(beneficiaries)
                 }
             },
         });
+    }
+
+    displayError(beneficiaries) {
+        _.isEmpty(beneficiaries) ? this.displayAlertMessage('beneficiaryNotFound', 'beneficiaryNotFoundMessage')
+            : this.displayAlertMessage('moreThanOneBeneficiary', 'moreThanOneBeneficiaryMessage');
+    }
+
+    displayAlertMessage(title, message) {
+        return Alert.alert(this.I18n.t(title), this.I18n.t(message));
     }
 
     render() {

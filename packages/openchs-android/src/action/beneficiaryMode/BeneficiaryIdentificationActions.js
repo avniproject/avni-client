@@ -13,7 +13,7 @@ export default class BeneficiaryIdentificationActions {
 
     @Action('BIA.onLoad')
     static onLoad(state: BeneficiaryIdentificationState, action: Object, context: Map) {
-        const newState = state.clone();
+        const newState = new BeneficiaryIdentificationState([], undefined, []);
         const form = context.get(EntityService).findByKey('formType', 'BeneficiaryIdentification', Form.schema.name);
         newState.form = form;
         newState.formElementGroup = form.nonVoidedFormElementGroups()[0];
@@ -23,7 +23,7 @@ export default class BeneficiaryIdentificationActions {
     @Action('BIA.findIndividual')
     static findIndividual(state: BeneficiaryIdentificationState, action: Object, context: Map) {
         const individualService = context.get(IndividualService);
-        const individual = individualService.findUniqBy(individual => {
+        const individual = individualService.filterBy(individual => {
             return _.every(state.formElementGroup.getFormElements(), (fm) => {
                 const sov = BeneficiaryIdentificationActions._getObservationValue(state, fm.concept);
                 const iov = fm.recordByKey('individualprop')
