@@ -279,7 +279,7 @@
     "overdueBy": "घर भेटीची मुदत संपण्याची तारीख",
     "uniqueAnswerConflict": "'{{answer}}' इतर उत्तरांसह निवडले जाऊ शकत नाही",
     "enrolIntoProgram": "{{program}} मध्ये इंरोल करा",
-    "saveAnd": "सेव्ह आणि",
+    "saveAnd": "सेव्ह करा आणि",
     "No wadi/vasti": "वाडी/वस्ती नाही",
     "beneficiaryMode": "Beneficiary Mode",
     "asOnDate": "या तारखे पर्यंत",
@@ -315,6 +315,9 @@
     "unVoid": "Unvoid",
     "unVoidIndividualConfirmationTitle": "Unvoid this individual",
     "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?",
-    "Growth Chart": "विकास चार्ट"
+    "Growth Chart": "विकास चार्ट",
+    "Individual": "व्यक्ती",
+    "anotherRegistration": "दुस-या {{subject}}ला रजिस्टर करा",
+    "proceedEncounter": "{{enc}}साठी पुढे जा"
   }
 }

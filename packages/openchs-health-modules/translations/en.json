@@ -274,7 +274,7 @@
     "programs": "Programs",
     "general": "General",
     "beneficiaryMode": "Beneficiary Mode",
-    "invalidLogoutAttempt": "Incorrect PIN ({{attempts}} out of 3)",
+    "invalidLogoutAttempt": "Incorrect PIN ({{used}} out of {{max}} failed attempts)",
     "asOnDate": "As on date",
     "filter": "FILTER",
     "Relatives": "Relatives",
@@ -284,6 +284,10 @@
     "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?",
     "unVoid": "Unvoid",
     "unVoidIndividualConfirmationTitle": "Unvoid this individual",
-    "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?"
+    "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?",
+    "beneficiaryNotFound": "Unable to identify",
+    "beneficiaryNotFoundMessage": "Unable to find a record with the given identification details.",
+    "moreThanOneBeneficiary": "More than one beneficiary",
+    "moreThanOneBeneficiaryMessage": "More than one record found with the given identification details."
   }
 }
