@@ -36,7 +36,8 @@ class MyDashboardActions {
             recentlyCompletedRegistration: 0,
             recentlyCompletedEnrolment: 0,
             total: 0,
-            selectedCustomFilters: []
+            selectedCustomFilters: [],
+            selectedGenders: []
         };
     }
 
@@ -210,6 +211,7 @@ class MyDashboardActions {
         const generalVisitQuery = (path) => _.map(action.selectedGeneralEncounterTypes, (encounter) => `${path} = \'${encounter.uuid}\'`);
         const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
         const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
+        const genderQuery = (path) => _.map(action.selectedGenders, (gender) => `${path} = "${gender.name}"`);
 
         const customFilterService = context.get(CustomFilterService);
         var individualUUIDs = [];
@@ -229,12 +231,14 @@ class MyDashboardActions {
 
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
+            MyDashboardActions.orQuery(genderQuery('gender.name')),
             MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
             buildEnrolmentSubQueryForIndividual()
         ].filter(Boolean).join(" AND ");
 
         const encountersFilters = [
             subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
+            MyDashboardActions.orQuery(genderQuery('programEnrolment.individual.gender.name')),
             MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')),
             MyDashboardActions.orQuery(programQuery('programEnrolment.program.uuid')),
             MyDashboardActions.orQuery(visitQuery('encounterType.uuid')),
@@ -243,12 +247,14 @@ class MyDashboardActions {
 
         const generalEncountersFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
+            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
             MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
             MyDashboardActions.orQuery(generalVisitQuery('encounterType.uuid'))
         ].filter(Boolean).join(" AND ");
 
         const enrolmentFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
+            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
             MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
             MyDashboardActions.orQuery(programQuery('program.uuid')),
             MyDashboardActions.orQuery(visitQuery('encounters.encounterType.uuid')),
@@ -277,7 +283,8 @@ class MyDashboardActions {
             fetchFromDB: true,
             selectedCustomFilters: action.selectedCustomFilters,
             returnEmpty: !dashboardFiltersEmpty && _.isEmpty(individualUUIDs),
-            individualUUIDs
+            individualUUIDs,
+            selectedGenders: action.selectedGenders
         };
 
         return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);

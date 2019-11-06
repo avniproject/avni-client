@@ -28,7 +28,7 @@ class IndividualSearchCriteria {
             criteria.push(`(dateOfBirth <= $0 AND dateOfBirth >= $1 )`);
         }
 
-        if(!this.includeVoided) {
+        if (!this.includeVoided) {
             criteria.push("(voided=false)");
         }
 
@@ -48,6 +48,12 @@ class IndividualSearchCriteria {
         if (!_.isEmpty(this.subjectType)) {
             criteria.push(`subjectType.uuid = "${this.subjectType.uuid}"`);
         }
+
+        if (!_.isEmpty(this.genders)) {
+            const genderQuery = _.map(this.genders, gender => `gender.name = "${gender.name}"`).join(" OR ");
+            criteria.push("( " + genderQuery + " )");
+        }
+
         return criteria.join(" AND ");
     }
 
@@ -69,6 +75,10 @@ class IndividualSearchCriteria {
 
     addVoidedCriteria(includeVoided) {
         this.includeVoided = includeVoided;
+    }
+
+    addGenderCriteria(genders) {
+        this.genders = genders;
     }
 
     addSubjectTypeCriteria(subjectType) {

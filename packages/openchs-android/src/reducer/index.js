@@ -46,6 +46,7 @@ import {CompletedEncountersActionMap, CompletedEncountersActions} from "../actio
 import SubjectDashboardViewActions from '../action/program/SubjectDashboardViewActions'
 import {SyncActions, SyncActionMap} from '../action/SyncActions';
 import {CustomFilterActions, CustomFilterMap} from '../action/mydashboard/CustomFilterActions'
+import {GenderFilterActions, GenderFilterMap} from '../action/mydashboard/GenderFilterActions'
 
 export default class Reducers {
     static reducerKeys = {
@@ -84,7 +85,8 @@ export default class Reducers {
         completedEncounters: "CompletedEncounters",
         subjectDashboardView: "subjectDashboardView",
         syncComponentAction: "syncComponent",
-        customFilterActions: "customFilterActions"
+        customFilterActions: "customFilterActions",
+        genderFilterActions: "genderFilterActions"
     };
 
     static createReducers(beanStore) {
@@ -124,6 +126,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.subjectDashboardView] = Reducers._add(SubjectDashboardViewActions.Map, SubjectDashboardViewActions, beanStore);
         reducerMap[Reducers.reducerKeys.syncComponentAction] = Reducers._add(SyncActionMap, SyncActions, beanStore);
         reducerMap[Reducers.reducerKeys.customFilterActions] = Reducers._add(CustomFilterMap, CustomFilterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.genderFilterActions] = Reducers._add(GenderFilterMap, GenderFilterActions, beanStore);
         return reducerMap;
     };
 

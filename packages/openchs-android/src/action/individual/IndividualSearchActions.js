@@ -66,6 +66,7 @@ export class IndividualSearchActions {
 
     static searchIndividuals(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addGenderCriteria(state.selectedGenders);
 
         const individualService = beans.get(IndividualService);
         const customFilterService = beans.get(CustomFilterService);
@@ -93,6 +94,10 @@ export class IndividualSearchActions {
     static customFilterChange(state, action) {
         return {...state, selectedCustomFilters: action.selectedCustomFilters}
     }
+
+    static genderChange(state, action) {
+        return {...state, selectedGenders: action.selectedGenders};
+    }
 }
 
 const ActionPrefix = 'IndSearch';
@@ -107,6 +112,7 @@ const individualSearchActions = {
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS",
     RESET: "ISA.RESET",
     CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
+    GENDER_CHANGE: `${ActionPrefix}.GENDER_CHANGE`,
 };
 
 const individualSearchActionsMap = new Map([
@@ -120,6 +126,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.RESET, IndividualSearchActions.reset],
     [individualSearchActions.ON_LOAD, IndividualSearchActions.onLoad],
     [individualSearchActions.CUSTOM_FILTER_CHANGE, IndividualSearchActions.customFilterChange],
+    [individualSearchActions.GENDER_CHANGE, IndividualSearchActions.genderChange],
 ]);
 
 export {

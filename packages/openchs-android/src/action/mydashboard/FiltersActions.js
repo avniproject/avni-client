@@ -18,7 +18,8 @@ class FiltersActions {
             generalEncounterTypes: [],
             selectedGeneralEncounterTypes: [],
             subjectTypes: [],
-            selectedSubjectType: null
+            selectedSubjectType: null,
+            selectedGenders: []
         };
     }
 
@@ -37,7 +38,7 @@ class FiltersActions {
             generalEncounterTypes: generalEncounterTypes,
             selectedGeneralEncounterTypes: action.selectedGeneralEncounterTypes,
             subjectTypes: action.subjectTypes,
-            selectedSubjectType:action.selectedSubjectType,
+            selectedSubjectType: action.selectedSubjectType,
         }
     }
 
@@ -150,6 +151,10 @@ class FiltersActions {
     static customFilterChange(state, action) {
         return {...state, selectedCustomFilters: action.selectedCustomFilters}
     }
+
+    static genderFilterChange(state, action) {
+        return {...state, selectedGenders: action.selectedGenders}
+    }
 }
 
 const ActionPrefix = 'FilterA';
@@ -164,6 +169,7 @@ const FilterActionNames = {
     ADD_PROGRAM: `${ActionPrefix}.ADD_PROGRAM`,
     ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
     CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
+    GENDER_FILTER_CHANGE: `${ActionPrefix}.GENDER_FILTER_CHANGE`,
 };
 const FilterActionMap = new Map([
     [FilterActionNames.ON_LOAD, FiltersActions.onLoad],
@@ -176,6 +182,7 @@ const FilterActionMap = new Map([
     [FilterActionNames.ADD_PROGRAM, FiltersActions.addProgram],
     [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
     [FilterActionNames.CUSTOM_FILTER_CHANGE, FiltersActions.customFilterChange],
+    [FilterActionNames.GENDER_FILTER_CHANGE, FiltersActions.genderFilterChange],
 ]);
 
 export {
