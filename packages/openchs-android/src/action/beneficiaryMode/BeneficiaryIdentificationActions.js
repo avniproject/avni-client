@@ -29,7 +29,7 @@ export default class BeneficiaryIdentificationActions {
                 const iov = fm.recordByKey('individualprop')
                     ? BeneficiaryIdentificationActions._getIndividualProp(individual, fm)
                     : BeneficiaryIdentificationActions._getIndividualObs(individual, fm);
-                return !_.isNil(iov) && !_.isNil(sov) && (JSON.stringify(iov) === JSON.stringify(sov));
+                return !_.isNil(iov) && !_.isNil(sov) && (JSON.stringify(iov) === JSON.stringify(sov)) && individual.voided === false;
             });
         });
         action.cb(individual);
