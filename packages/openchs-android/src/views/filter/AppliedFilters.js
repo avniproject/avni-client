@@ -69,6 +69,13 @@ export default class AppliedFilters extends AbstractComponent {
         }
     }
 
+    renderGenderFilters() {
+        if (!_.isEmpty(this.props.selectedGenders)) {
+            const genderNames = _.map(this.props.selectedGenders, gender => this.I18n.t(gender.name)).join(", ");
+            return this.renderContent(this.I18n.t('gender'), genderNames);
+        }
+    }
+
     render() {
         const appliedFilters = [...this.props.filters.values()]
             .filter(f => f.isApplied())
@@ -83,6 +90,7 @@ export default class AppliedFilters extends AbstractComponent {
                 {this.renderFilteredVisits()}
                 {this.renderFilteredGeneralVisits()}
                 {this.renderCustomFilters()}
+                {this.renderGenderFilters()}
                 {appliedFilters}
             </View>
         );

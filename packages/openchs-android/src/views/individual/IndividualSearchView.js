@@ -22,6 +22,7 @@ import Colors from "../primitives/Colors";
 import SingleSelectFilter from '../filter/SingleSelectFilter';
 import CustomFilters from "../filter/CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
+import GenderFilter from "../filter/GenderFilter";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -64,7 +65,8 @@ class IndividualSearchView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
+                    <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
+                               hideIcon={true}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -104,32 +106,36 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        {searchCustomFilters &&
-                        <CustomFilters filters={searchCustomFilters}
-                                       onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
-                                       }/>}
+                        {this.state.searchCriteria.subjectType.isIndividual() ?
+                            <GenderFilter
+                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                            /> : null}
+                        {!_.isEmpty(searchCustomFilters) ?
+                            <CustomFilters filters={searchCustomFilters}
+                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
+                                           }/> : null}
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>
 
-                    <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
-                        <TouchableOpacity activeOpacity={0.5}
-                                          onPress={() => this.searchIndividual()}
-                                          style={{
-                                              height: 40,
-                                              width: 80,
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                              backgroundColor: Colors.AccentColor,
-                                              elevation: 2,
-                                          }}>
-                            <Text style={{
-                                color: 'white',
-                                alignSelf: 'center',
-                                fontSize: Styles.normalTextSize
-                            }}>{this.I18n.t('submit')}</Text>
-                        </TouchableOpacity>
-                    </View>
+                <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
+                    <TouchableOpacity activeOpacity={0.5}
+                                      onPress={() => this.searchIndividual()}
+                                      style={{
+                                          height: 40,
+                                          width: 80,
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          backgroundColor: Colors.AccentColor,
+                                          elevation: 2,
+                                      }}>
+                        <Text style={{
+                            color: 'white',
+                            alignSelf: 'center',
+                            fontSize: Styles.normalTextSize
+                        }}>{this.I18n.t('submit')}</Text>
+                    </TouchableOpacity>
+                </View>
 
             </CHSContainer>
         );

@@ -69,6 +69,7 @@ class IndividualList extends AbstractComponent {
             selectedEncounterTypes: this.state.selectedEncounterTypes,
             generalEncounterTypes: this.state.generalEncounterTypes,
             selectedCustomFilters: this.state.selectedCustomFilters,
+            selectedGenders: this.state.selectedGenders,
             selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
             onBack: this.goBack.bind(this),
             actionName: Actions.APPLY_FILTERS,

@@ -18,13 +18,13 @@ import General from "../../utility/General";
 class MyDashboardView extends AbstractComponent {
     static propTypes = {};
 
-    viewName() {
-        return "MyDashboard";
-    }
-
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
+    }
+
+    viewName() {
+        return "MyDashboard";
     }
 
     componentWillMount() {
@@ -77,6 +77,7 @@ class MyDashboardView extends AbstractComponent {
                                       selectedEncounterTypes={this.state.selectedEncounterTypes}
                                       selectedGeneralEncounterTypes={this.state.selectedGeneralEncounterTypes}
                                       selectedCustomFilters={this.state.selectedCustomFilters}
+                                      selectedGenders={this.state.selectedGenders}
                                       programs={this.state.programs}
                                       onPress={() => CHSNavigator.navigateToFilterView(this, {
                                           filters: this.state.filters,
@@ -89,6 +90,7 @@ class MyDashboardView extends AbstractComponent {
                                           selectedEncounterTypes: this.state.selectedEncounterTypes,
                                           generalEncounterTypes: this.state.generalEncounterTypes,
                                           selectedCustomFilters: this.state.selectedCustomFilters,
+                                          selectedGenders: this.state.selectedGenders,
                                           selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
                                           onBack: this._onBack.bind(this),
                                           actionName: Actions.APPLY_FILTERS,

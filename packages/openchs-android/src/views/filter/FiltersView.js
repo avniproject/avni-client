@@ -23,6 +23,7 @@ import EntityService from "../../service/EntityService";
 import General from "../../utility/General";
 import CustomFilters from "./CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
+import GenderFilter from "./GenderFilter";
 
 
 @Path('/FilterView')
@@ -117,6 +118,7 @@ class FilterView extends AbstractComponent {
             listType: this.props.listType,
             selectedSubjectType: this.state.selectedSubjectType,
             selectedCustomFilters: this.state.selectedCustomFilters,
+            selectedGenders: this.state.selectedGenders,
         });
         this.goBack();
     }
@@ -235,11 +237,15 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
-                            {dashboardCustomFilters &&
-                            <CustomFilters filters={dashboardCustomFilters}
-                                           selectedCustomFilters={this.props.selectedCustomFilters}
-                                           onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
-                                           }/>}
+                            {this.state.selectedSubjectType.isIndividual() ?
+                                <GenderFilter selectedGenders={this.props.selectedGenders}
+                                              onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
+                                /> : null}
+                            {!_.isEmpty(dashboardCustomFilters) ?
+                                <CustomFilters filters={dashboardCustomFilters}
+                                               selectedCustomFilters={this.props.selectedCustomFilters}
+                                               onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
+                                               }/> : null}
                             <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>
                     </View>
