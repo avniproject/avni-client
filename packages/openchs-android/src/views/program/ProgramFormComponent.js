@@ -54,7 +54,7 @@ class ProgramFormComponent extends AbstractComponent {
         return (<CHSContainer>
             <CHSContent ref="scroll">
                 <AppHeader
-                    title={this.I18n.t('enrolInSpecificProgram', {program: this.props.state.enrolment.program.displayName})}
+                    title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
