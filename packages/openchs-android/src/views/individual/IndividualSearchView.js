@@ -94,6 +94,10 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                              multiline={false}/> : null}
+                        {this.state.searchCriteria.subjectType.isIndividual() ?
+                            <GenderFilter
+                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                            /> : null}
                         <AddressLevels
                             key={this.state.key}
                             onSelect={(addressLevelState) =>
@@ -106,10 +110,6 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        {this.state.searchCriteria.subjectType.isIndividual() ?
-                            <GenderFilter
-                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
-                            /> : null}
                         {!_.isEmpty(searchCustomFilters) ?
                             <CustomFilters filters={searchCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})

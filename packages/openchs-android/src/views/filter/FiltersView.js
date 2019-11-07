@@ -170,7 +170,7 @@ class FilterView extends AbstractComponent {
                     programEncounterFilter
                     :
                     <View>
-                        {programFilter}
+                        {this.state.programs.length > 0 ? programFilter : <View/>}
                         {this.state.encounterTypes.length > 0 ? programEncounterFilter : <View/>}
                     </View>
                 }
@@ -227,6 +227,10 @@ class FilterView extends AbstractComponent {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                             }}/>)
                             }
+                            {this.state.selectedSubjectType.isIndividual() ?
+                                <GenderFilter selectedGenders={this.props.selectedGenders}
+                                              onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
+                                /> : null}
                             {this.renderProgramEncounterGroup()}
                             {this.renderEncounterGroup()}
                             <AddressLevels
@@ -237,10 +241,6 @@ class FilterView extends AbstractComponent {
                                     })
                                 }}
                                 multiSelect={true}/>
-                            {this.state.selectedSubjectType.isIndividual() ?
-                                <GenderFilter selectedGenders={this.props.selectedGenders}
-                                              onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
-                                /> : null}
                             {!_.isEmpty(dashboardCustomFilters) ?
                                 <CustomFilters filters={dashboardCustomFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}
