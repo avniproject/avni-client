@@ -24,6 +24,11 @@ class CustomFilterService extends BaseService {
         return _.isEmpty(orgConfig) ? [] : orgConfig.getSettings();
     }
 
+    displayGenderFilter() {
+        const settings = this.getSettings();
+        return _.isEmpty(settings) ? false : settings.displayGenderFilter;
+    }
+
     getDashboardFilters() {
         return this.getSettings() && this.getSettings().myDashboardFilters || [];
     }

@@ -226,7 +226,7 @@ class FilterView extends AbstractComponent {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                             }}/>)
                             }
-                            {this.state.selectedSubjectType.isIndividual() ?
+                            {this.customFilterService.displayGenderFilter() && this.state.selectedSubjectType.isIndividual() ?
                                 <GenderFilter selectedGenders={this.props.selectedGenders}
                                               onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
                                 /> : null}

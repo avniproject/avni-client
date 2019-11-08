@@ -94,7 +94,7 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                              multiline={false}/> : null}
-                        {this.state.searchCriteria.subjectType.isIndividual() ?
+                        {this.customFilterService.displayGenderFilter() && this.state.searchCriteria.subjectType.isIndividual() ?
                             <GenderFilter
                                 selectedGenders={this.state.selectedGenders}
                                 onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
