@@ -70,13 +70,16 @@ export class IndividualSearchActions {
 
         const individualService = beans.get(IndividualService);
         const customFilterService = beans.get(CustomFilterService);
-
-        if (customFilterService.isSearchFiltersEmpty(state.selectedCustomFilters)) {
-            const searchResponse = individualService.search(newState.searchCriteria);
-            action.cb(searchResponse.slice(0, 50), searchResponse.length);
-            return newState;
+        const selectedCustomFilterForSubjectType = _.mapValues(state.selectedCustomFilters, selectedFilters => {
+            const s = selectedFilters.filter(filter => filter.subjectTypeUUID === state.searchCriteria.subjectType.uuid);
+            return s.length === 0 ? [] : s
+        });
+        if (customFilterService.isSearchFiltersEmpty(selectedCustomFilterForSubjectType)) {
+        const searchResponse = individualService.search(newState.searchCriteria);
+        action.cb(searchResponse.slice(0, 50), searchResponse.length);
+        return newState;
         }
-        const individualUUIDs = customFilterService.applyCustomFilters(state.selectedCustomFilters, 'searchFilters');
+        const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters');
         const searchResponse = _.isEmpty(individualUUIDs) ? [] :
             individualService.search(newState.searchCriteria).filter(i => _.includes(individualUUIDs, i.uuid));
         action.cb(searchResponse.slice(0, 50), searchResponse.length);

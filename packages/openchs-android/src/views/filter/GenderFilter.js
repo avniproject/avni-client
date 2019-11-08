@@ -19,7 +19,7 @@ class GenderFilter extends AbstractComponent {
     }
 
     _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect)) {
+        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders) {
             this.props.onSelect(this.state.selectedGenders);
         }
     }

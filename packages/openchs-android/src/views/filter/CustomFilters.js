@@ -35,6 +35,7 @@ class CustomFilters extends AbstractComponent {
                                    onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CUSTOM_FILTER_SELECT,
                                        {
                                            titleKey: filter.titleKey,
+                                           subjectTypeUUID: filter.subjectTypeUUID,
                                            conceptAnswerName,
                                            conceptAnswers
                                        })}/>
@@ -44,7 +45,7 @@ class CustomFilters extends AbstractComponent {
     };
 
     _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect)) {
+        if (_.isFunction(this.props.onSelect) && this.state.selectedCustomFilters !== this.props.selectedCustomFilters) {
             this.props.onSelect(this.state.selectedCustomFilters);
         }
     }

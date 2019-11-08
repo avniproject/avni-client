@@ -203,10 +203,9 @@ class FilterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dashboardCustomFilters = this.customFilterService.getDashboardFilters();
         const {width} = Dimensions.get('window');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
-
+        const dashboardCustomFilters = this.customFilterService.getDashboardFilters().filter(c => c.subjectTypeUUID === this.state.selectedSubjectType.uuid);
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
@@ -244,8 +243,8 @@ class FilterView extends AbstractComponent {
                             {!_.isEmpty(dashboardCustomFilters) ?
                                 <CustomFilters filters={dashboardCustomFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}
-                                               onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
-                                               }/> : null}
+                                               onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                /> : null}
                             <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>
                     </View>

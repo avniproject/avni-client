@@ -19,6 +19,7 @@ class FiltersActions {
             selectedGeneralEncounterTypes: [],
             subjectTypes: [],
             selectedSubjectType: null,
+            selectedCustomFilters: [],
             selectedGenders: []
         };
     }

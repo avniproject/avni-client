@@ -20,10 +20,11 @@ class CustomFilterActions {
     }
 
     static onCustomFilterSelect(state, action, context) {
-        const {conceptAnswerName, conceptAnswers, titleKey} = action;
+        const {conceptAnswerName, conceptAnswers, titleKey, subjectTypeUUID} = action;
         const selectedConceptAnswer = conceptAnswers.filter(a => a.concept.name === conceptAnswerName).map(c => ({
             uuid: c.concept.uuid,
-            name: conceptAnswerName
+            name: conceptAnswerName,
+            subjectTypeUUID
         }));
         const addAnswer = [...state.selectedCustomFilters[titleKey], ...selectedConceptAnswer];
         const removeAnswer = state.selectedCustomFilters[titleKey].filter(a => a.name !== conceptAnswerName);
