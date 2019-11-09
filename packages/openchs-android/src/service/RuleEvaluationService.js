@@ -246,7 +246,7 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(allRules)) {
             const formElementWithRules = formElementGroup
                 .getFormElements()
-                .filter(formElement => !_.isNil(formElement.rule));
+                .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
             if (_.isEmpty(formElementWithRules))
                 return defaultFormElementStatus;
             return [...formElementWithRules
@@ -260,7 +260,7 @@ class RuleEvaluationService extends BaseService {
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
-                        this.saveFailedRules(error, formElement.uuid, this.getIndividualUUID(entity, entityName));
+                        this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName));
                         return null;
                     }
                 })
