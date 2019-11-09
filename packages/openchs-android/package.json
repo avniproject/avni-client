@@ -31,7 +31,7 @@
     "moment": "2.19.3",
     "native-base": "2.12.1",
     "openchs-health-modules": "0.0.2",
-    "openchs-models": "0.2.0",
+    "openchs-models": "0.2.1",
     "prop-types": "15.7.2",
     "react": "16.8.3",
     "react-native": "0.59.5",
@@ -55,7 +55,8 @@
     "redux": "3.6.0",
     "rn-fetch-blob": "0.10.15",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174"
+    "transducers-js": "0.4.174",
+    "rules-config": "github:openchs/rules-config#e2d7baccda66c8d18e0f9cb6fff3d14f746e2fa4"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",

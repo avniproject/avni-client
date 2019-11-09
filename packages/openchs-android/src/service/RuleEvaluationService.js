@@ -30,6 +30,7 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
+import {FormElementStatusBuilder} from "rules-config";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -242,7 +243,32 @@ class RuleEvaluationService extends BaseService {
         const allRules = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
-        if (_.isEmpty(allRules)) return defaultFormElementStatus;
+        if (_.isEmpty(allRules)) {
+            const formElementWithRules = formElementGroup
+                .getFormElements()
+                .filter(formElement => !_.isNil(formElement.rule));
+            if (_.isEmpty(formElementWithRules))
+                return defaultFormElementStatus;
+            return [...formElementWithRules
+                .map(formElement => {
+                    try {
+                        console.log(`RuleEvaluationService: eval`);
+                        const ruleFunc = eval(formElement.rule);
+                        return ruleFunc({
+                            params: {formElement, entity},
+                            imports: {FormElementStatusBuilder, FormElementStatus}
+                        });
+                    } catch (e) {
+                        General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
+                        this.saveFailedRules(error, formElement.uuid, this.getIndividualUUID(entity, entityName));
+                        return null;
+                    }
+                })
+                .filter(fs => !_.isNil(fs))
+                .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
+                .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
+                .values()];
+        }
         return [...allRules
             .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
             .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
