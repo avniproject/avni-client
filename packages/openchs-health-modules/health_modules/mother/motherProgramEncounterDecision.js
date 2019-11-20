@@ -325,14 +325,13 @@ export function getDecisions(programEncounter, today) {
         if (!_.isEmpty(moreHighRiskConditions.value)) {
             decisions.push(moreHighRiskConditions);
         }
-
+        decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
         decisions = decisions.filter((d) => !_.isEmpty(d));
 
         enrolmentDecisions = enrolmentDecisions.filter((d) => !_.isEmpty(d));
 
         enrolmentDecisions = mergeDecisionsByKey(enrolmentDecisions);
         decisions = mergeDecisionsByKey(decisions);
-        decisions.push(generateInvestigationAdvice(programEncounter.programEnrolment, programEncounter, today));
 
         return {
             enrolmentDecisions: enrolmentDecisions,
