@@ -13,7 +13,7 @@
     "test-ci": "jest --forceExit --maxWorkers=2 --ci"
   },
   "dependencies": {
-    "lodash": "4.17.11",
+    "lodash": "4.17.15",
     "moment": "2.19.3",
     "openchs-models": "0.0.5",
     "openchs-idi": "github:openchs/openchs-idi#b6c57e051b91ed4bc2634f4f087dba51cc3a01c8",
