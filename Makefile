@@ -339,15 +339,15 @@ inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
 
 get-token-prod:
-	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=$(username) password=$(password)
+	@node packages/openchs-health-modules/scripts/token 'https://server.openchs.org' $(username) $(password)
 
 get-token-staging:
-	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=$(username) password=$(password)
+	@node packages/openchs-health-modules/scripts/token 'https://staging.openchs.org' $(username) $(password)
 
 get-token-uat:
-	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=$(username) password=$(password)
+	@node packages/openchs-health-modules/scripts/token 'https://uat.openchs.org' $(username) $(password)
 
 get-token-prerelease:
-	cd packages/openchs-health-modules && make get-token poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=$(username) password=$(password)
+	@node packages/openchs-health-modules/scripts/token 'https://prerelease.openchs.org' $(username) $(password)
 
 #$(MAKECMDGOALS): check-node-v ;

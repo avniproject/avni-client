@@ -16,6 +16,7 @@
     "lodash": "4.17.11",
     "moment": "2.19.3",
     "openchs-models": "0.0.5",
+    "openchs-idi": "github:openchs/openchs-idi#b6c57e051b91ed4bc2634f4f087dba51cc3a01c8",
     "rules-config": "github:openchs/rules-config#e2d7baccda66c8d18e0f9cb6fff3d14f746e2fa4"
   },
   "devDependencies": {

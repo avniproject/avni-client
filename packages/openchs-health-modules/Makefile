@@ -29,7 +29,7 @@ username:=
 password:=
 
 auth:
-	$(if $(poolId),$(eval token:=$(shell node scripts/token.js $(poolId) $(clientId) $(username) $(password))))
+	$(if $(password),$(eval token:=$(shell node scripts/token.js '$(server):$(port)' $(username) $(password))))
 
 get-token: auth
 	@echo
