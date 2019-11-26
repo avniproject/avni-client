@@ -14,12 +14,12 @@ class GenderFilter extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD,  this.props);
+        this.dispatchAction(Actions.ON_LOAD, this.props);
         super.componentWillMount();
     }
 
     _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect)) {
+        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders) {
             this.props.onSelect(this.state.selectedGenders);
         }
     }
@@ -28,7 +28,7 @@ class GenderFilter extends AbstractComponent {
         const {genders, selectedGenders} = this.state;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
-        const filterModel = new MultiSelectFilterModel('Genders', optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
+        const filterModel = new MultiSelectFilterModel(this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
         return <View>
             <MultiSelectFilter filter={filterModel}
                                onSelect={(gender) => this.dispatchAction(Actions.ON_GENDER_SELECT, {gender})}/>

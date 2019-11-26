@@ -59,9 +59,9 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const searchCustomFilters = this.customFilterService.getSearchFilters();
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
+        const searchCustomFilters = _.filter(this.customFilterService.getSearchFilters(), c => c.subjectTypeUUID === this.state.searchCriteria.subjectType.uuid);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -94,6 +94,11 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                              multiline={false}/> : null}
+                        {this.customFilterService.displayGenderFilter() && this.state.searchCriteria.subjectType.isIndividual() ?
+                            <GenderFilter
+                                selectedGenders={this.state.selectedGenders}
+                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                            /> : null}
                         <AddressLevels
                             key={this.state.key}
                             onSelect={(addressLevelState) =>
@@ -106,14 +111,11 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        {this.state.searchCriteria.subjectType.isIndividual() ?
-                            <GenderFilter
-                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
-                            /> : null}
                         {!_.isEmpty(searchCustomFilters) ?
                             <CustomFilters filters={searchCustomFilters}
-                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})
-                                           }/> : null}
+                                           selectedCustomFilters={this.state.selectedCustomFilters}
+                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                            /> : null}
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>
                 </CHSContent>

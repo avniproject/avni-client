@@ -33,6 +33,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegistrationDetails);
+        this.formMappingService = context.getService(FormMappingService);
     }
 
     componentWillMount() {
@@ -155,6 +156,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         this.voidUnVoidAlert('unVoidIndividualConfirmationTitle', 'unVoidIndividualConfirmationMessage', false)
     }
 
+    renderSelectionOptions() {
+        const form = this.formMappingService.findRegistrationForm(this.state.individual.subjectType);
+        return _.isEmpty(form) ? <View/> : <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
+            <ObservationsSectionOptions
+                contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
+        </TouchableOpacity>
+    }
+
     renderProfile() {
         const formMappingService = this.context.getService(FormMappingService);
         return <View>
@@ -176,13 +185,11 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             <View style={{marginTop: 3}}>
                 {this.state.expand === true ?
                     <View style={{paddingHorizontal: 10}}>
-                        <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)} observations={this.state.individual.observations}
+                        <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)}
+                                      observations={this.state.individual.observations}
                                       style={{marginVertical: 3}}/>
                     </View> : <View/>}
-                <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
-                    <ObservationsSectionOptions
-                        contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
-                </TouchableOpacity>
+                {this.renderSelectionOptions()}
             </View>
         </View>
     }
