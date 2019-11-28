@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {ValidationResult, Observation, PrimitiveValue, Concept, WorkItem, WorkList, WorkLists} from 'openchs-models';
+import {ValidationResult, Observation, PrimitiveValue, Concept, WorkItem, WorkList, WorkLists} from 'avni-models';
 import Wizard from "../../src/state/Wizard";
 import WizardNextActionStub from "./WizardNextActionStub";
 import StubbedDataEntryState from "./StubbedDataEntryState";

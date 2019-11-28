@@ -11,7 +11,7 @@ import {
     ProgramEnrolment,
     RuleFailureTelemetry,
     SyncTelemetry
-} from 'openchs-models';
+} from 'avni-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -192,7 +192,7 @@ class SyncService extends BaseService {
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
-        //most openchs-models are designed to have oneToMany relations
+        //most avni-models are designed to have oneToMany relations
         //Each model has a static method `associateChild` implemented in manyToOne fashion
         //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
         //`<A Model>.associateChild()` called many times as many children

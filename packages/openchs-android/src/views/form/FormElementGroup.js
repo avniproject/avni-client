@@ -17,7 +17,7 @@ import {
     Duration,
     CompositeDuration,
     ValidationResult
-} from 'openchs-models';
+} from 'avni-models';
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";

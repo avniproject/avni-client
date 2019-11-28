@@ -14,7 +14,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
-import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "openchs-models";
+import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "avni-models";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {

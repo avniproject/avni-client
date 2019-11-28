@@ -1,5 +1,5 @@
 // @flow
-import {Form, Observation, PrimitiveValue, ValidationResult} from 'openchs-models';
+import {Form, Observation, PrimitiveValue, ValidationResult} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import BeneficiaryIdentificationState from "../../state/BeneficiaryIdentificationState";

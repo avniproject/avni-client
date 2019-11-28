@@ -4,7 +4,7 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
-import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "openchs-models";
+import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";

@@ -5,7 +5,7 @@ import Playground from "./Playground";
 import Config from './framework/Config';
 import Colors from "./views/primitives/Colors";
 
-export default class OpenCHS extends Component {
+export default class Avni extends Component {
 
     static styles = StyleSheet.create({
         container: {
@@ -19,7 +19,7 @@ export default class OpenCHS extends Component {
 
     render() {
         const renderApp = (
-            <View style={OpenCHS.styles.container}>
+            <View style={Avni.styles.container}>
                 <StatusBar backgroundColor={Colors.headerBackgroundColor} barStyle={'default'}/>
                 <App/>
             </View>

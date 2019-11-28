@@ -1,6 +1,6 @@
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import _ from "lodash";
-import {  Individual  } from 'openchs-models';
+import {  Individual  } from 'avni-models';
 
 export class FamilyProfileActions {
 

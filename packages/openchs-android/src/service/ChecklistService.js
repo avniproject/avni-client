@@ -11,7 +11,7 @@ import {
     ChecklistDetail,
     ObservationsHolder,
     EntitySyncStatus
-} from 'openchs-models';
+} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";

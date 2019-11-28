@@ -1,4 +1,4 @@
-import {Duration, Observation, Concept} from 'openchs-models';
+import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 

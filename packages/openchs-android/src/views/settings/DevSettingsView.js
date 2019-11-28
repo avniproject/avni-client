@@ -15,7 +15,7 @@ import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Rule} from 'openchs-models';
+import {Rule} from 'avni-models';
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {

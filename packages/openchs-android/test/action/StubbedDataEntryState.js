@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "../../src/state/AbstractDataEntryState";
-import {ObservationsHolder} from 'openchs-models';
+import {ObservationsHolder} from 'avni-models';
 import WorkListState from "../../src/state/WorkListState";
 
 class StubbedDataEntryState extends AbstractDataEntryState {

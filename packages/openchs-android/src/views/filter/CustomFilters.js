@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {MultiSelectFilter as MultiSelectFilterModel} from "openchs-models";
+import {MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";

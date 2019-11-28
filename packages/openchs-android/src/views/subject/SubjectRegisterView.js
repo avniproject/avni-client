@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType} from "openchs-models";
+import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType} from "avni-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";

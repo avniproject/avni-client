@@ -7,7 +7,7 @@ import {
     ObservationsHolder,
     ProgramEncounter,
     ProgramEnrolment
-} from "openchs-models";
+} from "avni-models";
 import _ from 'lodash';
 import moment from 'moment';
 import MediaQueueService from "./MediaQueueService";

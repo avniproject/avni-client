@@ -1,4 +1,4 @@
-import {SyncTelemetry} from 'openchs-models';
+import {SyncTelemetry} from 'avni-models';
 import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';

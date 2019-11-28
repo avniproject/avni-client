@@ -1,6 +1,6 @@
 import moment from "moment";
 import _ from "lodash";
-import {BaseEntity} from 'openchs-models';
+import {BaseEntity} from 'avni-models';
 
 class FamilySearchCriteria {
     //to be made configurable perhaps later

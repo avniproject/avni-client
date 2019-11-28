@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {Form, ObservationsHolder, ProgramEncounter} from "openchs-models";
+import {Form, ObservationsHolder, ProgramEncounter} from "avni-models";
 import _ from 'lodash';
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {

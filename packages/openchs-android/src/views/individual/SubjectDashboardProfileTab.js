@@ -17,7 +17,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 import Colors from "../primitives/Colors";
-import {WorkItem, WorkList, WorkLists} from "openchs-models";
+import {WorkItem, WorkList, WorkLists} from "avni-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";

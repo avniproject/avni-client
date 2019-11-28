@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import {IndividualProfileActions as IPA} from "../../src/action/individual/IndividualProfileActions";
 import TestContext from "./views/testframework/TestContext";
-import {Individual} from 'openchs-models';
+import {Individual} from 'avni-models';
 import EntityFactory from "../EntityFactory";
 
 describe('IndividualProfileActionsTest', () => {

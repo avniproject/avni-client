@@ -2,7 +2,7 @@ import {assert} from "chai";
 import {
     ProgramEncounter, ProgramEnrolment, Observation, Concept, PrimitiveValue, MultipleCodedValues,
     Individual, Gender, AddressLevel
-} from 'openchs-models';
+} from 'avni-models';
 import EntityFactory from "../helpers/EntityFactory";
 import {RuleCondition} from "rules-config/rules";
 

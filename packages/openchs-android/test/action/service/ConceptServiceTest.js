@@ -1,7 +1,7 @@
 import {expect} from "chai";
 import _ from "lodash";
 import ConceptService from "../../../src/service/ConceptService";
-import {Concept} from 'openchs-models';
+import {Concept} from 'avni-models';
 import EntityFactory from "../../EntityFactory";
 
 function findObsForConcept(observations, conceptName) {

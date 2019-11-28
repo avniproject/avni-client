@@ -1,6 +1,6 @@
 import IndividualService from "../../service/IndividualService";
 import EntityService from "../../service/EntityService";
-import {  ValidationResult, IndividualRelation, IndividualRelative  } from 'openchs-models';
+import {  ValidationResult, IndividualRelation, IndividualRelative  } from 'avni-models';
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
 import _ from "lodash";

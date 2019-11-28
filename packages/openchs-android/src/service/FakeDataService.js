@@ -2,17 +2,17 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import General from "../utility/General";
 import _ from 'lodash';
-import {  AddressLevel  } from 'openchs-models';
-import {  Program  } from 'openchs-models';
-import {  ProgramEncounter  } from 'openchs-models';
-import {  Gender  } from 'openchs-models';
-import {  EncounterType  } from 'openchs-models';
-import {  Individual  } from 'openchs-models';
-import {  ProgramEnrolment  } from 'openchs-models';
+import {  AddressLevel  } from 'avni-models';
+import {  Program  } from 'avni-models';
+import {  ProgramEncounter  } from 'avni-models';
+import {  Gender  } from 'avni-models';
+import {  EncounterType  } from 'avni-models';
+import {  Individual  } from 'avni-models';
+import {  ProgramEnrolment  } from 'avni-models';
 import faker from 'faker';
 import moment from 'moment';
-import {Observation} from 'openchs-models';
-import {  Concept  } from 'openchs-models';
+import {Observation} from 'avni-models';
+import {  Concept  } from 'avni-models';
 
 @Service("fakeDataService")
 class FakeDataService extends BaseService {

@@ -1,4 +1,4 @@
-import {FormElementStatus, ValidationResult} from 'openchs-models';
+import {FormElementStatus, ValidationResult} from 'avni-models';
 
 class StubbedRuleEvaluationService {
     validateAgainstRule(entity) {

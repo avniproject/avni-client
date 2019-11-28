@@ -10,7 +10,7 @@ import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
-import {IndividualRelative} from 'openchs-models';
+import {IndividualRelative} from 'avni-models';
 import _ from "lodash";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import AppHeader from "../common/AppHeader";

@@ -8,7 +8,7 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
 import General from "../../utility/General";
-import {ProgramEncounter} from "openchs-models";
+import {ProgramEncounter} from "avni-models";
 import NewVisitMenuView from "./NewVisitMenuView";
 
 @Path("/NewVisitPageView")

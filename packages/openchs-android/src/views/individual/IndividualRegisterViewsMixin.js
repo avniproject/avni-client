@@ -2,7 +2,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualRegisterFormView from "./IndividualRegisterFormView";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {BaseEntity} from 'openchs-models';
+import {BaseEntity} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 
 class Mixin {

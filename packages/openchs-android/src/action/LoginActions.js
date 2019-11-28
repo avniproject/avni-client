@@ -1,6 +1,6 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import {ValidationResult} from 'openchs-models';
+import {ValidationResult} from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 

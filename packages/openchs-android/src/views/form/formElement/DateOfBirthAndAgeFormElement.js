@@ -5,7 +5,7 @@ import AbstractComponent from '../../../framework/view/AbstractComponent';
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import DGS from "../../primitives/DynamicGlobalStyles";
-import {  Individual  } from 'openchs-models';
+import {  Individual  } from 'avni-models';
 import Colors from "../../primitives/Colors";
 import Fonts from "../../primitives/Fonts";
 import {CheckBox, Radio} from "native-base";

@@ -1,4 +1,4 @@
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 import EntityFactory from "../../../EntityFactory";
 
 class StubbedFormMappingService {

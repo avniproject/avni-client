@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {Gender} from "openchs-models";
+import {Gender} from "avni-models";
 import _ from "lodash";
 
 class GenderFilterActions {

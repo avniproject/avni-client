@@ -1,6 +1,6 @@
 import EntityService from "../../service/EntityService";
 import _ from 'lodash';
-import {ProgramEnrolment, Checklist} from 'openchs-models';
+import {ProgramEnrolment, Checklist} from 'avni-models';
 
 class ChecklistActions {
     static getInitialState() {

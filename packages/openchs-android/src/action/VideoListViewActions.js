@@ -1,5 +1,5 @@
 import VideoService from "../service/VideoService";
-import { Video, VideoTelemetric  } from 'openchs-models';
+import { Video, VideoTelemetric  } from 'avni-models';
 import EntityService from "../service/EntityService";
 import General from "../utility/General";
 

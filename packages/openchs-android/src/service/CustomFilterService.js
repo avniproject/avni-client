@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Encounter, Individual, OrganisationConfig, ProgramEncounter, ProgramEnrolment} from "openchs-models";
+import {Encounter, Individual, OrganisationConfig, ProgramEncounter, ProgramEnrolment} from "avni-models";
 import General from "../utility/General";
 import _ from "lodash";
 

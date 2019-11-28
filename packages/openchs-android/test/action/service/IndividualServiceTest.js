@@ -3,15 +3,15 @@ import IndividualService from "../../../src/service/IndividualService";
 import TestContext from '../views/testframework/TestContext'
 
 import Realm from 'realm';
-import {Schema, Individual, Gender} from 'openchs-models';
+import {Schema, Individual, Gender} from 'avni-models';
 import EntityFactory from "../../EntityFactory";
 import IndividualSearchCriteria from "../../../src/service/query/IndividualSearchCriteria";
 import General from '../../../src/utility/General';
 
 //todo: Bring this back after upgrade of Realm
-// The transpiled version of openchs-models uses classes. This is probably the right approach,
+// The transpiled version of avni-models uses classes. This is probably the right approach,
 // since classes have been present for a while. However, Realm still uses the old style.
-// This might have gone away with the newer release of Realm. No time to look at this right now. 
+// This might have gone away with the newer release of Realm. No time to look at this right now.
 xdescribe('IndividualServiceTest', () => {
     let individualService;
 

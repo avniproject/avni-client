@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'openchs-models';
+import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "../service/ConceptService";
 

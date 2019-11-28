@@ -11,7 +11,7 @@ import moment from "moment";
 import Distances from "../primitives/Distances";
 import General from "../../utility/General";
 import _ from "lodash";
-import {Encounter, EncounterType, Individual, ProgramEncounter} from "openchs-models";
+import {Encounter, EncounterType, Individual, ProgramEncounter} from "avni-models";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";

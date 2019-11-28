@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {EntitySyncStatus, EntityMetaData} from 'openchs-models';
+import {EntitySyncStatus, EntityMetaData} from 'avni-models';
 import General from '../utility/General';
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";

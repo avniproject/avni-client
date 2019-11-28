@@ -12,7 +12,7 @@ import Reducers from "../../reducer";
 import {IndividualEncounterViewActions as Actions} from "../../action/individual/EncounterActions";
 import _ from "lodash";
 import General from "../../utility/General";
-import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter, Form} from 'openchs-models';
+import {ObservationsHolder, ValidationResult, AbstractEncounter, PrimitiveValue, Encounter, Form} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";
 import StaticFormElement from "../viewmodel/StaticFormElement";

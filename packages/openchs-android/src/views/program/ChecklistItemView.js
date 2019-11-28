@@ -9,7 +9,7 @@ import AppHeader from "../common/AppHeader";
 import {ChecklistItemActionNames as Actions} from "../../action/program/ChecklistItemActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from 'openchs-models';
+import {ObservationsHolder, PrimitiveValue, AbstractEncounter} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";

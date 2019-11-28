@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {ObservationsHolder} from 'openchs-models';
+import {ObservationsHolder} from 'avni-models';
 
 class BeneficiaryIdentificationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, observations = []) {

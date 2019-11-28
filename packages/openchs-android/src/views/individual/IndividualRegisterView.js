@@ -10,7 +10,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Individual} from 'openchs-models';
+import {Individual} from 'avni-models';
 import General from "../../utility/General";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";

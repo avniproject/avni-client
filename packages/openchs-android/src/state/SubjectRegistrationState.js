@@ -1,9 +1,9 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
-import {Individual, ObservationsHolder} from 'openchs-models';
+import {Individual, ObservationsHolder} from 'avni-models';
 import _ from "lodash";
-import {  ValidationResult  } from 'openchs-models';
+import {  ValidationResult  } from 'avni-models';
 import Geo from "../framework/geo";
 
 class SubjectRegistrationState extends AbstractDataEntryState {

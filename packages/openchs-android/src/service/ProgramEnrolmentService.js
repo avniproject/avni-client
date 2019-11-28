@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder} from 'openchs-models';
+import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder} from 'avni-models';
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";

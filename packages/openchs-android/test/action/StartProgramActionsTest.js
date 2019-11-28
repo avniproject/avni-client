@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {
     StartProgramActions as Actions,
 } from "../../src/action/program/StartProgramActions";
-import {ProgramEnrolment, ProgramEncounter, EncounterType} from 'openchs-models';
+import {ProgramEnrolment, ProgramEncounter, EncounterType} from 'avni-models';
 import TestContext from "./views/testframework/TestContext";
 import moment from "moment";
 import _ from "lodash";

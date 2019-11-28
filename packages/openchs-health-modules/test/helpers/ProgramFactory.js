@@ -1,6 +1,6 @@
 import _ from "lodash";
 import EntityFactory from "./EntityFactory";
-import {Concept, EncounterType, FormMapping, ModelGeneral as General} from 'openchs-models';
+import {Concept, EncounterType, FormMapping, ModelGeneral as General} from 'avni-models';
 
 export default class ProgramBuilder {
     constructor(programConfig) {

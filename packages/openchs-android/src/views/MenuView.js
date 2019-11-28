@@ -31,7 +31,7 @@ import UserInfoService from "../service/UserInfoService";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
-import {Schema} from 'openchs-models';
+import {Schema} from 'avni-models';
 import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";

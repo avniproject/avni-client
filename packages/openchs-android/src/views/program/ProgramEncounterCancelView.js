@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {ProgramEncounterCancelActionsNames as Actions} from "../../action/program/ProgramEncounterCancelActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {ObservationsHolder, ProgramEncounter} from 'openchs-models';
+import {ObservationsHolder, ProgramEncounter} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";

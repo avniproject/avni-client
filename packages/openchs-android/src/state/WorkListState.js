@@ -1,4 +1,4 @@
-import {WorkItem, WorkList, WorkLists} from 'openchs-models';
+import {WorkItem, WorkList, WorkLists} from 'avni-models';
 import _ from "lodash";
 
 export default class WorkListState {

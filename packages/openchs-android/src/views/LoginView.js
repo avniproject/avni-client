@@ -16,7 +16,7 @@ import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
 import Distances from './primitives/Distances';
-import {PrimitiveValue} from 'openchs-models';
+import {PrimitiveValue} from 'avni-models';
 import Reducers from "../reducer";
 import CHSNavigator from "../utility/CHSNavigator";
 import CHSContainer from "./common/CHSContainer";
@@ -170,7 +170,7 @@ class LoginView extends AbstractComponent {
                         flexDirection: 'column',
                         justifyContent: 'flex-start'
                     }}>
-                        <Text style={Styles.logoPlaceHolder}>openchs</Text>
+                        <Text style={Styles.logoPlaceHolder}>{DeviceInfo.getApplicationName()}</Text>
 
                         <Text style={{
                             color: Colors.ValidationError,

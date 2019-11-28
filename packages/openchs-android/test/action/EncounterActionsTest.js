@@ -13,7 +13,7 @@ import {
     WorkItem,
     WorkList,
     WorkLists
-} from 'openchs-models';
+} from 'avni-models';
 import EntityFactory from "../EntityFactory";
 import Wizard from "../../src/state/Wizard";
 import EncounterActionState from "../../src/state/EncounterActionState";

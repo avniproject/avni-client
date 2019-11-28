@@ -4,7 +4,7 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Point, ProgramEncounter, WorkList, WorkLists, Encounter} from 'openchs-models';
+import {Point, ProgramEncounter, WorkList, WorkLists, Encounter} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import GeolocationActions from "../common/GeolocationActions";
 import EncounterService from "../../service/EncounterService";

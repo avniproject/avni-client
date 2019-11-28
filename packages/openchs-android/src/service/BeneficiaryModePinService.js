@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {BeneficiaryModePin} from 'openchs-models';
+import {BeneficiaryModePin} from 'avni-models';
 
 @Service("beneficiaryModePinService")
 class BeneficiaryModePinService extends BaseService {

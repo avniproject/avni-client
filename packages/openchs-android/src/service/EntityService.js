@@ -1,8 +1,8 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import _ from "lodash";
-import {  Individual  } from 'openchs-models';
-import {  EntityQueue  } from 'openchs-models';
+import {  Individual  } from 'avni-models';
+import {  EntityQueue  } from 'avni-models';
 
 @Service("entityService")
 class EntityService extends BaseService {

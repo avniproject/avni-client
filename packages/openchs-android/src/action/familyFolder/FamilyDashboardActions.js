@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {Family} from 'openchs-models';
+import {Family} from 'avni-models';
 import _ from 'lodash';
 
 class FamilyDashboardActions {

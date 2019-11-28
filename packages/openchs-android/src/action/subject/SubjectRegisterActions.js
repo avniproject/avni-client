@@ -2,7 +2,7 @@ import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
-import {Form, Individual, SubjectType, Point, ObservationsHolder} from "openchs-models";
+import {Form, Individual, SubjectType, Point, ObservationsHolder} from "avni-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";

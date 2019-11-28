@@ -8,7 +8,7 @@ import CHSContainer from "./common/CHSContainer";
 import MenuView from "./MenuView";
 import General from "../utility/General";
 import EntityService from "../service/EntityService";
-import {SubjectType} from "openchs-models";
+import {SubjectType} from "avni-models";
 import _ from "lodash";
 import DynamicGlobalStyles from "./primitives/DynamicGlobalStyles";
 

@@ -14,7 +14,7 @@ import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
-import {SubjectType} from "openchs-models";
+import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
 import RegisterView from "./RegisterView";

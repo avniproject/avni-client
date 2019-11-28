@@ -1,7 +1,7 @@
 import FamilyService from "../../service/FamilyService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Family, Gender} from 'openchs-models';
+import {Family, Gender} from 'avni-models';
 import FamilyRegistrationState from "../../state/FamilyRegistrationState";
 import _ from 'lodash';
 

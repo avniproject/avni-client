@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ProgramFormComponent from './ProgramFormComponent';
 import {Actions} from "../../action/program/ProgramEnrolmentActions";
-import {ProgramEnrolment} from "openchs-models";
+import {ProgramEnrolment} from "avni-models";
 import ProgramEnrolmentState from '../../state/ProgramEnrolmentState';
 import Reducers from "../../reducer";
 import General from "../../utility/General";

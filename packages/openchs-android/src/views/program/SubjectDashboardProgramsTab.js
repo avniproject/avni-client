@@ -19,7 +19,7 @@ import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 import _ from "lodash";
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";

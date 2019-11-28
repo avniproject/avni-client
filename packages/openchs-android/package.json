@@ -7,6 +7,9 @@
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
   "jest": {
+    "moduleNameMapper": {
+      "^avni-models$": "<rootDir>/node_modules/openchs-models"
+    },
     "preset": "react-native",
     "testMatch": [
       "<rootDir>/test/**/*Test.js"

@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {SubjectType} from "openchs-models";
+import {SubjectType} from "avni-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";

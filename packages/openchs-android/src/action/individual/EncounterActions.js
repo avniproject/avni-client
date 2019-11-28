@@ -3,7 +3,7 @@ import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'openchs-models';
+import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
 import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import EntityService from "../../service/EntityService";

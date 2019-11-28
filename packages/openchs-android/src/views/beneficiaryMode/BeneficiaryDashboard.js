@@ -13,7 +13,7 @@ import IndividualProfile from "../common/IndividualProfile";
 import CHSContainer from "../common/CHSContainer";
 import NewVisitMenuView from "../program/NewVisitMenuView";
 import PreviousEncounters from "../common/PreviousEncounters";
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 

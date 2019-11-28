@@ -1,7 +1,7 @@
 import SettingsService from "../service/SettingsService";
 import _ from 'lodash';
 import EntityService from "../service/EntityService";
-import {LocaleMapping, Settings, UserInfo} from 'openchs-models';
+import {LocaleMapping, Settings, UserInfo} from 'avni-models';
 import General from "../utility/General";
 import MessageService from "../service/MessageService";
 import UserInfoService from '../service/UserInfoService';

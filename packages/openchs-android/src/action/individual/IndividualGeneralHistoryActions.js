@@ -4,7 +4,7 @@ import SettingsService from "../../service/SettingsService";
 import _ from 'lodash'
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter} from "openchs-models";
+import {Encounter} from "avni-models";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {

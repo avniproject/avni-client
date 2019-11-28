@@ -2,7 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
-import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder} from 'openchs-models';
+import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import MediaQueueService from "./MediaQueueService";
 

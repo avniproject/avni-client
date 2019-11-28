@@ -12,7 +12,7 @@ import Styles from "../primitives/Styles";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Distances from "../primitives/Distances";
 import moment from "moment";
-import {Encounter} from 'openchs-models';
+import {Encounter} from 'avni-models';
 
 class IndividualDetails extends AbstractComponent {
     static propTypes = {

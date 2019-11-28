@@ -17,7 +17,7 @@ import ServerError from "../service/ServerError";
 import {Alert, Dimensions, Modal, NetInfo, Text, View, TouchableNativeFeedback} from "react-native";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
-import {EntityMetaData} from "openchs-models";
+import {EntityMetaData} from "avni-models";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import React from "react";
 import ProgressBarView from "./ProgressBarView";

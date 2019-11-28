@@ -5,8 +5,8 @@ import AbstractComponent from '../../../framework/view/AbstractComponent';
 import TextFormElement from "./TextFormElement";
 import StaticFormElement from "../../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
-import {  PrimitiveValue  } from 'openchs-models';
-import {  Individual  } from 'openchs-models';
+import {  PrimitiveValue  } from 'avni-models';
+import {  Individual  } from 'avni-models';
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import Distances from "../../primitives/Distances";
 

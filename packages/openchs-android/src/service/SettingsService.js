@@ -3,7 +3,7 @@ import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
 import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
-import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'openchs-models';
+import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'avni-models';
 import Config from '../framework/Config';
 import _ from 'lodash';
 

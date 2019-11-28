@@ -1,7 +1,7 @@
 // @flow
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {EncounterType, Form, FormMapping, Program, SubjectType} from "openchs-models";
+import {EncounterType, Form, FormMapping, Program, SubjectType} from "avni-models";
 import _ from "lodash";
 import FormQueryResult from "./FormQueryResult";
 

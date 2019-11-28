@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
-import {Concept, Observation} from 'openchs-models';
+import {Concept, Observation} from 'avni-models';
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";

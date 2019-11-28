@@ -8,7 +8,7 @@ import {IndividualEncounterViewActions as Actions} from "../../action/individual
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import WizardButtons from "../common/WizardButtons";
-import {Form, ObservationsHolder} from 'openchs-models';
+import {Form, ObservationsHolder} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import DGS from '../primitives/DynamicGlobalStyles';
 import PreviousEncounterPullDownView from "./PreviousEncounterPullDownView";

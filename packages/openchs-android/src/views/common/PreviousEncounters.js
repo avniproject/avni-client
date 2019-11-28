@@ -15,7 +15,7 @@ import EncounterService from "../../service/EncounterService";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import TypedTransition from "../../framework/routing/TypedTransition";

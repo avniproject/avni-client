@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'openchs-models';
+import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'avni-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";

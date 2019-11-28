@@ -7,7 +7,7 @@ import CHSContainer from "./common/CHSContainer";
 import AppHeader from "./common/AppHeader";
 import CHSContent from "./common/CHSContent";
 import EntityService from "../service/EntityService";
-import {SubjectType, WorkList, WorkLists} from "openchs-models";
+import {SubjectType, WorkList, WorkLists} from "avni-models";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
 import _ from "lodash";

@@ -30,7 +30,7 @@ android {
     dexOptions {
         javaMaxHeapSize "2g"
     }
-    
+
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -88,7 +88,7 @@ android {
     }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
-        println('[OpenCHS] Base version code:' + defaultConfig.versionCode)
+        println('[Avni] Base version code:' + defaultConfig.versionCode)
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
@@ -97,9 +97,9 @@ android {
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
-                println('[OpenCHS] APK version code:' + output.versionCodeOverride + ' for variant: ' + versionCodes.get(abi))
+                println('[Avni] APK version code:' + output.versionCodeOverride + ' for variant: ' + versionCodes.get(abi))
             } else {
-                println('[OpenCHS] Using universal release variant')
+                println('[Avni] Using universal release variant')
             }
         }
     }

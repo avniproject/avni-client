@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
-import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig} from "openchs-models";
+import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig} from "avni-models";
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 

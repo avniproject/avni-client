@@ -1,10 +1,10 @@
 import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
-import {RuleDependency, Rule} from "openchs-models";
+import {RuleDependency, Rule} from "avni-models";
 import General from "../utility/General";
 import {common, motherCalculations} from 'openchs-health-modules';
-import * as models from 'openchs-models';
+import * as models from 'avni-models';
 
 @Service("ruleService")
 class RuleService extends BaseService {

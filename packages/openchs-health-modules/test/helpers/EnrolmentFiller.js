@@ -1,5 +1,5 @@
 import EntityFactory from "./EntityFactory";
-import {ModelGeneral as General} from 'openchs-models';
+import {ModelGeneral as General} from 'avni-models';
 
 export default class EnrolmentFiller {
     constructor(programData, individual, enrolmentDateTime = new Date()) {

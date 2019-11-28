@@ -1,6 +1,6 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
-import {Concept, EntityQueue, FormElement, IdentifierAssignment, ObservationsHolder} from 'openchs-models';
+import {Concept, EntityQueue, FormElement, IdentifierAssignment, ObservationsHolder} from 'avni-models';
 import _ from "lodash";
 import General from "../utility/General";
 

@@ -8,11 +8,11 @@
 
 # Terms
 # Deployment name like Staging, Production
-# Abi number based on scheme of OpenCHS, viz. 1, 2, 3, 4
+# Abi number based on scheme of Avni, viz. 1, 2, 3, 4
 
 include makefiles/common.mk
 
-define _codepush_release_an_abi ## $1 = Deployment name; $2 = OpenCHS Abi Number, $3 App name
+define _codepush_release_an_abi ## $1 = Deployment name; $2 = Avni Abi Number, $3 App name
 	$(call _get_abi_version,$2)
 	cd packages/openchs-android && appcenter codepush release-react -a $3 -d $1 -t $(abiVersion)
 endef

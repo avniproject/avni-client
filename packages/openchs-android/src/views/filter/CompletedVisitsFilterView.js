@@ -8,7 +8,7 @@ import CHSContainer from "../common/CHSContainer";
 import {Text, TouchableOpacity, View} from "react-native";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {MultiSelectFilter as MultiSelectFilterModel} from "openchs-models";
+import {MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
 import {CompletedVisitsFilterActionNames as Actions} from "../../action/program/CompletedVisitsFilterAction";
 import Reducers from "../../reducer";
 import MultiSelectFilter from "./MultiSelectFilter";

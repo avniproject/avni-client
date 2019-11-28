@@ -1,7 +1,7 @@
 import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
-import {AddressLevel} from 'openchs-models';
+import {AddressLevel} from 'avni-models';
 
 @Service("addressLevelService")
 class AddressLevelService extends BaseService {

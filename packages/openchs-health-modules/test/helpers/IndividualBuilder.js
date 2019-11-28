@@ -1,4 +1,4 @@
-import {Individual, ModelGeneral as General, Gender} from 'openchs-models';
+import {Individual, ModelGeneral as General, Gender} from 'avni-models';
 import EntityFactory from "./EntityFactory";
 import moment from "moment";
 

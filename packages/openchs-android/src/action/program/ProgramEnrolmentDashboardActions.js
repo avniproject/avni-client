@@ -7,7 +7,7 @@ import {
     WorkLists,
     WorkList,
     WorkItem, ObservationsHolder
-} from 'openchs-models';
+} from 'avni-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";

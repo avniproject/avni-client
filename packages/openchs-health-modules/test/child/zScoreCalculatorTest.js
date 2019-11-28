@@ -1,6 +1,6 @@
 import {assert} from "chai";
 import zScore, {projectedSD2NegForWeight} from "../../health_modules/child/zScoreCalculator";
-import {Gender, Individual} from 'openchs-models';
+import {Gender, Individual} from 'avni-models';
 import moment from "moment";
 
 describe("zScoreCalculator", () => {

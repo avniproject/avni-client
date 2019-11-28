@@ -1,6 +1,6 @@
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import EntityService from "../../service/EntityService";
-import {Program} from 'openchs-models';
+import {Program} from 'avni-models';
 
 class ProgramEnrolmentsActions {
     static getInitialState() {

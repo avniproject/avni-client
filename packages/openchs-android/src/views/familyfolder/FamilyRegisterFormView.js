@@ -11,7 +11,7 @@ import AppHeader from "../common/AppHeader";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import FamilyRegisterViewsMixin from "./FamilyRegisterViewsMixin";
-import {ObservationsHolder} from 'openchs-models';
+import {ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";

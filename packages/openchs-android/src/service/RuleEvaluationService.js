@@ -12,7 +12,7 @@ import {
     ProgramEnrolment,
     Rule,
     RuleFailureTelemetry,
-} from 'openchs-models';
+} from 'avni-models';
 import {
     encounterDecision,
     familyRegistrationDecision,

@@ -2,7 +2,7 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
 import ConceptService from "../service/ConceptService";
-import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "openchs-models";
+import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "avni-models";
 import General from "../utility/General";
 
 class IndividualRegistrationState extends AbstractDataEntryState {

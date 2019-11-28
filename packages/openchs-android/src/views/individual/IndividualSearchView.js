@@ -12,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel} from 'openchs-models';
+import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel} from 'avni-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";

@@ -1,5 +1,5 @@
 // @flow
-import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'openchs-models';
+import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";

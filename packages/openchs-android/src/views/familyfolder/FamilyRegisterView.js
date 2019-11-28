@@ -10,7 +10,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Family, PrimitiveValue} from 'openchs-models';
+import {Family, PrimitiveValue} from 'avni-models';
 import General from "../../utility/General";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Distances from "../primitives/Distances";

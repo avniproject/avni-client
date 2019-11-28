@@ -1,11 +1,11 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EntityQueue, IndividualRelationship} from 'openchs-models';
+import {EntityQueue, IndividualRelationship} from 'avni-models';
 import IndividualRelationshipTypeService from "./IndividualRelationshipTypeService";
 import General from "../../utility/General";
-import {  IndividualRelative  } from 'openchs-models';
+import {  IndividualRelative  } from 'avni-models';
 import EntityService from "../EntityService";
-import {  Individual  } from 'openchs-models';
+import {  Individual  } from 'avni-models';
 
 @Service("individualRelationshipService")
 class IndividualRelationshipService extends BaseService {

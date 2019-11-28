@@ -15,7 +15,7 @@ import {
     MultipleCodedValues,
     Individual,
     SubjectType
-} from 'openchs-models';
+} from 'avni-models';
 import EntityFactory from '../helpers/EntityFactory';
 import moment from "moment";
 

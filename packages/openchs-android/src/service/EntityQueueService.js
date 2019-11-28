@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {EntityMetaData, EntityQueue, MediaQueue} from 'openchs-models';
+import {EntityMetaData, EntityQueue, MediaQueue} from 'avni-models';
 import _ from "lodash";
 
 @Service("entityQueueService")

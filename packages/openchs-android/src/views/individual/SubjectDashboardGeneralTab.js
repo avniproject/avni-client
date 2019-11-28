@@ -7,7 +7,7 @@ import Reducers from "../../reducer";
 import PreviousEncounters from "../common/PreviousEncounters";
 import _ from "lodash";
 import Colors from '../primitives/Colors';
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 import Separator from "../primitives/Separator";
 import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";

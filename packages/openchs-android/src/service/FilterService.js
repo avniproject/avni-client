@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {SingleSelectFilter} from "openchs-models";
+import {SingleSelectFilter} from "avni-models";
 import ProgramConfigService from "./ProgramConfigService";
 import IndividualService from "./IndividualService";
 

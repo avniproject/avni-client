@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Concept, Duration, FormElementGroup, ValidationResult} from 'openchs-models';
+import {Concept, Duration, FormElementGroup, ValidationResult} from 'avni-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 class ObservationsHolderActions {

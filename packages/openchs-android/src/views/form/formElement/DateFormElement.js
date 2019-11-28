@@ -7,7 +7,7 @@ import DatePicker from "../../primitives/DatePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
-import {Concept} from "openchs-models";
+import {Concept} from "avni-models";
 import UserInfoService from "../../../service/UserInfoService";
 
 class DateFormElement extends AbstractFormElement {

@@ -12,7 +12,7 @@ import Distances from "./primitives/Distances";
 import FormElementGroup from "./form/FormElementGroup";
 import WizardButtons from "./common/WizardButtons";
 import CHSContainer from "./common/CHSContainer";
-import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "openchs-models";
+import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
 
 @Path('/BeneficiaryIdentificationPage')
 class BeneficiaryIdentificationPage extends AbstractComponent {

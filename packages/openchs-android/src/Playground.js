@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {Schema, EntityMetaData} from 'openchs-models';
+import {Schema, EntityMetaData} from 'avni-models';
 import './views';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import themes from "./views/primitives/themes";

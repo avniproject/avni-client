@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import {Schema, Observation, Concept} from 'openchs-models';
+import {Schema, Observation, Concept} from 'avni-models';
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";

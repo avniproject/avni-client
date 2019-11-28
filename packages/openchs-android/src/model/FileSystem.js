@@ -19,7 +19,7 @@ export default class FileSystem {
                     PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                     {
                         'title': 'Write to external storage',
-                        'message': 'This is required to store files for OpenCHS'
+                        'message': 'This is required to store files for Avni'
                     }
                 );
                 if (grantSuccess(grant)) {

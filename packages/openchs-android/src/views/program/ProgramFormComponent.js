@@ -10,7 +10,7 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import DateFormElement from "../form/formElement/DateFormElement";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {PrimitiveValue, ProgramEnrolment} from 'openchs-models';
+import {PrimitiveValue, ProgramEnrolment} from 'avni-models';
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ProgramEnrolmentState from '../../state/ProgramEnrolmentState';

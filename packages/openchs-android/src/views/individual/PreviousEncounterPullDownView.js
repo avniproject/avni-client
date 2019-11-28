@@ -12,7 +12,7 @@ import Separator from "../primitives/Separator";
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import Styles from "../primitives/Styles";
 import General from "../../utility/General";
-import {Form} from 'openchs-models';
+import {Form} from 'avni-models';
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {

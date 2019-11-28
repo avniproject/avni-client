@@ -15,7 +15,7 @@ const MotherPNCForm = require('../health_modules/mother/metadata/motherPNCForm.j
 const MotherProgramEnrolmentForm = require('../health_modules/mother/metadata/motherProgramEnrolmentForm.json');
 const MotherProgramExitForm = require('../health_modules/mother/metadata/motherProgramExitForm.json');
 const OPDEncounterForm = require('../health_modules/outpatient/metadata/encounterForm.json');
-import {Concept} from "openchs-models";
+import {Concept} from "avni-models";
 
 
 const IMPORTED_CONCEPTS = _([CommonConcepts, ChildConcepts, MotherConcepts, OPDConcepts])

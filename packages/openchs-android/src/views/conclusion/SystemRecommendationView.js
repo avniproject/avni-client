@@ -17,7 +17,7 @@ import General from "../../utility/General";
 import ConceptService from "../../service/ConceptService";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
-import {Individual} from 'openchs-models';
+import {Individual} from 'avni-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualRegisterView from "../individual/IndividualRegisterView";

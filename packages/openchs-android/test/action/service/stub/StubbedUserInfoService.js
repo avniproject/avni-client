@@ -1,5 +1,5 @@
 import StubbedBaseService from "./StubbedBaseService";
-import {UserInfo} from 'openchs-models';
+import {UserInfo} from 'avni-models';
 
 class StubbedUserInfoService extends StubbedBaseService {
     constructor(serviceData) {

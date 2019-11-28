@@ -4,7 +4,7 @@ import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {Schema, EntityMetaData} from 'openchs-models';
+import {Schema, EntityMetaData} from 'avni-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
