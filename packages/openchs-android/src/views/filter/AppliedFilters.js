@@ -30,7 +30,7 @@ export default class AppliedFilters extends AbstractComponent {
         if (this.props.selectedLocations.length > 0) {
             const allUniqueTypes = _.uniqBy(_.map(this.props.selectedLocations, ({type}) => ({type})), 'type');
             return allUniqueTypes.map((l, index) => this.renderContent(this.I18n.t(l.type),
-                _.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => this.I18n.t(locations.name.replace(/\./g, ""))).join(", "),
+                _.get(_.groupBy(this.props.selectedLocations, 'type'), l.type, []).map((locations) => this.I18n.t(locations.name)).join(", "),
                 index === this.props.selectedLocations.length - 1 ? ' ' : ' | '));
         }
     }
