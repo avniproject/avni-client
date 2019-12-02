@@ -215,13 +215,13 @@ class MyDashboardActions {
 
         const customFilterService = context.get(CustomFilterService);
         var individualUUIDs = [];
-        const selectedCustomFilterForSubjectType = _.mapValues(action.selectedCustomFilters, selectedFilters => {
+        const selectedCustomFilterBySubjectType = _.mapValues(action.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === action.selectedSubjectType.uuid);
             return s.length === 0 ? [] : s
         });
-        const dashboardFiltersEmpty = customFilterService.isDashboardFiltersEmpty(selectedCustomFilterForSubjectType);
+        const dashboardFiltersEmpty = customFilterService.isDashboardFiltersEmpty(selectedCustomFilterBySubjectType);
         if (!dashboardFiltersEmpty) {
-            individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'myDashboardFilters');
+            individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterBySubjectType, 'myDashboardFilters');
         }
 
         const restIndividualFilters = [
@@ -285,7 +285,7 @@ class MyDashboardActions {
             generalEncountersFilters,
             selectedSubjectType: action.selectedSubjectType,
             fetchFromDB: true,
-            selectedCustomFilters: selectedCustomFilterForSubjectType,
+            selectedCustomFilters: selectedCustomFilterBySubjectType,
             returnEmpty: !dashboardFiltersEmpty && _.isEmpty(individualUUIDs),
             individualUUIDs,
             selectedGenders: action.selectedGenders

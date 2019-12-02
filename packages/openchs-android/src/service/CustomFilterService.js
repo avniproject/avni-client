@@ -1,8 +1,11 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Encounter, Individual, OrganisationConfig, ProgramEncounter, ProgramEnrolment} from "avni-models";
+import {Encounter, Individual, OrganisationConfig, ProgramEncounter, ProgramEnrolment, Concept} from "avni-models";
 import General from "../utility/General";
 import _ from "lodash";
+import ConceptService from "./ConceptService";
+import {View} from "react-native";
+import React from "react";
 
 @Service("customFilterService")
 class CustomFilterService extends BaseService {
@@ -57,6 +60,10 @@ class CustomFilterService extends BaseService {
         return this.getDashboardFilterNames().filter(title => !_.isEmpty(filters[title])).length === 0;
     }
 
+    getFiltersByType(filterName, type) {
+        return _.filter(this.getSettings()[filterName], filter => filter.type === type)
+    }
+
     queryIndividuals(answerFilters, individualUUIDFilter) {
         return _.isEmpty(answerFilters) ? [] :
             [...this.db.objects(Individual.schema.name)
@@ -86,7 +93,7 @@ class CustomFilterService extends BaseService {
         //get the latest encounters
             .filtered(` ${latestEncounterFilters} `)
             //check if selected filter is present in the observations
-            .filtered(` ${selectedAnswerFilters('observations.valueJSON')} `)
+            .filtered(` ${selectedAnswerFilters} `)
             .map(indFunc)
         ];
     }
@@ -95,49 +102,99 @@ class CustomFilterService extends BaseService {
         return [_.isEmpty(encounterOptions) ? '' : `( ${encounterOptions} )`, _.isEmpty(programOptions) ? '' : `( ${programOptions} )`].filter(Boolean).join(" AND ");
     }
 
-    applyCustomFilters(customFilters, filterType) {
+    getFilterQueryByType({type, conceptUUID}, selectedOptions) {
+        if (type === 'Concept') {
+            const conceptService = this.getService(ConceptService);
+            const concept = conceptService.getConceptByUUID(conceptUUID);
+            return this.getConceptFilterQuery(concept, selectedOptions)
+        } else {
+            return null;
+        }
+    }
+
+    getConceptFilterQuery(concept, selectedOptions) {
+        switch (concept.datatype) {
+            case (Concept.dataType.Coded) :
+                const codedFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
+                return this.getObsSubQueryForQuery(codedFilterQuery);
+            case (Concept.dataType.Text) :
+                const textFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(c.name)}) `).join(" OR ");
+                return this.getObsSubQueryForQuery(textFilterQuery);
+            case (Concept.dataType.Numeric) :
+                const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] "${c.name}") `).join(" OR ");
+                return this.getObsSubQueryForQuery(numericFilterQuery);
+            default:
+                return null;
+        }
+    }
+
+    getObsSubQueryForQuery(query) {
+        return `SUBQUERY(observations, $concept, ${query} ).@count > 0`;
+    }
+
+    tokenizedNameQuery(name) {
+        const filter = [];
+        _.chain(name)
+            .split(' ')
+            .map((token) => token.trim()).filter((token) => !_.isEmpty(token))
+            .forEach((token) => {
+                filter.push(`valueJSON CONTAINS[c] "${token}"`)
+            }).value();
+        return filter.join(" AND ");
+    }
+
+    queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilters, conceptFilter) {
+        switch (scope) {
+            case 'programEncounter' : {
+                const encounterOptions = _.map(scopeParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
+                const programOptions = _.map(scopeParameters.programUUIDs, p => `programEnrolment.program.uuid == "${p}"`).join(" OR ");
+                const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, programOptions);
+                const scopeFiltersWithNonExit = `(${scopeFilters}) and programEnrolment.programExitDateTime = null`;
+                const sortFilter = 'TRUEPREDICATE sort(programEnrolment.individual.uuid asc , encounterDateTime desc) Distinct(programEnrolment.individual.uuid)';
+                const individualUUIDs = this.queryFromLatestObservation(ProgramEncounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.programEnrolment.individual.uuid);
+                this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
+                break;
+            }
+            case 'programEnrolment' : {
+                const programOptions = _.map(scopeParameters.programUUIDs, p => `program.uuid == "${p}"`).join(" OR ");
+                const scopeFilters = this.createProgramEncounterScopeFilter(null, programOptions);
+                const scopeFiltersWithNonExit = `(${scopeFilters}) and programExitDateTime = null`;
+                const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , enrolmentDateTime desc) Distinct(individual.uuid)';
+                const individualUUIDs = this.queryFromLatestObservation(ProgramEnrolment.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.individual.uuid);
+                this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
+                break;
+            }
+            case 'registration' : {
+                this.commonIndividualFilters.push(`(${selectedAnswerFilters})`);
+                break;
+            }
+            case 'encounter' : {
+                const encounterOptions = _.map(scopeParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
+                const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, null);
+                const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , encounterDateTime desc) Distinct(individual.uuid)';
+                const individualUUIDs = this.queryFromLatestObservation(Encounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFilters, sortFilter, enc => enc.individual.uuid);
+                this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
+                break;
+            }
+            default :
+                General.logDebug("Scope not found")
+        }
+    }
+
+    applyCustomFilters(customFilters, filterName) {
         this.individualUUIDs = null;
         this.commonIndividualFilters = [];
-        _.forEach(this.getSettings()[filterType], filter => {
+        _.forEach(this.getSettings()[filterName], filter => {
             const selectedOptions = customFilters[filter.titleKey];
             if (!_.isEmpty(selectedOptions)) {
-                const selectedAnswerFilters = (scope) => _.map(selectedOptions, c => `${scope} contains "${c.uuid}"`).join(" OR ");
-                const {searchParameters, searchType, conceptUUID} = filter;
+                const {scopeParameters, scope, conceptUUID, type} = filter;
+                const selectedAnswerFilterQuery = this.getFilterQueryByType(filter, selectedOptions);
                 const conceptFilter = `observations.concept.uuid == "${conceptUUID}"`;
-                switch (searchType) {
-                    case 'programEncounter' : {
-                        const encounterOptions = _.map(searchParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
-                        const programOptions = _.map(searchParameters.programUUIDs, p => `programEnrolment.program.uuid == "${p}"`).join(" OR ");
-                        const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, programOptions);
-                        const scopeFiltersWithNonExit = `(${scopeFilters}) and programEnrolment.programExitDateTime = null`;
-                        const sortFilter = 'TRUEPREDICATE sort(programEnrolment.individual.uuid asc , encounterDateTime desc) Distinct(programEnrolment.individual.uuid)';
-                        const individualUUIDs = this.queryFromLatestObservation(ProgramEncounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.programEnrolment.individual.uuid);
-                        this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
-                        break;
-                    }
-                    case 'programEnrolment' : {
-                        const programOptions = _.map(searchParameters.programUUIDs, p => `program.uuid == "${p}"`).join(" OR ");
-                        const scopeFilters = this.createProgramEncounterScopeFilter(null, programOptions);
-                        const scopeFiltersWithNonExit = `(${scopeFilters}) and programExitDateTime = null`;
-                        const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , enrolmentDateTime desc) Distinct(individual.uuid)';
-                        const individualUUIDs = this.queryFromLatestObservation(ProgramEnrolment.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.individual.uuid);
-                        this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
-                        break;
-                    }
-                    case 'registration' : {
-                        this.commonIndividualFilters.push(`(${selectedAnswerFilters('observations.valueJSON')})`);
-                        break;
-                    }
-                    case 'encounter' : {
-                        const encounterOptions = _.map(searchParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
-                        const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, null);
-                        const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , encounterDateTime desc) Distinct(individual.uuid)';
-                        const individualUUIDs = this.queryFromLatestObservation(Encounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFilters, sortFilter, enc => enc.individual.uuid);
-                        this.individualUUIDs = _.isNil(this.individualUUIDs) ? individualUUIDs : _.intersection(this.individualUUIDs, individualUUIDs);
-                        break;
-                    }
+                switch (type) {
+                    case ('Concept') :
+                        this.queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilterQuery, conceptFilter);
                     default :
-                        General.logDebug("Scope not found")
+                        General.logDebug("Filter type not found")
                 }
             }
         });

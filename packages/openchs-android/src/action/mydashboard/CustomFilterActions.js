@@ -19,7 +19,7 @@ class CustomFilterActions {
         return {...state, selectedCustomFilters};
     }
 
-    static onCustomFilterSelect(state, action, context) {
+    static onCodedCustomFilterSelect(state, action, context) {
         const {conceptAnswerName, conceptAnswers, titleKey, subjectTypeUUID} = action;
         const selectedConceptAnswer = conceptAnswers.filter(a => a.concept.name === conceptAnswerName).map(c => ({
             uuid: c.concept.uuid,
@@ -35,17 +35,26 @@ class CustomFilterActions {
             };
         return {...state, selectedCustomFilters};
     }
+
+    static onTextCustomFilterSelect(state, action) {
+        const {titleKey, subjectTypeUUID, name} = action;
+        const newState = _.isEmpty(name) ? {} : {subjectTypeUUID, name};
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
+    }
 }
 
 const ActionPrefix = 'CustomFilters';
 const CustomFilterNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
-    ON_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CUSTOM_FILTER_SELECT`
+    ON_CODED_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CODED_CUSTOM_FILTER_SELECT`,
+    ON_TEXT_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_TEXT_CUSTOM_FILTER_SELECT`,
 };
 
 const CustomFilterMap = new Map([
     [CustomFilterNames.ON_LOAD, CustomFilterActions.onLoad],
-    [CustomFilterNames.ON_CUSTOM_FILTER_SELECT, CustomFilterActions.onCustomFilterSelect]
+    [CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT, CustomFilterActions.onCodedCustomFilterSelect],
+    [CustomFilterNames.ON_TEXT_CUSTOM_FILTER_SELECT, CustomFilterActions.onTextCustomFilterSelect]
 ]);
 
 export {
