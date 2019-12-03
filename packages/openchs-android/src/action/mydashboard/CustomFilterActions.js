@@ -42,6 +42,18 @@ class CustomFilterActions {
         const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
         return {...state, selectedCustomFilters};
     }
+
+    static onNumericFilterSelect(state, action) {
+        const {titleKey, subjectTypeUUID, upperValue, lowerValue} = action;
+        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
+        const newState = _.isEmpty(upperValue) && _.isEmpty(lowerValue) ? {} : {
+            subjectTypeUUID,
+            upperValue : upperValue || prevValue && prevValue.upperValue,
+            lowerValue : lowerValue || prevValue && prevValue.lowerValue,
+        };
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
+    }
 }
 
 const ActionPrefix = 'CustomFilters';
@@ -49,12 +61,14 @@ const CustomFilterNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_CODED_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CODED_CUSTOM_FILTER_SELECT`,
     ON_TEXT_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_TEXT_CUSTOM_FILTER_SELECT`,
+    ON_NUMERIC_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_NUMERIC_CUSTOM_FILTER_SELECT`
 };
 
 const CustomFilterMap = new Map([
     [CustomFilterNames.ON_LOAD, CustomFilterActions.onLoad],
     [CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT, CustomFilterActions.onCodedCustomFilterSelect],
-    [CustomFilterNames.ON_TEXT_CUSTOM_FILTER_SELECT, CustomFilterActions.onTextCustomFilterSelect]
+    [CustomFilterNames.ON_TEXT_CUSTOM_FILTER_SELECT, CustomFilterActions.onTextCustomFilterSelect],
+    [CustomFilterNames.ON_NUMERIC_CUSTOM_FILTER_SELECT, CustomFilterActions.onNumericFilterSelect]
 ]);
 
 export {

@@ -63,7 +63,7 @@ export default class AppliedFilters extends AbstractComponent {
             const nonEmptyFilters = _.pickBy(this.props.selectedCustomFilters, (v, k) => !_.isEmpty(v));
             const filters = Object.keys(nonEmptyFilters);
             return _.map(filters, filter => {
-                const answers = nonEmptyFilters[filter].map(value => this.I18n.t(value.name)).join(", ");
+                const answers = nonEmptyFilters[filter].map(value => this.I18n.t(value.name || value.upperValue)).join(", ");
                 return this.renderContent(this.I18n.t(filter), answers);
             })
         }

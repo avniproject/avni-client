@@ -61,7 +61,8 @@ class IndividualSearchView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
-        const searchCustomFilters = _.filter(this.customFilterService.getSearchFilters(), c => c.subjectTypeUUID === this.state.searchCriteria.subjectType.uuid);
+        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters('searchFilters', this.state.searchCriteria.subjectType.uuid);
+        const codedCustomFilters = this.customFilterService.getCodedConceptFilters('searchFilters', this.state.searchCriteria.subjectType.uuid);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -94,6 +95,11 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                              multiline={false}/> : null}
+                        {!_.isEmpty(nonCodedCustomFilters) ?
+                            <CustomFilters filters={nonCodedCustomFilters}
+                                           selectedCustomFilters={this.state.selectedCustomFilters}
+                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                            /> : null}
                         {this.customFilterService.displayGenderFilter() && this.state.searchCriteria.subjectType.isIndividual() ?
                             <GenderFilter
                                 selectedGenders={this.state.selectedGenders}
@@ -111,8 +117,8 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        {!_.isEmpty(searchCustomFilters) ?
-                            <CustomFilters filters={searchCustomFilters}
+                        {!_.isEmpty(codedCustomFilters) ?
+                            <CustomFilters filters={codedCustomFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                             /> : null}
