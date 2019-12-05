@@ -1,5 +1,5 @@
 import Service from "../framework/bean/Service";
-import _ from 'lodash';
+import _ from "lodash";
 import BaseService from "./BaseService";
 import {
     ChecklistDetail,
@@ -20,7 +20,7 @@ import {
     programEncounterDecision,
     programEnrolmentDecision,
     RuleRegistry
-} from 'openchs-health-modules';
+} from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
@@ -190,19 +190,53 @@ class RuleEvaluationService extends BaseService {
     }
 
     getEnrolmentSummary(enrolment, entityName = 'ProgramEnrolment', context) {
+        const program = enrolment.program;
+        let ruleItemsFromBundle = this.getAllRuleItemsFor(program, "EnrolmentSummary", "Program");
+        if (_.isEmpty(ruleItemsFromBundle)) {
+            if (!_.isNil(program.enrolmentSummaryRule) && !_.isEmpty(_.trim(program.enrolmentSummaryRule))) {
+                return this._getEnrolmentSummaryFromEntityRule(enrolment, entityName);
+            }
+        } else {
+            return this._getEnrolmentSummaryFromBundledRules(ruleItemsFromBundle, enrolment, entityName, context);
+        }
+        return [];
+    }
+
+    _getEnrolmentSummaryFromBundledRules(ruleItemsFromBundle, enrolment, entityName, context) {
         const summaries = this.getEnrolmentSummaryFromCore(entityName, enrolment, context);
-        const updatedSummaries = this.getAllRuleItemsFor(enrolment.program, "EnrolmentSummary", "Program")
+        const updatedSummaries = ruleItemsFromBundle
             .reduce((summaries, rule) => {
                 const s = this.runRuleAndSaveFailure(rule, entityName, enrolment, summaries, new Date(), context);
                 return this.validateSummaries(s, rule.uuid, this.getIndividualUUID(enrolment, entityName));
             }, summaries);
-        const conceptFor = name => this.conceptService.conceptFor(name);
         const summaryObservations = _.map(updatedSummaries, (summary) => {
-            const concept = conceptFor(summary.name);
+            const concept = this.conceptService.conceptFor(summary.name);
             return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
         });
         General.logDebug("RuleEvaluationService - Summary Observations", summaryObservations);
         return summaryObservations;
+    }
+
+    _getEnrolmentSummaryFromEntityRule(enrolment, entityName) {
+        const program = enrolment.program;
+        try {
+            const ruleFunc = eval(program.enrolmentSummaryRule);
+            let summaries = ruleFunc({
+                params: {summaries: [], programEnrolment: enrolment},
+                imports: {}
+            });
+            summaries = this.validateSummaries(summaries, enrolment.uuid);
+            const summaryObservations = _.map(summaries, (summary) => {
+                const concept = this.conceptService.conceptFor(summary.name);
+                return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
+            });
+            return summaryObservations;
+        } catch (e) {
+            General.logDebug("Rule-Failure",
+                `New Enrolment Summary Rule failed for: ${enrolment.program.name} program`);
+            this.saveFailedRules(e, enrolment.uuid, this.getIndividualUUID(enrolment, entityName));
+            return [];
+        }
     }
 
     validateAgainstRule(entity, form, entityName) {
@@ -252,7 +286,6 @@ class RuleEvaluationService extends BaseService {
             return [...formElementWithRules
                 .map(formElement => {
                     try {
-                        console.log(`RuleEvaluationService: eval`);
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
                             params: {formElement, entity},
