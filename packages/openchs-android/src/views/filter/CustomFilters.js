@@ -80,6 +80,25 @@ class CustomFilters extends AbstractComponent {
         })
     };
 
+    renderOtherFilters = (filters) => {
+        return _.map(filters, (filter, idx) => {
+            const {type, widget, subjectTypeUUID, titleKey} = filter;
+            const selectedValue = _.head(this.state.selectedCustomFilters[titleKey]);
+            const requiredDateObject = {...selectedValue, subjectTypeUUID, titleKey};
+            switch (type) {
+                case('RegistrationDate'):
+                case('EnrolmentDate'):
+                case('ProgramEncounterDate'):
+                case('EncounterDate'):
+                    return widget === 'Range' ?
+                        this.dateFilterWithRange(filter, idx, requiredDateObject, false)
+                        : this.dateConceptFilter(filter, idx, requiredDateObject, false);
+                default:
+                    return <View/>
+            }
+        })
+    };
+
     timeConceptFilter(filter, idx, timeObject) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
@@ -195,7 +214,12 @@ class CustomFilters extends AbstractComponent {
 
     render() {
         this._invokeCallbacks();
-        return this.renderConceptFilters(_.filter(this.props.filters, filter => filter.type === 'Concept'))
+        return (<View>
+                {this.renderConceptFilters(_.filter(this.props.filters, filter => filter.type === 'Concept'))}
+                {this.renderOtherFilters(_.filter(this.props.filters, filter => filter.type !== 'Concept'))}
+            </View>
+        )
+
     }
 
 }

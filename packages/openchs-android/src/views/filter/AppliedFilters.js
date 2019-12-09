@@ -63,7 +63,7 @@ export default class AppliedFilters extends AbstractComponent {
         const readableTime = (dateType, value) => dateType && General.toDisplayDate(value) || value;
         const filterValue = (value) => [
             this.I18n.t(value.name || value.value || readableTime(value.dateType, value.minValue) || ''),
-            this.I18n.t(readableTime(value.dateType, value.maxValue) || '')
+            this.I18n.t(value.maxValue && readableTime(value.dateType, value.maxValue) || '')
         ].filter(Boolean).join(" to ");
         if (!_.isEmpty(this.props.selectedCustomFilters)) {
             const nonEmptyFilters = _.pickBy(this.props.selectedCustomFilters, (v, k) => !_.isEmpty(v));
