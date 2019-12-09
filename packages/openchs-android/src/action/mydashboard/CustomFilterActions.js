@@ -1,5 +1,6 @@
 import _ from "lodash";
 import CustomFilterService from "../../service/CustomFilterService";
+import moment from "moment";
 
 
 class CustomFilterActions {
@@ -44,13 +45,50 @@ class CustomFilterActions {
     }
 
     static onNumericFilterSelect(state, action) {
-        const {titleKey, subjectTypeUUID, upperValue, lowerValue} = action;
+        const {titleKey, subjectTypeUUID, minValue, maxValue} = action;
         const prevValue = _.head(state.selectedCustomFilters[titleKey]);
-        const newState = _.isEmpty(upperValue) && _.isEmpty(lowerValue) ? {} : {
+        const newState = _.isEmpty(minValue) && _.isEmpty(maxValue) ? {} : {
             subjectTypeUUID,
-            upperValue : upperValue || prevValue && prevValue.upperValue,
-            lowerValue : lowerValue || prevValue && prevValue.lowerValue,
+            minValue: minValue || prevValue && prevValue.minValue,
+            maxValue: maxValue || prevValue && prevValue.maxValue,
         };
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
+    }
+
+    static onMinDateFilterSelect(state, action) {
+        const {titleKey, subjectTypeUUID, value} = action;
+        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
+        const minDate = value;
+        const newState = _.isNil(minDate) ? {} : {
+            ...prevValue,
+            subjectTypeUUID,
+            minDate,
+            minValue: minDate && moment(minDate, "YYYY-MM-DDTHH:mm:ss").utc().format(),
+            dateType: true
+        };
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
+    }
+
+    static onMaxDateFilterSelect(state, action) {
+        const {titleKey, subjectTypeUUID, value} = action;
+        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
+        const maxDate = value;
+        const newState = _.isNil(maxDate) ? {} :{
+            ...prevValue,
+            subjectTypeUUID,
+            maxDate,
+            maxValue: maxDate && moment(maxDate, "YYYY-MM-DDTHH:mm:ss").utc().format(),
+            dateType: true
+        };
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
+    }
+
+    static onTimeFilterSelect(state, action) {
+        const {titleKey, subjectTypeUUID, value} = action;
+        const newState = _.isEmpty(value) ? {} : {subjectTypeUUID, value};
         const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
         return {...state, selectedCustomFilters};
     }
@@ -61,14 +99,20 @@ const CustomFilterNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_CODED_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CODED_CUSTOM_FILTER_SELECT`,
     ON_TEXT_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_TEXT_CUSTOM_FILTER_SELECT`,
-    ON_NUMERIC_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_NUMERIC_CUSTOM_FILTER_SELECT`
+    ON_NUMERIC_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_NUMERIC_CUSTOM_FILTER_SELECT`,
+    ON_MIN_DATE_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MIN_DATE_CUSTOM_FILTER_SELECT`,
+    ON_MAX_DATE_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MAX_DATE_CUSTOM_FILTER_SELECT`,
+    ON_TIME_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_TIME_CUSTOM_FILTER_SELECT`,
 };
 
 const CustomFilterMap = new Map([
     [CustomFilterNames.ON_LOAD, CustomFilterActions.onLoad],
     [CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT, CustomFilterActions.onCodedCustomFilterSelect],
     [CustomFilterNames.ON_TEXT_CUSTOM_FILTER_SELECT, CustomFilterActions.onTextCustomFilterSelect],
-    [CustomFilterNames.ON_NUMERIC_CUSTOM_FILTER_SELECT, CustomFilterActions.onNumericFilterSelect]
+    [CustomFilterNames.ON_NUMERIC_CUSTOM_FILTER_SELECT, CustomFilterActions.onNumericFilterSelect],
+    [CustomFilterNames.ON_MIN_DATE_CUSTOM_FILTER_SELECT, CustomFilterActions.onMinDateFilterSelect],
+    [CustomFilterNames.ON_MAX_DATE_CUSTOM_FILTER_SELECT, CustomFilterActions.onMaxDateFilterSelect],
+    [CustomFilterNames.ON_TIME_CUSTOM_FILTER_SELECT, CustomFilterActions.onTimeFilterSelect],
 ]);
 
 export {

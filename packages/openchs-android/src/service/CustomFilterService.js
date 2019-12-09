@@ -5,6 +5,7 @@ import General from "../utility/General";
 import _ from "lodash";
 import ConceptService from "./ConceptService";
 import React from "react";
+import moment from "moment";
 
 @Service("customFilterService")
 class CustomFilterService extends BaseService {
@@ -142,23 +143,36 @@ class CustomFilterService extends BaseService {
     }
 
     getConceptFilterQuery(concept, selectedOptions, widget) {
+        const selectedOption = _.head(selectedOptions);
         switch (concept.datatype) {
             case (Concept.dataType.Coded) :
                 const codedFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
                 return () => this.getObsSubQueryForQuery(codedFilterQuery);
             case (Concept.dataType.Text) :
+            case (Concept.dataType.Notes) :
+            case (Concept.dataType.Id) :
                 const textFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(c.name)}) `).join(" OR ");
                 return () => this.getObsSubQueryForQuery(textFilterQuery);
             case (Concept.dataType.Numeric) :
                 if (widget === 'Range') {
-                    const selectedOption = _.head(selectedOptions);
-                    return (obs) => obs.concept.uuid === concept.uuid && obs.getValue() >= selectedOption.upperValue && obs.getValue() <= selectedOption.lowerValue;
+                    return (obs) => obs.concept.uuid === concept.uuid && obs.getValue() >= selectedOption.minValue && obs.getValue() <= selectedOption.maxValue;
                 } else {
-                    const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${c.upperValue}}') `).join(" OR ");
+                    const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${c.minValue}}') `).join(" OR ");
                     return () => this.getObsSubQueryForQuery(numericFilterQuery);
                 }
+            case (Concept.dataType.Date) :
+            case (Concept.dataType.DateTime):
+                if (widget === 'Range') {
+                    return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue()).isBetween(selectedOption.minValue, selectedOption.maxValue, null, []);
+                } else {
+                    const dateFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":"${c.minValue.replace('Z', '')}') `).join(" OR ");
+                    return () => this.getObsSubQueryForQuery(dateFilterQuery);
+                }
+            case (Concept.dataType.Time):
+                const timeFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.value}') `).join(" OR ");
+                return () => this.getObsSubQueryForQuery(timeFilterQuery);
             default:
-                return _.noop;
+                return () => 'uuid != null';
         }
     }
 

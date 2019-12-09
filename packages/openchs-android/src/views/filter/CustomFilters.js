@@ -14,6 +14,9 @@ import Distances from "../primitives/Distances";
 import Colors from '../primitives/Colors';
 import {Text} from "native-base";
 import DGS from "../primitives/DynamicGlobalStyles";
+import DatePicker from "../primitives/DatePicker";
+import Fonts from "../primitives/Fonts";
+import TimePicker from "../primitives/TimePicker";
 
 class CustomFilters extends AbstractComponent {
 
@@ -47,29 +50,83 @@ class CustomFilters extends AbstractComponent {
     renderConceptFilters = (filters) => {
         return _.map(filters, (filter, idx) => {
             const concept = this.conceptService.getConceptByUUID(filter.conceptUUID);
+            const {subjectTypeUUID, titleKey} = filter;
+            const selectedValue = _.head(this.state.selectedCustomFilters[titleKey]);
+            const requiredDateObject = {...selectedValue, subjectTypeUUID, titleKey};
             switch (concept.datatype) {
                 case (Concept.dataType.Coded) :
                     return this.codedConceptFilter(concept, filter, idx);
-                case (Concept.dataType.Text || Concept.dataType.Notes || Concept.dataType.Id) :
+                case (Concept.dataType.Text) :
+                case (Concept.dataType.Notes) :
+                case (Concept.dataType.Id) :
                     return this.textConceptFilter(concept, filter, idx);
                 case (Concept.dataType.Numeric) :
-                    const selectedOne = _.head(this.state.selectedCustomFilters[filter.titleKey]);
                     return filter.widget === 'Range' ?
-                        this.numericConceptFilterWithRange(concept, filter, idx, styles.rangeInput, selectedOne) :
-                        this.numericConceptFilter(concept, filter, idx, {}, selectedOne);
+                        this.numericConceptFilterWithRange(concept, filter, idx, styles.rangeInput, selectedValue) :
+                        this.numericConceptFilter(concept, filter, idx, {}, selectedValue);
                 case(Concept.dataType.Date):
-                    return <View/>;
+                    return filter.widget === 'Range' ?
+                        this.dateFilterWithRange(filter, idx, requiredDateObject, false)
+                        : this.dateConceptFilter(filter, idx, requiredDateObject, false);
                 case(Concept.dataType.DateTime):
-                    return <View/>;
+                    return filter.widget === 'Range' ?
+                        this.dateFilterWithRange(filter, idx, requiredDateObject, true)
+                        : this.dateConceptFilter(filter, idx, requiredDateObject, true);
                 case(Concept.dataType.Time):
-                    return <View/>;
-                case(Concept.dataType.Duration):
-                    return <View/>;
+                    return this.timeConceptFilter(filter, idx, requiredDateObject);
                 default:
                     return <View/>
             }
         })
     };
+
+    timeConceptFilter(filter, idx, timeObject) {
+        return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+            <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
+            <TimePicker timeValue={timeObject && timeObject.value}
+                        actionObject={timeObject || {}}
+                        actionName={CustomFilterNames.ON_TIME_CUSTOM_FILTER_SELECT}/>
+        </View>, idx)
+    }
+
+    dateConceptFilter(filter, idx, dateObject, pickTime) {
+        return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+            <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
+            {this.dateInput({
+                ...dateObject,
+                value: dateObject.minDate
+            }, pickTime, CustomFilterNames.ON_MIN_DATE_CUSTOM_FILTER_SELECT)}
+        </View>, idx)
+    }
+
+    dateFilterWithRange(filter, idx, dateObject, pickTime) {
+        return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+            <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
+            <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+                <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
+                {this.dateInput({
+                    ...dateObject,
+                    value: dateObject.minDate
+                }, pickTime, CustomFilterNames.ON_MIN_DATE_CUSTOM_FILTER_SELECT, 'startDate', true)}
+                <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
+                {this.dateInput({
+                    ...dateObject,
+                    value: dateObject.maxDate,
+                    isMaxDate: true
+                }, pickTime, CustomFilterNames.ON_MAX_DATE_CUSTOM_FILTER_SELECT, 'endDate')}
+            </View>
+        </View>, idx)
+    }
+
+    dateInput(dateObject, pickTime, actionName, noDateMessageKey, nonRemovable) {
+        return <DatePicker
+            nonRemovable={nonRemovable}
+            actionName={actionName}
+            actionObject={dateObject}
+            pickTime={pickTime}
+            dateValue={dateObject.value}
+            noDateMessageKey={noDateMessageKey}/>
+    }
 
     textConceptFilter(concept, filter, idx, props) {
         const selectedOne = _.head(this.state.selectedCustomFilters[filter.titleKey]);
@@ -91,7 +148,7 @@ class CustomFilters extends AbstractComponent {
     numericConceptFilter(concept, filter, idx, props, value) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
-            {this.numericInput(props, value && value.upperValue, (value) => this.onNumericChange({upperValue: value.replace(/[^0-9]/g, '')}, filter))}
+            {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9]/g, '')}, filter))}
         </View>, idx)
     }
 
@@ -106,10 +163,11 @@ class CustomFilters extends AbstractComponent {
     numericConceptFilterWithRange(concept, filter, idx, props, value) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
-            <View key={idx} style={{flexDirection: 'row', marginRight: 10}}>
-                {this.numericInput(props, value && value.upperValue, (value) => this.onNumericChange({upperValue: value.replace(/[^0-9]/g, '')}, filter))}
-                <Text style={DGS.formRadioText}>{this.I18n.t('- ')}</Text>
-                {this.numericInput(props, value && value.lowerValue, (value) => this.onNumericChange({lowerValue: value.replace(/[^0-9]/g, '')}, filter))}
+            <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+                <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('between')}</Text>
+                {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9]/g, '')}, filter))}
+                <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('and')}</Text>
+                {this.numericInput(props, value && value.maxValue, (value) => this.onNumericChange({maxValue: value.replace(/[^0-9]/g, '')}, filter))}
             </View>
         </View>, idx)
     }

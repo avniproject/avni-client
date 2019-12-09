@@ -2,6 +2,7 @@ import {StyleSheet, Text, View} from "react-native";
 import React from 'react';
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import General from "../../utility/General";
 
 export default class AppliedFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -59,11 +60,16 @@ export default class AppliedFilters extends AbstractComponent {
     }
 
     renderCustomFilters() {
+        const readableTime = (dateType, value) => dateType && General.toDisplayDate(value) || value;
+        const filterValue = (value) => [
+            this.I18n.t(value.name || value.value || readableTime(value.dateType, value.minValue) || ''),
+            this.I18n.t(readableTime(value.dateType, value.maxValue) || '')
+        ].filter(Boolean).join(" to ");
         if (!_.isEmpty(this.props.selectedCustomFilters)) {
             const nonEmptyFilters = _.pickBy(this.props.selectedCustomFilters, (v, k) => !_.isEmpty(v));
             const filters = Object.keys(nonEmptyFilters);
             return _.map(filters, filter => {
-                const answers = nonEmptyFilters[filter].map(value => this.I18n.t(value.name || value.upperValue)).join(", ");
+                const answers = nonEmptyFilters[filter].map(filterValue).join(", ");
                 return this.renderContent(this.I18n.t(filter), answers);
             })
         }
