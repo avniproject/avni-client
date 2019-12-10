@@ -102,8 +102,8 @@ class RuleEvaluationService extends BaseService {
                    console.log("ENTITY NAME" + entityName);
                   this.saveFailedRules("Error message test", form.uuid, this.getIndividualUUID(entity, entityName));
               }
-              return defaultDecisions;
           }
+          return defaultDecisions;
         }
         else{
           decisionsMap.reduce((decisions, rule) => {
