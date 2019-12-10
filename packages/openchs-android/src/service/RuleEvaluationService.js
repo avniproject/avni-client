@@ -278,7 +278,6 @@ class RuleEvaluationService extends BaseService {
 
     }
 
-
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
         const defaultVistSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
