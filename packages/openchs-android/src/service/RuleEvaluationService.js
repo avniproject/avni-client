@@ -31,7 +31,7 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import {FormElementStatusBuilder} from "rules-config";
+import { FormElementStatusBuilder } from "rules-config";
 import lodash from "lodash";
 import moment from "moment";
 
@@ -44,10 +44,10 @@ class RuleEvaluationService extends BaseService {
 
     init() {
         this.entityRulesMap = new Map([['Individual', new EntityRule(individualRegistrationDecision)],
-            ['Family', new EntityRule(familyRegistrationDecision)],
-            ['Encounter', new EntityRule(encounterDecision)],
-            ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
-            ['ProgramEncounter', new EntityRule(programEncounterDecision)],]);
+        ['Family', new EntityRule(familyRegistrationDecision)],
+        ['Encounter', new EntityRule(encounterDecision)],
+        ['ProgramEnrolment', new EntityRule(programEnrolmentDecision)],
+        ['ProgramEncounter', new EntityRule(programEncounterDecision)],]);
 
         this.entityFormMap = new Map([
             ['Individual', (individual) => this.formMappingService.findRegistrationForm(individual.subjectType)],
@@ -74,11 +74,11 @@ class RuleEvaluationService extends BaseService {
                 return entity.individual.uuid;
             case 'ProgramEncounter':
                 return entity.programEnrolment.individual.uuid;
-            case 'Encounter' :
+            case 'Encounter':
                 return entity.individual.uuid;
             case 'WorkList':
                 return entity.getCurrentWorkItem().parameters.subjectUUID;
-            default :
+            default:
                 return "entity not mapped";
         }
     };
@@ -225,7 +225,7 @@ class RuleEvaluationService extends BaseService {
         try {
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
-                params: {summaries: [], programEnrolment: enrolment},
+                params: { summaries: [], programEnrolment: enrolment },
                 imports: {}
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
@@ -246,10 +246,38 @@ class RuleEvaluationService extends BaseService {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
         const validationErrors = this.getAllRuleItemsFor(form, "Validation", "Form")
-            .reduce((validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors), defaultValidationErrors);
-        General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
-        return validationErrors;
+
+        // if (_.isEmpty(validationErrors)) {
+        if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
+            try {
+                console.log("******* AT THE START *******");
+                const ruleFunc = eval(form.validationRule);
+                return ruleFunc({
+                    params: { entity },
+                    imports: { common, lodash, moment }
+                });
+
+            } catch (e) {
+                console.log("CATCH****")
+                console.log(e);
+                General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
+            }
+
+            return defaultValidationErrors;
+        }
+        // }
+        else {
+            validationErrors.reduce(
+                (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
+                defaultValidationErrors
+            );
+            General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
+            return validationErrors;
+        }
+
     }
+
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
         const defaultVistSchedule = [];
@@ -291,8 +319,8 @@ class RuleEvaluationService extends BaseService {
                     try {
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
-                            params: {formElement, entity},
-                            imports: {FormElementStatusBuilder, FormElementStatus, common, lodash, moment}
+                            params: { formElement, entity },
+                            imports: { FormElementStatusBuilder, FormElementStatus, common, lodash, moment }
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
@@ -323,12 +351,12 @@ class RuleEvaluationService extends BaseService {
 
     isEligibleForEncounter(individual, encounterType) {
         const applicableRules = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
-        return _.isEmpty(applicableRules) ? true : this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', {individual}, true);
+        return _.isEmpty(applicableRules) ? true : this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', { individual }, true);
     }
 
     isEligibleForProgram(individual, program) {
         const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
-        return _.isEmpty(applicableRules) ? true : this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', {individual}, true);
+        return _.isEmpty(applicableRules) ? true : this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', { individual }, true);
     }
 
     runOnAll(rulesToRun) {
