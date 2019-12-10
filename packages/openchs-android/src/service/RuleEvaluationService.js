@@ -30,7 +30,7 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import {FormElementStatusBuilder} from "rules-config";
+import {FormElementStatusBuilder, complicationsBuilder} from "rules-config";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -88,16 +88,35 @@ class RuleEvaluationService extends BaseService {
         };
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
         const decisionsMap = this.getAllRuleItemsFor(form, "Decision", "Form")
-            .reduce((decisions, rule) => {
-                const d = this.runRuleAndSaveFailure(rule, entityName, entity, decisions, new Date(), context);
-                return this.validateDecisions(d, rule.uuid, this.getIndividualUUID(entity, entityName));
-            }, defaultDecisions);
-        const trimmedDecisions = {};
-        _.forEach(decisionsMap, (decisions, decisionType) => {
-            trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
-        });
-        General.logDebug("RuleEvaluationService", trimmedDecisions);
-        return trimmedDecisions;
+
+        if(_.isEmpty(decisionsMap)){
+          if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
+              try {
+                  const ruleFunc = eval(form.decisionRule);
+                  return ruleFunc({
+                      params: {decisions:defaultDecisions, entity},
+                      imports: {ComplicationsBuilder:'',complicationsBuilder}
+                  });
+              } catch (e) {
+                   console.log("FORM ID - "+form.uuid);
+                   console.log("ENTITY NAME" + entityName);
+                  this.saveFailedRules("Error message test", form.uuid, this.getIndividualUUID(entity, entityName));
+              }
+              return defaultDecisions;
+          }
+        }
+        else{
+          decisionsMap.reduce((decisions, rule) => {
+                  const d = this.runRuleAndSaveFailure(rule, entityName, entity, decisions, new Date(), context);
+                  return this.validateDecisions(d, rule.uuid, this.getIndividualUUID(entity, entityName));
+              }, defaultDecisions);
+          const trimmedDecisions = {};
+          _.forEach(decisionsMap, (decisions, decisionType) => {
+              trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
+          });
+          General.logDebug("RuleEvaluationService", trimmedDecisions);
+          return trimmedDecisions;
+        }
     }
 
     //this is required because we check for the concept name after generating decisions
