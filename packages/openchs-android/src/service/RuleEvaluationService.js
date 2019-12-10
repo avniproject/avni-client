@@ -19,7 +19,8 @@ import {
     individualRegistrationDecision,
     programEncounterDecision,
     programEnrolmentDecision,
-    RuleRegistry
+    RuleRegistry,
+    common
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
@@ -31,6 +32,8 @@ import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
 import {FormElementStatusBuilder} from "rules-config";
+import lodash from "lodash";
+import moment from "moment";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -289,7 +292,7 @@ class RuleEvaluationService extends BaseService {
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
                             params: {formElement, entity},
-                            imports: {FormElementStatusBuilder, FormElementStatus}
+                            imports: {FormElementStatusBuilder, FormElementStatus, common, lodash, moment}
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
