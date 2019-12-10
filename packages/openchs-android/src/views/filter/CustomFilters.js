@@ -73,7 +73,9 @@ class CustomFilters extends AbstractComponent {
                         this.dateFilterWithRange(filter, idx, requiredDateObject, true)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, true);
                 case(Concept.dataType.Time):
-                    return this.timeConceptFilter(filter, idx, requiredDateObject);
+                    return filter.widget === 'Range' ?
+                        this.timeRangeFilter(filter, idx, requiredDateObject) :
+                        this.timeConceptFilter(filter, idx, requiredDateObject);
                 default:
                     return <View/>
             }
@@ -102,10 +104,26 @@ class CustomFilters extends AbstractComponent {
     timeConceptFilter(filter, idx, timeObject) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
-            <TimePicker timeValue={timeObject && timeObject.value}
-                        actionObject={timeObject || {}}
-                        actionName={CustomFilterNames.ON_TIME_CUSTOM_FILTER_SELECT}/>
+            {this.timeInput({ ...timeObject, value: timeObject.minValue}, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
         </View>, idx)
+    }
+
+    timeRangeFilter(filter, idx, timeObject) {
+        return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+            <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
+            <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+                <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
+                {this.timeInput({ ...timeObject, value: timeObject.minValue}, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
+                <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
+                {this.timeInput({ ...timeObject, value: timeObject.maxValue}, CustomFilterNames.ON_MAX_TIME_CUSTOM_FILTER_SELECT)}
+            </View>
+        </View>, idx)
+    }
+
+    timeInput(timeObject, action) {
+        return <TimePicker timeValue={timeObject && timeObject.value}
+                           actionObject={timeObject || {}}
+                           actionName={action}/>
     }
 
     dateConceptFilter(filter, idx, dateObject, pickTime) {

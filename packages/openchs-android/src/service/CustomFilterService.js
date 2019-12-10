@@ -184,8 +184,12 @@ class CustomFilterService extends BaseService {
                     return () => this.getObsSubQueryForQuery(dateFilterQuery);
                 }
             case (Concept.dataType.Time):
-                const timeFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.value}') `).join(" OR ");
-                return () => this.getObsSubQueryForQuery(timeFilterQuery);
+                if (widget === 'Range') {
+                    return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue(), 'H:mma').isBetween(moment(selectedOption.minValue, 'h:mma'), moment(selectedOption.maxValue, 'h:mma'), null, []);
+                } else {
+                    const timeFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.minValue}') `).join(" OR ");
+                    return () => this.getObsSubQueryForQuery(timeFilterQuery);
+                }
             default:
                 return () => 'uuid != null';
         }
@@ -256,7 +260,6 @@ class CustomFilterService extends BaseService {
             if (!_.isEmpty(selectedOptions)) {
                 const {scopeParameters, scope, conceptUUID, type, widget} = filter;
                 const selectedAnswerFilterQuery = this.getFilterQueryByType(filter, selectedOptions);
-                console.log("selectedAnswerFilterQuery =>>", selectedAnswerFilterQuery());
                 const conceptFilter = `observations.concept.uuid == "${conceptUUID}"`;
                 switch (type) {
                     case 'Concept' :
