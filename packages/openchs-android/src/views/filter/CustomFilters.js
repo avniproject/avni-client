@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {MultiSelectFilter as MultiSelectFilterModel, Concept} from "avni-models";
+import {MultiSelectFilter as MultiSelectFilterModel, Concept, CustomFilter} from "avni-models";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";
@@ -13,9 +13,7 @@ import {View, TextInput} from 'react-native';
 import Distances from "../primitives/Distances";
 import Colors from '../primitives/Colors';
 import {Text} from "native-base";
-import DGS from "../primitives/DynamicGlobalStyles";
 import DatePicker from "../primitives/DatePicker";
-import Fonts from "../primitives/Fonts";
 import TimePicker from "../primitives/TimePicker";
 
 class CustomFilters extends AbstractComponent {
@@ -61,19 +59,19 @@ class CustomFilters extends AbstractComponent {
                 case (Concept.dataType.Id) :
                     return this.textConceptFilter(concept, filter, idx);
                 case (Concept.dataType.Numeric) :
-                    return filter.widget === 'Range' ?
+                    return filter.widget === CustomFilter.widget.Range ?
                         this.numericConceptFilterWithRange(concept, filter, idx, styles.rangeInput, selectedValue) :
                         this.numericConceptFilter(concept, filter, idx, {}, selectedValue);
                 case(Concept.dataType.Date):
-                    return filter.widget === 'Range' ?
+                    return filter.widget === CustomFilter.widget.Range ?
                         this.dateFilterWithRange(filter, idx, requiredDateObject, false)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, false);
                 case(Concept.dataType.DateTime):
-                    return filter.widget === 'Range' ?
+                    return filter.widget === CustomFilter.widget.Range ?
                         this.dateFilterWithRange(filter, idx, requiredDateObject, true)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, true);
                 case(Concept.dataType.Time):
-                    return filter.widget === 'Range' ?
+                    return filter.widget === CustomFilter.widget.Range ?
                         this.timeRangeFilter(filter, idx, requiredDateObject) :
                         this.timeConceptFilter(filter, idx, requiredDateObject);
                 default:
@@ -88,11 +86,11 @@ class CustomFilters extends AbstractComponent {
             const selectedValue = _.head(this.state.selectedCustomFilters[titleKey]);
             const requiredDateObject = {...selectedValue, subjectTypeUUID, titleKey};
             switch (type) {
-                case('RegistrationDate'):
-                case('EnrolmentDate'):
-                case('ProgramEncounterDate'):
-                case('EncounterDate'):
-                    return widget === 'Range' ?
+                case(CustomFilter.type.RegistrationDate):
+                case(CustomFilter.type.EnrolmentDate):
+                case(CustomFilter.type.ProgramEncounterDate):
+                case(CustomFilter.type.EncounterDate):
+                    return widget === CustomFilter.widget.Range ?
                         this.dateFilterWithRange(filter, idx, requiredDateObject, false)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, false);
                 default:
@@ -233,8 +231,8 @@ class CustomFilters extends AbstractComponent {
     render() {
         this._invokeCallbacks();
         return (<View>
-                {this.renderConceptFilters(_.filter(this.props.filters, filter => filter.type === 'Concept'))}
-                {this.renderOtherFilters(_.filter(this.props.filters, filter => filter.type !== 'Concept'))}
+                {this.renderConceptFilters(_.filter(this.props.filters, filter => filter.type === CustomFilter.type.Concept))}
+                {this.renderOtherFilters(_.filter(this.props.filters, filter => filter.type !== CustomFilter.type.Concept))}
             </View>
         )
 

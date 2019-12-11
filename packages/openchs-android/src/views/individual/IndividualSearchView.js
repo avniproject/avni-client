@@ -1,4 +1,4 @@
-import {Button, View, Text, TouchableOpacity, KeyboardAvoidingView} from "react-native";
+import {View, Text, TouchableOpacity, KeyboardAvoidingView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -12,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel} from 'avni-models';
+import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel, CustomFilter} from 'avni-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -61,8 +61,9 @@ class IndividualSearchView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
-        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters('searchFilters', this.state.searchCriteria.subjectType.uuid);
-        const codedCustomFilters = this.customFilterService.getCodedConceptFilters('searchFilters', this.state.searchCriteria.subjectType.uuid);
+        const filterScreenName = 'searchFilters';
+        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, this.state.searchCriteria.subjectType.uuid);
+        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, this.state.searchCriteria.subjectType.uuid);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -79,38 +80,40 @@ class IndividualSearchView extends AbstractComponent {
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                         }
                         <Separator height={25} backgroundColor={Styles.whiteColor}/>
-                        <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
-                                         element={new StaticFormElement('name')}
-                                         style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.name)} multiline={false}/>
-                        {this.state.searchCriteria.subjectType.isIndividual() ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, this.state.searchCriteria.subjectType.uuid) ?
+                            <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
+                                             element={new StaticFormElement('name')}
+                                             style={Styles.simpleTextFormElement}
+                                             value={new PrimitiveValue(this.state.searchCriteria.name)}
+                                             multiline={false}/> : null}
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, this.state.searchCriteria.subjectType.uuid) ?
                             <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
                                              element={new StaticFormElement('age')}
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.age)}
                                              multiline={false}/> : null}
-                        {this.state.searchCriteria.subjectType.isIndividual() ?
-                            <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
-                                             element={new StaticFormElement('obsKeyword')}
-                                             style={Styles.simpleTextFormElement}
-                                             value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
-                                             multiline={false}/> : null}
+                        <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
+                                         element={new StaticFormElement('obsKeyword')}
+                                         style={Styles.simpleTextFormElement}
+                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
+                                         multiline={false}/>
                         {!_.isEmpty(nonCodedCustomFilters) ?
                             <CustomFilters filters={nonCodedCustomFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                             /> : null}
-                        {this.customFilterService.displayGenderFilter() && this.state.searchCriteria.subjectType.isIndividual() ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.searchCriteria.subjectType.uuid) ?
                             <GenderFilter
                                 selectedGenders={this.state.selectedGenders}
                                 onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
                             /> : null}
-                        <AddressLevels
-                            key={this.state.key}
-                            onSelect={(addressLevelState) =>
-                                this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState.lowestSelectedAddresses})
-                            }
-                            multiSelect={true}/>
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.searchCriteria.subjectType.uuid) ?
+                            <AddressLevels
+                                key={this.state.key}
+                                onSelect={(addressLevelState) =>
+                                    this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState.lowestSelectedAddresses})
+                                }
+                                multiSelect={true}/> : null}
                         <CheckBoxFormElement
                             label={this.I18n.t("includeVoided")}
                             checkBoxText={this.I18n.t("yes")}
