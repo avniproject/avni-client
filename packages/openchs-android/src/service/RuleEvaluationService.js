@@ -31,7 +31,7 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import {FormElementStatusBuilder} from "rules-config";
+import {FormElementStatusBuilder, VisitScheduleBuilder} from "rules-config";
 import lodash from "lodash";
 import moment from "moment";
 
@@ -252,17 +252,35 @@ class RuleEvaluationService extends BaseService {
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
-        const defaultVistSchedule = [];
+        const defaultVisitSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
-        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
-            .reduce((schedule, rule) => {
-                General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
-                return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig)
-            }, scheduledVisits);
-        General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
-        return nextVisits;
+        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
+        if (_.isEmpty(ruleItemsFromTheBundle)) {
+            if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
+                try {
+                    const ruleFunc = eval(form.visitScheduleRule);
+                    const nextVisits = ruleFunc({
+                        params: {visitSchedule: scheduledVisits, entity},
+                        imports: {VisitScheduleBuilder: VisitScheduleBuilder}
+                    });
+                    return nextVisits;
+                } catch (e) {
+                    General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
+                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
+                }
+            }
+        } else {
+            const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
+                .reduce((schedule, rule) => {
+                    General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
+                    return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig);
+                }, scheduledVisits);
+            General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
+            return nextVisits;
+        }
+        return defaultVisitSchedule;
     }
 
     getChecklists(entity, entityName, defaultChecklists = []) {
