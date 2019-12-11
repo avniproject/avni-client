@@ -245,37 +245,31 @@ class RuleEvaluationService extends BaseService {
     validateAgainstRule(entity, form, entityName) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
-        const validationErrors = this.getAllRuleItemsFor(form, "Validation", "Form")
-
-        // if (_.isEmpty(validationErrors)) {
-        if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
-            try {
-                console.log("******* AT THE START *******");
-                const ruleFunc = eval(form.validationRule);
-                return ruleFunc({
-                    params: { entity },
-                    imports: { common, lodash, moment }
-                });
-
-            } catch (e) {
-                console.log("CATCH****")
-                console.log(e);
-                General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
-                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
+        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
+        if (_.isEmpty(ruleItemsFromTheBundle)) {
+            if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
+                try {
+                    const ruleFunc = eval(form.validationRule);
+                    return ruleFunc({
+                        params: { entity },
+                        imports: { common, lodash, moment }
+                    });
+                } catch (e) {
+                    console.log(e);
+                    General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
+                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
+                }
             }
-
-            return defaultValidationErrors;
         }
-        // }
         else {
-            validationErrors.reduce(
+            const validationErrors = this.getAllRuleItemsFor(form, "Validation", "Form").reduce(
                 (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
                 defaultValidationErrors
             );
             General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
             return validationErrors;
         }
-
+        return defaultValidationErrors;
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
