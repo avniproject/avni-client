@@ -32,6 +32,7 @@ import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
 import {FormElementStatusBuilder, VisitScheduleBuilder} from "rules-config";
+import * as rulesConfig from "rules-config";
 import lodash from "lodash";
 import moment from "moment";
 
@@ -226,7 +227,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
                 params: {summaries: [], programEnrolment: enrolment},
-                imports: {}
+                imports: {rulesConfig, common, lodash, moment}
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
             const summaryObservations = _.map(summaries, (summary) => {
@@ -263,7 +264,7 @@ class RuleEvaluationService extends BaseService {
                     const ruleFunc = eval(form.visitScheduleRule);
                     const nextVisits = ruleFunc({
                         params: {visitSchedule: scheduledVisits, entity},
-                        imports: {VisitScheduleBuilder: VisitScheduleBuilder}
+                        imports: {rulesConfig, common, lodash, moment}
                     });
                     return nextVisits;
                 } catch (e) {
@@ -310,7 +311,7 @@ class RuleEvaluationService extends BaseService {
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
                             params: {formElement, entity},
-                            imports: {FormElementStatusBuilder, FormElementStatus, common, lodash, moment}
+                            imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
