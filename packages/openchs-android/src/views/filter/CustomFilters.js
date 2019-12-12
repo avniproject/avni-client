@@ -183,7 +183,7 @@ class CustomFilters extends AbstractComponent {
     numericConceptFilter(concept, filter, idx, props, value) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
-            {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9]/g, '')}, filter))}
+            {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9.]/g, '')}, filter))}
         </View>, idx)
     }
 
@@ -200,9 +200,9 @@ class CustomFilters extends AbstractComponent {
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
             <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
                 <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('between')}</Text>
-                {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9]/g, '')}, filter))}
+                {this.numericInput(props, value && value.minValue, (value) => this.onNumericChange({minValue: value.replace(/[^0-9.]/g, '')}, filter))}
                 <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('and')}</Text>
-                {this.numericInput(props, value && value.maxValue, (value) => this.onNumericChange({maxValue: value.replace(/[^0-9]/g, '')}, filter))}
+                {this.numericInput(props, value && value.maxValue, (value) => this.onNumericChange({maxValue: value.replace(/[^0-9.]/g, '')}, filter))}
             </View>
         </View>, idx)
     }
