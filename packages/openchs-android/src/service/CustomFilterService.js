@@ -157,7 +157,7 @@ class CustomFilterService extends BaseService {
 
     otherDateFilter(selectedOptions, widget, queryColumn) {
         const {minValue, maxValue} = _.head(selectedOptions);
-        const realmFormatDate = (value, time) => value.replace('T01:00:00Z', time);
+        const realmFormatDate = (value, time) => value.split('T')[0] + time;
         if (widget === CustomFilter.widget.Range) {
             return () => ` ${queryColumn} >= ${realmFormatDate(minValue, '@00:00:00')} &&  ${queryColumn} <= ${realmFormatDate(maxValue, '@23:59:59')} `;
         } else {
