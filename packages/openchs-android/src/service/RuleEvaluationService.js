@@ -96,7 +96,7 @@ class RuleEvaluationService extends BaseService {
                 trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
             });
             return trimmedDecisions;
-        }
+        };
 
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Decision", "Form");
@@ -108,7 +108,7 @@ class RuleEvaluationService extends BaseService {
                     const ruleFunc = eval(form.decisionRule);
                     const ruleDecisions = ruleFunc({
                         params: {decisions: defaultDecisions, entity},
-                        imports: {ComplicationsBuilder}
+                        imports: {rulesConfig, common, lodash, moment}
                     });
                     const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
                     const trimmedDecisions = trimDecisionsMap(decisionsMap);
