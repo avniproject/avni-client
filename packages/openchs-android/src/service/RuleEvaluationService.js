@@ -280,7 +280,7 @@ class RuleEvaluationService extends BaseService {
                     const ruleFunc = eval(form.validationRule);
                     return ruleFunc({
                         params: { entity },
-                        imports: { common, lodash, moment }
+                        imports: { rulesConfig, common, lodash, moment }
                     });
                 } catch (e) {
                     console.log(e);
@@ -290,7 +290,7 @@ class RuleEvaluationService extends BaseService {
             }
         }
         else {
-            const validationErrors = this.getAllRuleItemsFor(form, "Validation", "Form").reduce(
+            const validationErrors = ruleItemsFromTheBundle.reduce(
                 (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
                 defaultValidationErrors
             );
