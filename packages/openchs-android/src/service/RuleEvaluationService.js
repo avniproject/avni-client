@@ -19,7 +19,8 @@ import {
     individualRegistrationDecision,
     programEncounterDecision,
     programEnrolmentDecision,
-    RuleRegistry
+    RuleRegistry,
+    common
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
@@ -30,7 +31,10 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import {FormElementStatusBuilder, complicationsBuilder as ComplicationsBuilder} from "rules-config";
+import {FormElementStatusBuilder, VisitScheduleBuilder, complicationsBuilder as ComplicationsBuilder} from "rules-config";
+import * as rulesConfig from "rules-config";
+import lodash from "lodash";
+import moment from "moment";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -250,7 +254,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
                 params: {summaries: [], programEnrolment: enrolment},
-                imports: {}
+                imports: {rulesConfig, common, lodash, moment}
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
             const summaryObservations = _.map(summaries, (summary) => {
@@ -276,17 +280,35 @@ class RuleEvaluationService extends BaseService {
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
-        const defaultVistSchedule = [];
+        const defaultVisitSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
-        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
-            .reduce((schedule, rule) => {
-                General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
-                return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig)
-            }, scheduledVisits);
-        General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
-        return nextVisits;
+        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
+        if (_.isEmpty(ruleItemsFromTheBundle)) {
+            if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
+                try {
+                    const ruleFunc = eval(form.visitScheduleRule);
+                    const nextVisits = ruleFunc({
+                        params: {visitSchedule: scheduledVisits, entity},
+                        imports: {rulesConfig, common, lodash, moment}
+                    });
+                    return nextVisits;
+                } catch (e) {
+                    General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
+                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
+                }
+            }
+        } else {
+            const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
+                .reduce((schedule, rule) => {
+                    General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
+                    return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig);
+                }, scheduledVisits);
+            General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
+            return nextVisits;
+        }
+        return defaultVisitSchedule;
     }
 
     getChecklists(entity, entityName, defaultChecklists = []) {
@@ -316,7 +338,7 @@ class RuleEvaluationService extends BaseService {
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
                             params: {formElement, entity},
-                            imports: {FormElementStatusBuilder, FormElementStatus}
+                            imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);

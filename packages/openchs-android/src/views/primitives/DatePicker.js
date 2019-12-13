@@ -18,13 +18,14 @@ class DatePicker extends AbstractComponent {
         datePickerMode: PropTypes.string,
         actionObject: PropTypes.object.isRequired,
         pickTime: PropTypes.bool,
-        nonRemovable: PropTypes.bool
+        nonRemovable: PropTypes.bool,
+        noDateMessageKey: PropTypes.string
     };
 
     constructor(props, context) {
         super(props, context);
         this.pickTime = _.isBoolean(props.pickTime) ? props.pickTime : false;
-        this.noDateMessageKey = this.pickTime ? "chooseDateAndTime" : "chooseADate";
+        this.noDateMessageKey = this.props.noDateMessageKey || (this.pickTime ? "chooseDateAndTime" : "chooseADate");
         this.showTimePicker = this.showTimePicker.bind(this);
     }
 

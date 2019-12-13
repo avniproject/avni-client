@@ -56,7 +56,7 @@
     "lastName": "Last Name",
     "value": "Value",
     "age": "Age",
-    "obsKeyword": "Other data",
+    "obsKeyword": "Search (Registration and Enrolment fields)",
     "lowestAddressLevel": "Village",
     "search": "Search",
     "register": "Register",
@@ -288,6 +288,12 @@
     "beneficiaryNotFound": "Unable to identify",
     "beneficiaryNotFoundMessage": "Unable to find a record with the given identification details.",
     "moreThanOneBeneficiary": "More than one beneficiary",
-    "moreThanOneBeneficiaryMessage": "More than one record found with the given identification details."
+    "moreThanOneBeneficiaryMessage": "More than one record found with the given identification details.",
+    "between": "Between ",
+    "and": " And ",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "startDateAndTime": "Start date and time",
+    "endDateAndTime": "End date and time"
   }
 }
