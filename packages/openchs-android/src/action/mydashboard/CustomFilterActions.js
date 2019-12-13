@@ -57,33 +57,11 @@ class CustomFilterActions {
     }
 
     static onMinDateFilterSelect(state, action) {
-        const {titleKey, subjectTypeUUID, value} = action;
-        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
-        const minDate = value;
-        const newState = _.isNil(minDate) ? {} : {
-            ...prevValue,
-            subjectTypeUUID,
-            minDate,
-            minValue: minDate && moment(minDate, "YYYY-MM-DDTHH:mm:ss").utc().format(),
-            dateType: true
-        };
-        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
-        return {...state, selectedCustomFilters};
+        return CustomFilterActions.dateRangeState(action, state, 'minDate', 'minValue');
     }
 
     static onMaxDateFilterSelect(state, action) {
-        const {titleKey, subjectTypeUUID, value} = action;
-        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
-        const maxDate = value;
-        const newState = _.isNil(maxDate) ? {} : {
-            ...prevValue,
-            subjectTypeUUID,
-            maxDate,
-            maxValue: maxDate && moment(maxDate, "YYYY-MM-DDTHH:mm:ss").utc().format(),
-            dateType: true
-        };
-        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
-        return {...state, selectedCustomFilters};
+        return CustomFilterActions.dateRangeState(action, state, 'maxDate', 'maxValue');
     }
 
     static onMinTimeSelect(state, action) {
@@ -92,6 +70,20 @@ class CustomFilterActions {
 
     static onMaxTimeSelect(state, action) {
         return CustomFilterActions.timeRangeState(action, state, 'maxValue');
+    }
+
+    static dateRangeState(action, state, dateKey, dateValueKey) {
+        const {titleKey, subjectTypeUUID, value} = action;
+        const prevValue = _.head(state.selectedCustomFilters[titleKey]);
+        const newState = _.isNil(value) ? {} : {
+            ...prevValue,
+            subjectTypeUUID,
+            [dateKey]: value,
+            [dateValueKey]: value && moment(value, "YYYY-MM-DDTHH:mm:ss").utc().format(),
+            dateType: true
+        };
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        return {...state, selectedCustomFilters};
     }
 
     static timeRangeState(action, state, timeValue) {
