@@ -394,7 +394,6 @@ class RuleEvaluationService extends BaseService {
     }
 
     isEligibleForProgram(individual, program) {
-        const eligibalForProgram = [];
         const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
         if (_.isEmpty(applicableRules)) {
             if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
@@ -402,20 +401,20 @@ class RuleEvaluationService extends BaseService {
                     const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                     return ruleFunc({
                         params: { entity: individual },
-                        imports: { common, lodash, moment }
+                        imports: { rulesConfig, common, lodash, moment }
                     });
                 }
                 catch (e) {
-                    console.log(e);
+                    General.logDebug("Rule-Failure", e);
                     General.logDebug("Rule-Failure", `New enrolment eligibility failed for: ${program.name} program name`);
                     this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
                 }
             }
-            return eligibalForProgram;
         }
         else {
             return this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', { individual }, true);
         }
+        return true;
     }
 
     runOnAll(rulesToRun) {
