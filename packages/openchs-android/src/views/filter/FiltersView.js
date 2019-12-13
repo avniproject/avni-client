@@ -103,24 +103,26 @@ class FilterView extends AbstractComponent {
     }
 
     onApply() {
-        this.dispatchAction(this.props.actionName, {
-            filters: this.state.filters,
-            locationSearchCriteria: this.state.locationSearchCriteria,
-            addressLevelState: this.state.addressLevelState,
-            selectedLocations: this.state.addressLevelState.selectedAddresses,
-            filterDate: this.state.filterDate.value,
-            programs: this.state.programs,
-            selectedPrograms: this.state.selectedPrograms,
-            encounterTypes: this.state.encounterTypes,
-            selectedEncounterTypes: this.state.selectedEncounterTypes,
-            generalEncounterTypes: this.state.generalEncounterTypes,
-            selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
-            listType: this.props.listType,
-            selectedSubjectType: this.state.selectedSubjectType,
-            selectedCustomFilters: this.state.selectedCustomFilters,
-            selectedGenders: this.state.selectedGenders,
-        });
-        this.goBack();
+        if (this.customFilterService.errorNotPresent('myDashboardFilters', this.state.selectedSubjectType.uuid)) {
+            this.dispatchAction(this.props.actionName, {
+                filters: this.state.filters,
+                locationSearchCriteria: this.state.locationSearchCriteria,
+                addressLevelState: this.state.addressLevelState,
+                selectedLocations: this.state.addressLevelState.selectedAddresses,
+                filterDate: this.state.filterDate.value,
+                programs: this.state.programs,
+                selectedPrograms: this.state.selectedPrograms,
+                encounterTypes: this.state.encounterTypes,
+                selectedEncounterTypes: this.state.selectedEncounterTypes,
+                generalEncounterTypes: this.state.generalEncounterTypes,
+                selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
+                listType: this.props.listType,
+                selectedSubjectType: this.state.selectedSubjectType,
+                selectedCustomFilters: this.state.selectedCustomFilters,
+                selectedGenders: this.state.selectedGenders,
+            });
+            this.goBack();
+        }
     }
 
     onHardwareBackPress() {
@@ -241,13 +243,13 @@ class FilterView extends AbstractComponent {
                             {this.renderEncounterGroup()}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
                                 <AddressLevels
-                                addressLevelState={this.state.addressLevelState}
-                                onSelect={(addressLevelState) => {
-                                    this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
-                                        addressLevelState: addressLevelState
-                                    })
-                                }}
-                                multiSelect={true}/> : null}
+                                    addressLevelState={this.state.addressLevelState}
+                                    onSelect={(addressLevelState) => {
+                                        this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
+                                            addressLevelState: addressLevelState
+                                        })
+                                    }}
+                                    multiSelect={true}/> : null}
                             {!_.isEmpty(codedCustomFilters) ?
                                 <CustomFilters filters={codedCustomFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}

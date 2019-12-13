@@ -48,13 +48,15 @@ class IndividualSearchView extends AbstractComponent {
 
 
     searchIndividual() {
-        this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
-            cb: (individualSearchResults, count) => TypedTransition.from(this).with({
-                searchResults: individualSearchResults,
-                totalSearchResultsCount: count,
-                onIndividualSelection: this.props.onIndividualSelection
-            }).to(IndividualSearchResultsView, true)
-        });
+        if (this.customFilterService.errorNotPresent(this.state.selectedCustomFilters, this.state.searchCriteria.subjectType.uuid)) {
+            this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
+                cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+                    searchResults: individualSearchResults,
+                    totalSearchResultsCount: count,
+                    onIndividualSelection: this.props.onIndividualSelection
+                }).to(IndividualSearchResultsView, true)
+            });
+        }
     }
 
     render() {
@@ -92,11 +94,12 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.age)}
                                              multiline={false}/> : null}
-                        <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
-                                         element={new StaticFormElement('obsKeyword')}
-                                         style={Styles.simpleTextFormElement}
-                                         value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
-                                         multiline={false}/>
+                        {(_.isEmpty(this.customFilterService.getSearchFilters()) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
+                            <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
+                                             element={new StaticFormElement('searchAll')}
+                                             style={Styles.simpleTextFormElement}
+                                             value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
+                                             multiline={false}/> : null}
                         {!_.isEmpty(nonCodedCustomFilters) ?
                             <CustomFilters filters={nonCodedCustomFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}

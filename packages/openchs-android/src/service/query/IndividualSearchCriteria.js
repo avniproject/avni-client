@@ -81,6 +81,10 @@ class IndividualSearchCriteria {
         this.genders = genders;
     }
 
+    addCustomFilters(filters){
+        this.selectedCustomFilters = filters;
+    }
+
     addSubjectTypeCriteria(subjectType) {
         this.subjectType = subjectType;
     }
@@ -114,6 +118,8 @@ class IndividualSearchCriteria {
         individualSearchCriteria.obsKeyword = this.obsKeyword;
         individualSearchCriteria.includeVoided = this.includeVoided;
         individualSearchCriteria.subjectType = this.subjectType;
+        individualSearchCriteria.genders = this.genders;
+        individualSearchCriteria.selectedCustomFilters = this.selectedCustomFilters;
         return individualSearchCriteria;
     }
 }

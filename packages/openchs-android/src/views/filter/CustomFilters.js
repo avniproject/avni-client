@@ -15,6 +15,8 @@ import Colors from '../primitives/Colors';
 import {Text} from "native-base";
 import DatePicker from "../primitives/DatePicker";
 import TimePicker from "../primitives/TimePicker";
+import moment from "moment";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 class CustomFilters extends AbstractComponent {
 
@@ -94,7 +96,7 @@ class CustomFilters extends AbstractComponent {
                         this.dateFilterWithRange(filter, idx, requiredDateObject, false)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, false);
                 default:
-                    return <View/>
+                    return <View key={idx}/>
             }
         })
     };
@@ -102,7 +104,10 @@ class CustomFilters extends AbstractComponent {
     timeConceptFilter(filter, idx, timeObject) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
-            {this.timeInput({ ...timeObject, value: timeObject.minValue}, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
+            {this.timeInput({
+                ...timeObject,
+                value: timeObject.minValue
+            }, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
         </View>, idx)
     }
 
@@ -111,9 +116,15 @@ class CustomFilters extends AbstractComponent {
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
             <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
                 <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
-                {this.timeInput({ ...timeObject, value: timeObject.minValue}, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
+                {this.timeInput({
+                    ...timeObject,
+                    value: timeObject.minValue
+                }, CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT)}
                 <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
-                {this.timeInput({ ...timeObject, value: timeObject.maxValue}, CustomFilterNames.ON_MAX_TIME_CUSTOM_FILTER_SELECT)}
+                {this.timeInput({
+                    ...timeObject,
+                    value: timeObject.maxValue
+                }, CustomFilterNames.ON_MAX_TIME_CUSTOM_FILTER_SELECT)}
             </View>
         </View>, idx)
     }
@@ -134,6 +145,18 @@ class CustomFilters extends AbstractComponent {
         </View>, idx)
     }
 
+    dateMismatchError({minDate, maxDate}) {
+        return moment(minDate).isSameOrBefore(maxDate) ? null : {messageKey: 'startDateGreaterThanEndError'};
+    }
+
+    dateNotPresentError({minDate, maxDate}) {
+        return (minDate && _.isNil(maxDate)) || (maxDate && _.isNil(minDate)) ? {messageKey: 'bothDateShouldBeSelectedError'} : null;
+    }
+
+    dateValidationError(dateObject) {
+        return this.dateNotPresentError(dateObject) || this.dateMismatchError(dateObject);
+    }
+
     dateFilterWithRange(filter, idx, dateObject, pickTime) {
         return this.wrap(<View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
             <Text style={Styles.formLabel}>{this.I18n.t(filter.titleKey)}</Text>
@@ -141,15 +164,18 @@ class CustomFilters extends AbstractComponent {
                 <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
                 {this.dateInput({
                     ...dateObject,
-                    value: dateObject.minDate
+                    value: dateObject.minDate,
+                    validationCb: (dateObject) => this.dateValidationError(dateObject)
                 }, pickTime, CustomFilterNames.ON_MIN_DATE_CUSTOM_FILTER_SELECT, 'startDate', true)}
                 <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
                 {this.dateInput({
                     ...dateObject,
                     value: dateObject.maxDate,
-                    isMaxDate: true
+                    isMaxDate: true,
+                    validationCb: (dateObject) => this.dateValidationError(dateObject)
                 }, pickTime, CustomFilterNames.ON_MAX_DATE_CUSTOM_FILTER_SELECT, 'endDate')}
             </View>
+            <ValidationErrorMessage validationResult={this.dateValidationError(dateObject)}/>
         </View>, idx)
     }
 

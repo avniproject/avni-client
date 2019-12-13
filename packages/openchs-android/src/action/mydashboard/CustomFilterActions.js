@@ -73,7 +73,7 @@ class CustomFilterActions {
     }
 
     static dateRangeState(action, state, dateKey, dateValueKey) {
-        const {titleKey, subjectTypeUUID, value} = action;
+        const {titleKey, subjectTypeUUID, value, validationCb} = action;
         const prevValue = _.head(state.selectedCustomFilters[titleKey]);
         const newState = _.isNil(value) ? {} : {
             ...prevValue,
@@ -82,7 +82,9 @@ class CustomFilterActions {
             [dateValueKey]: value && moment(value, "YYYY-MM-DDTHH:mm:ss").utc().format(),
             dateType: true
         };
-        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [newState]};
+        const validationError = validationCb(newState);
+        const stateWithError = {...newState, validationError};
+        const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [stateWithError]};
         return {...state, selectedCustomFilters};
     }
 

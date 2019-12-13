@@ -71,6 +71,11 @@ class CustomFilterService extends BaseService {
         return !_.isEmpty(_.filter(this.getFiltersByType(filterName, type), f => f.subjectTypeUUID === subjectTypeUUID));
     }
 
+    errorNotPresent(filters, subjectTypeUUID) {
+        const filterWithError = _.filter(_.values(filters), filterArray => !_.isEmpty(_.filter(filterArray, f => f.subjectTypeUUID === subjectTypeUUID && !_.isEmpty(f.validationError))));
+        return _.isEmpty(filterWithError);
+    }
+
     getNonCodedConceptFilters(filterName, subjectTypeUUID) {
         const conceptService = this.getService(ConceptService);
         return this.getFiltersByType(filterName, CustomFilter.type.Concept)
