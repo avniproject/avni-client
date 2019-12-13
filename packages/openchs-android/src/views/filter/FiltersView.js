@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'avni-models';
+import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType, CustomFilter} from 'avni-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -204,9 +204,10 @@ class FilterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
+        const filterScreenName = 'myDashboardFilters';
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
-        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters('myDashboardFilters', this.state.selectedSubjectType.uuid);
-        const codedCustomFilters = this.customFilterService.getCodedConceptFilters('myDashboardFilters', this.state.selectedSubjectType.uuid);
+        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
+        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
@@ -232,20 +233,21 @@ class FilterView extends AbstractComponent {
                                                selectedCustomFilters={this.props.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                 /> : null}
-                            {this.customFilterService.displayGenderFilter() && this.state.selectedSubjectType.isIndividual() ?
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.selectedSubjectType.uuid) ?
                                 <GenderFilter selectedGenders={this.props.selectedGenders}
                                               onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
                                 /> : null}
                             {this.renderProgramEncounterGroup()}
                             {this.renderEncounterGroup()}
-                            <AddressLevels
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
+                                <AddressLevels
                                 addressLevelState={this.state.addressLevelState}
                                 onSelect={(addressLevelState) => {
                                     this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
                                         addressLevelState: addressLevelState
                                     })
                                 }}
-                                multiSelect={true}/>
+                                multiSelect={true}/> : null}
                             {!_.isEmpty(codedCustomFilters) ?
                                 <CustomFilters filters={codedCustomFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}

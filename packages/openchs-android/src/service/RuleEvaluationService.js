@@ -31,7 +31,8 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import { FormElementStatusBuilder } from "rules-config";
+import {FormElementStatusBuilder, VisitScheduleBuilder, complicationsBuilder as ComplicationsBuilder} from "rules-config";
+import * as rulesConfig from "rules-config";
 import lodash from "lodash";
 import moment from "moment";
 
@@ -89,35 +90,62 @@ class RuleEvaluationService extends BaseService {
             "encounterDecisions": [],
             "registrationDecisions": []
         };
+        const trimDecisionsMap = (decisionsMap) => {
+            const trimmedDecisions = {};
+            _.forEach(decisionsMap, (decisions, decisionType) => {
+                trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
+            });
+            return trimmedDecisions;
+        };
+
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
-        const decisionsMap = this.getAllRuleItemsFor(form, "Decision", "Form")
-            .reduce((decisions, rule) => {
+        const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Decision", "Form");
+
+        if (_.isEmpty(rulesFromTheBundle)) {
+            if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
+                const individualUUID = this.getIndividualUUID(entity, entityName);
+                try {
+                    const ruleFunc = eval(form.decisionRule);
+                    const ruleDecisions = ruleFunc({
+                        params: {decisions: defaultDecisions, entity},
+                        imports: {rulesConfig, common, lodash, moment}
+                    });
+                    const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
+                    const trimmedDecisions = trimDecisionsMap(decisionsMap);
+                    General.logDebug("RuleEvaluationService", trimmedDecisions);
+                    return trimmedDecisions;
+                } catch (e) {
+                    console.log(`form.uuid: ${form.uuid} entityName: ${entityName}`);
+                    this.saveFailedRules(e, form.uuid, individualUUID);
+                }
+            }
+        } else {
+            const decisionsMap = rulesFromTheBundle.reduce((decisions, rule) => {
                 const d = this.runRuleAndSaveFailure(rule, entityName, entity, decisions, new Date(), context);
                 return this.validateDecisions(d, rule.uuid, this.getIndividualUUID(entity, entityName));
             }, defaultDecisions);
-        const trimmedDecisions = {};
-        _.forEach(decisionsMap, (decisions, decisionType) => {
-            trimmedDecisions[decisionType] = _.reject(decisions, _.isEmpty);
-        });
-        General.logDebug("RuleEvaluationService", trimmedDecisions);
-        return trimmedDecisions;
+            const trimmedDecisions = trimDecisionsMap(decisionsMap);
+            General.logDebug("RuleEvaluationService", trimmedDecisions);
+            return trimmedDecisions;
+        }
+        return defaultDecisions;
     }
 
     //this is required because we check for the concept name after generating decisions
-    validateDecisions(d, ruleUUID, individualUUID) {
-        return _.merge(..._.map(d, (decisions, decisionType) => {
+    validateDecisions(decisionsMap, ruleUUID, individualUUID) {
+        return _.merge(..._.map(decisionsMap, (decisions, decisionType) => {
             return {
-                [decisionType]: decisions.filter(obj => this.checkConceptForRule(obj.name, ruleUUID, individualUUID))
-                    .map(obj => this.filterValues(obj, ruleUUID, individualUUID))
-
+                [decisionType]: decisions
+                    .filter(decision => this.checkConceptForRule(decision.name, ruleUUID, individualUUID))
+                    .map(decision => this.filterValues(decision, ruleUUID, individualUUID))
             }
         }));
     }
 
-    filterValues(object, ruleUUID, individualUUID) {
-        const nameConcept = this.conceptService.findConcept(object.name);
-        object.value = nameConcept.datatype !== 'Coded' ? object.value : object.value.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
-        return object;
+    filterValues(decision, ruleUUID, individualUUID) {
+        const nameConcept = this.conceptService.findConcept(decision.name);
+        decision.value = nameConcept.datatype !== 'Coded' ? decision.value : decision.value.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
+        return decision;
     }
 
     checkConceptForRule(conceptName, ruleUUID, individualUUID) {
@@ -225,8 +253,8 @@ class RuleEvaluationService extends BaseService {
         try {
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
-                params: { summaries: [], programEnrolment: enrolment },
-                imports: {}
+                params: {summaries: [], programEnrolment: enrolment},
+                imports: {rulesConfig, common, lodash, moment}
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
             const summaryObservations = _.map(summaries, (summary) => {
@@ -273,17 +301,35 @@ class RuleEvaluationService extends BaseService {
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
-        const defaultVistSchedule = [];
+        const defaultVisitSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
-        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVistSchedule;
+        if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
-            .reduce((schedule, rule) => {
-                General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
-                return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig)
-            }, scheduledVisits);
-        General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
-        return nextVisits;
+        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
+        if (_.isEmpty(ruleItemsFromTheBundle)) {
+            if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
+                try {
+                    const ruleFunc = eval(form.visitScheduleRule);
+                    const nextVisits = ruleFunc({
+                        params: {visitSchedule: scheduledVisits, entity},
+                        imports: {rulesConfig, common, lodash, moment}
+                    });
+                    return nextVisits;
+                } catch (e) {
+                    General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
+                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
+                }
+            }
+        } else {
+            const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
+                .reduce((schedule, rule) => {
+                    General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
+                    return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig);
+                }, scheduledVisits);
+            General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
+            return nextVisits;
+        }
+        return defaultVisitSchedule;
     }
 
     getChecklists(entity, entityName, defaultChecklists = []) {
@@ -312,8 +358,8 @@ class RuleEvaluationService extends BaseService {
                     try {
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
-                            params: { formElement, entity },
-                            imports: { FormElementStatusBuilder, FormElementStatus, common, lodash, moment }
+                            params: {formElement, entity},
+                            imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
