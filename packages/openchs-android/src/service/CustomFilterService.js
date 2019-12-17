@@ -51,8 +51,8 @@ class CustomFilterService extends BaseService {
         return this.getSearchFilters().map(filter => filter.titleKey)
     }
 
-    getSearchFilters() {
-        return this.getSettings() && this.getSettings().searchFilters || [];
+    getSearchFilters(subjectTypeUUID) {
+        return this.getSettings() && this.getSettings().searchFilters.filter(f => f.subjectTypeUUID === subjectTypeUUID) || [];
     }
 
     isSearchFiltersEmpty(filters) {
