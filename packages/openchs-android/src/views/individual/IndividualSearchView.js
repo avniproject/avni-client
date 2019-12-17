@@ -64,8 +64,9 @@ class IndividualSearchView extends AbstractComponent {
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
         const filterScreenName = 'searchFilters';
-        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, this.state.searchCriteria.subjectType.uuid);
-        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, this.state.searchCriteria.subjectType.uuid);
+        const subjectTypeUUID = this.state.searchCriteria.subjectType.uuid;
+        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, subjectTypeUUID);
+        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, subjectTypeUUID);
         return (
             <CHSContainer>
                 <CHSContent>
@@ -82,19 +83,19 @@ class IndividualSearchView extends AbstractComponent {
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                         }
                         <Separator height={25} backgroundColor={Styles.whiteColor}/>
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, this.state.searchCriteria.subjectType.uuid) ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, subjectTypeUUID) ?
                             <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
                                              element={new StaticFormElement('name')}
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.name)}
                                              multiline={false}/> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, this.state.searchCriteria.subjectType.uuid) ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, subjectTypeUUID) ?
                             <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
                                              element={new StaticFormElement('age')}
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.age)}
                                              multiline={false}/> : null}
-                        {(_.isEmpty(this.customFilterService.getSearchFilters()) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
+                        {(_.isEmpty(this.customFilterService.getSearchFilters(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
                             <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                              element={new StaticFormElement('searchAll')}
                                              style={Styles.simpleTextFormElement}
@@ -105,12 +106,12 @@ class IndividualSearchView extends AbstractComponent {
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                             /> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.searchCriteria.subjectType.uuid) ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) ?
                             <GenderFilter
                                 selectedGenders={this.state.selectedGenders}
                                 onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
                             /> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.searchCriteria.subjectType.uuid) ?
+                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) ?
                             <AddressLevels
                                 key={this.state.key}
                                 onSelect={(addressLevelState) =>
