@@ -95,7 +95,7 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.age)}
                                              multiline={false}/> : null}
-                        {(_.isEmpty(this.customFilterService.getSearchFilters(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
+                        {(_.isEmpty(this.customFilterService.getSearchFilterBySubjectType(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
                             <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
                                              element={new StaticFormElement('searchAll')}
                                              style={Styles.simpleTextFormElement}
