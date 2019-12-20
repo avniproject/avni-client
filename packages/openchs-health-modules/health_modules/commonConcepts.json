@@ -2584,6 +2584,162 @@
     "name": "Anaemia",
     "uuid": "43ea47d8-8c92-4564-a9df-eee28191f85c",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "Labour",
+    "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088",
+    "dataType":"NA"
+  },
+  {
+    "name": "Farming",
+    "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21",
+    "dataType":"NA"
+  },
+  {
+    "name": "Business",
+    "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6",
+    "dataType":"NA"
+  },
+  {
+    "name": "Job",
+    "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914",
+    "dataType":"NA"
+  },
+  {
+    "name": "Other",
+    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+    "dataType":"NA"
+  },
+  {
+    "name": "Don't know",
+    "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45",
+    "dataType":"NA"
+  },
+  {
+    "name": "Father's Occupation",
+    "uuid": "fb3214f4-d040-40bc-bd38-883ad5e0cae7",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Labour",
+        "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+      },
+      {
+        "name": "Farming",
+        "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
+      },
+      {
+        "name": "Business",
+        "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
+      },
+      {
+        "name": "Job",
+        "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      },
+      {
+        "name": "Don't know",
+        "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
+      }
+    ]
+  },
+  {
+    "name": "Housework",
+    "uuid": "3e7e80cc-1744-4292-a34f-1beff9dd2316",
+    "dataType":"NA"
+  },
+  {
+    "name": "Labour",
+    "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088",
+    "dataType":"NA"
+  },
+  {
+    "name": "Farming",
+    "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21",
+    "dataType":"NA"
+  },
+  {
+    "name": "Business",
+    "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6",
+    "dataType":"NA"
+  },
+  {
+    "name": "Job",
+    "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914",
+    "dataType":"NA"
+  },
+  {
+    "name": "Other",
+    "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538",
+    "dataType":"NA"
+  },
+  {
+    "name": "Don't know",
+    "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45",
+    "dataType":"NA"
+  },
+  {
+    "name": "Mother's Occupation",
+    "uuid": "dc9882a4-ceff-4dc9-b6fc-3e2ba7e9b197",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Housework",
+        "uuid": "3e7e80cc-1744-4292-a34f-1beff9dd2316"
+      },
+      {
+        "name": "Labour",
+        "uuid": "54eb4ba3-e940-4d36-ba56-d303f066c088"
+      },
+      {
+        "name": "Farming",
+        "uuid": "3767fd62-be7e-4d39-b3ae-05e88d4f5c21"
+      },
+      {
+        "name": "Business",
+        "uuid": "945dc6ea-f049-484a-b333-14acfe1de7e6"
+      },
+      {
+        "name": "Job",
+        "uuid": "4416a93c-38e8-4bc9-b440-00fa79d04914"
+      },
+      {
+        "name": "Other",
+        "uuid": "05ea583c-51d2-412d-ad00-06c432ffe538"
+      },
+      {
+        "name": "Don't know",
+        "uuid": "a032ffce-c9f5-46f8-b89d-f82d5e91fc45"
+      }
+    ]
+  },
+  {
+    "name": "Yes",
+    "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
+    "dataType": "NA"
+  },
+  {
+    "name": "No",
+    "uuid": "e7b50c78-3d90-484d-a224-9887887780dc",
+    "dataType": "NA"
+  },
+  {
+    "name": "Is there any developmental delay or disability seen?",
+    "uuid": "cbcfdd44-dac8-435f-9cd9-35f20db1f367",
+    "dataType": "Coded",
+    "answers": [
+      {
+        "name": "Yes",
+        "uuid": "04bb1773-c353-44a1-a68c-9b448e07ff70",
+        "abnormal": true
+      },
+      {
+        "name": "No",
+        "uuid": "e7b50c78-3d90-484d-a224-9887887780dc"
+      }
+    ]
   }
-
 ]
