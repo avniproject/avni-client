@@ -222,20 +222,20 @@ class RuleEvaluationService extends BaseService {
 
     getEnrolmentSummary(enrolment, entityName = 'ProgramEnrolment', context) {
         const program = enrolment.program;
-        let ruleItemsFromBundle = this.getAllRuleItemsFor(program, "EnrolmentSummary", "Program");
-        if (_.isEmpty(ruleItemsFromBundle)) {
+        let rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentSummary", "Program");
+        if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(program.enrolmentSummaryRule) && !_.isEmpty(_.trim(program.enrolmentSummaryRule))) {
                 return this._getEnrolmentSummaryFromEntityRule(enrolment, entityName);
             }
         } else {
-            return this._getEnrolmentSummaryFromBundledRules(ruleItemsFromBundle, enrolment, entityName, context);
+            return this._getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context);
         }
         return [];
     }
 
-    _getEnrolmentSummaryFromBundledRules(ruleItemsFromBundle, enrolment, entityName, context) {
+    _getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context) {
         const summaries = this.getEnrolmentSummaryFromCore(entityName, enrolment, context);
-        const updatedSummaries = ruleItemsFromBundle
+        const updatedSummaries = rulesFromTheBundle
             .reduce((summaries, rule) => {
                 const s = this.runRuleAndSaveFailure(rule, entityName, enrolment, summaries, new Date(), context);
                 return this.validateSummaries(s, rule.uuid, this.getIndividualUUID(enrolment, entityName));
@@ -273,8 +273,8 @@ class RuleEvaluationService extends BaseService {
     validateAgainstRule(entity, form, entityName) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
-        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
-        if (_.isEmpty(ruleItemsFromTheBundle)) {
+        const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
+        if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
                 try {
                     const ruleFunc = eval(form.validationRule);
@@ -290,7 +290,7 @@ class RuleEvaluationService extends BaseService {
             }
         }
         else {
-            const validationErrors = ruleItemsFromTheBundle.reduce(
+            const validationErrors = rulesFromTheBundle.reduce(
                 (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
                 defaultValidationErrors
             );
@@ -305,8 +305,8 @@ class RuleEvaluationService extends BaseService {
         const form = this.entityFormMap.get(entityName)(entity);
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
-        const ruleItemsFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
-        if (_.isEmpty(ruleItemsFromTheBundle)) {
+        const rulesFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
+        if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
                 try {
                     const ruleFunc = eval(form.visitScheduleRule);
@@ -321,7 +321,7 @@ class RuleEvaluationService extends BaseService {
                 }
             }
         } else {
-            const nextVisits = this.getAllRuleItemsFor(form, "VisitSchedule", "Form")
+            const nextVisits = rulesFromTheBundle
                 .reduce((schedule, rule) => {
                     General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
                     return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig);
@@ -344,10 +344,10 @@ class RuleEvaluationService extends BaseService {
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
-        const allRules = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
+        const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
-        if (_.isEmpty(allRules)) {
+        if (_.isEmpty(rulesFromTheBundle)) {
             const formElementWithRules = formElementGroup
                 .getFormElements()
                 .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
@@ -372,7 +372,7 @@ class RuleEvaluationService extends BaseService {
                 .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
                 .values()];
         }
-        return [...allRules
+        return [...rulesFromTheBundle
             .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
             .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
             .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
@@ -389,8 +389,8 @@ class RuleEvaluationService extends BaseService {
     }
 
     isEligibleForEncounter(individual, encounterType) {
-        const applicableRules = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
-        if (_.isEmpty(applicableRules)) {
+        const rulesFromTheBundle = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
+        if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
                 try {
                     const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
@@ -407,14 +407,14 @@ class RuleEvaluationService extends BaseService {
             }
         }
         else {
-            return this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', { individual }, true);
+            return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
         return true;
     }
 
     isEligibleForProgram(individual, program) {
-        const applicableRules = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
-        if (_.isEmpty(applicableRules)) {
+        const rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
+        if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
                 try {
                     const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
@@ -431,7 +431,7 @@ class RuleEvaluationService extends BaseService {
             }
         }
         else {
-            return this.runRuleAndSaveFailure(_.last(applicableRules), 'Encounter', { individual }, true);
+            return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
         return true;
     }
