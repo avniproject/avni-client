@@ -56,7 +56,8 @@
     "lastName": "Last Name",
     "value": "Value",
     "age": "Age",
-    "obsKeyword": "Search (Registration and Enrolment fields)",
+    "searchAll": "Search (Registration and Enrolment fields)",
+    "obsKeyword": "Other data",
     "lowestAddressLevel": "Village",
     "search": "Search",
     "register": "Register",
@@ -294,6 +295,8 @@
     "startDate": "Start date",
     "endDate": "End date",
     "startDateAndTime": "Start date and time",
-    "endDateAndTime": "End date and time"
+    "endDateAndTime": "End date and time",
+    "startDateGreaterThanEndError": "Start date cannot be greater than End date",
+    "bothDateShouldBeSelectedError": "Both start date and end date should be selected"
   }
 }

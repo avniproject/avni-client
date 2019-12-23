@@ -51,8 +51,8 @@ class CustomFilterService extends BaseService {
         return this.getSearchFilters().map(filter => filter.titleKey)
     }
 
-    getSearchFilters() {
-        return this.getSettings() && this.getSettings().searchFilters || [];
+    getSearchFilters(subjectTypeUUID) {
+        return this.getSettings() && this.getSettings().searchFilters.filter(f => f.subjectTypeUUID === subjectTypeUUID) || [];
     }
 
     isSearchFiltersEmpty(filters) {
@@ -69,6 +69,11 @@ class CustomFilterService extends BaseService {
 
     filterTypePresent(filterName, type, subjectTypeUUID) {
         return !_.isEmpty(_.filter(this.getFiltersByType(filterName, type), f => f.subjectTypeUUID === subjectTypeUUID));
+    }
+
+    errorNotPresent(filters, subjectTypeUUID) {
+        const filterWithError = _.filter(_.values(filters), filterArray => !_.isEmpty(_.filter(filterArray, f => f.subjectTypeUUID === subjectTypeUUID && !_.isEmpty(f.validationError))));
+        return _.isEmpty(filterWithError);
     }
 
     getNonCodedConceptFilters(filterName, subjectTypeUUID) {

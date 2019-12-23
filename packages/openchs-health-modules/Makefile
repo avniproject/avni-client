@@ -159,6 +159,8 @@ dev_deploy_platform_translations:
 	$(call upload,platformTranslation,@translations/mr_IN.json)
 	@echo
 	$(call upload,platformTranslation,@translations/ta_IN.json)
+	@echo
+	$(call upload,platformTranslation,@translations/ka_IN.json)
 
 test: test_env
 # </Workflows related, Composite, Convenience and Conventional Actions>
