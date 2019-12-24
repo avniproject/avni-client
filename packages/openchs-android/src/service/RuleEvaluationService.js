@@ -187,10 +187,12 @@ class RuleEvaluationService extends BaseService {
     }
 
     failedRuleExistsInDB(ruleUUID, errorMessage, individualUUID) {
-        return this.findAllByCriteria(
-            `ruleUuid="${ruleUUID}" AND errorMessage="${errorMessage}" AND individualUuid="${individualUUID}"`,
-            RuleFailureTelemetry.schema.name)
-            .length > 0;
+        return this.getAll(RuleFailureTelemetry.schema.name)
+            .filtered('ruleUuid=$0 AND errorMessage=$1 AND individualUuid=$2',
+                ruleUUID,
+                errorMessage,
+                individualUUID
+            ).length > 0;
     }
 
     saveFailedRules(error, ruleUUID, individualUUID) {
