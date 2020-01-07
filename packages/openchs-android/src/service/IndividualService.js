@@ -138,7 +138,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
                 return {
@@ -167,7 +167,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
             .map((enc) => {
                 const individual = enc.individual;
-                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
                 return {
                     individual,
@@ -233,7 +233,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
             .map((enc) => {
                 const individual = enc.programEnrolment.individual;
-                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
@@ -260,7 +260,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
             .map((enc) => {
                 const individual = enc.individual;
-                const visitName = enc.encounterType.operationalEncounterTypeName || enc.name;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,

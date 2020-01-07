@@ -97,7 +97,7 @@ class ProgramEncounterView extends AbstractComponent {
 
     render() {
         General.logDebug('ProgramEncounterView', 'render');
-        const programEncounterName = !_.isEmpty(this.state.programEncounter.encounterType.operationalEncounterTypeName) ? this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName) : this.I18n.t(this.state.programEncounter.name);
+        const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);
         return (
