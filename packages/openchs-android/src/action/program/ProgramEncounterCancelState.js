@@ -2,6 +2,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
 import {Form, ObservationsHolder, ProgramEncounter} from "avni-models";
 import _ from 'lodash';
+import ConceptService from "../../service/ConceptService";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements, workLists) {
@@ -63,6 +64,17 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
             subjectUUID: programEnrolment.individual.uuid,
             programEnrolmentUUID: programEnrolment.uuid,
         };
+    }
+
+    executeRule(ruleService, context) {
+        let decisions = ruleService.getDecisions(this.programEncounter, this.getEntityType());
+        context.get(ConceptService).addDecisions(this.programEncounter.cancelObservations, decisions.encounterDecisions);
+
+        const enrolment = this.programEncounter.programEnrolment.cloneForEdit();
+        context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
+        this.programEncounter.programEnrolment = enrolment;
+
+        return decisions;
     }
 }
 
