@@ -59,7 +59,7 @@
     "rn-fetch-blob": "0.10.15",
     "stacktrace-js": "2.0.0",
     "transducers-js": "0.4.174",
-    "rules-config": "github:openchs/rules-config#e2d7baccda66c8d18e0f9cb6fff3d14f746e2fa4"
+    "rules-config": "github:openchs/rules-config#08202533ec3f3a55977946c69d204f3df8080e61"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",

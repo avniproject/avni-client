@@ -13,6 +13,7 @@ import {
     Rule,
     RuleFailureTelemetry,
 } from 'avni-models';
+import * as models from 'avni-models';
 import {
     encounterDecision,
     familyRegistrationDecision,
@@ -20,7 +21,7 @@ import {
     programEncounterDecision,
     programEnrolmentDecision,
     RuleRegistry,
-    common
+    common, motherCalculations
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
@@ -105,6 +106,7 @@ class RuleEvaluationService extends BaseService {
             if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
                 const individualUUID = this.getIndividualUUID(entity, entityName);
                 try {
+                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                     const ruleFunc = eval(form.decisionRule);
                     const ruleDecisions = ruleFunc({
                         params: { decisions: defaultDecisions, entity },
@@ -131,7 +133,16 @@ class RuleEvaluationService extends BaseService {
         return defaultDecisions;
     }
 
-    //this is required because we check for the concept name after generating decisions
+    getRuleServiceLibraryInterfaceForSharingModules() {
+        return {
+            log: console.log,
+            common: common,
+            motherCalculations: motherCalculations,
+            models: models
+        };
+    }
+
+//this is required because we check for the concept name after generating decisions
     validateDecisions(decisionsMap, ruleUUID, individualUUID) {
         return _.merge(..._.map(decisionsMap, (decisions, decisionType) => {
             return {
@@ -253,6 +264,7 @@ class RuleEvaluationService extends BaseService {
     _getEnrolmentSummaryFromEntityRule(enrolment, entityName) {
         const program = enrolment.program;
         try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
                 params: { summaries: [], programEnrolment: enrolment },
@@ -279,6 +291,7 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
                 try {
+                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                     const ruleFunc = eval(form.validationRule);
                     return ruleFunc({
                         params: { entity },
@@ -311,6 +324,7 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
                 try {
+                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                     const ruleFunc = eval(form.visitScheduleRule);
                     const nextVisits = ruleFunc({
                         params: { visitSchedule: scheduledVisits, entity },
@@ -358,6 +372,7 @@ class RuleEvaluationService extends BaseService {
             return [...formElementWithRules
                 .map(formElement => {
                     try {
+                        let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
                             params: { formElement, entity },
@@ -395,6 +410,7 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
                 try {
+                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                     const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
                     return ruleFunc({
                         params: { entity: individual },
@@ -419,6 +435,7 @@ class RuleEvaluationService extends BaseService {
         if (_.isEmpty(rulesFromTheBundle)) {
             if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
                 try {
+                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                     const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                     return ruleFunc({
                         params: { entity: individual },
