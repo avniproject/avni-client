@@ -465,13 +465,13 @@ class RuleEvaluationService extends BaseService {
             "Individual": () => this.getAll(Individual.schema.name).filtered('voided = null or voided = false'),
             "Encounter": () => this.getAll(Encounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null'),
             "ProgramEnrolment": () => this.getAll(ProgramEnrolment.schema.name).filtered('programExitDateTime!=null'),
-            "ProgramEncounter": () => this.getAll(ProgramEncounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null')
+            "ProgramEncounter": () => this.getAll(ProgramEncounter.schema.name).filtered('encounterDateTime != null and cancelDateTime = null').sorted('encounterDateTime')
         };
         const saveEntityOfType = {
             "Individual": (individual, nextScheduledVisits) => individualService.register(individual, nextScheduledVisits),
             "Encounter": (encounter, nextScheduledVisits) => encounterService.saveOrUpdate(encounter, nextScheduledVisits),
             "ProgramEnrolment": (enrolment, nextScheduledVisits) => programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
-            "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits).sorted('encounterDateTime')
+            "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
         rulesToRun.map(([schema, type]) => {
             let allEntities = getAllEntitiesOfType[schema]().map(e => e.cloneForEdit());
