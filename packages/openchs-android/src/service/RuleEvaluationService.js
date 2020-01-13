@@ -102,24 +102,22 @@ class RuleEvaluationService extends BaseService {
         if ([form, entity].some(_.isEmpty)) return defaultDecisions;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Decision", "Form");
 
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
-                const individualUUID = this.getIndividualUUID(entity, entityName);
-                try {
-                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                    const ruleFunc = eval(form.decisionRule);
-                    const ruleDecisions = ruleFunc({
-                        params: { decisions: defaultDecisions, entity },
-                        imports: { rulesConfig, common, lodash, moment }
-                    });
-                    const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
-                    const trimmedDecisions = trimDecisionsMap(decisionsMap);
-                    General.logDebug("RuleEvaluationService", trimmedDecisions);
-                    return trimmedDecisions;
-                } catch (e) {
-                    console.log(`form.uuid: ${form.uuid} entityName: ${entityName}`);
-                    this.saveFailedRules(e, form.uuid, individualUUID);
-                }
+        if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
+            const individualUUID = this.getIndividualUUID(entity, entityName);
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(form.decisionRule);
+                const ruleDecisions = ruleFunc({
+                    params: { decisions: defaultDecisions, entity },
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+                const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
+                const trimmedDecisions = trimDecisionsMap(decisionsMap);
+                General.logDebug("RuleEvaluationService", trimmedDecisions);
+                return trimmedDecisions;
+            } catch (e) {
+                console.log(`form.uuid: ${form.uuid} entityName: ${entityName}`);
+                this.saveFailedRules(e, form.uuid, individualUUID);
             }
         } else {
             const decisionsMap = rulesFromTheBundle.reduce((decisions, rule) => {
@@ -236,10 +234,8 @@ class RuleEvaluationService extends BaseService {
     getEnrolmentSummary(enrolment, entityName = 'ProgramEnrolment', context) {
         const program = enrolment.program;
         let rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentSummary", "Program");
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(program.enrolmentSummaryRule) && !_.isEmpty(_.trim(program.enrolmentSummaryRule))) {
-                return this._getEnrolmentSummaryFromEntityRule(enrolment, entityName);
-            }
+        if (!_.isNil(program.enrolmentSummaryRule) && !_.isEmpty(_.trim(program.enrolmentSummaryRule))) {
+            return this._getEnrolmentSummaryFromEntityRule(enrolment, entityName);
         } else {
             return this._getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context);
         }
@@ -288,20 +284,18 @@ class RuleEvaluationService extends BaseService {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
-                try {
-                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                    const ruleFunc = eval(form.validationRule);
-                    return ruleFunc({
-                        params: { entity },
-                        imports: { rulesConfig, common, lodash, moment }
-                    });
-                } catch (e) {
-                    console.log(e);
-                    General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
-                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
-                }
+        if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(form.validationRule);
+                return ruleFunc({
+                    params: { entity },
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+            } catch (e) {
+                console.log(e);
+                General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
             }
         }
         else {
@@ -321,20 +315,18 @@ class RuleEvaluationService extends BaseService {
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
-                try {
-                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                    const ruleFunc = eval(form.visitScheduleRule);
-                    const nextVisits = ruleFunc({
-                        params: { visitSchedule: scheduledVisits, entity },
-                        imports: { rulesConfig, common, lodash, moment }
-                    });
-                    return nextVisits;
-                } catch (e) {
-                    General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
-                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
-                }
+        if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(form.visitScheduleRule);
+                const nextVisits = ruleFunc({
+                    params: { visitSchedule: scheduledVisits, entity },
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+                return nextVisits;
+            } catch (e) {
+                General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
         } else {
             const nextVisits = rulesFromTheBundle
@@ -363,20 +355,18 @@ class RuleEvaluationService extends BaseService {
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const defaultFormElementStatus = formElementGroup.getFormElements()
             .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
-        if (_.isEmpty(rulesFromTheBundle)) {
-            const formElementWithRules = formElementGroup
-                .getFormElements()
-                .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
-            if (_.isEmpty(formElementWithRules))
-                return defaultFormElementStatus;
-            return [...formElementWithRules
+        const formElementsWithRules = formElementGroup
+            .getFormElements()
+            .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
+        if (!_.isEmpty(formElementsWithRules)) {
+            let formElementStatuses = formElementsWithRules
                 .map(formElement => {
                     try {
                         let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
-                            params: { formElement, entity },
-                            imports: { rulesConfig, common, lodash, moment }
+                            params: {formElement, entity},
+                            imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
                         General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
@@ -387,8 +377,10 @@ class RuleEvaluationService extends BaseService {
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
                 .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
-                .values()];
+                .values();
+            return [...formElementStatuses];
         }
+        if (_.isEmpty(rulesFromTheBundle)) return defaultFormElementStatus;
         return [...rulesFromTheBundle
             .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
             .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
@@ -407,21 +399,19 @@ class RuleEvaluationService extends BaseService {
 
     isEligibleForEncounter(individual, encounterType) {
         const rulesFromTheBundle = this.getAllRuleItemsFor(encounterType, "EncounterEligibilityCheck", "EncounterType");
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
-                try {
-                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                    const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
-                    return ruleFunc({
-                        params: { entity: individual },
-                        imports: { rulesConfig, common, lodash, moment }
-                    });
-                }
-                catch (e) {
-                    General.logDebug("Rule-Faiure", e);
-                    General.logDebug("Rule-Failure", `New encounter eligibility failed for: ${encounterType.name} encounter name`);
-                    this.saveFailedRules(e, encounterType.uuid, this.getIndividualUUID(encounterType));
-                }
+        if (!_.isNil(encounterType.encounterEligibilityCheckRule) && !_.isEmpty(_.trim(encounterType.encounterEligibilityCheckRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
+                return ruleFunc({
+                    params: { entity: individual },
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+            }
+            catch (e) {
+                General.logDebug("Rule-Faiure", e);
+                General.logDebug("Rule-Failure", `New encounter eligibility failed for: ${encounterType.name} encounter name`);
+                this.saveFailedRules(e, encounterType.uuid, this.getIndividualUUID(encounterType));
             }
         }
         else {
@@ -432,21 +422,19 @@ class RuleEvaluationService extends BaseService {
 
     isEligibleForProgram(individual, program) {
         const rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
-        if (_.isEmpty(rulesFromTheBundle)) {
-            if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
-                try {
-                    let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                    const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
-                    return ruleFunc({
-                        params: { entity: individual },
-                        imports: { rulesConfig, common, lodash, moment }
-                    });
-                }
-                catch (e) {
-                    General.logDebug("Rule-Failure", e);
-                    General.logDebug("Rule-Failure", `New enrolment eligibility failed for: ${program.name} program name`);
-                    this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
-                }
+        if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
+                return ruleFunc({
+                    params: { entity: individual },
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+            }
+            catch (e) {
+                General.logDebug("Rule-Failure", e);
+                General.logDebug("Rule-Failure", `New enrolment eligibility failed for: ${program.name} program name`);
+                this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
             }
         }
         else {
