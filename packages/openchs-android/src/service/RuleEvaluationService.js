@@ -236,7 +236,7 @@ class RuleEvaluationService extends BaseService {
         let rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentSummary", "Program");
         if (!_.isNil(program.enrolmentSummaryRule) && !_.isEmpty(_.trim(program.enrolmentSummaryRule))) {
             return this._getEnrolmentSummaryFromEntityRule(enrolment, entityName);
-        } else {
+        } else if (!_.isEmpty(rulesFromTheBundle)) {
             return this._getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context);
         }
         return [];
@@ -298,7 +298,7 @@ class RuleEvaluationService extends BaseService {
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
             }
         }
-        else {
+        else if (!_.isEmpty(rulesFromTheBundle)) {
             const validationErrors = rulesFromTheBundle.reduce(
                 (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
                 defaultValidationErrors
@@ -337,7 +337,7 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
             return nextVisits;
         }
-        return defaultVisitSchedule;
+        return scheduledVisits;
     }
 
     getChecklists(entity, entityName, defaultChecklists = []) {
@@ -414,7 +414,7 @@ class RuleEvaluationService extends BaseService {
                 this.saveFailedRules(e, encounterType.uuid, this.getIndividualUUID(encounterType));
             }
         }
-        else {
+        else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
         return true;
@@ -437,7 +437,7 @@ class RuleEvaluationService extends BaseService {
                 this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
             }
         }
-        else {
+        else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
         return true;
