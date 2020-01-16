@@ -39,7 +39,7 @@ allprojects {
         maven { url 'https://maven.google.com' }
         maven { url "https://dl.google.com/dl/android/maven2/index.html" }
         maven {
-            url "http://repo.spring.io/libs-release/"
+            url "https://repo.spring.io/libs-release/"
             name 'Spring Libs'
         }
     }
