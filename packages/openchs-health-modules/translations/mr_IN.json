@@ -318,6 +318,13 @@
     "Growth Chart": "विकास चार्ट",
     "Individual": "व्यक्ती",
     "anotherRegistration": "दुस-या {{subject}}ला रजिस्टर करा",
-    "proceedEncounter": "{{enc}}साठी पुढे जा"
+    "proceedEncounter": "{{enc}}साठी पुढे जा",
+    "logout": "लॉगआउट",
+    "Show password": "संकेतशब्द दर्शवा",
+    "Forgot Password": "पासवर्ड विसरला",
+    "logoutConfirmationTitle": "तुला खात्री आहे?",
+    "logoutConfirmationMessage": "आपण लॉग आउट केल्यास, अॅप वापरणे सुरू ठेवण्यासाठी आपल्याला इंटरनेटसह पुन्हा लॉग इन करावे लागेल.\n",
+    "logoutConfirmed": "लॉगआउट",
+    "logoutCancelled": "रद्द करा"
   }
 }

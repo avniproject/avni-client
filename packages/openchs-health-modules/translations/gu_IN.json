@@ -269,6 +269,10 @@
     "undoExitProgramConfirmationMessage": "Do you want to undo program exit and join again?",
     "unVoid": "Unvoid",
     "unVoidIndividualConfirmationTitle": "Unvoid this individual",
-    "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?"
+    "unVoidIndividualConfirmationMessage": "Do you want to unvoid this individual?",
+    "logoutConfirmationTitle": "શું તમે ખાતરી કરો છો?",
+    "logoutConfirmationMessage": "જો તમે લૉગ આઉટ કરો છો, તો એપ્લિકેશનનો ઉપયોગ કરવાનું ચાલુ રાખવા માટે તમારે ફરીથી ઇન્ટરનેટથી લૉગ ઇન કરવું પડશે.\n",
+    "logoutConfirmed": "લૉગ આઉટ",
+    "logoutCancelled": "રદ કરો"
   }
 }

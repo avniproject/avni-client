@@ -274,6 +274,12 @@
     "undoExitProgramConfirmationMessage": "क्या आप प्रोग्राम को दोबारा ज्वाइन करना चाहते है?",
     "unVoid": "अनवोयड",
     "unVoidIndividualConfirmationTitle": "इस व्यक्ति को अनवोयड करें",
-    "unVoidIndividualConfirmationMessage": "क्या आप इस व्यक्ति को अनवोयड करना चाहते है?"
+    "unVoidIndividualConfirmationMessage": "क्या आप इस व्यक्ति को अनवोयड करना चाहते है?",
+    "Show password": "शो पासवर्ड",
+    "Forgot Password": "पासवर्ड भूल गए",
+    "logoutConfirmationTitle": "क्या आप लॉगऑऊट  करना चाहते हैं ?",
+    "logoutConfirmationMessage": "यदि आप लॉग आउट करते हैं, तो आपको ऐप का उपयोग जारी रखने के लिए इंटरनेट के साथ फिर से लॉगिन करना होगा।\n",
+    "logoutConfirmed": "लॉग आउट",
+    "logoutCancelled": "रद्द करना"
   }
 }
