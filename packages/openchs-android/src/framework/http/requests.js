@@ -5,19 +5,19 @@ import ServerError from "../../service/ServerError";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
-const fetchFactory = (endpoint, method = "GET", params) => {
-    return fetchWithTimeOut(endpoint, {"method": method, ...params})
-        .then((response) =>
-        {
-            if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
-                return Promise.resolve(response);
-            }
-            if (parseInt(response.status) === 403) {
-                General.logError("requests", response);
-                return Promise.reject(new AuthenticationError('Http 403', response));
-            }
-                return Promise.reject(new ServerError(response));
-        });
+const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
+    const processResponse = (response) => {
+        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
+            return Promise.resolve(response);
+        }
+        if (parseInt(response.status) === 403) {
+            General.logError("requests", response);
+            return Promise.reject(new AuthenticationError('Http 403', response));
+        }
+        return Promise.reject(new ServerError(response));
+    };
+    return fetchWithoutTimeout ? fetch(endpoint, {"method": method, ...params}).then(processResponse) :
+        fetchWithTimeOut(endpoint, {"method": method, ...params}).then(processResponse);
 };
 
 const fetchWithTimeOut = (url, options, timeout = 60000) => {
@@ -50,7 +50,7 @@ let _get = (endpoint, authToken) => {
 
 let _getText = (endpoint, authToken) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
-    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("text"), authToken))
+    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("text"), authToken), true)
         .then((response) => response.text(), Promise.reject)
 };
 
