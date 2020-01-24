@@ -4,7 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter, Form, Point, WorkList, WorkLists} from "avni-models";
+import {ProgramEncounter, Form, Point, WorkList, WorkLists, WorkItem} from "avni-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -86,10 +86,12 @@ class ProgramEncounterActions {
         const service = context.get(ProgramEncounterService);
 
         const scheduledVisits = [];
-        const existingScheduledVisits = newState.programEncounter.getAllScheduledVisits();
+        const existingScheduledVisitsForSameEncounter = newState.programEncounter.getAllScheduledVisits();
 
         action.nextScheduledVisits.forEach(nextVisit => {
-            const existingVisit = _.find(existingScheduledVisits, e => e.uuid === nextVisit.uuid);
+            const existingScheduleVisits = nextVisit.programEnrolment &&
+                nextVisit.programEnrolment.scheduledEncountersOfType(nextVisit.encounterType) || existingScheduledVisitsForSameEncounter;
+            const existingVisit = _.find(existingScheduleVisits, e => e.uuid === nextVisit.uuid);
             if (
                 _.isNil(existingVisit) ||
                 !General.datesAreSame(existingVisit.earliestDate, nextVisit.earliestDate) ||

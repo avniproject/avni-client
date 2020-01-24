@@ -42,13 +42,13 @@ class ProgramEncounterService extends BaseService {
     }
 
     saveScheduledVisit(enrolment, nextScheduledVisit, db, schedulerDate) {
-        const {encounterType: encounterTypeName, visitCreationStrategy = 'default'} = nextScheduledVisit;
+        const {encounterType: encounterTypeName, visitCreationStrategy = 'default', programEnrolment = enrolment} = nextScheduledVisit;
 
-        let encountersToUpdate = enrolment.scheduledEncountersOfType(encounterTypeName);
+        let encountersToUpdate = programEnrolment.scheduledEncountersOfType(encounterTypeName);
         if (_.isEmpty(encountersToUpdate) || visitCreationStrategy === 'createNew') {
             const encounterType = this.findByKey('name', encounterTypeName, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${encounterTypeName} that doesn't exist`);
-            encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, enrolment)];
+            encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
         }
         _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));
     }

@@ -165,8 +165,9 @@ class AbstractDataEntryState {
         const applicableScheduledVisits = _.filter(nextScheduledVisits, (visit) => {
             return moment().isBetween(visit.earliestDate, visit.maxDate, 'day', '[]');
         });
+        const getProgramUUIDFromVisit = (visit) => visit.programEnrolment && visit.programEnrolment.uuid || undefined;
         _.forEach(applicableScheduledVisits, (applicableScheduledVisit) => {
-            const parameters = _.merge({}, this.getWorkContext(), applicableScheduledVisit);
+            const parameters = _.merge({}, this.getWorkContext(), applicableScheduledVisit, {programEnrolmentUUID: getProgramUUIDFromVisit(applicableScheduledVisit)});
             const sameVisitTypeExists = workLists.currentWorkList.workItems.find(
                     (workItem) => {
                         const {programEnrolmentUUID, encounterType} = workItem.parameters;
