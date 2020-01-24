@@ -24,7 +24,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.LOAD_HISTORY, {individualUUID: this.props.params.individualUUID});
+        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
         return super.componentWillMount();
     }
 

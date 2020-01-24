@@ -16,10 +16,11 @@ export class IndividualGeneralHistoryActions {
         };
     }
 
-    static loadHistory(state, action, context) {
+    static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
         const encounters = _.map(individual.nonVoidedEncounters(), encounter => ({encounter, expand: false}));
         const newState = IndividualGeneralHistoryActions.clone(state);
+        newState.encounter = Encounter.create();
         newState.encounter.individual = individual;
         newState.encounterTypes = context.get(FormMappingService)
             .findEncounterTypesForEncounter(individual.subjectType)
@@ -67,7 +68,7 @@ export class IndividualGeneralHistoryActions {
 }
 
 const actions = {
-    LOAD_HISTORY: "IGHA.LOAD_HISTORY",
+    ON_LOAD: "IGHA.ON_LOAD",
     SHOW_MORE: "IGHA.SHOW_MORE",
     ON_TOGGLE: "IGHA.ON_TOGGLE",
     HIDE_ENCOUNTER_SELECTOR: "IGHA.HIDE_ENCOUNTER_SELECTOR",
@@ -75,7 +76,7 @@ const actions = {
 };
 
 export default new Map([
-    [actions.LOAD_HISTORY, IndividualGeneralHistoryActions.loadHistory],
+    [actions.ON_LOAD, IndividualGeneralHistoryActions.onLoad],
     [actions.SHOW_MORE, IndividualGeneralHistoryActions.onShowMore],
     [actions.ON_TOGGLE, IndividualGeneralHistoryActions.onToggle],
     [actions.HIDE_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.hideEncounterSelector],
