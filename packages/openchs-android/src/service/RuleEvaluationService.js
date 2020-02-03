@@ -344,12 +344,26 @@ class RuleEvaluationService extends BaseService {
         const form = this.entityFormMap.get(entityName)(entity);
         const allChecklistDetails = this.findAll(ChecklistDetail.schema.name);
         if ([entity, form, allChecklistDetails].some(_.isEmpty)) return defaultChecklists;
+            if (!_.isNil(form.checklistsRule) && !_.isEmpty(_.trim(form.checklistsRule))) {
+                try {
+                    const ruleFunc = eval(form.checklistsRule);
+                    const allChecklists = ruleFunc({
+                        params: {entity, checklistDetails:allChecklistDetails },
+                        imports: { rulesConfig, common, lodash, moment }
+                    });
+                    return allChecklists;
+                } catch (e) {
+                    General.logDebug("Rule-Failure", `New checklist rule failed for form: ${form.uuid}`);
+                    this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
+                }
+            }
+         else {
         const allChecklists = this.getAllRuleItemsFor(form, "Checklists", "Form")
             .reduce((checklists, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, allChecklistDetails), defaultChecklists);
-        // General.logDebug("RuleEvaluationService - Checklists", allChecklists);
-        return allChecklists;
+            return allChecklists;
+        }
+        return defaultChecklists;
     }
-
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
