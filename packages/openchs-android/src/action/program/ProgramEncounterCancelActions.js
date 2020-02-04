@@ -4,10 +4,11 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import _ from 'lodash';
 import ProgramEncounterCancelState from "./ProgramEncounterCancelState";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Point, ProgramEncounter, WorkList, WorkLists, Encounter} from 'avni-models';
+import {Encounter, Point, ProgramEncounter, WorkList, WorkLists} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import GeolocationActions from "../common/GeolocationActions";
 import EncounterService from "../../service/EncounterService";
+import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -71,9 +72,13 @@ class ProgramEncounterCancelActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        _.isNil(newState.programEncounter.programEnrolment) ?
-            context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits) :
+
+        if (_.isNil(newState.programEncounter.programEnrolment)) {
+            context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+        } else {
+            context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment);
             context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+        }
 
         action.cb();
         return newState;
