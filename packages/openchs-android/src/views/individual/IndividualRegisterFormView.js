@@ -72,6 +72,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           validationResults={this.state.validationResults}
                                           formElementsUserState={this.state.formElementsUserState}
                                           dataEntryDate={this.state.individual.registrationDate}
+                                          onValidationError={(x, y) => this.scrollToPosition(x, y)}
                         />
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{

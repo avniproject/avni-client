@@ -13,12 +13,23 @@ class AbstractComponent extends Component {
         getService: PropTypes.func.isRequired,
         getStore: PropTypes.func
     };
+    static styles = StyleSheet.create({
+        spinner: {
+            justifyContent: 'center',
+            alignSelf: 'center',
+        },
+        listRowSeparator: {
+            height: 2,
+            backgroundColor: '#14e4d5'
+        },
+    });
 
     constructor(props, context, topLevelStateVariable) {
         super(props, context);
         this.topLevelStateVariable = topLevelStateVariable;
         this.I18n = context.getService(MessageService).getI18n();
         this.scrollToTop = this.scrollToTop.bind(this);
+        this.scrollToPosition = this.scrollToPosition.bind(this);
     }
 
     getService(Class) {
@@ -38,19 +49,8 @@ class AbstractComponent extends Component {
         // General.logDebug((this.viewName ? this.viewName() : this.constructor.name), "DID UPDATE");
     }
 
-    static styles = StyleSheet.create({
-        spinner: {
-            justifyContent: 'center',
-            alignSelf: 'center',
-        },
-        listRowSeparator: {
-            height: 2,
-            backgroundColor: '#14e4d5'
-        },
-    });
-
     dispatchAction(action, params) {
-        const type = action instanceof Function? action.Id: action;
+        const type = action instanceof Function ? action.Id : action;
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
         return this.context.getStore().dispatch({type, ...params});
@@ -93,6 +93,10 @@ class AbstractComponent extends Component {
     scrollToTop() {
         this.refs.scroll._root.scrollToPosition(0, 10, true);
         this.refs.scroll._root.scrollToPosition(0, 1, true);
+    }
+
+    scrollToPosition(x, y) {
+        this.refs.scroll._root.scrollToPosition(x, y, true);
     }
 
     componentWillUnmount() {

@@ -119,6 +119,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                                           filteredFormElements={this.state.filteredFormElements}
                                           formElementsUserState={this.state.formElementsUserState}
                                           dataEntryDate={this.state.encounter.encounterDateTime}
+                                          onValidationError={(x, y) => this.scrollToPosition(x, y)}
                         />
                         <WizardButtons next={{
                             func: () => this.next(),

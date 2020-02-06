@@ -87,7 +87,8 @@ class ChecklistItemView extends AbstractComponent {
                             dataEntryDate={this.state.checklistItem.completionDate ? this.state.checklistItem.completionDate : new Date()}
                             validationResults={this.state.validationResults}
                             filteredFormElements={this.state.filteredFormElements}
-                            formElementsUserState={this.state.formElementsUserState}/>
+                            formElementsUserState={this.state.formElementsUserState}
+                            onValidationError={(x, y) => this.scrollToPosition(x, y)}/>
                         <WizardButtons previous={{
                             func: () => this.previous(),
                             visible: !this.state.wizard.isFirstPage(),

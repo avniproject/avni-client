@@ -53,7 +53,8 @@ class FamilyRegisterFormView extends AbstractComponent {
                                           group={this.state.formElementGroup}
                                           actions={Actions} validationResults={this.state.validationResults}
                                           formElementsUserState={this.state.formElementsUserState}
-                                          dataEntryDate={this.state.family.registrationDate}/>
+                                          dataEntryDate={this.state.family.registrationDate}
+                                          onValidationError={(x, y) => this.scrollToPosition(x, y)}/>
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{
                                            func: () => FamilyRegisterViewsMixin.next(this),
