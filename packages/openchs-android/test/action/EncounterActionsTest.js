@@ -245,7 +245,7 @@ describe('EncounterActionsTest', () => {
     });
 
     it('next should be allowed if there are no validation errors in the same FEG', () => {
-        const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, true);
+        const {state, formElement, formElement2} = createIntialState(Concept.dataType.Numeric, true, false);
         var newState = ObservationsHolderActions.onPrimitiveObsUpdateValue(state, {
             value: '10',
             formElement: formElement
