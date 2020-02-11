@@ -12,6 +12,7 @@ import {
     ProgramEnrolment,
     Rule,
     RuleFailureTelemetry,
+    OrganisationConfig
 } from 'avni-models';
 import * as models from 'avni-models';
 import {
@@ -79,7 +80,7 @@ class RuleEvaluationService extends BaseService {
             case 'Encounter':
                 return entity.individual.uuid;
             case 'WorkList':
-                return entity.getCurrentWorkItem().parameters.subjectUUID;
+                return entity.getCurrentWorkItem().id;
             default:
                 return "entity not mapped";
         }
@@ -174,8 +175,29 @@ class RuleEvaluationService extends BaseService {
     }
 
     updateWorkLists(workLists, context) {
-        const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
-        return _.reduce(additionalRules, (newWorkLists, rule) => this.runRuleAndSaveFailure(rule, 'WorkList', workLists, null, null, context), workLists);
+        const orgConfig = this.findOnly(OrganisationConfig.schema.name);
+        let worklistUpdationRule = orgConfig.worklistUpdationRule;
+
+        if (!_.isNil(worklistUpdationRule) && !_.isEmpty(_.trim(worklistUpdationRule))) {
+            try {
+                const ruleFunc = eval(worklistUpdationRule);
+                return ruleFunc({
+                    params: { context, workLists },
+                    imports: { rulesConfig, common, lodash, moment, models }
+                });
+            } catch (e) {
+                console.log(e);
+                General.logDebug("Rule-Failure", `New worklist updation rule failed  ${orgConfig.uuid} `);
+                this.saveFailedRules(e, orgConfig.uuid, this.getIndividualUUID(workLists, "WorkList"));
+            }
+        }
+        else{
+            const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
+            return _.reduce(additionalRules, (newWorkLists, rule) => this.runRuleAndSaveFailure(rule, 'WorkList', workLists, null, null, context), workLists);
+        }
+        
+        return workLists;
+    
     }
 
     runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context) {
