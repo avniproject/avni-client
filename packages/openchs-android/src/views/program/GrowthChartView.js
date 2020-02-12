@@ -177,7 +177,7 @@ class GrowthChartView extends AbstractComponent {
 
     addBirthWeightIfRequired(yAxisConcept, data, suffix) {
         if (yAxisConcept == 'Weight') {
-            const birthWt = this.props.params.enrolment.findObservation('Birth Weight');
+            const birthWt = this.props.params.enrolment.findLatestObservationInEntireEnrolment('Birth Weight');
             if (birthWt) {
                 data.values.unshift({x: 0, y: birthWt.getValue(), marker: `${birthWt.getValue()} ${suffix}`});
             }
