@@ -35,12 +35,14 @@ import {Schema} from 'avni-models';
 import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
+import {backup} from "../BackupRestoreRealm";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
     static propType = {
         menuIcon: PropTypes.func
     };
+    static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20, padding: 8};
 
     constructor(props, context) {
         super(props, context);
@@ -49,6 +51,24 @@ class MenuView extends AbstractComponent {
             userInfo: context.getService(UserInfoService).getUserInfo(),
             serverURL: settings.serverURL,
         };
+    }
+
+    static Item({I18n, icon, titleKey, onPress, visible = true}) {
+        return visible ?
+            (<TouchableNativeFeedback onPress={onPress}
+                                      background={TouchableNativeFeedback.SelectableBackground()}>
+                <View
+                    style={styles.container}>
+                    {icon}
+                    <View style={styles.textContainer}>
+                        <Text
+                            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
+                    </View>
+                    {(titleKey === 'logout' || titleKey === 'Delete Data') ? <View/> :
+                        <Icon style={styles.iconStyle} name='chevron-right'/>}
+                </View>
+            </TouchableNativeFeedback>)
+            : <View/>
     }
 
     icon(name, style = {}) {
@@ -62,8 +82,6 @@ class MenuView extends AbstractComponent {
     viewName() {
         return "MenuView";
     }
-
-    static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20, padding: 8};
 
     changePasswordView() {
         CHSNavigator.navigateToChangePasswordView(this);
@@ -147,28 +165,24 @@ class MenuView extends AbstractComponent {
         )
     };
 
+    onBackup() {
+        Alert.alert(
+            this.I18n.t('backupNoticeTitle'),
+            this.I18n.t('backupConfirmationMessage'),
+            [
+                {text: this.I18n.t('yes'), onPress: () => backup()},
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                    }, style: 'cancel'
+                }
+            ]
+        )
+    };
+
     background() {
         return Platform['Version'] >= 21 ?
             TouchableNativeFeedback.SelectableBackgroundBorderless() :
             TouchableNativeFeedback.SelectableBackground();
-    }
-
-    static Item({I18n, icon, titleKey, onPress, visible = true}) {
-        return visible ?
-            (<TouchableNativeFeedback onPress={onPress}
-                                      background={TouchableNativeFeedback.SelectableBackground()}>
-                <View
-                    style={styles.container}>
-                    {icon}
-                    <View style={styles.textContainer}>
-                        <Text
-                            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
-                    </View>
-                    {(titleKey === 'logout' || titleKey === 'Delete Data') ? <View/> :
-                        <Icon style={styles.iconStyle} name='chevron-right'/>}
-                </View>
-            </TouchableNativeFeedback>)
-            : <View/>
     }
 
     renderTitle() {
@@ -213,7 +227,9 @@ class MenuView extends AbstractComponent {
                 title: 'otherItems', data: [
                     <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
                     <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
-                          onPress={() => this.entitySyncStatusView()}/>
+                          onPress={() => this.entitySyncStatusView()}/>,
+                    <Item icon={this.icon("backup-restore")} titleKey="backup"
+                          onPress={this.onBackup.bind(this)}/>
                 ]
             },
             {

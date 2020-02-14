@@ -302,6 +302,9 @@
     "startDateAndTime": "Start date and time",
     "endDateAndTime": "End date and time",
     "startDateGreaterThanEndError": "Start date cannot be greater than End date",
-    "bothDateShouldBeSelectedError": "Both start date and end date should be selected"
+    "bothDateShouldBeSelectedError": "Both start date and end date should be selected",
+    "backup": "Backup Data",
+    "backupNoticeTitle": "Backup Data",
+    "backupConfirmationMessage": "Are you sure you want to backup your data"
   }
 }

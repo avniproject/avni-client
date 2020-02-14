@@ -1,10 +1,10 @@
-import {Text, Alert, NativeModules, View, Clipboard} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {Schema, EntityMetaData} from 'avni-models';
+import {EntityMetaData, EntityQueue, Schema} from 'avni-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
@@ -14,6 +14,8 @@ import FileSystem from "./model/FileSystem";
 import BackgroundTask from 'react-native-background-task';
 import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
+import {BACKUP_FILE, removeBackupFile, restore} from "./BackupRestoreRealm";
+import fs from 'react-native-fs';
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
@@ -26,23 +28,34 @@ BackgroundTask.define(() => {
 });
 
 class App extends Component {
+    static childContextTypes = {
+        getService: PropTypes.func.isRequired,
+        getDB: PropTypes.func.isRequired,
+        getStore: PropTypes.func.isRequired,
+    };
+
     constructor(props, context) {
         let error; // RNUPGRADE
         super(props, context);
 
         try {  // RNUPGRADE
             FileSystem.init();
-            this.handleError = this.handleError.bind(this);
-            ErrorHandler.set(this.handleError);
-            if (db === undefined) {
-                db = new Realm(Schema);
-                beans = BeanRegistry.init(db, this);
-                reduxStore = AppStore.create(beans);
-                beans.forEach(bean => bean.setReduxStore(reduxStore));
-                routes = PathRegistry.routes();
-                const entitySyncStatusService = beans.get(EntitySyncStatusService);
-                entitySyncStatusService.setup(EntityMetaData.model());
-            }
+            fs.exists(BACKUP_FILE)
+                .then((exists) => exists && this.confirmForRestore())
+                .then(() => {
+                    this.handleError = this.handleError.bind(this);
+                    ErrorHandler.set(this.handleError);
+                    if (db === undefined) {
+                        db = new Realm(Schema);
+                        db.objects(EntityQueue.schema.name);
+                        beans = BeanRegistry.init(db, this);
+                        reduxStore = AppStore.create(beans);
+                        beans.forEach(bean => bean.setReduxStore(reduxStore));
+                        routes = PathRegistry.routes();
+                        const entitySyncStatusService = beans.get(EntitySyncStatusService);
+                        entitySyncStatusService.setup(EntityMetaData.model());
+                    }
+                }).then(() => this.setState({loadApp: true}))
         } catch (e) {
             error = e
         } // RNUPGRADE
@@ -50,10 +63,19 @@ class App extends Component {
         this.state = {error} // RNUPGRADE
     }
 
-    static childContextTypes = {
-        getService: PropTypes.func.isRequired,
-        getDB: PropTypes.func.isRequired,
-        getStore: PropTypes.func.isRequired,
+
+    async confirmForRestore() {
+        return new Promise((resolve, reject) => {
+            Alert.alert(
+                'Backup found',
+                'Backup file found, want to restore?',
+                [
+                    {text: 'No', onPress: () => resolve(removeBackupFile())},
+                    {text: 'Yes', onPress: () => resolve(restore())}
+                ],
+                {cancelable: false}
+            )
+        })
     };
 
     handleError(error, stacktrace) {
@@ -94,12 +116,16 @@ class App extends Component {
     }
 
     render() {
-        if (!_.isNil(this.state.error)) return this.renderError();
-        if (!_.isNil(routes)) return routes;
-        return (<Text>Something Went Wrong</Text>);
+        if (this.state.loadApp) {
+            if (!_.isNil(this.state.error)) return this.renderError();
+            if (!_.isNil(routes)) return routes;
+            return (<Text>Something Went Wrong</Text>);
+        } else {
+            return <View/>
+        }
     }
 }
 
-let codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
+let codePushOptions = {checkFrequency: codePush.CheckFrequency.ON_APP_RESUME};
 
 export default codePush(App);
