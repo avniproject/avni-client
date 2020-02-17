@@ -305,6 +305,6 @@
     "bothDateShouldBeSelectedError": "Both start date and end date should be selected",
     "backup": "Backup Now",
     "backupNoticeTitle": "Backup Data",
-    "backupConfirmationMessage": "Are you sure you want to backup your data"
+    "backupConfirmationMessage": "Are you sure you want to backup your data. Please make sure all your data is synced."
   }
 }
