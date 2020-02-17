@@ -39,8 +39,8 @@ class App extends Component {
         super(props, context);
 
         try {  // RNUPGRADE
-            FileSystem.init();
-            fs.exists(BACKUP_FILE)
+            new Promise((resolve, _) => resolve(FileSystem.init()))
+                .then(() => fs.exists(BACKUP_FILE))
                 .then((exists) => exists && this.confirmForRestore())
                 .then(() => {
                     this.handleError = this.handleError.bind(this);

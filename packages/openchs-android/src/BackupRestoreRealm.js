@@ -23,7 +23,8 @@ export const backup = () => {
 };
 
 export const restore = async () => {
-    await fs.unlink(DESTINATION_FILE)
+    await fs.exists(DESTINATION_FILE)
+        .then((exists) => exists && fs.unlink(DESTINATION_FILE))
         .then(() => fs.copyFile(BACKUP_FILE, DESTINATION_FILE))
         .then(() => fs.unlink(BACKUP_FILE))
         .then(() => ToastAndroid.show('Backup Restored', ToastAndroid.SHORT))
@@ -34,7 +35,8 @@ export const restore = async () => {
 };
 
 export const removeBackupFile = async () => {
-    await fs.unlink(BACKUP_FILE)
+    await fs.exists(BACKUP_FILE)
+        .then((exists) => exists && fs.unlink(BACKUP_FILE))
         .catch((error) => {
             General.logError(`Error while removing backup file, ${error.message}`);
             throw error;
