@@ -5,16 +5,14 @@ import {ToastAndroid} from 'react-native';
 import General from "./utility/General";
 import fs from 'react-native-fs';
 
-const EXPORT_REALM_PATH = FileSystem.getBackupDir();
 const REALM_FILE_NAME = "default.realm";
-export const BACKUP_FILE = `${EXPORT_REALM_PATH}/${REALM_FILE_NAME}`;
-const DESTINATION_FILE = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
+const DESTINATION_FILE_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
 
-export const backup = () => {
+export const backup = (fileName) => {
     const db = new Realm(Schema);
-    fs.exists(BACKUP_FILE)
-        .then((exists) => exists && fs.unlink(BACKUP_FILE))
-        .then(() => db.writeCopyTo(BACKUP_FILE))
+    fs.readDir(FileSystem.getBackupDir())
+        .then((files) => files.forEach(file => fs.unlink(file.path)))
+        .then(() => db.writeCopyTo(`${FileSystem.getBackupDir()}/${fileName}`))
         .then(() => ToastAndroid.show('Backup Complete', ToastAndroid.SHORT))
         .catch((error) => {
             General.logError(`Error while taking backup, ${error.message}`);
@@ -22,11 +20,11 @@ export const backup = () => {
         });
 };
 
-export const restore = async () => {
-    await fs.exists(DESTINATION_FILE)
-        .then((exists) => exists && fs.unlink(DESTINATION_FILE))
-        .then(() => fs.copyFile(BACKUP_FILE, DESTINATION_FILE))
-        .then(() => fs.unlink(BACKUP_FILE))
+export const restore = async (backupFilePath) => {
+    await fs.exists(DESTINATION_FILE_PATH)
+        .then((exists) => exists && fs.unlink(DESTINATION_FILE_PATH))
+        .then(() => fs.copyFile(backupFilePath, DESTINATION_FILE_PATH))
+        .then(() => fs.unlink(backupFilePath))
         .then(() => ToastAndroid.show('Backup Restored', ToastAndroid.SHORT))
         .catch((error) => {
             General.logError(`Error while restoring file, ${error.message}`);
@@ -34,9 +32,9 @@ export const restore = async () => {
         });
 };
 
-export const removeBackupFile = async () => {
-    await fs.exists(BACKUP_FILE)
-        .then((exists) => exists && fs.unlink(BACKUP_FILE))
+export const removeBackupFile = async (backupFilePath) => {
+    await fs.exists(backupFilePath)
+        .then((exists) => exists && fs.unlink(backupFilePath))
         .catch((error) => {
             General.logError(`Error while removing backup file, ${error.message}`);
             throw error;

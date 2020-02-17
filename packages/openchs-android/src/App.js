@@ -14,7 +14,7 @@ import FileSystem from "./model/FileSystem";
 import BackgroundTask from 'react-native-background-task';
 import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
-import {BACKUP_FILE, removeBackupFile, restore} from "./BackupRestoreRealm";
+import {removeBackupFile, restore} from "./BackupRestoreRealm";
 import fs from 'react-native-fs';
 
 const {Restart} = NativeModules;
@@ -40,8 +40,8 @@ class App extends Component {
 
         try {  // RNUPGRADE
             new Promise((resolve, _) => resolve(FileSystem.init()))
-                .then(() => fs.exists(BACKUP_FILE))
-                .then((exists) => exists && this.confirmForRestore())
+                .then(() => fs.readDir(FileSystem.getBackupDir()))
+                .then((files) => !_.isEmpty(files) && this.confirmForRestore(files[0].path))
                 .then(() => {
                     this.handleError = this.handleError.bind(this);
                     ErrorHandler.set(this.handleError);
@@ -64,14 +64,14 @@ class App extends Component {
     }
 
 
-    async confirmForRestore() {
+    async confirmForRestore(filePath) {
         return new Promise((resolve, reject) => {
             Alert.alert(
                 'Backup found',
                 'Backup file found, want to restore?',
                 [
-                    {text: 'No', onPress: () => resolve(removeBackupFile())},
-                    {text: 'Yes', onPress: () => resolve(restore())}
+                    {text: 'No', onPress: () => resolve(removeBackupFile(filePath))},
+                    {text: 'Yes', onPress: () => resolve(restore(filePath))}
                 ],
                 {cancelable: false}
             )

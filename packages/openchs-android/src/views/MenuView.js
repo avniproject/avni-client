@@ -36,6 +36,7 @@ import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {backup} from "../BackupRestoreRealm";
+import moment from "moment";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -64,7 +65,7 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(titleKey === 'logout' || titleKey === 'Delete Data') ? <View/> :
+                    {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right'/>}
                 </View>
             </TouchableNativeFeedback>)
@@ -170,7 +171,14 @@ class MenuView extends AbstractComponent {
             this.I18n.t('backupNoticeTitle'),
             this.I18n.t('backupConfirmationMessage'),
             [
-                {text: this.I18n.t('yes'), onPress: () => backup()},
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                        const reservedChars = /[|\\?*<":>+\[\]/']/g;
+                        const {organisationName, username} = this.state.userInfo;
+                        const fileName = `${organisationName}_${username}_${moment().format('DD-MM-YYYY_HH-mm-ss')}.realm`;
+                        return backup(fileName.replace(reservedChars, ''));
+                    }
+                },
                 {
                     text: this.I18n.t('no'), onPress: () => {
                     }, style: 'cancel'
