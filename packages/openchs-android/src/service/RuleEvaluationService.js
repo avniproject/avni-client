@@ -176,7 +176,8 @@ class RuleEvaluationService extends BaseService {
 
     updateWorkLists(workLists, context) {
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
-        let worklistUpdationRule = orgConfig.worklistUpdationRule;
+        if (_.isEmpty(orgConfig)) return workLists;
+        const worklistUpdationRule = orgConfig.worklistUpdationRule;
 
         if (!_.isNil(worklistUpdationRule) && !_.isEmpty(_.trim(worklistUpdationRule))) {
             try {
@@ -186,7 +187,6 @@ class RuleEvaluationService extends BaseService {
                     imports: { rulesConfig, common, lodash, moment, models }
                 });
             } catch (e) {
-                console.log(e);
                 General.logDebug("Rule-Failure", `New worklist updation rule failed  ${orgConfig.uuid} `);
                 this.saveFailedRules(e, orgConfig.uuid, this.getIndividualUUID(workLists, "WorkList"));
             }
