@@ -177,7 +177,7 @@ class MyDashboardActions {
     }
 
     static onDate(state, action, context) {
-        return MyDashboardActions.onLoad({...state, date: {value: action.value}}, action, context);
+        return MyDashboardActions.onLoad({...state, date: {value: action.value}, fetchFromDB: true}, action, context);
     }
 
 
