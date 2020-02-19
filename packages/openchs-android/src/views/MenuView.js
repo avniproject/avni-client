@@ -1,4 +1,4 @@
-import {Alert, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View, Linking} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -65,7 +65,7 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
+                    {(['logout', 'Delete Data', 'backup', 'feedback'].includes(titleKey)) ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right'/>}
                 </View>
             </TouchableNativeFeedback>)
@@ -193,6 +193,11 @@ class MenuView extends AbstractComponent {
             TouchableNativeFeedback.SelectableBackground();
     }
 
+    onFeedback() {
+        const url = 'https://docs.google.com/forms/d/e/1FAIpQLSdevhSf89u0rW_xJUazsT-ImyWIiNz-XNmElR17XCAiUrlRtg/viewform';
+        Linking.openURL(url);
+    }
+
     renderTitle() {
         return (
             <TouchableNativeFeedback onPress={() => this.userSettingsView()}
@@ -254,6 +259,12 @@ class MenuView extends AbstractComponent {
                           onPress={() => this.changePasswordView()}/>,
                     <Item icon={this.icon("logout", {color: Colors.NegativeActionButtonColor})} titleKey="logout"
                           onPress={this.logout.bind(this)}/>
+                ]
+            },
+            {
+                title: 'feedback', data: [
+                    <Item icon={this.icon("comment-text-outline")} titleKey="feedback"
+                          onPress={() => this.onFeedback()}/>
                 ]
             },
             {
