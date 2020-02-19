@@ -101,24 +101,10 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allIn(ignored, queryAdditions, encounterCriteria) {
-        const programEncounters = this.db.objects(Individual.schema.name)
+    allIn(ignored, queryAdditions) {
+        return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .map((individual) => {
-                return {individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}};
-            });
-        const encounters = this.db.objects(Encounter.schema.name)
-            .filtered('individual.voided = false ' +
-                'AND voided = false ')
-            .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
-            .map((enc) => {
-                const individual = enc.individual;
-                return {individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}};
-            });
-        return [...[...programEncounters, ...encounters]
-            .reduce(this._uniqIndividualWithVisitName, new Map())
-            .values()];
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
     }
 
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {

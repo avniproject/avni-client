@@ -11,7 +11,8 @@ class StatusCountRow extends AbstractComponent {
     static propTypes = {
         address: PropTypes.object,
         visits: PropTypes.object,
-        backFunction: PropTypes.func.isRequired
+        backFunction: PropTypes.func.isRequired,
+        activityIndicatorActionName: PropTypes.string.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -30,6 +31,7 @@ class StatusCountRow extends AbstractComponent {
             total: count,
             backFunction: backFunction,
             cardTitle: cardTitle,
+            activityIndicatorActionName: this.props.activityIndicatorActionName,
         }).to(IndividualList);
     }
 
@@ -41,7 +43,8 @@ class StatusCountRow extends AbstractComponent {
                     highlight={numberObj.abnormal}
                     onPress={this.onPressHandler.bind(this)(title, numberObj.count, this.props.backFunction, cardTitle)}
                     title={cardTitle}
-                    number={numberObj.count}/>
+                    number={numberObj.count}
+                    activityIndicatorActionName={this.props.activityIndicatorActionName}/>
             </View>)
         });
         return (

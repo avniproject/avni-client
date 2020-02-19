@@ -13,6 +13,7 @@ import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -98,13 +99,16 @@ class MyDashboardView extends AbstractComponent {
                                       })}/>
                 </View>
                 <CHSContent>
+                    <CustomActivityIndicator
+                        loading={this.state.loading}/>
                     <View>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderHeader={() => this.renderHeader()}
                                   renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
-                                                                          backFunction={() => this.onBackCallback()}/>}/>
+                                                                          backFunction={() => this.onBackCallback()}
+                                                                          activityIndicatorActionName={Actions.LOAD_INDICATOR}/>}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>

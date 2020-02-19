@@ -23,6 +23,7 @@ import SingleSelectFilter from '../filter/SingleSelectFilter';
 import CustomFilters from "../filter/CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "../filter/GenderFilter";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -49,14 +50,19 @@ class IndividualSearchView extends AbstractComponent {
 
     searchIndividual() {
         if (this.customFilterService.errorNotPresent(this.state.selectedCustomFilters, this.state.searchCriteria.subjectType.uuid)) {
-            this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
-                cb: (individualSearchResults, count) => TypedTransition.from(this).with({
-                    searchResults: individualSearchResults,
-                    totalSearchResultsCount: count,
-                    onIndividualSelection: this.props.onIndividualSelection
-                }).to(IndividualSearchResultsView, true)
-            });
+            this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
+            setTimeout(() => this.applySearch(), 0);
         }
+    }
+
+    applySearch() {
+        return this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
+            cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+                searchResults: individualSearchResults,
+                totalSearchResultsCount: count,
+                onIndividualSelection: this.props.onIndividualSelection
+            }).to(IndividualSearchResultsView, true)
+        });
     }
 
     render() {
@@ -77,6 +83,8 @@ class IndividualSearchView extends AbstractComponent {
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
+                        <CustomActivityIndicator
+                            loading={this.state.loading}/>
                         {this.state.subjectTypes.length > 1 &&
                         <SingleSelectFilter filter={subjectTypeSelectFilter}
                                             onSelect={(subjectType) =>

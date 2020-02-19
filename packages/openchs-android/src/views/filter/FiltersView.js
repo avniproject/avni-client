@@ -24,7 +24,7 @@ import General from "../../utility/General";
 import CustomFilters from "./CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "./GenderFilter";
-
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -104,25 +104,30 @@ class FilterView extends AbstractComponent {
 
     onApply() {
         if (this.customFilterService.errorNotPresent('myDashboardFilters', this.state.selectedSubjectType.uuid)) {
-            this.dispatchAction(this.props.actionName, {
-                filters: this.state.filters,
-                locationSearchCriteria: this.state.locationSearchCriteria,
-                addressLevelState: this.state.addressLevelState,
-                selectedLocations: this.state.addressLevelState.selectedAddresses,
-                filterDate: this.state.filterDate.value,
-                programs: this.state.programs,
-                selectedPrograms: this.state.selectedPrograms,
-                encounterTypes: this.state.encounterTypes,
-                selectedEncounterTypes: this.state.selectedEncounterTypes,
-                generalEncounterTypes: this.state.generalEncounterTypes,
-                selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
-                listType: this.props.listType,
-                selectedSubjectType: this.state.selectedSubjectType,
-                selectedCustomFilters: this.state.selectedCustomFilters,
-                selectedGenders: this.state.selectedGenders,
-            });
+            this.dispatchAction(FilterActionNames.LOAD_INDICATOR, {status: true});
+            setTimeout(() => this.applyFilters(), 0);
             this.goBack();
         }
+    }
+
+    applyFilters() {
+        return this.dispatchAction(this.props.actionName, {
+            filters: this.state.filters,
+            locationSearchCriteria: this.state.locationSearchCriteria,
+            addressLevelState: this.state.addressLevelState,
+            selectedLocations: this.state.addressLevelState.selectedAddresses,
+            filterDate: this.state.filterDate.value,
+            programs: this.state.programs,
+            selectedPrograms: this.state.selectedPrograms,
+            encounterTypes: this.state.encounterTypes,
+            selectedEncounterTypes: this.state.selectedEncounterTypes,
+            generalEncounterTypes: this.state.generalEncounterTypes,
+            selectedGeneralEncounterTypes: this.state.selectedGeneralEncounterTypes,
+            listType: this.props.listType,
+            selectedSubjectType: this.state.selectedSubjectType,
+            selectedCustomFilters: this.state.selectedCustomFilters,
+            selectedGenders: this.state.selectedGenders,
+        });
     }
 
     onHardwareBackPress() {
@@ -215,6 +220,8 @@ class FilterView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
+                        <CustomActivityIndicator
+                            loading={this.state.loading}/>
                         <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
                             <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
                                 <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("date")}</Text>

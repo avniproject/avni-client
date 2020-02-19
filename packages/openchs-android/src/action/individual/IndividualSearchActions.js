@@ -21,7 +21,7 @@ export class IndividualSearchActions {
         newState.subjectTypes = context.get(EntityService).getAll(SubjectType.schema.name);
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
-        return newState;
+        return {...newState, loading: false};
     }
 
     static enterNameCriteria(state, action, beans) {
@@ -104,6 +104,10 @@ export class IndividualSearchActions {
     static genderChange(state, action) {
         return {...state, selectedGenders: action.selectedGenders};
     }
+
+    static loadIndicator(state, action) {
+        return {...state, loading: action.status};
+    }
 }
 
 const ActionPrefix = 'IndSearch';
@@ -119,6 +123,7 @@ const individualSearchActions = {
     RESET: "ISA.RESET",
     CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
     GENDER_CHANGE: `${ActionPrefix}.GENDER_CHANGE`,
+    LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
 };
 
 const individualSearchActionsMap = new Map([
@@ -133,6 +138,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ON_LOAD, IndividualSearchActions.onLoad],
     [individualSearchActions.CUSTOM_FILTER_CHANGE, IndividualSearchActions.customFilterChange],
     [individualSearchActions.GENDER_CHANGE, IndividualSearchActions.genderChange],
+    [individualSearchActions.LOAD_INDICATOR, IndividualSearchActions.loadIndicator],
 ]);
 
 export {

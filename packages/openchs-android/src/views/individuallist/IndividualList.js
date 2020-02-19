@@ -49,6 +49,10 @@ class IndividualList extends AbstractComponent {
         super.componentWillMount();
     }
 
+    componentDidMount() {
+        this.dispatchAction(this.props.params.activityIndicatorActionName, {status: false});
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         return !General.arraysShallowEquals(this.state.itemsToDisplay, nextState.itemsToDisplay, x=>x.individual.uuid);
     }
