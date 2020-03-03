@@ -6,6 +6,7 @@ import FilterService from "../../service/FilterService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelState from '../common/AddressLevelsState';
 import CustomFilterService from "../../service/CustomFilterService";
+import moment from "moment";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -96,6 +97,7 @@ class MyDashboardActions {
             ].map(MyDashboardActions.applyFilters(filters))
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total]);
 
+        const lastUpdatedOn = state.returnEmpty || action.fetchFromDB || state.fetchFromDB ? moment().format('DD-MMM-YYYY HH:mm') : state.lastUpdatedOn;
         const queryResult = {
             scheduled: allIndividualsWithScheduledVisits,
             overdue: allIndividualsWithOverDueVisits,
@@ -145,6 +147,7 @@ class MyDashboardActions {
             itemsToDisplay: [],
             fetchFromDB: false,
             loading: false,
+            lastUpdatedOn
         };
     }
 
@@ -164,8 +167,7 @@ class MyDashboardActions {
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
         const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters) : methodMap.get(listType);
-        const individualInfo = listType === 'total' ? allIndividuals.map((individual) =>({individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}})) : allIndividuals;
-        const commonIndividuals = MyDashboardActions.commonIndividuals(individualInfo, state.individualUUIDs);
+        const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs);
         const totalToDisplay = _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
         return {
             ...state,
@@ -303,6 +305,9 @@ class MyDashboardActions {
     }
 
     static loadIndicator(state, action) {
+        if (_.isEmpty(state.lastUpdatedOn)) {
+            return {...state, loading: true};
+        }
         return {...state, loading: action.status};
     }
 

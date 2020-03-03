@@ -104,7 +104,8 @@ class IndividualService extends BaseService {
     allIn(ignored, queryAdditions) {
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
+            .map((individual) =>({individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}}));
     }
 
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {

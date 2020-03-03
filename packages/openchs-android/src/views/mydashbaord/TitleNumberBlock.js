@@ -12,7 +12,6 @@ class TitleNumberBlock extends AbstractComponent {
         title: PropTypes.string,
         number: PropTypes.number,
         highlight: PropTypes.bool,
-        activityIndicatorActionName: PropTypes.string
     };
 
     static styles = StyleSheet.create({
@@ -38,15 +37,10 @@ class TitleNumberBlock extends AbstractComponent {
         }
     });
 
-    onPress() {
-        this.dispatchAction(this.props.activityIndicatorActionName, {status: true});
-        setTimeout(() => this.props.onPress(), 0);
-    }
-
     render() {
         const textColor = this.props.highlight ? TitleNumberBlock.styles.highlight : TitleNumberBlock.styles.title;
         return (
-            <TouchableNativeFeedback onPress={() => this.onPress()}>
+            <TouchableNativeFeedback onPress={() => this.props.onPress()}>
                 <View style={TitleNumberBlock.styles.container}>
                     <Text style={[Fonts.typography("paperFontBody2"), textColor, {
                         fontWeight: "400",
