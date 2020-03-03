@@ -69,6 +69,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                     <TextInput
                         style={{flex: 1, borderBottomWidth: 0, marginVertical: 0, paddingVertical: 5}}
                         keyboardType='numeric'
+                        maxLength={4}
                         underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
                         value={_.isNil(this.props.state.age) ? "" : this.props.state.age}
                         onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
