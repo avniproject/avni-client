@@ -68,6 +68,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
                         filteredFormElements={null}
                         formElementsUserState={null}
                         dataEntryDate={null}
+                        onValidationError={(x, y) => this.scrollToPosition(x, y)}
                     />
                     <WizardButtons next={{
                         func: () => this.submit(), label: this.I18n.t('View')

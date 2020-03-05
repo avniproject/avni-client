@@ -11,7 +11,7 @@ class StatusCountRow extends AbstractComponent {
     static propTypes = {
         address: PropTypes.object,
         visits: PropTypes.object,
-        backFunction: PropTypes.func.isRequired
+        backFunction: PropTypes.func.isRequired,
     };
 
     static styles = StyleSheet.create({

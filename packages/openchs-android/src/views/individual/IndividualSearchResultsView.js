@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import React from "react";
 import Path from "../../framework/routing/Path";
 import GlobalStyles from "../primitives/GlobalStyles";
-import {Icon} from "native-base";
 import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
@@ -13,7 +12,7 @@ import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
-import Distances from "../primitives/Distances";
+import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -23,16 +22,21 @@ class IndividualSearchResultsView extends AbstractComponent {
         onIndividualSelection: PropTypes.func.isRequired
     };
 
-    viewName() {
-        return 'IndividualSearchResultsView';
-    }
-
     constructor(props, context) {
         super(props, context);
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             dataSource: ds.cloneWithRows(['row 1', 'row 2']),
         };
+    }
+
+    viewName() {
+        return 'IndividualSearchResultsView';
+    }
+
+    componentWillMount() {
+        setTimeout(() => this.dispatchAction(Actions.LOAD_INDICATOR, {status: false}), 0);
+        super.componentWillMount();
     }
 
     renderZeroResultsMessageIfNeeded() {

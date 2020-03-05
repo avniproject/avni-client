@@ -11,7 +11,7 @@ class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
         title: PropTypes.string,
         number: PropTypes.number,
-        highlight: PropTypes.bool
+        highlight: PropTypes.bool,
     };
 
     static styles = StyleSheet.create({
@@ -40,7 +40,7 @@ class TitleNumberBlock extends AbstractComponent {
     render() {
         const textColor = this.props.highlight ? TitleNumberBlock.styles.highlight : TitleNumberBlock.styles.title;
         return (
-            <TouchableNativeFeedback onPress={this.props.onPress}>
+            <TouchableNativeFeedback onPress={() => this.props.onPress()}>
                 <View style={TitleNumberBlock.styles.container}>
                     <Text style={[Fonts.typography("paperFontBody2"), textColor, {
                         fontWeight: "400",

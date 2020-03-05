@@ -1,5 +1,5 @@
 import React from "react";
-import {ListView, Text, View} from 'react-native';
+import {ListView, Text, TouchableNativeFeedback, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -13,6 +13,8 @@ import AppHeader from "../common/AppHeader";
 import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
+import CustomActivityIndicator from "../CustomActivityIndicator";
+import {Icon} from "native-base";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -28,12 +30,16 @@ class MyDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        this.dispatchAction(Actions.LOAD_INDICATOR);
+        setTimeout(() => this.dispatchAction(Actions.ON_LOAD), 0);
         super.componentWillMount();
     }
 
+    componentDidMount() {
+        this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false})
+    }
+
     onBackCallback() {
-        this.dispatchAction(Actions.ON_LOAD);
         this.goBack();
     }
 
@@ -53,13 +59,38 @@ class MyDashboardView extends AbstractComponent {
     }
 
     renderHeader() {
-        return <Text style={{
-            paddingTop: 10,
-            textAlign: 'center',
-            fontSize: 20,
-            color: Colors.DefaultPrimaryColor,
-            paddingBottom: 10
-        }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
+        return <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap'}}>
+            <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 5}}>
+                <Text>Last updated on </Text>
+                <Text>{this.state.lastUpdatedOn}</Text>
+            </View>
+            <View style={{alignItems: 'center'}}>
+                <Text style={{
+                    paddingTop: 10,
+                    marginRight: 50,
+                    textAlign: 'center',
+                    fontSize: 20,
+                    color: Colors.DefaultPrimaryColor,
+                    paddingBottom: 10
+                }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
+            </View>
+            <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
+                                     background={TouchableNativeFeedback.SelectableBackground()}>
+                <View style={{marginRight: 10, alignItems: 'center'}}>
+                    <Icon style={{
+                        color: Colors.AccentColor,
+                        opacity: 0.8,
+                        alignSelf: 'center',
+                        fontSize: 30
+                    }} name='refresh'/>
+                </View>
+            </TouchableNativeFeedback>
+        </View>
+    }
+
+    refreshDashBoard() {
+        this.dispatchAction(Actions.LOAD_INDICATOR);
+        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: true}), 0);
     }
 
     render() {
@@ -79,6 +110,7 @@ class MyDashboardView extends AbstractComponent {
                                       selectedCustomFilters={this.state.selectedCustomFilters}
                                       selectedGenders={this.state.selectedGenders}
                                       programs={this.state.programs}
+                                      activityIndicatorActionName={Actions.LOAD_INDICATOR}
                                       onPress={() => CHSNavigator.navigateToFilterView(this, {
                                           filters: this.state.filters,
                                           locationSearchCriteria: this.state.locationSearchCriteria,
@@ -98,6 +130,8 @@ class MyDashboardView extends AbstractComponent {
                                       })}/>
                 </View>
                 <CHSContent>
+                    <CustomActivityIndicator
+                        loading={this.state.loading}/>
                     <View>
                         <ListView dataSource={dataSource}
                                   initialListSize={1}

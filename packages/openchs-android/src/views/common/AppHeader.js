@@ -12,6 +12,7 @@ import {LandingViewActionsNames} from "../../action/LandingViewActions";
 import SyncComponent from "../SyncComponent";
 import ExitBeneficiaryModeButton from "../beneficiaryMode/ExitBeneficiaryModeButton";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
+import UserInfoService from "../../service/UserInfoService";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -28,6 +29,7 @@ class AppHeader extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
     onBack() {
@@ -40,7 +42,7 @@ class AppHeader extends AbstractComponent {
     onHome() {
         CHSNavigator.goHome(this);
         this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
-        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: true});
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.userSettings.disableAutoRefresh});
     }
 
     background() {

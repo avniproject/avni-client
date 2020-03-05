@@ -280,6 +280,10 @@
     "logoutConfirmationTitle": "क्या आप लॉगऑऊट  करना चाहते हैं ?",
     "logoutConfirmationMessage": "यदि आप लॉग आउट करते हैं, तो आपको ऐप का उपयोग जारी रखने के लिए इंटरनेट के साथ फिर से लॉगिन करना होगा।\n",
     "logoutConfirmed": "लॉग आउट",
-    "logoutCancelled": "रद्द करना"
+    "logoutCancelled": "रद्द करना",
+    "backup": "बैकअप ले",
+    "backupNoticeTitle": "बैकअप डेटा",
+    "backupConfirmationMessage": "क्या आप वाकई अपने डेटा का बैकअप लेना चाहते हैं, कृपया सुनिश्चित करें कि आपका सारा डेटा सिंक हो गया है।",
+    "feedback": "अपनी राय बताएं"
   }
 }

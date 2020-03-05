@@ -4,7 +4,7 @@ import { PermissionsAndroid } from 'react-native';
 
 export default class FileSystem {
 
-    static init() {
+    static async init() {
         General.logDebug("FileSystem", "Creating directories if they don't exist");
         General.logDebug("FileSystem", FileSystem.getImagesDir());
         General.logDebug("FileSystem", FileSystem.getVideosDir());
@@ -13,7 +13,7 @@ export default class FileSystem {
             return typeof (grant) === 'boolean'? grant: PermissionsAndroid.RESULTS.GRANTED === grant;
         };
 
-        (async function requestFileSystemPermission() {
+       await (async function requestFileSystemPermission() {
             try {
                 const grant = await PermissionsAndroid.request(
                     PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -23,8 +23,9 @@ export default class FileSystem {
                     }
                 );
                 if (grantSuccess(grant)) {
-                    FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
+                   await FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
                         .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
+                        .then(() => FileSystem.mkdir(FileSystem.getBackupDir(), 'db'))
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -50,5 +51,10 @@ export default class FileSystem {
     static getVideosDir() {
         General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos/`);
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos`;
+    }
+
+    static getBackupDir(){
+        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`);
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`;
     }
 }

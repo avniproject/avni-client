@@ -37,7 +37,8 @@ export default class DashboardFilters extends AbstractComponent {
     async showPicker(stateKey, options) {
         const {action, year, month, day} = await DatePickerAndroid.open(options);
         if (action !== DatePickerAndroid.dismissedAction) {
-            this.dispatchAction(Actions.ON_DATE, {value: new Date(year, month, day)});
+            this.dispatchAction(this.props.activityIndicatorActionName, {status: true});
+            setTimeout(() => this.dispatchAction(Actions.ON_DATE, {value: new Date(year, month, day)}), 1);
         }
     }
 
