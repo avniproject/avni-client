@@ -295,7 +295,7 @@ class RuleEvaluationService extends BaseService {
             } catch (e) {
                 console.log(e);
                 General.logDebug("Rule-Failure", `New enrolment decision failed for: ${form.name} form name`);
-                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(form, entityName));
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
         }
         else if (!_.isEmpty(rulesFromTheBundle)) {
