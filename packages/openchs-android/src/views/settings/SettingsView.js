@@ -32,6 +32,29 @@ class SettingsView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    renderUserPropertyToggleButton(label, propertyName, actionName) {
+        return <View>
+            <Text style={Styles.formLabel}>{this.I18n.t(label)}</Text>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderRadius: 1,
+                borderColor: Colors.InputBorderNormal,
+                paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
+            }}>
+                <Text style={{
+                    color: 'black',
+                    fontSize: Styles.normalTextSize
+                }}>{this.I18n.t(propertyName)}</Text>
+                <Switch value={this.state.userInfo.getSettings()[propertyName]}
+                        onValueChange={() => this.dispatchAction(actionName)}/>
+            </View>
+        </View>
+    }
+
     render() {
         const localeLabelValuePairs = this.state.localeMappings.map((localeMapping) => new RadioLabelValue(localeMapping.displayText, localeMapping));
         return (
@@ -49,25 +72,8 @@ class SettingsView extends AbstractComponent {
                                 validationError={null}
                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
                         }
-
-                        <Text style={Styles.formLabel}>{this.I18n.t('location')}</Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            borderWidth: 1,
-                            borderStyle: 'dashed',
-                            borderRadius: 1,
-                            borderColor: Colors.InputBorderNormal,
-                            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems
-                        }}>
-                            <Text style={{
-                                color: 'black',
-                                fontSize: Styles.normalTextSize
-                            }}>{this.I18n.t('trackLocation')}</Text>
-                            <Switch value={this.state.userInfo.getSettings().trackLocation}
-                                    onValueChange={() => this.dispatchAction(Actions.ON_CAPTURE_LOCATION_CHANGE)}/>
-                        </View>
+                        {this.renderUserPropertyToggleButton('location', 'trackLocation', Actions.ON_CAPTURE_LOCATION_CHANGE)}
+                        {this.renderUserPropertyToggleButton('autoRefresh', 'disableAutoRefresh', Actions.ON_CAPTURE_AUTO_REFRESH_CHANGE)}
                     </View>
                 </CHSContent>
             </CHSContainer>

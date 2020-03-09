@@ -15,6 +15,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {Icon} from "native-base";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -23,6 +24,7 @@ class MyDashboardView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
+        this.disableAutoRefresh = context.getService(UserInfoService).getUserInfo().getSettings().disableAutoRefresh;
     }
 
     viewName() {
@@ -59,11 +61,13 @@ class MyDashboardView extends AbstractComponent {
     }
 
     renderHeader() {
-        return <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap'}}>
-            <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 5}}>
-                <Text>Last updated on </Text>
-                <Text>{this.state.lastUpdatedOn}</Text>
-            </View>
+        return <View
+            style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap'}}>
+            {this.disableAutoRefresh ?
+                <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 5}}>
+                    <Text>Last updated on </Text>
+                    <Text>{this.state.lastUpdatedOn}</Text>
+                </View> : <View/>}
             <View style={{alignItems: 'center'}}>
                 <Text style={{
                     paddingTop: 10,
@@ -74,17 +78,18 @@ class MyDashboardView extends AbstractComponent {
                     paddingBottom: 10
                 }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
             </View>
-            <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={{marginRight: 10, alignItems: 'center'}}>
-                    <Icon style={{
-                        color: Colors.AccentColor,
-                        opacity: 0.8,
-                        alignSelf: 'center',
-                        fontSize: 30
-                    }} name='refresh'/>
-                </View>
-            </TouchableNativeFeedback>
+            {this.disableAutoRefresh ?
+                <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
+                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                    <View style={{marginRight: 10, alignItems: 'center'}}>
+                        <Icon style={{
+                            color: Colors.AccentColor,
+                            opacity: 0.8,
+                            alignSelf: 'center',
+                            fontSize: 30
+                        }} name='refresh'/>
+                    </View>
+                </TouchableNativeFeedback> : <View/>}
         </View>
     }
 
