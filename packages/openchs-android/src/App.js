@@ -16,6 +16,7 @@ import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
 import {removeBackupFile, restore} from "./BackupRestoreRealm";
 import fs from 'react-native-fs';
+import PrivilegeService from "./service/PrivilegeService";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;

@@ -4,14 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {
-    BaseEntity,
-    EntityMetaData,
-    EntitySyncStatus,
-    ProgramEnrolment,
-    RuleFailureTelemetry,
-    SyncTelemetry
-} from 'avni-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'avni-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -21,7 +14,7 @@ import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
 import _ from "lodash";
 import RuleService from "./RuleService";
-import General from "../utility/General";
+import PrivilegeService from "./PrivilegeService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -40,7 +33,7 @@ class SyncService extends BaseService {
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
-        this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService));
+        this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService), this.getService(PrivilegeService));
         this.messageService = this.getService(MessageService);
         this.authService = this.getService(AuthService);
         this.ruleEvaluationService = this.getService(RuleEvaluationService);
@@ -152,6 +145,7 @@ class SyncService extends BaseService {
 
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
+        const allPrivilegeMetaData = allEntitiesMetaData.filter(entityMetaData =>  entityMetaData.type === "privilege");
 
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
@@ -161,6 +155,8 @@ class SyncService extends BaseService {
             .then(() => onAfterMediaPush("After_Media", 0))
 
             .then(() => statusMessageCallBack("downloadForms"))
+            .then(() => this.getData(allPrivilegeMetaData, onProgressPerEntity))
+            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData))
             .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
@@ -168,12 +164,20 @@ class SyncService extends BaseService {
 
     }
 
+    updateAsPerNewPrivilege(entityMetadata) {
+        this.getService(EntitySyncStatusService).updateEntitySyncStatusWithNewPrivileges(entityMetadata)
+    }
+
     getData(entitiesMetadata, afterEachPagePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
-            .map((entityMetadata) => _.assignIn({
-                syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
-            }, entityMetadata));
+            .map((entityMetadata) => {
+                const metadata = this.entitySyncStatusService.get(entityMetadata.entityName);
+                return _.reduce(metadata, (acc, m) => {
+                    acc.push(_.assignIn({syncStatus: m}, entityMetadata));
+                    return acc;
+                }, [])
+            }).flat(1);
 
         const onGetOfFirstPage = (entityName, page) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
@@ -205,7 +209,7 @@ class SyncService extends BaseService {
             entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
         }
 
-        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName);
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid)[0];
 
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.name = entityMetaData.entityName;
