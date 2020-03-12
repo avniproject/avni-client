@@ -19,7 +19,8 @@ import General from "../../utility/General";
 import ProgramActionsView from './ProgramActionsView';
 import Styles from "../primitives/Styles";
 import FormMappingService from "../../service/FormMappingService";
-import {Form} from 'avni-models';
+import PrivilegeService from "../../service/PrivilegeService";
+import {Form, Privilege} from 'avni-models';
 import _ from "lodash";
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
@@ -36,6 +37,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
         this.getForm = this.getForm.bind(this);
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     componentWillMount() {
@@ -97,7 +99,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     getEnrolmentContextActions(isExit) {
-        return [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
+        const editEnrolmentCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+        const allowedEnrolmentTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editEnrolmentCriteria, 'programUuid');
+        return !this.privilegeService.hasGroupPrivileges() || _.isEmpty(allowedEnrolmentTypeUuidsForEdit) ? [] : [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
     }
 
     joinProgram() {
@@ -114,7 +118,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     getPrimaryEnrolmentContextAction() {
-        if (!this.state.hideExit) {
+        const exitProgramCriteria = `privilege.name = '${Privilege.privilegeName.exitEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+        const allowedEnrolmentTypeUuidsForExit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(exitProgramCriteria, 'programUuid');
+        
+        if (!this.state.hideExit && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(allowedEnrolmentTypeUuidsForExit))) {
             return _.isNil(this.state.enrolment.programExitDateTime) ?
                 new ContextAction('exitProgram', () => this.exitProgram()) :
                 new ContextAction('undoExit', () => this.joinProgram());
@@ -126,10 +133,17 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return _.isEmpty(nonVoidedEnrolments) ? [] : nonVoidedEnrolments;
     }
 
-    renderPlannedVisits() {
+    renderPlannedVisits(allowedEncounterTypeUuids) {
+        const cancelEncounterCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+        const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelEncounterCriteria, 'programEncounterTypeUuid');
+        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'programEncounterTypeUuid');
+        
         const programEnrolment = this.state.enrolment;
-        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime && _.includes(allowedEncounterTypeUuids, encounter.encounterType.uuid));
         return (<PreviousEncounters encounters={scheduledEncounters}
+                                    allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
+                                    allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuidsForPerformVisit}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={this.state.showCount}
                                     showPartial={false}
@@ -142,7 +156,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     renderCompletedVisits() {
         const programEnrolment = this.state.enrolment;
         const actualEncounters = this.state.completedEncounters;
+        const visitEditCriteria = `privilege.name = '${Privilege.privilegeName.editVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${this.state.enrolment.program.uuid}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}'`;
+        const allowedEnrolmentTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'programEncounterTypeUuid');        
         return (<PreviousEncounters encounters={actualEncounters}
+                                    allowedEnrolmentTypeUuids={allowedEnrolmentTypeUuids}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={this.state.showCount}
                                     showPartial={true}
@@ -226,6 +243,8 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         let enrolments = _.reverse(_.sortBy(this.enrolments(), (enrolment) => enrolment.enrolmentDateTime));
         const dashboardButtons = this.state.dashboardButtons || [];
+        const performVisitCriteria = this.state.enrolment.program && `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'` || '';
+        const allowedEncounterTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'programEncounterTypeUuid');
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.defaultBackground}}>
@@ -261,6 +280,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                             <ProgramActionsView programDashboardButtons={dashboardButtons}
                                                 enrolment={this.state.enrolment}
                                                 onOpenChecklist={() => this.openChecklist()}
+                                                allowedEncounterTypeUuids={allowedEncounterTypeUuids}
                             />
                         </View>
                     </View>
@@ -268,7 +288,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                         <View>
                             {this.renderSummary()}
                             {this.renderExitObservations()}
-                            {this.renderPlannedVisits()}
+                            {this.renderPlannedVisits(allowedEncounterTypeUuids)}
                             {this.renderEnrolmentDetails()}
                             {this.renderCompletedVisits()}
                         </View>

@@ -15,16 +15,19 @@ import {Encounter, EncounterType, Individual, ProgramEncounter} from "avni-model
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class NewVisitMenuView extends AbstractComponent {
     static propTypes = {
         enrolmentUUID: PropTypes.string,
         individualUUID: PropTypes.string,
+        allowedEncounterTypeUuids: PropTypes.array,
         onSaveCallback: PropTypes.func,
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.startProgramActions);
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     componentWillMount() {
@@ -100,8 +103,8 @@ class NewVisitMenuView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), "render");
-        const encounters = this.state.encounters;
-        const encounterTypes = this.state.encounterTypes;
+        const encounters = _.filter(this.state.encounters, ({encounter}) => !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuids, encounter.encounterType.uuid));
+        const encounterTypes = _.filter(this.state.encounterTypes, ({encounterType}) => !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuids, encounterType.uuid));
         const sections = [
             {title: this.I18n.t("plannedVisits"), data: encounters, renderItem: this.renderEncounter},
         ];

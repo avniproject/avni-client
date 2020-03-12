@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType, CustomFilter} from 'avni-models';
+import {Filter, SingleSelectFilter as SingleSelectFilterModel, SubjectType, CustomFilter, Privilege} from 'avni-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -25,6 +25,7 @@ import CustomFilters from "./CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "./GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import PrivilegeService from "../../service/PrivilegeService";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -60,6 +61,7 @@ class FilterView extends AbstractComponent {
         this.formMappingService = context.getService(FormMappingService);
         this.entityService = context.getService(EntityService);
         this.customFilterService = context.getService(CustomFilterService)
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     viewName() {
@@ -150,15 +152,25 @@ class FilterView extends AbstractComponent {
     }
 
     renderProgramEncounterGroup() {
+        const viewProgramCriteria = `privilege.name = '${Privilege.privilegeName.viewEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.selectedSubjectType.uuid}'`;
+        const allowedEncounterTypeUuidsForViewProgram = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramCriteria, 'programUuid');        
+
         const programFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
-            visits={this.state.programs}
+            visits={_.filter(this.state.programs, program => !this.privilegeService.hasGroupPrivileges() || _.includes(allowedEncounterTypeUuidsForViewProgram, program.uuid))}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Program'}/>;
+
+        const programEncounterTypesPredicate = this.state.selectedPrograms &&
+            this.props.selectedPrograms.map(program => `programUuid = '${program.uuid}'`).join(' OR ');
+        const viewProgramEncounterCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.selectedEncounterTypes.uuid}'`;
+        if (!_.isEmpty(programEncounterTypesPredicate)) viewProgramEncounterCriteria += ` AND '${programEncounterTypesPredicate}`
+        const allowedEncounterTypeUuidsForViewProgramEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramEncounterCriteria, 'encounterTypeUuid');        
+    
         const programEncounterFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
-            visits={this.state.encounterTypes}
+            visits={_.filter(this.state.encounterTypes, encounterType => !this.privilegeService.hasGroupPrivileges() || _.includes(allowedEncounterTypeUuidsForViewProgramEncounter, encounterType.uuid))}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Visits'}/>;
@@ -186,6 +198,12 @@ class FilterView extends AbstractComponent {
     }
 
     renderEncounterGroup() {
+
+        const viewGeneralEncounterCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.selectedSubjectType.uuid}'`;
+        const allowedEncounterTypeUuidsForViewGeneralEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewGeneralEncounterCriteria, 'encounterTypeUuid');        
+    
+        console.log("allowedEncounterTypeUuidsForViewGeneralEncounter==>", allowedEncounterTypeUuidsForViewGeneralEncounter);
+
         return this.state.generalEncounterTypes.length === 0 ? <View/> :
             <View style={{
                 marginTop: Styles.VerticalSpacingBetweenFormElements,
@@ -200,7 +218,7 @@ class FilterView extends AbstractComponent {
                 }}>
                     <ProgramFilter
                         onToggle={(name, uuid) => this.onGeneralVisitSelect(name, uuid)}
-                        visits={this.state.generalEncounterTypes}
+                        visits={_.filter(this.state.generalEncounterTypes, generalEncounter => _.includes(allowedEncounterTypeUuidsForViewGeneralEncounter, generalEncounter.uuid))}
                         multiSelect={true}
                         selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e => e.uuid === uuid)}
                         name={'GeneralVisits'}/>
@@ -212,7 +230,12 @@ class FilterView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
         const filterScreenName = 'myDashboardFilters';
-        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.selectedSubjectType);
+        const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedSubjectTypeUuidsForView = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');        
+    
+        const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
+
+        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
         const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         return (
@@ -232,7 +255,7 @@ class FilterView extends AbstractComponent {
                                     pickTime={false}
                                     dateValue={this.state.filterDate.value}/>
                             </View>
-                            {this.state.subjectTypes.length > 1 &&
+                            {allowedSubjectTypes.length > 1 &&
                             (<SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                             }}/>)

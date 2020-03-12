@@ -15,12 +15,14 @@ import {
 } from 'avni-models';
 import General from "../utility/General";
 import EntitySyncStatusService from "./EntitySyncStatusService";
+import FormMappingService from "./FormMappingService";
 
 @Service('PrivilegeService')
 class PrivilegeService extends BaseService {
 
     constructor(db, beanStore) {
         super(db, beanStore);
+        //this.formMappingService = beanStore.get(FormMappingService);
     }
 
     init() {
@@ -30,9 +32,24 @@ class PrivilegeService extends BaseService {
         const ownedGroupsQuery = this.ownedGroups().map(({uuid}) => `group.uuid = '${uuid}'`).join(' OR ');
         return this.db.objects(GroupPrivileges.schema.name)
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid <> null' : ownedGroupsQuery)
-            .filtered('privilege.name = $0 && privilege.entityType = $1 && allow = $2', privilegeName, privilegeEntity, allow)
+            .filtered('privilege.name = $0 && privilege.entityType = $1 && allow = true', privilegeName, privilegeEntity)
             .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam}) && ${privilegeParam} <> null`)
             .map(privilege => privilege[privilegeParam])
+    }
+
+    allowedEntityTypeUUIDListForCriteria(criteria, privilegeParam) {
+        const ownedGroupsQuery = this.ownedGroups().map(({uuid}) => `group.uuid = '${uuid}'`).join(' OR ');
+        return this.db.objects(GroupPrivileges.schema.name)
+            .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
+            .filtered(_.isEmpty(criteria) ? 'uuid = null' : criteria)
+            .filtered('allow = true')
+            .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam}) && ${privilegeParam} <> null`)
+            .map(privilege => privilege[privilegeParam])
+    }
+
+    //Temporary function for this release to handle the case when user has not synced group privileges. Remove after.
+    hasGroupPrivileges() {
+        return this.db.objects(GroupPrivileges.schema.name).length > 0;
     }
 
     deleteRevokedEntities() {
@@ -65,7 +82,13 @@ class PrivilegeService extends BaseService {
         return _.isEmpty(nonPrivilegeUuids) ? 'uuid = null' : filterQuery;
     }
 
+    getQueryForQueryParam(uuids, queryParam) {
+        const query = uuids.map(uuid => `${queryParam} = '${uuid}'`).join(' OR ');
+        return _.isEmpty(uuids) ? 'uuid = null' : `voided = false AND (${query})`
+    }
+
     deleteSubjects(db, uuids, queryParam) {
+        //const encountersForSubjectType = this.formMappingService.formMappingByCriteria(this.getQueryForQueryParam(uuids, 'SubjectType.uuid'));
         this.deleteEncounters(db, uuids, `individual.${queryParam}`);
         this.deleteEnrolments(db, uuids, `individual.${queryParam}`);
         this.deleteIndividualRelationship(db, uuids, `individualA.${queryParam}`);

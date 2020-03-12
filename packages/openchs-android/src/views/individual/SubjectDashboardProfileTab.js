@@ -17,7 +17,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 import Colors from "../primitives/Colors";
-import {WorkItem, WorkList, WorkLists} from "avni-models";
+import {WorkItem, WorkList, WorkLists, Privilege} from "avni-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
@@ -25,6 +25,7 @@ import {Names as DashboardActions} from "../../action/program/SubjectDashboardVi
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import GenericDashboardView from "../program/GenericDashboardView";
 import FormMappingService from "../../service/FormMappingService";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -34,6 +35,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegistrationDetails);
         this.formMappingService = context.getService(FormMappingService);
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     componentWillMount() {
@@ -158,9 +160,18 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderSelectionOptions() {
         const form = this.formMappingService.findRegistrationForm(this.state.individual.subjectType);
+        const editProfileCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const allowedSubjectTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editProfileCriteria, 'subjectTypeUuid');
+        const allowedSubjectTypeUuidsForVoid = this.privilegeService.allowedEntityTypeUUIDListForCriteria(voidProfileCriteria, 'subjectTypeUuid');
+        const requiredActions = []
+        if(!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
+            requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));        
+        if(!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
+            requiredActions.push(new ContextAction('edit', () => this.editProfile()));
         return _.isEmpty(form) ? <View/> : <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
             <ObservationsSectionOptions
-                contextActions={[new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor), new ContextAction('edit', () => this.editProfile())]}/>
+                contextActions={requiredActions}/>
         </TouchableOpacity>
     }
 

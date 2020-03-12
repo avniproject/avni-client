@@ -102,8 +102,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({enrolment, workLists, editing}).to(ProgramExitView);
     }
 
-    static navigateToStartEncounterPage(source, enrolmentUUID) {
-        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID}).to(NewVisitPageView);
+    static navigateToStartEncounterPage(source, enrolmentUUID, allowedEncounterTypeUuids) {
+        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID, allowedEncounterTypeUuids: allowedEncounterTypeUuids}).to(NewVisitPageView);
     }
 
     static goBack(source) {

@@ -14,7 +14,7 @@ import NewVisitMenuView from "./NewVisitMenuView";
 @Path("/NewVisitPageView")
 class NewVisitPageView extends AbstractComponent {
     static propTypes = {
-        params: PropTypes.object.isRequired
+        params: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {
@@ -29,7 +29,7 @@ class NewVisitPageView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}/>
                     <View>
-                        <NewVisitMenuView enrolmentUUID={this.props.params.enrolmentUUID}/>
+                        <NewVisitMenuView enrolmentUUID={this.props.params.enrolmentUUID} allowedEncounterTypeUuids={this.props.params.allowedEncounterTypeUuids}/>
                     </View>
                 </CHSContent>
             </CHSContainer>
