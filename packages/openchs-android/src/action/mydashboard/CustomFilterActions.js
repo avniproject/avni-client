@@ -20,6 +20,11 @@ class CustomFilterActions {
         return {...state, selectedCustomFilters};
     }
 
+    static onCodedCustomFilterClear(state, action, context) {
+        const selectedCustomFilters = {...state.selectedCustomFilters, [action['0']]: [{}]};
+        return {...state, selectedCustomFilters};
+    }
+
     static onCodedCustomFilterSelect(state, action, context) {
         const {conceptAnswerName, conceptAnswers, titleKey, subjectTypeUUID} = action;
         const selectedConceptAnswer = conceptAnswers.filter(a => a.concept.name === conceptAnswerName).map(c => ({
@@ -105,6 +110,7 @@ const ActionPrefix = 'CustomFilters';
 const CustomFilterNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_CODED_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_CODED_CUSTOM_FILTER_SELECT`,
+    ON_CODED_CUSTOM_FILTER_CLEAR: `${ActionPrefix}.ON_CODED_CUSTOM_FILTER_CLEAR`,
     ON_TEXT_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_TEXT_CUSTOM_FILTER_SELECT`,
     ON_NUMERIC_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_NUMERIC_CUSTOM_FILTER_SELECT`,
     ON_MIN_DATE_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MIN_DATE_CUSTOM_FILTER_SELECT`,
@@ -116,6 +122,7 @@ const CustomFilterNames = {
 const CustomFilterMap = new Map([
     [CustomFilterNames.ON_LOAD, CustomFilterActions.onLoad],
     [CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT, CustomFilterActions.onCodedCustomFilterSelect],
+    [CustomFilterNames.ON_CODED_CUSTOM_FILTER_CLEAR, CustomFilterActions.onCodedCustomFilterClear],
     [CustomFilterNames.ON_TEXT_CUSTOM_FILTER_SELECT, CustomFilterActions.onTextCustomFilterSelect],
     [CustomFilterNames.ON_NUMERIC_CUSTOM_FILTER_SELECT, CustomFilterActions.onNumericFilterSelect],
     [CustomFilterNames.ON_MIN_DATE_CUSTOM_FILTER_SELECT, CustomFilterActions.onMinDateFilterSelect],

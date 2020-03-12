@@ -24,7 +24,8 @@ import General from "../../utility/General";
 import CustomFilters from "./CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "./GenderFilter";
-
+import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";
+import {GenderFilterNames as Actions} from "../../action/mydashboard/GenderFilterActions";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -50,6 +51,14 @@ class FilterView extends AbstractComponent {
 
         floatingButtonIcon: {
             color: Colors.TextOnPrimaryColor
+        },
+        ClearButton:{
+            backgroundColor: Colors.AccentColor,
+            paddingTop:7,
+            paddingBottom:7,
+            marginTop:7,
+            paddingRight:20,
+            paddingLeft:20
         }
     });
 
@@ -144,6 +153,21 @@ class FilterView extends AbstractComponent {
         this.dispatchAction(FilterActionNames.ADD_PROGRAM, {programUUID: uuid});
     }
 
+
+    clearData(){
+        this.dispatchAction(FilterActionNames.RESET_DASHBOARD_FILTERS,{state:this.state})
+        for (index in this.state.selectedCustomFilters){
+            this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_CLEAR, [index])}
+        for(index in this.state.selectedGenders){
+            gender = this.state.selectedGenders[index].name;
+            this.dispatchAction(Actions.ON_GENDER_SELECT,{gender})}
+        var MaxLevel = this.state.addressLevelState.levels.length;
+        while(MaxLevel>=0){
+                this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL_CLEAR, {
+                addressLevelState: this.state.addressLevelState});
+                MaxLevel--;}
+    }
+
     renderProgramEncounterGroup() {
         const programFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
@@ -216,6 +240,7 @@ class FilterView extends AbstractComponent {
                 <CHSContent>
                     <View style={{backgroundColor: Styles.whiteColor}}>
                         <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: "space-between"}}>
                             <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
                                 <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("date")}</Text>
                                 <DatePicker
@@ -225,6 +250,16 @@ class FilterView extends AbstractComponent {
                                     pickTime={false}
                                     dateValue={this.state.filterDate.value}/>
                             </View>
+                            <TouchableOpacity activeOpacity={0.5}
+                                  onPress={() => this.clearData()}
+                                  style={FilterView.styles.ClearButton}>
+                                    <Text style={{
+                                        fontSize: Styles.normalTextSize,
+                                        color: Colors.TextOnPrimaryColor,
+                                        alignSelf: "center"
+                                    }}>{this.I18n.t("Clear")}</Text>
+                                </TouchableOpacity>
+                           </View>
                             {this.state.subjectTypes.length > 1 &&
                             (<SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})

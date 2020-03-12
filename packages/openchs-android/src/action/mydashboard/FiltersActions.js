@@ -2,6 +2,8 @@ import AddressLevelService from "../../service/AddressLevelService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
+import ConceptService from "../../service/ConceptService";
+import { element } from "prop-types";
 
 class FiltersActions {
 
@@ -66,8 +68,32 @@ class FiltersActions {
         return newState;
     }
 
+    static addressLevelCriteriaClear(state, action, beans) {
+        const newState = {
+            ...state,
+            locationSearchCriteria: state.locationSearchCriteria.clone(),
+            addressLevelState: action.addressLevelState
+        };
+        const addressLevelService = beans.get(AddressLevelService);
+        const lowestSelectedAddressLevels = action.addressLevelState.lowestSelectedAddresses;
+        const lowestAddressLevels = lowestSelectedAddressLevels
+            .reduce((acc, parent) => acc.concat(addressLevelService.getLeavesOfParent(parent)), []);
+        lowestAddressLevels.forEach(element => {
+            element['isSelected']=false
+        })
+        lowestSelectedAddressLevels.forEach(element => {
+            element['isSelected'] =false
+        });
+        newState.locationSearchCriteria.toggleLowestAddresses(lowestAddressLevels);
+        return newState;
+    }
+
     static onDateChange(state, action) {
         return {...state, filterDate: {value: action.value}};
+    }
+
+    static onDateChangeClear(state, action) {
+        return {...state, filterDate: {value:new Date()}};
     }
 
     static loadEncounters(state, action, context) {
@@ -117,7 +143,7 @@ class FiltersActions {
             generalEncounterTypes,
             selectedGeneralEncounterTypes: [],
         }
-    }
+    } 
 
     static addProgram(state, action, context) {
         const isPresent = FiltersActions.isPresent(state.selectedPrograms, action.programUUID);
@@ -156,6 +182,25 @@ class FiltersActions {
     static genderFilterChange(state, action) {
         return {...state, selectedGenders: action.selectedGenders}
     }
+
+    static resetDashboardFilter(state,action,context){    
+         for(index in state.selectedGeneralEncounterTypes){
+            FiltersActions.addGeneralVisits(state,
+                {encounterUUID: state.selectedGeneralEncounterTypes[index]['uuid']})}
+        
+        if(state.programs.length!=1){
+            var encounterTypes=[];}
+        else{
+             var encounterTypes=state.encounterTypes;}
+             
+        return {...state,
+            selectedEncounterTypes:[],
+            selectedPrograms:[],
+            selectedEncounterTypes:[],
+            encounterTypes:encounterTypes,
+            filterDate: {value:new Date()}
+        }
+    }
 }
 
 const ActionPrefix = 'FilterA';
@@ -171,6 +216,10 @@ const FilterActionNames = {
     ADD_SUBJECT_TYPE: `${ActionPrefix}.ADD_SUBJECT_TYPE`,
     CUSTOM_FILTER_CHANGE: `${ActionPrefix}.CUSTOM_FILTER_CHANGE`,
     GENDER_FILTER_CHANGE: `${ActionPrefix}.GENDER_FILTER_CHANGE`,
+    INDIVIDUAL_SEARCH_ADDRESS_LEVEL_CLEAR: `${ActionPrefix}.INDIVIDUAL_SEARCH_ADDRESS_LEVEL_CLEAR`,
+    RESET_DASHBOARD_FILTERS: `${ActionPrefix}.RESET_DASHBOARD_FILTERS`,
+    
+
 };
 const FilterActionMap = new Map([
     [FilterActionNames.ON_LOAD, FiltersActions.onLoad],
@@ -184,6 +233,8 @@ const FilterActionMap = new Map([
     [FilterActionNames.ADD_SUBJECT_TYPE, FiltersActions.addSubjectType],
     [FilterActionNames.CUSTOM_FILTER_CHANGE, FiltersActions.customFilterChange],
     [FilterActionNames.GENDER_FILTER_CHANGE, FiltersActions.genderFilterChange],
+    [FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL_CLEAR, FiltersActions.addressLevelCriteriaClear],
+    [FilterActionNames.RESET_DASHBOARD_FILTERS, FiltersActions.resetDashboardFilter],
 ]);
 
 export {
