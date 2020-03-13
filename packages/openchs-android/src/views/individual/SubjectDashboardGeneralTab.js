@@ -115,7 +115,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                 />
                 <View style={{marginHorizontal: 10}}>
                     <View style={{marginTop: 2, position: 'absolute', right: 8}}>
-                        {_.isEmpty(this.state.encounterTypes) || !this.privilegeService.hasGroupPrivileges() || _.isEmpty(allowedEncounterTypeUuidsForPerformVisit) ? <View/> :
+                        {_.isEmpty(this.state.encounterTypes) || (this.privilegeService.hasGroupPrivileges() && _.isEmpty(allowedEncounterTypeUuidsForPerformVisit)) ? <View/> :
                             this.renderButton(() => this.startEncounter(), Styles.basicPrimaryButtonView,
                                 this.I18n.t('newGeneralVisit'), Colors.TextOnPrimaryColor)
                         }

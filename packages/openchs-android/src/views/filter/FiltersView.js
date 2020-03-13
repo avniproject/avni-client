@@ -211,7 +211,7 @@ class FilterView extends AbstractComponent {
                 }}>
                     <ProgramFilter
                         onToggle={(name, uuid) => this.onGeneralVisitSelect(name, uuid)}
-                        visits={_.filter(this.state.generalEncounterTypes, generalEncounter => _.includes(allowedEncounterTypeUuidsForViewGeneralEncounter, generalEncounter.uuid))}
+                        visits={_.filter(this.state.generalEncounterTypes, generalEncounter => !this.privilegeService.hasGroupPrivileges() || _.includes(allowedEncounterTypeUuidsForViewGeneralEncounter, generalEncounter.uuid))}
                         multiSelect={true}
                         selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e => e.uuid === uuid)}
                         name={'GeneralVisits'}/>

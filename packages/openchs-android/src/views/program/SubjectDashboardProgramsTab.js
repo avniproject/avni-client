@@ -101,7 +101,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     getEnrolmentContextActions(isExit) {
         const editEnrolmentCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEnrolmentTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editEnrolmentCriteria, 'programUuid');
-        return !this.privilegeService.hasGroupPrivileges() || _.isEmpty(allowedEnrolmentTypeUuidsForEdit) ? [] : [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
+        return this.privilegeService.hasGroupPrivileges() && _.isEmpty(allowedEnrolmentTypeUuidsForEdit) ? [] : [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
     }
 
     joinProgram() {
