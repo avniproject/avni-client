@@ -67,6 +67,10 @@ class ChecklistService extends BaseService {
         savedChecklist.programEnrolment = programEnrolment;
         return entityQueueItems;
     }
+
+    checklistByCriteria(criteria) {
+        return this.getAll(Checklist.schema.name).filtered(criteria)
+    }
 }
 
 export default ChecklistService;

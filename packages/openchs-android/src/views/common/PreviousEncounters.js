@@ -1,10 +1,9 @@
-import {View, ListView, TouchableNativeFeedback, TouchableOpacity, StyleSheet} from "react-native";
+import {ListView, StyleSheet, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Text, Button, Badge} from "native-base";
+import {Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import moment from "moment";
-import DGS from "../primitives/DynamicGlobalStyles";
 import Observations from "../common/Observations";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ContextAction from "../viewmodel/ContextAction";
@@ -15,12 +14,12 @@ import EncounterService from "../../service/EncounterService";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
-import {Form} from 'avni-models';
 import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CompletedEncountersView from "../../encounter/CompletedEncountersView";
 import CollapsibleEncounters from "./CollapsibleEncounters";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -41,6 +40,7 @@ class PreviousEncounters extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     editEncounter(encounter) {
@@ -56,15 +56,15 @@ class PreviousEncounters extends AbstractComponent {
 
     cancelVisitAction(encounter, textColor) {
         const encounterService = this.context.getService(EncounterService);
-        if (encounterService.isEncounterTypeCancellable(encounter) && (!this.getService(PrivilegeService).hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
+        if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
     encounterActions(encounter) {
-        return !this.getService(PrivilegeService).hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid) ? [new ContextAction('edit', () => this.editEncounter(encounter), textColor)] : [];
+        return !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
     scheduledEncounterActions(encounter, actionName, textColor) {
-        return !this.getService(PrivilegeService).hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? [new ContextAction(actionName, () => this.editEncounter(encounter), textColor)] : [];
+        return !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? [new ContextAction(actionName, () => this.editEncounter(encounter), textColor)] : [];
     }
 
     badge = (status, color) => <View style={{
@@ -98,7 +98,8 @@ class PreviousEncounters extends AbstractComponent {
     renderNormalView(encounter) {
         const formMappingService = this.context.getService(FormMappingService);
         return <View>
-            <TouchableOpacity onPress= {() => !this.getService(PrivilegeService).hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
+            <TouchableOpacity
+                onPress={() => !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
                 {this.renderTitleAndDetails(encounter)}
                 <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
                     this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
@@ -161,7 +162,7 @@ class PreviousEncounters extends AbstractComponent {
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                {this.props.title &&(
+                {this.props.title && (
                     <Text style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>
                         {this.props.title}
                     </Text>
@@ -173,7 +174,7 @@ class PreviousEncounters extends AbstractComponent {
                 <View style={styles.container}>
                     <Text style={{fontSize: Fonts.Medium}}>{this.props.emptyTitle}</Text>
                 </View>
-            ):(
+            ) : (
                 <View/>
             )}
             <ListView

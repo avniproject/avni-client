@@ -97,12 +97,13 @@ class SyncService extends BaseService {
 
     sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
 
+        const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
+        const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop);
+        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
-        const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
 
         this.dispatchAction(SyncTelemetryActions.START_SYNC);
 
@@ -116,7 +117,7 @@ class SyncService extends BaseService {
         return mediaUploadRequired ?
             firstDataServerSync
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, _.noop))
                 .then(syncCompleted)
             : firstDataServerSync.then(syncCompleted);
     }
@@ -141,11 +142,10 @@ class SyncService extends BaseService {
             .then(() => this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity))
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush) {
+    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
 
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
-        const allPrivilegeMetaData = allEntitiesMetaData.filter(entityMetaData =>  entityMetaData.type === "privilege");
 
         return this.authenticate()
             .then((idToken) => this.conventionalRestClient.setToken(idToken))
@@ -155,30 +155,43 @@ class SyncService extends BaseService {
             .then(() => onAfterMediaPush("After_Media", 0))
 
             .then(() => statusMessageCallBack("downloadForms"))
-            .then(() => this.getData(allPrivilegeMetaData, onProgressPerEntity))
-            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData))
-            .then(() => this.getData(allReferenceDataMetaData, onProgressPerEntity))
+            .then(() => this.getRefData(allReferenceDataMetaData, onProgressPerEntity))
+            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData, updateProgressSteps))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getData(allTxEntityMetaData, onProgressPerEntity))
+            .then(() => this.getTxData(allTxEntityMetaData, onProgressPerEntity))
 
     }
 
-    updateAsPerNewPrivilege(entityMetadata) {
-        this.getService(EntitySyncStatusService).updateEntitySyncStatusWithNewPrivileges(entityMetadata)
+    updateAsPerNewPrivilege(entityMetadata, updateProgressSteps) {
+        const entitySyncStatusService = this.getService(EntitySyncStatusService);
+        entitySyncStatusService.updateEntitySyncStatusWithNewPrivileges(entityMetadata);
+        updateProgressSteps(entityMetadata, entitySyncStatusService.findAll());
     }
 
-    getData(entitiesMetadata, afterEachPagePulled) {
+    getRefData(entitiesMetadata, afterEachPagePulled) {
+        const entitiesMetaDataWithSyncStatus = entitiesMetadata
+            .reverse()
+            .map((entityMetadata) => _.assignIn({
+                syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
+            }, entityMetadata));
+        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled);
+    }
+
+    getTxData(entitiesMetadata, afterEachPagePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => {
-                const metadata = this.entitySyncStatusService.get(entityMetadata.entityName);
+                const metadata = this.entitySyncStatusService.getAllByEntityName(entityMetadata.entityName);
                 return _.reduce(metadata, (acc, m) => {
                     acc.push(_.assignIn({syncStatus: m}, entityMetadata));
                     return acc;
                 }, [])
             }).flat(1);
+        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled);
+    }
 
+    getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled) {
         const onGetOfFirstPage = (entityName, page) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
                 entityName,
@@ -209,10 +222,11 @@ class SyncService extends BaseService {
             entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
         }
 
-        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid)[0];
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
 
         const entitySyncStatus = new EntitySyncStatus();
-        entitySyncStatus.name = entityMetaData.entityName;
+        entitySyncStatus.entityName = entityMetaData.entityName;
+        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));

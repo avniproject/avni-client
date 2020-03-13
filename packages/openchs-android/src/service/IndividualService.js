@@ -357,7 +357,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(encounterDateTime),
-                        sortingBy: encounterDateTime
+                        sortingBy: encounterDateTime,
+                        allow: true,
                     }
                 };
             });
@@ -378,7 +379,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(encounterDateTime),
-                        sortingBy: encounterDateTime
+                        sortingBy: encounterDateTime,
+                        allow: true,
                     }
                 };
             });
@@ -406,7 +408,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(registrationDate),
-                        sortingBy: registrationDate
+                        sortingBy: registrationDate,
+                        allow: true,
                     }
                 };
             })
@@ -435,7 +438,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(enrolmentDateTime),
-                        sortingBy: enrolmentDateTime
+                        sortingBy: enrolmentDateTime,
+                        allow: true,
                     }
                 };
             })

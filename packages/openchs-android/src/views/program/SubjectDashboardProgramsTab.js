@@ -136,14 +136,11 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     renderPlannedVisits(allowedEncounterTypeUuids) {
         const cancelEncounterCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelEncounterCriteria, 'programEncounterTypeUuid');
-        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
-        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'programEncounterTypeUuid');
-        
         const programEnrolment = this.state.enrolment;
-        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime && _.includes(allowedEncounterTypeUuids, encounter.encounterType.uuid));
+        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         return (<PreviousEncounters encounters={scheduledEncounters}
                                     allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
-                                    allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuidsForPerformVisit}
+                                    allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuids}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={this.state.showCount}
                                     showPartial={false}
@@ -157,9 +154,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const programEnrolment = this.state.enrolment;
         const actualEncounters = this.state.completedEncounters;
         const visitEditCriteria = `privilege.name = '${Privilege.privilegeName.editVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${this.state.enrolment.program.uuid}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}'`;
-        const allowedEnrolmentTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'programEncounterTypeUuid');        
+        const allowedEncounterTypeUuidsForEditVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'programEncounterTypeUuid');
         return (<PreviousEncounters encounters={actualEncounters}
-                                    allowedEnrolmentTypeUuids={allowedEnrolmentTypeUuids}
+                                    allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
                                     formType={Form.formTypes.ProgramEncounter}
                                     showCount={this.state.showCount}
                                     showPartial={true}
