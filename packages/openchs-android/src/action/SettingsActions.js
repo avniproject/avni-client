@@ -96,6 +96,16 @@ class SettingsActions {
         );
     }
 
+    static onCaptureAutoRefreshChange(state, action, context) {
+        return SettingsActions._updateUserSettingsAndSave(
+            state,
+            settings => {
+                settings.disableAutoRefresh = !settings.disableAutoRefresh;
+            },
+            context
+        );
+    }
+
     static onRuleChange(state, action, context) {
         const ruleToAddRemove = action.value;
         let rulesToRun = state.rulesToRun;
@@ -114,7 +124,8 @@ const SettingsActionsNames = {
     ON_LOG_LEVEL_CHANGE: 'S.ON_LOG_LEVEL_CHANGE',
     ON_ADVANCED_MODE: 'S.ON_ADVANCED_MODE',
     ON_RULE_CHANGE: 'S.ON_RULE_CHANGE',
-    ON_CAPTURE_LOCATION_CHANGE: 'S.ON_CAPTURE_LOCATION_CHANGE'
+    ON_CAPTURE_LOCATION_CHANGE: 'S.ON_CAPTURE_LOCATION_CHANGE',
+    ON_CAPTURE_AUTO_REFRESH_CHANGE: 'S.ON_CAPTURE_AUTO_REFRESH_CHANGE',
 };
 
 const SettingsActionsMap = new Map([
@@ -123,7 +134,8 @@ const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_ADVANCED_MODE, SettingsActions.onAdvancedMode],
     [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange],
     [SettingsActionsNames.ON_RULE_CHANGE, SettingsActions.onRuleChange],
-    [SettingsActionsNames.ON_CAPTURE_LOCATION_CHANGE, SettingsActions.onCaptureLocationChange]
+    [SettingsActionsNames.ON_CAPTURE_LOCATION_CHANGE, SettingsActions.onCaptureLocationChange],
+    [SettingsActionsNames.ON_CAPTURE_AUTO_REFRESH_CHANGE, SettingsActions.onCaptureAutoRefreshChange]
 ]);
 
 export {
