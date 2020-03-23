@@ -31,5 +31,10 @@
   "downloadForms": "Downloading new forms",
   "downloadNewDataFromServer": "Downloading new data from server",
   "userId": "User ID",
-  "password": "Password"
+  "password": "Password",
+  "forgot_password_userId_placeholder" : "Enter your User ID",
+  "forgot_password_first_page_note" : "Please enter your User ID, We will send you One-time password (OTP) to reset your password.",
+  "forgot_password_OPT_sent_alert" : "We have sent OTP on your registered Mobile Number",
+  "forgot_password_changes_success_alert" : "Your password has been reset successfully",
+  "confirm_password_error" : "Password Mismatch"
 }
