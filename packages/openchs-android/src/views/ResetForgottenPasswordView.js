@@ -33,24 +33,39 @@ class ResetForgottenPasswordView extends AbstractComponent {
         return error.slice(error.indexOf(":") + 1).trim();
     }
 
-    setNewPassword() {
-        this.setState(() => {
-            showSpinner: true
-        });
+    passwordNotMatch = () => {
+        if(this.state.password == this.state.ConfirmnewPassword)
+        {
+            this.setState({passwordNotMatchTest: ""})
+            return true;
+        }
+        else{
+            this.setState({passwordNotMatchTest: this.I18n.t(`confirm_password_error`)})
+            return false;
+        }
+    }
 
-        this.context.getService(AuthService).verifyOtpAndSetPassword(this.props.user, this.state.verificationCode, this.state.password).then(
-            () => {
-                this.setState(() => {
-                    showSpinner: false
-                });
-                CHSNavigator.navigateToLoginView(this, true);
-            },
-            (error) => {
-                this.setState(() => {
-                    return {errorMessage: error.message, showSpinner: false}
-                });
-            }
-        );
+    setNewPassword() {
+        if(this.passwordNotMatch()){
+            this.setState(() => {
+                showSpinner: true
+            });
+
+            this.context.getService(AuthService).verifyOtpAndSetPassword(this.props.user, this.state.verificationCode, this.state.password).then(
+                () => {
+                    this.setState(() => {
+                        showSpinner: false
+                    });
+                    alert(this.I18n.t(`forgot_password_changes_success_alert`))
+                    CHSNavigator.navigateToLoginView(this, true);
+                },
+                (error) => {
+                    this.setState(() => {
+                        return {errorMessage: error.message, showSpinner: false}
+                    });
+                }
+            );
+        }
     }
 
     spinner() {
@@ -89,17 +104,29 @@ class ResetForgottenPasswordView extends AbstractComponent {
                             justifyContent: 'center'
                         }}>{this.errorMessage()}</Text>
 
-                        <TextInput placeholder={"OTP"} value={this.state.verificationCode} keyboardType={"numeric"}
+                        <Text style={{
+                            color: Colors.ValidationError,
+                            justifyContent: 'center'
+                        }}>{this.state.passwordNotMatchTest}</Text>
+
+                        <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                                   placeholder={"Enter OTP"} value={this.state.verificationCode} keyboardType={"numeric"}
                                    onChangeText={(verificationCode) => this.setState({verificationCode})}/>
 
-                        <TextInput placeholder={"New password"} value={this.state.password}
+                        <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                                   placeholder={"Enter New password"} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
+                                   secureTextEntry={!this.state.showPassword}/>
+
+                        <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                                   placeholder={"Confirm New Password"} value={this.state.ConfirmnewPassword}
+                                   onChangeText={(ConfirmnewPassword) => this.setState({ConfirmnewPassword})}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
                             return {showPassword: !oldState.showPassword}
                         })}>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingTop:10}}>
                                 <CheckBox checked={this.state.showPassword}/>
                                 <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show password"}</Text>
                             </View>
