@@ -2580,6 +2580,12 @@
     "name": "Anaemia",
     "uuid": "43ea47d8-8c92-4564-a9df-eee28191f85c",
     "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
+  },
+  {
+    "name": "(Legacy) Data Migration Subject Id",
+    "uuid": "a503b679-e73f-4852-8c1f-dddef0de975f",
+    "dataType": "Id",
+    "organisationUUID": "3539a906-dfae-4ec3-8fbb-1b08f35c3884"
   }
 
 ]
