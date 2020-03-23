@@ -32,6 +32,7 @@ class ForgotPasswordView extends AbstractComponent {
                     CHSNavigator.navigateToLoginView(this, true);
                 }
                 if (response.status === "INPUT_VERIFICATION_CODE") {
+                    alert(this.I18n.t(`forgot_password_OPT_sent_alert`))
                     CHSNavigator.navigateToResetPasswordView(this, response.user);
                 }
             },
@@ -91,12 +92,15 @@ class ForgotPasswordView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return <View style={this.containerStyle}>
+            <Text
+                style={Styles.formLabel}>{this.I18n.t(`forgot_password_first_page_note`)}</Text>
             <Text style={{
                 color: Colors.ValidationError,
                 justifyContent: 'center'
             }}>{this.errorMessage()}</Text>
 
-            <TextInput placeholder={this.I18n.t('userId')} value={this.state.userId}
+               <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                       placeholder={this.I18n.t('forgot_password_userId_placeholder')} value={this.state.userId}
                        onChangeText={(userId) => this.setState({userId})}/>
             <TouchableNativeFeedback onPress={() => {
                 this.sendOTP()
