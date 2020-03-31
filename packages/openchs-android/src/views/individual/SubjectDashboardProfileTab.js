@@ -4,7 +4,6 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
-import {Card} from "native-base";
 import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action/individual/IndividualRegistrationDetailsActions";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
@@ -17,7 +16,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualAddRelativeView from "../individual/IndividualAddRelativeView";
 import Colors from "../primitives/Colors";
-import {WorkItem, WorkList, WorkLists, Privilege} from "avni-models";
+import {Privilege, WorkItem, WorkList, WorkLists} from "avni-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
@@ -26,6 +25,9 @@ import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import GenericDashboardView from "../program/GenericDashboardView";
 import FormMappingService from "../../service/FormMappingService";
 import PrivilegeService from "../../service/PrivilegeService";
+import Members from "../groupSubject/Members";
+import AddNewMemberView from "../groupSubject/AddNewMemberView";
+import RemoveMemberView from "../groupSubject/RemoveMemberView";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -50,6 +52,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     .resetStack([IndividualAddRelativeView], [
                         TypedTransition.createRoute(GenericDashboardView, {
                             individualUUID: this.state.individual.uuid,
+                            message: this.I18n.t('newRelativeAddedMsg'),
                             tab: 1
                         })
                     ])
@@ -57,27 +60,42 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         })];
     }
 
-    onRelativeDeletePress(individualRelative) {
-        Alert.alert(
-            this.I18n.t('deleteRelativeNoticeTitle'),
-            this.I18n.t('deleteRelativeConfirmationMessage', {
-                individualA: individualRelative.individual.name,
-                individualB: individualRelative.relative.name
-            }),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative})
-                    }
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                    },
-                    style: 'cancel'
-                }
-            ]
-        )
+    addMemberActions() {
+        const addMemberCriteria = `privilege.name = '${Privilege.privilegeName.addMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedSubjectTypesForAddMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(addMemberCriteria, 'subjectTypeUuid');
+        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
+            return [new ContextAction(this.I18n.t('addMember'), () => {
+                CHSNavigator.navigateToAddMemberView(this, this.state.individual)
+            })];
+        } else return []
+    }
 
+    onMemberEdit(groupSubject) {
+        TypedTransition.from(this).with({groupSubject}).to(AddNewMemberView)
+    }
+
+    onMemberRemove(groupSubject) {
+        TypedTransition.from(this).with({groupSubject}).to(RemoveMemberView);
+    }
+
+    alert(title, message, onYesPress) {
+        Alert.alert(title, message, [
+            {
+                text: this.I18n.t('yes'), onPress: onYesPress
+            },
+            {
+                text: this.I18n.t('no'), onPress: () => {
+                },
+                style: 'cancel'
+            }
+        ])
+    }
+
+    onRelativeDeletePress(individualRelative) {
+        this.alert(this.I18n.t('deleteRelativeNoticeTitle'), this.I18n.t('deleteRelativeConfirmationMessage', {
+            individualA: individualRelative.individual.name,
+            individualB: individualRelative.relative.name
+        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}))
     }
 
     editProfile() {
@@ -90,7 +108,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     })])));
     }
 
-    onRelativeSelection(individualUUID) {
+    onSubjectSelection(individualUUID) {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID});
         this.dispatchAction(DashboardActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
     }
@@ -106,10 +124,56 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 </View>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
-                           onRelativeSelection={(source, individual) => this.onRelativeSelection(individual.uuid)}
+                           onRelativeSelection={(source, individual) => this.onSubjectSelection(individual.uuid)}
                            onRelativeDeletion={this.onRelativeDeletePress.bind(this)}/>
             </View>
         );
+    }
+
+    renderMembers() {
+        const groupSubjects = this.state.groupSubjects;
+        const applicableActions = [];
+        const editMemberCriteria = `privilege.name = '${Privilege.privilegeName.editMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const removeMemberCriteria = `privilege.name = '${Privilege.privilegeName.removeMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const allowedSubjectTypesForEditMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editMemberCriteria, 'subjectTypeUuid');
+        const allowedSubjectTypesForRemoveMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(removeMemberCriteria, 'subjectTypeUuid');
+        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, 'edit');
+        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, 'remove');
+        return (
+            <View style={styles.container}>
+                <TouchableOpacity
+                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expandMembers'})}>
+                    <ObservationsSectionTitle contextActions={this.addMemberActions()}
+                                              title={`${this.I18n.t('members')} (${groupSubjects.length})`}
+                                              titleStyle={Styles.cardTitle}/>
+                    <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
+                        {this.state.expandMembers === false ?
+                            <Icon name={'arrow-down'} size={12}/> :
+                            <Icon name={'arrow-up'} size={12}/>}
+                    </View>
+                </TouchableOpacity>
+                <View style={{marginTop: 3}}>
+                    {this.state.expandMembers === true && groupSubjects.length > 0 ?
+                        <View style={styles.memberCard}>
+                            <Members groupSubjects={groupSubjects}
+                                     onMemberDeletion={(groupSubject) => this.onMemberRemove(groupSubject)}
+                                     onMemberEdit={(groupSubject) => this.onMemberEdit(groupSubject)}
+                                     onMemberSelection={(memberSubjectUUID) => this.onSubjectSelection(memberSubjectUUID)}
+                                     actions={applicableActions}
+                                     editAllowed={editAllowed}
+                                     removeAllowed={removeAllowed}/>
+                        </View> : <View/>}
+                </View>
+            </View>
+        );
+    }
+
+    checkPrivilege(allowedSubjectTypes, applicableActions, actionName) {
+        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
+            applicableActions.push(this.I18n.t(actionName));
+            return true;
+        }
+        return false;
     }
 
     renderVoided() {
@@ -164,21 +228,22 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const allowedSubjectTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editProfileCriteria, 'subjectTypeUuid');
         const allowedSubjectTypeUuidsForVoid = this.privilegeService.allowedEntityTypeUUIDListForCriteria(voidProfileCriteria, 'subjectTypeUuid');
-        const requiredActions = []
-        if(!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
-            requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));        
-        if(!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
+        const requiredActions = [];
+        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
+            requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));
+        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
-        return _.isEmpty(form) ? <View/> : <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
-            <ObservationsSectionOptions
-                contextActions={requiredActions}/>
-        </TouchableOpacity>
+        return _.isEmpty(form) ? <View/> :
+            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
+                <ObservationsSectionOptions
+                    contextActions={requiredActions}/>
+            </TouchableOpacity>
     }
 
     renderProfile() {
         const formMappingService = this.context.getService(FormMappingService);
         return <View>
-            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE)}>
+            <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <View styel={{flexDirection: 'column'}}>
                     <Text style={[Styles.cardTitle, {color: Colors.DefaultPrimaryColor}]}>
                         {this.I18n.t("registrationInformation")}
@@ -208,6 +273,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const relativesFeatureToggle = this.state.individual.isIndividual();
+        const groupSubjectToggle = this.state.individual.subjectType.isGroup();
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.defaultBackground}}>
@@ -217,6 +283,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
                     </View>
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
+                    {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </View>
@@ -233,6 +300,23 @@ const styles = StyleSheet.create({
         margin: 4,
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 3
+        marginVertical: 3,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+    },
+    memberCard: {
+        marginTop: 5,
+        marginHorizontal: 6,
+        paddingVertical: 10,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        shadowOffset: {width: 10, height: 10},
+        shadowColor: 'black',
+        shadowOpacity: 1,
+        elevation: 1,
     }
 });

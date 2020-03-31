@@ -1,12 +1,13 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Form, Individual, Point, SubjectType, ObservationsHolder} from "avni-models";
+import {Gender, Individual, ObservationsHolder, Point, SubjectType, WorkItem} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
+import GroupSubjectService from "../../service/GroupSubjectService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -132,6 +133,13 @@ export class IndividualRegisterActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).register(newState.individual, action.nextScheduledVisits);
+        const workLists = newState.workListState.workLists;
+        const workItem = workLists.getCurrentWorkItem();
+        if(workItem.type === WorkItem.type.ADD_MEMBER){
+            const member = workItem.parameters.member;
+            member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
+            context.get(GroupSubjectService).addMember(member);
+        }
         action.cb();
         return newState;
     }

@@ -306,6 +306,24 @@
     "backup": "Backup Now",
     "backupNoticeTitle": "Backup Data",
     "backupConfirmationMessage": "Are you sure you want to backup your data. Please make sure all your data is synced.",
-    "feedback": "Provide Feedback"
+    "feedback": "Provide Feedback",
+    "role": "Role",
+    "actions": "Actions",
+    "members": "Members",
+    "addMember": "Add Member",
+    "remove": "Remove",
+    "addNewMember": "Add new member",
+    "addAnotherMember": "Add another member",
+    "membershipStartDate": "Membership start date",
+    "membershipEndDate": "Membership end date",
+    "registerNewMember": "REGISTER NEW MEMBER",
+    "programsEnrolled": "Programs",
+    "newMemberAddedMsg": "New member added",
+    "newRelativeAddedMsg": "New relative added",
+    "removeMemberTitle": "Are you sure you want to the member from group?",
+    "removeMemberConfirmationMessage": "Remove member from this group",
+    "memberAlreadyAddedMessage": "Member is already present in the group",
+    "maxLimitReachedMsg": "Maximum limit reached for this role",
+    "memberDeletedMsg": "Member removed"
   }
 }

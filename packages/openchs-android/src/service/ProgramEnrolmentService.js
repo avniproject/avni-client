@@ -16,14 +16,14 @@ class ProgramEnrolmentService extends BaseService {
         super(db, beanStore);
     }
 
-    getSchema() {
-        return ProgramEnrolment.schema.name;
-    }
-
     static convertObsForSave(programEnrolment) {
         ObservationsHolder.convertObsForSave(programEnrolment.observations);
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
         _.forEach(programEnrolment.checklists, c => _.forEach(c.items, i => ObservationsHolder.convertObsForSave(i.observations)));
+    }
+
+    getSchema() {
+        return ProgramEnrolment.schema.name;
     }
 
     updateObservations(programEnrolment) {
@@ -100,6 +100,10 @@ class ProgramEnrolmentService extends BaseService {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const entityService = this.getService(EntityService);
         entityService.saveAndPushToEntityQueue(programEnrolment, ProgramEnrolment.schema.name);
+    }
+
+    getAllNonExitedEnrolmentsForSubject(subjectUUID) {
+        return this.filtered(`voided = false and programExitDateTime = null and individual.uuid = $0`, subjectUUID)
     }
 }
 

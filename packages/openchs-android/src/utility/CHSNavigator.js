@@ -36,6 +36,7 @@ import ProgramEncounterService from "../service/program/ProgramEncounterService"
 import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPage";
 import EncounterService from "../service/EncounterService";
 import GenericDashboardView from "../views/program/GenericDashboardView";
+import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 
 
 class CHSNavigator {
@@ -60,7 +61,7 @@ class CHSNavigator {
         }
     }
 
-    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message) {
+    static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message, tab = 2) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
             ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView];
@@ -71,7 +72,7 @@ class CHSNavigator {
                     enrolmentUUID: selectedEnrolmentUUID,
                     message,
                     backFunction: backFn,
-                    tab: 2,
+                    tab: tab,
                 }, true)
             ]);
         } else {
@@ -103,7 +104,10 @@ class CHSNavigator {
     }
 
     static navigateToStartEncounterPage(source, enrolmentUUID, allowedEncounterTypeUuids) {
-        TypedTransition.from(source).with({enrolmentUUID: enrolmentUUID, allowedEncounterTypeUuids: allowedEncounterTypeUuids}).to(NewVisitPageView);
+        TypedTransition.from(source).with({
+            enrolmentUUID: enrolmentUUID,
+            allowedEncounterTypeUuids: allowedEncounterTypeUuids
+        }).to(NewVisitPageView);
     }
 
     static goBack(source) {
@@ -242,6 +246,12 @@ class CHSNavigator {
         }).to(IndividualAddRelativeView, true);
     }
 
+    static navigateToAddMemberView(source, individual) {
+        TypedTransition.from(source).with({
+            groupSubject: individual,
+        }).to(AddNewMemberView, true);
+    }
+
     static navigateToFamilyDashboardView(source, familyUUID) {
         TypedTransition.from(source).with({familyUUID: familyUUID}).to(FamilyDashboardView, true);
     }
@@ -250,14 +260,14 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(VideoPlayerView, true);
     }
 
-    static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID) {
-        const toBeRemoved = [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView];
+    static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID, message) {
+        const toBeRemoved = [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView, AddNewMemberView];
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
                 TypedTransition.createRoute(GenericDashboardView, {
                     individualUUID,
-                    message: recommendationsView.I18n.t("registrationSavedMsg"),
+                    message: recommendationsView.I18n.t(message || "registrationSavedMsg"),
                     tab: 1
                 }, true)
             ]);
@@ -271,6 +281,7 @@ class CHSNavigator {
             [WorkItem.type.PROGRAM_ENCOUNTER, 'encounterSavedMsg'],
             [WorkItem.type.CANCELLED_ENCOUNTER, 'encounterCancelledMsg'],
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
+            [WorkItem.type.ADD_MEMBER, 'newMemberAddedMsg'],
         ]).get(workItem.type);
         if (tkey) {
             return i18n.t(tkey, args);
@@ -289,7 +300,8 @@ class CHSNavigator {
             IndividualRegisterView,
             SubjectRegisterView,
             ProgramEncounterView,
-            ProgramEnrolmentView
+            ProgramEnrolmentView,
+            AddNewMemberView
         ];
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
@@ -319,6 +331,18 @@ class CHSNavigator {
                             workLists: workListState.workLists,
                             message: message,
                             tab: 2
+                        }, true)
+                    ]);
+                break;
+            }
+            case WorkItem.type.ADD_MEMBER: {
+                const individual = context.getService(IndividualService).findByUUID(nextWorkItem.parameters.groupSubjectUUID);
+                TypedTransition.from(recommendationsView)
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.groupSubjectUUID}, true),
+                        TypedTransition.createRoute(AddNewMemberView, {
+                            groupSubject: individual,
+                            message: message,
                         }, true)
                     ]);
                 break;
@@ -389,12 +413,12 @@ class CHSNavigator {
                     .resetStack(toBePoped, [
                         TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
                         TypedTransition.createRoute(IndividualEncounterLandingView, {
-                                individualUUID: nextWorkItem.parameters.subjectUUID,
-                                encounterType: nextWorkItem.parameters.encounterType,
-                                workLists: workListState.workLists,
-                                message: message,
-                                encounter,
-                                tab: 2
+                            individualUUID: nextWorkItem.parameters.subjectUUID,
+                            encounterType: nextWorkItem.parameters.encounterType,
+                            workLists: workListState.workLists,
+                            message: message,
+                            encounter,
+                            tab: 2
                         }, true)
                     ]);
                 break;
@@ -432,8 +456,7 @@ class CHSNavigator {
         const isCancelPage = encounter.isCancelled() || params.cancel;
         if (isCancelPage) {
             CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
-        }
-        else if(encounter instanceof Encounter) {
+        } else if (encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
                 source, params.individualUUID, encounter, editing, null, null, null, backFunction);
         } else {

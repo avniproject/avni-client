@@ -88,62 +88,70 @@ class IndividualProfile extends AbstractComponent {
             label: this.I18n.t(program.displayName),
             backgroundColor: program.colour,
         }));
-
-        return this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
-            (
-                <View style={{
-                    marginVertical: 10,
-                    marginHorizontal: 10,
-                    backgroundColor: Styles.defaultBackground
-                }}>
-                    <ActionSelector
-                        title={this.I18n.t("enrolInProgram")}
-                        hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
-                        visible={this.state.displayActionSelector}
-                        actions={programActions}
-                    />
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <View style={{
-                            paddingHorizontal: 20,
-                            justifyContent: 'center',
-                        }}>
-                            <Icon name={this.props.individual.icon()} style={{
-                                fontSize: DGS.resizeWidth(75),
-                                color: Colors.AccentColor,
-                                alignSelf: 'center'
-                            }}/>
+        const backgroundColor = this.props.individual.subjectType.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
+        return <View style={{backgroundColor: backgroundColor}}>
+            {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
+                (
+                    <View style={{
+                        marginVertical: 10,
+                        marginHorizontal: 10,
+                        backgroundColor: backgroundColor
+                    }}>
+                        <ActionSelector
+                            title={this.I18n.t("enrolInProgram")}
+                            hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
+                            visible={this.state.displayActionSelector}
+                            actions={programActions}
+                        />
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <View style={{
+                                paddingHorizontal: 20,
+                                justifyContent: 'center',
+                            }}>
+                                <Icon name={this.props.individual.icon()} style={{
+                                    fontSize: DGS.resizeWidth(75),
+                                    color: Colors.AccentColor,
+                                    alignSelf: 'center'
+                                }}/>
+                            </View>
+                            <View style={{flex: 1, paddingHorizontal: 5}}>
+                                <Text
+                                    style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
+                                {this.programProfileHeading()}
+                            </View>
                         </View>
-                        <View style={{flex: 1, paddingHorizontal: 5}}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                flexWrap: 'wrap',
+                                paddingVertical: 8
+                            }}>
+                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
+                        </View>
+                    </View>
+                ) :
+                (
+                    <View style={this.appendedStyle({
+                        flexDirection: 'column',
+                        backgroundColor: backgroundColor,
+                        paddingHorizontal: Distances.ContentDistanceFromEdge
+                    })}>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                            <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
                             <Text
-                                style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
-                            {this.programProfileHeading()}
+                                style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                         </View>
+                        {
+                            this.props.individual.subjectType.isIndividual() ?
+                                <View style={{flexDirection: 'row'}}>
+                                    <Text style={{fontSize: Fonts.Normal}}>
+                                        {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
+                                </View> : <View/>
+                        }
                     </View>
-                    <View
-                        style={{flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingVertical: 8}}>
-                        {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
-                    </View>
-                </View>
-            ) :
-            (
-                <View style={this.appendedStyle({
-                    flexDirection: 'column', backgroundColor: Colors.defaultBackground,
-                    paddingHorizontal: Distances.ContentDistanceFromEdge
-                })}>
-                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                        <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
-                        <Text
-                            style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
-                    </View>
-                    {
-                        this.props.individual.subjectType.isIndividual() ?
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{fontSize: Fonts.Normal}}>
-                                    {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
-                            </View> : <View/>
-                    }
-                </View>
-            );
+                )}
+        </View>;
     }
 
     launchChooseProgram() {
