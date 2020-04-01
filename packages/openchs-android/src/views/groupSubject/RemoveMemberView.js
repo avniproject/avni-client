@@ -70,7 +70,7 @@ class RemoveMemberView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('membershipDetails')}/>
+                    <AppHeader title={this.I18n.t('removeMember')}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
