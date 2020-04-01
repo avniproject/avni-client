@@ -2,6 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {
     Groups,
+    MyGroups,
     GroupPrivileges,
     Encounter,
     Checklist,
@@ -28,7 +29,7 @@ class PrivilegeService extends BaseService {
     }
 
     getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, allow) {
-        const ownedGroupsQuery = this.ownedGroups().map(({uuid}) => `group.uuid = '${uuid}'`).join(' OR ');
+        const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
         return this.findAll()
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered('privilege.name = $0 && privilege.entityType = $1 && allow = $2', privilegeName, privilegeEntity, allow)
@@ -37,7 +38,7 @@ class PrivilegeService extends BaseService {
     }
 
     allowedEntityTypeUUIDListForCriteria(criteria, privilegeParam) {
-        const ownedGroupsQuery = this.ownedGroups().map(({uuid}) => `group.uuid = '${uuid}'`).join(' OR ');
+        const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
         return this.db.objects(GroupPrivileges.schema.name)
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered(_.isEmpty(criteria) ? 'uuid = null' : criteria)
@@ -124,7 +125,7 @@ class PrivilegeService extends BaseService {
     }
 
     ownedGroups() {
-        return this.db.objects(Groups.schema.name);
+        return this.db.objects(MyGroups.schema.name).filtered('voided=false');
     }
 }
 
