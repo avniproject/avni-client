@@ -7,7 +7,7 @@ import CHSContainer from "./common/CHSContainer";
 import AppHeader from "./common/AppHeader";
 import CHSContent from "./common/CHSContent";
 import EntityService from "../service/EntityService";
-import {SubjectType, WorkList, WorkLists} from "avni-models";
+import {SubjectType, WorkList, WorkLists, Privilege} from "avni-models";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
@@ -15,6 +15,7 @@ import Distances from "./primitives/Distances";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Fonts from "./primitives/Fonts";
 import FormMappingService from "../service/FormMappingService";
+import PrivilegeService from "../service/PrivilegeService";
 
 
 @Path('/registerView')
@@ -77,7 +78,11 @@ class RegisterView extends AbstractComponent {
         General.logDebug("RegisterView", "render");
         let actions = [];
 
-        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
+        const registerCriteria = `privilege.name = '${Privilege.privilegeName.registerSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const privilegeService = this.context.getService(PrivilegeService);
+        const allowedSubjectTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(registerCriteria, 'subjectTypeUuid');
+        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name)
+                                .filter(st => !privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuids, st.uuid));
 
         subjectTypes.forEach(subjectType => {
             let formMappingService = this.context.getService(FormMappingService);
@@ -86,7 +91,10 @@ class RegisterView extends AbstractComponent {
                 return;
             }
             actions = actions.concat(this._addRegistrationAction(subjectType));
-            const programs = formMappingService.findProgramsForSubjectType(subjectType);
+            const enrolCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${subjectType.uuid}'`;
+            const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
+            const programs = formMappingService.findProgramsForSubjectType(subjectType)
+                                .filter(p => !privilegeService.hasGroupPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             actions = actions.concat(this._addProgramActions(subjectType, programs));
         });
 

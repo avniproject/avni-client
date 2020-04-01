@@ -20,6 +20,18 @@ class ProgressbarStatus {
         this.onprogress(this.progress = 1);
     }
 
+    updateProgressSteps(entityMetadata, entitySyncStatus) {
+        this.progressSteps = this.progressSteps.map(step => {
+            const metadata = _.find(entityMetadata, (metadata) => metadata.entityName === step.name);
+            const entityTypeCount = entitySyncStatus.filtered('entityName = $0', step.name).length;
+            if (metadata && metadata.privilegeParam && entityTypeCount > 1) {
+                return {name: step.name, syncWeight: step.syncWeight / entityTypeCount}
+            } else {
+                return step;
+            }
+        });
+    }
+
 }
 
 export default ProgressbarStatus

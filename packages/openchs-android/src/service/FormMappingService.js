@@ -124,6 +124,10 @@ class FormMappingService extends BaseService {
             .forSubjectType(subjectType)
             .bestMatch();
     }
+
+    formMappingByCriteria(criteriaQuery){
+        return this.findAllByCriteria(criteriaQuery)
+    }
 }
 
 export default FormMappingService;

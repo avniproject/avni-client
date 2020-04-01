@@ -12,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel, CustomFilter} from 'avni-models';
+import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel, CustomFilter, Privilege} from 'avni-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -24,6 +24,7 @@ import CustomFilters from "../filter/CustomFilters";
 import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "../filter/GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import PrivilegeService from "../../service/PrivilegeService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -67,12 +68,17 @@ class IndividualSearchView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(this.state.subjectTypes, this.state.searchCriteria.subjectType);
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
         const filterScreenName = 'searchFilters';
         const subjectTypeUUID = this.state.searchCriteria.subjectType.uuid;
         const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, subjectTypeUUID);
         const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, subjectTypeUUID);
+        const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const privilegeService = this.context.getService(PrivilegeService);
+        const allowedSubjectTypeUuidsForView = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');                
+        const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !privilegeService.hasGroupPrivileges() ||  _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
+        let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.searchCriteria.subjectType);
+
         return (
             <CHSContainer>
                 <CHSContent>
@@ -85,7 +91,7 @@ class IndividualSearchView extends AbstractComponent {
                     }}>
                         <CustomActivityIndicator
                             loading={this.state.loading}/>
-                        {this.state.subjectTypes.length > 1 &&
+                        {allowedSubjectTypes.length > 1 &&
                         <SingleSelectFilter filter={subjectTypeSelectFilter}
                                             onSelect={(subjectType) =>
                                                 this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>

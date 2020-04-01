@@ -1,11 +1,12 @@
-import {getJSON, post} from '../../framework/http/requests';
+import {getJSON} from '../../framework/http/requests';
 import _ from "lodash";
 import moment from "moment";
 import ChainedRequests from "../../framework/http/ChainedRequests";
 
 class ConventionalRestClient {
-    constructor(settingsService) {
+    constructor(settingsService, privilegeService) {
         this.settingsService = settingsService;
+        this.privilegeService = privilegeService;
     }
 
     makeParams(paramMap) {
@@ -58,12 +59,27 @@ class ConventionalRestClient {
         ]
             .filter(p => !_.isEmpty(p))
             .join("/");
-        const loadedSince = entityMetadata.syncStatus.loadedSince;
-        const params = (page, size) => this.makeParams({
-            lastModifiedDateTime: moment(loadedSince).toISOString(),
-            size: size,
-            page: page
-        });
+        const {loadedSince, entityTypeUuid} = entityMetadata.syncStatus;
+        const {privilegeParam} = entityMetadata;
+        if (privilegeParam) {
+            const params = (page, size) => this.makeParams({
+                [privilegeParam]: entityTypeUuid,
+                lastModifiedDateTime: moment(loadedSince).toISOString(),
+                size: size,
+                page: page
+            });
+            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage);
+        } else {
+            const params = (page, size) => this.makeParams({
+                lastModifiedDateTime: moment(loadedSince).toISOString(),
+                size: size,
+                page: page
+            });
+            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage);
+        }
+    }
+
+    fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage) {
         const processResponse = (resp) => {
             onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
             afterGetOfEntity(entityMetadata.entityName, resp["page"]["totalPages"])

@@ -12,21 +12,25 @@ import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
+import {Privilege} from "avni-models";
+import PrivilegeService from "../../service/PrivilegeService";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, "something");
         this.goToView = this.goToView.bind(this);
+        this.privilegeService = context.getService(PrivilegeService);
     }
 
     static propTypes = {
         programDashboardButtons: PropTypes.array.isRequired,
-        enrolment: PropTypes.object.isRequired
+        enrolment: PropTypes.object.isRequired,
+        allowedEncounterTypeUuids: PropTypes.array.isRequired
     };
 
-    startProgramEncounter() {
-        CHSNavigator.navigateToStartEncounterPage(this, this.props.enrolment.uuid);
+    startProgramEncounter(allowedEncounterTypeUuids) {
+        CHSNavigator.navigateToStartEncounterPage(this, this.props.enrolment.uuid, allowedEncounterTypeUuids);
     }
 
     openChecklist() {
@@ -54,15 +58,20 @@ class ProgramActionsView extends AbstractComponent {
     }
 
     render() {
+        const checklistPredicate = this.props.enrolment.hasChecklist &&
+            this.props.enrolment.checklists.map(checklist => `checklistDetailUuid = '${checklist.detail.uuid}'`).join(' OR ');
+
+        const viewChecklistCriteria = this.props.enrolment.program && this.props.enrolment.hasChecklist && `privilege.name = '${Privilege.privilegeName.editChecklist}' AND privilege.entityType = '${Privilege.privilegeEntityType.checklist}' AND subjectTypeUuid = '${this.props.enrolment.individual.subjectType.uuid}' AND ${checklistPredicate}` || '';
+        const allowedChecklistTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewChecklistCriteria, 'checklistDetailUuid');
         return (
             <View
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
-                {this.props.enrolment.isActive ?
-                    this.renderButton(() => this.startProgramEncounter(), Styles.basicPrimaryButtonView,
+                {this.props.enrolment.isActive && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(this.props.allowedEncounterTypeUuids)) ?
+                    this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), Styles.basicPrimaryButtonView,
                         this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
-                {this.props.enrolment.hasChecklist ?
+                {this.props.enrolment.hasChecklist && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
                     this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)
                     :

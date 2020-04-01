@@ -24,6 +24,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 import SettingsService from "../service/SettingsService";
+import PrivilegeService from "../service/PrivilegeService";
 
 const {width, height} = Dimensions.get('window');
 
@@ -68,7 +69,7 @@ class SyncComponent extends AbstractComponent {
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
-
+        this.context.getService(PrivilegeService).deleteRevokedEntities();
         //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
 

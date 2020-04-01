@@ -6,7 +6,8 @@ import {
     Individual,
     ObservationsHolder,
     ProgramEncounter,
-    ProgramEnrolment
+    ProgramEnrolment,
+    Privilege
 } from "avni-models";
 import _ from 'lodash';
 import moment from 'moment';
@@ -17,6 +18,7 @@ import RuleEvaluationService from "./RuleEvaluationService";
 import General from "../utility/General";
 import Colors from "../views/primitives/Colors";
 import EncounterService from "./EncounterService";
+import PrivilegeService from "./PrivilegeService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -75,7 +77,11 @@ class IndividualService extends BaseService {
         const programs = this.getService(FormMappingService).findProgramsForSubjectType(individual.subjectType);
         const nonEnrolledPrograms = individual.eligiblePrograms(programs);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
-        return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program));
+        const enrolProgramCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}'`;
+        const privilegeService = this.getService(PrivilegeService);
+        
+        const allowedEnrolmentTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolProgramCriteria, 'programUuid');
+        return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program) && (!privilegeService.hasGroupPrivileges() || _.includes(allowedEnrolmentTypeUuids, program.uuid)));
     }
 
     _uniqIndividualsFrom(individuals, individual) {
@@ -84,21 +90,27 @@ class IndividualService extends BaseService {
     }
 
     _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
+        const permissionAllowed = individualWithVisit.visitInfo.allow;
+
         if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
             const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
             const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
+            const presentEntry = individualWithVisit.visitInfo.visitName;
+            const previousEntries = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName;
             individualsWithVisits.set(individualWithVisit.individual.uuid,
                 {
                     individual: individualWithVisit.individual,
                     visitInfo: {
                         uuid: individualWithVisit.individual.uuid,
-                        visitName: [...individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName, ...individualWithVisit.visitInfo.visitName],
+                        visitName: permissionAllowed ? [...previousEntries, ...presentEntry] : previousEntries,
                         groupingBy: smallerDate && General.formatDate(smallerDate) || '',
                         sortingBy: smallerDate,
                     }
                 })
-        } else individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
-        return individualsWithVisits;
+        } else {
+            permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
+        }
+            return individualsWithVisits;
     }
 
     allIn(ignored, queryAdditions) {
@@ -109,6 +121,9 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {
+        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        const privilegeService = this.getService(PrivilegeService);
+        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');                    
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
         const programEncounters = this.db.objects(ProgramEncounter.schema.name)
@@ -138,10 +153,13 @@ class IndividualService extends BaseService {
                             color: Colors.AccentColor,
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
-                        sortingBy: earliestVisitDateTime
+                        sortingBy: earliestVisitDateTime,
+                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
+
+        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');        
         const encounters = this.db.objects(Encounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
@@ -166,7 +184,8 @@ class IndividualService extends BaseService {
                             color: Colors.AccentColor,
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
-                        sortingBy: earliestVisitDateTime
+                        sortingBy: earliestVisitDateTime,
+                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -207,6 +226,9 @@ class IndividualService extends BaseService {
     }
 
     allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria) {
+        const privilegeService = this.getService(PrivilegeService);
+        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');                
         const dateMorning = moment(date).startOf('day').toDate();
         const programEncounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
@@ -222,7 +244,7 @@ class IndividualService extends BaseService {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
-                const maxVisitDateTime = enc.maxVisitDateTime;
+                const maxVisitDateTime = enc.maxVisitDateTime;                
                 return {
                     individual,
                     visitInfo: {
@@ -233,10 +255,13 @@ class IndividualService extends BaseService {
                             color: '#d0011b',
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
-                        sortingBy: maxVisitDateTime
+                        sortingBy: maxVisitDateTime,
+                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
+
+        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');        
         const encounters = this.db.objects(Encounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
@@ -248,7 +273,7 @@ class IndividualService extends BaseService {
             .map((enc) => {
                 const individual = enc.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                const maxVisitDateTime = enc.maxVisitDateTime;
+                const maxVisitDateTime = enc.maxVisitDateTime;                
                 return {
                     individual,
                     visitInfo: {
@@ -259,7 +284,8 @@ class IndividualService extends BaseService {
                             color: '#d0011b',
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
-                        sortingBy: maxVisitDateTime
+                        sortingBy: maxVisitDateTime,
+                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -331,7 +357,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(encounterDateTime),
-                        sortingBy: encounterDateTime
+                        sortingBy: encounterDateTime,
+                        allow: true,
                     }
                 };
             });
@@ -352,7 +379,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(encounterDateTime),
-                        sortingBy: encounterDateTime
+                        sortingBy: encounterDateTime,
+                        allow: true,
                     }
                 };
             });
@@ -380,7 +408,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(registrationDate),
-                        sortingBy: registrationDate
+                        sortingBy: registrationDate,
+                        allow: true,
                     }
                 };
             })
@@ -409,7 +438,8 @@ class IndividualService extends BaseService {
                         uuid: individual.uuid,
                         visitName: [],
                         groupingBy: General.formatDate(enrolmentDateTime),
-                        sortingBy: enrolmentDateTime
+                        sortingBy: enrolmentDateTime,
+                        allow: true,
                     }
                 };
             })
