@@ -77,6 +77,10 @@ class ProgramEncounterService extends BaseService {
             .filtered('programEnrolment.uuid == $0', enrolmentUUID)
             .filtered('encounterDateTime == null AND cancelDateTime == null')[0];
     }
+
+    getAllDueForSubject(subjectUUID) {
+        return this.filtered(`voided = false and programEnrolment.individual.uuid = $0`, subjectUUID)
+    }
 }
 
 export default ProgramEncounterService;

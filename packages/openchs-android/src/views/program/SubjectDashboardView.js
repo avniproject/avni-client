@@ -54,7 +54,7 @@ class SubjectDashboardView extends AbstractComponent {
 
     renderOptions = options => options.map(([icon, name, onPress, isSelected], index) => {
         return (
-            <View style={{
+            <View key={index} style={{
                 flex: 1,
                 flexDirection: 'column',
                 borderBottomWidth: isSelected ? 4 : 0,

@@ -2,7 +2,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualRegisterFormView from "./IndividualRegisterFormView";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
-import {BaseEntity} from 'avni-models';
+import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 
 class Mixin {
@@ -13,7 +13,13 @@ class Mixin {
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const onSaveCallback = ((source) => {
-                    CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
+                    const workLists = state.workListState.workLists;
+                    const workItem = workLists.getCurrentWorkItem();
+                    if (workItem.type === WorkItem.type.ADD_MEMBER) {
+                        CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, workItem.parameters.member.groupSubject.uuid, "newMemberAddedMsg")
+                    } else {
+                        CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);
+                    }
                 });
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;

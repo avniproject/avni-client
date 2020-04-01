@@ -1,6 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import ProgramService from "../../service/program/ProgramService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
+import GroupSubjectService from "../../service/GroupSubjectService";
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -12,19 +13,27 @@ class IndividualRegistrationDetailsActions {
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
         const relatives = context.get(IndividualRelationshipService).getRelatives(individual);
+        const groupSubjects = context.get(GroupSubjectService).getGroupSubjects(individual);
         return {
             ...state,
             individual,
             relatives,
+            groupSubjects,
             programsAvailable: context.get(ProgramService).programsAvailable,
-            expand: false
+            expand: false,
+            expandMembers: false,
         };
     }
 
     static onDeleteRelative(state, action, context) {
         context.get(IndividualRelationshipService).deleteRelative(action.individualRelative);
         const relatives = context.get(IndividualRelationshipService).getRelatives(state.individual);
-        return {individual: state.individual, relatives: relatives, programsAvailable: state.programsAvailable};
+        return {
+            ...state,
+            individual: state.individual,
+            relatives: relatives,
+            programsAvailable: state.programsAvailable
+        };
     }
 
     static voidUnVoidIndividual(state, action, beans) {
@@ -34,8 +43,9 @@ class IndividualRegistrationDetailsActions {
         return IndividualRegistrationDetailsActions.onLoad(state, action, beans);
     }
 
-    static onToggle(state) {
-        return {...state, expand: !state.expand};
+    static onToggle(state, action) {
+        const expandKey = action.keyName;
+        return {...state, [expandKey]: !state[expandKey]};
     }
 }
 

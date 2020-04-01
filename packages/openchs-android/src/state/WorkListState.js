@@ -54,6 +54,7 @@ export default class WorkListState {
             [WorkItem.type.PROGRAM_ENROLMENT, 'enrolIntoProgram'],
             [WorkItem.type.PROGRAM_ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
+            [WorkItem.type.ADD_MEMBER, 'addAnotherMember'],
         ]).get(nextWorkItem.type);
         return this.labelOrDefault(nextWorkItem, tkey, i18n);
     }

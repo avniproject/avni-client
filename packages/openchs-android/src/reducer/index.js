@@ -13,7 +13,7 @@ import {
 } from '../action/program/ProgramEnrolmentDashboardActions';
 import {FamilyDashboardActions, FamilyDashboardActionsMap} from '../action/familyFolder/FamilyDashboardActions';
 import {MyDashboardActions, MyDashboardActionsMap, MyDashboardPrefix} from '../action/mydashboard/MyDashboardActions';
-import {FiltersActions, ActionPrefix, FilterActionMap} from '../action/mydashboard/FiltersActions'
+import {ActionPrefix, FilterActionMap, FiltersActions} from '../action/mydashboard/FiltersActions'
 import {FamilyFolderActions, FamilyFolderActionsMap} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {
@@ -44,9 +44,10 @@ import {
 } from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
 import SubjectDashboardViewActions from '../action/program/SubjectDashboardViewActions'
-import {SyncActions, SyncActionMap} from '../action/SyncActions';
+import {SyncActionMap, SyncActions} from '../action/SyncActions';
 import {CustomFilterActions, CustomFilterMap} from '../action/mydashboard/CustomFilterActions'
 import {GenderFilterActions, GenderFilterMap} from '../action/mydashboard/GenderFilterActions'
+import {AddMemberActionMap, AddNewMemberAction, AddNewMemberActions} from "../action/groupSubject/AddNewMemberAction";
 
 export default class Reducers {
     static reducerKeys = {
@@ -86,7 +87,8 @@ export default class Reducers {
         subjectDashboardView: "subjectDashboardView",
         syncComponentAction: "syncComponent",
         customFilterActions: "customFilterActions",
-        genderFilterActions: "genderFilterActions"
+        genderFilterActions: "genderFilterActions",
+        addNewMember: "addNewMember",
     };
 
     static createReducers(beanStore) {
@@ -127,6 +129,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.syncComponentAction] = Reducers._add(SyncActionMap, SyncActions, beanStore);
         reducerMap[Reducers.reducerKeys.customFilterActions] = Reducers._add(CustomFilterMap, CustomFilterActions, beanStore);
         reducerMap[Reducers.reducerKeys.genderFilterActions] = Reducers._add(GenderFilterMap, GenderFilterActions, beanStore);
+        reducerMap[Reducers.reducerKeys.addNewMember] = Reducers._add(AddMemberActionMap, AddNewMemberAction, beanStore);
         return reducerMap;
     };
 
