@@ -9,6 +9,7 @@ import DatePicker from "../../primitives/DatePicker";
 import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
+import UserInfoService from "../../../service/UserInfoService";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -23,6 +24,7 @@ class DurationDateFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+        this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
     render() {
