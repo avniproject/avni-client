@@ -282,6 +282,7 @@ class CHSNavigator {
             [WorkItem.type.CANCELLED_ENCOUNTER, 'encounterCancelledMsg'],
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ADD_MEMBER, 'newMemberAddedMsg'],
+            [WorkItem.type.PROGRAM_EXIT, 'enrolmentExitMsg'],
         ]).get(workItem.type);
         if (tkey) {
             return i18n.t(tkey, args);
