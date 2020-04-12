@@ -76,7 +76,7 @@ class IndividualSearchView extends AbstractComponent {
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = this.context.getService(PrivilegeService);
         const allowedSubjectTypeUuidsForView = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !privilegeService.hasGroupPrivileges() ||  _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
+        const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.searchCriteria.subjectType);
 
         return (

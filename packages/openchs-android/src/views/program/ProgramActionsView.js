@@ -66,12 +66,12 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
-                {this.props.enrolment.isActive && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(this.props.allowedEncounterTypeUuids)) ?
+                {this.props.enrolment.isActive && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(this.props.allowedEncounterTypeUuids)) ?
                     this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), Styles.basicPrimaryButtonView,
                         this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
-                {this.props.enrolment.hasChecklist && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
+                {this.props.enrolment.hasChecklist && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
                     this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)
                     :

@@ -81,7 +81,7 @@ class IndividualService extends BaseService {
         const privilegeService = this.getService(PrivilegeService);
         
         const allowedEnrolmentTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolProgramCriteria, 'programUuid');
-        return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program) && (!privilegeService.hasGroupPrivileges() || _.includes(allowedEnrolmentTypeUuids, program.uuid)));
+        return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program) && (!privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEnrolmentTypeUuids, program.uuid)));
     }
 
     _uniqIndividualsFrom(individuals, individual) {
@@ -154,7 +154,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -185,7 +185,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -256,7 +256,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -285,7 +285,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: !privilegeService.hasGroupPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });

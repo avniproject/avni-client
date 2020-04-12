@@ -101,7 +101,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     getEnrolmentContextActions(isExit) {
         const editEnrolmentCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEnrolmentTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editEnrolmentCriteria, 'programUuid');
-        return this.privilegeService.hasGroupPrivileges() && _.isEmpty(allowedEnrolmentTypeUuidsForEdit) ? [] : [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
+        return this.privilegeService.hasEverSyncedGroupPrivileges() && !this.privilegeService.hasAllPrivileges() && _.isEmpty(allowedEnrolmentTypeUuidsForEdit) ? [] : [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())];
     }
 
     joinProgram() {
@@ -121,7 +121,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const exitProgramCriteria = `privilege.name = '${Privilege.privilegeName.exitEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEnrolmentTypeUuidsForExit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(exitProgramCriteria, 'programUuid');
         
-        if (!this.state.hideExit && (!this.privilegeService.hasGroupPrivileges() || !_.isEmpty(allowedEnrolmentTypeUuidsForExit))) {
+        if (!this.state.hideExit && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedEnrolmentTypeUuidsForExit))) {
             return _.isNil(this.state.enrolment.programExitDateTime) ?
                 new ContextAction('exitProgram', () => this.exitProgram()) :
                 new ContextAction('undoExit', () => this.joinProgram());

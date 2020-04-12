@@ -56,15 +56,15 @@ class PreviousEncounters extends AbstractComponent {
 
     cancelVisitAction(encounter, textColor) {
         const encounterService = this.context.getService(EncounterService);
-        if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
+        if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
     encounterActions(encounter) {
-        return !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
+        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
     scheduledEncounterActions(encounter, actionName, textColor) {
-        return !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? [new ContextAction(actionName, () => this.editEncounter(encounter), textColor)] : [];
+        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? [new ContextAction(actionName, () => this.editEncounter(encounter), textColor)] : [];
     }
 
     badge = (status, color) => <View style={{
@@ -99,7 +99,7 @@ class PreviousEncounters extends AbstractComponent {
         const formMappingService = this.context.getService(FormMappingService);
         return <View>
             <TouchableOpacity
-                onPress={() => !this.privilegeService.hasGroupPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
+                onPress={() => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
                 {this.renderTitleAndDetails(encounter)}
                 <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
                     this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>

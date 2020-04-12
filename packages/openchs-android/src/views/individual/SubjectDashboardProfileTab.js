@@ -63,7 +63,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     addMemberActions() {
         const addMemberCriteria = `privilege.name = '${Privilege.privilegeName.addMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypesForAddMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(addMemberCriteria, 'subjectTypeUuid');
-        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
             return [new ContextAction(this.I18n.t('addMember'), () => {
                 CHSNavigator.navigateToAddMemberView(this, this.state.individual)
             })];
@@ -169,7 +169,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     checkPrivilege(allowedSubjectTypes, applicableActions, actionName) {
-        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
             applicableActions.push(this.I18n.t(actionName));
             return true;
         }
@@ -229,9 +229,9 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const allowedSubjectTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editProfileCriteria, 'subjectTypeUuid');
         const allowedSubjectTypeUuidsForVoid = this.privilegeService.allowedEntityTypeUUIDListForCriteria(voidProfileCriteria, 'subjectTypeUuid');
         const requiredActions = [];
-        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
             requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));
-        if (!this.privilegeService.hasGroupPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
         return _.isEmpty(form) ? <View/> :
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>

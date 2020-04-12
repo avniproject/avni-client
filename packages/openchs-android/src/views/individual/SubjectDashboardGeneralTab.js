@@ -94,7 +94,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
         const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');        
         
-        const encounterActions = this.state.encounterTypes.filter((encounterType) => !this.privilegeService.hasGroupPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
+        const encounterActions = this.state.encounterTypes.filter((encounterType) => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
             fn: () => {
                 this.state.encounter.encounterType = encounterType;
                 CHSNavigator.navigateToEncounterView(this, {
@@ -115,7 +115,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                 />
                 <View style={{marginHorizontal: 10}}>
                     <View style={{marginTop: 2, position: 'absolute', right: 8}}>
-                        {_.isEmpty(this.state.encounterTypes) || (this.privilegeService.hasGroupPrivileges() && _.isEmpty(allowedEncounterTypeUuidsForPerformVisit)) ? <View/> :
+                        {_.isEmpty(this.state.encounterTypes) || (this.privilegeService.hasEverSyncedGroupPrivileges() && !this.privilegeService.hasAllPrivileges() && _.isEmpty(allowedEncounterTypeUuidsForPerformVisit)) ? <View/> :
                             this.renderButton(() => this.startEncounter(), Styles.basicPrimaryButtonView,
                                 this.I18n.t('newGeneralVisit'), Colors.TextOnPrimaryColor)
                         }

@@ -47,8 +47,14 @@ class PrivilegeService extends BaseService {
             .map(privilege => privilege[privilegeParam])
     }
 
+    hasAllPrivileges() {
+        return this.db.objects(Groups.schema.name)
+            .filtered(this.ownedGroups().map(({groupUuid}) => `uuid = '${groupUuid}'`).join(' OR '))
+            .filtered('hasAllPrivileges=true').length > 0;
+    }
+
     //Temporary function for this release to handle the case when user has not synced group privileges. Remove after.
-    hasGroupPrivileges() {
+    hasEverSyncedGroupPrivileges() {
         return this.db.objects(GroupPrivileges.schema.name).length > 0;
     }
 
