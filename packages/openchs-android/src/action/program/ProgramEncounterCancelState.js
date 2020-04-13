@@ -67,13 +67,21 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.programEncounter, this.getEntityType());
-        context.get(ConceptService).addDecisions(this.programEncounter.cancelObservations, decisions.encounterDecisions);
+        return _.isNil(this.programEncounter.programEnrolment) ? this.getEncounterDecisions(ruleService, context) :
+            this.getProgramEncounterDecisions(ruleService, context);
+    }
 
+    getProgramEncounterDecisions(ruleService, context) {
+        const decisions = this.getEncounterDecisions(ruleService, context);
         const enrolment = this.programEncounter.programEnrolment.cloneForEdit();
         context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
         this.programEncounter.programEnrolment = enrolment;
+        return decisions;
+    }
 
+    getEncounterDecisions(ruleService, context) {
+        const decisions = ruleService.getDecisions(this.programEncounter, this.getEntityType());
+        context.get(ConceptService).addDecisions(this.programEncounter.cancelObservations, decisions.encounterDecisions);
         return decisions;
     }
 }
