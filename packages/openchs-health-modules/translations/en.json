@@ -327,6 +327,15 @@
     "memberAlreadyAddedMessage": "Member is already present in the group",
     "maxLimitReachedMsg": "Maximum limit reached for this role",
     "memberDeletedMsg": "Member removed",
-    "removeMember": "Remove member"
+    "removeMember": "Remove member",
+    "totalMembers": "Total members",
+    "proceedAddHousehold": "proceed to {{household}}",
+    "registerHeadOfFamily": "Register head of family",
+    "saveAndAddMemberX": "add member {{x}}",
+    "RelationWithHeadOfHousehold": "Relationship with head of household",
+    "proceedRegistration": "Proceed {{member}} registration",
+    "addMemberRole": "Add {{role}}",
+    "headOfHousehold": "Head of household",
+    "unavailable": "Unavailable"
   }
 }

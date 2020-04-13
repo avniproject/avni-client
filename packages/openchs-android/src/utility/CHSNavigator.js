@@ -283,6 +283,7 @@ class CHSNavigator {
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ADD_MEMBER, 'newMemberAddedMsg'],
             [WorkItem.type.PROGRAM_EXIT, 'enrolmentExitMsg'],
+            [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
         ]).get(workItem.type);
         if (tkey) {
             return i18n.t(tkey, args);
@@ -336,14 +337,31 @@ class CHSNavigator {
                     ]);
                 break;
             }
+            case WorkItem.type.HOUSEHOLD: {
+                const {totalMembers, message, groupSubjectUUID} = nextWorkItem.parameters;
+                const subjectUUID = groupSubjectUUID ? groupSubjectUUID : nextWorkItem.parameters.subjectUUID;
+                const individual = context.getService(IndividualService).findByUUID(subjectUUID);
+                TypedTransition.from(recommendationsView)
+                    .resetStack([...toBePoped, GenericDashboardView], [
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: subjectUUID}, true),
+                        TypedTransition.createRoute(AddNewMemberView, {
+                            groupSubject: individual,
+                            workLists: workListState.workLists,
+                            totalMembers: +totalMembers,
+                            message,
+                        }, true)
+                    ]);
+                break;
+            }
             case WorkItem.type.ADD_MEMBER: {
                 const individual = context.getService(IndividualService).findByUUID(nextWorkItem.parameters.groupSubjectUUID);
                 TypedTransition.from(recommendationsView)
-                    .resetStack(toBePoped, [
+                    .resetStack([...toBePoped, GenericDashboardView], [
                         TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.groupSubjectUUID}, true),
                         TypedTransition.createRoute(AddNewMemberView, {
                             groupSubject: individual,
                             message: message,
+                            workLists: workListState.workLists,
                         }, true)
                     ]);
                 break;

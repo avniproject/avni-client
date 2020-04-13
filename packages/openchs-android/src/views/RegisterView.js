@@ -7,7 +7,7 @@ import CHSContainer from "./common/CHSContainer";
 import AppHeader from "./common/AppHeader";
 import CHSContent from "./common/CHSContent";
 import EntityService from "../service/EntityService";
-import {SubjectType, WorkList, WorkLists, Privilege} from "avni-models";
+import {Privilege, SubjectType, WorkList, WorkLists} from "avni-models";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Fonts from "./primitives/Fonts";
 import FormMappingService from "../service/FormMappingService";
 import PrivilegeService from "../service/PrivilegeService";
+import GroupSubjectService from "../service/GroupSubjectService";
 
 
 @Path('/registerView')
@@ -31,9 +32,30 @@ class RegisterView extends AbstractComponent {
     }
 
     _addRegistrationAction(subjectType) {
+        if (subjectType.isHousehold()) {
+            return this._addHouseholdAction(subjectType);
+        }
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
                 new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`)).withRegistration(subjectType.name))),
+            label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
+            backgroundColor: Colors.AccentColor,
+        }
+    }
+
+    _addHouseholdAction(subjectType) {
+        const groupRole = this.getService(GroupSubjectService).getGroupRoles(subjectType)[0];
+        const householdParams = {
+            subjectTypeName: groupRole.memberSubjectType.name,
+            saveAndProceedLabel: 'registerHeadOfFamily',
+            headOfFamily: true
+        };
+        return {
+            fn: () => CHSNavigator.navigateToRegisterView(this,
+                new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`))
+                    .withRegistration(subjectType.name)
+                    .withHouseholdRegistration(householdParams)
+                )),
             label: this.I18n.t(`REG_DISPLAY-${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }

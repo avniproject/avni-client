@@ -6,9 +6,10 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import DatePicker from "../primitives/DatePicker";
-import {AddNewMemberActions as Actions} from "../../action/groupSubject/AddNewMemberAction";
+import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
 import _ from "lodash";
 import Reducers from "../../reducer";
+import {IndividualRelative} from 'avni-models';
 
 
 class AddMemberDetails extends AbstractComponent {
@@ -37,6 +38,32 @@ class AddMemberDetails extends AbstractComponent {
         );
     }
 
+    toggleRelation(relationUUID) {
+        const selectedRelation = this.state.relations.find((relation) => relation.uuid === relationUUID);
+        return this.dispatchAction(Actions.ON_RELATION_SELECT, {value: selectedRelation});
+    }
+
+    renderRelationOptions() {
+        const valueLabelPairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
+        const headOfHouseholdGroupSubject = this.state.member.groupSubject.getHeadOfHouseholdGroupSubject();
+        const headOfHouseholdName = !_.isEmpty(headOfHouseholdGroupSubject) ? headOfHouseholdGroupSubject.memberSubject.name : '';
+        return (
+            <RadioGroup
+                style={this.props.style}
+                inPairs={true}
+                onPress={({label, value}) => this.toggleRelation(value)}
+                selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
+                labelKey={`${this.I18n.t('RelationWithHeadOfHousehold')} (${headOfHouseholdName})`}
+                labelValuePairs={valueLabelPairs}
+                validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}
+            />
+        );
+    }
+
+    renderRelations() {
+        return this.state.member.groupRole.isHouseholdMember ? this.renderRelationOptions() : <View/>;
+    }
+
     renderMembershipStartDate() {
         return <View style={{flexDirection: "column", justifyContent: "flex-start", marginTop: 10}}>
             <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("membershipStartDate")}<Text
@@ -54,7 +81,7 @@ class AddMemberDetails extends AbstractComponent {
     render() {
         return (
             <View>
-                {this.renderRoles()}
+                {this.state.member.groupSubject.isHousehold() ? this.renderRelations() : this.renderRoles()}
                 {this.renderMembershipStartDate()}
             </View>
         );

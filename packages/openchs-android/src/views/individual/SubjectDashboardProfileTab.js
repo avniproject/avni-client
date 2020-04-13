@@ -109,8 +109,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     onSubjectSelection(individualUUID) {
-        this.dispatchAction(Actions.ON_LOAD, {individualUUID});
-        this.dispatchAction(DashboardActions.ON_LOAD, {individualUUID, messageDisplayed: false, tab: 1});
+        TypedTransition.from(this).resetStack([GenericDashboardView],
+            [TypedTransition.createRoute(GenericDashboardView, {individualUUID, tab: 1}, true)])
     }
 
     renderRelatives() {
@@ -137,8 +137,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const removeMemberCriteria = `privilege.name = '${Privilege.privilegeName.removeMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypesForEditMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editMemberCriteria, 'subjectTypeUuid');
         const allowedSubjectTypesForRemoveMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(removeMemberCriteria, 'subjectTypeUuid');
-        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, 'edit');
-        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, 'remove');
+        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, {label:'edit', fn: (groupSubject) => this.onMemberEdit(groupSubject)});
+        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {label:'remove', fn: (groupSubject) => this.onMemberRemove(groupSubject)});
         return (
             <View style={styles.container}>
                 <TouchableOpacity
@@ -156,8 +156,6 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {this.state.expandMembers === true && groupSubjects.length > 0 ?
                         <View style={styles.memberCard}>
                             <Members groupSubjects={groupSubjects}
-                                     onMemberDeletion={(groupSubject) => this.onMemberRemove(groupSubject)}
-                                     onMemberEdit={(groupSubject) => this.onMemberEdit(groupSubject)}
                                      onMemberSelection={(memberSubjectUUID) => this.onSubjectSelection(memberSubjectUUID)}
                                      actions={applicableActions}
                                      editAllowed={editAllowed}
@@ -168,9 +166,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         );
     }
 
-    checkPrivilege(allowedSubjectTypes, applicableActions, actionName) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
-            applicableActions.push(this.I18n.t(actionName));
+
+    checkPrivilege(allowedSubjectTypes, applicableActions, action) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || !this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
+            applicableActions.push(action);
             return true;
         }
         return false;

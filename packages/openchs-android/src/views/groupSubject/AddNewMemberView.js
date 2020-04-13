@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import Reducers from "../../reducer";
-import {AddNewMemberActions as Actions} from "../../action/groupSubject/AddNewMemberAction";
+import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
 import {Alert, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
@@ -17,20 +17,38 @@ import StaticFormElement from "../viewmodel/StaticFormElement";
 import WizardButtons from "../common/WizardButtons";
 import Colors from "../primitives/Colors";
 import AddMemberDetails from "./AddMemberDetails";
-import {WorkList, WorkLists, WorkItem} from "avni-models";
+import {IndividualRelative, WorkItem, WorkList, WorkLists} from "avni-models";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import WorkListState from "../../state/WorkListState";
 
 @Path('/addNewMemberView')
 class AddNewMemberView extends AbstractComponent {
 
     static propTypes = {
         groupSubject: PropTypes.object,
+        message: PropTypes.string,
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.addNewMember);
+    }
+
+    get nextAndMore() {
+        const workLists = this.props.workLists;
+        if (_.isNil(workLists)) return {};
+        const workListState = new WorkListState(this.updateWorkList(), _.noop);
+        if (!workListState.peekNextWorkItem()) return {};
+        const workItemLabel = workListState.saveAndProceedButtonLabel(this.I18n);
+        return {
+            label: workItemLabel,
+            func: () => this.save(() => {
+                CHSNavigator.performNextWorkItemFromRecommendationsView(this, workListState, this.context);
+            }),
+            visible: this.state.validationResults.length === 0,
+        };
     }
 
     viewName() {
@@ -40,6 +58,10 @@ class AddNewMemberView extends AbstractComponent {
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         super.componentWillMount();
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return !this.state.workListUpdated;
     }
 
     previous() {
@@ -53,25 +75,45 @@ class AddNewMemberView extends AbstractComponent {
         }
     }
 
-    save() {
+    save(cb) {
         if (this.state.member.memberSubject.voided) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
                 this.I18n.t("voidedIndividualAlertMessage"));
         } else {
-            this.dispatchAction(Actions.ON_SAVE, {
-                cb: () => TypedTransition.from(this).resetStack([AddNewMemberView, GenericDashboardView],
-                    [TypedTransition.createRoute(GenericDashboardView, {
-                        individualUUID: this.state.member.groupSubject.uuid,
-                        message: this.I18n.t('newMemberAddedMsg'),
-                        tab: 1
-                    })])
-            });
+            this.dispatchAction(Actions.ON_SAVE, {cb});
         }
+    }
+
+    renderRegistrationButton(memberSubjectType) {
+        return <View style={{flexDirection: 'column', alignItems: 'center', alignSelf: 'center'}}>
+            <Text>{this.I18n.t('or')}</Text>
+            <TouchableOpacity
+                style={{
+                    marginTop: 20,
+                    paddingVertical: 10,
+                    backgroundColor: Colors.ActionButtonColor,
+                    borderRadius: 15
+                }}
+                activeOpacity={.5}
+                onPress={() => this.proceedToRegistration(memberSubjectType)}>
+                <Text style={{
+                    color: Colors.TextOnPrimaryColor,
+                    textAlign: 'center',
+                    paddingHorizontal: 40
+                }}>{this.I18n.t('proceedRegistration', {member: this.state.member.groupRole.role})}</Text>
+            </TouchableOpacity>
+        </View>
     }
 
     next() {
         if (_.isNil(this.props.params)) {
-            return this.save();
+            const cb = () => TypedTransition.from(this).resetStack([AddNewMemberView, GenericDashboardView],
+                [TypedTransition.createRoute(GenericDashboardView, {
+                    individualUUID: this.state.member.groupSubject.uuid,
+                    message: this.I18n.t('newMemberAddedMsg'),
+                    tab: 1
+                })]);
+            return this.save(cb);
         } else {
             const memberSubject = this.state.member.memberSubject;
             CHSNavigator.navigateToRegisterView(this, new WorkLists(new WorkList(`${memberSubject.subjectType.name} `,
@@ -79,7 +121,9 @@ class AddNewMemberView extends AbstractComponent {
                     {
                         uuid: memberSubject.uuid,
                         subjectTypeName: memberSubject.subjectType.name,
-                        member: this.state.member
+                        member: this.state.member,
+                        individualRelative: this.state.individualRelative,
+                        headOfFamily: this.isHeadOfHousehold(),
                     }
                 )])));
         }
@@ -90,19 +134,54 @@ class AddNewMemberView extends AbstractComponent {
             subjectTypeName: subjectType.name,
             member: this.state.member,
             groupSubjectUUID: this.state.member.groupSubject.uuid,
+            individualRelative: this.state.individualRelative,
+            headOfFamily: this.isHeadOfHousehold(),
         };
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(new WorkList(this.I18n.t(`REG_DISPLAY-${subjectType.name}`))
+        const updatedWorkLists = _.isEmpty(this.props.workLists) ? {} : this.updateWorkList();
+        const workLists = _.isEmpty(updatedWorkLists) ? new WorkLists(new WorkList(subjectType.name)
             .withAddMember(params)
-            .withAddMember(params)
-        ));
+            .withAddMember(params)) : updatedWorkLists;
+        CHSNavigator.navigateToRegisterView(this, workLists);
+    }
+
+    updateWorkList() {
+        const subjectType = this.state.member.groupRole.memberSubjectType;
+        const params = {
+            subjectTypeName: subjectType.name,
+            member: this.state.member,
+            groupSubjectUUID: this.state.member.groupSubject.uuid,
+        };
+        const workLists = this.props.workLists;
+        workLists.addParamsToCurrentWorkList({
+            ...params,
+            individualRelative: this.state.individualRelative,
+            message: this.I18n.t('newMemberAddedMsg')
+        });
+        const totalMembers = this.props.totalMembers;
+        const currentMember = this.state.member.groupSubject.groupSubjects.filter(({voided}) => !voided).length;
+        if (currentMember + 1 < totalMembers && !this.state.workListUpdated) {
+            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.HOUSEHOLD, {
+                saveAndProceedLabel: this.I18n.t("saveAndAddMemberX", {x: `${currentMember + 2} of ${totalMembers}`}),
+                headOfFamily: false,
+                groupSubjectUUID: this.state.member.groupSubject.uuid,
+                totalMembers,
+            }))
+        }
+        this.dispatchAction(Actions.WORK_LIST_UPDATED);
+        return workLists;
+    }
+
+    isHeadOfHousehold() {
+        return this.state.member.groupSubject.isHousehold() && this.state.member.groupRole.isHeadOfHousehold;
     }
 
     isMemberDetailsEmpty() {
-        return _.isEmpty(this.state.member.groupRole) || _.isEmpty(this.state.member.membershipStartDate);
+        return _.isEmpty(this.state.member.groupRole) || _.isEmpty(this.state.member.membershipStartDate)
+            || (this.state.member.groupSubject.isHousehold() && !this.isHeadOfHousehold() && _.isEmpty(this.state.individualRelative.relation.uuid));
     }
 
     displaySearchOption() {
-        return !this.isMemberDetailsEmpty() && _.isEmpty(this.state.validationResults);
+        return !this.isMemberDetailsEmpty();
     }
 
     displayRegistrationOption() {
@@ -115,10 +194,11 @@ class AddNewMemberView extends AbstractComponent {
         const searchHeaderMessage = `${headerMessage} - ${this.I18n.t('search')}`;
         this.displayMessage(this.props.message);
         const nextLabel = _.isNil(this.props.params) ? 'save' : 'next';
+        const title = this.state.member.groupRole.role ? this.I18n.t('addMemberRole', {role: this.state.member.groupRole.role}) : this.I18n.t('addNewMember');
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('addNewMember')}/>
+                    <AppHeader title={title}/>
                     <View style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -135,30 +215,16 @@ class AddNewMemberView extends AbstractComponent {
                                 hideIcon={!_.isNil(this.props.params)}
                                 memberSubjectType={this.state.member.groupRole.memberSubjectType}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>
+                            <ValidationErrorMessage
+                                validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}/>
                             {this.displayRegistrationOption() &&
-                            <View style={{flexDirection: 'column', alignItems: 'center', alignSelf: 'center'}}>
-                                <Text>{this.I18n.t('or')}</Text>
-                                <TouchableOpacity
-                                    style={{
-                                        marginTop: 20,
-                                        paddingVertical: 10,
-                                        backgroundColor: Colors.ActionButtonColor,
-                                        borderRadius: 15
-                                    }}
-                                    activeOpacity={.5}
-                                    onPress={() => this.proceedToRegistration(this.state.member.groupRole.memberSubjectType)}>
-                                    <Text style={{
-                                        color: Colors.TextOnPrimaryColor,
-                                        textAlign: 'center',
-                                        paddingHorizontal: 40
-                                    }}>{this.I18n.t('registerNewMember')}</Text>
-                                </TouchableOpacity>
-                            </View>}
+                            this.renderRegistrationButton(this.state.member.groupRole.memberSubjectType)}
                         </View>
                         }
                         {!_.isEmpty(this.state.member.memberSubject) &&
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{func: () => this.next(), label: this.I18n.t(nextLabel)}}
+                                       nextAndMore={this.nextAndMore}
                                        style={{marginHorizontal: 24}}/>
                         }
                     </View>

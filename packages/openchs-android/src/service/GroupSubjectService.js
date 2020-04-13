@@ -47,6 +47,11 @@ class GroupSubjectService extends BaseService {
         });
         return groupSubject;
     }
+
+    getAllGroups(memberSubject) {
+        return this.filtered(`voided = false AND memberSubject.uuid = $0`, memberSubject.uuid)
+            .filtered('TRUEPREDICATE DISTINCT(groupSubject.uuid)')
+    }
 }
 
 

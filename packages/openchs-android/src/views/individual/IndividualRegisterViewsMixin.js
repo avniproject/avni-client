@@ -15,7 +15,7 @@ class Mixin {
                 const onSaveCallback = ((source) => {
                     const workLists = state.workListState.workLists;
                     const workItem = workLists.getCurrentWorkItem();
-                    if (workItem.type === WorkItem.type.ADD_MEMBER) {
+                    if (_.includes([WorkItem.type.ADD_MEMBER, WorkItem.type.HOUSEHOLD], workItem.type)) {
                         CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, workItem.parameters.member.groupSubject.uuid, "newMemberAddedMsg")
                     } else {
                         CHSNavigator.onSaveGoToProgramEnrolmentDashboardView(source, view.state.individual.uuid);

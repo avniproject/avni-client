@@ -43,7 +43,8 @@ export default class WorkListState {
         return `${i18n.t('saveAnd')} ${i18n.t(label, {
             subject: i18n.t(_.defaultTo(workItem.parameters.subjectTypeName, "")),
             program: i18n.t(_.defaultTo(workItem.parameters.programName, "")),
-            enc: i18n.t(_.defaultTo(workItem.parameters.encounterType, ""))
+            enc: i18n.t(_.defaultTo(workItem.parameters.encounterType, "")),
+            household: i18n.t(_.defaultTo(workItem.parameters.saveAndProceedLabel,""))
         })}`;
     }
 
@@ -55,6 +56,7 @@ export default class WorkListState {
             [WorkItem.type.PROGRAM_ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ADD_MEMBER, 'addAnotherMember'],
+            [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
         ]).get(nextWorkItem.type);
         return this.labelOrDefault(nextWorkItem, tkey, i18n);
     }

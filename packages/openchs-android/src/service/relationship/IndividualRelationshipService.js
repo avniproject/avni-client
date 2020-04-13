@@ -3,9 +3,9 @@ import Service from "../../framework/bean/Service";
 import {EntityQueue, IndividualRelationship} from 'avni-models';
 import IndividualRelationshipTypeService from "./IndividualRelationshipTypeService";
 import General from "../../utility/General";
-import {  IndividualRelative  } from 'avni-models';
+import {IndividualRelative} from 'avni-models';
 import EntityService from "../EntityService";
-import {  Individual  } from 'avni-models';
+import {Individual} from 'avni-models';
 
 @Service("individualRelationshipService")
 class IndividualRelationshipService extends BaseService {
@@ -36,6 +36,18 @@ class IndividualRelationshipService extends BaseService {
         const relationshipType = this.getService(IndividualRelationshipTypeService).getRelationshipType(individualRelative);
         const individualRelationship = IndividualRelationship.create(individualRelative, relationshipType);
         this.saveOrUpdate(individualRelationship);
+    }
+
+    addOrUpdateRelative(individualRelative) {
+        const individual = this.getService(EntityService).findByUUID(individualRelative.relative.uuid, Individual.schema.name);
+        const oldRelationship = individual.relationships.filter(({individualA, individualB}) => individualA.uuid === individualRelative.individual.uuid ||
+            individualB.uuid === individualRelative.individual.uuid);
+        if (!_.isEmpty(oldRelationship)) {
+            const relationship = oldRelationship[0].cloneForEdit();
+            relationship.voided = true;
+            this.saveOrUpdate(relationship);
+        }
+        this.addRelative(individualRelative);
     }
 
     deleteRelative(individualRelative) {

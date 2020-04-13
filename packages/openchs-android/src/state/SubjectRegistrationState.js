@@ -3,14 +3,14 @@ import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 import {Individual, ObservationsHolder} from 'avni-models';
 import _ from "lodash";
-import {  ValidationResult  } from 'avni-models';
-import Geo from "../framework/geo";
+import HouseholdState from "./HouseholdState";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.subject = subject;
         this.subjectType = subjectType;
+        this.household = new HouseholdState();
     }
 
     getEntity() {
@@ -44,15 +44,18 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.subjectType = this.subjectType;
         newState.form = this.form;
         newState.filteredFormElements = this.filteredFormElements;
+        newState.household = this.household.clone();
+        newState.isNewEntity = this.isNewEntity;
         super.clone(newState);
         return newState;
     }
 
     getWorkContext() {
-        return {
+        const workContext = {
             subjectTypeName: this.subjectType.name,
             subjectUUID: this.subject.uuid,
         };
+        return this.subjectType.isHousehold() ? {...workContext, totalMembers: this.household.totalMembers}: workContext;
     }
 
     get observationsHolder() {
@@ -60,7 +63,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? _.keys(Individual.nonIndividualValidationKeys) : [];
+        return this.wizard.isFirstPage() ? [..._.keys(Individual.nonIndividualValidationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
     }
 
     validateEntity(context) {
@@ -71,6 +74,10 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             context
         );
         validationResults.push(locationValidation);
+        if (this.subjectType.isHousehold() && this.isNewEntity) {
+            const totalMemberValidation = this.household.validateTotalMembers();
+            validationResults.push(totalMemberValidation);
+        }
         return validationResults;
     }
 

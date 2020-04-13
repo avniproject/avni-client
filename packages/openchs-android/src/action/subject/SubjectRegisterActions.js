@@ -2,12 +2,13 @@ import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
-import {Form, Individual, SubjectType, Point, ObservationsHolder} from "avni-models";
+import {Individual, SubjectType, Point, ObservationsHolder, WorkItem} from "avni-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
+import GroupSubjectService from "../../service/GroupSubjectService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -22,7 +23,7 @@ export class SubjectRegisterActions {
     static onLoad(state, action, context) {
         let isNewEntity = _.isNil(action.subjectUUID);
         const subject = isNewEntity ?
-            Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
+            Individual.createEmptySubjectInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
 
         const currentWorkItem = action.workLists.getCurrentWorkItem();
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
@@ -96,7 +97,21 @@ export class SubjectRegisterActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).register(newState.subject, action.nextScheduledVisits);
+        const workLists = newState.workListState.workLists;
+        const workItem = workLists.getCurrentWorkItem();
+        if (workItem.type === WorkItem.type.ADD_MEMBER) {
+            const member = workItem.parameters.member;
+            member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
+            context.get(GroupSubjectService).addMember(member);
+        }
         action.cb();
+        return newState;
+    }
+
+    static enterTotalMembers(state, action) {
+        const newState = state.clone();
+        newState.household.setTotalMembers(action.value);
+        newState.handleValidationResult(newState.household.validateTotalMembers());
         return newState;
     }
 }
@@ -118,6 +133,7 @@ const actions = {
     RESET: 'b0fc5ebb-03db-4449-abac-e9790f926447',
     SET_LOCATION: "SRA.SET_LOCATION",
     SET_LOCATION_ERROR: "SRA.SET_LOCATION_ERROR",
+    REGISTRATION_ENTER_TOTAL_MEMBERS: "REGISTRATION_ENTER_TOTAL_MEMBERS",
 };
 
 export default new Map([
@@ -136,6 +152,7 @@ export default new Map([
     [actions.SAVE, SubjectRegisterActions.onSave],
     [actions.SET_LOCATION, SubjectRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [actions.REGISTRATION_ENTER_TOTAL_MEMBERS, SubjectRegisterActions.enterTotalMembers],
 ]);
 
 export {actions as Actions};

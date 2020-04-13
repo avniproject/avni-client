@@ -10,7 +10,7 @@ import {Text, View} from "react-native";
 import WizardButtons from "../common/WizardButtons";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Reducers from "../../reducer";
-import {AddNewMemberActions as Actions} from "../../action/groupSubject/AddNewMemberAction";
+import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
 import Colors from "../primitives/Colors";
 import DatePicker from "../primitives/DatePicker";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
