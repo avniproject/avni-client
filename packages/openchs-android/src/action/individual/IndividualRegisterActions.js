@@ -8,6 +8,7 @@ import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
+import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -135,10 +136,15 @@ export class IndividualRegisterActions {
         context.get(IndividualService).register(newState.individual, action.nextScheduledVisits);
         const workLists = newState.workListState.workLists;
         const workItem = workLists.getCurrentWorkItem();
-        if(workItem.type === WorkItem.type.ADD_MEMBER){
+        if (_.includes([WorkItem.type.ADD_MEMBER, WorkItem.type.HOUSEHOLD], workItem.type)) {
             const member = workItem.parameters.member;
             member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
             context.get(GroupSubjectService).addMember(member);
+            if (member.groupSubject.isHousehold() && !workItem.parameters.headOfFamily) {
+                const individualRelative = workItem.parameters.individualRelative;
+                individualRelative.individual = newState.individual;
+                individualRelative.isRelationPresent() && context.get(IndividualRelationshipService).addOrUpdateRelative(individualRelative);
+            }
         }
         action.cb();
         return newState;

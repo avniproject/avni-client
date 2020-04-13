@@ -7,17 +7,15 @@ import Fonts from "../primitives/Fonts";
 import _ from 'lodash';
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
-import PopupMenu from "../common/PopupMenu";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import {Badge} from "../common/Badge";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import Actions from "./Actions";
 
 class Members extends AbstractComponent {
     static propTypes = {
         groupSubjects: PropTypes.object.isRequired,
         title: PropTypes.string,
-        onMemberDeletion: PropTypes.func.isRequired,
-        onMemberEdit: PropTypes.func.isRequired,
         onMemberSelection: PropTypes.func.isRequired,
         actions: PropTypes.array.isRequired,
         editAllowed: PropTypes.bool,
@@ -28,21 +26,29 @@ class Members extends AbstractComponent {
         super(props, context);
     }
 
-    onPopupEvent(eventName, index, groupSubject) {
-        if (eventName !== 'itemSelected') return;
-        if (index === 0 && this.props.editAllowed) this.props.onMemberEdit(groupSubject);
-        else if (index === 0 && !this.props.editAllowed) this.props.onMemberDeletion(groupSubject);
-        else this.props.onMemberDeletion(groupSubject)
-    }
-
     getTextComponent(text, color) {
-        return <Text style={[Fonts.typography("paperFontBody2"), {color}]}>{text}</Text>
+        return <Text key={text} style={{fontSize: Styles.normalTextSize, color: color}}>{text}</Text>
     }
 
-    renderGroupMember(memberSubject) {
+    renderGroupMember(groupSubject) {
+        const memberSubject = groupSubject.memberSubject;
         const component = this.getTextComponent(memberSubject.name, Colors.Complimentary);
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
-        return <Badge number={undoneProgramVisits} component={component}/>
+        return (<View style={{flexDirection: 'column', alignItems: 'flex-start'}}>
+                <Badge number={undoneProgramVisits} component={component}/>
+                {this.renderRoleOrRelationship(groupSubject)}
+            </View>
+        )
+    }
+
+    renderRoleOrRelationship(groupSubject) {
+        if (groupSubject.groupSubject.isHousehold()) {
+            const relationship = groupSubject.getRelationshipWithHeadOfHousehold();
+            return <Text key={relationship}
+                         style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(relationship)}</Text>
+        }
+        const role = groupSubject.getRole();
+        return <Text key={role} style={{marginLeft: 2, fontSize: 12}}>{role}</Text>
     }
 
     renderEnrolledPrograms(memberSubject) {
@@ -50,20 +56,18 @@ class Members extends AbstractComponent {
         return _.map(nonExitedEnrolledPrograms, enl => this.getTextComponent(this.I18n.t(enl.program.operationalProgramName || enl.program.name), Colors.InputNormal))
     }
 
-    renderRow(groupSubject) {
+    renderRow(groupSubject, index) {
         return (
-            <View style={[styles.container, {alignItems: 'center'}]}>
+            <View key={index} style={[styles.container, {alignItems: 'center', minHeight: 20}]}>
                 <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}
-                                  style={{flex: 1, alignSelf: 'center',}}>
-                    {this.renderGroupMember(groupSubject.memberSubject)}
+                                  style={{flex: 1, alignSelf: 'center',flexWrap: 'wrap'}}>
+                    {this.renderGroupMember(groupSubject)}
                 </TouchableOpacity>
-                <View style={{flex: 0.8}}>
+                <View style={{flex: 0.8, flexWrap: 'wrap'}}>
                     {this.renderEnrolledPrograms(groupSubject.memberSubject)}
                 </View>
                 <View style={{flex: 0.5, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between'}}>
-                    <PopupMenu actions={this.props.actions}
-                               onPress={(eventName, index) => this.onPopupEvent(eventName, index, groupSubject)}
-                               iconSize={24}/>
+                    <Actions key={index} actions={this.props.actions} groupSubject={groupSubject}/>
                 </View>
             </View>
         );
@@ -102,7 +106,7 @@ class Members extends AbstractComponent {
                 removeClippedSubviews={true}
                 renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
                 renderHeader={() => this.renderHeader()}
-                renderRow={(groupSubject) => this.renderRow(groupSubject)}
+                renderRow={(groupSubject, index) => this.renderRow(groupSubject, index)}
             />
         );
     }

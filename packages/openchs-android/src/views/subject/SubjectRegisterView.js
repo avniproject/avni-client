@@ -1,4 +1,4 @@
-import {ToastAndroid, View} from "react-native";
+import {Text, TextInput, ToastAndroid, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -25,6 +25,9 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
 import EntityService from "../../service/EntityService";
+import Colors from "../primitives/Colors";
+import DGS from "../primitives/DynamicGlobalStyles";
+import HouseholdState from "../../state/HouseholdState";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -32,16 +35,16 @@ class SubjectRegisterView extends AbstractComponent {
         params: PropTypes.object.isRequired
     };
 
-    viewName() {
-        return 'SubjectRegisterView';
-    }
-
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.subject);
         this.state = {displayed: true};
     }
 
-    static canLoad({uuid,customMessage, subjectTypeName}, parent) {
+    get registrationType() {
+        return _.get(this, 'props.params.workLists.currentWorkList.name') || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
+    }
+
+    static canLoad({uuid, customMessage, subjectTypeName}, parent) {
         const editing = !_.isNil(uuid);
         if (editing) return true;
         const identifierAssignmentService = parent.context.getService(IdentifierAssignmentService);
@@ -59,13 +62,16 @@ class SubjectRegisterView extends AbstractComponent {
         return false;
     }
 
-    componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {subjectUUID: this.props.params.subjectUUID, workLists: this.props.params.workLists});
-        return super.componentWillMount();
+    viewName() {
+        return 'SubjectRegisterView';
     }
 
-    get registrationType() {
-        return _.get(this, 'props.params.workLists.currentWorkList.name') || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_LOAD, {
+            subjectUUID: this.props.params.subjectUUID,
+            workLists: this.props.params.workLists
+        });
+        return super.componentWillMount();
     }
 
     previous() {
@@ -114,38 +120,53 @@ class SubjectRegisterView extends AbstractComponent {
                                func={() => this.previous()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
+                            <View>
+                                <GeolocationFormElement
+                                    actionName={Actions.SET_LOCATION}
+                                    errorActionName={Actions.SET_LOCATION_ERROR}
+                                    location={this.state.subject.registrationLocation}
+                                    editing={this.props.params.editing}
+                                    validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
+                                <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
+                                                 element={new StaticFormElement('registrationDate')}
+                                                 dateValue={new PrimitiveValue(this.state.subject.registrationDate)}
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
+                                                 element={new StaticFormElement('name', true)}
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}
+                                                 value={new PrimitiveValue(this.state.subject.firstName)}
+                                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                                 multiline={false}
+                                />
+                                {this.state.subject.isHousehold() && this.state.isNewEntity &&
                                 <View>
-                                    <GeolocationFormElement
-                                        actionName={Actions.SET_LOCATION}
-                                        errorActionName={Actions.SET_LOCATION_ERROR}
-                                        location={this.state.subject.registrationLocation}
-                                        editing={this.props.params.editing}
-                                        validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
-                                    <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
-                                                     element={new StaticFormElement('registrationDate')}
-                                                     dateValue={new PrimitiveValue(this.state.subject.registrationDate)}
-                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
-                                    <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
-                                                     element={new StaticFormElement('name', true)}
-                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}
-                                                     value={new PrimitiveValue(this.state.subject.firstName)}
-                                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                                     multiline={false}
-                                    />
-                                    <AddressLevels
-                                        selectedLowestLevel={this.state.subject.lowestAddressLevel}
-                                        multiSelect={false}
-                                        validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                                        mandatory={true}
-                                        onLowestLevel={(lowestSelectedAddresses) =>
-                                        {
-                                            this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})}
-                                        }
+                                    <View>
+                                        <Text style={DGS.formElementLabel}>{this.I18n.t("totalMembers")}<Text
+                                            style={{color: Colors.ValidationError}}> * </Text></Text>
+                                    </View>
+                                    <TextInput
+                                        style={{flex: 1, borderBottomWidth: 0, marginTop: Distances.VerticalSpacingBetweenFormElements, paddingVertical: 5}}
+                                        keyboardType='numeric'
+                                        maxLength={3}
+                                        underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, HouseholdState.validationKeys.TOTAL_MEMBERS) ? Colors.ValidationError : Colors.InputBorderNormal}
+                                        value={_.isNil(this.state.household.totalMembers) ? "" : this.state.household.totalMembers}
+                                        onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_TOTAL_MEMBERS, {value: text})}/>
 
-                                    />
+                                </View>}
+                                <AddressLevels
+                                    selectedLowestLevel={this.state.subject.lowestAddressLevel}
+                                    multiSelect={false}
+                                    validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
+                                    mandatory={true}
+                                    onLowestLevel={(lowestSelectedAddresses) => {
+                                        this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})
+                                    }
+                                    }
 
-                                </View>
-                            )
+                                />
+
+                            </View>
+                        )
                         }
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.subject.observations)}

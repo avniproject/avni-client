@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {View, Alert, TouchableNativeFeedback, StyleSheet} from "react-native";
+import {View, Alert, TouchableNativeFeedback, StyleSheet, TouchableOpacity} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -15,6 +15,12 @@ import Styles from "../primitives/Styles";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
 import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "avni-models";
+import GroupSubjectService from "../../service/GroupSubjectService";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import GenericDashboardView from "../program/GenericDashboardView";
+import Menu from "../menu";
+import MenuItem from "../menu/MenuItem";
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -70,6 +76,66 @@ class IndividualProfile extends AbstractComponent {
         </TouchableNativeFeedback>);
     }
 
+    groupActions() {
+        const groupSubjects = this.getService(GroupSubjectService).getAllGroups(this.props.individual);
+        return groupSubjects.map(groupSubject => ({
+            fn: () => {
+                TypedTransition.from(this).resetStack([GenericDashboardView],
+                    [TypedTransition.createRoute(GenericDashboardView, {
+                        individualUUID: groupSubject.groupSubject.uuid,
+                        tab: 1
+                    }, true)])
+            },
+            label: groupSubject.groupSubject.firstName
+        }))
+    }
+
+    setMenuRef = ref => {
+        this._menu = ref;
+    };
+    showMenu = () => {
+        this._menu.show();
+    };
+
+    renderGroupOptions() {
+        const groupActions = this.groupActions();
+        if (groupActions.length === 0) {
+            return null
+        } else {
+            return groupActions.length === 1 ? this.renderGroupButton(groupActions[0]) : this.renderMenu(groupActions);
+        }
+
+    }
+
+    renderGroupButton(groupAction) {
+        return <TouchableOpacity onPress={groupAction.fn} style={{
+            borderColor: Styles.accentColor,
+            paddingVertical: 1,
+            paddingHorizontal: 10,
+            alignItems: 'center',
+            borderRadius: 10,
+            borderWidth: 1
+        }}>
+            <Text style={{color: Styles.accentColor}}>{groupAction.label} Group</Text>
+        </TouchableOpacity>
+    }
+
+    renderMenu(groupActions) {
+        return <Menu
+            ref={this.setMenuRef}
+            button={<TouchableOpacity onPress={this.showMenu}>
+                <MaterialIcon
+                    name='more-vert'
+                    size={25}
+                    color={Colors.TextOnPrimaryColor}/>
+            </TouchableOpacity>}>
+            <MenuItem onPress={_.noop} disabled disabledTextColor={Colors.DefaultPrimaryColor}>Member of
+                groups:</MenuItem>
+            {groupActions.map(({fn, label}) => (
+                <MenuItem onPress={fn} textStyle={{color: Colors.Complimentary}}>{label}</MenuItem>))}
+        </Menu>;
+    }
+
     render() {
         General.logDebug('IndividualProfile', 'render');
         const programActions = this.state.eligiblePrograms.map(program => ({
@@ -88,7 +154,7 @@ class IndividualProfile extends AbstractComponent {
             label: this.I18n.t(program.displayName),
             backgroundColor: program.colour,
         }));
-        const backgroundColor = this.props.individual.subjectType.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
+        const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
         return <View style={{backgroundColor: backgroundColor}}>
             {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
                 (
@@ -123,11 +189,13 @@ class IndividualProfile extends AbstractComponent {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                justifyContent: 'center',
+                                justifyContent: 'space-between',
                                 flexWrap: 'wrap',
-                                paddingVertical: 8
+                                paddingVertical: 8,
+                                alignItems: 'center'
                             }}>
-                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : null}
+                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : <View/>}
+                            {this.renderGroupOptions()}
                         </View>
                     </View>
                 ) :

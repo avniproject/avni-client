@@ -10,7 +10,7 @@ Styles.whiteColor = '#ffffff';
 Styles.blackColor = '#000000';
 Styles.redColor = '#ff0000';
 Styles.defaultBackground = '#212121';
-Styles.groupSubjectBackground = '#a6238e';
+Styles.groupSubjectBackground = '#871f74';
 Styles.greyBackground = '#f7f7f7';
 Styles.greyText = '#666666';
 
