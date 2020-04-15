@@ -96,7 +96,9 @@ class AbstractComponent extends Component {
     }
 
     scrollToPosition(x, y) {
-        this.refs.scroll._root.scrollToPosition(x, y, true);
+        if (this.refs.scroll) {
+            this.refs.scroll._root.scrollToPosition(x, y, true);
+        }
     }
 
     componentWillUnmount() {
