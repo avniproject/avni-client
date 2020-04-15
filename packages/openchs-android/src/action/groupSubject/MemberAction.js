@@ -73,18 +73,19 @@ export class MemberAction {
     }
 
     static _getRelative(groupSubject, memberSubject, state) {
-        if (groupSubject.isHousehold() && !_.isEmpty(groupSubject.getHeadOfHouseholdGroupSubject())) {
-            const headOfHousehold = groupSubject.getHeadOfHouseholdGroupSubject().memberSubject;
-            const subjectRelationship = _.intersectionBy(memberSubject.relationships, headOfHousehold.relationships, 'uuid').filter(({voided}) => !voided);
-            if (subjectRelationship.length > 0) {
-                const relationship = subjectRelationship[0];
-                state.individualRelative.individual = memberSubject;
-                state.individualRelative.relation = relationship.relationship.individualAIsToBRelation;
-                state.individualRelative.relative = headOfHousehold;
-            } else {
-                state.individualRelative = IndividualRelative.createEmptyInstance();
-                state.individualRelative.relative = headOfHousehold;
-            }
+        if (!groupSubject.isHousehold() || _.isEmpty(groupSubject.getHeadOfHouseholdGroupSubject())) {
+            return;
+        }
+        const headOfHousehold = groupSubject.getHeadOfHouseholdGroupSubject().memberSubject;
+        const subjectRelationship = _.intersectionBy(memberSubject.relationships, headOfHousehold.relationships, 'uuid').filter(({voided}) => !voided);
+        if (subjectRelationship.length > 0) {
+            const relationship = subjectRelationship[0];
+            state.individualRelative.individual = memberSubject;
+            state.individualRelative.relation = relationship.relationship.individualAIsToBRelation;
+            state.individualRelative.relative = headOfHousehold;
+        } else {
+            state.individualRelative = IndividualRelative.createEmptyInstance();
+            state.individualRelative.relative = headOfHousehold;
         }
     }
 
@@ -224,11 +225,6 @@ export class MemberAction {
         return newState;
     }
 
-    static onWorkListUpdate(state) {
-        const newState = MemberAction.clone(state);
-        newState.workListUpdated = true;
-        return newState;
-    }
 
 }
 
@@ -243,7 +239,6 @@ const AddNewMemberActions = {
     ON_DELETE_MEMBER: `${ActionPrefix}.ON_DELETE_MEMBER`,
     DISPLAY_MESSAGE: `${ActionPrefix}.DISPLAY_MESSAGE`,
     ON_RELATION_SELECT: `${ActionPrefix}.ON_RELATION_SELECT`,
-    WORK_LIST_UPDATED: `${ActionPrefix}.WORK_LIST_UPDATED`,
 };
 
 const AddMemberActionMap = new Map([
@@ -256,7 +251,6 @@ const AddMemberActionMap = new Map([
     [AddNewMemberActions.ON_ROLE_SELECT, MemberAction.addRole],
     [AddNewMemberActions.DISPLAY_MESSAGE, MemberAction.displayMessage],
     [AddNewMemberActions.ON_RELATION_SELECT, MemberAction.selectRelation],
-    [AddNewMemberActions.WORK_LIST_UPDATED, MemberAction.onWorkListUpdate],
 ]);
 
 export {AddNewMemberActions, AddMemberActionMap}

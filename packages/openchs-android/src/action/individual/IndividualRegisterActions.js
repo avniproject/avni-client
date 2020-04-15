@@ -140,7 +140,7 @@ export class IndividualRegisterActions {
             const member = workItem.parameters.member;
             member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
             context.get(GroupSubjectService).addMember(member);
-            if (member.groupSubject.isHousehold() && !workItem.parameters.headOfFamily) {
+            if (member.groupSubject.isHousehold() && !workItem.parameters.headOfHousehold) {
                 const individualRelative = workItem.parameters.individualRelative;
                 individualRelative.individual = newState.individual;
                 individualRelative.isRelationPresent() && context.get(IndividualRelationshipService).addOrUpdateRelative(individualRelative);

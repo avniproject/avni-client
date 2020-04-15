@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType} from "avni-models";
+import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType, WorkItem} from "avni-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -40,8 +40,17 @@ class SubjectRegisterView extends AbstractComponent {
         this.state = {displayed: true};
     }
 
+    getTitleForGroupSubject() {
+        const currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.HOUSEHOLD, WorkItem.type.ADD_MEMBER], currentWorkItem.type)) {
+            const {headOfHousehold} = currentWorkItem.parameters;
+            return headOfHousehold ? 'headOfHouseholdReg' : 'memberReg';
+        }
+    }
+
     get registrationType() {
-        return _.get(this, 'props.params.workLists.currentWorkList.name') || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
+        const workListName = _.get(this, 'props.params.workLists.currentWorkList.name');
+        return this.getTitleForGroupSubject() || workListName || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
     }
 
     static canLoad({uuid, customMessage, subjectTypeName}, parent) {

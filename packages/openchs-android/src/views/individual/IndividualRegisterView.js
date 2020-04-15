@@ -10,7 +10,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Individual} from 'avni-models';
+import {Individual, WorkItem} from 'avni-models';
 import General from "../../utility/General";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -41,10 +41,18 @@ class IndividualRegisterView extends AbstractComponent {
         return 'IndividualRegisterView';
     }
 
+    getTitleForGroupSubject(){
+        const currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.HOUSEHOLD, WorkItem.type.ADD_MEMBER], currentWorkItem.type)) {
+            const {headOfHousehold} = currentWorkItem.parameters;
+            return headOfHousehold ? 'headOfHouseholdReg' : 'memberReg';
+        }
+    }
+
     get registrationType() {
         const workListName = _.get(this, 'props.params.workLists.currentWorkList.name');
         const regName = workListName === 'Enrolment' ? _.get(_.find(this.props.params.workLists.currentWorkList.workItems, wl => wl.type === 'PROGRAM_ENROLMENT'), "parameters.programName") : workListName;
-        return regName + ' ' || 'REG_DISPLAY-Individual';
+        return this.getTitleForGroupSubject() || regName + ' ' || 'REG_DISPLAY-Individual';
     }
 
     componentWillMount() {

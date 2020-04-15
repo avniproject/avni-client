@@ -331,11 +331,15 @@
     "totalMembers": "Total members",
     "proceedAddHousehold": "proceed to {{household}}",
     "registerHeadOfFamily": "Register head of family",
-    "saveAndAddMemberX": "add member {{x}}",
+    "saveAndAddMember": "add member {{household}}",
     "RelationWithHeadOfHousehold": "Relationship with head of household",
     "proceedRegistration": "Proceed {{member}} registration",
     "addMemberRole": "Add {{role}}",
     "headOfHousehold": "Head of household",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "headOfHouseholdReg": "Head of household ",
+    "memberReg": "Member ",
+    "group": "Group",
+    "household": "household"
   }
 }

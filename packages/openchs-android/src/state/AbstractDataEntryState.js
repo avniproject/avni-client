@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult, WorkItem, WorkLists} from "avni-models";
+import {BaseEntity, ValidationResult, WorkItem, WorkLists, SubjectType} from "avni-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
@@ -9,6 +9,7 @@ import UserInfoService from "../service/UserInfoService";
 import WorkListState from "./WorkListState";
 import moment from "moment/moment";
 import Config from '../framework/Config';
+import EntityService from "../service/EntityService";
 
 class AbstractDataEntryState {
     locationError;
@@ -146,17 +147,40 @@ class AbstractDataEntryState {
         if (_.isNil(oldWorkLists))
             return null;
         let workLists = oldWorkLists;
+        let currentWorkItem = workLists.getCurrentWorkItem();
+        if (currentWorkItem.type === WorkItem.type.REGISTRATION) {
+            const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+            if (subjectType.isHousehold()) {
+                workLists = this._addItemsToWorkList(workLists);
+            }
+        }
         if (!_.isEmpty(nextScheduledVisits)) {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
         }
-
-        let currentWorkItem = workLists.getCurrentWorkItem();
         if (!workLists.peekNextWorkItem() && currentWorkItem.type === WorkItem.type.REGISTRATION) {
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
         }
 
         let updateWorkLists1 = ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
         return updateWorkLists1;
+    }
+
+    _addItemsToWorkList(workLists) {
+        const {totalMembers, subjectUUID} = this.getWorkContext();
+        let householdItemsInWorkList = 1;
+        while (householdItemsInWorkList < totalMembers) {
+            householdItemsInWorkList += 1;
+            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.HOUSEHOLD, {
+                saveAndProceedLabel: 'saveAndAddMember',
+                household: `${householdItemsInWorkList} of ${totalMembers}`,
+                headOfHousehold: false,
+                currentMember: householdItemsInWorkList,
+                groupSubjectUUID: subjectUUID,
+                message: 'newMemberAddedMsg',
+                totalMembers,
+            }));
+        }
+        return workLists;
     }
 
     _addNextScheduledVisitToWorkList(workLists: WorkLists, nextScheduledVisits): WorkLists {

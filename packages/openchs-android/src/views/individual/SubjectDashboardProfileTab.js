@@ -168,7 +168,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
 
     checkPrivilege(allowedSubjectTypes, applicableActions, action) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || !this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
             applicableActions.push(action);
             return true;
         }

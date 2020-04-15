@@ -338,8 +338,8 @@ class CHSNavigator {
                 break;
             }
             case WorkItem.type.HOUSEHOLD: {
-                const {totalMembers, message, groupSubjectUUID} = nextWorkItem.parameters;
-                const subjectUUID = groupSubjectUUID ? groupSubjectUUID : nextWorkItem.parameters.subjectUUID;
+                const {totalMembers, message, groupSubjectUUID, currentMember} = nextWorkItem.parameters;
+                const subjectUUID = groupSubjectUUID ? groupSubjectUUID : currentWorkItem.parameters.subjectUUID;
                 const individual = context.getService(IndividualService).findByUUID(subjectUUID);
                 TypedTransition.from(recommendationsView)
                     .resetStack([...toBePoped, GenericDashboardView], [
@@ -349,6 +349,7 @@ class CHSNavigator {
                             workLists: workListState.workLists,
                             totalMembers: +totalMembers,
                             message,
+                            currentMember
                         }, true)
                     ]);
                 break;

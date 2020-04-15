@@ -86,7 +86,8 @@ class IndividualProfile extends AbstractComponent {
                         tab: 1
                     }, true)])
             },
-            label: groupSubject.groupSubject.firstName
+            label: groupSubject.groupSubject.firstName,
+            isHousehold: groupSubject.groupSubject.isHousehold(),
         }))
     }
 
@@ -108,6 +109,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderGroupButton(groupAction) {
+        const label = groupAction.isHousehold ? 'household' : 'group';
         return <TouchableOpacity onPress={groupAction.fn} style={{
             borderColor: Styles.accentColor,
             paddingVertical: 1,
@@ -116,7 +118,7 @@ class IndividualProfile extends AbstractComponent {
             borderRadius: 10,
             borderWidth: 1
         }}>
-            <Text style={{color: Styles.accentColor}}>{groupAction.label} Group</Text>
+            <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>
     }
 

@@ -48,7 +48,7 @@ class RegisterView extends AbstractComponent {
         const householdParams = {
             subjectTypeName: groupRole.memberSubjectType.name,
             saveAndProceedLabel: 'registerHeadOfFamily',
-            headOfFamily: true
+            headOfHousehold: true
         };
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,

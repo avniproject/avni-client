@@ -34,21 +34,13 @@ class Members extends AbstractComponent {
         const memberSubject = groupSubject.memberSubject;
         const component = this.getTextComponent(memberSubject.name, Colors.Complimentary);
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
+        const roleDescription = groupSubject.getRoleDescription();
         return (<View style={{flexDirection: 'column', alignItems: 'flex-start'}}>
                 <Badge number={undoneProgramVisits} component={component}/>
-                {this.renderRoleOrRelationship(groupSubject)}
+                {<Text key={roleDescription}
+                       style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(roleDescription)}</Text>}
             </View>
         )
-    }
-
-    renderRoleOrRelationship(groupSubject) {
-        if (groupSubject.groupSubject.isHousehold()) {
-            const relationship = groupSubject.getRelationshipWithHeadOfHousehold();
-            return <Text key={relationship}
-                         style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(relationship)}</Text>
-        }
-        const role = groupSubject.getRole();
-        return <Text key={role} style={{marginLeft: 2, fontSize: 12}}>{role}</Text>
     }
 
     renderEnrolledPrograms(memberSubject) {

@@ -44,7 +44,7 @@ export default class WorkListState {
             subject: i18n.t(_.defaultTo(workItem.parameters.subjectTypeName, "")),
             program: i18n.t(_.defaultTo(workItem.parameters.programName, "")),
             enc: i18n.t(_.defaultTo(workItem.parameters.encounterType, "")),
-            household: i18n.t(_.defaultTo(workItem.parameters.saveAndProceedLabel,""))
+            household: i18n.t(_.defaultTo(workItem.parameters.household,""))
         })}`;
     }
 

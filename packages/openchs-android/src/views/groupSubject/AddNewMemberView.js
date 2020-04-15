@@ -70,7 +70,7 @@ class AddNewMemberView extends AbstractComponent {
 
     displayMessage(message) {
         if (message && this.state.messageDisplayed) {
-            ToastAndroid.show(message, ToastAndroid.SHORT);
+            ToastAndroid.show(this.I18n.t(message), ToastAndroid.SHORT);
             this.dispatchAction(Actions.DISPLAY_MESSAGE)
         }
     }
@@ -123,7 +123,7 @@ class AddNewMemberView extends AbstractComponent {
                         subjectTypeName: memberSubject.subjectType.name,
                         member: this.state.member,
                         individualRelative: this.state.individualRelative,
-                        headOfFamily: this.isHeadOfHousehold(),
+                        headOfHousehold: this.isHeadOfHousehold(),
                     }
                 )])));
         }
@@ -135,7 +135,7 @@ class AddNewMemberView extends AbstractComponent {
             member: this.state.member,
             groupSubjectUUID: this.state.member.groupSubject.uuid,
             individualRelative: this.state.individualRelative,
-            headOfFamily: this.isHeadOfHousehold(),
+            headOfHousehold: this.isHeadOfHousehold(),
         };
         const updatedWorkLists = _.isEmpty(this.props.workLists) ? {} : this.updateWorkList();
         const workLists = _.isEmpty(updatedWorkLists) ? new WorkLists(new WorkList(subjectType.name)
@@ -146,28 +146,12 @@ class AddNewMemberView extends AbstractComponent {
 
     updateWorkList() {
         const subjectType = this.state.member.groupRole.memberSubjectType;
-        const params = {
-            subjectTypeName: subjectType.name,
-            member: this.state.member,
-            groupSubjectUUID: this.state.member.groupSubject.uuid,
-        };
         const workLists = this.props.workLists;
         workLists.addParamsToCurrentWorkList({
-            ...params,
+            subjectTypeName: subjectType.name,
+            member: this.state.member,
             individualRelative: this.state.individualRelative,
-            message: this.I18n.t('newMemberAddedMsg')
         });
-        const totalMembers = this.props.totalMembers;
-        const currentMember = this.state.member.groupSubject.groupSubjects.filter(({voided}) => !voided).length;
-        if (currentMember + 1 < totalMembers && !this.state.workListUpdated) {
-            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.HOUSEHOLD, {
-                saveAndProceedLabel: this.I18n.t("saveAndAddMemberX", {x: `${currentMember + 2} of ${totalMembers}`}),
-                headOfFamily: false,
-                groupSubjectUUID: this.state.member.groupSubject.uuid,
-                totalMembers,
-            }))
-        }
-        this.dispatchAction(Actions.WORK_LIST_UPDATED);
         return workLists;
     }
 
