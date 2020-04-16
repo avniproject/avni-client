@@ -87,6 +87,10 @@ class EncounterService extends BaseService {
             .filtered('individual.uuid == $0', individualUUID)
             .filtered('encounterDateTime == null AND cancelDateTime == null')[0];
     }
+
+    getAllDueForSubject(subjectUUID) {
+        return this.filtered(`voided = false and individual.uuid = $0 and encounterDateTime == null AND cancelDateTime == null`, subjectUUID)
+    }
 }
 
 export default EncounterService;

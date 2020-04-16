@@ -61,7 +61,7 @@ export class MemberAction {
             newState.member = MemberAction.cloneMember(context.get(GroupSubjectService).findByUUID(groupSubject.uuid));
             newState.member.membershipStartDate = {value: groupSubject.membershipStartDate};
             newState.member.membershipEndDate = {value: groupSubject.membershipEndDate};
-            MemberAction._getRelative(newState.member.groupSubject, newState.member.memberSubject, newState);
+            MemberAction._getRelative(newState.member.groupSubject, newState.member.memberSubject, newState, context);
             newState.groupRoles = context.get(GroupSubjectService).getGroupRoles(newState.member.groupSubject.subjectType);
         } else {
             const groupSubject = action.groupSubject;
@@ -72,16 +72,17 @@ export class MemberAction {
         return newState;
     }
 
-    static _getRelative(groupSubject, memberSubject, state) {
+    static _getRelative(groupSubject, memberSubject, state, context) {
         if (!groupSubject.isHousehold() || _.isEmpty(groupSubject.getHeadOfHouseholdGroupSubject())) {
             return;
         }
         const headOfHousehold = groupSubject.getHeadOfHouseholdGroupSubject().memberSubject;
-        const subjectRelationship = _.intersectionBy(memberSubject.relationships, headOfHousehold.relationships, 'uuid').filter(({voided}) => !voided);
-        if (subjectRelationship.length > 0) {
-            const relationship = subjectRelationship[0];
+        const relatives = context.get(IndividualRelationshipService).getRelatives(memberSubject);
+        const subjectRelative = relatives.filter(({relative}) => relative.uuid === headOfHousehold.uuid);
+        if (subjectRelative.length > 0) {
+            const relationship = subjectRelative[0];
             state.individualRelative.individual = memberSubject;
-            state.individualRelative.relation = relationship.relationship.individualAIsToBRelation;
+            state.individualRelative.relation = relationship.relation;
             state.individualRelative.relative = headOfHousehold;
         } else {
             state.individualRelative = IndividualRelative.createEmptyInstance();

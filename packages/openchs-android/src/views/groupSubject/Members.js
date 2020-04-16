@@ -11,6 +11,8 @@ import ProgramEncounterService from "../../service/program/ProgramEncounterServi
 import {Badge} from "../common/Badge";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import Actions from "./Actions";
+import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
+import EncounterService from "../../service/EncounterService";
 
 class Members extends AbstractComponent {
     static propTypes = {
@@ -34,9 +36,11 @@ class Members extends AbstractComponent {
         const memberSubject = groupSubject.memberSubject;
         const component = this.getTextComponent(memberSubject.name, Colors.Complimentary);
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
-        const roleDescription = groupSubject.getRoleDescription();
+        const undoneGeneralVisits = this.getService(EncounterService).getAllDueForSubject(memberSubject.uuid).length;
+        const relatives = this.getService(IndividualRelationshipService).getRelatives(memberSubject);
+        const roleDescription = groupSubject.getRoleDescription(relatives);
         return (<View style={{flexDirection: 'column', alignItems: 'flex-start'}}>
-                <Badge number={undoneProgramVisits} component={component}/>
+                <Badge number={undoneProgramVisits + undoneGeneralVisits} component={component}/>
                 {<Text key={roleDescription}
                        style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(roleDescription)}</Text>}
             </View>
@@ -52,7 +56,7 @@ class Members extends AbstractComponent {
         return (
             <View key={index} style={[styles.container, {alignItems: 'center', minHeight: 20}]}>
                 <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}
-                                  style={{flex: 1, alignSelf: 'center',flexWrap: 'wrap'}}>
+                                  style={{flex: 1, alignSelf: 'center', flexWrap: 'wrap'}}>
                     {this.renderGroupMember(groupSubject)}
                 </TouchableOpacity>
                 <View style={{flex: 0.8, flexWrap: 'wrap'}}>

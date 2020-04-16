@@ -79,7 +79,7 @@ class ProgramEncounterService extends BaseService {
     }
 
     getAllDueForSubject(subjectUUID) {
-        return this.filtered(`voided = false and programEnrolment.individual.uuid = $0`, subjectUUID)
+        return this.filtered(`voided = false and programEnrolment.individual.uuid = $0 and encounterDateTime == null AND cancelDateTime == null`, subjectUUID)
     }
 }
 
