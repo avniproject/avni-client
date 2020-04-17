@@ -59,10 +59,9 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     getWorkContext() {
-        const {programEnrolment} = this.programEncounter;
-        return {
-            subjectUUID: programEnrolment.individual.uuid,
-            programEnrolmentUUID: programEnrolment.uuid,
+        return _.isNil(this.programEncounter.programEnrolment) ? {subjectUUID: this.programEncounter.individual.uuid} : {
+            subjectUUID: this.programEncounter.individual.uuid,
+            programEnrolmentUUID: this.programEncounter.uuid,
         };
     }
 
