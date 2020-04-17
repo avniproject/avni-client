@@ -40,6 +40,7 @@ export class MemberAction {
             validationResults: validationResults,
             messageDisplayed: state.messageDisplayed,
             workListUpdated: state.workListUpdated,
+            relativeGender: state.relativeGender,
         };
     }
 
@@ -77,16 +78,16 @@ export class MemberAction {
             return;
         }
         const headOfHousehold = groupSubject.getHeadOfHouseholdGroupSubject().memberSubject;
-        const relatives = context.get(IndividualRelationshipService).getRelatives(memberSubject);
-        const subjectRelative = relatives.filter(({relative}) => relative.uuid === headOfHousehold.uuid);
+        const relatives = context.get(IndividualRelationshipService).getRelatives(headOfHousehold);
+        const subjectRelative = relatives.filter(({relative}) => relative.uuid === memberSubject.uuid);
         if (subjectRelative.length > 0) {
             const relationship = subjectRelative[0];
-            state.individualRelative.individual = memberSubject;
+            state.individualRelative.individual = headOfHousehold;
             state.individualRelative.relation = relationship.relation;
-            state.individualRelative.relative = headOfHousehold;
+            state.individualRelative.relative = memberSubject;
         } else {
             state.individualRelative = IndividualRelative.createEmptyInstance();
-            state.individualRelative.relative = headOfHousehold;
+            state.individualRelative.individual = headOfHousehold;
         }
     }
 
@@ -98,15 +99,15 @@ export class MemberAction {
                 state.member.groupRole = _.find(groupRoles, groupRole => groupRole.isHeadOfHousehold)
             } else {
                 state.member.groupRole = _.find(groupRoles, groupRole => groupRole.isHouseholdMember);
-                state.individualRelative.relative = headOfHouseholdGroupSubject.memberSubject;
-                MemberAction.handleValidationResult(state, state.individualRelative.validateRelative());
+                state.individualRelative.individual = headOfHouseholdGroupSubject.memberSubject;
             }
         }
     }
 
-    static selectRelation(state, action) {
+    static selectRelation(state, action, context) {
         const newState = MemberAction.clone(state);
         newState.individualRelative.relation = action.value;
+        newState.relativeGender = context.get(IndividualRelationGenderMappingService).getGenderForRelation(action.value).gender;
         MemberAction.handleValidationResult(newState, newState.individualRelative.validateRelation());
         return newState;
     }
@@ -185,7 +186,7 @@ export class MemberAction {
     static addMember(state, action, context) {
         const newState = MemberAction.clone(state);
         newState.member.memberSubject = action.value;
-        newState.individualRelative.individual = action.value;
+        newState.individualRelative.relative = action.value;
         const groupSubjects = newState.member.groupSubject.groupSubjects;
         const alreadyPresent = _.find(groupSubjects, groupSubject => groupSubject.memberSubject.uuid === newState.member.memberSubject.uuid && groupSubject.voided === false);
         const validationError = !_.isEmpty(alreadyPresent) ? ValidationResult.failure('GROUP_MEMBER', 'memberAlreadyAddedMessage') : ValidationResult.successful('GROUP_MEMBER');

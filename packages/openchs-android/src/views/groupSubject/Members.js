@@ -37,14 +37,18 @@ class Members extends AbstractComponent {
         const component = this.getTextComponent(memberSubject.name, Colors.Complimentary);
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
         const undoneGeneralVisits = this.getService(EncounterService).getAllDueForSubject(memberSubject.uuid).length;
-        const relatives = this.getService(IndividualRelationshipService).getRelatives(memberSubject);
-        const roleDescription = groupSubject.getRoleDescription(relatives);
+        const roleDescription = groupSubject.getRoleDescription(this.getRelatives(groupSubject));
         return (<View style={{flexDirection: 'column', alignItems: 'flex-start'}}>
                 <Badge number={undoneProgramVisits + undoneGeneralVisits} component={component}/>
                 {<Text key={roleDescription}
                        style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(roleDescription)}</Text>}
             </View>
         )
+    }
+
+    getRelatives(groupSubject) {
+        const headOfHouseholdGroupSubject = groupSubject.groupSubject.getHeadOfHouseholdGroupSubject();
+        return _.isEmpty(headOfHouseholdGroupSubject) ? [] : this.getService(IndividualRelationshipService).getRelatives(headOfHouseholdGroupSubject.memberSubject);
     }
 
     renderEnrolledPrograms(memberSubject) {

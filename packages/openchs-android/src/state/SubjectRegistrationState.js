@@ -10,7 +10,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
         this.subject = subject;
         this.subjectType = subjectType;
-        this.household = new HouseholdState();
+        this.household = new HouseholdState(workLists);
     }
 
     getEntity() {

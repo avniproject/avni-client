@@ -24,6 +24,8 @@ import GenderFormElement from "../form/formElement/GenderFormElement";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import HouseholdState from "../../state/HouseholdState";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -99,7 +101,9 @@ class IndividualRegisterView extends AbstractComponent {
                         <RegistrationDateFormElement state={this.state}/>
                         <IndividualNameFormElement state={this.state}/>
                         <DateOfBirthAndAgeFormElement state={this.state}/>
+                        <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, HouseholdState.validationKeys.RELATIVE_AGE)}/>
                         <GenderFormElement state={this.state}/>
+                        <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, HouseholdState.validationKeys.RELATIVE_GENDER)}/>
                         <AddressLevels
                             selectedLowestLevel={this.state.individual.lowestAddressLevel}
                             multiSelect={false}

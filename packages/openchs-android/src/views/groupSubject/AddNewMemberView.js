@@ -124,6 +124,7 @@ class AddNewMemberView extends AbstractComponent {
                         member: this.state.member,
                         individualRelative: this.state.individualRelative,
                         headOfHousehold: this.isHeadOfHousehold(),
+                        relativeGender: this.state.relativeGender,
                     }
                 )])));
         }
@@ -136,6 +137,7 @@ class AddNewMemberView extends AbstractComponent {
             groupSubjectUUID: this.state.member.groupSubject.uuid,
             individualRelative: this.state.individualRelative,
             headOfHousehold: this.isHeadOfHousehold(),
+            relativeGender: this.state.relativeGender,
         };
         const updatedWorkLists = _.isEmpty(this.props.workLists) ? {} : this.updateWorkList();
         const workLists = _.isEmpty(updatedWorkLists) ? new WorkLists(new WorkList(subjectType.name)
@@ -151,6 +153,7 @@ class AddNewMemberView extends AbstractComponent {
             subjectTypeName: subjectType.name,
             member: this.state.member,
             individualRelative: this.state.individualRelative,
+            relativeGender: this.state.relativeGender,
         });
         return workLists;
     }
@@ -197,6 +200,7 @@ class AddNewMemberView extends AbstractComponent {
                                 inputChangeActionName={Actions.ON_MEMBER_SELECT}
                                 searchHeaderMessage={searchHeaderMessage}
                                 hideIcon={!_.isNil(this.props.params)}
+                                displayText={true}
                                 memberSubjectType={this.state.member.groupRole.memberSubjectType}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>
                             <ValidationErrorMessage

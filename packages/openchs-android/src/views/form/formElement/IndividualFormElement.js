@@ -43,6 +43,31 @@ class IndividualFormElement extends AbstractFormElement {
 
     }
 
+    renderText() {
+        return <TouchableOpacity
+            style={{
+                marginTop: 20,
+                paddingVertical: 10,
+                backgroundColor: Colors.ActionButtonColor,
+                borderRadius: 15,
+                alignSelf: 'center'
+            }}
+            activeOpacity={.5}
+            onPress={this.search.bind(this)}>
+            <Text style={{
+                color: Colors.TextOnPrimaryColor,
+                textAlign: 'center',
+                paddingHorizontal: 40
+            }}>{this.I18n.t('searchExisting')}</Text>
+        </TouchableOpacity>
+    }
+
+    renderIcon() {
+        return <TouchableOpacity activeOpacity={0.5} onPress={this.search.bind(this)} transparent>
+            <Icon name="magnify" style={IndividualFormElement.iconStyle}/>
+        </TouchableOpacity>
+    }
+
     render() {
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
@@ -53,11 +78,9 @@ class IndividualFormElement extends AbstractFormElement {
                         marginVertical: 0,
                         paddingVertical: 5
                     }, Styles.formBodyText]}>{this.props.individualNameValue}</Text>
-                    {!this.props.hideIcon &&
-                    <TouchableOpacity activeOpacity={0.5} onPress={this.search.bind(this)} transparent>
-                        <Icon name="magnify" style={IndividualFormElement.iconStyle}/>
-                    </TouchableOpacity>}
+                    {!this.props.hideIcon && !this.props.displayText && this.renderIcon()}
                 </View>
+                {this.props.displayText && this.renderText()}
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);
     }

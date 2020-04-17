@@ -17,6 +17,10 @@ class IndividualRelationGenderMappingService extends BaseService {
         return individualRelationGenderMappings.map((individualRelationGenderMapping) => {return individualRelationGenderMapping.relation})
     }
 
+    getGenderForRelation(relation) {
+        return this.findByCriteria(`voided = false and relation.uuid = '${relation.uuid}'`);
+    }
+
 }
 
 export default IndividualRelationGenderMappingService;

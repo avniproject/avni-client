@@ -97,10 +97,8 @@ export class SubjectRegisterActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).register(newState.subject, action.nextScheduledVisits);
-        const workLists = newState.workListState.workLists;
-        const workItem = workLists.getCurrentWorkItem();
-        if (workItem.type === WorkItem.type.ADD_MEMBER) {
-            const member = workItem.parameters.member;
+        const {member} = newState.household;
+        if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
             context.get(GroupSubjectService).addMember(member);
         }

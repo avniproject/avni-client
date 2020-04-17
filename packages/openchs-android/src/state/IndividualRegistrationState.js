@@ -4,6 +4,7 @@ import _ from "lodash";
 import ConceptService from "../service/ConceptService";
 import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "avni-models";
 import General from "../utility/General";
+import HouseholdState from "./HouseholdState";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists) {
@@ -13,6 +14,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         this.ageProvidedInYears = ageProvidedInYears;
         this.individual = individual;
         this.individualSubjectType = individualSubjectType;
+        this.household = new HouseholdState(workLists);
     }
 
     getEntity() {
@@ -39,6 +41,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.form = this.form;
         newState.filteredFormElements = this.filteredFormElements;
         newState.individualSubjectType = this.individualSubjectType.clone();
+        newState.household = this.household.clone();
         super.clone(newState);
         return newState;
     }
@@ -62,7 +65,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? _.keys(Individual.validationKeys) : [];
+        return this.wizard.isFirstPage() ? [..._.keys(Individual.nonIndividualValidationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
     }
 
     validateEntity(context) {
@@ -72,6 +75,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
             Individual.validationKeys.REGISTRATION_LOCATION,
             context
         );
+        if(!_.isEmpty(this.household.relativeGender)){
+            validationResults.push(this.household.validateRelativeGender(this.individual.gender));
+            validationResults.push(this.household.validateRelativeAge(this.individual));
+        }
         validationResults.push(locationValidation);
         return validationResults;
     }

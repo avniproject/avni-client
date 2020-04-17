@@ -331,15 +331,17 @@
     "totalMembers": "Total members",
     "proceedAddHousehold": "proceed to {{household}}",
     "registerHeadOfFamily": "Register head of family",
-    "saveAndAddMember": "add member {{household}}",
+    "saveAndAddMember": "proceed to add member {{household}}",
     "RelationWithHeadOfHousehold": "Relationship with head of household",
-    "proceedRegistration": "Proceed {{member}} registration",
+    "proceedRegistration": "Register a new {{member}}",
+    "searchExisting": "Search an existing Individual",
     "addMemberRole": "Add {{role}}",
     "headOfHousehold": "Head of household",
     "unavailable": "Unavailable",
     "headOfHouseholdReg": "Head of household ",
     "memberReg": "Member ",
     "group": "Group",
-    "household": "household"
+    "household": "household",
+    "genderDoesNotMatchWithRelativeGender": "Selected gender does not match with relative gender"
   }
 }

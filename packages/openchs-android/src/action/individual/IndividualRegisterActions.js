@@ -1,7 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Individual, ObservationsHolder, Point, SubjectType, WorkItem} from "avni-models";
+import {Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
@@ -78,6 +78,7 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         newState.individual.setDateOfBirth(action.value);
         IndividualRegisterActions.setAgeState(newState);
+        newState.handleValidationResult(newState.household.validateRelativeAge(newState.individual));
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
     }
@@ -97,6 +98,7 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         newState.age = action.value;
         newState.individual.setAge(action.value, state.ageProvidedInYears);
+        newState.handleValidationResult(newState.household.validateRelativeAge(newState.individual));
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
     }
@@ -113,6 +115,7 @@ export class IndividualRegisterActions {
         const newState = state.clone();
         newState.individual.gender = action.value;
         newState.handleValidationResult(newState.individual.validateGender());
+        newState.handleValidationResult(newState.household.validateRelativeGender(action.value));
         return newState;
     }
 
@@ -134,15 +137,12 @@ export class IndividualRegisterActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).register(newState.individual, action.nextScheduledVisits);
-        const workLists = newState.workListState.workLists;
-        const workItem = workLists.getCurrentWorkItem();
-        if (_.includes([WorkItem.type.ADD_MEMBER, WorkItem.type.HOUSEHOLD], workItem.type)) {
-            const member = workItem.parameters.member;
+        const {member, headOfHousehold, individualRelative} = newState.household;
+        if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
             context.get(GroupSubjectService).addMember(member);
-            if (member.groupSubject.isHousehold() && !workItem.parameters.headOfHousehold) {
-                const individualRelative = workItem.parameters.individualRelative;
-                individualRelative.individual = newState.individual;
+            if (member.groupSubject.isHousehold() && !headOfHousehold) {
+                individualRelative.relative = newState.individual;
                 individualRelative.isRelationPresent() && context.get(IndividualRelationshipService).addOrUpdateRelative(individualRelative);
             }
         }
