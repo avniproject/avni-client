@@ -108,7 +108,10 @@ export class MemberAction {
         const newState = MemberAction.clone(state);
         newState.individualRelative.relation = action.value;
         newState.relativeGender = context.get(IndividualRelationGenderMappingService).getGenderForRelation(action.value).gender;
-        MemberAction.handleValidationResult(newState, newState.individualRelative.validateRelation());
+        if (!_.isEmpty(newState.member.memberSubject.uuid)) {
+            newState.individualRelative.relative = newState.member.memberSubject;
+        }
+        MemberAction.handleValidationResults(newState, MemberAction.validateRelative(newState, context));
         return newState;
     }
 
@@ -154,21 +157,13 @@ export class MemberAction {
     }
 
     static validateRelative(state, context) {
-        const groupRole = state.member.groupRole;
-        if (groupRole.isHouseholdMember) {
-            state.relations = context.get(IndividualRelationGenderMappingService).getRelationsForGender(state.individualRelative.relative.gender);
-            MemberAction.validateRelation(state, state.relations);
-            const existingRelatives = context.get(IndividualRelationshipService).getRelatives(state.individualRelative.individual);
-            return state.individualRelative.validate(existingRelatives);
+        const {member, individualRelative} = state;
+        if (!member.groupRole.isHouseholdMember || !individualRelative.relativeAndRelationSelected()) {
+            return []
         }
-        return [];
-    }
-
-    static validateRelation(state, relations) {
-        const validRelation = _.find(relations, relation => relation.name === state.individualRelative.relation.name);
-        if (_.isEmpty(validRelation)) {
-            state.individualRelative.relation = IndividualRelation.createEmptyInstance();
-        }
+        const validRelations = context.get(IndividualRelationGenderMappingService).getRelationsForGender(state.individualRelative.relative.gender);
+        const existingRelatives = context.get(IndividualRelationshipService).getRelatives(state.individualRelative.individual);
+        return state.individualRelative.validateSelectedRelation(validRelations, existingRelatives);
     }
 
     static addRole(state, action, context) {

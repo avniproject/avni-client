@@ -58,7 +58,7 @@ class IndividualFormElement extends AbstractFormElement {
                 color: Colors.TextOnPrimaryColor,
                 textAlign: 'center',
                 paddingHorizontal: 40
-            }}>{this.I18n.t('searchExisting')}</Text>
+            }}>{this.I18n.t('searchExisting', {member: this.props.regText})}</Text>
         </TouchableOpacity>
     }
 

@@ -84,7 +84,7 @@ class AddNewMemberView extends AbstractComponent {
         }
     }
 
-    renderRegistrationButton(memberSubjectType) {
+    renderRegistrationButton(memberSubjectType, regText) {
         return <View style={{flexDirection: 'column', alignItems: 'center', alignSelf: 'center'}}>
             <Text>{this.I18n.t('or')}</Text>
             <TouchableOpacity
@@ -100,7 +100,7 @@ class AddNewMemberView extends AbstractComponent {
                     color: Colors.TextOnPrimaryColor,
                     textAlign: 'center',
                     paddingHorizontal: 40
-                }}>{this.I18n.t('proceedRegistration', {member: this.state.member.groupRole.role})}</Text>
+                }}>{this.I18n.t('proceedRegistration', {member: regText})}</Text>
             </TouchableOpacity>
         </View>
     }
@@ -116,6 +116,9 @@ class AddNewMemberView extends AbstractComponent {
             return this.save(cb);
         } else {
             const memberSubject = this.state.member.memberSubject;
+            if (!_.isEmpty(this.state.validationResults)) {
+                return
+            }
             CHSNavigator.navigateToRegisterView(this, new WorkLists(new WorkList(`${memberSubject.subjectType.name} `,
                 [new WorkItem(General.randomUUID(), WorkItem.type.ADD_MEMBER,
                     {
@@ -182,6 +185,7 @@ class AddNewMemberView extends AbstractComponent {
         this.displayMessage(this.props.message);
         const nextLabel = _.isNil(this.props.params) ? 'save' : 'next';
         const title = this.state.member.groupRole.role ? this.I18n.t('addMemberRole', {role: this.state.member.groupRole.role}) : this.I18n.t('addNewMember');
+        const regText = this.state.member.groupSubject.isHousehold() ? 'Individual' : this.state.member.groupRole.role;
         return (
             <CHSContainer>
                 <CHSContent>
@@ -200,13 +204,14 @@ class AddNewMemberView extends AbstractComponent {
                                 inputChangeActionName={Actions.ON_MEMBER_SELECT}
                                 searchHeaderMessage={searchHeaderMessage}
                                 hideIcon={!_.isNil(this.props.params)}
-                                displayText={true}
+                                displayText={_.isEmpty(this.state.member.memberSubject)}
+                                regText={regText}
                                 memberSubjectType={this.state.member.groupRole.memberSubjectType}
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, 'GROUP_MEMBER')}/>
                             <ValidationErrorMessage
                                 validationResult={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATIVE)}/>
                             {this.displayRegistrationOption() &&
-                            this.renderRegistrationButton(this.state.member.groupRole.memberSubjectType)}
+                            this.renderRegistrationButton(this.state.member.groupRole.memberSubjectType, regText)}
                         </View>
                         }
                         {!_.isEmpty(this.state.member.memberSubject) &&
