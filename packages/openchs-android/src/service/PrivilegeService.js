@@ -59,6 +59,9 @@ class PrivilegeService extends BaseService {
     }
 
     deleteRevokedEntities() {
+        if (this.hasAllPrivileges()) {
+            return;
+        }
         const requiredEntities = ['Encounter', 'ProgramEncounter', 'ChecklistItem', 'Checklist', 'IndividualRelationship', 'ProgramEnrolment', 'Individual'];
         const metadata = EntityMetaData.model().filter(({type, entityName}) => type === "tx" && _.includes(requiredEntities, entityName));
         const getNonPrivilegeUUIDs = (entityName) => {
