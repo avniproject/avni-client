@@ -184,8 +184,9 @@ class AddNewMemberView extends AbstractComponent {
         const searchHeaderMessage = `${headerMessage} - ${this.I18n.t('search')}`;
         this.displayMessage(this.props.message);
         const nextLabel = _.isNil(this.props.params) ? 'save' : 'next';
-        const title = this.state.member.groupRole.role ? this.I18n.t('addMemberRole', {role: this.state.member.groupRole.role}) : this.I18n.t('addNewMember');
-        const regText = this.state.member.groupSubject.isHousehold() ? 'Individual' : this.state.member.groupRole.role;
+        const groupRole = this.state.member.groupRole;
+        const title = groupRole.role ? this.I18n.t('addMemberRole', {role: groupRole.role}) : this.I18n.t('addNewMember');
+        const regText = groupRole.memberSubjectType && groupRole.memberSubjectType.name;
         return (
             <CHSContainer>
                 <CHSContent>

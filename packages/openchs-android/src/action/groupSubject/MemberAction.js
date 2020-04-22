@@ -150,7 +150,7 @@ export class MemberAction {
         MemberAction.checkValidationErrors(newState, MemberAction.validateRelative(newState, context));
         if (_.isEmpty(newState.validationResults)) {
             context.get(GroupSubjectService).addMember(newState.member);
-            groupRole.isHouseholdMember && context.get(IndividualRelationshipService).addRelative(newState.individualRelative);
+            groupRole.isHouseholdMember && context.get(IndividualRelationshipService).addOrUpdateRelative(newState.individualRelative);
             action.cb();
         }
         return newState;

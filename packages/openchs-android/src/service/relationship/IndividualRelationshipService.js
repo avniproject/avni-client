@@ -39,13 +39,14 @@ class IndividualRelationshipService extends BaseService {
     }
 
     addOrUpdateRelative(individualRelative) {
-        const individual = this.getService(EntityService).findByUUID(individualRelative.relative.uuid, Individual.schema.name);
-        const oldRelationship = individual.relationships.filter(({individualA, individualB}) => individualA.uuid === individualRelative.individual.uuid ||
-            individualB.uuid === individualRelative.individual.uuid);
-        if (!_.isEmpty(oldRelationship)) {
-            const relationship = oldRelationship[0].cloneForEdit();
-            relationship.voided = true;
-            this.saveOrUpdate(relationship);
+        const relatives = this.getRelatives(individualRelative.individual);
+        const oldRelationWithRelative = relatives.filter(({relative}) => relative.uuid === individualRelative.relative.uuid);
+        if (!_.isEmpty(oldRelationWithRelative)) {
+            const oldRelation = oldRelationWithRelative[0];
+            if (oldRelation.relation.uuid === individualRelative.relation.uuid) {
+                return;
+            }
+            this.deleteRelative(oldRelation);
         }
         this.addRelative(individualRelative);
     }
