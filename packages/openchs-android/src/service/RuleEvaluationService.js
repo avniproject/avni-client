@@ -195,9 +195,9 @@ class RuleEvaluationService extends BaseService {
             const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
             return _.reduce(additionalRules, (newWorkLists, rule) => this.runRuleAndSaveFailure(rule, 'WorkList', workLists, null, null, context), workLists);
         }
-        
+
         return workLists;
-    
+
     }
 
     runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context) {
@@ -386,16 +386,35 @@ class RuleEvaluationService extends BaseService {
         }
         return defaultChecklists;
     }
+
+    runFormElementGroupRule(formElementGroup, entity, entityName) {
+        if (_.isNil(formElementGroup.rule) || _.isEmpty(_.trim(formElementGroup.rule))) {
+            return formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+        }
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(formElementGroup.rule);
+            return ruleFunc({
+                params: {formElementGroup, entity},
+                imports: {rulesConfig, common, lodash, moment}
+            });
+        } catch (e) {
+            General.logDebug("Rule-Failure", `New form element group rule failed for: ${formElementGroup.uuid}`);
+            this.saveFailedRules(e, formElementGroup.uuid, this.getIndividualUUID(entity, entityName));
+        }
+    }
+
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
-        const defaultFormElementStatus = formElementGroup.getFormElements()
-            .map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
         const formElementsWithRules = formElementGroup
             .getFormElements()
             .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
-        if (!_.isEmpty(formElementsWithRules)) {
+         const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName);
+         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
+        if (!_.isEmpty(formElementsWithRules) && !_.isEmpty(visibleFormElementsUUIDs)) {
             let formElementStatuses = formElementsWithRules
+                .filter(({uuid}) => _.includes(visibleFormElementsUUIDs, uuid))
                 .map(formElement => {
                     try {
                         let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -411,15 +430,15 @@ class RuleEvaluationService extends BaseService {
                     }
                 })
                 .filter(fs => !_.isNil(fs))
-                .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
+                .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
                 .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
                 .values();
             return [...formElementStatuses];
         }
-        if (_.isEmpty(rulesFromTheBundle)) return defaultFormElementStatus;
+        if (_.isEmpty(rulesFromTheBundle)) return formElementStatusAfterGroupRule;
         return [...rulesFromTheBundle
             .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
-            .reduce((all, curr) => all.concat(curr), defaultFormElementStatus)
+            .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
             .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
             .values()];
     }
