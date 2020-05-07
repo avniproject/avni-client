@@ -28,8 +28,8 @@ export class ProgramEnrolmentActions {
             context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(action.enrolment.observations));
 
             const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(action.enrolment.uuid);
-            const formElementGroup = _.isNil(form) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
-            const numberOfPages = _.isNil(form) ? 1 : form.numberOfPages;
+            const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
+            const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
             let formElementStatuses = context
                 .get(RuleEvaluationService)
                 .getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);

@@ -161,9 +161,9 @@ class FilterView extends AbstractComponent {
             selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Program'}/>;
 
-        const programEncounterTypesPredicate = this.props.selectedPrograms.map(program => `programUuid = '${program.uuid}'`).join(' OR ');
+        const programEncounterTypesPredicate = this.state.selectedPrograms.map(program => `programUuid = '${program.uuid}'`).join(' OR ');
         let viewProgramEncounterCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.selectedSubjectType.uuid}'`;
-        if (!_.isEmpty(programEncounterTypesPredicate)) viewProgramEncounterCriteria += ` AND '${programEncounterTypesPredicate}`;
+        if (!_.isEmpty(programEncounterTypesPredicate)) viewProgramEncounterCriteria += ` AND ${programEncounterTypesPredicate}`;
         const allowedEncounterTypeUuidsForViewProgramEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramEncounterCriteria, 'programEncounterTypeUuid');
         const programEncounterFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}

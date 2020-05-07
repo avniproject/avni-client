@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
-import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig} from "avni-models";
+import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig, StaticFormElementGroup} from "avni-models";
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 
@@ -23,6 +23,11 @@ class ProgramEncounterState extends AbstractDataEntryState {
         const formElementGroupPageNumber = formElementGroup.displayOrder;
         let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
+        return state;
+    }
+
+    static createOnLoadStateForEmptyForm(programEncounter, form, isNewEntity, workLists, messageDisplayed) {
+        let state = new ProgramEncounterState(new StaticFormElementGroup(form), new Wizard(1, 1), isNewEntity, programEncounter, [], workLists, messageDisplayed);
         return state;
     }
 

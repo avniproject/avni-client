@@ -33,18 +33,18 @@ export class SubjectRegisterActions {
         }
         const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
-        //Populate identifiers much before form elements are hidden or sent to rules.
-        //This will enable the value to be used in rules
-        let observationsHolder = new ObservationsHolder(subject.observations);
-        context.get(IdentifierAssignmentService).populateIdentifiers(form, observationsHolder);
-
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => SubjectRegisterActions.filterFormElements(formElementGroup, context, subject).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            throw new Error("No form element group with visible form element");
+            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists);
         }
+
+        //Populate identifiers much before form elements are hidden or sent to rules.
+        //This will enable the value to be used in rules
+        let observationsHolder = new ObservationsHolder(subject.observations);
+        context.get(IdentifierAssignmentService).populateIdentifiers(form, observationsHolder);
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
