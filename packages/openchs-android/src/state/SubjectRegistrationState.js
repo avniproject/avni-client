@@ -1,7 +1,7 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
-import {Individual, ObservationsHolder} from 'avni-models';
+import {Individual, ObservationsHolder, StaticFormElementGroup} from 'avni-models';
 import _ from "lodash";
 import HouseholdState from "./HouseholdState";
 
@@ -35,6 +35,21 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         );
         state.form = form;
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
+        return state;
+    }
+
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists) {
+        let state = new SubjectRegistrationState(
+            [],
+            new StaticFormElementGroup(form),
+            new Wizard(1, 1, 1),
+            subject,
+            isNewEntity,
+            [],
+            subject.subjectType,
+            workLists
+        );
+        state.form = form;
         return state;
     }
 

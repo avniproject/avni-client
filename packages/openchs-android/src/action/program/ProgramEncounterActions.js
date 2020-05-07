@@ -42,18 +42,19 @@ class ProgramEncounterActions {
             return o.displayOrder
         }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length !== 0);
 
-        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            throw new Error("No form element group with visible form element");
-        }
-
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
-        let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
         const workLists = action.workLists || new WorkLists(new WorkList('Enrolment').withEncounter({
             encounterType: action.programEncounter.encounterType.name,
             subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
             programName: action.programEncounter.programEnrolment.program.name,
         }));
+
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
+            return ProgramEncounterState.createOnLoadStateForEmptyForm(action.programEncounter, form, isNewEntity, workLists);
+        }
+
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
     }
 
