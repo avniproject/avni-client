@@ -17,11 +17,16 @@ import Fonts from "./primitives/Fonts";
 import FormMappingService from "../service/FormMappingService";
 import PrivilegeService from "../service/PrivilegeService";
 import GroupSubjectService from "../service/GroupSubjectService";
+import UserInfoService from "../service/UserInfoService";
 
 
 @Path('/registerView')
 class RegisterView extends AbstractComponent {
 
+    constructor(props, context) {
+        super(props, context);
+        this.userSettings = context.getService(UserInfoService).getUserSettings();
+    }
 
     viewName() {
         return "RegisterView";
@@ -117,7 +122,9 @@ class RegisterView extends AbstractComponent {
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
             const programs = formMappingService.findProgramsForSubjectType(subjectType)
                                 .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
-            actions = actions.concat(this._addProgramActions(subjectType, programs));
+            if (this.userSettings.registerEnrol) {
+                actions = actions.concat(this._addProgramActions(subjectType, programs));
+            }
         });
 
         return (
