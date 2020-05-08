@@ -15,7 +15,8 @@ class TextFormElement extends AbstractFormElement {
         value: PropTypes.object,
         validationResult: PropTypes.object,
         multiline: PropTypes.bool.isRequired,
-        extraStyle: PropTypes.object
+        extraStyle: PropTypes.object,
+        keyboardType: PropTypes.string,
     };
     static defaultProps = {
         style: {}
@@ -43,7 +44,8 @@ class TextFormElement extends AbstractFormElement {
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
                 <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={false} numberOfLines={this.props.multiline ? 4 : 1}/>
+                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={false} numberOfLines={this.props.multiline ? 4 : 1}
+                           keyboardType={this.props.keyboardType || 'default'}/>
 
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>);

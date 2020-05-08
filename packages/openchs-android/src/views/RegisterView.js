@@ -1,7 +1,7 @@
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import General from "../utility/General";
-import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
 import CHSContainer from "./common/CHSContainer";
 import AppHeader from "./common/AppHeader";
@@ -17,11 +17,16 @@ import Fonts from "./primitives/Fonts";
 import FormMappingService from "../service/FormMappingService";
 import PrivilegeService from "../service/PrivilegeService";
 import GroupSubjectService from "../service/GroupSubjectService";
+import UserInfoService from "../service/UserInfoService";
 
 
 @Path('/registerView')
 class RegisterView extends AbstractComponent {
 
+    constructor(props, context) {
+        super(props, context);
+        this.userSettings = context.getService(UserInfoService).getUserSettings();
+    }
 
     viewName() {
         return "RegisterView";
@@ -117,22 +122,26 @@ class RegisterView extends AbstractComponent {
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
             const programs = formMappingService.findProgramsForSubjectType(subjectType)
                                 .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
-            actions = actions.concat(this._addProgramActions(subjectType, programs));
+            if (this.userSettings.registerEnrol) {
+                actions = actions.concat(this._addProgramActions(subjectType, programs));
+            }
         });
 
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t("register")} hideBackButton={true} hideIcon={true}/>
                 <CHSContent>
-                    {_.map(actions, (action, key) =>
-                        this.renderButton(
-                            action.fn,
-                            action.backgroundColor || Colors.ActionButtonColor,
-                            action.label,
-                            Colors.TextOnPrimaryColor,
-                            key
-                        )
-                    )}
+                    <ScrollView>
+                        {_.map(actions, (action, key) =>
+                            this.renderButton(
+                                action.fn,
+                                action.backgroundColor || Colors.ActionButtonColor,
+                                action.label,
+                                Colors.TextOnPrimaryColor,
+                                key
+                            )
+                        )}
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
