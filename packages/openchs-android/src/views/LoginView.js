@@ -185,7 +185,7 @@ class LoginView extends AbstractComponent {
                                              multiline={false}
                                              autoCapitalize={"none"}
                                              autoCompleteType={"username"}
-                                // autoFocus={true}
+                                             keyboardType={'email-address'}
                             />
                             <TextFormElement element={new StaticFormElement('password')}
                                              secureTextEntry={!this.state.showPassword}
@@ -195,10 +195,10 @@ class LoginView extends AbstractComponent {
                                              multiline={false}
                             />
                             <View style={{
-                                flexDirection: 'row',
+                                flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 paddingBottom: 16,
-                                alignItems: 'center',
+                                alignItems: 'flex-start',
                                 paddingTop: 8
                             }}>
                                 <TouchableNativeFeedback
@@ -213,7 +213,7 @@ class LoginView extends AbstractComponent {
                                 <TouchableNativeFeedback onPress={() => {
                                     this.forgotPassword()
                                 }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                    <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                    <View style={{paddingLeft: 10, paddingTop: 10}}>
                                         <Text style={{
                                             color: Styles.accentColor,
                                             fontSize: 16
