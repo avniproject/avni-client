@@ -65,7 +65,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [..._.keys(Individual.nonIndividualValidationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
+        return this.wizard.isFirstPage() ? [..._.keys(Individual.validationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
     }
 
     validateEntity(context) {
