@@ -2,6 +2,7 @@ import General from "../../utility/General";
 import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
+import Config from '../Config';
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
@@ -39,8 +40,15 @@ const makeHeader = (type) => new Map([['json', {
 const makeRequest = (type, opts = {}) => _.assignIn({...makeHeader(type), ...opts});
 
 const addAuthIfRequired = (request, authToken) => {
-    return _.isEmpty(authToken)? request: _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});
-};
+    if (_.isEmpty(authToken)) {
+        if (Config.USER_NAME) {
+            return _.merge({}, request, {headers: {"USER-NAME": Config.USER_NAME}});
+        }
+    } else {
+        return _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});
+    }
+    return request;
+}
 
 let _get = (endpoint, authToken) => {
     General.logDebug('Requests', `GET: ${endpoint}`);
