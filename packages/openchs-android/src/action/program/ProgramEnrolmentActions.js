@@ -37,7 +37,7 @@ export class ProgramEnrolmentActions {
             let programEnrolmentState = new ProgramEnrolmentState(
                 [],
                 formElementGroup,
-                new Wizard(numberOfPages, 1),
+                new Wizard(numberOfPages),
                 action.usage,
                 action.enrolment,
                 isNewEnrolment,

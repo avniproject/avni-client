@@ -25,7 +25,7 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements, workLists) {
-        const wizard = new Wizard(form.numberOfPages, formElementGroup.displayOrder, formElementGroup.displayOrder);
+        const wizard = new Wizard(form.numberOfPages);
         return new ProgramEncounterCancelState(formElementGroup, wizard, programEncounter, filteredFormElements, workLists);
     }
 

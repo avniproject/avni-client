@@ -47,13 +47,13 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
-        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, 1), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
+        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
     static createOnLoadStateForEmptyForm(encounter, form, isNewEntity, workLists, messageDisplayed) {
-        let state = new EncounterActionState([], new StaticFormElementGroup(form), new Wizard(1, 1), isNewEntity, encounter, [], workLists, messageDisplayed);
+        let state = new EncounterActionState([], new StaticFormElementGroup(form), new Wizard(1), isNewEntity, encounter, [], workLists, messageDisplayed);
         return state;
     }
 

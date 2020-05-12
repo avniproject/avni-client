@@ -22,11 +22,10 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
-        const formElementGroupPageNumber = formElementGroup.displayOrder;
         let state = new SubjectRegistrationState(
             [],
             formElementGroup,
-            new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber),
+            new Wizard(form.numberOfPages),
             subject,
             isNewEntity,
             filteredFormElements,
@@ -42,7 +41,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
-            new Wizard(1, 1, 1),
+            new Wizard(1),
             subject,
             isNewEntity,
             [],

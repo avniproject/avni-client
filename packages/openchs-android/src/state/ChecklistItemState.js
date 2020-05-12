@@ -19,8 +19,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     static createOnLoad(checklistItem, form, isNewEntity, formElementGroup, filteredFormElements) {
-        const formElementGroupPageNumber = formElementGroup.displayOrder;
-        return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages, formElementGroupPageNumber, formElementGroupPageNumber), isNewEntity, checklistItem, filteredFormElements);
+        return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages), isNewEntity, checklistItem, filteredFormElements);
     }
 
     clone() {
