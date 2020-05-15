@@ -20,6 +20,10 @@ class StubbedFormMappingService {
     findEncounterTypesForProgram(program) {
         return this.serviceData.programEncounterTypes;
     }
+
+    findActiveEncounterTypesForProgram(program){
+        return this.serviceData.programEncounterTypes;
+    }
 }
 
 export default StubbedFormMappingService;
