@@ -42,7 +42,7 @@ class StartProgramActions {
         const programEncounterTypes = _.isNil(enrolment)
             ? []
             : formMappingService
-                .findEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType)
+                .findActiveEncounterTypesForProgram(enrolment.program, enrolment.individual.subjectType)
                 .filter(encounterType =>
                     context.get(RuleEvaluationService).isEligibleForEncounter(enrolment.individual, encounterType))
                 .map(encounterType => ({encounterType, parent: enrolment}));
@@ -50,7 +50,7 @@ class StartProgramActions {
         const individualEncounterTypes = _.isNil(individual)
             ? []
             : formMappingService
-                .findEncounterTypesForSubjectType(individual.subjectType)
+                .findActiveEncounterTypesForSubjectType(individual.subjectType)
                 .filter(encounterType =>
                     context.get(RuleEvaluationService).isEligibleForEncounter(individual, encounterType))
                 .map(encounterType => ({encounterType, parent: individual}));

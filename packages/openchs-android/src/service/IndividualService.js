@@ -74,12 +74,12 @@ class IndividualService extends BaseService {
 
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
-        const programs = this.getService(FormMappingService).findProgramsForSubjectType(individual.subjectType);
+        const programs = this.getService(FormMappingService).findActiveProgramsForSubjectType(individual.subjectType);
         const nonEnrolledPrograms = individual.eligiblePrograms(programs);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         const enrolProgramCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}'`;
         const privilegeService = this.getService(PrivilegeService);
-        
+
         const allowedEnrolmentTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolProgramCriteria, 'programUuid');
         return _.filter(nonEnrolledPrograms, (program) => ruleEvaluationService.isEligibleForProgram(individual, program) && (!privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEnrolmentTypeUuids, program.uuid)));
     }
@@ -123,7 +123,7 @@ class IndividualService extends BaseService {
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');                    
+        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
         const programEncounters = this.db.objects(ProgramEncounter.schema.name)
@@ -159,7 +159,7 @@ class IndividualService extends BaseService {
                 };
             });
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');        
+        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         const encounters = this.db.objects(Encounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
@@ -228,7 +228,7 @@ class IndividualService extends BaseService {
     allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria) {
         const privilegeService = this.getService(PrivilegeService);
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');                
+        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
         const programEncounters = this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
@@ -244,7 +244,7 @@ class IndividualService extends BaseService {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
-                const maxVisitDateTime = enc.maxVisitDateTime;                
+                const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,
                     visitInfo: {
@@ -261,7 +261,7 @@ class IndividualService extends BaseService {
                 };
             });
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');        
+        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         const encounters = this.db.objects(Encounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
@@ -273,7 +273,7 @@ class IndividualService extends BaseService {
             .map((enc) => {
                 const individual = enc.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                const maxVisitDateTime = enc.maxVisitDateTime;                
+                const maxVisitDateTime = enc.maxVisitDateTime;
                 return {
                     individual,
                     visitInfo: {

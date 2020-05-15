@@ -18,7 +18,7 @@ export class IndividualSearchActions {
 
     static onLoad(state, action, context) {
         const newState = IndividualSearchActions.clone(state);
-        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] : context.get(EntityService).getAll(SubjectType.schema.name);
+        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] : context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name);
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
         return {...newState, loading: false};

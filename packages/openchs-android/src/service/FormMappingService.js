@@ -15,6 +15,10 @@ class FormMappingService extends BaseService {
         return FormMapping.schema.name;
     }
 
+    active(item) {
+        return _.get(item, 'active');
+    }
+
     _findProgramRelatedForm(program: Program, formType: string, subjectType: SubjectType) {
         let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}" and subjectType.uuid = "${subjectType.uuid}"`;
         const formMapping = this.findByCriteria(criteria);
@@ -26,14 +30,25 @@ class FormMappingService extends BaseService {
     }
 
     findProgramsForSubjectType(subjectType: SubjectType): Form {
-        const enrolmentFormMappingsForSubjectType = this.allFormMappings()
+        const programs = this.getEnrolmentFormMappingsForSubjectType(subjectType).map(
+            (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name))
+            .filter(this.unVoided);
+
+        return _.uniqBy(_.compact(programs), 'uuid');
+    }
+
+    getEnrolmentFormMappingsForSubjectType(subjectType) {
+        return this.allFormMappings()
             .unVoided()
             .forFormType(Form.formTypes.ProgramEnrolment)
             .forSubjectType(subjectType)
             .all();
+    }
 
-        const programs = enrolmentFormMappingsForSubjectType.map(
-            (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name));
+    findActiveProgramsForSubjectType(subjectType) {
+        const programs = this.getEnrolmentFormMappingsForSubjectType(subjectType).map(
+            (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name))
+            .filter(({voided, active}) => !voided && active);
 
         return _.uniqBy(_.compact(programs), 'uuid');
     }
@@ -47,10 +62,24 @@ class FormMappingService extends BaseService {
     };
 
     findEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
-        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${Form.formTypes.ProgramEncounter}"`;
+        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
+        return this.getEncounterTypesForProgram(criteria);
+    }
+
+    findActiveEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
+        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
+        return this.getEncounterTypesForProgram(criteria).filter(this.active);
+    }
+
+    getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
+        let criteria = `voided = false AND ${entityCriteria} AND form.formType="${formType}"`;
         if (subjectType) {
             criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
         }
+        return criteria;
+    }
+
+    getEncounterTypesForProgram(criteria) {
         const formMappings = this.findAllByCriteria(criteria);
         return _.uniqBy(formMappings
             .map(this._findEncounterTypesForFormMapping)
@@ -59,10 +88,16 @@ class FormMappingService extends BaseService {
     }
 
     findEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
-        let criteria = `voided = false AND entityUUID=null AND form.formType="${Form.formTypes.Encounter}"`;
-        if (subjectType) {
-            criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
-        }
+        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
+        return this.getEncounterTypesForSubject(criteria);
+    }
+
+    findActiveEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
+        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
+        return this.getEncounterTypesForSubject(criteria).filter(this.active);
+    }
+
+    getEncounterTypesForSubject(criteria) {
         const formMappings = this.findAllByCriteria(criteria);
         return _.uniqBy(formMappings
             .map(this._findEncounterTypesForFormMapping)
@@ -70,13 +105,14 @@ class FormMappingService extends BaseService {
             .filter(et => !_.isEmpty(et)), 'uuid');
     }
 
-    findEncounterTypesForEncounter(subjectType: SubjectType): Array<EncounterType> {
+    findActiveEncounterTypesForEncounter(subjectType: SubjectType): Array<EncounterType> {
         //TODO: There are some encounter types whose mapping is synchronised to the client but the encounter types themselves are not, as form mapping API doesn't return mappings based on the organisation yet.
         let criteria = `voided = false AND form.formType="${Form.formTypes.Encounter}" and subjectType.uuid="${subjectType.uuid}"`;
 
         const formMappings = this.findAllByCriteria(criteria);
         return formMappings.map(this._findEncounterTypesForFormMapping)
             .filter(this.unVoided)
+            .filter(this.active)
             .filter(et => !_.isEmpty(et));
     }
 
@@ -125,7 +161,7 @@ class FormMappingService extends BaseService {
             .bestMatch();
     }
 
-    formMappingByCriteria(criteriaQuery){
+    formMappingByCriteria(criteriaQuery) {
         return this.findAllByCriteria(criteriaQuery)
     }
 }

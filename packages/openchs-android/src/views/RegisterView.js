@@ -108,7 +108,7 @@ class RegisterView extends AbstractComponent {
         const registerCriteria = `privilege.name = '${Privilege.privilegeName.registerSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = this.context.getService(PrivilegeService);
         const allowedSubjectTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(registerCriteria, 'subjectTypeUuid');
-        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name)
+        const subjectTypes = this.context.getService(EntityService).findAllByCriteria('voided = false AND active = true', SubjectType.schema.name)
                                 .filter(st => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuids, st.uuid));
 
         subjectTypes.forEach(subjectType => {
@@ -120,7 +120,7 @@ class RegisterView extends AbstractComponent {
             actions = actions.concat(this._addRegistrationAction(subjectType));
             const enrolCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${subjectType.uuid}'`;
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
-            const programs = formMappingService.findProgramsForSubjectType(subjectType)
+            const programs = formMappingService.findActiveProgramsForSubjectType(subjectType)
                                 .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             if (this.userSettings.registerEnrol) {
                 actions = actions.concat(this._addProgramActions(subjectType, programs));
