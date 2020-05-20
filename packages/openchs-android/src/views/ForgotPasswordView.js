@@ -78,7 +78,7 @@ class ForgotPasswordView extends AbstractComponent {
     get containerStyle() {
         return {
             padding: 72,
-            paddingTop: 144,
+            paddingTop: 72,
             flexDirection: 'column',
             height: Distances.DeviceHeight,
             justifyContent: 'flex-start'
@@ -100,8 +100,12 @@ class ForgotPasswordView extends AbstractComponent {
             }}>{this.errorMessage()}</Text>
 
                <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
-                       placeholder={this.I18n.t('forgot_password_userId_placeholder')} value={this.state.userId}
-                       onChangeText={(userId) => this.setState({userId})}/>
+                          placeholder={this.I18n.t('forgot_password_userId_placeholder')}
+                          value={this.state.userId}
+                          onChangeText={(userId) => this.setState({userId})}
+                          autoCapitalize={"none"}
+                          keyboardType={'email-address'}
+               />
             <TouchableNativeFeedback onPress={() => {
                 this.sendOTP()
             }} background={TouchableNativeFeedback.SelectableBackground()}>
