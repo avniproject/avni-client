@@ -280,7 +280,7 @@ class CHSNavigator {
             [WorkItem.type.PROGRAM_ENROLMENT, 'enrolmentSavedMsg'],
             [WorkItem.type.PROGRAM_ENCOUNTER, 'encounterSavedMsg'],
             [WorkItem.type.CANCELLED_ENCOUNTER, 'encounterCancelledMsg'],
-            [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
+            [WorkItem.type.ENCOUNTER, 'encounterSavedMsg'],
             [WorkItem.type.ADD_MEMBER, 'newMemberAddedMsg'],
             [WorkItem.type.PROGRAM_EXIT, 'enrolmentExitMsg'],
             [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
