@@ -23,7 +23,7 @@ export class IndividualGeneralHistoryActions {
         newState.encounter = Encounter.create();
         newState.encounter.individual = individual;
         newState.encounterTypes = context.get(FormMappingService)
-            .findEncounterTypesForEncounter(individual.subjectType)
+            .findActiveEncounterTypesForEncounter(individual.subjectType)
             .filter(encounterType => context.get(RuleEvaluationService)
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
