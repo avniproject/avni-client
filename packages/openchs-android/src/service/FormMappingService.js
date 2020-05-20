@@ -48,7 +48,7 @@ class FormMappingService extends BaseService {
     findActiveProgramsForSubjectType(subjectType) {
         const programs = this.getEnrolmentFormMappingsForSubjectType(subjectType).map(
             (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name))
-            .filter(({voided, active}) => !voided && active);
+            .filter(prog => this.active(prog) && this.unVoided(prog));
 
         return _.uniqBy(_.compact(programs), 'uuid');
     }
