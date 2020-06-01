@@ -20,7 +20,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
     }
 
     static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
-        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
+        let indexOfGroup = _.findIndex(form.formElementGroups, (feg) => feg.uuid === formElementGroup.uuid) + 1;
+        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
         return state;
     }

@@ -22,10 +22,11 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
+        let indexOfGroup = _.findIndex(form.formElementGroups, (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new SubjectRegistrationState(
             [],
             formElementGroup,
-            new Wizard(form.numberOfPages),
+            new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup),
             subject,
             isNewEntity,
             filteredFormElements,
