@@ -146,7 +146,8 @@ class CHSNavigator {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
-        const target = SubjectType.create(workItem.parameters.subjectTypeName).isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+        const subjectType = source.context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
+        const target = subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView;
         if (target.canLoad({uuid, subjectTypeName}, source)) {
             TypedTransition.from(source).with({
                 subjectUUID: uuid,
@@ -308,7 +309,8 @@ class CHSNavigator {
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
-                const target = SubjectType.create(nextWorkItem.parameters.subjectTypeName).isIndividual() ? IndividualRegisterView : SubjectRegisterView;
+                const subjectType = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+                const target = subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
                         TypedTransition.createRoute(target, {
