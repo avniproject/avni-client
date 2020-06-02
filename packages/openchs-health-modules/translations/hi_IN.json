@@ -340,6 +340,9 @@
     "action": "कार्य",
     "Pregnancy": "गर्भावस्था",
     "noRelativesAdded": "कोई रिश्तेदार नहीं जोड़ा गया",
-    "viewAllCompletedVisits": "सभी पूर्ण देखे गए दृश्य"
+    "viewAllCompletedVisits": "सभी पूर्ण देखे गए दृश्य",
+    "_registrationDate": "पंजीकरण तारीख",
+    "_registrationDetails": "पंजीकरण विवरण",
+    "_filterResults": "फिल्टर परिणाम"
   }
 }

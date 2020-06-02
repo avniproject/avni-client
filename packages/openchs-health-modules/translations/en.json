@@ -115,7 +115,7 @@
     "exitProgram": "Exit",
     "encounterDate": "Visit Date",
     "visitDetails": "Visit Details",
-    "registrationDate": "Registration date",
+    "registrationDate": "Date of Registration",
     "Yes": "Yes",
     "No": "No",
     "notEnrolledInAnyProgram": "Not enrolled in any program",
@@ -265,7 +265,7 @@
     "completedEncounters": "Completed Encounters",
     "viewAll": "VIEW ALL",
     "unplannedVisit": "Unplanned Visit",
-    "registrationInformation": "Registration details",
+    "registrationInformation": "Registration Details",
     "registeredOn": "Registration Date: ",
     "addRelative": "Add Relative",
     "noRelativeAdded": "No Relative Added",
@@ -358,7 +358,6 @@
     "visitscheduledate": "Visit Schedule Date",
     "visitcompleteddate": "Visit Completed Date",
     "visitType": "Visit Type",
-    "filterResults": "Filter Results",
     "apply": "Apply",
     "Name": "Name",
     "Date": "Date",
@@ -389,6 +388,9 @@
     "resetAll": "Reset All",
     "notEnroledInAnyProgram": "Not enroled in any program",
     "noRelativesAdded": "No Relatives Added",
-    "viewAllCompletedVisits": "View All Completed Visits"
+    "viewAllCompletedVisits": "View All Completed Visits",
+    "_registrationDate": "Registration date",
+    "_registrationDetails": "Registration details",
+    "_filterResults": "Filter results"
   }
 }
