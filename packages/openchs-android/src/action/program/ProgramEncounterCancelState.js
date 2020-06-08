@@ -25,7 +25,8 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     static createOnLoad(programEncounter, form, formElementGroup, filteredFormElements, workLists) {
-        const wizard = new Wizard(form.numberOfPages);
+        let indexOfGroup = _.findIndex(form.formElementGroups, (feg) => feg.uuid === formElementGroup.uuid) + 1;
+        const wizard = new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup);
         return new ProgramEncounterCancelState(formElementGroup, wizard, programEncounter, filteredFormElements, workLists);
     }
 

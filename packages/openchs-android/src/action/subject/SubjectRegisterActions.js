@@ -22,8 +22,13 @@ export class SubjectRegisterActions {
 
     static onLoad(state, action, context) {
         let isNewEntity = _.isNil(action.subjectUUID);
-        const subject = isNewEntity ?
-            Individual.createEmptySubjectInstance() : context.get(IndividualService).findByUUID(action.subjectUUID);
+        let subject;
+        if (isNewEntity) {
+            subject = Individual.createEmptySubjectInstance();
+        } else {
+            const subjectFromDB = context.get(IndividualService).findByUUID(action.subjectUUID);
+            subject = subjectFromDB.cloneForEdit();
+        }
 
         const currentWorkItem = action.workLists.getCurrentWorkItem();
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);

@@ -1,6 +1,7 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import {AbstractEncounter, ObservationsHolder, ChecklistItem} from "avni-models";
+import _ from "lodash";
 
 
 class ChecklistItemState extends AbstractDataEntryState {
@@ -19,7 +20,8 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     static createOnLoad(checklistItem, form, isNewEntity, formElementGroup, filteredFormElements) {
-        return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages), isNewEntity, checklistItem, filteredFormElements);
+        let indexOfGroup = _.findIndex(form.formElementGroups, (feg) => feg.uuid === formElementGroup.uuid) + 1;
+        return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, checklistItem, filteredFormElements);
     }
 
     clone() {
