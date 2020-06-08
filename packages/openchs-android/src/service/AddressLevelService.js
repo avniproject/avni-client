@@ -14,20 +14,20 @@ class AddressLevelService extends BaseService {
     }
 
     maxLevel() {
-        let sortedByLevels = this.findAll(this.getSchema()).sorted('level', true)[0];
+        let sortedByLevels = this.findAll(this.getSchema()).filtered('voided = false').sorted('level', true)[0];
         return _.defaultTo(sortedByLevels, {level: 0}).level;
     }
 
     minLevel() {
-        return this.findAll(this.getSchema()).sorted('level', false)[0].level;
+        return this.findAll(this.getSchema()).filtered('voided = false').sorted('level', false)[0].level;
     }
 
     getAllAtLevel(level) {
-        return [...this.findAllByCriteria(`level = ${level}`, this.getSchema()).map(_.identity)];
+        return [...this.findAllByCriteria(`level = ${level} AND voided = false`, this.getSchema()).map(_.identity)];
     }
 
     getAllAtLevelWithParent(level, parentUUID) {
-        return [...this.findAllByCriteria(`level = ${level} AND locationMappings.parent = '${parentUUID}'`,
+        return [...this.findAllByCriteria(`level = ${level} AND locationMappings.parent = '${parentUUID}' AND voided = false`,
             this.getSchema()).map(_.identity)];
     }
 
@@ -56,7 +56,7 @@ class AddressLevelService extends BaseService {
 
     getChildrenParent(parentUUID) {
         if (_.isNil(parentUUID)) return [];
-        return [...this.findAllByCriteria(`locationMappings.parent.uuid = '${parentUUID}'`, this.getSchema())
+        return [...this.findAllByCriteria(`locationMappings.parent.uuid = '${parentUUID}' AND voided = false`, this.getSchema())
             .map(_.identity)];
     }
 
