@@ -7,6 +7,7 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelState from '../common/AddressLevelsState';
 import CustomFilterService from "../../service/CustomFilterService";
 import moment from "moment";
+import Colors from "../../views/primitives/Colors";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -110,20 +111,20 @@ class MyDashboardActions {
 
         let row1 = {
             visits: {
-                scheduled: {count: 0, abnormal: false},
-                overdue: {count: 0, abnormal: false},
+                scheduled: {count: 0, abnormal: false, backgroundColor: Colors.ScheduledVisitColor},
+                overdue: {count: 0, abnormal: false, backgroundColor: Colors.OverdueVisitColor},
             }
         };
         let row2 = {
             visits: {
-                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'RecentRegistration'},
-                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'RecentEnrollment'},
-                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'RecentVisits'},
+                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'RecentRegistration', backgroundColor: Colors.RecentRegistrationColor},
+                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'RecentEnrollment', backgroundColor: Colors.RecentEnrolmentColor},
+                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'RecentVisits', backgroundColor: Colors.RecentVisitColor},
             }
         };
         let row3 = {
             visits: {
-                total: {count: 0, abnormal: false}
+                total: {count: 0, abnormal: false, backgroundColor: Colors.TotalIndividualColor}
             }
         };
         row1.visits.scheduled.count = allIndividualsWithScheduledVisits.length;

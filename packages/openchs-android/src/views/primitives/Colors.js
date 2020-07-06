@@ -52,6 +52,10 @@ class Colors {
     static VisitFilterButtonColor = '#4a90e2';
     static Separator = '#C0C0C0';
     static SecondaryText = '#929292';
+    static RecentRegistrationColor = '#9bd636';
+    static RecentEnrolmentColor = '#9bd636';
+    static RecentVisitColor = '#9bd636';
+    static TotalIndividualColor = '#3f73e8';
 
 }
 

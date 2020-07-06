@@ -41,6 +41,7 @@ class StatusCountRow extends AbstractComponent {
                     highlight={numberObj.abnormal}
                     onPress={this.onPressHandler.bind(this)(title, numberObj.count, this.props.backFunction, cardTitle)}
                     title={cardTitle}
+                    backgroundColor={numberObj.backgroundColor}
                     number={numberObj.count}/>
             </View>)
         });

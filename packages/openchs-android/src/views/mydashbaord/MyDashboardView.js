@@ -16,6 +16,7 @@ import General from "../../utility/General";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {Icon} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
+import Fonts from "../primitives/Fonts";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -69,14 +70,12 @@ class MyDashboardView extends AbstractComponent {
                     <Text>{this.state.lastUpdatedOn}</Text>
                 </View> : <View/>}
             <View style={{alignItems: 'center'}}>
-                <Text style={{
-                    paddingTop: 10,
-                    marginRight: 50,
+                <Text style={[Fonts.typography("paperFontTitle"),{
+                    paddingTop: 15,
                     textAlign: 'center',
                     fontSize: 20,
-                    color: Colors.DefaultPrimaryColor,
-                    paddingBottom: 10
-                }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
+                    paddingBottom: 15
+                }]}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
             </View>
             {this.disableAutoRefresh ?
                 <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}

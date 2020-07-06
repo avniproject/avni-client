@@ -5,13 +5,14 @@ import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
 import DGS from '../primitives/DynamicGlobalStyles';
 import AbstractComponent from "../../framework/view/AbstractComponent";
-
+import Colors from "../primitives/Colors";
 
 class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
         title: PropTypes.string,
         number: PropTypes.number,
         highlight: PropTypes.bool,
+        backgroundColor: PropTypes.string,
     };
 
     static styles = StyleSheet.create({
@@ -21,16 +22,17 @@ class TitleNumberBlock extends AbstractComponent {
             alignItems: 'center',
             flexWrap: 'wrap',
             width: DGS.resizeWidth(190),
-            minHeight: DGS.resizeHeight(200),
-            shadowOffset: {width: 0, height: 2},
-            shadowOpacity: 0.5,
-            elevation: 2,
-            backgroundColor: 'white',
-            shadowColor: "black",
-            shadowRadius: 2,
+            minHeight: DGS.resizeHeight(150),
+            borderRadius:10,
+            marginBottom:10,
+            shadowColor: 'black',
+            shadowOpacity: 0.26,
+            shadowOffset: { width: 0, height: 2},
+            shadowRadius: 10,
+            elevation: 4,
         },
         title: {
-            color: "#2c2c2c",
+            color: Colors.TextOnPrimaryColor,
         },
         highlight: {
             color: "#960000",
@@ -38,12 +40,11 @@ class TitleNumberBlock extends AbstractComponent {
     });
 
     render() {
-        const textColor = this.props.highlight ? TitleNumberBlock.styles.highlight : TitleNumberBlock.styles.title;
+        const textColor = TitleNumberBlock.styles.title;
         return (
             <TouchableNativeFeedback onPress={() => this.props.onPress()}>
-                <View style={TitleNumberBlock.styles.container}>
+                <View style={{...TitleNumberBlock.styles.container, backgroundColor: this.props.backgroundColor}}>
                     <Text style={[Fonts.typography("paperFontBody2"), textColor, {
-                        fontWeight: "400",
                         textAlign: "center",
                         paddingHorizontal: 3
                     }]}>
