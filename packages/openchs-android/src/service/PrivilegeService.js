@@ -37,6 +37,13 @@ class PrivilegeService extends BaseService {
             .map(privilege => privilege[privilegeParam])
     }
 
+    getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam) {
+        const grantedEntityTypes = this.getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, true);
+        const revokedEntityTypes = this.getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, false);
+
+        return _.difference(revokedEntityTypes, grantedEntityTypes);
+    }
+
     allowedEntityTypeUUIDListForCriteria(criteria, privilegeParam) {
         const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
         return this.db.objects(GroupPrivileges.schema.name)
@@ -66,7 +73,7 @@ class PrivilegeService extends BaseService {
         const metadata = EntityMetaData.model().filter(({type, entityName}) => type === "tx" && _.includes(requiredEntities, entityName));
         const getNonPrivilegeUUIDs = (entityName) => {
             const {privilegeEntity, privilegeName, privilegeParam} = _.find(metadata, d => d.entityName === entityName);
-            return this.getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, false);
+            return this.getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam);
         };
         this.deleteEncounters(getNonPrivilegeUUIDs(Encounter.schema.name), 'encounterType');
         this.deleteProgramEncounters(getNonPrivilegeUUIDs(ProgramEncounter.schema.name), 'encounterType');
