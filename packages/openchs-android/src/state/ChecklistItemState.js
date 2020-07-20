@@ -20,7 +20,7 @@ class ChecklistItemState extends AbstractDataEntryState {
     }
 
     static createOnLoad(checklistItem, form, isNewEntity, formElementGroup, filteredFormElements) {
-        let indexOfGroup = _.findIndex(form.formElementGroups, (feg) => feg.uuid === formElementGroup.uuid) + 1;
+        let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         return new ChecklistItemState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, checklistItem, filteredFormElements);
     }
 
