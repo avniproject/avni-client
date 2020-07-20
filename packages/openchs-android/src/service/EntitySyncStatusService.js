@@ -138,7 +138,7 @@ class EntitySyncStatusService extends BaseService {
                     throw e;
                 }
             });
-            this.deleteRevokedEntries(entity, this.getService(PrivilegeService).getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, false));
+            this.deleteRevokedEntries(entity, this.getService(PrivilegeService).getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam));
         })
     }
 
