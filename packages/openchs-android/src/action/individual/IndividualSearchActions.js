@@ -2,9 +2,10 @@ import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
-import {SubjectType} from "avni-models";
+import {SubjectType, Privilege} from "avni-models";
 import CustomFilterService from "../../service/CustomFilterService";
 import _ from "lodash";
+import PrivilegeService from "../../service/PrivilegeService";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -18,7 +19,11 @@ export class IndividualSearchActions {
 
     static onLoad(state, action, context) {
         const newState = IndividualSearchActions.clone(state);
-        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] : context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name);
+        const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const privilegeService = context.get(PrivilegeService);
+        const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
+        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] :
+            _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
         return {...newState, loading: false};

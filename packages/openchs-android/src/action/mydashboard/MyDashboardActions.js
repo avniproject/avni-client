@@ -1,5 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {SubjectType} from "avni-models";
+import {SubjectType, Privilege} from "avni-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import FilterService from "../../service/FilterService";
@@ -7,6 +7,7 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import AddressLevelState from '../common/AddressLevelsState';
 import CustomFilterService from "../../service/CustomFilterService";
 import moment from "moment";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class MyDashboardActions {
     static getInitialState() {
@@ -58,7 +59,11 @@ class MyDashboardActions {
     static onLoad(state, action, context) {
         const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
-        const subjectType = state.selectedSubjectType || entityService.findAllByCriteria('voided = false', SubjectType.schema.name)[0] || SubjectType.create("");
+        const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+        const privilegeService = context.get(PrivilegeService);
+        const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
+        const allowedSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
+        const subjectType = state.selectedSubjectType || allowedSubjectTypes[0] || SubjectType.create("");
 
         let filters = MyDashboardActions.cloneFilters(state.filters);
         if (state.filters.size === 0) {
