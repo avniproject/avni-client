@@ -29,7 +29,6 @@ class AppHeader extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
     onBack() {
@@ -42,7 +41,7 @@ class AppHeader extends AbstractComponent {
     onHome() {
         CHSNavigator.goHome(this);
         this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
-        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.userSettings.disableAutoRefresh});
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
     }
 
     background() {

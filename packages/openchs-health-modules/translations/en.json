@@ -343,6 +343,7 @@
     "group": "Group",
     "household": "household",
     "genderDoesNotMatchWithRelativeGender": "Selected gender does not match with relative gender",
-    "relativeRelationGenderMismatch": "Relation does not match with relative gender"
+    "relativeRelationGenderMismatch": "Relation does not match with relative gender",
+    "refreshReminderMessage": "You may need to press refresh to get the latest counts"
   }
 }

@@ -16,6 +16,8 @@ import General from "../../utility/General";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {Icon} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
+import moment from "moment";
+import RefreshReminder from "./RefreshReminder";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -32,69 +34,64 @@ class MyDashboardView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.LOAD_INDICATOR);
-        setTimeout(() => this.dispatchAction(Actions.ON_LOAD), 0);
         super.componentWillMount();
     }
 
     componentDidMount() {
-        this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false})
+        if (this.state.fetchFromDB) {
+            this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
+        }
+        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync}), 0);
     }
 
     onBackCallback() {
         this.goBack();
+        this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
+        setTimeout(() => this.dispatchAction(Actions.ON_LOAD), 0);
     }
 
     _onBack() {
         this.goBack();
     }
 
-    filterStateChanged = (prev, next) => {
-        return prev.individualFilters === next.individualFilters ||
-            prev.encountersFilters === next.encountersFilters ||
-            prev.enrolmentFilters === next.enrolmentFilters ||
-            prev.generalEncountersFilters === next.generalEncountersFilters;
-    };
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return this.filterStateChanged(this.state, nextState) || this.state.fetchFromDB;
-    }
-
     renderHeader() {
-        return <View
-            style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap'}}>
-            {this.disableAutoRefresh ?
-                <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 5}}>
-                    <Text>Last updated on </Text>
-                    <Text>{this.state.lastUpdatedOn}</Text>
-                </View> : <View/>}
-            <View style={{alignItems: 'center'}}>
-                <Text style={{
-                    paddingTop: 10,
-                    marginRight: 50,
-                    textAlign: 'center',
-                    fontSize: 20,
-                    color: Colors.DefaultPrimaryColor,
-                    paddingBottom: 10
-                }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
+        return <View style={{flexDirection: 'column'}}>
+            {this.disableAutoRefresh ? <RefreshReminder/> : <View/>}
+            <View
+                style={{flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap'}}>
+                {this.disableAutoRefresh ?
+                    <View style={{flexDirection: 'column', alignItems: 'center', marginLeft: 5}}>
+                        <Text>Last updated on </Text>
+                        <Text>{moment(this.state.lastUpdatedOn).format('DD-MMM-YYYY HH:mm')}</Text>
+                    </View> : <View/>}
+                <View style={{alignItems: 'center'}}>
+                    <Text style={{
+                        paddingTop: 10,
+                        marginRight: 50,
+                        textAlign: 'center',
+                        fontSize: 20,
+                        color: Colors.DefaultPrimaryColor,
+                        paddingBottom: 10
+                    }}>{this.state.selectedSubjectType && this.I18n.t(this.state.selectedSubjectType.name)}</Text>
+                </View>
+                {this.disableAutoRefresh ?
+                    <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
+                                             background={TouchableNativeFeedback.SelectableBackground()}>
+                        <View style={{marginRight: 10, alignItems: 'center'}}>
+                            <Icon style={{
+                                color: Colors.AccentColor,
+                                opacity: 0.8,
+                                alignSelf: 'center',
+                                fontSize: 30
+                            }} name='refresh'/>
+                        </View>
+                    </TouchableNativeFeedback> : <View/>}
             </View>
-            {this.disableAutoRefresh ?
-                <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <View style={{marginRight: 10, alignItems: 'center'}}>
-                        <Icon style={{
-                            color: Colors.AccentColor,
-                            opacity: 0.8,
-                            alignSelf: 'center',
-                            fontSize: 30
-                        }} name='refresh'/>
-                    </View>
-                </TouchableNativeFeedback> : <View/>}
         </View>
     }
 
     refreshDashBoard() {
-        this.dispatchAction(Actions.LOAD_INDICATOR);
+        this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: true}), 0);
     }
 

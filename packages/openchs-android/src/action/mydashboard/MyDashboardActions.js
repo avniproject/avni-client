@@ -1,16 +1,16 @@
 import EntityService from "../../service/EntityService";
-import {SubjectType, Privilege} from "avni-models";
+import {DashboardCache, Privilege, SubjectType} from "avni-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
-import FilterService from "../../service/FilterService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelState from '../common/AddressLevelsState';
 import CustomFilterService from "../../service/CustomFilterService";
-import moment from "moment";
 import PrivilegeService from "../../service/PrivilegeService";
+import UserInfoService from "../../service/UserInfoService";
+import DashboardCacheService from "../../service/DashboardCacheService";
 
 class MyDashboardActions {
-    static getInitialState() {
+    static getInitialState(context) {
         return {
             visits: {},
             individuals: {data: []},
@@ -31,13 +31,7 @@ class MyDashboardActions {
             generalEncounterTypes: [],
             selectedGeneralEncounterTypes: [],
             itemsToDisplay: [],
-            fetchFromDB: true,
-            scheduled: 0,
-            overdue: 0,
-            recentlyCompletedVisits: 0,
-            recentlyCompletedRegistration: 0,
-            recentlyCompletedEnrolment: 0,
-            total: 0,
+            fetchFromDB: !context.get(UserInfoService).getUserSettings().disableAutoRefresh,
             selectedCustomFilters: [],
             selectedGenders: [],
             loading: false
@@ -57,19 +51,13 @@ class MyDashboardActions {
         otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividualsUUIDs, iInfo.individual.uuid)));
 
     static onLoad(state, action, context) {
-        const entityService = context.get(EntityService);
         const individualService = context.get(IndividualService);
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = context.get(PrivilegeService);
         const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
         const allowedSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
         const subjectType = state.selectedSubjectType || allowedSubjectTypes[0] || SubjectType.create("");
-
-        let filters = MyDashboardActions.cloneFilters(state.filters);
-        if (state.filters.size === 0) {
-            const filterService = context.get(FilterService);
-            filters = filterService.getAllFilters().reduce((acc, f) => acc.set(f.label, f), new Map());
-        }
+        const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
 
         let individualFilters, encountersFilters, enrolmentFilters, generalEncountersFilters;
         if (_.isEmpty(state.individualFilters)) {
@@ -92,17 +80,16 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals
-        ] = state.returnEmpty ? [[], [], [], [], [], []] : (action.fetchFromDB || state.fetchFromDB ? [
+        ] = state.returnEmpty ? [[], [], [], [], [], []] : (fetchFromDB ? [
                 MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allIn(state.date.value, individualFilters), state.individualUUIDs)
-            ].map(MyDashboardActions.applyFilters(filters))
+            ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total]);
 
-        const lastUpdatedOn = state.returnEmpty || action.fetchFromDB || state.fetchFromDB ? moment().format('DD-MMM-YYYY HH:mm') : state.lastUpdatedOn;
         const queryResult = {
             scheduled: allIndividualsWithScheduledVisits,
             overdue: allIndividualsWithOverDueVisits,
@@ -112,39 +99,21 @@ class MyDashboardActions {
             total: allIndividuals,
         };
 
+        if (state.returnEmpty || fetchFromDB) {
+            const updatedOn = new Date();
+            const cardJSON = _.mapValues(queryResult, v => v && v.length || 0);
+            const filterJSON = DashboardCache.getFilterJSONFromState(state);
+            const dashboardCache = DashboardCache.create(updatedOn, JSON.stringify(cardJSON), JSON.stringify(filterJSON));
+            context.get(DashboardCacheService).saveOrUpdate(dashboardCache);
+        }
 
-        let row1 = {
-            visits: {
-                scheduled: {count: 0, abnormal: false},
-                overdue: {count: 0, abnormal: false},
-            }
-        };
-        let row2 = {
-            visits: {
-                recentlyCompletedRegistration: {count: 0, abnormal: false, label: 'RecentRegistration'},
-                recentlyCompletedEnrolment: {count: 0, abnormal: false, label: 'RecentEnrollment'},
-                recentlyCompletedVisits: {count: 0, abnormal: false, label: 'RecentVisits'},
-            }
-        };
-        let row3 = {
-            visits: {
-                total: {count: 0, abnormal: false}
-            }
-        };
-        row1.visits.scheduled.count = allIndividualsWithScheduledVisits.length;
-        row1.visits.overdue.count = allIndividualsWithOverDueVisits.length;
-        row2.visits.recentlyCompletedVisits.count = allIndividualsWithRecentlyCompletedVisits.length;
-        row2.visits.recentlyCompletedRegistration.count = allIndividualsWithRecentRegistrations.length;
-        row2.visits.recentlyCompletedEnrolment.count = allIndividualsWithRecentEnrolments.length;
-        row3.visits.total.count = allIndividuals.length;
-
-        const results = [row1, row2, row3];
+        const {counts, lastUpdatedOn, cachedFilters} = MyDashboardActions.getResultCounts(queryResult, context);
+        const cachedDate = cachedFilters.date;
 
         return {
             ...state,
             ...queryResult,
-            visits: results,
-            filters: filters,
+            visits: counts,
             selectedSubjectType: subjectType,
             individualFilters,
             encountersFilters,
@@ -152,14 +121,27 @@ class MyDashboardActions {
             itemsToDisplay: [],
             fetchFromDB: false,
             loading: false,
-            lastUpdatedOn
+            lastUpdatedOn: lastUpdatedOn,
+            ...cachedFilters,
+            date: {value: cachedDate && new Date(cachedDate.value) || state.date.value},
+            addressLevelState: Object.assign(new AddressLevelState, cachedFilters.addressLevelState),
         };
+    }
+
+    static getResultCounts(queryResult, context) {
+        const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
+        const cachedData = context.get(DashboardCacheService).cachedData();
+        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON()) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v.length));
+        const lastUpdatedOn = cachedData.updatedAt;
+        const filterJSON = cachedData.getFilterJSON();
+        const cachedFilters = readCachedData ? filterJSON : {};
+        return {counts, lastUpdatedOn, cachedFilters}
     }
 
     static onListLoad(state, action, context) {
         const {listType} = action;
         const individualService = context.get(IndividualService);
-        const getResult = (db, local) => state.fetchFromDB ? db : local;
+        const getResult = (db, local) => state.fetchFromDB || !local ? db : local;
 
         const methodMap = new Map([
             ["scheduled", getResult(individualService.allScheduledVisitsIn, state.scheduled)],
@@ -171,7 +153,7 @@ class MyDashboardActions {
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = state.fetchFromDB ? methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters) : methodMap.get(listType);
+        const allIndividuals = state.fetchFromDB || !state[listType] ? methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters) : methodMap.get(listType);
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs);
         const totalToDisplay = _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
         return {
@@ -180,6 +162,8 @@ class MyDashboardActions {
                 data: commonIndividuals,
             },
             itemsToDisplay: totalToDisplay,
+            [listType]: commonIndividuals,
+            loading: false,
         };
     }
 
@@ -310,12 +294,42 @@ class MyDashboardActions {
     }
 
     static loadIndicator(state, action) {
-        if (_.isEmpty(state.lastUpdatedOn)) {
-            return {...state, loading: true};
-        }
         return {...state, loading: action.status};
     }
 
+    static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total}) {
+        const row1 = {
+            visits: {
+                scheduled: {count: scheduled, abnormal: false},
+                overdue: {count: overdue, abnormal: false},
+            }
+        };
+        const row2 = {
+            visits: {
+                recentlyCompletedRegistration: {
+                    count: recentlyCompletedRegistration,
+                    abnormal: false,
+                    label: 'RecentRegistration'
+                },
+                recentlyCompletedEnrolment: {
+                    count: recentlyCompletedEnrolment,
+                    abnormal: false,
+                    label: 'RecentEnrollment'
+                },
+                recentlyCompletedVisits: {
+                    count: recentlyCompletedVisits,
+                    abnormal: false,
+                    label: 'RecentVisits'
+                },
+            }
+        };
+        const row3 = {
+            visits: {
+                total: {count: total, abnormal: false}
+            }
+        };
+        return [row1, row2, row3];
+    }
 }
 
 const MyDashboardPrefix = "MyD";
@@ -325,7 +339,6 @@ const MyDashboardActionNames = {
     ON_LIST_LOAD: `${MyDashboardPrefix}.ON_LIST_LOAD`,
     RESET_LIST: `${MyDashboardPrefix}.RESET_LIST`,
     ON_DATE: `${MyDashboardPrefix}.ON_DATE`,
-    ADD_FILTER: `${MyDashboardPrefix}.ADD_FILTER`,
     APPLY_FILTERS: `${MyDashboardPrefix}.APPLY_FILTERS`,
     LOAD_INDICATOR: `${MyDashboardPrefix}.LOAD_INDICATOR`,
 };
@@ -335,7 +348,6 @@ const MyDashboardActionsMap = new Map([
     [MyDashboardActionNames.ON_LOAD, MyDashboardActions.onLoad],
     [MyDashboardActionNames.ON_LIST_LOAD, MyDashboardActions.onListLoad],
     [MyDashboardActionNames.RESET_LIST, MyDashboardActions.resetList],
-    [MyDashboardActionNames.ADD_FILTER, MyDashboardActions.addFilter],
     [MyDashboardActionNames.APPLY_FILTERS, MyDashboardActions.assignFilters],
     [MyDashboardActionNames.LOAD_INDICATOR, MyDashboardActions.loadIndicator],
 ]);

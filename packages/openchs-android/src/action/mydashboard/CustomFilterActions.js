@@ -82,7 +82,7 @@ class CustomFilterActions {
             [dateValueKey]: value && moment(value, "YYYY-MM-DDTHH:mm:ss").utc().format(),
             dateType: true
         };
-        const validationError = validationCb(newState);
+        const validationError = validationCb && validationCb(newState);
         const stateWithError = {...newState, validationError};
         const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [stateWithError]};
         return {...state, selectedCustomFilters};

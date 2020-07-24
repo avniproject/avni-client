@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {MultiSelectFilter as MultiSelectFilterModel, Concept, CustomFilter} from "avni-models";
+import {Concept, CustomFilter, MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";
@@ -9,7 +9,7 @@ import _ from 'lodash';
 import CustomFilterService from "../../service/CustomFilterService";
 import Styles from "../primitives/Styles";
 import Separator from "../primitives/Separator";
-import {View, TextInput} from 'react-native';
+import {TextInput, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import Colors from '../primitives/Colors';
 import {Text} from "native-base";
@@ -185,7 +185,7 @@ class CustomFilters extends AbstractComponent {
             actionName={actionName}
             actionObject={dateObject}
             pickTime={pickTime}
-            dateValue={dateObject.value}
+            dateValue={typeof dateObject.value === 'string' ? new Date(dateObject.value) : dateObject.value}
             noDateMessageKey={noDateMessageKey}/>
     }
 
