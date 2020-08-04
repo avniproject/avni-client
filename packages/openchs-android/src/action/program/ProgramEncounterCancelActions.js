@@ -44,10 +44,6 @@ class ProgramEncounterCancelActions {
             return o.displayOrder
         }]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, programEncounter).length !== 0);
 
-        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            throw new Error("No form element group with visible form element");
-        }
-        let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
         const workListParams = (encounter) => {
             return _.isNil(encounter.programEnrolment) ?
                 {encounterType: encounter.encounterType.name, subjectUUID: encounter.individual.uuid} :
@@ -59,6 +55,10 @@ class ProgramEncounterCancelActions {
         };
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter')
             .withCancelledEncounter(workListParams(action.programEncounter)));
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
+            return ProgramEncounterCancelState.createOnLoadStateForEmptyForm(programEncounter, form, workLists);
+        }
+        let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
         return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements, workLists);
     }
 

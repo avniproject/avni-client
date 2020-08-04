@@ -1,6 +1,6 @@
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Wizard from "../../state/Wizard";
-import {Form, ObservationsHolder, ProgramEncounter} from "avni-models";
+import {Form, ObservationsHolder, ProgramEncounter, StaticFormElementGroup} from "avni-models";
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
 
@@ -28,6 +28,10 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         const wizard = new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup);
         return new ProgramEncounterCancelState(formElementGroup, wizard, programEncounter, filteredFormElements, workLists);
+    }
+
+    static createOnLoadStateForEmptyForm(programEncounter, form, workLists) {
+        return new ProgramEncounterCancelState(new StaticFormElementGroup(form), new Wizard(1), programEncounter, [], workLists);
     }
 
     clone() {

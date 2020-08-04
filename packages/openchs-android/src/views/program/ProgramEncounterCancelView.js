@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -19,6 +19,9 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import Fonts from "../primitives/Fonts";
+import Colors from "../primitives/Colors";
+import Styles from "../primitives/Styles";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -26,12 +29,12 @@ class ProgramEncounterCancelView extends AbstractComponent {
         params: PropTypes.object.isRequired
     };
 
-    viewName() {
-        return 'ProgramEncounterCancelView';
-    }
-
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounterCancel);
+    }
+
+    viewName() {
+        return 'ProgramEncounterCancelView';
     }
 
     componentWillMount() {
@@ -93,14 +96,22 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView])}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        {this.state.wizard.isFirstPage() &&
-                        <GeolocationFormElement
-                            location={this.state.programEncounter.cancelLocation}
-                            editing={this.props.params.editing}
-                            actionName={Actions.SET_CANCEL_LOCATION}
-                            errorActionName={Actions.SET_LOCATION_ERROR}
-                            validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.CANCEL_LOCATION)}
-                        />
+                        {this.state.wizard.isFirstPage() ?
+                            <View>
+                                <GeolocationFormElement
+                                    location={this.state.programEncounter.cancelLocation}
+                                    editing={this.props.params.editing}
+                                    actionName={Actions.SET_CANCEL_LOCATION}
+                                    errorActionName={Actions.SET_LOCATION_ERROR}
+                                    validationResult={AbstractDataEntryState.getValidationError(this.state, ProgramEncounter.validationKeys.CANCEL_LOCATION)}
+                                />
+                                <View style={{paddingVertical: Distances.VerticalSpacingBetweenFormElements}}>
+                                    <Text style={Styles.formLabel}>{this.I18n.t('cancelDate')}</Text>
+                                    <Text style={{fontSize: Fonts.Large, color: Colors.ActionButtonColor}}>
+                                        {General.formatDate(this.state.programEncounter.cancelDateTime)}
+                                    </Text>
+                                </View>
+                            </View> : <View/>
                         }
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
