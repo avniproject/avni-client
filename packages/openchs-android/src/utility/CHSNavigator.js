@@ -64,7 +64,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message, tab = 2) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView, ChecklistView, ChecklistItemView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
                 TypedTransition.createRoute(GenericDashboardView, {
