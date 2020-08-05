@@ -372,13 +372,14 @@ class CHSNavigator {
             case WorkItem.type.PROGRAM_ENCOUNTER: {
                 let programEncounter;
                 if (_.isEmpty(nextWorkItem.parameters.uuid)) {
-                    const {programEnrolmentUUID, encounterType} = nextWorkItem.parameters;
+                    const {programEnrolmentUUID, encounterType, name} = nextWorkItem.parameters;
                     const enrolment = context.getService(ProgramEnrolmentService).findByUUID(programEnrolmentUUID);
                     const programEncounterService = context.getService(ProgramEncounterService);
                     //Use a due encounter if available
                     const dueEncounter = programEncounterService.findDueEncounter({
                         enrolmentUUID: programEnrolmentUUID,
-                        encounterTypeName: encounterType
+                        encounterTypeName: encounterType,
+                        encounterName: name
                     });
                     if (dueEncounter) {
                         programEncounter = dueEncounter.cloneForEdit();

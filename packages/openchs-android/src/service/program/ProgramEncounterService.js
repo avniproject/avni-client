@@ -72,8 +72,9 @@ class ProgramEncounterService extends BaseService {
         return programEncounter;
     }
 
-    findDueEncounter({encounterTypeUUID, enrolmentUUID, encounterTypeName}) {
+    findDueEncounter({encounterTypeUUID, enrolmentUUID, encounterTypeName, encounterName}) {
         return this.filtered('encounterType.name == $0 OR encounterType.uuid == $1', encounterTypeName, encounterTypeUUID)
+            .filtered(_.isEmpty(encounterName) ? 'uuid != null' : 'name = $0', encounterName)
             .filtered('programEnrolment.uuid == $0', enrolmentUUID)
             .filtered('encounterDateTime == null AND cancelDateTime == null')[0];
     }

@@ -43,7 +43,7 @@ export default class WorkListState {
         return `${i18n.t('saveAnd')} ${i18n.t(label, {
             subject: i18n.t(_.defaultTo(workItem.parameters.subjectTypeName, "")),
             program: i18n.t(_.defaultTo(workItem.parameters.programName, "")),
-            enc: i18n.t(_.defaultTo(workItem.parameters.encounterType, "")),
+            enc: i18n.t(_.defaultTo(workItem.parameters.name || workItem.parameters.encounterType, "")),
             household: i18n.t(_.defaultTo(workItem.parameters.household,""))
         })}`;
     }

@@ -82,7 +82,7 @@ class AppHeader extends AbstractComponent {
             <View style={{
                 backgroundColor: Colors.headerBackgroundColor,
                 flexDirection: 'row',
-                height: 56,
+                minHeight: 56,
                 elevation: 3,
             }}>
                 {this.props.hideBackButton ? <View/> :
