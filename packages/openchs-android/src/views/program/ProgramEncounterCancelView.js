@@ -107,7 +107,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                                 />
                                 <View style={{paddingVertical: Distances.VerticalSpacingBetweenFormElements}}>
                                     <Text style={Styles.formLabel}>{this.I18n.t('cancelDate')}</Text>
-                                    <Text style={{fontSize: Fonts.Large, color: Colors.ActionButtonColor}}>
+                                    <Text style={{fontSize: Fonts.Large, color: Colors.InputNormal}}>
                                         {General.formatDate(this.state.programEncounter.cancelDateTime)}
                                     </Text>
                                 </View>
