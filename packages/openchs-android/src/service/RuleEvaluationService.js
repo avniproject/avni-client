@@ -37,6 +37,7 @@ import { FormElementStatusBuilder, VisitScheduleBuilder, complicationsBuilder as
 import * as rulesConfig from "rules-config";
 import lodash from "lodash";
 import moment from "moment";
+import GroupSubjectService from "./GroupSubjectService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -67,6 +68,7 @@ class RuleEvaluationService extends BaseService {
         });
         this.formMappingService = this.getService(FormMappingService);
         this.conceptService = this.getService(ConceptService);
+        this.groupSubjectService = this.getService(GroupSubjectService);
     }
 
     getIndividualUUID = (entity, entityName) => {
@@ -482,7 +484,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: { entity: individual },
+                    params: { entity: individual, groupSubjects: this.groupSubjectService.getAllGroups(individual) },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
