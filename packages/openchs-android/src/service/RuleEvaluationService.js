@@ -484,7 +484,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: { entity: individual, groupSubjects: this.groupSubjectService.getAllGroups(individual) },
+                    params: {entity: _.assignIn(individual, {groups: this.groupSubjectService.getAllGroups(individual)})},
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
