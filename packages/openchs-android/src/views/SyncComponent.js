@@ -95,10 +95,12 @@ class SyncComponent extends AbstractComponent {
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
-    _onError(error) {
+    _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
-        bugsnag.notify(error);
+        const isServerError = error instanceof ServerError;
+        //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
+        if(!ignoreBugsnag && !isServerError) bugsnag.notify(error);
         this.dispatchAction(SyncActions.ON_ERROR);
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
@@ -109,7 +111,7 @@ class SyncComponent extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            const errorMessage = error instanceof ServerError ? this.I18n.t('syncServerError') : this.I18n.t(error.message);
+            const errorMessage = isServerError ? this.I18n.t('syncServerError') : error.message;
             Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()
@@ -158,7 +160,8 @@ class SyncComponent extends AbstractComponent {
                 (progress) => this.progressBarUpdate(progress),
                 (message) => this.messageCallBack(message)).catch(onError)
         } else {
-            this._onError(new Error('internetConnectionError'))
+            const ignoreBugsnag = true;
+            this._onError(new Error('internetConnectionError'), ignoreBugsnag);
         }
     }
 
