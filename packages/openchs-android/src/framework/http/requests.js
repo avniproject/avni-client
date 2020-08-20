@@ -40,10 +40,8 @@ const makeHeader = (type) => new Map([['json', {
 const makeRequest = (type, opts = {}) => _.assignIn({...makeHeader(type), ...opts});
 
 const addAuthIfRequired = (request, authToken) => {
-    if (_.isEmpty(authToken)) {
-        if (Config.USER_NAME) {
-            return _.merge({}, request, {headers: {"USER-NAME": Config.USER_NAME}});
-        }
+    if (Config.ENV === 'dev' || _.isEmpty(authToken)) {
+        return _.merge({}, request, {headers: {"USER-NAME": authToken}});
     } else {
         return _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});
     }

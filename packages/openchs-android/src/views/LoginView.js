@@ -187,42 +187,46 @@ class LoginView extends AbstractComponent {
                                              autoCompleteType={"username"}
                                              keyboardType={'email-address'}
                             />
-                            <TextFormElement element={new StaticFormElement('password')}
-                                             secureTextEntry={!this.state.showPassword}
-                                             actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
-                                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                             value={new PrimitiveValue(this.state.password)}
-                                             multiline={false}
-                            />
-                            <View style={{
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                paddingBottom: 16,
-                                alignItems: 'flex-start',
-                                paddingTop: 8
-                            }}>
-                                <TouchableNativeFeedback
-                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
-                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <CheckBox onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
-                                                  checked={this.state.showPassword}/>
-                                        <Text
-                                            style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
+                            {Config.ENV !== 'dev' ?
+                                <View>
+                                    <TextFormElement element={new StaticFormElement('password')}
+                                                     secureTextEntry={!this.state.showPassword}
+                                                     actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
+                                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                                     value={new PrimitiveValue(this.state.password)}
+                                                     multiline={false}
+                                    />
+                                    <View style={{
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between',
+                                        paddingBottom: 16,
+                                        alignItems: 'flex-start',
+                                        paddingTop: 8
+                                    }}>
+                                        <TouchableNativeFeedback
+                                            onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
+                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                <CheckBox
+                                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                    checked={this.state.showPassword}/>
+                                                <Text
+                                                    style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>
+                                        <TouchableNativeFeedback onPress={() => {
+                                            this.forgotPassword()
+                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                            <View style={{paddingLeft: 10, paddingTop: 10}}>
+                                                <Text style={{
+                                                    color: Styles.accentColor,
+                                                    fontSize: 16
+                                                }}>{this.I18n.t('Forgot Password')}</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>
                                     </View>
-                                </TouchableNativeFeedback>
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.forgotPassword()
-                                }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                    <View style={{paddingLeft: 10, paddingTop: 10}}>
-                                        <Text style={{
-                                            color: Styles.accentColor,
-                                            fontSize: 16
-                                        }}>{this.I18n.t('Forgot Password')}</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
-
-                            {this.spinner()}
+                                    {this.spinner()}
+                                </View>
+                                : null}
                         </View>
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                             {_.get(this, 'props.params.allowSkipLogin') ?
@@ -253,7 +257,7 @@ class LoginView extends AbstractComponent {
                             fontStyle: 'normal',
                             color: Styles.blackColor,
                             alignSelf: 'center',
-                        }}>{Config.ENV !== 'prod'? Config.ENV : ''}</Text>
+                        }}>{Config.ENV !== 'prod' ? Config.ENV : ''}</Text>
                         <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
                     </View>
                 </CHSContent>
@@ -271,7 +275,7 @@ class LoginView extends AbstractComponent {
         if (!this.state.validationResult.success) {
             return;
         }
-        if (_.isEmpty(this.state.userId) || _.isEmpty(this.state.password)) {
+        if (_.isEmpty(this.state.userId) || (Config.ENV !== 'dev' && _.isEmpty(this.state.password))) {
             this.dispatchAction(Actions.ON_EMPTY_LOGIN);
             return;
         }

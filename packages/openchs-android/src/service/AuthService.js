@@ -1,4 +1,4 @@
-import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
+import {AuthenticationDetails, CognitoUser, CognitoUserPool} from 'amazon-cognito-identity-js';
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import SettingsService from "./SettingsService";
@@ -8,6 +8,7 @@ import AuthenticationError from "./AuthenticationError";
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
 import SyncService from "./SyncService";
+import UserInfoService from "./UserInfoService";
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -17,6 +18,7 @@ class AuthService extends BaseService {
 
     init() {
         this.settingsService = this.getService(SettingsService);
+        this.userInfoService = this.getService(UserInfoService);
     }
 
     authenticate(userId, password) {
@@ -27,7 +29,7 @@ class AuthService extends BaseService {
         };
 
         return Promise.resolve(settingsService.getSettings())
-            .then(() => this._updateCognitoPoolSettingsFromServer())
+            .then(() => this._updateCognitoPoolSettingsFromServer(userId))
             .then((settings) => this._authIsStubbed(settings) ? {status: "LOGIN_SUCCESS"} : authenticateAndUpdateUserSettings(userId.trim(), password, settings));
     }
 
@@ -35,7 +37,7 @@ class AuthService extends BaseService {
         return this._getSettings().then((settings) => {
             return new Promise((resolve, reject) => {
                 if (this._authIsStubbed(settings)) {
-                    resolve("");
+                    resolve(settings.userId);
                     return;
                 }
 
@@ -91,13 +93,18 @@ class AuthService extends BaseService {
             _.noop)
     }
 
+    getStubbedUser() {
+        const userInfo = this.userInfoService.getUserInfo();
+        return userInfo.username;
+    }
+
     userExists() {
         return new Promise((resolve) => {
             const settings = this.settingsService.getSettings();
 
             if (this._authIsStubbed(settings)) {
                 General.logDebug("AuthService", "User is stubbed");
-                resolve(true);
+                resolve(this.getStubbedUser());
                 return;
             }
 
@@ -214,7 +221,7 @@ class AuthService extends BaseService {
         return Promise.resolve(settings);
     }
 
-    _updateCognitoPoolSettingsFromServer() {
+    _updateCognitoPoolSettingsFromServer(userId) {
         const settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
         const url = `${serverURL}/cognito-details`;
@@ -222,6 +229,7 @@ class AuthService extends BaseService {
             let newSettings = settings.clone();
             newSettings.poolId = authDetails.poolId;
             newSettings.clientId = authDetails.clientId;
+            newSettings.userId = userId;
             this.settingsService.saveOrUpdate(newSettings);
             return newSettings;
         });
