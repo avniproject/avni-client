@@ -169,9 +169,7 @@ class SyncComponent extends AbstractComponent {
         return (
             <Modal animationType={'fade'}
                    transparent={true}
-                   onRequestClose={() => {
-                       alert('Modal has been closed.');
-                   }}
+                   onRequestClose={_.noop}
                    visible={this.state.syncing}>
                 <View style={[this.syncContainerStyle, {backgroundColor: 'rgba(0, 0, 0, 0.25)'}]}
                       key={`spinner_${Date.now()}`}>
