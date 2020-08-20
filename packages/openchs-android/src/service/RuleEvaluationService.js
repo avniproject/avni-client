@@ -107,11 +107,12 @@ class RuleEvaluationService extends BaseService {
 
         if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
             const individualUUID = this.getIndividualUUID(entity, entityName);
+            const newEntity = entityName === 'Individual' ? _.assignIn(entity, {groups: this.groupSubjectService.getAllGroups(entity)}) : entity;
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: { decisions: defaultDecisions, entity },
+                    params: { decisions: defaultDecisions, entity : newEntity },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
