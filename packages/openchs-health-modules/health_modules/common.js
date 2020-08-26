@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
-import getZScore from './child/zScoreCalculator';
+import getZScore,  {projectedSD2NegForWeight} from './child/zScoreCalculator';
 
 function C() {
 
@@ -138,6 +138,10 @@ function C() {
 
     this.getZScore = (individual, asOnDate, weight, height) => {
         return getZScore(individual, asOnDate, weight, height);
+    };
+
+    this.projectedSD2NegForWeight = (individual, asOnDate) => {
+        return projectedSD2NegForWeight(individual, asOnDate);
     };
 
     this.weeksBetween = (arg1, arg2) => {
