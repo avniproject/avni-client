@@ -20,7 +20,6 @@ import {Privilege, WorkItem, WorkList, WorkLists} from "avni-models";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Separator from "../primitives/Separator";
 import Distances from "../primitives/Distances";
-import {Names as DashboardActions} from "../../action/program/SubjectDashboardViewActions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons';
 import GenericDashboardView from "../program/GenericDashboardView";
 import FormMappingService from "../../service/FormMappingService";
@@ -28,6 +27,7 @@ import PrivilegeService from "../../service/PrivilegeService";
 import Members from "../groupSubject/Members";
 import AddNewMemberView from "../groupSubject/AddNewMemberView";
 import RemoveMemberView from "../groupSubject/RemoveMemberView";
+import {AvniAlert} from "../common/AvniAlert";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -92,10 +92,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     onRelativeDeletePress(individualRelative) {
-        this.alert(this.I18n.t('deleteRelativeNoticeTitle'), this.I18n.t('deleteRelativeConfirmationMessage', {
+        AvniAlert(this.I18n.t('deleteRelativeNoticeTitle'), this.I18n.t('deleteRelativeConfirmationMessage', {
             individualA: individualRelative.individual.name,
             individualB: individualRelative.relative.name
-        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}))
+        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}), this.I18n)
     }
 
     editProfile() {
