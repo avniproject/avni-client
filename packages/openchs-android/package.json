@@ -21,7 +21,8 @@
     "test": "jest",
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
-    "flow": "flow"
+    "flow": "flow",
+    "postinstall" : "npx jetify"
   },
   "dependencies": {
     "amazon-cognito-identity-js": "3.0.11",
@@ -73,6 +74,7 @@
     "faker": "4.1.0",
     "flow-bin": "0.98.1",
     "jest": "24.7.1",
+    "jetifier": "^1.6.6",
     "metro-react-native-babel-preset": "0.53.1",
     "react-addons-test-utils": "15.4.1",
     "react-dom": "15.4.2",
