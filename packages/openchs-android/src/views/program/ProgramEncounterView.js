@@ -24,6 +24,8 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
+import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -95,6 +97,11 @@ class ProgramEncounterView extends AbstractComponent {
         }
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug('ProgramEncounterView', 'render');
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
@@ -104,7 +111,7 @@ class ProgramEncounterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
-                               func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView])}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>

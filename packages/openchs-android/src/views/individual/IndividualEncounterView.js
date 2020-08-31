@@ -16,6 +16,8 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
+import {AvniAlert} from "../common/AvniAlert";
+import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -75,13 +77,18 @@ class IndividualEncounterView extends AbstractComponent {
         });
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView, IndividualEncounterLandingView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         return (
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.displayName)}
-                               func={() => this.previous()}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    onCollapse={this.scrollToTop}
                                                    individual={this.state.encounter.individual}

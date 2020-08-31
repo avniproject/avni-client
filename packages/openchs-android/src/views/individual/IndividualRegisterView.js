@@ -26,6 +26,8 @@ import SubjectRegisterView from "../subject/SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -77,6 +79,11 @@ class IndividualRegisterView extends AbstractComponent {
         return SubjectRegisterView.canLoad(args, parent);
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
@@ -86,7 +93,7 @@ class IndividualRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView])}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',

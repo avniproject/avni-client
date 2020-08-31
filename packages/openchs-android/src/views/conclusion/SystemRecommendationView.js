@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from 'prop-types';
 import React from "react";
-import {View, Alert} from "react-native";
+import {Alert, View} from "react-native";
 import Path from "../../framework/routing/Path";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
@@ -27,6 +27,11 @@ import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
 import ProgramExitView from "../program/ProgramExitView";
 import NewVisitPageView from "../program/NewVisitPageView";
 import ProgramEnrolmentView from "../program/ProgramEnrolmentView";
+import {AvniAlert} from "../common/AvniAlert";
+import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
+import IndividualEncounterView from "../individual/IndividualEncounterView";
+import ChecklistItemView from "../program/ChecklistItemView";
+import SubjectRegisterView from "../subject/SubjectRegisterView";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -115,15 +120,20 @@ class SystemRecommendationView extends AbstractComponent {
 
     }
 
+    onAppHeaderBack() {
+        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
+            ProgramEnrolmentView, IndividualEncounterView, IndividualEncounterLandingView, ChecklistItemView, SubjectRegisterView];
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
-        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
-            ProgramEnrolmentView];
         return (
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
-                               func={() => CHSNavigator.navigateToFirstPage(this, wizardViews)}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column'}}>
                         {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>

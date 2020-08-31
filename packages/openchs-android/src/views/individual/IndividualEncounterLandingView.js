@@ -24,6 +24,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -85,13 +86,19 @@ class IndividualEncounterLandingView extends AbstractComponent {
         });
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualEncounterLandingView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
         return (
             <CHSContainer>
                 <CHSContent>
                     <AppHeader
-                        title={`${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`}/>
+                        title={`${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`}
+                        func={() => this.onAppHeaderBack()}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}

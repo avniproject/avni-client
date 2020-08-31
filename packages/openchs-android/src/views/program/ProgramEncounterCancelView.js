@@ -22,6 +22,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -88,13 +89,18 @@ class ProgramEncounterCancelView extends AbstractComponent {
         return !_.isNil(nextState.programEncounter);
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug('ProgramEncounterCancelView', 'render');
         return (
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.programEncounter.individual.nameString}
-                               func={() => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterCancelView])}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() ?
                             <View>

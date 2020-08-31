@@ -9,6 +9,7 @@ import ProgramEnrolmentState from '../../state/ProgramEnrolmentState';
 import Reducers from "../../reducer";
 import General from "../../utility/General";
 import CHSNavigator from "../../utility/CHSNavigator";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/ProgramExitView')
 class ProgramExitView extends AbstractComponent {
@@ -60,11 +61,17 @@ class ProgramExitView extends AbstractComponent {
 
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramExitView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <ProgramFormComponent editing={this.props.params.editing} state={this.state}
-                                     context={ProgramExitView.context} backFunction={() => CHSNavigator.navigateToFirstPage(this, [ProgramExitView])}
+        return <ProgramFormComponent editing={this.props.params.editing}
+                                     state={this.state}
+                                     context={ProgramExitView.context}
+                                     backFunction={() => this.onAppHeaderBack()}
                                      previous={() => this.previous()}/>;
     }
 }

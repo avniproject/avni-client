@@ -13,6 +13,7 @@ import IdentifierAssignmentService from "../../service/IdentifierAssignmentServi
 import FormMappingService from "../../service/FormMappingService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import CHSNavigator from "../../utility/CHSNavigator";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/ProgramEnrolmentView')
 class ProgramEnrolmentView extends AbstractComponent {
@@ -81,11 +82,19 @@ class ProgramEnrolmentView extends AbstractComponent {
             this.setState({displayed:false})
         }
     }
+
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
-        return <ProgramFormComponent editing={this.state.isNewEnrolment} state={this.state}
-                                     context={ProgramEnrolmentView.usageContext} backFunction={() => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView])}
+        return <ProgramFormComponent editing={this.state.isNewEnrolment}
+                                     state={this.state}
+                                     context={ProgramEnrolmentView.usageContext}
+                                     backFunction={() => this.onAppHeaderBack()}
                                      previous={() => this.previous()}/>;
     }
 }

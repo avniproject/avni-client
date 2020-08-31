@@ -19,6 +19,7 @@ import CHSContent from "../common/CHSContent";
 import _ from "lodash";
 import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -52,6 +53,11 @@ class IndividualRegisterFormView extends AbstractComponent {
         });
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         return !nextState.wizard.isNonFormPage();
     }
@@ -63,7 +69,7 @@ class IndividualRegisterFormView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView])}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}

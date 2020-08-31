@@ -28,6 +28,7 @@ import EntityService from "../../service/EntityService";
 import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import HouseholdState from "../../state/HouseholdState";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -90,6 +91,11 @@ class SubjectRegisterView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS);
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     next() {
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
@@ -126,7 +132,7 @@ class SubjectRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
-                               func={() => this.previous()}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
                             <View>

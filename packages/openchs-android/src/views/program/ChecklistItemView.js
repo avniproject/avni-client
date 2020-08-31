@@ -20,6 +20,7 @@ import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
+import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/ChecklistItemView')
 class ChecklistItemView extends AbstractComponent {
@@ -64,13 +65,18 @@ class ChecklistItemView extends AbstractComponent {
         return !_.isNil(nextState.checklistItem);
     }
 
+    onAppHeaderBack() {
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ChecklistItemView]);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    }
+
     render() {
         General.logDebug('ChecklistItemView', 'render');
         return (
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.checklistItem.checklist.programEnrolment.individual.nameString}
-                               func={() => this.previous()}/>
+                               func={() => this.onAppHeaderBack()}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}
