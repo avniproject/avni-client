@@ -36,7 +36,7 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     unitText() {
-        return _.isNil(this.props.element.concept.unit) ? <Text></Text> :
+        return _.isEmpty(this.props.element.concept.unit) ? <Text></Text> :
             <Text style={Styles.formLabel}> ({this.props.element.concept.unit}) </Text>;
 
     }
