@@ -28,6 +28,7 @@ import Members from "../groupSubject/Members";
 import AddNewMemberView from "../groupSubject/AddNewMemberView";
 import RemoveMemberView from "../groupSubject/RemoveMemberView";
 import {AvniAlert} from "../common/AvniAlert";
+import _ from "lodash";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -269,6 +270,22 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         </View>
     }
 
+    renderSummary() {
+        return <View style={{
+            padding: Distances.ScaledContentDistanceFromEdge,
+            margin: 4,
+            elevation: 2,
+            backgroundColor: Colors.cardBackgroundColor,
+            marginVertical: 16
+        }}>
+            <View>
+                <Text style={Styles.cardTitle}>{this.I18n.t('subjectSummary')}</Text>
+            </View>
+            <Observations observations={_.defaultTo(this.state.subjectSummary, [])}
+                          style={{marginVertical: DGS.resizeHeight(8)}}/>
+        </View>
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const relativesFeatureToggle = this.state.individual.isPerson();
@@ -278,6 +295,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 <View style={{backgroundColor: Styles.defaultBackground}}>
                 </View>
                 <View style={{marginHorizontal: 10, marginTop: 10}}>
+                    {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
                     </View>

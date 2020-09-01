@@ -1,6 +1,8 @@
 import Service from "../framework/bean/Service";
 import _ from "lodash";
+import lodash from "lodash";
 import BaseService from "./BaseService";
+import * as models from 'avni-models';
 import {
     ChecklistDetail,
     Encounter,
@@ -8,21 +10,21 @@ import {
     FormElementStatus,
     Individual,
     Observation,
+    OrganisationConfig,
     ProgramEncounter,
     ProgramEnrolment,
     Rule,
-    RuleFailureTelemetry,
-    OrganisationConfig
+    RuleFailureTelemetry
 } from 'avni-models';
-import * as models from 'avni-models';
 import {
+    common,
     encounterDecision,
     familyRegistrationDecision,
     individualRegistrationDecision,
+    motherCalculations,
     programEncounterDecision,
     programEnrolmentDecision,
-    RuleRegistry,
-    common, motherCalculations
+    RuleRegistry
 } from "openchs-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
@@ -33,9 +35,7 @@ import RuleService from "./RuleService";
 import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
-import { FormElementStatusBuilder, VisitScheduleBuilder, complicationsBuilder as ComplicationsBuilder } from "rules-config";
 import * as rulesConfig from "rules-config";
-import lodash from "lodash";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
 
@@ -265,6 +265,31 @@ class RuleEvaluationService extends BaseService {
             return this._getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context);
         }
         return [];
+    }
+
+    getSubjectSummary(individual, entityName = 'Individual', context) {
+      const subjectType = individual.subjectType;
+      if(!_.isNil(subjectType.subjectSummaryRule) && !_.isEmpty(_.trim(subjectType.subjectSummaryRule))) {
+          try {
+              let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+              const ruleFunc = eval(subjectType.subjectSummaryRule);
+              let summaries = ruleFunc({
+                  params: { summaries: [], individual: _.assignIn(individual, {groups: this.groupSubjectService.getAllGroups(individual)}), context },
+                  imports: { rulesConfig, common, lodash, moment }
+              });
+              summaries = this.validateSummaries(summaries, subjectType.uuid);
+              return _.map(summaries, (summary) => {
+                  const concept = this.conceptService.conceptFor(summary.name);
+                  return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
+              });
+          } catch (e) {
+              General.logDebug("Rule-Failure",
+                  `Subject Summary Rule failed for: ${subjectType.name} Subject type`);
+              this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, entityName));
+              return [];
+          }
+      }
+      return [];
     }
 
     _getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context) {

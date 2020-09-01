@@ -347,6 +347,7 @@
     "refreshReminderMessage": "You may need to press refresh to get the latest counts",
     "cancelDate": "Cancel Date",
     "backPressTitle": "Go back",
-    "backPressMessage": "Are you sure you want to go back? You will lose all the form changes."
+    "backPressMessage": "Are you sure you want to go back? You will lose all the form changes.",
+    "subjectSummary": "Subject Summary"
   }
 }

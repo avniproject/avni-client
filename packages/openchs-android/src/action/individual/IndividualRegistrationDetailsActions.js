@@ -2,6 +2,8 @@ import IndividualService from "../../service/IndividualService";
 import ProgramService from "../../service/program/ProgramService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import GroupSubjectService from "../../service/GroupSubjectService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {Individual} from 'avni-models';
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -14,6 +16,7 @@ class IndividualRegistrationDetailsActions {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
         const relatives = context.get(IndividualRelationshipService).getRelatives(individual);
         const groupSubjects = context.get(GroupSubjectService).getGroupSubjects(individual);
+        const subjectSummary = context.get(RuleEvaluationService).getSubjectSummary(individual, Individual.schema.name, context);
         return {
             ...state,
             individual,
@@ -22,6 +25,7 @@ class IndividualRegistrationDetailsActions {
             programsAvailable: context.get(ProgramService).programsAvailable,
             expand: false,
             expandMembers: false,
+            subjectSummary,
         };
     }
 
