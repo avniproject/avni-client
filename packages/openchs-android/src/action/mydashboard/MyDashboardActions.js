@@ -131,7 +131,7 @@ class MyDashboardActions {
     static getResultCounts(queryResult, context) {
         const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
         const cachedData = context.get(DashboardCacheService).cachedData();
-        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON()) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v.length));
+        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON()) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0));
         const lastUpdatedOn = cachedData.updatedAt;
         const filterJSON = cachedData.getFilterJSON();
         const cachedFilters = readCachedData ? filterJSON : {};
