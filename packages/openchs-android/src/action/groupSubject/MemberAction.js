@@ -107,7 +107,7 @@ export class MemberAction {
     static selectRelation(state, action, context) {
         const newState = MemberAction.clone(state);
         newState.individualRelative.relation = action.value;
-        newState.relativeGender = context.get(IndividualRelationGenderMappingService).getGenderForRelation(action.value).gender;
+        newState.relativeGender = _.map(context.get(IndividualRelationGenderMappingService).getGenderForRelation(action.value), ({gender}) => gender);
         if (!_.isEmpty(newState.member.memberSubject.uuid)) {
             newState.individualRelative.relative = newState.member.memberSubject;
         }
