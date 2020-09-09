@@ -29,10 +29,6 @@ export class EncounterActions {
 
         const form = formMapping && formMapping.form;
 
-        if (_.isNil(form)) {
-            throw new Error(`No form setup for EncounterType: ${action.encounter.encounterType.name}`);
-        }
-
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
