@@ -67,6 +67,7 @@ export class EncounterActions {
     static onEncounterDateTimeChange(state, action, context) {
         const newState = state.clone();
         newState.encounter.encounterDateTime = action.value;
+        newState.handleValidationResults(newState.encounter.validate(), context);
         return newState;
     }
 
