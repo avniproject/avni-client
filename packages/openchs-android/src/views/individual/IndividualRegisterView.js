@@ -93,7 +93,7 @@ class IndividualRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',

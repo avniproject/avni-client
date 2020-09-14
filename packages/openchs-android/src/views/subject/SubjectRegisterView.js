@@ -132,7 +132,8 @@ class SubjectRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()}
+                               displayHomePressWarning={true}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
                             <View>
