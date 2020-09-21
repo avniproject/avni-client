@@ -22,6 +22,7 @@ import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
+import com.rnim.rn.audio.ReactNativeAudioPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new ImagePickerPackage(),
                     new RNFSPackage(),
                     new ReactVideoPackage(),
+                    new ReactNativeAudioPackage(),
                     BugsnagReactNative.getPackage(),
                     new MPAndroidChartPackage(),
                     new RNAWSCognitoPackage(),

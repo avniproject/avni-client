@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import ExpandableVideo from "./ExpandableVideo";
+import ExpandableAudio from "./ExpandableAudio";
 import ExpandableImage from "./ExpandableImage";
 import AbstractFormElement from "../form/formElement/AbstractFormElement";
 import MediaService from "../../service/MediaService";
@@ -81,6 +82,7 @@ export default class ExpandableMedia extends AbstractFormElement {
     showExpandableMedia() {
         if (this.props.source && this.state.exists) {
             return this.props.type === 'Video' ? <ExpandableVideo source={this.mediaUriInDevice}/>
+                : 'Audio' ? <ExpandableAudio source={this.mediaUriInDevice}/>
                 : <ExpandableImage source={this.mediaUriInDevice}/>;
         }
     }

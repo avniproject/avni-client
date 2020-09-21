@@ -43,6 +43,11 @@ const DEFAULT_IMG_QUALITY = 1;
 const DEFAULT_VIDEO_QUALITY = 'high';
 const DEFAULT_DURATION_LIMIT = 60;
 
+const DEFAULT_SAMPLE_RATE = 22050;
+const DEFAULT_CHANNELS = 1;
+const DEFAULT_AUDIO_QUALITY = "Low";
+const DEFAULT_AUDIO_ENCODING = "aac";
+
 export default class MediaFormElement extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
@@ -64,6 +69,10 @@ export default class MediaFormElement extends AbstractFormElement {
         return this.props.element.concept.datatype === 'Video';
     }
 
+    get isAudio() {
+        return this.props.element.concept.datatype === 'Audio';
+    }
+
     get isImage() {
         return this.props.element.concept.datatype === 'Image';
     }
@@ -72,7 +81,7 @@ export default class MediaFormElement extends AbstractFormElement {
         return _.get(this, 'props.value.answer');
     }
 
-    get label() {
+    get label() {       
         let label = super.label;
         if (this.isVideo) {
             let duration = this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT);
@@ -118,7 +127,7 @@ export default class MediaFormElement extends AbstractFormElement {
         this.setState({mode: Mode.Camera});
 
         const options = {
-            mediaType: this.isVideo ? 'video' : 'photo',
+            mediaType: this.isVideo ? 'video' : this.isAudio ? 'video' : 'photo',
             maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
             maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
@@ -139,7 +148,7 @@ export default class MediaFormElement extends AbstractFormElement {
         this.setState({mode: Mode.MediaLibrary});
 
         const options = {
-            mediaType: this.isVideo ? 'video' : 'photo',
+            mediaType: this.isVideo ? 'video' : this.isAudio ? 'video' : 'photo',
         };
         if (await this.isPermissionGranted()) {
             ImagePicker.launchImageLibrary(options,
@@ -151,6 +160,7 @@ export default class MediaFormElement extends AbstractFormElement {
         const readStoragePermission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
         const writeStoragePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
         const cameraPermission = PermissionsAndroid.PERMISSIONS.CAMERA;
+        const audioPermission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
         const granted = PermissionsAndroid.RESULTS.GRANTED;
 
         const permissionRequest = await PermissionsAndroid.requestMultiple([readStoragePermission, writeStoragePermission, cameraPermission]);
@@ -160,6 +170,7 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showMedia() {
+        console.log('mediaUri',this.mediaUri);
         if (this.mediaUri) {
             return (
                 <View style={[styles.contentRow, styles.imageRow]}>
@@ -173,6 +184,7 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     showInputOptions() {
+        console.log('mediaUri',this.mediaUri);
         return !this.mediaUri && (
             <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
                 <TouchableNativeFeedback onPress={() => {
@@ -185,13 +197,15 @@ export default class MediaFormElement extends AbstractFormElement {
                     this.launchCamera()
                 }}
                                          background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={this.isImage? 'camera': this.isVideo ? 'video': 'alert-octagon'} style={styles.icon}/>
+                    <Icon name={this.isImage? 'camera': this.isVideo ? 'video': this.isAudio ? 'video': 'alert-octagon'} style={styles.icon}/>
                 </TouchableNativeFeedback>
             </View>
         );
     }
 
     render() {
+        console.log('this.props.element.concept.datatype',this.props.element.concept.datatype);
+    
         return (
             <View style={{marginVertical: 16}}>
                 {this.label}

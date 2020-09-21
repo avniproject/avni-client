@@ -89,6 +89,8 @@ class FormElementGroup extends AbstractComponent {
                 {
                     formElements.map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
+                        console.log("formElement",Concept.dataType);
+                     
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                 element={formElement}
@@ -150,7 +152,8 @@ class FormElementGroup extends AbstractComponent {
                                                                   noDateMessageKey='chooseADate'
                                                                   validationResult={validationResult}
                                                                   element={formElement}/>, idx, formElement.uuid === erroredUUID);
-                        } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
+                        } else if ([ 'Audio',Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
+                            //Concept.dataType.Audio
                             return this.wrap(<MediaFormElement
                                 key={idx}
                                 element={formElement}

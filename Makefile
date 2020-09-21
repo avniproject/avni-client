@@ -54,12 +54,13 @@ ignore_deps_changes:
 	git checkout packages/openchs-health-modules/package-lock.json
 # </deps>
 
-#for emulators using virtualbox
-ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
-#for default Andoird Emulator
-ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
+# #for emulators using virtualbox
+# ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
+# #for default Andoird Emulator
+# ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short=4 HEAD)
 
+ ip:=192.168.43.82
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
 

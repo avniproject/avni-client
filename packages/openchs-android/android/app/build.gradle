@@ -115,6 +115,7 @@ dependencies {
     compile(project(':react-native-video')) {
         exclude group: 'com.squareup.okhttp3'
     }
+    compile project(':react-native-audio')
     compile project(':bugsnag-react-native')
     compile project(':react-native-geolocation-service')
     compile project(':react-native-charts-wrapper')
