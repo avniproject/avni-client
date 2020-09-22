@@ -22,7 +22,7 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall" : "npx jetify"
+    "postinstall": "npx jetify"
   },
   "dependencies": {
     "amazon-cognito-identity-js": "3.0.11",
@@ -49,6 +49,7 @@
     "react-native-i18n": "0.1.1",
     "react-native-image-picker": "0.28.0",
     "react-native-image-zoom-viewer": "2.2.24",
+    "react-native-immediate-phone-call": "^2.0.0",
     "react-native-mime-types": "2.2.1",
     "react-native-simple-dialogs": "1.1.0",
     "react-native-smooth-pincode-input": "^1.0.7",
@@ -58,9 +59,9 @@
     "realm": "2.28.1",
     "redux": "3.6.0",
     "rn-fetch-blob": "0.10.15",
+    "rules-config": "github:openchs/rules-config#08202533ec3f3a55977946c69d204f3df8080e61",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174",
-    "rules-config": "github:openchs/rules-config#08202533ec3f3a55977946c69d204f3df8080e61"
+    "transducers-js": "0.4.174"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",
