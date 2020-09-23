@@ -161,7 +161,7 @@ class AbstractDataEntryState {
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
         }
 
-        return ruleService.updateWorkLists(workLists, {entity: this.getEntity()}, this.getEntityType());
+        return ruleService.updateWorkLists(workLists, {entity: this.getEntity()});
     }
 
     _addItemsToWorkList(workLists) {
