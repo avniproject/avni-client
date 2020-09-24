@@ -1,5 +1,17 @@
-# Objects: env, apk, packager, app
 # <makefile>
+help:
+	@IFS=$$'\n' ; \
+	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//'`); \
+	for help_line in $${help_lines[@]}; do \
+	    IFS=$$'#' ; \
+	    help_split=($$help_line) ; \
+	    help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+	    help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
+	    printf "%-30s %s\n" $$help_command $$help_info ; \
+	done
+# </makefile>
+
+
 default: ; @echo 'no target provided'
 
 check-node-v:
@@ -150,16 +162,16 @@ release-offline: ##
 # </release>
 
 # <log>
-log:  ##
+log:  ## Log android
 	adb logcat *:S ReactNative:V ReactNativeJS:V
 
-log_info:
+log_info: ## Log adb info level
 	adb logcat *:S ReactNative:W ReactNativeJS:I
 
-log_all:
+log_all: ## Log everything in android
 	adb logcat
 
-clear-log: ##
+clear-log: ## Clear adb logs
 	adb logcat -c
 # </log>
 
@@ -188,7 +200,7 @@ open_db: rm_db get_db ## Open realmdb in Realm Browser
 local_deploy_apk: ##
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
-openlocation_apk: ##
+openlocation_apk: ## Open location of built apk
 	open packages/openchs-android/android/app/build/outputs/apk
 
 # <env>
