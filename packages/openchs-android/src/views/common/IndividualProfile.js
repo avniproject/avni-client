@@ -21,6 +21,8 @@ import GenericDashboardView from "../program/GenericDashboardView";
 import Menu from "../menu";
 import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import RNImmediatePhoneCall from "react-native-immediate-phone-call";
+
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -30,6 +32,40 @@ class IndividualProfile extends AbstractComponent {
         hideEnrol: PropTypes.bool,
         style: PropTypes.object
     };
+
+    getMobileNoFromObservation() {
+        var i;
+        for (i = 0; i < this.props.individual.observations.length; i++) {
+            const observation = this.props.individual.observations[i];
+            const concept = observation.concept;
+            const keyValue = concept.recordValueByKey('primary_contact') || concept.recordValueByKey('contact_number');
+            if (keyValue === 'yes') {
+                const value = observation.getReadableValue();
+                return value.toString();
+            }
+        }
+
+    }
+
+    callIcon() {
+        const number = this.getMobileNoFromObservation();
+        if (number) {
+
+            return (
+                <MaterialIcon name="call" size={30}
+                              style={{color: 'white'}}
+                              onPress={() => this.makeCall(number)}/>
+            );
+        } else {
+            return (
+                <View/>
+            );
+        }
+    }
+
+    makeCall(number) {
+        RNImmediatePhoneCall.immediatePhoneCall(number);
+    }
 
     static viewContext = {
         Program: 'Program',
@@ -187,6 +223,10 @@ class IndividualProfile extends AbstractComponent {
                                     style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                                 {this.programProfileHeading()}
                             </View>
+
+                            <View>
+                                {this.callIcon()}
+                            </View>
                         </View>
                         <View
                             style={{
@@ -196,7 +236,8 @@ class IndividualProfile extends AbstractComponent {
                                 paddingVertical: 8,
                                 alignItems: 'center'
                             }}>
-                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : <View/>}
+                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) :
+                                <View/>}
                             {this.renderGroupOptions()}
                         </View>
                     </View>
