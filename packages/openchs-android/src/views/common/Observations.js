@@ -86,8 +86,8 @@ class Observations extends AbstractComponent {
         }
 
 
-        const keyValue = concept.recordValueByKey('Call');
-        if (keyValue === 'Yes') {
+        const keyValue = concept.recordValueByKey('primary_contact') || concept.recordValueByKey('contact_number');
+        if (keyValue === 'yes') {
             return (
                 <Text style={[{
                     textAlign: 'left',
