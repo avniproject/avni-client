@@ -105,11 +105,12 @@ class MyDashboardActions {
             const cardJSON = _.mapValues(queryResult, v => v && v.length || 0);
             const filterJSON = DashboardCache.getFilterJSONFromState(state);
             filterJSON.selectedAddressesInfo = _.flatten([...new Map(state.addressLevelState.levels).values()])
-                .map(({uuid, name, level, type, isSelected}) => ({
+                .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
                     uuid,
                     name,
                     level,
                     type,
+                    parentUuid,
                     isSelected
                 }));
             const dashboardCache = DashboardCache.create(updatedOn, JSON.stringify(cardJSON), JSON.stringify(filterJSON));
@@ -143,14 +144,7 @@ class MyDashboardActions {
         const lastUpdatedOn = cachedData.updatedAt;
         const filterJSON = cachedData.getFilterJSON();
         const cachedFilters = readCachedData ? filterJSON : {};
-        const addressLevelService = context.get(AddressLevelService);
-        const withLocationMappings = _.map(cachedFilters.selectedAddressesInfo,
-            ({uuid, name, level, type, isSelected}) =>
-                ({
-                    uuid, name, level, type, isSelected,
-                    locationMappings: addressLevelService.findByUUID(uuid).locationMappings
-                }));
-        const addressLevelState = new AddressLevelState(withLocationMappings);
+        const addressLevelState = new AddressLevelState(cachedFilters.selectedAddressesInfo);
         cachedFilters.addressLevelState = addressLevelState;
         cachedFilters.selectedLocations = addressLevelState.selectedAddresses;
         return {counts, lastUpdatedOn, cachedFilters: readCachedData ? cachedFilters : {}}

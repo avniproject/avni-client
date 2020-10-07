@@ -24,6 +24,7 @@ import Styles from "../primitives/Styles";
 import MediaFormElement from "./formElement/MediaFormElement";
 import IdFormElement from "./formElement/IdFormElement";
 import DurationFormElement from "./formElement/DurationFormElement";
+import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -166,6 +167,14 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                                 multiline={false}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Location) {
+                            return this.wrap(<LocationHierarchyFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })

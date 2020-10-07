@@ -10,6 +10,8 @@ import Styles from "../primitives/Styles";
 import _ from "lodash";
 import Separator from "../primitives/Separator";
 import ExpandableMedia from "./ExpandableMedia";
+import AddressLevelService from "../../service/AddressLevelService";
+import LocationHierarchyService from "../../service/LocationHierarchyService";
 
 const renderTypes = {
     Image: "Image",
@@ -71,30 +73,36 @@ class Observations extends AbstractComponent {
             this.props.form.orderObservations(this.props.observations);
     }
 
-    renderValue(obs, isAbnormal, renderType) {
+    renderValue(obs, isAbnormal, renderType, concept) {
         if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
                     <ExpandableMedia source={obs} type={renderType}/>
                 </View>
             );
+        } else if(Concept.dataType.Location === renderType) {
+            const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
+            const addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
+            const addressLevel = addressLevelService.findByUUID(_.trim(obs));
+            return this.renderObservationText(isAbnormal, addressLevel.name);
         }
-        return (
-            <Text style={[{
-                textAlign: 'left',
-                fontSize: Fonts.Small,
-                color: isAbnormal ? Styles.redColor : Styles.blackColor
-            }, this.styles.observationColumn]}>{obs}</Text>
-        )
+        return this.renderObservationText(isAbnormal, obs);
     }
 
+    renderObservationText(isAbnormal, obs) {
+        return <Text style={[{
+            textAlign: 'left',
+            fontSize: Fonts.Small,
+            color: isAbnormal ? Styles.redColor : Styles.blackColor
+        }, this.styles.observationColumn]}>{obs}</Text>;
+    }
 
     render() {
         if (this.props.observations.length === 0) return <View/>;
 
         const conceptService = this.context.getService(ConceptService);
         const orderedObservation = this.getOrderedObservation()
-            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), obs.concept.datatype]);
+            .map(obs => [this.I18n.t(obs.concept.name), Observation.valueAsString(obs, conceptService, this.I18n), obs.isAbnormal(), obs.concept.datatype, obs.concept]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
@@ -108,14 +116,14 @@ class Observations extends AbstractComponent {
                     removeClippedSubviews={true}
                     renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
                     renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-                    renderRow={([name, obs, isAbnormal, renderType]) =>
+                    renderRow={([name, obs, isAbnormal, renderType, concept]) =>
                         < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
                             <Text style={[{
                                 textAlign: 'left',
                                 fontSize: Fonts.Small,
                                 color: Styles.greyText
                             }, this.styles.observationColumn]}>{name}</Text>
-                            {this.renderValue(obs, isAbnormal, renderType)}
+                            {this.renderValue(obs, isAbnormal, renderType, concept)}
                         </View>}
                 />
             </View>

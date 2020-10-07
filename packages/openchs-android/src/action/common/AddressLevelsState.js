@@ -3,13 +3,14 @@ import _ from 'lodash';
 class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
-            .reduce((acc, {uuid, name, level, type, locationMappings, isSelected = false}) => {
+            .reduce((acc, {uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
                 acc[type] = _.defaultTo(acc[type], []).concat([{
                     uuid,
                     name,
                     level,
                     type,
-                    locationMappings,
+                    parentUuid,
+                    typeUuid,
                     isSelected
                 }]);
                 return acc;
@@ -28,14 +29,18 @@ class AddressLevelsState {
         });
     }
 
-    static canBeUsed(level) {
-        return level.isSelected || _.isEmpty(level.locationMappings);
+    canBeUsed(level) {
+        return level.isSelected || level.level === this.maxSelectedLevel() || _.isEmpty(this.selectedAddresses);
     }
 
     _asList(levelMap = new Map(this.levels)) {
         return _.flatten([...levelMap.values()]);
     }
 
+    maxSelectedLevel() {
+        if (_.isEmpty(this.selectedAddresses)) return null;
+        return _.maxBy(this.selectedAddresses, l => l.level).level
+    }
 
     get selectedAddresses() {
         return this._asList().filter(l => l.isSelected);
@@ -81,10 +86,10 @@ class AddressLevelsState {
 
     removeUnwantedLevels() {
         const levels = this._asList();
-        const getParent = mapping => _.find(levels, it => it.uuid === mapping.parent.uuid);
+        const getParent = parentUUID => _.filter(levels, it => it.uuid === parentUUID);
         return new AddressLevelsState(levels.filter(l => {
-            return AddressLevelsState.canBeUsed(l) || _(l.locationMappings).map(getParent).reject(_.isNil)
-                .some(AddressLevelsState.canBeUsed);
+            return this.canBeUsed(l) || _(getParent(l.parentUuid)).reject(_.isNil)
+                .some(this.canBeUsed);
         }));
     }
 
