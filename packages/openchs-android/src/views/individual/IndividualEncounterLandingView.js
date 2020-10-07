@@ -56,7 +56,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     shouldComponentUpdate(nextProps, state) {
-        return !_.isNil(state.encounter) && state.wizard.isFirstPage();
+        return !_.isNil(state.encounter);
     }
 
     next() {
@@ -98,7 +98,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader
                         title={`${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`}
-                        func={() => this.onAppHeaderBack()}/>
+                        func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}

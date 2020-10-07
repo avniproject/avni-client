@@ -133,7 +133,8 @@ class SystemRecommendationView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()}
+                               displayHomePressWarning={true}/>
                     <View style={{flexDirection: 'column'}}>
                         {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>

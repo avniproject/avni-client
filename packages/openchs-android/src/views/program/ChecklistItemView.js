@@ -76,7 +76,7 @@ class ChecklistItemView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.checklistItem.checklist.programEnrolment.individual.nameString}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <DateFormElement actionName={Actions.ENCOUNTER_DATE_TIME_CHANGED}

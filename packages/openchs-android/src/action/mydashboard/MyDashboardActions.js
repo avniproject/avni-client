@@ -8,6 +8,7 @@ import CustomFilterService from "../../service/CustomFilterService";
 import PrivilegeService from "../../service/PrivilegeService";
 import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
+import AddressLevelService from "../../service/AddressLevelService";
 
 class MyDashboardActions {
     static getInitialState(context) {
@@ -103,6 +104,14 @@ class MyDashboardActions {
             const updatedOn = new Date();
             const cardJSON = _.mapValues(queryResult, v => v && v.length || 0);
             const filterJSON = DashboardCache.getFilterJSONFromState(state);
+            filterJSON.selectedAddressesInfo = _.flatten([...new Map(state.addressLevelState.levels).values()])
+                .map(({uuid, name, level, type, isSelected}) => ({
+                    uuid,
+                    name,
+                    level,
+                    type,
+                    isSelected
+                }));
             const dashboardCache = DashboardCache.create(updatedOn, JSON.stringify(cardJSON), JSON.stringify(filterJSON));
             context.get(DashboardCacheService).saveOrUpdate(dashboardCache);
         }
@@ -123,8 +132,7 @@ class MyDashboardActions {
             loading: false,
             lastUpdatedOn: lastUpdatedOn,
             ...cachedFilters,
-            date: {value: cachedDate && new Date(cachedDate.value) || state.date.value},
-            addressLevelState: Object.assign(new AddressLevelState, cachedFilters.addressLevelState),
+            date: {value: cachedDate && new Date(cachedDate.value) || state.date.value}
         };
     }
 
@@ -135,7 +143,17 @@ class MyDashboardActions {
         const lastUpdatedOn = cachedData.updatedAt;
         const filterJSON = cachedData.getFilterJSON();
         const cachedFilters = readCachedData ? filterJSON : {};
-        return {counts, lastUpdatedOn, cachedFilters}
+        const addressLevelService = context.get(AddressLevelService);
+        const withLocationMappings = _.map(cachedFilters.selectedAddressesInfo,
+            ({uuid, name, level, type, isSelected}) =>
+                ({
+                    uuid, name, level, type, isSelected,
+                    locationMappings: addressLevelService.findByUUID(uuid).locationMappings
+                }));
+        const addressLevelState = new AddressLevelState(withLocationMappings);
+        cachedFilters.addressLevelState = addressLevelState;
+        cachedFilters.selectedLocations = addressLevelState.selectedAddresses;
+        return {counts, lastUpdatedOn, cachedFilters: readCachedData ? cachedFilters : {}}
     }
 
     static onListLoad(state, action, context) {

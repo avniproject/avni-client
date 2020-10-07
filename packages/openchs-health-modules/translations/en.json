@@ -348,6 +348,8 @@
     "cancelDate": "Cancel Date",
     "backPressTitle": "Go back",
     "backPressMessage": "Are you sure you want to go back? You will lose all the form changes.",
+    "homePressTitle": "Go to home screen",
+    "homePressMessage": "Are you sure you want to go back to home screen? You will lose all the form changes.",
     "subjectSummary": "Summary"
   }
 }

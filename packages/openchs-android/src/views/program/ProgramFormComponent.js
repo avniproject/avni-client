@@ -55,7 +55,7 @@ class ProgramFormComponent extends AbstractComponent {
             <CHSContent ref="scroll">
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
-                    func={this.props.backFunction}/>
+                    func={this.props.backFunction} displayHomePressWarning={true}/>
                 {this.props.state.wizard.isFirstFormPage() ?
                     <View>
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
