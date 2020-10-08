@@ -1,4 +1,4 @@
-import {ListView, Text, View} from "react-native";
+import {ListView, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -13,6 +13,7 @@ import ExpandableMedia from "./ExpandableMedia";
 import AddressLevelService from "../../service/AddressLevelService";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
 import IndividualService from "../../service/IndividualService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 const renderTypes = {
     Image: "Image",
@@ -88,17 +89,24 @@ class Observations extends AbstractComponent {
             return this.renderObservationText(isAbnormal, addressLevel.name);
         } else if (Concept.dataType.Subject === renderType) {
             const subject = this.getService(IndividualService).findByUUID(_.trim(obs));
-            return this.renderObservationText(isAbnormal, subject.nameString);
+            return this.renderSubject(isAbnormal, subject);
         }
         return this.renderObservationText(isAbnormal, obs);
     }
 
-    renderObservationText(isAbnormal, obs) {
+    renderSubject(isAbnormal, subject) {
+        return <TouchableOpacity style={{flex: 1}} onPress={() =>
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.uuid, null, true, null, null, 1)}>
+            {this.renderObservationText(isAbnormal, subject.nameString, {color: Colors.Complimentary})}
+        </TouchableOpacity>
+    }
+
+    renderObservationText(isAbnormal, obs, additionalStyles) {
         return <Text style={[{
             textAlign: 'left',
             fontSize: Fonts.Small,
             color: isAbnormal ? Styles.redColor : Styles.blackColor
-        }, this.styles.observationColumn]}>{obs}</Text>;
+        }, this.styles.observationColumn, additionalStyles]}>{obs}</Text>;
     }
 
     render() {
