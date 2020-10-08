@@ -12,6 +12,7 @@ import Separator from "../primitives/Separator";
 import ExpandableMedia from "./ExpandableMedia";
 import AddressLevelService from "../../service/AddressLevelService";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
+import IndividualService from "../../service/IndividualService";
 
 const renderTypes = {
     Image: "Image",
@@ -80,11 +81,14 @@ class Observations extends AbstractComponent {
                     <ExpandableMedia source={obs} type={renderType}/>
                 </View>
             );
-        } else if(Concept.dataType.Location === renderType) {
+        } else if (Concept.dataType.Location === renderType) {
             const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
             const addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
             const addressLevel = addressLevelService.findByUUID(_.trim(obs));
             return this.renderObservationText(isAbnormal, addressLevel.name);
+        } else if (Concept.dataType.Subject === renderType) {
+            const subject = this.getService(IndividualService).findByUUID(_.trim(obs));
+            return this.renderObservationText(isAbnormal, subject.nameString);
         }
         return this.renderObservationText(isAbnormal, obs);
     }
