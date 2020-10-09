@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {View, Alert, TouchableNativeFeedback, StyleSheet, TouchableOpacity} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -14,7 +14,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
-import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "avni-models";
+import {ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
@@ -37,17 +37,11 @@ class IndividualProfile extends AbstractComponent {
         var i;
         for (i = 0; i < this.props.individual.observations.length; i++) {
             const observation = this.props.individual.observations[i];
-            const concept = observation.concept;
-            const keyValue = concept.recordValueByKey('primary_contact') || concept.recordValueByKey('contact_number');
-            if (keyValue === 'yes') {
-                const value = observation.getReadableValue();
-                return value.toString();
-            }
+            return this.props.individual.getMobileNo(observation, observation.concept);
         }
-
     }
 
-    callIcon() {
+    renderCallButton() {
         const number = this.getMobileNoFromObservation();
         if (number) {
 
@@ -225,7 +219,7 @@ class IndividualProfile extends AbstractComponent {
                             </View>
 
                             <View>
-                                {this.callIcon()}
+                                {this.renderCallButton()}
                             </View>
                         </View>
                         <View
