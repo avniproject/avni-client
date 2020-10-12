@@ -33,6 +33,7 @@ class Observations extends AbstractComponent {
         super(props, context);
         this.createObservationsStyles(props.highlight);
         this.getOrderedObservation = this.getOrderedObservation.bind(this);
+        this.individualService = context.getService(IndividualService);
     }
 
     createObservationsStyles(highlight) {
@@ -48,6 +49,16 @@ class Observations extends AbstractComponent {
                     paddingLeft: 3,
                     paddingBottom: 2,
                     flex: 1
+                },
+                observationSubject: {
+                    marginBottom: 2,
+                    marginTop: 2,
+                    marginLeft: 2,
+                    borderRadius: 10,
+                    borderWidth: 0.5,
+                    backgroundColor: Colors.GreyBackground,
+                    paddingHorizontal: 5,
+                    paddingVertical: 2,
                 }
             }
             :
@@ -62,6 +73,16 @@ class Observations extends AbstractComponent {
                     paddingLeft: 3,
                     paddingBottom: 2,
                     flex: 1
+                },
+                observationSubject: {
+                    marginBottom: 2,
+                    marginTop: 2,
+                    marginLeft: 2,
+                    borderRadius: 10,
+                    borderWidth: 0.5,
+                    backgroundColor: Colors.GreyBackground,
+                    paddingHorizontal: 5,
+                    paddingVertical: 2,
                 }
             }
     }
@@ -88,17 +109,25 @@ class Observations extends AbstractComponent {
             const addressLevel = addressLevelService.findByUUID(_.trim(obs));
             return this.renderObservationText(isAbnormal, addressLevel.name);
         } else if (Concept.dataType.Subject === renderType) {
-            const subject = this.getService(IndividualService).findByUUID(_.trim(obs));
-            return this.renderSubject(isAbnormal, subject);
+            const subjectUUIDs = obs.split(",");
+            return <View style={[{
+                flexDirection: 'row',
+                alignItems: 'flex-start', flexWrap: 'wrap'}, this.styles.observationColumn]}>
+                {_.map(subjectUUIDs, uuid => this.renderSubject(this.individualService.findByUUID(_.trim(uuid))))}
+            </View>
         }
         return this.renderObservationText(isAbnormal, obs);
     }
 
-    renderSubject(isAbnormal, subject) {
-        return <TouchableOpacity style={{flex: 1}} onPress={() =>
+    renderSubject(subject) {
+        return <TouchableOpacity style={this.styles.observationSubject} onPress={() =>
             CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.uuid, null, true, null, null, 1)}>
-            {this.renderObservationText(isAbnormal, subject.nameString, {color: Colors.Complimentary})}
+            {this.renderChip(subject.nameString)}
         </TouchableOpacity>
+    }
+
+    renderChip(name) {
+        return <Text style={{fontSize: Fonts.Small,}}>{name}</Text>;
     }
 
     renderObservationText(isAbnormal, obs, additionalStyles) {

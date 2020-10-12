@@ -1,21 +1,21 @@
 import {TouchableOpacity, View} from "react-native";
-import {Button, Text} from 'native-base';
+import {Text} from 'native-base';
 import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
-import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Entypo from "react-native-vector-icons/Entypo";
 import TypedTransition from "../../../framework/routing/TypedTransition";
 import IndividualSearchView from "../../individual/IndividualSearchView";
 import {Concept, SubjectType} from "openchs-models";
 import IndividualService from "../../../service/IndividualService";
 import EntityService from "../../../service/EntityService";
 
-class SubjectFormElement extends AbstractFormElement {
+class MultiSelectSubjectFormElement extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
         actionName: PropTypes.string.isRequired,
@@ -39,19 +39,10 @@ class SubjectFormElement extends AbstractFormElement {
         </TouchableOpacity>
     }
 
-    renderRemoveIcon() {
-        if (!_.isEmpty(_.get(this.props.value, 'answer'))) {
-            return (
-                <Button transparent onPress={() => this.removeSubject()} style={{height: 20, alignSelf: 'center'}}>
-                    <Icon name='backspace' style={{fontSize: 20, color: Colors.ActionButtonColor, marginLeft: 10}}/>
-                </Button>);
-        }
-    }
-
-    removeSubject() {
+    removeSubject(answerUUID) {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
-            value: null,
+            answerUUID: answerUUID,
         });
     }
 
@@ -72,16 +63,35 @@ class SubjectFormElement extends AbstractFormElement {
                         TypedTransition.from(source).popToBookmark();
                         this.dispatchAction(this.props.actionName, {
                             formElement: this.props.element,
-                            value: individual ? individual.uuid : null,
+                            answerUUID: individual.uuid,
                         });
                     }
                 }).to(IndividualSearchView, true);
         }
     }
 
+    renderAnswer(subject) {
+        if (subject) {
+            return <View style={{
+                flexDirection: 'row',
+                borderWidth: 0.5,
+                borderRadius: 10,
+                alignItems: 'center',
+                paddingHorizontal: 5,
+                paddingVertical: 2,
+                backgroundColor: Colors.GreyBackground,
+                marginLeft: 5,
+            }}>
+                <Text>{subject.nameString}</Text>
+                <TouchableOpacity onPress={() => this.removeSubject(subject.uuid)}>
+                    <Entypo name='cross' style={{fontSize: 20, color: Colors.ActionButtonColor, marginLeft: 5}}/>
+                </TouchableOpacity>
+            </View>
+        }
+    }
+
     render() {
-        const subject = _.get(this.props.value, 'answer') ? this.individualService.findByUUID(this.props.value.answer) : null;
-        const subjectName = subject ? subject.nameString : '';
+        const subjectUUIDs = _.get(this.props.value, 'answer');
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -89,11 +99,7 @@ class SubjectFormElement extends AbstractFormElement {
                     {this.renderSearchIcon()}
                 </View>
                 <View style={{flexDirection: 'row'}}>
-                    <Text style={[{
-                        marginVertical: 0,
-                        paddingVertical: 5
-                    }, Styles.formBodyText]}>{subjectName}</Text>
-                    {this.renderRemoveIcon()}
+                    {_.map(subjectUUIDs, subjectUUID => this.renderAnswer(this.individualService.findByUUID(subjectUUID)))}
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
@@ -101,4 +107,4 @@ class SubjectFormElement extends AbstractFormElement {
     }
 }
 
-export default SubjectFormElement;
+export default MultiSelectSubjectFormElement;
