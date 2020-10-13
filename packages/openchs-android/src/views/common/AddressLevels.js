@@ -24,7 +24,7 @@ class AddressLevels extends AbstractComponent {
         addressLevelState: PropTypes.object,
         skipLabel: PropTypes.bool,
         minLevelTypeUUIDs: PropTypes.array,
-        maxLevelTypeUUID: PropTypes.number,
+        maxLevelTypeUUID: PropTypes.string,
         isOutsideCatchment: PropTypes.bool
     };
 
@@ -48,7 +48,7 @@ class AddressLevels extends AbstractComponent {
 
     selectAddressLevel(state, levelType, selectedLevelUUID, exclusive = false) {
         const selectedLevel = this.addressLevelService.findByUUID(selectedLevelUUID, this.addressLevelService.getSchema());
-        const newLevels = _.includes(this.props.minLevelTypeUUIDs, selectedLevel.typeUuid) ? [] : this.addressLevelService.getDescendantsOfParent(selectedLevelUUID);
+        const newLevels = _.includes(this.props.minLevelTypeUUIDs, selectedLevel.typeUuid) ? [] : this.addressLevelService.getDescendantsOfParent(selectedLevelUUID, this.props.minLevelTypeUUIDs);
         const data = exclusive ? state.data.selectLevel(levelType, selectedLevel, newLevels) :
             state.data.addLevel(levelType, selectedLevel, newLevels);
         const onLowest = !_.isEmpty(data.lowestSelectedAddresses)

@@ -91,9 +91,14 @@ class BaseAddressLevelService extends BaseService {
         return _.flatten(children.map(c => this.getLeavesOfParent(c)));
     }
 
-    getDescendantsOfParent(parentUuid) {
+    getDescendantsOfParent(parentUuid, minLevelTypeUUIDs) {
         const children = this.getChildrenParent(parentUuid);
-        return children;
+        return !_.isEmpty(minLevelTypeUUIDs) ? this.filterRequiredDescendants(children, minLevelTypeUUIDs) : children;
+    }
+
+    filterRequiredDescendants(allChildren, minLevelTypeUUIDs) {
+        const childrenWithMinLevel = allChildren.filter(({typeUuid})  => _.includes(minLevelTypeUUIDs, typeUuid));
+        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : allChildren;
     }
 
     isOnLowestLevel(lowestSelectedAddresses, minLevelTypeUUIDs) {

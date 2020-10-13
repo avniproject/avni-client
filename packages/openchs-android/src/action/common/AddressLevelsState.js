@@ -30,14 +30,14 @@ class AddressLevelsState {
     }
 
     canBeUsed(level) {
-        return level.isSelected || level.level === this.maxSelectedLevel() || _.isEmpty(this.selectedAddresses);
+        return level.isSelected || level.level === this.maxSelectedLevel || _.isEmpty(this.selectedAddresses);
     }
 
     _asList(levelMap = new Map(this.levels)) {
         return _.flatten([...levelMap.values()]);
     }
 
-    maxSelectedLevel() {
+    get maxSelectedLevel() {
         if (_.isEmpty(this.selectedAddresses)) return null;
         return _.maxBy(this.selectedAddresses, l => l.level).level
     }
@@ -70,7 +70,7 @@ class AddressLevelsState {
         allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
             l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
         });
-        const toRemove = allCurrentLevels.filter(l => l.level < selectedLevel.level);
+        const toRemove = allCurrentLevels.filter(l => l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
         return new AddressLevelsState(allCurrentLevels).addLevels(newLevels)
             .removeLevels(toRemove)
             .removeUnwantedLevels();
