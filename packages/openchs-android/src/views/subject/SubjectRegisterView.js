@@ -178,7 +178,7 @@ class SubjectRegisterView extends AbstractComponent {
                                         this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})
                                     }
                                     }
-
+                                    minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
                                 />
 
                             </View>

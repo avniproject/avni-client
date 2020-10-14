@@ -9,6 +9,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -42,8 +43,10 @@ export class SubjectRegisterActions {
             return o.displayOrder
         }]), (formElementGroup) => SubjectRegisterActions.filterFormElements(formElementGroup, context, subject).length !== 0);
 
+        const customRegistrationLocations = context.get(OrganisationConfigService).getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists);
+            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs);
         }
 
         //Populate identifiers much before form elements are hidden or sent to rules.
@@ -53,8 +56,7 @@ export class SubjectRegisterActions {
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-
-        return SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists);
+        return SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs);
     }
 
     static enterRegistrationDate(state, action) {

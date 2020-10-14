@@ -97,8 +97,17 @@ class BaseAddressLevelService extends BaseService {
     }
 
     filterRequiredDescendants(allChildren, minLevelTypeUUIDs) {
+        const minLevel = this.getMinLevelFromTypeUUIDs(minLevelTypeUUIDs);
         const childrenWithMinLevel = allChildren.filter(({typeUuid})  => _.includes(minLevelTypeUUIDs, typeUuid));
-        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : allChildren;
+        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : _.reject(allChildren,({level})  => level < minLevel);
+    }
+
+    getMinLevelFromTypeUUIDs(minLevelTypeUUIDs) {
+        const  query = minLevelTypeUUIDs.map(uuid => `typeUuid = '${uuid}'`).join(' OR ');
+        return _.minBy([...this.findAll(this.getSchema()).filtered(`voided = false and (${query})`)
+            .filtered('TRUEPREDICATE DISTINCT(level)')
+            .map(al => al.level)
+            .map(_.identity)]);
     }
 
     isOnLowestLevel(lowestSelectedAddresses, minLevelTypeUUIDs) {
