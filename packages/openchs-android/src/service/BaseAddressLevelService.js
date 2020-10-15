@@ -99,7 +99,7 @@ class BaseAddressLevelService extends BaseService {
     filterRequiredDescendants(allChildren, minLevelTypeUUIDs) {
         const minLevel = this.getMinLevelFromTypeUUIDs(minLevelTypeUUIDs);
         const childrenWithMinLevel = allChildren.filter(({typeUuid})  => _.includes(minLevelTypeUUIDs, typeUuid));
-        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : _.reject(allChildren,({level})  => level < minLevel);
+        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : _.reject(allChildren,({level})  => level <= minLevel);
     }
 
     getMinLevelFromTypeUUIDs(minLevelTypeUUIDs) {
