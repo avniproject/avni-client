@@ -88,6 +88,28 @@ class RuleEvaluationService extends BaseService {
         }
     };
 
+    injectGroupsToSubject = (entity, entityName) => {
+        const clonedEntity = entity.cloneForEdit();
+        const injectGroup = (individual) => _.assignIn(individual, {groups: this.groupSubjectService.getAllGroups(individual)});
+        switch (entityName) {
+            case 'Individual':
+                injectGroup(clonedEntity);
+                return clonedEntity;
+            case 'ProgramEnrolment':
+            case 'Encounter':
+                clonedEntity.individual = clonedEntity.individual.cloneForEdit();
+                injectGroup(clonedEntity.individual);
+                return clonedEntity;
+            case 'ProgramEncounter':
+                clonedEntity.programEnrolment = clonedEntity.programEnrolment.cloneForEdit();
+                clonedEntity.programEnrolment.individual = clonedEntity.programEnrolment.individual.cloneForEdit();
+                injectGroup(clonedEntity.programEnrolment.individual);
+                return clonedEntity;
+            default:
+                return clonedEntity;
+        }
+    };
+
     getEntityDecision(form, entity, context, entityName) {
         const defaultDecisions = {
             "enrolmentDecisions": [],
@@ -107,12 +129,11 @@ class RuleEvaluationService extends BaseService {
 
         if (!_.isNil(form.decisionRule) && !_.isEmpty(_.trim(form.decisionRule))) {
             const individualUUID = this.getIndividualUUID(entity, entityName);
-            const newEntity = entityName === 'Individual' ? _.assignIn(entity, {groups: this.groupSubjectService.getAllGroups(entity)}) : entity;
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: { decisions: defaultDecisions, entity : newEntity },
+                    params: { decisions: defaultDecisions, entity : this.injectGroupsToSubject(entity, entityName) },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
@@ -177,16 +198,16 @@ class RuleEvaluationService extends BaseService {
         return this.getEntityDecision(form, entity, context, entityName);
     }
 
-    updateWorkLists(workLists, context) {
+    updateWorkLists(workLists, context, entityName) {
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
         if (_.isEmpty(orgConfig)) return workLists;
         const worklistUpdationRule = orgConfig.worklistUpdationRule;
-
+        const entityWithGroups = this.injectGroupsToSubject(context.entity, entityName);
         if (!_.isNil(worklistUpdationRule) && !_.isEmpty(_.trim(worklistUpdationRule))) {
             try {
                 const ruleFunc = eval(worklistUpdationRule);
                 return ruleFunc({
-                    params: { context, workLists },
+                    params: { context: {entity: entityWithGroups}, workLists },
                     imports: { rulesConfig, common, lodash, moment, models }
                 });
             } catch (e) {
@@ -274,7 +295,7 @@ class RuleEvaluationService extends BaseService {
               let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
               const ruleFunc = eval(subjectType.subjectSummaryRule);
               let summaries = ruleFunc({
-                  params: { summaries: [], individual: _.assignIn(individual, {groups: this.groupSubjectService.getAllGroups(individual)}), context },
+                  params: { summaries: [], individual: this.injectGroupsToSubject(individual, entityName), context },
                   imports: { rulesConfig, common, lodash, moment }
               });
               summaries = this.validateSummaries(summaries, subjectType.uuid);
@@ -313,7 +334,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
-                params: { summaries: [], programEnrolment: enrolment },
+                params: { summaries: [], programEnrolment: this.injectGroupsToSubject(enrolment, entityName) },
                 imports: { rulesConfig, common, lodash, moment }
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
@@ -339,7 +360,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.validationRule);
                 return ruleFunc({
-                    params: { entity },
+                    params: { entity : this.injectGroupsToSubject(entity, entityName) },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             } catch (e) {
@@ -370,7 +391,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
-                    params: { visitSchedule: scheduledVisits, entity },
+                    params: { visitSchedule: scheduledVisits, entity: this.injectGroupsToSubject(entity, entityName) },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 return nextVisits;
@@ -398,7 +419,7 @@ class RuleEvaluationService extends BaseService {
                 try {
                     const ruleFunc = eval(form.checklistsRule);
                     const allChecklists = ruleFunc({
-                        params: {entity, checklistDetails:allChecklistDetails },
+                        params: {entity: this.injectGroupsToSubject(entity, entityName), checklistDetails:allChecklistDetails },
                         imports: { rulesConfig, common, lodash, moment }
                     });
                     return allChecklists;
@@ -423,7 +444,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
-                params: {formElementGroup, entity},
+                params: {formElementGroup, entity: this.injectGroupsToSubject(entity, entityName)},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {
@@ -448,7 +469,7 @@ class RuleEvaluationService extends BaseService {
                         let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
-                            params: {formElement, entity},
+                            params: {formElement, entity:  this.injectGroupsToSubject(entity, entityName)},
                             imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
@@ -487,7 +508,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
                 return ruleFunc({
-                    params: { entity: individual },
+                    params: { entity:  this.injectGroupsToSubject(individual, 'Individual') },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
@@ -510,7 +531,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: {entity: _.assignIn(individual, {groups: this.groupSubjectService.getAllGroups(individual)}), program},
+                    params: {entity:  this.injectGroupsToSubject(individual, 'Individual'), program},
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
