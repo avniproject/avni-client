@@ -37,14 +37,13 @@ class IndividualProfile extends AbstractComponent {
         var i;
         for (i = 0; i < this.props.individual.observations.length; i++) {
             const observation = this.props.individual.observations[i];
-            return this.props.individual.getMobileNo(observation, observation.concept);
+            return this.props.individual.getMobileNo();
         }
     }
 
     renderCallButton() {
         const number = this.getMobileNoFromObservation();
         if (number) {
-
             return (
                 <MaterialIcon name="call" size={30}
                               style={{color: 'white'}}
