@@ -100,7 +100,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={this.state.programEncounter.individual.nameString}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()}
+                               displayHomePressWarning={true}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() ?
                             <View>

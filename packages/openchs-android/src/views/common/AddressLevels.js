@@ -12,6 +12,7 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import {Text} from "native-base";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import LocationHierarchyService from "../../service/LocationHierarchyService";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -21,6 +22,10 @@ class AddressLevels extends AbstractComponent {
         validationError: PropTypes.object,
         mandatory: PropTypes.bool,
         addressLevelState: PropTypes.object,
+        skipLabel: PropTypes.bool,
+        minLevelTypeUUIDs: PropTypes.array,
+        maxLevelTypeUUID: PropTypes.string,
+        isOutsideCatchment: PropTypes.bool
     };
 
     viewName() {
@@ -29,21 +34,25 @@ class AddressLevels extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.addressLevelService = context.getService(AddressLevelService);
+        this.addressLevelService = context.getService(this.props.isOutsideCatchment ? LocationHierarchyService : AddressLevelService);
     }
 
     defaultState() {
-        const highestAddressLevels = this.addressLevelService.highestLevel();
-        return new AddressLevelsState(highestAddressLevels);
+        if (_.isNil(this.props.maxLevelTypeUUID)) {
+            const highestAddressLevels = this.addressLevelService.highestLevel();
+            return new AddressLevelsState(highestAddressLevels);
+        } else {
+            return new AddressLevelsState(this.addressLevelService.getAllWithTypeUUID(this.props.maxLevelTypeUUID))
+        }
     }
 
     selectAddressLevel(state, levelType, selectedLevelUUID, exclusive = false) {
         const selectedLevel = this.addressLevelService.findByUUID(selectedLevelUUID, this.addressLevelService.getSchema());
-        const newLevels = this.addressLevelService.getDescendantsOfParent(selectedLevelUUID);
+        const newLevels = this.addressLevelService.getDescendantsOfParent(selectedLevelUUID, this.props.minLevelTypeUUIDs);
         const data = exclusive ? state.data.selectLevel(levelType, selectedLevel, newLevels) :
             state.data.addLevel(levelType, selectedLevel, newLevels);
         const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
-            && this.addressLevelService.isOnLowestLevel(data.lowestSelectedAddresses);
+            && this.addressLevelService.isOnLowestLevel(data.lowestSelectedAddresses, this.props.minLevelTypeUUIDs);
         return {
             data: data,
             onLowest: onLowest
@@ -62,7 +71,7 @@ class AddressLevels extends AbstractComponent {
         if (_.isNil(lowestSelectedLevel)) {
             return {data: addressLevelState};
         }
-        const parentList = this.addressLevelService.getParentsOfLeaf(lowestSelectedLevel).concat([lowestSelectedLevel]);
+        const parentList = this.addressLevelService.getParentsOfLeaf(lowestSelectedLevel, this.props.maxLevelTypeUUID).concat([lowestSelectedLevel]);
         return parentList.reduce((acc, parent) =>
             this.selectAddressLevel(acc, parent.type, parent.uuid, true), {data: addressLevelState});
     }
@@ -116,7 +125,8 @@ class AddressLevels extends AbstractComponent {
                 marginTop: Styles.VerticalSpacingBetweenFormElements,
                 marginBottom: Styles.VerticalSpacingBetweenFormElements,
             }}>
-                <Text style={Styles.formLabel}>{this.I18n.t('Address')}{mandatoryText}</Text>
+                {this.props.skipLabel ? null :
+                    <Text style={Styles.formLabel}>{this.I18n.t('Address')}{mandatoryText}</Text>}
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',

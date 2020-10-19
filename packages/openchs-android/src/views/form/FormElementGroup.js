@@ -24,6 +24,9 @@ import Styles from "../primitives/Styles";
 import MediaFormElement from "./formElement/MediaFormElement";
 import IdFormElement from "./formElement/IdFormElement";
 import DurationFormElement from "./formElement/DurationFormElement";
+import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
+import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFormElement";
+import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -166,6 +169,30 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                                 multiline={false}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Location) {
+                            return this.wrap(<LocationHierarchyFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isSingleSelect()) {
+                            return this.wrap(<SingleSelectSubjectFormElement
+                                key={idx}
+                                element={formElement}
+                                value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
+                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isMultiSelect()) {
+                            return this.wrap(<MultiSelectSubjectFormElement
+                                key={idx}
+                                element={formElement}
+                                value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
+                                actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
+                                validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })

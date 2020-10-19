@@ -25,10 +25,11 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createLoadState(form, genders, individual, workLists) {
+    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
         const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))));
         individualRegistrationState.form = form;
+        individualRegistrationState.minLevelTypeUUIDs = minLevelTypeUUIDs;
         return individualRegistrationState;
     }
 
@@ -42,6 +43,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.filteredFormElements = this.filteredFormElements;
         newState.individualSubjectType = this.individualSubjectType.clone();
         newState.household = this.household.clone();
+        newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         super.clone(newState);
         return newState;
     }

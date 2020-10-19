@@ -36,6 +36,7 @@ class NewVisitPageView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t("chooseVisit")}
                                backFunction={() => this.onAppHeaderBack()}
+                               displayHomePressWarning={true}
                     />
                     <View>
                         <NewVisitMenuView enrolmentUUID={this.props.params.enrolmentUUID} allowedEncounterTypeUuids={this.props.params.allowedEncounterTypeUuids}/>

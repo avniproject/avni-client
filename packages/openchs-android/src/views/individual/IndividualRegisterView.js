@@ -93,7 +93,7 @@ class IndividualRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
@@ -118,6 +118,7 @@ class IndividualRegisterView extends AbstractComponent {
                             mandatory={true}
                             onLowestLevel={(lowestSelectedAddresses) =>
                                 this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})}
+                            minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
                         />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>

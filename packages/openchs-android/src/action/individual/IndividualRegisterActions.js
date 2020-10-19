@@ -9,6 +9,7 @@ import IdentifierAssignmentService from "../../service/IdentifierAssignmentServi
 import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -33,8 +34,9 @@ export class IndividualRegisterActions {
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
         context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
-
-        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists);
+        const customRegistrationLocations = context.get(OrganisationConfigService).getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
     }

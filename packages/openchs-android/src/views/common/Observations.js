@@ -1,4 +1,4 @@
-import {ListView, Text, View} from "react-native";
+import {ListView, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -11,6 +11,10 @@ import _ from "lodash";
 import Separator from "../primitives/Separator";
 import ExpandableMedia from "./ExpandableMedia";
 import RNImmediatePhoneCall from 'react-native-immediate-phone-call';
+import AddressLevelService from "../../service/AddressLevelService";
+import LocationHierarchyService from "../../service/LocationHierarchyService";
+import IndividualService from "../../service/IndividualService";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 const renderTypes = {
     Image: "Image",
@@ -30,6 +34,7 @@ class Observations extends AbstractComponent {
         super(props, context);
         this.createObservationsStyles(props.highlight);
         this.getOrderedObservation = this.getOrderedObservation.bind(this);
+        this.individualService = context.getService(IndividualService);
     }
 
     createObservationsStyles(highlight) {
@@ -45,6 +50,16 @@ class Observations extends AbstractComponent {
                     paddingLeft: 3,
                     paddingBottom: 2,
                     flex: 1
+                },
+                observationSubject: {
+                    marginBottom: 2,
+                    marginTop: 2,
+                    marginLeft: 2,
+                    borderRadius: 10,
+                    borderWidth: 0.5,
+                    backgroundColor: Colors.GreyBackground,
+                    paddingHorizontal: 5,
+                    paddingVertical: 2,
                 }
             }
             :
@@ -59,6 +74,16 @@ class Observations extends AbstractComponent {
                     paddingLeft: 3,
                     paddingBottom: 2,
                     flex: 1
+                },
+                observationSubject: {
+                    marginBottom: 2,
+                    marginTop: 2,
+                    marginLeft: 2,
+                    borderRadius: 10,
+                    borderWidth: 0.5,
+                    backgroundColor: Colors.GreyBackground,
+                    paddingHorizontal: 5,
+                    paddingVertical: 2,
                 }
             }
     }
@@ -72,22 +97,34 @@ class Observations extends AbstractComponent {
             this.props.form.orderObservations(this.props.observations);
     }
 
+
     makeCall(number) {
         RNImmediatePhoneCall.immediatePhoneCall(number);
     }
 
+
     renderValue(obs, isAbnormal, renderType, concept) {
+        const keyValue = concept.recordValueByKey('primary_contact') || concept.recordValueByKey('contact_number');
         if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
                     <ExpandableMedia source={obs} type={renderType}/>
                 </View>
             );
-        }
-
-
-        const keyValue = concept.recordValueByKey('primary_contact') || concept.recordValueByKey('contact_number');
-        if (keyValue === 'yes') {
+        } else if (Concept.dataType.Location === renderType) {
+            const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
+            const addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
+            const addressLevel = addressLevelService.findByUUID(_.trim(obs));
+            return this.renderObservationText(isAbnormal, addressLevel.name);
+        } else if (Concept.dataType.Subject === renderType) {
+            const subjectUUIDs = obs.split(",");
+            return <View style={[{
+                flexDirection: 'row',
+                alignItems: 'flex-start', flexWrap: 'wrap'
+            }, this.styles.observationColumn]}>
+                {_.map(subjectUUIDs, uuid => this.renderSubject(this.individualService.findByUUID(_.trim(uuid))))}
+            </View>
+        } else if (keyValue === 'yes') {
             return (
                 <Text style={[{
                     textAlign: 'left',
@@ -107,8 +144,29 @@ class Observations extends AbstractComponent {
                 color: isAbnormal ? Styles.redColor : Styles.blackColor
             }, this.styles.observationColumn]}>{obs}</Text>
         )
+
+        return this.renderObservationText(isAbnormal, obs);
+
     }
 
+    renderSubject(subject) {
+        return <TouchableOpacity style={this.styles.observationSubject} onPress={() =>
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.uuid, null, true, null, null, 1)}>
+            {this.renderChip(subject.nameString)}
+        </TouchableOpacity>
+    }
+
+    renderChip(name) {
+        return <Text style={{fontSize: Fonts.Small,}}>{name}</Text>;
+    }
+
+    renderObservationText(isAbnormal, obs, additionalStyles) {
+        return <Text style={[{
+            textAlign: 'left',
+            fontSize: Fonts.Small,
+            color: isAbnormal ? Styles.redColor : Styles.blackColor
+        }, this.styles.observationColumn, additionalStyles]}>{obs}</Text>;
+    }
 
     render() {
         if (this.props.observations.length === 0) return <View/>;

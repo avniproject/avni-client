@@ -88,7 +88,7 @@ class IndividualEncounterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.displayName)}
-                               func={() => this.onAppHeaderBack()}/>
+                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    onCollapse={this.scrollToTop}
                                                    individual={this.state.encounter.individual}

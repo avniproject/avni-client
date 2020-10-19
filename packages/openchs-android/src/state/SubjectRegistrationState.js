@@ -21,7 +21,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists) {
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new SubjectRegistrationState(
             [],
@@ -34,11 +34,12 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             workLists
         );
         state.form = form;
+        state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
-    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists) {
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs) {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
@@ -50,6 +51,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             workLists
         );
         state.form = form;
+        state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         return state;
     }
 
@@ -61,6 +63,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.filteredFormElements = this.filteredFormElements;
         newState.household = this.household.clone();
         newState.isNewEntity = this.isNewEntity;
+        newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         super.clone(newState);
         return newState;
     }

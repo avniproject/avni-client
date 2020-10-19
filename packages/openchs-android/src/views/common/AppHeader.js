@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {Icon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import {Text, TouchableNativeFeedback, View, Platform} from "react-native";
+import {Platform, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -13,6 +13,7 @@ import SyncComponent from "../SyncComponent";
 import ExitBeneficiaryModeButton from "../beneficiaryMode/ExitBeneficiaryModeButton";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import UserInfoService from "../../service/UserInfoService";
+import {AvniAlert} from "./AvniAlert";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -21,6 +22,7 @@ class AppHeader extends AbstractComponent {
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
         icons: PropTypes.array,
+        displayHomePressWarning: PropTypes.bool,
     };
 
     static defaultProps = {
@@ -39,6 +41,14 @@ class AppHeader extends AbstractComponent {
     }
 
     onHome() {
+        if (this.props.displayHomePressWarning) {
+            AvniAlert(this.I18n.t('homePressTitle'), this.I18n.t('homePressMessage'), this.goToHome.bind(this), this.I18n);
+        } else {
+            this.goToHome();
+        }
+    }
+
+    goToHome() {
         CHSNavigator.goHome(this);
         this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
         this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
