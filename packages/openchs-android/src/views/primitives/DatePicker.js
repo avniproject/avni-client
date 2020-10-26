@@ -24,16 +24,15 @@ class DatePicker extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.pickTime = _.isBoolean(props.pickTime) ? props.pickTime : false;
-        this.noDateMessageKey = this.props.noDateMessageKey || (this.pickTime ? "chooseDateAndTime" : "chooseADate");
         this.showTimePicker = this.showTimePicker.bind(this);
     }
 
 
     dateDisplay(date) {
+        const noDateMessageKey = this.props.noDateMessageKey || (this.props.pickTime ? "chooseDateAndTime" : "chooseADate");
         return _.isNil(date)
-            ? this.I18n.t(this.noDateMessageKey)
-            : (this.pickTime && !(General.hoursAndMinutesOfDateAreZero(date)))
+            ? this.I18n.t(noDateMessageKey)
+            : (this.props.pickTime && !(General.hoursAndMinutesOfDateAreZero(date)))
                 ? General.formatDateTime(date)
                 : General.formatDate(date);
     }
@@ -42,7 +41,7 @@ class DatePicker extends AbstractComponent {
         const {action, year, month, day} = await DatePickerAndroid.open(options);
         if (action !== DatePickerAndroid.dismissedAction) {
             this.props.actionObject.value = new Date(year, month, day);
-            if (this.pickTime) {
+            if (this.props.pickTime) {
                 this.showTimePicker(this.props.actionObject.value);
             }
             this.dispatchAction(this.props.actionName, this.props.actionObject);
