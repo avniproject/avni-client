@@ -22,7 +22,7 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall" : "npx jetify"
+    "postinstall": "npx jetify"
   },
   "dependencies": {
     "amazon-cognito-identity-js": "3.0.11",
@@ -35,7 +35,7 @@
     "moment": "2.19.3",
     "native-base": "2.12.1",
     "openchs-health-modules": "0.0.2",
-    "openchs-models": "0.2.45",
+    "openchs-models": "0.2.46",
     "prop-types": "15.7.2",
     "react": "16.8.3",
     "react-native": "0.59.5",
@@ -49,6 +49,7 @@
     "react-native-i18n": "0.1.1",
     "react-native-image-picker": "0.28.0",
     "react-native-image-zoom-viewer": "2.2.24",
+    "react-native-immediate-phone-call": "^2.0.0",
     "react-native-mime-types": "2.2.1",
     "react-native-simple-dialogs": "1.1.0",
     "react-native-smooth-pincode-input": "^1.0.7",

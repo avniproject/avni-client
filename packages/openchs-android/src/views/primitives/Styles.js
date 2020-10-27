@@ -13,6 +13,7 @@ Styles.defaultBackground = '#212121';
 Styles.groupSubjectBackground = '#871f74';
 Styles.greyBackground = '#f7f7f7';
 Styles.greyText = '#666666';
+Styles.blueColor='#0000e5';
 
 Styles.titleSize = 20;
 Styles.normalTextSize = 16;

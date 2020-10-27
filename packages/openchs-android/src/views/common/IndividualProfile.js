@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {View, Alert, TouchableNativeFeedback, StyleSheet, TouchableOpacity} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Icon, Text} from "native-base";
@@ -14,13 +14,15 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
-import {ProgramEnrolment, WorkLists, WorkList, WorkItem} from "avni-models";
+import {ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
 import Menu from "../menu";
 import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import RNImmediatePhoneCall from "react-native-immediate-phone-call";
+
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -30,6 +32,33 @@ class IndividualProfile extends AbstractComponent {
         hideEnrol: PropTypes.bool,
         style: PropTypes.object
     };
+
+    getMobileNoFromObservation() {
+        var i;
+        for (i = 0; i < this.props.individual.observations.length; i++) {
+            const observation = this.props.individual.observations[i];
+            return this.props.individual.getMobileNo();
+        }
+    }
+
+    renderCallButton() {
+        const number = this.getMobileNoFromObservation();
+        if (number) {
+            return (
+                <MaterialIcon name="call" size={30}
+                              style={{color: 'white'}}
+                              onPress={() => this.makeCall(number)}/>
+            );
+        } else {
+            return (
+                <View/>
+            );
+        }
+    }
+
+    makeCall(number) {
+        RNImmediatePhoneCall.immediatePhoneCall(number);
+    }
 
     static viewContext = {
         Program: 'Program',
@@ -187,6 +216,10 @@ class IndividualProfile extends AbstractComponent {
                                     style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
                                 {this.programProfileHeading()}
                             </View>
+
+                            <View>
+                                {this.renderCallButton()}
+                            </View>
                         </View>
                         <View
                             style={{
@@ -196,7 +229,8 @@ class IndividualProfile extends AbstractComponent {
                                 paddingVertical: 8,
                                 alignItems: 'center'
                             }}>
-                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) : <View/>}
+                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) :
+                                <View/>}
                             {this.renderGroupOptions()}
                         </View>
                     </View>
