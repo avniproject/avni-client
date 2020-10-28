@@ -97,38 +97,44 @@ class Observations extends AbstractComponent {
             this.props.form.orderObservations(this.props.observations);
     }
 
-
     makeCall(number) {
         RNImmediatePhoneCall.immediatePhoneCall(number);
     }
 
-
     renderValue(observationModel) {
         const conceptService = this.context.getService(ConceptService);
-        const mobileNo = observationModel.getMobileNo();
-        const obsValue = Observation.valueAsString(observationModel, conceptService, this.I18n);
-        const isAbnormal = observationModel.isAbnormal();
+        const subjectService = this.context.getService(IndividualService);
         const concept = observationModel.concept;
+        const mobileNo = observationModel.getMobileNo();
         const renderType = observationModel.concept.datatype;
+        const isAbnormal = observationModel.isAbnormal();
+
+        let addressLevelService = null;
+        if (renderType === Concept.dataType.Location) {
+            const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
+            addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
+        }
+
+        const displayable = Observation.valueForDisplay({
+            observation: observationModel,
+            conceptService,
+            subjectService,
+            addressLevelService,
+            i18n: this.I18n
+        });
 
         if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
-                    <ExpandableMedia source={obsValue} type={renderType}/>
+                    <ExpandableMedia source={displayable.displayValue} type={renderType}/>
                 </View>
             );
-        } else if (Concept.dataType.Location === renderType) {
-            const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
-            const addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
-            const addressLevel = addressLevelService.findByUUID(_.trim(obsValue));
-            return this.renderObservationText(isAbnormal, addressLevel.name);
         } else if (Concept.dataType.Subject === renderType) {
-            const subjectUUIDs = obsValue.split(",");
             return <View style={[{
                 flexDirection: 'row',
                 alignItems: 'flex-start', flexWrap: 'wrap'
             }, this.styles.observationColumn]}>
-                {_.map(subjectUUIDs, uuid => this.renderSubject(this.individualService.findByUUID(_.trim(uuid))))}
+                {_.map(displayable, subject => this.renderSubject(subject))}
             </View>
         } else if (mobileNo) {
             return (
@@ -138,27 +144,16 @@ class Observations extends AbstractComponent {
                     color: isAbnormal ? Styles.redColor : Styles.blueColor
                 }, this.styles.observationColumn]} onPress={() => {
                     this.makeCall(mobileNo)
-                }}>{obsValue}</Text>
+                }}>{displayable.displayValue}</Text>
             )
         }
-
-
-        return (
-            <Text style={[{
-                textAlign: 'left',
-                fontSize: Fonts.Small,
-                color: isAbnormal ? Styles.redColor : Styles.blackColor
-            }, this.styles.observationColumn]}>{obsValue}</Text>
-        )
-
-        return this.renderObservationText(isAbnormal, obsValue);
-
+        return this.renderObservationText(isAbnormal, displayable.displayValue);
     }
 
     renderSubject(subject) {
         return <TouchableOpacity style={this.styles.observationSubject} onPress={() =>
-            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.uuid, null, true, null, null, 1)}>
-            {this.renderChip(subject.nameString)}
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.entityObject.uuid, null, true, null, null, 1)}>
+            {this.renderChip(subject.displayValue)}
         </TouchableOpacity>
     }
 
