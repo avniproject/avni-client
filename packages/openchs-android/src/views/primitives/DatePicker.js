@@ -37,19 +37,19 @@ class DatePicker extends AbstractComponent {
                 : General.formatDate(date);
     }
 
-    async showDatePicker(options) {
-        const {action, year, month, day} = await DatePickerAndroid.open(options);
+    async showDatePicker(datePickerOptions, timePickerOptions) {
+        const {action, year, month, day} = await DatePickerAndroid.open(datePickerOptions);
         if (action !== DatePickerAndroid.dismissedAction) {
             this.props.actionObject.value = new Date(year, month, day);
             if (this.props.pickTime) {
-                this.showTimePicker(this.props.actionObject.value);
+                this.showTimePicker(this.props.actionObject.value, timePickerOptions);
             }
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }
 
-    async showTimePicker(date) {
-        const {action, hour, minute} = await TimePickerAndroid.open({});
+    async showTimePicker(date, timePickerOptions) {
+        const {action, hour, minute} = await TimePickerAndroid.open(timePickerOptions);
         if (action !== TimePickerAndroid.dismissedAction) {
             this.props.actionObject.value = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute, 0, 0);
             this.dispatchAction(this.props.actionName, this.props.actionObject);
@@ -72,11 +72,12 @@ class DatePicker extends AbstractComponent {
 
     render() {
         const date = _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue;
-        const mode = _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode;
+        const datePickerMode = _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode;
+        const timePickerMode = datePickerMode === 'calendar' ? 'clock' : datePickerMode;
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : mode})}
+                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : datePickerMode}, {mode: timePickerMode})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError
