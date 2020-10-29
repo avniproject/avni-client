@@ -20,9 +20,14 @@ export class IndividualRegisterActions {
     }
 
     static onLoad(state, action, context) {
-        const individual = _.isNil(action.individualUUID) ?
-            Individual.createEmptyInstance() : context.get(IndividualService).findByUUID(action.individualUUID);
-
+        let isNewEntity = _.isNil(action.individualUUID);
+        let individual;
+        if (isNewEntity) {
+            individual = Individual.createEmptySubjectInstance();
+        } else {
+            const subjectFromDB = context.get(IndividualService).findByUUID(action.individualUUID);
+            individual = subjectFromDB.cloneForEdit();
+        }
         const currentWorkItem = action.workLists.getCurrentWorkItem();
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
 
