@@ -52,7 +52,7 @@ class SubjectDashboardView extends AbstractComponent {
                      style={[SubjectDashboardView.iconStyle, isSelected && {color: Colors.iconSelectedColor}]}/>
     };
 
-    renderOptions = options => options.map(([icon, name, onPress, isSelected], index) => {
+    renderOptions = options => options.filter((option) => _.last(option)).map(([icon, name, onPress, isSelected], index) => {
         return (
             <View key={index} style={{
                 flex: 1,
@@ -79,9 +79,9 @@ class SubjectDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         const options = [
-            [this.icon(MCIcon, 'face-profile', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile],
-            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program],
-            [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history],
+            [this.icon(MCIcon, 'face-profile', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
+            [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program, this.state.displayProgramTab],
+            [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history, this.state.displayGeneralTab],
         ];
         this.displayMessage(this.props.message);
         return (

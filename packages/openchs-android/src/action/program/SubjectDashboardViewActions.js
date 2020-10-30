@@ -2,6 +2,7 @@ import UserInfoService from "../../service/UserInfoService";
 import ProgramService from "../../service/program/ProgramService";
 import IndividualService from "../../service/IndividualService";
 import _ from 'lodash';
+import PrivilegeService from "../../service/PrivilegeService";
 
 export default class SubjectDashboardViewActions {
     static getInitialState() {
@@ -28,7 +29,10 @@ export default class SubjectDashboardViewActions {
         const hideEnrol = context.get(UserInfoService).getUserSettings().hideEnrol;
         const programsAvailable = context.get(ProgramService).programsAvailable;
         const individual = context.get(IndividualService).findByUUID(individualUUID);
-        const tabName = SubjectDashboardViewActions.getTabByNumber(tab);
+        const privilegeService = context.get(PrivilegeService);
+        const displayProgramTab = privilegeService.displayProgramTab(individual.subjectType);
+        const displayGeneralTab = privilegeService.displayGeneralTab(individual.subjectType);
+        const tabName = SubjectDashboardViewActions.getTabByNumber(tab, displayProgramTab, displayGeneralTab);
         return {
             ...newState,
             ...tabName,
@@ -39,20 +43,32 @@ export default class SubjectDashboardViewActions {
             individualUUID,
             backFunction,
             messageDisplayed: !!_.isNil(messageDisplayed),
+            displayProgramTab,
+            displayGeneralTab
         };
     }
 
-    static getTabByNumber(tab) {
+    static getTabByNumber(tab, displayProgramTab, displayGeneralTab) {
         switch (tab) {
             case 1 :
                 return {individualProfile: true};
             case 2 :
-                return {program: true};
+                return SubjectDashboardViewActions.checkForEmptyProgramOrEncounter({program: true}, displayProgramTab, displayGeneralTab);
             case 3 :
-                return {history: true};
+                return SubjectDashboardViewActions.checkForEmptyProgramOrEncounter({history: true}, displayProgramTab, displayGeneralTab);
             default:
-                return {program: true};
+                return SubjectDashboardViewActions.checkForEmptyProgramOrEncounter({program: true}, displayProgramTab, displayGeneralTab);
         }
+    }
+
+    static checkForEmptyProgramOrEncounter(defaultValue, displayProgramTab, displayGeneralTab) {
+        if (!displayProgramTab && !displayGeneralTab) {
+            return {individualProfile: true}
+        } else if (!displayGeneralTab) {
+            return {program: true}
+        } else if (!displayProgramTab) {
+            return {history: true}
+        } else return defaultValue
     }
 
     static onProfileClick(state) {

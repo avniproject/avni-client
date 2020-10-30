@@ -12,7 +12,9 @@ import {
     ProgramEnrolment,
     Individual,
     EntityMetaData,
+    Program
 } from 'avni-models';
+import FormMappingService from "./FormMappingService";
 
 @Service('PrivilegeService')
 class PrivilegeService extends BaseService {
@@ -142,6 +144,32 @@ class PrivilegeService extends BaseService {
 
     ownedGroups() {
         return this.db.objects(MyGroups.schema.name).filtered('voided=false');
+    }
+
+    displayProgramTab(subjectType) {
+        if (this.hasAllPrivileges()) {
+            return this.getService(FormMappingService).findProgramsForSubjectType(subjectType).length > 0;
+        } else {
+            const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
+            const subjectTypeUUID = _.defaultTo(_.get(subjectType, 'uuid'), 'null');
+            return this.getAll()
+                .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
+                .filtered(`subjectTypeUuid = '${subjectTypeUUID}' AND programUuid <> null AND allow = true`)
+                .length > 0;
+        }
+    }
+
+    displayGeneralTab(subjectType) {
+        if (this.hasAllPrivileges()) {
+            return this.getService(FormMappingService).findEncounterTypesForSubjectType(subjectType).length > 0;
+        } else {
+            const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
+            const subjectTypeUUID = _.defaultTo(_.get(subjectType, 'uuid'), 'null');
+            return this.getAll()
+                .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
+                .filtered(`subjectTypeUuid = '${subjectTypeUUID}' AND encounterTypeUuid <> null AND allow = true`)
+                .length > 0;
+        }
     }
 }
 
