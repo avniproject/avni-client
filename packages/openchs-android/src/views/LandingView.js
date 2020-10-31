@@ -22,6 +22,8 @@ import UserInfoService from "../service/UserInfoService";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import PrivilegeService from "../service/PrivilegeService";
+import CustomFilterService from "../service/CustomFilterService";
 
 
 @Path('/landingView')
@@ -85,16 +87,19 @@ class LandingView extends AbstractComponent {
 
     render() {
         General.logDebug("LandingView", "render");
-        const hideRegister = this.context.getService(UserInfoService).getUserSettings().hideRegister;
+        const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
-        const registerMenuItem = !hideRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, this.state.register), this.I18n.t("register"),
+        const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
+        const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, this.state.register), this.I18n.t("register"),
             subjectTypes[0] && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), this.state.register] : [];
+        const searchMenuItem = !hideSearch ? [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"),
+            () => this.dispatchAction(Actions.ON_SEARCH_CLICK), this.state.search] : [];
         const bottomBarIcons = [
             [this.Icon("home", LandingView.barIconStyle, this.state.home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), this.state.home],
             registerMenuItem,
-            [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"), () => this.dispatchAction(Actions.ON_SEARCH_CLICK), this.state.search],
+            searchMenuItem,
             [this.Icon("menu", LandingView.barIconStyle, this.state.menu), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), this.state.menu]
         ];
 

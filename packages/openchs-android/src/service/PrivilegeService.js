@@ -12,9 +12,11 @@ import {
     ProgramEnrolment,
     Individual,
     EntityMetaData,
-    Program
+    SubjectType,
+    Privilege
 } from 'avni-models';
 import FormMappingService from "./FormMappingService";
+import EntityService from "./EntityService";
 
 @Service('PrivilegeService')
 class PrivilegeService extends BaseService {
@@ -57,8 +59,9 @@ class PrivilegeService extends BaseService {
     }
 
     hasAllPrivileges() {
+        const ownedGroupsQuery = this.ownedGroups().map(({groupUuid}) => `uuid = '${groupUuid}'`).join(' OR ');
         return this.db.objects(Groups.schema.name)
-            .filtered(this.ownedGroups().map(({groupUuid}) => `uuid = '${groupUuid}'`).join(' OR '))
+            .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered('hasAllPrivileges=true').length > 0;
     }
 
@@ -169,6 +172,15 @@ class PrivilegeService extends BaseService {
                 .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
                 .filtered(`subjectTypeUuid = '${subjectTypeUUID}' AND encounterTypeUuid <> null AND allow = true`)
                 .length > 0;
+        }
+    }
+
+    displayRegisterButton() {
+        if (this.hasAllPrivileges()) {
+            return this.getService(EntityService).findAllByCriteria('voided = false AND active = true', SubjectType.schema.name).length > 0;
+        } else {
+            const subjectRegisterCriteria = `privilege.name = '${Privilege.privilegeName.registerSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
+            return this.allowedEntityTypeUUIDListForCriteria(subjectRegisterCriteria, 'subjectTypeUuid').length > 0;
         }
     }
 }
