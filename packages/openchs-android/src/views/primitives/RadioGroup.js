@@ -79,8 +79,8 @@ class RadioGroup extends AbstractComponent {
                               }}/>)
     }
 
-    renderText() {
-        const radioLabelValue = _.head(this.props.labelValuePairs)
+    renderSingleValue() {
+        const radioLabelValue = _.head(this.props.labelValuePairs);
         if (!this.props.selectionFn(radioLabelValue.value)) {
             this.props.onPress(radioLabelValue);
         }
@@ -95,24 +95,10 @@ class RadioGroup extends AbstractComponent {
             <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
                 {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
-                    <View style={[{
-                        borderWidth: 1,
-                        borderRadius: 1,
-                        borderStyle: 'dashed',
-                        borderColor: Colors.InputBorderNormal,
-                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                    }, this.props.borderStyle]}>
-                        {this.renderText()}
+                    <View style={[style.radioStyle, this.props.borderStyle]}>
+                        {this.renderSingleValue()}
                     </View> :
-                    <View style={[{
-                        borderWidth: 1,
-                        borderRadius: 1,
-                        borderStyle: 'dashed',
-                        borderColor: Colors.InputBorderNormal,
-                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-                        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-                    }, this.props.borderStyle]}>
+                    <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                     </View> : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
@@ -124,3 +110,13 @@ class RadioGroup extends AbstractComponent {
 }
 
 export default RadioGroup;
+const style = StyleSheet.create({
+    radioStyle: {
+        borderWidth: 1,
+        borderRadius: 1,
+        borderStyle: 'dashed',
+        borderColor: Colors.InputBorderNormal,
+        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+    }
+})
