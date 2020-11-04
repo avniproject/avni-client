@@ -57,8 +57,10 @@ class RadioGroup extends AbstractComponent {
                                       validationResult={this.props.validationError}
                                       onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
-                                      style={{paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems}}/>
+                                      style={{
+                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
+                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                      }}/>
                 )}
             </View>);
     }
@@ -71,8 +73,20 @@ class RadioGroup extends AbstractComponent {
                               validationResult={this.props.validationError}
                               onPress={() => this.props.onPress(radioLabelValue)}
                               key={radioLabelValue.label}
-                              style={{paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                  paddingRight: Distances.HorizontalSpacingBetweenOptionItems}}/>)
+                              style={{
+                                  paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
+                                  paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                              }}/>)
+    }
+
+    renderText() {
+        const radioLabelValue = _.head(this.props.labelValuePairs)
+        if (!this.props.selectionFn(radioLabelValue.value)) {
+            this.props.onPress(radioLabelValue);
+        }
+        return (
+            <Text style={Styles.formLabel}>{radioLabelValue.label}</Text>
+        )
     }
 
     render() {
@@ -80,7 +94,17 @@ class RadioGroup extends AbstractComponent {
         return (
             <View style={this.appendedStyle({})}>
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
-                {this.props.labelValuePairs.length > 0 ?
+                {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
+                    <View style={[{
+                        borderWidth: 1,
+                        borderRadius: 1,
+                        borderStyle: 'dashed',
+                        borderColor: Colors.InputBorderNormal,
+                        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+                        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+                    }, this.props.borderStyle]}>
+                        {this.renderText()}
+                    </View> :
                     <View style={[{
                         borderWidth: 1,
                         borderRadius: 1,
