@@ -26,10 +26,6 @@ export class IndividualSearchActions {
             _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
-        if (action.allowedSubjectUUIDs && action.allowedSubjectUUIDs.length > 0) {
-            newState.searchCriteria.addAllowedSubjectUUIDsCriteria(action.allowedSubjectUUIDs);
-            newState.allowedSubjectUUIDs = action.allowedSubjectUUIDs;
-        }
         return {...newState, loading: false};
     }
 

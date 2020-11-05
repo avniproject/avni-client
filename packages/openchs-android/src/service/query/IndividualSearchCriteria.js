@@ -49,11 +49,6 @@ class IndividualSearchCriteria {
             criteria.push(`subjectType.uuid = "${this.subjectType.uuid}"`);
         }
 
-        if (!_.isEmpty(this.allowedSubjectUUIDs)) {
-            const subjectQuery = _.map(this.allowedSubjectUUIDs, subjectUUID => `uuid = "${subjectUUID}"`).join(" OR ");
-            criteria.push("( " + subjectQuery + " )");
-        }
-
         if (!_.isEmpty(this.genders)) {
             const genderQuery = _.map(this.genders, gender => `gender.name = "${gender.name}"`).join(" OR ");
             criteria.push("( " + genderQuery + " )");
@@ -94,10 +89,6 @@ class IndividualSearchCriteria {
         this.subjectType = subjectType;
     }
 
-    addAllowedSubjectUUIDsCriteria(subjectUUIDs) {
-        this.allowedSubjectUUIDs = subjectUUIDs;
-    }
-
     toggleLowestAddress(lowestAddress) {
         if (BaseEntity.collectionHasEntity(this.lowestAddressLevels, lowestAddress))
             BaseEntity.removeFromCollection(this.lowestAddressLevels, lowestAddress);
@@ -127,7 +118,6 @@ class IndividualSearchCriteria {
         individualSearchCriteria.obsKeyword = this.obsKeyword;
         individualSearchCriteria.includeVoided = this.includeVoided;
         individualSearchCriteria.subjectType = this.subjectType;
-        individualSearchCriteria.allowedSubjectUUIDs = this.allowedSubjectUUIDs;
         individualSearchCriteria.genders = this.genders;
         individualSearchCriteria.selectedCustomFilters = this.selectedCustomFilters;
         return individualSearchCriteria;

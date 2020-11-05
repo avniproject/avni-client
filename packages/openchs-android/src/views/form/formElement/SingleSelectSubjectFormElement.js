@@ -1,31 +1,98 @@
-import {View} from "react-native";
+import {TouchableOpacity, View} from "react-native";
+import {Text} from 'native-base';
+import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
+import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
+import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
-import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
-import SubjectFormElement from "./SubjectFormElement";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import Entypo from "react-native-vector-icons/Entypo";
+import TypedTransition from "../../../framework/routing/TypedTransition";
+import IndividualSearchView from "../../individual/IndividualSearchView";
+import {Concept, SubjectType} from "openchs-models";
+import IndividualService from "../../../service/IndividualService";
+import EntityService from "../../../service/EntityService";
 
-class SingleSelectSubjectFormElement extends SubjectFormElement {
+class SingleSelectSubjectFormElement extends AbstractFormElement {
+    static propTypes = {
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+    };
+    static defaultProps = {
+        style: {}
+    };
 
     constructor(props, context) {
         super(props, context);
+        this.individualService = context.getService(IndividualService);
+        this.entityService = context.getService(EntityService);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    renderSearchIcon() {
+        return <TouchableOpacity activeOpacity={0.5} onPress={this.search.bind(this)} transparent>
+            <Icon name="magnify"
+                  style={{color: Colors.ActionButtonColor, fontSize: 30, marginLeft: 10}}/>
+        </TouchableOpacity>
+    }
+
+    removeSubject(answerUUID) {
+        this.dispatchAction(this.props.actionName, {
+            formElement: this.props.element,
+            answerUUID: answerUUID,
+        });
+    }
+
+    subjectTypeUUID() {
+        return this.props.element.concept.recordValueByKey(Concept.keys.subjectTypeUUID);
+    }
+
+    search() {
+        const subjectTypeUUID = this.subjectTypeUUID();
+        if (subjectTypeUUID) {
+            const subjectType = this.entityService.findByUUID(subjectTypeUUID, SubjectType.schema.name);
+            TypedTransition.from(this).bookmark().with(
+                {
+                    showHeader: true,
+                    hideBackButton: false,
+                    memberSubjectType: subjectType,
+                    onIndividualSelection: (source, individual) => {
+                        TypedTransition.from(source).popToBookmark();
+                        this.dispatchAction(this.props.actionName, {
+                            formElement: this.props.element,
+                            answerUUID: individual.uuid,
+                        });
+                    }
+                }).to(IndividualSearchView, true);
+        }
+    }
+
+    renderAnswer(subjectName) {
+        const answerUUID = _.get(this.props.value, 'answer');
+        if (answerUUID) {
+            return <View style={{
+                flexDirection: 'row',
+                borderWidth: 0.5,
+                borderRadius: 10,
+                alignItems: 'center',
+                paddingHorizontal: 5,
+                paddingVertical: 2,
+                backgroundColor: Colors.GreyBackground
+            }}>
+                <Text>{subjectName}</Text>
+                <TouchableOpacity onPress={() => this.removeSubject(answerUUID)}>
+                    <Entypo name='cross' style={{fontSize: 20, color: Colors.ActionButtonColor, marginLeft: 5}}/>
+                </TouchableOpacity>
+            </View>
+        }
     }
 
     render() {
         const subject = _.get(this.props.value, 'answer') ? this.individualService.findByUUID(this.props.value.answer) : null;
-        if (!_.isEmpty(this.subjectOptions) && this.subjectOptions.length <= this.SWITCH_TO_SEARCH_UI_THRESHOLD) {
-            return this.renderSelectUI(subject);
-        } else {
-            return this.renderSearchUI(subject);
-        }
-    }
-
-    renderSearchUI(subject) {
+        const subjectName = subject ? subject.nameString : '';
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -33,28 +100,11 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
                     {this.renderSearchIcon()}
                 </View>
                 <View style={{flexDirection: 'row'}}>
-                    {this.renderAnswer(subject)}
+                    {this.renderAnswer(subjectName)}
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
         )
-    }
-
-    renderSelectUI(subject) {
-        const valueLabelPairs = this.subjectOptions
-            .map((subject) => new RadioLabelValue(subject.nameString, subject.uuid, false));
-        return (
-            <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
-                <RadioGroup
-                    multiSelect={false}
-                    inPairs={true}
-                    onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}
-                    selectionFn={(subjectUUID) => _.isEmpty(subject) ? false : subject.uuid === subjectUUID}
-                    labelKey={this.props.element.name}
-                    mandatory={this.props.element.mandatory}
-                    validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
-            </View>);
     }
 }
 
