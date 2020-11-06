@@ -25,7 +25,7 @@ import {
     programEncounterDecision,
     programEnrolmentDecision,
     RuleRegistry
-} from "openchs-health-modules";
+} from "avni-health-modules";
 import ConceptService from "./ConceptService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";

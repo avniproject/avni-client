@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "amazon-cognito-identity-js": "3.0.11",
+    "avni-health-modules": "0.0.8",
     "base-64": "0.1.0",
     "bugsnag-react-native": "2.10.3",
     "color": "2.0.0",
@@ -34,7 +35,6 @@
     "lodash": "4.17.11",
     "moment": "2.19.3",
     "native-base": "2.12.1",
-    "openchs-health-modules": "0.0.2",
     "openchs-models": "0.2.51",
     "prop-types": "15.7.2",
     "react": "16.8.3",
@@ -59,9 +59,9 @@
     "realm": "2.28.1",
     "redux": "3.6.0",
     "rn-fetch-blob": "0.10.15",
+    "rules-config": "github:openchs/rules-config#4cf43c8213e7b6aad53cc637ac358ece129eabb9",
     "stacktrace-js": "2.0.0",
-    "transducers-js": "0.4.174",
-    "rules-config": "github:openchs/rules-config#4cf43c8213e7b6aad53cc637ac358ece129eabb9"
+    "transducers-js": "0.4.174"
   },
   "devDependencies": {
     "@babel/core": "7.4.4",
