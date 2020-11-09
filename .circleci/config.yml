@@ -10,7 +10,6 @@ jobs:
 #          keys:
 #          - v1-dependencies-{{ checksum "package.json" }}
 #          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-#          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
 #          - v1-dependencies-
       - run: sudo apt-get install make
       - run: make deps_ci
@@ -22,10 +21,6 @@ jobs:
           paths:
            - packages/openchs-android/node_modules
           key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-      - save_cache:
-          paths:
-           - packages/openchs-health-modules/node_modules
-          key: v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
 
   test_android:
     docker:
@@ -42,21 +37,6 @@ jobs:
       - run: make deps_ci
       - run: make ci test-android
 
-  test_health_modules:
-    docker:
-      - image: circleci/node:8.5.0
-    working_directory: ~/openchs-client
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
-          - v1-dependencies-
-      - run: sudo apt-get install make
-      - run: make deps_ci
-      - run: make ci test-health-modules
-
   release_android_staging:
     docker:
       - image: openchs/react-native-image:latest
@@ -71,7 +51,6 @@ jobs:
           keys:
           - v1-dependencies-{{ checksum "package.json" }}
           - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-          - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
           - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
@@ -105,7 +84,6 @@ jobs:
             keys:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-            - v1-dependencies-{{ checksum "packages/openchs-health-modules/package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
         - run: sudo chmod a+x packages/openchs-android/android/gradlew
@@ -133,19 +111,14 @@ workflows:
       - test_android:
           requires:
             - install_deps
-      - test_health_modules:
-          requires:
-            - install_deps
       - hold_staging:
           type: approval
           requires:
             - test_android
-            - test_health_modules
       - hold_live:
           type: approval
           requires:
             - test_android
-            - test_health_modules
       - release_android_staging:
           requires:
             - hold_staging
