@@ -3,6 +3,7 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import {AbstractEncounter, ObservationsHolder, Encounter, StaticFormElementGroup} from 'avni-models';
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
+import IndividualService from "../service/IndividualService";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed) {
@@ -85,7 +86,8 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, []);
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, []);
+        return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.encounter.individual, nextScheduledVisits);
     }
 }
 

@@ -5,6 +5,7 @@ import General from "../utility/General";
 import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import MediaQueueService from "./MediaQueueService";
+import IndividualService from "./IndividualService";
 
 @Service("EncounterService")
 class EncounterService extends BaseService {
@@ -55,6 +56,7 @@ class EncounterService extends BaseService {
 
     saveScheduledVisit(individual, nextScheduledVisit, db, schedulerDate) {
         let encountersToUpdate = individual.scheduledEncountersOfType(nextScheduledVisit.encounterType);
+        //TODO respect programEnrolment if included in the visit
         if (_.isEmpty(encountersToUpdate)) {
             const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
@@ -65,7 +67,7 @@ class EncounterService extends BaseService {
 
     saveScheduledVisits(individual, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV => {
-            return this.saveScheduledVisit(individual, nSV, db, schedulerDate);
+            return this.saveScheduledVisit(this.getService(IndividualService).determineSubjectForVisitToBeScheduled(individual, nSV), nSV, db, schedulerDate);
         });
     }
 

@@ -3,6 +3,7 @@ import Wizard from "../../state/Wizard";
 import {Form, ObservationsHolder, ProgramEncounter, StaticFormElementGroup} from "avni-models";
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
+import IndividualService from "../../service/IndividualService";
 
 class ProgramEncounterCancelState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, programEncounter, filteredFormElements, workLists) {
@@ -60,7 +61,8 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.getEntity().individual, nextScheduledVisits);
     }
 
     getWorkContext() {

@@ -524,6 +524,37 @@ class IndividualService extends BaseService {
         individualClone.voided = setVoided;
         this.register(individualClone);
     }
+
+    determineSubjectForVisitToBeScheduled(individual, nextScheduledVisit) {
+        return nextScheduledVisit.subject ? nextScheduledVisit.subject : individual;
+    }
+
+    validateAndInjectOtherSubjectForScheduledVisit(individual, nextScheduledVisits) {
+        const filteredNextScheduledVisits = [];
+        nextScheduledVisits.map(nsv => {
+            if ((!_.isEmpty(nsv.subjectUUID) && individual.uuid !== nsv.subjectUUID) ||
+                (!_.isEmpty(nsv.programEnrolment) && individual.uuid !== nsv.programEnrolment.individual.uuid)) {
+                try {
+                    const subject = !_.isEmpty(nsv.programEnrolment) ? nsv.programEnrolment.individual : this.findByUUID(nsv.subjectUUID);
+                    if (_.isEmpty(subject)) {
+                        throw Error(`Attempted to schedule visit for non-existent subject with uuid ${nsv.subjectUUID}`)
+                    }
+                    if (!this.unVoided(subject)) {
+                        throw Error(`Attempted to schedule visit for voided subject with uuid: ${nsv.subjectUUID}`);
+                    }
+                    nsv.subject = subject;
+                    filteredNextScheduledVisits.push(nsv);
+                } catch (e) {
+                    General.logDebug("Rule-Failure", `Error while saving visit schedule for other subject: ${nsv.subjectUUID}`);
+                    this.getService(RuleEvaluationService).saveFailedRules(e, nsv.subjectUUID, individual.uuid);
+                }
+            } else {
+                //not setting nsv.subject here to differentiate these from visits being scheduled for other subjects
+                filteredNextScheduledVisits.push(nsv);
+            }
+        });
+        return filteredNextScheduledVisits;
+    }
 }
 
 export default IndividualService;
