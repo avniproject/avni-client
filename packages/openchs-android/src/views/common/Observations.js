@@ -111,7 +111,7 @@ class Observations extends AbstractComponent {
 
         let addressLevelService = null;
         if (renderType === Concept.dataType.Location) {
-            const isWithinCatchment = !!concept.recordValueByKey(Concept.keys.isWithinCatchment);
+            const isWithinCatchment = concept.recordValueByKey(Concept.keys.isWithinCatchment) !== 'false';
             addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
         }
 
