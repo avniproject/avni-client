@@ -44,11 +44,12 @@ class LocationHierarchyFormElement extends AbstractFormElement {
     }
 
     isWithinCatchment() {
-        return !!this.props.element.concept.recordValueByKey(Concept.keys.isWithinCatchment);
+        return this.props.element.concept.recordValueByKey(Concept.keys.isWithinCatchment) !== 'false';
     }
 
     render() {
         const lowestAddressLevel = !_.isEmpty(_.get(this.props.value, 'answer')) ? this.addressLevelService.findByUUID(this.props.value.answer) : null;
+
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 {this.label}
