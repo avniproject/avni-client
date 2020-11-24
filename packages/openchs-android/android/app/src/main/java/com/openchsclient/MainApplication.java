@@ -2,7 +2,7 @@ package com.openchsclient;
 
 import android.app.Application;
 import com.brentvatne.react.ReactVideoPackage;
-import com.bugsnag.BugsnagReactNative;
+import com.bugsnag.android.Bugsnag;
 import com.facebook.react.ReactApplication;
 import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
 import com.microsoft.codepush.react.CodePush;
@@ -23,6 +23,7 @@ import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
+import com.bugsnag.android.Bugsnag;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,6 +72,7 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         BackgroundTaskPackage.useContext(this);
+        Bugsnag.start(this);
     }
 
     @Override
