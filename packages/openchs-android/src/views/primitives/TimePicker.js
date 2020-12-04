@@ -15,6 +15,7 @@ class TimePicker extends AbstractComponent {
         validationResult: PropTypes.object,
         actionName: PropTypes.string.isRequired,
         actionObject: PropTypes.object.isRequired,
+        timePickerMode: PropTypes.string
     };
 
     constructor(props, context) {
@@ -24,9 +25,15 @@ class TimePicker extends AbstractComponent {
         this.showTimePicker = this.showTimePicker.bind(this);
     }
 
-    render() {
 
-        const options = _.isNil(this.props.timeValue) ?  {} : _.merge(General.toTimeObject(this.props.timeValue), {is24Hour: false});
+render() {
+    console.log(`TimePicker: props timePickerMode: ${this.props.timePickerMode}`);
+    const timePickerMode = _.isNil(this.props.timePickerMode) ?
+            'default' : this.props.timePickerMode;
+        console.log(`TimePicker: final timePickerMode: ${timePickerMode}`);
+        const options = _.isNil(this.props.timeValue) ?  {mode: timePickerMode} : _.merge(General.toTimeObject(this.props.timeValue), {mode: timePickerMode});
+    console.log(`TimePicker: options: ${JSON.stringify(options)}`);
+
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>

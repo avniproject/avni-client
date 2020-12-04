@@ -7,6 +7,7 @@ import TimePicker from "../../primitives/TimePicker";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
+import UserInfoService from "../../../service/UserInfoService";
 
 class TimeFormElement extends AbstractFormElement {
     static propTypes = {
@@ -19,6 +20,7 @@ class TimeFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+        this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
     render() {
@@ -35,7 +37,13 @@ class TimeFormElement extends AbstractFormElement {
                          }, Styles.formBodyText]}>{_.isNil(this.props.timeValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.timeValue.asDisplayDate()}</Text>:
                         <TimePicker timeValue={this.props.timeValue.getValue()}
                                     validationResult={this.props.validationResult}
-                                    actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
+                                    actionObject={{formElement: this.props.element}}
+                                    actionName={this.props.actionName}
+                                    timePickerMode={_.isNil(this.props.element.timePickerMode)
+                                        ? this.userSettings.timePickerMode
+                                        : this.props.element.timePickerMode
+                                    }
+                        />
 }
             </View>);
     }

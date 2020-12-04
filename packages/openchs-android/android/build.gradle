@@ -38,10 +38,7 @@ allprojects {
         maven { url "https://jitpack.io" }
         maven { url 'https://maven.google.com' }
         maven { url "https://dl.google.com/dl/android/maven2/index.html" }
-        maven {
-            url "https://repo.spring.io/libs-release/"
-            name 'Spring Libs'
-        }
+        maven { url 'https://repo1.maven.org/maven2'}
     }
 
 }
