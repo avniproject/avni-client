@@ -32,6 +32,7 @@ import IndividualEncounterLandingView from "../individual/IndividualEncounterLan
 import IndividualEncounterView from "../individual/IndividualEncounterView";
 import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
+import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -156,8 +157,10 @@ class SystemRecommendationView extends AbstractComponent {
                                               observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
                                               title={this.I18n.t('systemRecommendations')}/>
                             </View>
-                            <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits}
+                            <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject))}
                                                  title={this.I18n.t('visitsBeingScheduled')}/>
+                            <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
+                                                 title={this.I18n.t('visitsBeingScheduledForOthers')}/>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

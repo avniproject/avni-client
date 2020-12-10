@@ -2,6 +2,7 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "../service/ConceptService";
+import IndividualService from "../service/IndividualService";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -115,10 +116,16 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         const programConfig = ruleService
-                .findByKey("program.uuid", this.enrolment.program.uuid, ProgramConfig.schema.name);
-        return this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name,
-            [..._.get(programConfig, "visitSchedule", [])]
-                .map(k => _.assignIn({}, k))) : null;
+            .findByKey("program.uuid", this.enrolment.program.uuid, ProgramConfig.schema.name);
+        if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name,
+                [..._.get(programConfig, "visitSchedule", [])]
+                    .map(k => _.assignIn({}, k)));
+            return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.enrolment.individual, nextScheduledVisits);
+        } else {
+            return null;
+        }
+
     }
 
     static isInitialised(programEnrolmentState) {

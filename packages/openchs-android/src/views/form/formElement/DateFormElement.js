@@ -42,6 +42,7 @@ class DateFormElement extends AbstractFormElement {
                                         ? this.userSettings.datePickerMode
                                         : this.props.element.datePickerMode
                                     }
+                                    timePickerMode={this.userSettings.timePickerMode}
                                     pickTime={concept && concept.datatype === Concept.dataType.DateTime}
                                     actionObject={{formElement: this.props.element}} actionName={this.props.actionName}/>
 }

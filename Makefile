@@ -63,7 +63,6 @@ deps_ci: build_env_ci ##
 
 ignore_deps_changes:
 	git checkout package-lock.json
-	git checkout packages/openchs-health-modules/package-lock.json
 # </deps>
 
 #for emulators using virtualbox
@@ -211,7 +210,6 @@ clean_packager_cache:
 
 clean_env:  ##
 	rm -rf packages/openchs-android/node_modules
-	rm -rf packages/openchs-health-modules/node_modules
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
 	rm -rf packages/utilities/node_modules
@@ -256,58 +254,7 @@ analyse_crash: ##
 # </crash>
 
 
-# <metadata>
-deploy_metadata:  ## Deploy demo metadata
-	cd packages/openchs-health-modules && make deploy_metadata
 
-deploy_platform_translations:
-	cd packages/openchs-health-modules && make deploy_platform_translations
-
-deploy_common_concepts_dev:
-	cd packages/openchs-health-modules && make deploy_common_concepts_dev
-
-deploy_common_concepts_staging:
-	cd packages/openchs-health-modules && make auth deploy_common_concepts_dev poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
-
-deploy_common_concepts_uat:
-	cd packages/openchs-health-modules && make auth deploy_common_concepts_dev poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
-
-deploy_common_concepts_live:
-	cd packages/openchs-health-modules && make auth deploy_common_concepts_dev poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
-
-deploy_metadata_staging:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
-
-deploy_platform_translations_staging:
-	cd packages/openchs-health-modules && make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
-
-deploy_metadata_uat:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
-
-deploy_platform_translations_uat:
-	cd packages/openchs-health-modules && make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
-
-deploy_metadata_staging_local:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=http://localhost port=8021 username=admin password=$(password)
-
-deploy_metadata_live:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
-
-deploy_platform_translations_live:
-	cd packages/openchs-health-modules && make deploy_translations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
-
-deploy_metadata_prerelease:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=admin password=$(password)
-
-deploy_platform_translations_prerelease:
-	cd packages/openchs-health-modules && make deploy_translations poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=admin password=$(password)
-
-deploy_metadata_refdata: deploy_metadata ## Deploy common metadata and demo refdata
-	cd packages/demo-organisation && make deploy
-
-deploy_referral_concepts_fix_prod:
-	cd packages/openchs-health-modules && make deploy_referral_concepts_fix poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
-# </metadata>
 
 screencap:
 	mkdir -p ./tmp/
@@ -337,10 +284,6 @@ upload-prod-apk-arm:
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk s3://samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk"
 
-#server,port args need to be provided
-lbp_inpremise_deploy:
-	cd packages/openchs-health-modules && make deploy poolId=$(OPENCHS_LBP_PROD_USER_POOL_ID) clientId=$(OPENCHS_LBP_PROD_APP_CLIENT_ID) username=admin password=$(password) server=$(server) port=$(port)
-
 define _inpremise_upload_prod_apk
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk;
 	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk"
@@ -349,17 +292,5 @@ endef
 #orgname needs to be provided
 inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
-
-get-token-prod:
-	@node packages/openchs-health-modules/scripts/token 'https://server.openchs.org' $(username) $(password)
-
-get-token-staging:
-	@node packages/openchs-health-modules/scripts/token 'https://staging.openchs.org' $(username) $(password)
-
-get-token-uat:
-	@node packages/openchs-health-modules/scripts/token 'https://uat.openchs.org' $(username) $(password)
-
-get-token-prerelease:
-	@node packages/openchs-health-modules/scripts/token 'https://prerelease.openchs.org' $(username) $(password)
 
 #$(MAKECMDGOALS): check-node-v ;

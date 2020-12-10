@@ -3,6 +3,7 @@ import Wizard from "./Wizard";
 import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig, StaticFormElementGroup} from "avni-models";
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
+import IndividualService from "../service/IndividualService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed) {
@@ -88,8 +89,9 @@ class ProgramEncounterState extends AbstractDataEntryState {
     getNextScheduledVisits(ruleService, context) {
         const programConfig = ruleService
                 .findByKey("program.uuid", this.programEncounter.programEnrolment.program.uuid, ProgramConfig.schema.name);
-        return ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [..._.get(programConfig, "visitSchedule", [])]
             .map(k => _.assignIn({}, k)));
+        return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.programEncounter.individual, nextScheduledVisits);
     }
 
     getEffectiveDataEntryDate() {

@@ -8,6 +8,10 @@ class StubbedIndividualService extends StubbedBaseService {
     eligiblePrograms(individualUUID) {
         return this.serviceData.eligiblePrograms;
     }
+
+    validateAndInjectOtherSubjectForScheduledVisit(individual, nextScheduledVisits) {
+        return nextScheduledVisits;
+    }
 }
 
 export default StubbedIndividualService;

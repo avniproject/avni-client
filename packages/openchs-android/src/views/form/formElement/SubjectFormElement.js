@@ -38,7 +38,7 @@ class SubjectFormElement extends AbstractFormElement {
         if (!_.isEmpty(answersToShow)) {
             answersToShow.map(uuid => {
                 const subject = this.individualService.findByUUID(uuid);
-                if (subject != null) {
+                if (subject != null && this.individualService.unVoided(subject)) {
                     this.subjectOptions.push(subject);
                 }
             });

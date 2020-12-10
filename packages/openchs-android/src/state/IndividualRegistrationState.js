@@ -5,6 +5,7 @@ import ConceptService from "../service/ConceptService";
 import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "avni-models";
 import General from "../utility/General";
 import HouseholdState from "./HouseholdState";
+import IndividualService from "../service/IndividualService";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists) {
@@ -101,7 +102,8 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        return ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
+        return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.individual, nextScheduledVisits);
     }
 }
 

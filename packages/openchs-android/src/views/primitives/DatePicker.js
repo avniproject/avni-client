@@ -16,6 +16,7 @@ class DatePicker extends AbstractComponent {
         validationResult: PropTypes.object,
         actionName: PropTypes.string.isRequired,
         datePickerMode: PropTypes.string,
+        timePickerMode: PropTypes.string,
         actionObject: PropTypes.object.isRequired,
         pickTime: PropTypes.bool,
         nonRemovable: PropTypes.bool,
@@ -73,7 +74,11 @@ class DatePicker extends AbstractComponent {
     render() {
         const date = _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue;
         const datePickerMode = _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode;
-        const timePickerMode = datePickerMode === 'calendar' ? 'clock' : datePickerMode;
+        const timePickerMode = _.isNil(this.props.datePickerMode) ?
+            _.isNil(this.props.timePickerMode) ?
+                'default' : this.props.timePickerMode
+            : datePickerMode === 'calendar' ? 'clock' : datePickerMode;
+
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>

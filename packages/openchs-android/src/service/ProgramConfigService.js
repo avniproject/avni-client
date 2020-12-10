@@ -2,7 +2,7 @@ import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
 import _ from "lodash";
 import {ProgramConfig} from 'avni-models';
-import {programConfig} from 'openchs-health-modules';
+import {programConfig} from 'avni-health-modules';
 
 @Service("programConfigService")
 class ProgramConfigService extends BaseService {
