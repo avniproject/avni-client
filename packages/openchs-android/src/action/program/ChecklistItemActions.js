@@ -45,6 +45,11 @@ class ChecklistItemActions {
         return newState;
     }
 
+    static onUndo(state, action, context) {
+        context.get(ChecklistService).undoChecklistItem(action.checklistItem);
+        return state;
+    }
+
     static encounterDateTimeChanged(state, action, context) {
         const newState = state.clone();
         newState.checklistItem.completionDate = action.value;
@@ -67,6 +72,7 @@ const ChecklistItemActionNames = {
     NEXT: 'ci.NEXT',
     ENCOUNTER_DATE_TIME_CHANGED: "ci.ENROLMENT_DATE_TIME_CHANGED",
     SAVE: "ci.SAVE",
+    UNDO: 'ci.UNDO'
 };
 
 const ChecklistItemActionMap = new Map([
@@ -81,6 +87,7 @@ const ChecklistItemActionMap = new Map([
     [ChecklistItemActionNames.PREVIOUS, ChecklistItemActions.onPrevious],
     [ChecklistItemActionNames.ENCOUNTER_DATE_TIME_CHANGED, ChecklistItemActions.encounterDateTimeChanged],
     [ChecklistItemActionNames.SAVE, ChecklistItemActions.onSave],
+    [ChecklistItemActionNames.UNDO, ChecklistItemActions.onUndo],
 ]);
 
 export {

@@ -10,12 +10,15 @@ import {ChecklistItem} from 'avni-models';
 import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {  ObservationsHolder  } from 'avni-models';
+import { AvniAlert } from "../common/AvniAlert";
 
 class ChecklistItemDisplay extends AbstractComponent {
     static propTypes = {
         checklistItem: PropTypes.object.isRequired,
         applicableState: PropTypes.object.isRequired,
         completionDateAction: PropTypes.string,
+        undoAction: PropTypes.string,
+        reloadCallback: PropTypes.func,
         style: PropTypes.object,
         editable: PropTypes.bool,
     };
@@ -34,12 +37,43 @@ class ChecklistItemDisplay extends AbstractComponent {
         }
     }
 
+    showUndoAlert(checklistItem, reloadCallback) {
+        return () => AvniAlert(this.I18n.t('undoChecklistItemConfirmTitle'), this.I18n.t('undoChecklistItemConfirmMessage', {
+            vaccinationName: checklistItem.detail.name
+        }), () => {
+            this.dispatchAction(this.props.undoAction, {checklistItem: checklistItem});
+            reloadCallback();
+        }, this.I18n)
+    }
+
+    renderUndoAction(checklistItem, reloadCallback) {
+        return (
+            <View>
+            <TouchableHighlight style={this.appendedStyle({
+                borderWidth: 0,
+                borderColor: 'rgba(97, 97, 97, 0.20)',
+                borderRadius: 4,
+                padding: 0,
+                margin: 2,
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.1,
+                shadowRadius: 1.5,
+                alignSelf: 'center'
+            })} onPress={this.showUndoAlert(checklistItem)}>
+                <Text style={{ fontSize: Fonts.Normal, color: Colors.NegativeActionButtonColor }}
+                      onPress={this.showUndoAlert(checklistItem, reloadCallback)}>{this.I18n.t('Undo')}</Text>
+            </TouchableHighlight>
+            </View>
+        )
+    }
+
     render() {
         const status = this.props.applicableState.status;
         const backgroundColor = status.color;
         const statusText = status.state;
         const maxDateText = General.toDisplayDate(this.props.applicableState.statusDate);
         return (
+            <View>
             <TouchableHighlight style={this.appendedStyle({
                 borderWidth: 2,
                 borderColor: 'rgba(97, 97, 97, 0.20)',
@@ -60,10 +94,10 @@ class ChecklistItemDisplay extends AbstractComponent {
                           onPress={this.completeChecklistItem(this.props.checklistItem)}>{maxDateText}</Text>
                 </View>
             </TouchableHighlight>
+            {statusText === 'Completed' && this.renderUndoAction(this.props.checklistItem, this.props.reloadCallback)}
+            </View>
         );
     }
-
-
 }
 
 export default ChecklistItemDisplay;
