@@ -6,6 +6,7 @@ import {Duration} from 'avni-models';
 import DGS from "../primitives/DynamicGlobalStyles";
 import Fonts from "../primitives/Fonts";
 import {ChecklistActions, ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
+import {ChecklistItemActionNames} from "../../action/program/ChecklistItemActions";
 import Styles from "../primitives/Styles";
 import _ from 'lodash';
 import Distances from "../primitives/Distances";
@@ -38,7 +39,10 @@ export default (props) => (
                             key={idx}
                             checklistItem={item.checklistItem}
                             applicableState={item.applicableState}
-                            completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}/>
+                            completionDateAction={Actions.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE}
+                            undoAction={ChecklistItemActionNames.UNDO}
+                            reloadCallback={props.reloadCallback}
+                        />
                     )}
                 </View>
             </View>)}

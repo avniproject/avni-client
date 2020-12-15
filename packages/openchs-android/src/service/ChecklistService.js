@@ -71,6 +71,15 @@ class ChecklistService extends BaseService {
     checklistByCriteria(criteria) {
         return this.getAll(Checklist.schema.name).filtered(criteria)
     }
+
+    undoChecklistItem(checklistItem) {
+        General.logDebug('ChecklistService', `Undoing checklist item with uuid ${checklistItem.uuid}`);
+        const existingChecklistItem = super.findByUUID(checklistItem.uuid, ChecklistItem.schema.name);
+        let undoChecklistItem = existingChecklistItem.clone();
+        undoChecklistItem.setCompletionDate(null);
+        undoChecklistItem.observations = [];
+        return this.saveChecklistItem(undoChecklistItem);
+    }
 }
 
 export default ChecklistService;
