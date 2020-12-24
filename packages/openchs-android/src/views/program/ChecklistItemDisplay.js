@@ -39,7 +39,7 @@ class ChecklistItemDisplay extends AbstractComponent {
 
     showUndoAlert(checklistItem, reloadCallback) {
         const placeholders = {
-            vaccinationName: checklistItem.detail.name
+            vaccinationName: checklistItem.detail.concept.name
         };
         return () => AvniAlert(this.I18n.t('undoChecklistItemConfirmTitle', placeholders), this.I18n.t('undoChecklistItemConfirmMessage'), () => {
             this.dispatchAction(this.props.undoAction, {checklistItem: checklistItem});
