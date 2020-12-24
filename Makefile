@@ -294,3 +294,61 @@ inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
 
 #$(MAKECMDGOALS): check-node-v ;
+
+#Translations
+port:= $(if $(port),$(port),8021)
+server:= $(if $(server),$(server),http://localhost)
+
+token:=
+poolId:=
+clientId:=
+username:=
+password:=
+
+auth:
+	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) $(password))))
+
+get-token: auth
+	@echo
+	@echo $(token)
+	@echo
+
+auth_live:
+	make auth poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
+	echo $(token)
+
+upload = \
+	curl -X POST $(server):$(port)/$(1) -d $(2)  \
+		-H "Content-Type: application/json"  \
+		-H "USER-NAME: admin"  \
+		-H "AUTH-TOKEN: $(token)"
+
+
+deploy_translations: deploy_platform_translations
+
+deploy_platform_translations: auth dev_deploy_platform_translations
+
+dev_deploy_platform_translations:
+	$(call upload,platformTranslation,@packages/openchs-android/translations/en.json)
+	@echo
+	$(call upload,platformTranslation,@packages/openchs-android/translations/gu_IN.json)
+	@echo
+	$(call upload,platformTranslation,@packages/openchs-android/translations/hi_IN.json)
+	@echo
+	$(call upload,platformTranslation,@packages/openchs-android/translations/mr_IN.json)
+	@echo
+	$(call upload,platformTranslation,@packages/openchs-android/translations/ta_IN.json)
+	@echo
+	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
+
+deploy_platform_translations_staging:
+	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
+
+deploy_platform_translations_uat:
+	make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)
+
+deploy_platform_translations_prerelease:
+	make deploy_translations poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.openchs.org port=443 username=admin password=$(password)
+
+deploy_platform_translations_live:
+	make deploy_translations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.openchs.org port=443 username=admin password=$(password)
