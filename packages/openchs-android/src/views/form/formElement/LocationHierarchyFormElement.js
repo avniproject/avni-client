@@ -44,7 +44,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
     }
 
     isWithinCatchment() {
-        return this.props.element.concept.recordValueByKey(Concept.keys.isWithinCatchment) !== 'false';
+        return this.props.element.concept.recordValueByKey(Concept.keys.isWithinCatchment);
     }
 
     render() {
