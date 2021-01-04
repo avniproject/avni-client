@@ -22,6 +22,10 @@ class ChecklistItemActions {
             return o.displayOrder
         }]), (formElementGroup) => ChecklistItemActions.filterFormElements(formElementGroup, context, action.checklistItem).length !== 0);
 
+        if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
+            return ChecklistItemState.createOnLoadStateForEmptyForm(action.checklistItem, form, false);
+        }
+
         let filteredElements = ChecklistItemActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.checklistItem);
 
         return ChecklistItemState.createOnLoad(action.checklistItem, form, false, firstGroupWithAtLeastOneVisibleElement, filteredElements);
