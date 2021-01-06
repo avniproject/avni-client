@@ -114,15 +114,15 @@ class CustomFilterService extends BaseService {
     // Note that the query is run for every filter(concept) separately, this is because we don't have
     // joins in realm and after getting latest from each filter(concept) we need to query for selected concept answer.
     queryFromLatestObservation(schemaName, conceptFilters, selectedAnswerFilters, scopeFilters, sortFilter, indFunc, widget) {
-        const latestEncounters = [...this.db.objects(schemaName)
+        const latestEncounters = this.db.objects(schemaName)
             .filtered(`voided = false `)
             //limit the scope of query by giving encounter/program uuid
             .filtered(_.isEmpty(scopeFilters) ? 'uuid != null' : ` ${scopeFilters} `)
             //filter encounters where concept answer is present
             .filtered(_.isEmpty(conceptFilters) ? 'uuid != null' : conceptFilters)
             //get the most latest encounter for an individual
-            .filtered(_.isEmpty(sortFilter) ? 'uuid != null' : ` ${sortFilter} `)
-        ];
+            .filtered(_.isEmpty(sortFilter) ? 'uuid != null' : ` ${sortFilter} `);
+
         return widget === CustomFilter.widget.Range ? this.filterForRangeWidgetType(latestEncounters, selectedAnswerFilters, indFunc)
             : this.filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc);
     }
@@ -130,10 +130,7 @@ class CustomFilterService extends BaseService {
     filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
-        const latestEncounterFilters = latestEncounters.map(enc => `uuid=="${enc.uuid}"`).join(" OR ");
-        return _.isEmpty(latestEncounters) ? [] : [...this.db.objects(schemaName)
-        //get the latest encounters
-            .filtered(` ${latestEncounterFilters} `)
+        return _.isEmpty(latestEncounters) ? [] : [...latestEncounters
             //check if selected filter is present in the observations
             .filtered(` ${selectedAnswerFilters()} `)
             .map(indFunc)
