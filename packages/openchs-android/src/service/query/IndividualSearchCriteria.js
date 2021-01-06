@@ -34,7 +34,7 @@ class IndividualSearchCriteria {
 
         if (!_.isEmpty(this.obsKeyword)) {
             let trimmedKeyword = this.obsKeyword.trim();
-            criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}")`);
+            criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}" OR name contains[c] "${trimmedKeyword}")`);
         }
 
         if (this.lowestAddressLevels.length !== 0) {
