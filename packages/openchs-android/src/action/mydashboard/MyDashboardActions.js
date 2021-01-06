@@ -117,7 +117,7 @@ class MyDashboardActions {
             context.get(DashboardCacheService).saveOrUpdate(dashboardCache);
         }
 
-        const {counts, lastUpdatedOn, cachedFilters} = MyDashboardActions.getResultCounts(queryResult, context);
+        const {counts, lastUpdatedOn, cachedFilters} = MyDashboardActions.getResultCounts(queryResult, subjectType, context);
         const cachedDate = cachedFilters.date;
 
         return {
@@ -137,10 +137,12 @@ class MyDashboardActions {
         };
     }
 
-    static getResultCounts(queryResult, context) {
+    static getResultCounts(queryResult, subjectType, context) {
         const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
         const cachedData = context.get(DashboardCacheService).cachedData();
-        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON()) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0));
+        const privilegeService = context.get(PrivilegeService);
+        const displayProgramTab = privilegeService.displayProgramTab(subjectType);
+        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON(), displayProgramTab) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0), displayProgramTab);
         const lastUpdatedOn = cachedData.updatedAt;
         const filterJSON = cachedData.getFilterJSON();
         const cachedFilters = readCachedData ? filterJSON : {};
@@ -309,7 +311,7 @@ class MyDashboardActions {
         return {...state, loading: action.status};
     }
 
-    static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total}) {
+    static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total}, displayProgramTab) {
         const row1 = {
             visits: {
                 scheduled: {count: scheduled, abnormal: false},
@@ -340,6 +342,9 @@ class MyDashboardActions {
                 total: {count: total, abnormal: false}
             }
         };
+        if(!displayProgramTab){
+            delete row2.visits.recentlyCompletedEnrolment;
+        }
         return [row1, row2, row3];
     }
 }
