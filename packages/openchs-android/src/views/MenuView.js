@@ -37,6 +37,7 @@ import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {backup} from "../BackupRestoreRealm";
 import moment from "moment";
+import CustomDashboardView from "./customDashboard/CustomDashboardView";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -187,6 +188,10 @@ class MenuView extends AbstractComponent {
         )
     };
 
+    onDashboard() {
+        TypedTransition.from(this).to(CustomDashboardView);
+    }
+
     background() {
         return Platform['Version'] >= 21 ?
             TouchableNativeFeedback.SelectableBackgroundBorderless() :
@@ -241,6 +246,8 @@ class MenuView extends AbstractComponent {
                     <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
                     <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
                           onPress={() => this.entitySyncStatusView()}/>,
+                    <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
+                          onPress={this.onDashboard.bind(this)}/>,
                     <Item icon={this.icon("backup-restore")} titleKey="backup"
                           onPress={this.onBackup.bind(this)}/>
                 ]
