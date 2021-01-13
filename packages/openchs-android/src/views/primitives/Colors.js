@@ -52,6 +52,7 @@ class Colors {
     static VisitFilterButtonColor = '#4a90e2';
     static Separator = '#C0C0C0';
     static SecondaryText = '#929292';
+    static SelectedTabColor = '#1C96FF';
 
 }
 

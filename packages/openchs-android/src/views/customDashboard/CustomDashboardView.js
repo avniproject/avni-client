@@ -6,15 +6,15 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {ScrollView, Text, TouchableNativeFeedback, View} from "react-native";
+import {ScrollView, View, SafeAreaView} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
-import Styles from "../primitives/Styles";
-import Colors from "../primitives/Colors";
 import CustomDashboardCard from "./CustomDashboardCard";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualSearchResultsView from "../individual/IndividualSearchResultsView";
 import CHSNavigator from "../../utility/CHSNavigator";
+import Colors from "../primitives/Colors";
+import Separator from "../primitives/Separator";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -50,12 +50,14 @@ class CustomDashboardView extends AbstractComponent {
             <CustomDashboardCard
                 reportCard={reportCard}
                 onCardPress={this.onCardPress.bind(this)}/>
-            );
+        );
     }
 
     onCardPress(reportCardUUID) {
-        return this.dispatchAction(Actions.ON_CARD_PRESS, {reportCardUUID,
+        return this.dispatchAction(Actions.ON_CARD_PRESS, {
+            reportCardUUID,
             cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+                headerTitle: 'subjectsList',
                 searchResults: individualSearchResults,
                 totalSearchResultsCount: count,
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)
@@ -65,14 +67,17 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         return (
-            <CHSContainer>
-                <CHSContent>
-                    <AppHeader title={this.I18n.t('dashboards')}/>
-                    <ScrollView horizontal
-                                style={{elevation: 2, paddingHorizontal: 3, paddingTop: 5}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+                <AppHeader title={this.I18n.t('dashboards')}/>
+                <SafeAreaView style={{height: 50}}>
+                    <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                         {this.renderDashboards()}
                     </ScrollView>
-                    {this.renderCards()}
+                </SafeAreaView>
+                <CHSContent>
+                    <ScrollView>
+                        {this.renderCards()}
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

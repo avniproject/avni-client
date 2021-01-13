@@ -14,7 +14,9 @@ class CustomDashboardService extends BaseService {
     }
 
     getAllDashboards() {
-        return this.getAll().filtered('voided = false');
+        return [...this.getAll().filtered('voided = false')];
     }
 
 }
+
+export default CustomDashboardService

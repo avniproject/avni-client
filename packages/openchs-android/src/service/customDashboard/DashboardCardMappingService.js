@@ -16,8 +16,10 @@ class DashboardCardMappingService extends BaseService {
     getAllCardsForDashboard(dashboardUUID) {
         return this.getAll()
             .filtered('voided = false and dashboard.uuid = $0', dashboardUUID)
-            .sorted('displayOrder', true)
+            .sorted('displayOrder')
             .map(({card}) => card)
     }
 
 }
+
+export default DashboardCardMappingService

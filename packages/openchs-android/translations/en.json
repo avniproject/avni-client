@@ -354,6 +354,7 @@
     "subjectSummary": "Summary",
     "undoChecklistItemConfirmTitle": "Confirm Undo {{vaccinationName}}",
     "undoChecklistItemConfirmMessage": "Are you sure you want to undo this vaccination?",
-    "dashboards": "Dashboards"
+    "dashboards": "Dashboards",
+    "subjectsList": "Subject List"
   }
 }

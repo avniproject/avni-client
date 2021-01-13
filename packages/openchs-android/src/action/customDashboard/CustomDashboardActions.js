@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-
+import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
+import DashboardCardMappingService from "../../service/customDashboard/DashboardCardMappingService";
+import EntityService from "../../service/EntityService";
+import {ReportCard} from "avni-models";
 
 class CustomDashboardActions {
 
@@ -9,61 +12,37 @@ class CustomDashboardActions {
     }
 
     static onLoad(state, action, context) {
-        const ruleEvaluationService = context.get(RuleEvaluationService);
+        const dashboardService = context.get(CustomDashboardService);
         const newState = {...state};
-        const dashboards = [
-            {
-                name: "Dashboard 1",
-                uuid: "1",
-                cards: [{name: "card11", query: "", colour: "red"}, {name: "card12", query: "", colour: "blue"}]
-            },
-            {
-                name: "Dashboard 2",
-                uuid: "2",
-                cards: [{name: "card21", query: "", colour: "green"}, {name: "card22", query: "", colour: "orange"}]
-            },
-            {
-                name: "Big dashboard name dashboard3",
-                uuid: "3",
-                cards: [{name: "card31", query: "", colour: "yellow"}, {name: "card32", query: "", colour: "pink"}]
-            }
-        ];
+        const dashboards = dashboardService.getAllDashboards();
         newState.dashboards = dashboards;
-        newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
-        const reportCards = dashboards.filter(d => d.uuid === _.get(_.head(dashboards), 'uuid'))[0].cards;
-        const dummyQuery = `'use strict';
-({params, imports}) => {
-            return params.db.objects('Individual')
-            .filtered("SUBQUERY(enrolments, $enrolment, SUBQUERY($enrolment.encounters, $encounter, $encounter.encounterDateTime >= 2020-01-01@00:00:00 and $encounter.encounterDateTime <= 2021-01-31@23:59:59 and $encounter.encounterType.name = 'Monthly monitoring of pregnant woman' and $encounter.voided = false).@count >= 4).@count > 0")
-            }`;
-        newState.reportCards = reportCards.map(rc => ({
-            ...rc,
-            count: ruleEvaluationService.getDashboardCardCount(dummyQuery)
-        }));
+        const firstDashboardUUID = _.get(_.head(dashboards), 'uuid');
+        newState.activeDashboardUUID = firstDashboardUUID;
+        if (firstDashboardUUID) {
+            newState.reportCards = CustomDashboardActions.getReportsCardsWithQueryCount(firstDashboardUUID, context);
+        }
         return newState;
     }
 
+    static getReportsCardsWithQueryCount(dashboardUUID, context) {
+        const reportCards = context.get(DashboardCardMappingService).getAllCardsForDashboard(dashboardUUID);
+        return reportCards.map(rc => ({
+            ...rc,
+            count: context.get(RuleEvaluationService).getDashboardCardCount(rc.query)
+        }));
+    }
+
     static onDashboardChange(state, action, context) {
-        const ruleEvaluationService = context.get(RuleEvaluationService);
         const newState = {...state};
         newState.activeDashboardUUID = action.dashboardUUID;
-        const reportCards = state.dashboards.filter(d => d.uuid === action.dashboardUUID)[0].cards;
-        const dummyQuery = `'use strict';
-({params, imports}) => {
-            return params.db.objects('Individual')
-            .filtered('voided = false')
-            }`;
-        newState.reportCards = reportCards.map(rc => ({
-            ...rc,
-            count: ruleEvaluationService.getDashboardCardCount(dummyQuery)
-        }));
+        newState.reportCards = CustomDashboardActions.getReportsCardsWithQueryCount(action.dashboardUUID, context);
         return newState;
     }
 
     static onCardPress(state, action, context) {
         const ruleEvaluationService = context.get(RuleEvaluationService);
         const newState = {...state};
-        const reportCardUUID = action.reportCardUUID;
+        const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
         const dummyQuery = `'use strict';
 ({params, imports}) => {
             return params.db.objects('Individual')

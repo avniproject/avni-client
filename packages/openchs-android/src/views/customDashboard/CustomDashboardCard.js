@@ -1,7 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
-import _ from "lodash";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 
@@ -31,6 +30,7 @@ export default class CustomDashboardCard extends AbstractComponent {
                 elevation: 2,
                 backgroundColor: Colors.cardBackgroundColor,
                 marginVertical: 3,
+                marginHorizontal: 3,
             }}>
                 <View style={{
                     flexDirection: 'row',
@@ -46,7 +46,7 @@ export default class CustomDashboardCard extends AbstractComponent {
                             fontSize: Styles.normalTextSize
                         }}>{name}</Text>
                     </View>
-                    <View style={{backgroundColor: colour, width: '25%'}}>
+                    <View style={{backgroundColor: colour, width: '25%', paddingVertical: 1}}>
                         <View
                             style={{
                                 alignSelf: 'center'
