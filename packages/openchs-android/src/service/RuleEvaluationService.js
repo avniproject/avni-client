@@ -547,6 +547,25 @@ class RuleEvaluationService extends BaseService {
         return true;
     }
 
+    executeDashboardCardRule(rule) {
+        const ruleFunc = eval(rule);
+        const result = ruleFunc({
+            params: {db: this.db},
+            imports: {lodash, moment }
+        });
+        return result;
+    }
+
+    getDashboardCardCount(rule) {
+        const queryResult = this.executeDashboardCardRule(rule);
+        return queryResult.length;
+    }
+
+    getDashboardCardQueryResult(rule) {
+        const queryResult = this.executeDashboardCardRule(rule);
+        return queryResult;
+    }
+
     runOnAll(rulesToRun) {
         const conceptService = this.getService(ConceptService);
         const programEnrolmentService = this.getService(ProgramEnrolmentService);

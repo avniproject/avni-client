@@ -19,7 +19,8 @@ class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
         searchResults: PropTypes.array.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
-        onIndividualSelection: PropTypes.func.isRequired
+        onIndividualSelection: PropTypes.func.isRequired,
+        headerTitle: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -73,11 +74,11 @@ class IndividualSearchResultsView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
-        const width = Dimensions.get('window').width;
+        const title = this.props.headerTitle || "searchResults";
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t("searchResults")}/>
+                <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
                 <CHSContent>

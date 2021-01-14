@@ -3,7 +3,7 @@
   "locale": "en",
   "pageSize": 100,
   "dev": {
-    "pageSize": 100,
+    "pageSize": 1000,
     "skipValidation": false
   }
 }

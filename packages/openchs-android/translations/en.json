@@ -353,6 +353,8 @@
     "homePressMessage": "Are you sure you want to go back to home screen? You will lose all the form changes.",
     "subjectSummary": "Summary",
     "undoChecklistItemConfirmTitle": "Confirm Undo {{vaccinationName}}",
-    "undoChecklistItemConfirmMessage": "Are you sure you want to undo this vaccination?"
+    "undoChecklistItemConfirmMessage": "Are you sure you want to undo this vaccination?",
+    "dashboards": "Dashboards",
+    "subjectsList": "Subject List"
   }
 }
