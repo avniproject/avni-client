@@ -6,15 +6,15 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {ScrollView, View, SafeAreaView} from "react-native";
+import {ScrollView, SafeAreaView} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import CustomDashboardCard from "./CustomDashboardCard";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualSearchResultsView from "../individual/IndividualSearchResultsView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
-import Separator from "../primitives/Separator";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -46,23 +46,26 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     renderCards() {
-        return _.map(this.state.reportCards, reportCard =>
-            <CustomDashboardCard
-                reportCard={reportCard}
-                onCardPress={this.onCardPress.bind(this)}/>
+        return _.map(_.filter(this.state.reportCardMappings, ({dashboard}) => this.state.activeDashboardUUID === dashboard.uuid),
+            rcm => <CustomDashboardCard key={rcm.uuid}
+                                        reportCard={rcm.card}
+                                        executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
+                                        onCardPress={this.onCardPress.bind(this)}/>
         );
     }
 
     onCardPress(reportCardUUID) {
-        return this.dispatchAction(Actions.ON_CARD_PRESS, {
+        this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
+        return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
             cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+                indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: 'subjectsList',
                 searchResults: individualSearchResults,
                 totalSearchResultsCount: count,
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)
-            }).to(IndividualSearchResultsView, true)
-        });
+            }).to(IndividualSearchResultPaginatedView, true)
+        }), 0);
     }
 
     render() {
@@ -75,6 +78,7 @@ class CustomDashboardView extends AbstractComponent {
                     </ScrollView>
                 </SafeAreaView>
                 <CHSContent>
+                    <CustomActivityIndicator loading={this.state.loading}/>
                     <ScrollView>
                         {this.renderCards()}
                     </ScrollView>
