@@ -5,6 +5,8 @@ import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
 import MediaQueueService from "../MediaQueueService";
+import IndividualService from "../IndividualService";
+import EncounterService from "../EncounterService";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -55,6 +57,12 @@ class ProgramEncounterService extends BaseService {
 
     saveScheduledVisits(enrolment, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
+            if (nSV.programEnrolment) {
+                return this.saveScheduledVisit(nSV.programEnrolment, nSV, db, schedulerDate);
+            }
+            if (this.getService(IndividualService).determineSubjectForVisitToBeScheduled(enrolment.individual, nSV).uuid !== enrolment.individual.uuid) {
+                return this.getService(EncounterService).saveScheduledVisit(nSV.subject, nSV, db, schedulerDate);
+            }
             return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
         });
     }
