@@ -148,7 +148,7 @@ export const PaginatedView = ({searchResults, onIndividualSelection, currentPage
     return (
         <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
             <AppHeader title={I18n.t(title)}/>
-            <SearchResultsHeader totalCount={totalCount} displayedCount={dataSource.length}/>
+            <SearchResultsHeader totalCount={totalCount} displayedCount={dataSource.length} displayResultCounts={true}/>
             <CHSContent>
                 <SafeAreaView style={{flex: 1}}>
                     <FlatList

@@ -6,7 +6,7 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {ScrollView, SafeAreaView} from "react-native";
+import {ScrollView, SafeAreaView, View, Text} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import CustomDashboardCard from "./CustomDashboardCard";
@@ -15,6 +15,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
 import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import GlobalStyles from "../primitives/GlobalStyles";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -68,6 +69,18 @@ class CustomDashboardView extends AbstractComponent {
         }), 0);
     }
 
+    renderZeroResultsMessageIfNeeded() {
+        if (_.size(this.state.dashboards) === 0)
+            return (
+                <View>
+                    <Text
+                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('dashboardsNotAvailable')}</Text>
+                </View>
+            );
+        else
+            return (<View/>);
+    }
+
     render() {
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
@@ -75,6 +88,7 @@ class CustomDashboardView extends AbstractComponent {
                 <SafeAreaView style={{height: 50}}>
                     <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                         {this.renderDashboards()}
+                        {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
                 </SafeAreaView>
                 <CHSContent>

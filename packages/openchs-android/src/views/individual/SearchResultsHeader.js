@@ -11,6 +11,7 @@ class SearchResultsHeader extends AbstractComponent {
     static propTypes = {
         totalCount: PropTypes.number.isRequired,
         displayedCount: PropTypes.number.isRequired,
+        displayResultCounts: PropTypes.number,
     };
 
     static SearchResultsLimit = 50;
@@ -29,13 +30,14 @@ class SearchResultsHeader extends AbstractComponent {
     });
 
     render() {
+        const displayResultCounts = (this.props.totalCount > SearchResultsHeader.SearchResultsLimit) || this.props.displayResultCounts;
         return (
             <View style={SearchResultsHeader.styles.container}>
                 <Text>
                     <Text style={{fontSize: 18, color: Colors.DefaultPrimaryColor}}>{`${this.I18n.t("totalMatchingResults")}: `}</Text>
                     <Text style={{fontSize: 18, color: Colors.DarkPrimaryColor}}>{this.props.totalCount}</Text>
                 </Text>
-                {this.props.totalCount > SearchResultsHeader.SearchResultsLimit &&
+                {displayResultCounts &&
                 <Text>
                     <Text style={{fontSize: 18, color: Colors.DefaultPrimaryColor}}>{`${this.I18n.t("displayed")}: `}</Text>
                     <Text style={{fontSize: 18, color: Colors.DarkPrimaryColor}}>{this.props.displayedCount}</Text>
