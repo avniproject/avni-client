@@ -1,10 +1,12 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment} from 'avni-models';
+import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment, FormMapping} from 'avni-models';
 import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
 import MediaQueueService from "../MediaQueueService";
+import IndividualService from "../IndividualService";
+import EncounterService from "../EncounterService";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -48,13 +50,25 @@ class ProgramEncounterService extends BaseService {
         if (_.isEmpty(encountersToUpdate) || visitCreationStrategy === 'createNew') {
             const encounterType = this.findByKey('name', encounterTypeName, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${encounterTypeName} that doesn't exist`);
-            encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
+            const formMapping = this.findByKey('observationsTypeEntityUUID', encounterType.uuid, FormMapping.schema.name);
+            const isProgramEncounter = !_.isNil(formMapping.entityUUID);
+            if (isProgramEncounter) {
+                encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
+            } else {
+                this.getService(EncounterService).saveScheduledVisit(enrolment.individual, nextScheduledVisit, db, schedulerDate);
+            }
         }
         _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));
     }
 
     saveScheduledVisits(enrolment, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
+            if (nSV.programEnrolment) {
+                return this.saveScheduledVisit(nSV.programEnrolment, nSV, db, schedulerDate);
+            }
+            if (this.getService(IndividualService).determineSubjectForVisitToBeScheduled(enrolment.individual, nSV).uuid !== enrolment.individual.uuid) {
+                return this.getService(EncounterService).saveScheduledVisit(nSV.subject, nSV, db, schedulerDate);
+            }
             return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
         });
     }
