@@ -2,7 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
-import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder} from 'avni-models';
+import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder, FormMapping} from 'avni-models';
 import _ from 'lodash';
 import MediaQueueService from "./MediaQueueService";
 import IndividualService from "./IndividualService";
@@ -60,7 +60,8 @@ class EncounterService extends BaseService {
         if (_.isEmpty(encountersToUpdate)) {
             const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
-            if (_.isEmpty(nextScheduledVisit.programEnrolment)) {
+            const isProgramEncounter = this.findByCriteria(`observationsTypeEntityUUID = '${encounterType.uuid}' && form.formType = 'ProgramEncounter'`, FormMapping.schema.name);
+            if (!isProgramEncounter) {
                 encountersToUpdate = [Encounter.createScheduled(encounterType, individual)];
             } else {
                 this.getService(ProgramEncounterService).saveScheduledVisit(nextScheduledVisit.programEnrolment, nextScheduledVisit, db, schedulerDate);

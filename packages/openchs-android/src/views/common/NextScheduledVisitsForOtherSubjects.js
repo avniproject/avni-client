@@ -98,7 +98,7 @@ class NextScheduledVisitsForOtherSubjects extends AbstractComponent {
         if (_.isEmpty(this.props.nextScheduledVisits)) return <View/>;
 
         const visitsBySubject = _.sortBy(_.toArray(_.groupBy(this.props.nextScheduledVisits, 'subject.uuid')).map((value) => ({
-            title: value[0].subject.name,
+            title: value[0].subject.nameString,
             data: value
         })), (visit) => visit.title.toLowerCase());
         const dateFormat = "DD-MMM-YYYY";
