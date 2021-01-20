@@ -41,7 +41,7 @@ export default class CustomDashboardTab extends AbstractComponent {
                 <Text style={{
                     fontSize: Styles.titleSize,
                     color: isSelected ? Colors.headerTextColor : Colors.bottomBarIconColor
-                }}>{name}</Text>
+                }}>{this.I18n.t(name)}</Text>
             </TouchableOpacity>
         </View>
     }

@@ -64,7 +64,7 @@ export default class CustomDashboardCard extends AbstractComponent {
                     }}>
                         <Text style={{
                             fontSize: Styles.normalTextSize
-                        }}>{name}</Text>
+                        }}>{this.I18n.t(name)}</Text>
                     </View>
                     <View style={{backgroundColor: colour, width: '25%', paddingVertical: 1}}>
                         <View
