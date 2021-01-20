@@ -2,6 +2,7 @@ import {SyncTelemetry} from 'avni-models';
 import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
+import moment from "moment";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -9,7 +10,26 @@ class SyncTelemetryActions {
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
+        syncTelemetry.deviceInfo = SyncTelemetryActions.getDeviceInfo();
         return {syncTelemetry};
+    }
+
+    static getDeviceInfo() {
+        const deviceInfo = {};
+        deviceInfo.brand = DeviceInfo.getBrand();
+        deviceInfo.manufacturer = DeviceInfo.getManufacturerSync();
+        deviceInfo.deviceType = DeviceInfo.getDeviceType();
+        deviceInfo.carrier = DeviceInfo.getCarrierSync();
+        deviceInfo.isEmulator = DeviceInfo.isEmulatorSync();
+        deviceInfo.powerState = DeviceInfo.getPowerStateSync();
+        deviceInfo.freeDiskStorage = DeviceInfo.getFreeDiskStorageSync();
+        deviceInfo.totalMemory = DeviceInfo.getTotalMemorySync();
+        deviceInfo.maxMemory = DeviceInfo.getMaxMemorySync();
+        deviceInfo.isPinOrFingerprintSet = DeviceInfo.isPinOrFingerprintSetSync();
+        deviceInfo.isLocationEnabled = DeviceInfo.isLocationEnabledSync();
+        deviceInfo.firstInstallTime = moment(DeviceInfo.getFirstInstallTimeSync()).format("DD MMM YYYY hh:mm a");
+        deviceInfo.lastUpdateTime = moment(DeviceInfo.getLastUpdateTimeSync()).format("DD MMM YYYY hh:mm a");
+        return JSON.stringify(deviceInfo);
     }
 
     static clone(state) {
