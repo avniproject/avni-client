@@ -6,6 +6,7 @@ import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
+import {logScreenEvent} from "../../utility/Analytics";
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -79,6 +80,7 @@ class AbstractComponent extends Component {
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
         this.refreshState();
+        logScreenEvent(this.viewName())
     }
 
     refreshState() {

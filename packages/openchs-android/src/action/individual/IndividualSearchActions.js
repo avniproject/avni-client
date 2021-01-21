@@ -6,6 +6,7 @@ import {SubjectType, Privilege} from "avni-models";
 import CustomFilterService from "../../service/CustomFilterService";
 import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -76,6 +77,7 @@ export class IndividualSearchActions {
     };
 
     static searchIndividuals(state, action, beans) {
+        const startTime = Date.now();
         const newState = IndividualSearchActions.clone(state);
         newState.searchCriteria.addGenderCriteria(state.selectedGenders);
         newState.searchCriteria.addCustomFilters(state.selectedCustomFilters);
@@ -88,12 +90,14 @@ export class IndividualSearchActions {
         });
         if (customFilterService.isSearchFiltersEmpty(selectedCustomFilterForSubjectType)) {
             const searchResponse = individualService.search(newState.searchCriteria);
+            logEvent(firebaseEvents.SEARCH_FILTER, {time_taken: Date.now() - startTime});
             action.cb(searchResponse.slice(0, 50), searchResponse.length);
             return newState;
         }
         const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters');
         const searchResponse = _.isEmpty(individualUUIDs) ? [] :
             individualService.search(newState.searchCriteria).filter(i => _.includes(individualUUIDs, i.uuid));
+        logEvent(firebaseEvents.SEARCH_FILTER, {time_taken: Date.now() - startTime});
         action.cb(searchResponse.slice(0, 50), searchResponse.length);
         return newState;
     };

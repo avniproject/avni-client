@@ -1,4 +1,3 @@
-import {expect} from "chai";
 import Reducers from "../../../src/reducer/index";
 import TestContext from "../views/testframework/TestContext";
 
@@ -54,6 +53,14 @@ jest.mock("react-native-device-info", () => {
         }
     };
 });
+
+jest.mock("../../../src/utility/Analytics", () => {
+    return {
+        logEvent: function () {
+        }
+    }
+});
+
 
 describe("ReducerDefinitionTest", () => {
     it("wiring", () => {

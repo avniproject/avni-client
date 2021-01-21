@@ -25,6 +25,8 @@
     "postinstall": "npx jetify"
   },
   "dependencies": {
+    "@react-native-firebase/analytics": "^8.0.0",
+    "@react-native-firebase/app": "^9.0.0",
     "amazon-cognito-identity-js": "3.0.11",
     "avni-health-modules": "0.0.8",
     "base-64": "0.1.0",

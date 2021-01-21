@@ -44,7 +44,7 @@ class ChecklistItemDisplay extends AbstractComponent {
         return () => AvniAlert(this.I18n.t('undoChecklistItemConfirmTitle', placeholders), this.I18n.t('undoChecklistItemConfirmMessage'), () => {
             this.dispatchAction(this.props.undoAction, {checklistItem: checklistItem});
             reloadCallback();
-        }, this.I18n)
+        }, this.I18n, true)
     }
 
     renderUndoAction(checklistItem, reloadCallback) {

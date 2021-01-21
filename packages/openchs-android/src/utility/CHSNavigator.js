@@ -37,6 +37,7 @@ import BeneficiaryIdentificationPage from "../views/BeneficiaryIdentificationPag
 import EncounterService from "../service/EncounterService";
 import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
+import {firebaseEvents, logEvent} from "./Analytics";
 
 
 class CHSNavigator {
@@ -477,6 +478,8 @@ class CHSNavigator {
         const editing = params.editing || false;
         const backFunction = params.backFunction;
         const isCancelPage = encounter.isCancelled() || params.cancel;
+        const eventName = encounter instanceof Encounter ? 'EDIT_ENCOUNTER' : 'EDIT_PROGRAM_ENCOUNTER';
+        editing && logEvent(firebaseEvents[eventName]);
         if (isCancelPage) {
             CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
         } else if (encounter instanceof Encounter) {

@@ -1,3 +1,6 @@
+import moment from "moment";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
+
 class SyncActions {
 
     static getInitialState() {
@@ -12,14 +15,22 @@ class SyncActions {
     }
 
     static preSync(state) {
-        return {...state, syncing: true, syncMessage: "syncingData"};
+        const startTime = Date.now();
+        return {...state, syncing: true, syncMessage: "syncingData", startTime};
     }
 
     static postSync(state) {
-        return {...state, syncing: false, startSync: false};
+        const endTime = Date.now();
+        const syncTime = endTime - state.startTime;
+        logEvent(firebaseEvents.SYNC_COMPLETE, {time_taken: syncTime});
+        return {...state, syncing: false, startSync: false, syncTime};
     }
 
     static onError(state) {
+        const dateTimeFormat = "DD MMM YYYY hh:mm:ss a";
+        const syncStartTime = moment(state.startTime).format(dateTimeFormat);
+        const errorTime = moment().format(dateTimeFormat);
+        logEvent(firebaseEvents.SYNC_FAILED, {sync_start_time: syncStartTime, error_time: errorTime});
         return {...state, syncing: false};
     }
 

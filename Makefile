@@ -174,6 +174,12 @@ clear-log: ## Clear adb logs
 	adb logcat -c
 # </log>
 
+enable_firebase_debug_view:
+	adb shell setprop debug.firebase.analytics.app com.openchsclient
+
+disable_firebase_debug_view:
+	adb shell setprop debug.firebase.analytics.app .none.
+
 ts := $(shell /bin/date "+%Y-%m-%d---%H-%M-%S")
 dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 

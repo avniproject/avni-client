@@ -29,6 +29,7 @@ import AddNewMemberView from "../groupSubject/AddNewMemberView";
 import RemoveMemberView from "../groupSubject/RemoveMemberView";
 import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -96,10 +97,11 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         AvniAlert(this.I18n.t('deleteRelativeNoticeTitle'), this.I18n.t('deleteRelativeConfirmationMessage', {
             individualA: individualRelative.individual.name,
             individualB: individualRelative.relative.name
-        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}), this.I18n)
+        }), () => this.dispatchAction(Actions.ON_DELETE_RELATIVE, {individualRelative: individualRelative}), this.I18n, true)
     }
 
     editProfile() {
+        logEvent(firebaseEvents.EDIT_SUBJECT);
         CHSNavigator.navigateToRegisterView(this, new WorkLists(
             new WorkList(`${this.state.individual.subjectType.name} `,
                 [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,

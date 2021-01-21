@@ -9,6 +9,7 @@ import PrivilegeService from "../../service/PrivilegeService";
 import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import AddressLevelService from "../../service/AddressLevelService";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 class MyDashboardActions {
     static getInitialState(context) {
@@ -203,6 +204,7 @@ class MyDashboardActions {
     }
 
     static assignFilters(state, action, context) {
+        const startTime = Date.now();
         const shouldApplyValidEnrolmentQuery = (() => {
             if (action.programs.length > 1) return !_.isEmpty(action.selectedPrograms);
             if (action.programs.length === 1) return !_.isEmpty(action.selectedEncounterTypes);
@@ -304,7 +306,9 @@ class MyDashboardActions {
             selectedGenders: action.selectedGenders
         };
 
-        return _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
+        const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
+        logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime});
+        return updatedState;
     }
 
     static loadIndicator(state, action) {

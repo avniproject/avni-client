@@ -21,6 +21,7 @@ import SettingsService from "../../service/SettingsService";
 import UserInfoService from "../../service/UserInfoService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import IndividualService from "../../service/IndividualService";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -186,6 +187,7 @@ class ProgramEnrolmentDashboardActions {
     //Encounter Type
 
     static onEditEnrolment(state, action, context) {
+        logEvent(firebaseEvents.EDIT_ENROLMENT);
         const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
         let workLists = new WorkLists(
             new WorkList('Enrolment',
@@ -201,6 +203,7 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onEditEnrolmentExit(state, action, context) {
+        logEvent(firebaseEvents.EDIT_PROGRAM_EXIT);
         const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
         const workLists = new WorkLists(
             new WorkList('Exit',
