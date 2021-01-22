@@ -10,8 +10,18 @@ class SyncTelemetryActions {
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
-        syncTelemetry.deviceInfo = SyncTelemetryActions.getDeviceInfo();
         return {syncTelemetry};
+    }
+
+    static onSyncStart(state, action) {
+        const newState = SyncTelemetryActions.clone(state);
+        const syncTelemetry = newState.syncTelemetry;
+        const deviceInfo = SyncTelemetryActions.getDeviceInfo();
+        const {type, effectiveType} = action.connectionInfo;
+        deviceInfo.connectionType = type;
+        deviceInfo.effectiveConnectionType = effectiveType;
+        syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
+        return newState;
     }
 
     static getDeviceInfo() {
@@ -29,7 +39,7 @@ class SyncTelemetryActions {
         deviceInfo.isLocationEnabled = DeviceInfo.isLocationEnabledSync();
         deviceInfo.firstInstallTime = moment(DeviceInfo.getFirstInstallTimeSync()).format("DD MMM YYYY hh:mm a");
         deviceInfo.lastUpdateTime = moment(DeviceInfo.getLastUpdateTimeSync()).format("DD MMM YYYY hh:mm a");
-        return JSON.stringify(deviceInfo);
+        return deviceInfo;
     }
 
     static clone(state) {
@@ -122,7 +132,7 @@ const SyncTelemetryActionsMap = new Map([
     [SyncTelemetryActionNames.ENTITY_PULL_COMPLETED, SyncTelemetryActions.entityPullCompleted],
     [SyncTelemetryActionNames.SYNC_COMPLETED, SyncTelemetryActions.syncCompleted],
     [SyncTelemetryActionNames.SYNC_FAILED, SyncTelemetryActions.syncFailed],
-    [SyncTelemetryActionNames.START_SYNC, SyncTelemetryActions.getInitialState],
+    [SyncTelemetryActionNames.START_SYNC, SyncTelemetryActions.onSyncStart],
 ]);
 
 export {

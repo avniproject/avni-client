@@ -95,7 +95,7 @@ class SyncService extends BaseService {
         }
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop) {
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo) {
 
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
@@ -105,7 +105,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
-        this.dispatchAction(SyncTelemetryActions.START_SYNC);
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo});
 
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))

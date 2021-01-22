@@ -150,15 +150,17 @@ class SyncComponent extends AbstractComponent {
         NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
     }
 
-    sync() {
+    async sync() {
         if (this.state.isConnected) {
             const syncService = this.context.getService(SyncService);
             const onError = this._onError.bind(this);
             this._preSync();
+            //sending connection info like this because this returns promise and not possible in the action
+            const connectionInfo = await NetInfo.getConnectionInfo();
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
-                (message) => this.messageCallBack(message)).catch(onError)
+                (message) => this.messageCallBack(message), connectionInfo).catch(onError)
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
