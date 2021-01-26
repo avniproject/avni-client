@@ -25,6 +25,7 @@ import Reducers from "../reducer";
 import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 const {width, height} = Dimensions.get('window');
 
@@ -160,7 +161,7 @@ class SyncComponent extends AbstractComponent {
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
-                (message) => this.messageCallBack(message), connectionInfo).catch(onError)
+                (message) => this.messageCallBack(message), connectionInfo,this.state.startTime).catch(onError)
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);

@@ -1,4 +1,14 @@
-import {Alert, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View, Linking} from "react-native";
+import {
+    Alert,
+    Platform,
+    ScrollView,
+    SectionList,
+    StyleSheet,
+    Text,
+    TouchableNativeFeedback,
+    View,
+    Linking
+} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -38,6 +48,7 @@ import Config from "../framework/Config";
 import {backup} from "../BackupRestoreRealm";
 import moment from "moment";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -92,6 +103,7 @@ class MenuView extends AbstractComponent {
     _logout = () => {
         const authService = this.context.getService(AuthService);
         authService.logout().then(() => {
+            logEvent(firebaseEvents.LOG_OUT);
             CHSNavigator.navigateToLoginView(this, false);
         });
     };

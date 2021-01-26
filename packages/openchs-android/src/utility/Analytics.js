@@ -48,5 +48,8 @@ export const firebaseEvents = {
     EDIT_ENROLMENT: 'edit_enrolment',
     EDIT_PROGRAM_ENCOUNTER: 'edit_program_encounter',
     EDIT_PROGRAM_EXIT: 'edit_enrolment_exit',
-    ABORT_FORM: 'abort_form'
+    ABORT_FORM: 'abort_form',
+    LOG_IN: 'login',
+    LOG_IN_ERROR: 'login_error',
+    LOG_OUT: 'logout'
 };

@@ -305,10 +305,26 @@ class MyDashboardActions {
             individualUUIDs,
             selectedGenders: action.selectedGenders
         };
-
+        const selectedFilterTypes = MyDashboardActions.getSelectedFilterTypes(newState);
         const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
-        logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime});
+        logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
+    }
+
+    static getSelectedFilterTypes({selectedLocations, selectedPrograms, selectedEncounterTypes, selectedGeneralEncounterTypes, selectedCustomFilters, selectedGenders}) {
+        const selectedValueFilterTypeMap = {
+            'Location': selectedLocations,
+            'Program': selectedPrograms,
+            'ProgramEncounter': selectedEncounterTypes,
+            'GeneralEncounter': selectedGeneralEncounterTypes,
+            'Gender': selectedGenders,
+            ...selectedCustomFilters
+        };
+        return _.chain(selectedValueFilterTypeMap)
+            .pickBy((v,k) => !_.isEmpty(v))
+            .keys()
+            .join(', ')
+            .value();
     }
 
     static loadIndicator(state, action) {
@@ -346,7 +362,7 @@ class MyDashboardActions {
                 total: {count: total, abnormal: false}
             }
         };
-        if(!displayProgramTab){
+        if (!displayProgramTab) {
             delete row2.visits.recentlyCompletedEnrolment;
         }
         return [row1, row2, row3];

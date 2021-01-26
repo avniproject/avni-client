@@ -88,19 +88,36 @@ export class IndividualSearchActions {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === state.searchCriteria.subjectType.uuid);
             return s.length === 0 ? [] : s
         });
+        const searchFilterTypes = IndividualSearchActions.getSearchFilterTypes(newState, selectedCustomFilterForSubjectType);
         if (customFilterService.isSearchFiltersEmpty(selectedCustomFilterForSubjectType)) {
             const searchResponse = individualService.search(newState.searchCriteria);
-            logEvent(firebaseEvents.SEARCH_FILTER, {time_taken: Date.now() - startTime});
+            logEvent(firebaseEvents.SEARCH_FILTER, {
+                time_taken: Date.now() - startTime,
+                applied_filters: searchFilterTypes
+            });
             action.cb(searchResponse.slice(0, 50), searchResponse.length);
             return newState;
         }
         const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters');
         const searchResponse = _.isEmpty(individualUUIDs) ? [] :
             individualService.search(newState.searchCriteria).filter(i => _.includes(individualUUIDs, i.uuid));
-        logEvent(firebaseEvents.SEARCH_FILTER, {time_taken: Date.now() - startTime});
+        logEvent(firebaseEvents.SEARCH_FILTER, {
+            time_taken: Date.now() - startTime,
+            applied_filters: searchFilterTypes
+        });
         action.cb(searchResponse.slice(0, 50), searchResponse.length);
         return newState;
     };
+
+    static getSearchFilterTypes(state, selectedCustomFilterForSubjectType) {
+        const propertiesToRemove = ['includeVoided', 'subjectType', 'allowedSubjectUUIDs', 'selectedCustomFilters'];
+        const allFilters = {..._.omit(state.searchCriteria, propertiesToRemove), ...selectedCustomFilterForSubjectType};
+        return _.chain(allFilters)
+            .pickBy((v, k) => !_.isEmpty(v))
+            .keys()
+            .join(', ')
+            .value();
+    }
 
     static getInitialState(state) {
         return {searchCriteria: IndividualSearchCriteria.empty(), refreshed: false, subjectTypes: []};

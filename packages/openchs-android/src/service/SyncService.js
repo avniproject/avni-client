@@ -15,6 +15,7 @@ import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTe
 import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -95,7 +96,7 @@ class SyncService extends BaseService {
         }
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo) {
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime) {
 
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
@@ -110,6 +111,7 @@ class SyncService extends BaseService {
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
+            .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]));
 
         //Even blank dataServerSync with no data in or out takes quite a while.
@@ -120,6 +122,11 @@ class SyncService extends BaseService {
                 .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, _.noop))
                 .then(syncCompleted)
             : firstDataServerSync.then(syncCompleted);
+    }
+
+    logSyncCompleteEvent(syncStartTime) {
+        const syncTime = Date.now() - syncStartTime;
+        logEvent(firebaseEvents.SYNC_COMPLETE, {time_taken: syncTime});
     }
 
     imageSync(statusMessageCallBack) {

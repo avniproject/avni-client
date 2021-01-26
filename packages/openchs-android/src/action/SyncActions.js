@@ -20,17 +20,20 @@ class SyncActions {
     }
 
     static postSync(state) {
-        const endTime = Date.now();
-        const syncTime = endTime - state.startTime;
-        logEvent(firebaseEvents.SYNC_COMPLETE, {time_taken: syncTime});
-        return {...state, syncing: false, startSync: false, syncTime};
+        return {...state, syncing: false, startSync: false};
     }
 
     static onError(state) {
         const dateTimeFormat = "DD MMM YYYY hh:mm:ss a";
         const syncStartTime = moment(state.startTime).format(dateTimeFormat);
-        const errorTime = moment().format(dateTimeFormat);
-        logEvent(firebaseEvents.SYNC_FAILED, {sync_start_time: syncStartTime, error_time: errorTime});
+        const errorTime = Date.now();
+        const syncTime = errorTime - state.startTime;
+        const params = {
+            time_taken: syncTime,
+            sync_start_time: syncStartTime,
+            error_time: moment(errorTime).format(dateTimeFormat)
+        };
+        logEvent(firebaseEvents.SYNC_FAILED, params);
         return {...state, syncing: false};
     }
 

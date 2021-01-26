@@ -3,6 +3,7 @@ import General from "../utility/General";
 import {ValidationResult} from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
+import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 class LoginActions {
     static getInitialState() {
@@ -48,6 +49,7 @@ class LoginActions {
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     action.success();
+                    logEvent(firebaseEvents.LOG_IN);
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
@@ -58,6 +60,7 @@ class LoginActions {
             }, (error) => {
                 General.logError("LoginActions", error);
                 const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
+                logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg});
                 action.failure(errorMsg);
             });
         return _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
