@@ -59,7 +59,7 @@ class ChecklistItemActions {
         newState.checklistItem.completionDate = action.value;
         const formElementStatuses = ObservationsHolderActions.updateFormElements(newState.formElementGroup, newState, context);
         newState.observationsHolder.removeNonApplicableObs(newState.formElementGroup.getFormElements(), newState.filteredFormElements);
-        newState.observationsHolder.updatePrimitiveObs(newState.filteredFormElements, formElementStatuses);
+        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         return newState;
     }
 }

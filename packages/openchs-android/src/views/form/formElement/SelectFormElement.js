@@ -26,6 +26,7 @@ class SelectFormElement extends AbstractFormElement {
     }
 
     render() {
+        const disabled = this.props.element.editable === false;
         const valueLabelPairs = this.props.element.getAnswers()
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
@@ -38,7 +39,9 @@ class SelectFormElement extends AbstractFormElement {
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
+                    labelValuePairs={valueLabelPairs}
+                    disabled={disabled}
+                />
             </View>);
     }
 

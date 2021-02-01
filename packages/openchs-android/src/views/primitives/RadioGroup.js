@@ -26,6 +26,7 @@ class RadioGroup extends AbstractComponent {
         borderStyle: {},
         inPairs: false,
         multiSelect: false,
+        disabled: false,
     };
 
     static propTypes = {
@@ -60,7 +61,8 @@ class RadioGroup extends AbstractComponent {
                                       style={{
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                           paddingRight: Distances.HorizontalSpacingBetweenOptionItems
-                                      }}/>
+                                      }}
+                                      disabled={this.props.disabled}/>
                 )}
             </View>);
     }
@@ -76,7 +78,9 @@ class RadioGroup extends AbstractComponent {
                               style={{
                                   paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                   paddingRight: Distances.HorizontalSpacingBetweenOptionItems
-                              }}/>)
+                              }}
+                              disabled={this.props.disabled}
+                              />)
     }
 
     renderSingleValue() {

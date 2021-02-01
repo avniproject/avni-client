@@ -45,7 +45,7 @@ export class ProgramEnrolmentActions {
                 action.workLists
             );
             programEnrolmentState = programEnrolmentState.clone();
-            programEnrolmentState.observationsHolder.updatePrimitiveObs(filteredElements, formElementStatuses);
+            programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
             return programEnrolmentState;
         } else {
             return state.clone();

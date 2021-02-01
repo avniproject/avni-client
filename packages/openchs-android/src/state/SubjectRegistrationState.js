@@ -36,7 +36,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
-        state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
+        state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         return state;
     }
 

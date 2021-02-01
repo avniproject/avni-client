@@ -12,7 +12,8 @@ import General from "../../utility/General";
 class PresetOptionItem extends AbstractComponent {
 
     static defaultProps = {
-        chunked: false
+        chunked: false,
+        disabled: false,
     };
 
     static propTypes = {
@@ -39,10 +40,10 @@ class PresetOptionItem extends AbstractComponent {
 
     getSelectComponent() {
         if (this.props.multiSelect)
-            return (<CheckBox  checked={this.props.checked}
+            return (<CheckBox disabled={this.props.disabled} checked={this.props.checked}
                               onPress={() => this.props.onPress()}/>);
         else
-            return (<Radio  selected={this.props.checked}
+            return (<Radio disabled={this.props.disabled} selected={this.props.checked}
                            onPress={() => this.props.onPress()} color={Colors.AccentColor}/>);
     }
 
@@ -73,7 +74,7 @@ class PresetOptionItem extends AbstractComponent {
         };
         const ToRender = this.props.chunked ? chunked : single;
         return (
-            <TouchableOpacity onPress={() => this.props.onPress()} style={ToRender.container}>
+            <TouchableOpacity onPress={() => this.props.onPress()} style={ToRender.container} disabled={this.props.disabled}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'flex-start'}}>
                     <View>
                         {this.getSelectComponent()}

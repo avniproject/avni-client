@@ -50,7 +50,7 @@ class EncounterActionState extends AbstractDataEntryState {
     static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
-        state.observationsHolder.updatePrimitiveObs(filteredFormElements, formElementStatuses);
+        state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
