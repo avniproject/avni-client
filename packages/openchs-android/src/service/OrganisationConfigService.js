@@ -16,7 +16,7 @@ class OrganisationConfigService extends BaseService {
 
     getSettings() {
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
-        return _.isEmpty(orgConfig) ? [] : orgConfig.getSettings();
+        return _.isEmpty(orgConfig) ? {} : orgConfig.getSettings();
     }
 
     getCustomRegistrationLocations() {
@@ -25,6 +25,10 @@ class OrganisationConfigService extends BaseService {
 
     getCustomRegistrationLocationsForSubjectType(subjectTypeUUID) {
         return _.find(this.getCustomRegistrationLocations(), crl => crl.subjectTypeUUID === subjectTypeUUID)
+    }
+
+    isSaveDraftOn() {
+        return !!this.getSettings().saveDrafts;
     }
 
 }

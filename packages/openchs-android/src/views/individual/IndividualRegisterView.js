@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
-import themes from "../primitives/themes";
 import AddressLevels from "../common/AddressLevels";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import _ from "lodash";
@@ -26,7 +25,6 @@ import SubjectRegisterView from "../subject/SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
-import TypedTransition from "../../framework/routing/TypedTransition";
 import {AvniAlert} from "../common/AvniAlert";
 
 @Path('/individualRegister')
@@ -60,7 +58,12 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID, workLists: this.props.params.workLists});
+        this.dispatchAction(Actions.ON_LOAD,
+            {
+                individualUUID: this.props.params.individualUUID,
+                workLists: this.props.params.workLists,
+                isDraftEntity: this.props.params.isDraftEntity,
+            });
         super.componentWillMount();
     }
 

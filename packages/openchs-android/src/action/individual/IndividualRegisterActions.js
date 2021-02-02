@@ -1,7 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
+import {Gender, Individual, ObservationsHolder, Point, SubjectType, DraftSubject} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
@@ -10,6 +10,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import DraftSubjectService from "../../service/draft/DraftSubjectService";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -20,28 +21,22 @@ export class IndividualRegisterActions {
     }
 
     static onLoad(state, action, context) {
-        let isNewEntity = _.isNil(action.individualUUID);
-        let individual;
-        if (isNewEntity) {
-            individual = Individual.createEmptySubjectInstance();
-        } else {
-            const subjectFromDB = context.get(IndividualService).findByUUID(action.individualUUID);
-            individual = subjectFromDB.cloneForEdit();
-        }
-        const currentWorkItem = action.workLists.getCurrentWorkItem();
-        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
-
-        if (_.isEmpty(individual.subjectType.name)) {
-            individual.subjectType = subjectType;
-        }
+        let isNewEntity = action.isDraftEntity || _.isNil(action.individualUUID);
+        const individual = action.isDraftEntity ?
+            IndividualRegisterActions.getDraftIndividual(action, context) :
+            IndividualRegisterActions.getOrCreateIndividual(isNewEntity, action, context);
+        const subjectType = individual.subjectType;
         const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
         context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
-        const customRegistrationLocations = context.get(OrganisationConfigService).getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const organisationConfigService = context.get(OrganisationConfigService);
+        const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
+        const saveDrafts = isNewEntity && isSaveDraftOn;
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
-        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs);
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
     }
@@ -134,6 +129,10 @@ export class IndividualRegisterActions {
     }
 
     static onNext(state, action, context) {
+        if (state.saveDrafts) {
+            const draftIndividual = DraftSubject.create(state.individual);
+            context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
+        }
         return state.clone().handleNext(action, context);
     }
 
@@ -154,7 +153,32 @@ export class IndividualRegisterActions {
             }
         }
         action.cb();
+        context.get(DraftSubjectService).deleteDraftSubject(newState.individual.uuid);
         return newState;
+    }
+
+    static getDraftIndividual(action, context) {
+        const draftSubject = context.get(DraftSubjectService).findByUUID(action.individualUUID);
+        const subject = draftSubject.constructIndividual();
+        subject.name = subject.nameString;
+        return subject;
+    }
+
+    static getOrCreateIndividual(isNewEntity, action, context) {
+        let individual;
+        if (isNewEntity) {
+            individual = Individual.createEmptySubjectInstance();
+        } else {
+            const subjectFromDB = context.get(IndividualService).findByUUID(action.individualUUID);
+            individual = subjectFromDB.cloneForEdit();
+        }
+        const currentWorkItem = action.workLists.getCurrentWorkItem();
+        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+
+        if (_.isEmpty(individual.subjectType.name)) {
+            individual.subjectType = subjectType;
+        }
+        return individual;
     }
 }
 

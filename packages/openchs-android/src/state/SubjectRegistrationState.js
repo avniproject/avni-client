@@ -22,7 +22,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs) {
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new SubjectRegistrationState(
             [],
@@ -36,11 +36,12 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
+        state.saveDrafts = isNewEntity && isSaveDraftOn;
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
-    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs) {
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn) {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
@@ -53,6 +54,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
+        state.saveDrafts = isNewEntity && isSaveDraftOn;
         return state;
     }
 
@@ -65,6 +67,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.household = this.household.clone();
         newState.isNewEntity = this.isNewEntity;
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
+        newState.saveDrafts = this.saveDrafts;
         super.clone(newState);
         return newState;
     }

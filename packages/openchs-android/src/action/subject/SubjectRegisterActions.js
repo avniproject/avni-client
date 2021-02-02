@@ -2,7 +2,7 @@ import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
-import {Individual, SubjectType, Point, ObservationsHolder, WorkItem} from "avni-models";
+import {DraftSubject, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
@@ -10,6 +10,7 @@ import IdentifierAssignmentService from "../../service/IdentifierAssignmentServi
 import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import DraftSubjectService from "../../service/draft/DraftSubjectService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -22,31 +23,22 @@ export class SubjectRegisterActions {
     };
 
     static onLoad(state, action, context) {
-        let isNewEntity = _.isNil(action.subjectUUID);
-        let subject;
-        if (isNewEntity) {
-            subject = Individual.createEmptySubjectInstance();
-        } else {
-            const subjectFromDB = context.get(IndividualService).findByUUID(action.subjectUUID);
-            subject = subjectFromDB.cloneForEdit();
-        }
-
-        const currentWorkItem = action.workLists.getCurrentWorkItem();
-        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
-
-        if (_.isEmpty(subject.subjectType.name)) {
-            subject.subjectType = subjectType;
-        }
+        let isNewEntity = action.isDraftEntity || _.isNil(action.subjectUUID);
+        const subject = action.isDraftEntity ?
+            SubjectRegisterActions.getDraftSubject(action, context) :
+            SubjectRegisterActions.getOrCreateSubject(isNewEntity, action, context);
+        const subjectType = subject.subjectType;
         const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => SubjectRegisterActions.filterFormElements(formElementGroup, context, subject).length !== 0);
-
-        const customRegistrationLocations = context.get(OrganisationConfigService).getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const organisationConfigService = context.get(OrganisationConfigService);
+        const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
+        const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs);
+            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs, isSaveDraftOn);
         }
 
         //Populate identifiers much before form elements are hidden or sent to rules.
@@ -56,7 +48,8 @@ export class SubjectRegisterActions {
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        return SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs);
+        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn);
+        return action.isDraftEntity ? SubjectRegisterActions.setTotalMemberForDraftSubject(newState, context) : newState;
     }
 
     static enterRegistrationDate(state, action) {
@@ -94,6 +87,10 @@ export class SubjectRegisterActions {
     }
 
     static onNext(state, action, context) {
+        if (state.saveDrafts) {
+            const draftSubject = DraftSubject.create(state.subject, state.household.totalMembers);
+            context.get(DraftSubjectService).saveDraftSubject(draftSubject);
+        }
         return state.clone().handleNext(action, context);
     }
 
@@ -110,6 +107,7 @@ export class SubjectRegisterActions {
             context.get(GroupSubjectService).addMember(member);
         }
         action.cb();
+        context.get(DraftSubjectService).deleteDraftSubject(newState.subject.uuid);
         return newState;
     }
 
@@ -118,6 +116,36 @@ export class SubjectRegisterActions {
         newState.household.setTotalMembers(action.value);
         newState.handleValidationResult(newState.household.validateTotalMembers());
         return newState;
+    }
+
+    static getDraftSubject(action, context) {
+        const draftSubject = context.get(DraftSubjectService).findByUUID(action.subjectUUID);
+        const subject = draftSubject.constructIndividual();
+        subject.name = subject.nameString;
+        return subject;
+    }
+
+    static setTotalMemberForDraftSubject(state, context) {
+        const draftSubject = context.get(DraftSubjectService).findByUUID(state.subject.uuid);
+        state.household.totalMembers = draftSubject.totalMembers;
+        return state;
+    }
+
+    static getOrCreateSubject(isNewEntity, action, context) {
+        let subject;
+        if (isNewEntity) {
+            subject = Individual.createEmptySubjectInstance();
+        } else {
+            const subjectFromDB = context.get(IndividualService).findByUUID(action.subjectUUID);
+            subject = subjectFromDB.cloneForEdit();
+        }
+        const currentWorkItem = action.workLists.getCurrentWorkItem();
+        const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
+
+        if (_.isEmpty(subject.subjectType.name)) {
+            subject.subjectType = subjectType;
+        }
+        return subject;
     }
 }
 

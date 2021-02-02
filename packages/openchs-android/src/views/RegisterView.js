@@ -18,6 +18,11 @@ import FormMappingService from "../service/FormMappingService";
 import PrivilegeService from "../service/PrivilegeService";
 import GroupSubjectService from "../service/GroupSubjectService";
 import UserInfoService from "../service/UserInfoService";
+import DraftSubjectService from "../service/draft/DraftSubjectService";
+import IndividualDetailsCard from "./common/IndividualDetailsCard";
+import TypedTransition from "../framework/routing/TypedTransition";
+import SubjectRegisterView from "./subject/SubjectRegisterView";
+import IndividualRegisterView from "./individual/IndividualRegisterView";
 
 
 @Path('/registerView')
@@ -101,6 +106,36 @@ class RegisterView extends AbstractComponent {
         );
     }
 
+    renderDraft(subject) {
+        const subjectType = subject.subjectType;
+        return (
+            <TouchableNativeFeedback onPress={() => TypedTransition.from(this).with({
+                subjectUUID: subject.uuid,
+                individualUUID: subject.uuid,
+                isDraftEntity: true,
+                workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
+            }).to(subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView)}>
+                <View style={styles.draftCardStyle}>
+                    <IndividualDetailsCard individual={subject}/>
+                </View>
+            </TouchableNativeFeedback>
+        )
+    }
+
+    renderDrafts() {
+        const draftSubjects = this.context.getService(DraftSubjectService).findAll().sorted('updatedOn', true);
+        if (!_.isEmpty(draftSubjects)) {
+            return (
+                <View style={styles.draftContainerStyle}>
+                    <View style={styles.draftMessageContainer}>
+                    <Text style={styles.draftMessageStyle}>Drafts will stay here for 30 days, after which they are deleted</Text>
+                    </View>
+                    {_.map(draftSubjects, draftSubject => this.renderDraft(draftSubject.constructIndividual()))}
+                </View>
+            )
+        }
+    }
+
     render() {
         General.logDebug("RegisterView", "render");
         let actions = [];
@@ -141,6 +176,7 @@ class RegisterView extends AbstractComponent {
                                 key
                             )
                         )}
+                        {this.renderDrafts()}
                     </ScrollView>
                 </CHSContent>
             </CHSContainer>
@@ -189,5 +225,27 @@ const styles = StyleSheet.create({
         opacity: 0.8,
         alignSelf: 'center',
         fontSize: 40
+    },
+    draftContainerStyle: {
+        margin: 8,
+    },
+    draftMessageContainer:{
+        elevation: 2,
+        backgroundColor: Colors.FilterBar,
+        marginTop: 2,
+        marginBottom: 4,
+        flexWrap: 'wrap',
+        minHeight: 20,
+        width: '100%',
+    },
+    draftMessageStyle: {
+        textAlign: 'center',
+        color: Colors.TextOnPrimaryColor
+    },
+    draftCardStyle: {
+        elevation: 2,
+        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 3,
+        paddingBottom: 5,
     }
 });
