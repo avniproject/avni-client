@@ -1,8 +1,7 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import _ from "lodash";
-import {  Individual  } from 'avni-models';
-import {  EntityQueue  } from 'avni-models';
+import {EntityQueue} from 'avni-models';
 
 @Service("entityService")
 class EntityService extends BaseService {
@@ -29,6 +28,11 @@ class EntityService extends BaseService {
             this.db.create(schema, entity, true);
             this.db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
+    }
+
+    deleteAll(entities) {
+        const db = this.db;
+        _.forEach(entities, entity => db.write(() => db.delete(entity)))
     }
 }
 

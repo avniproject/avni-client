@@ -107,7 +107,7 @@ export class SubjectRegisterActions {
             context.get(GroupSubjectService).addMember(member);
         }
         action.cb();
-        context.get(DraftSubjectService).deleteDraftSubject(newState.subject.uuid);
+        context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.subject.uuid);
         return newState;
     }
 

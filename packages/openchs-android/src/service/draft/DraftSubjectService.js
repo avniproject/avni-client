@@ -25,7 +25,7 @@ class DraftSubjectService extends BaseService {
         });
     }
 
-    deleteDraftSubject(subjectUUID) {
+    deleteDraftSubjectByUUID(subjectUUID) {
         const db = this.db;
         const draftSubject = this.findByUUID(subjectUUID);
         if (draftSubject) {

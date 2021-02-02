@@ -153,7 +153,7 @@ export class IndividualRegisterActions {
             }
         }
         action.cb();
-        context.get(DraftSubjectService).deleteDraftSubject(newState.individual.uuid);
+        context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.individual.uuid);
         return newState;
     }
 
