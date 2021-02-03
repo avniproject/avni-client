@@ -356,6 +356,9 @@
     "undoChecklistItemConfirmMessage": "Are you sure you want to undo this vaccination?",
     "dashboards": "Dashboards",
     "subjectsList": "Subject List",
-    "dashboardsNotAvailable": "No dashboard available"
+    "dashboardsNotAvailable": "No dashboard available",
+    "draft": "Draft",
+    "draftDeleteMessage": "Drafts will stay here for 30 days, after which they are deleted",
+    "drafts": "Drafts"
   }
 }

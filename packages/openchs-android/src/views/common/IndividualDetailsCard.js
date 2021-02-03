@@ -10,6 +10,7 @@ class IndividualDetailsCard extends AbstractComponent {
 
     static propTypes = {
         individual: PropTypes.object.isRequired,
+        renderDraftString: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -63,6 +64,11 @@ class IndividualDetailsCard extends AbstractComponent {
                             {this.props.individual.voided &&
                             <Text style={{color: Styles.redColor}}>
                                 {` ${this.I18n.t("voidedLabel")}`}
+                            </Text>
+                            }
+                            {this.props.renderDraftString &&
+                            <Text style={{color: Styles.redColor}}>
+                                {` (${this.I18n.t("draft")})`}
                             </Text>
                             }
                         </Text>

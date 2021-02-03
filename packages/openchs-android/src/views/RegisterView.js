@@ -116,7 +116,7 @@ class RegisterView extends AbstractComponent {
                 workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
             }).to(subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView)}>
                 <View style={styles.draftCardStyle}>
-                    <IndividualDetailsCard individual={subject}/>
+                    <IndividualDetailsCard individual={subject} renderDraftString/>
                 </View>
             </TouchableNativeFeedback>
         )
@@ -127,8 +127,9 @@ class RegisterView extends AbstractComponent {
         if (!_.isEmpty(draftSubjects)) {
             return (
                 <View style={styles.draftContainerStyle}>
+                    <Text style={styles.draftHeaderStyle}>{this.I18n.t('drafts')}</Text>
                     <View style={styles.draftMessageContainer}>
-                    <Text style={styles.draftMessageStyle}>Drafts will stay here for 30 days, after which they are deleted</Text>
+                    <Text style={styles.draftMessageStyle}>{this.I18n.t('draftDeleteMessage')}</Text>
                     </View>
                     {_.map(draftSubjects, draftSubject => this.renderDraft(draftSubject.constructIndividual()))}
                 </View>
@@ -227,25 +228,35 @@ const styles = StyleSheet.create({
         fontSize: 40
     },
     draftContainerStyle: {
-        margin: 8,
+        marginTop: 16,
+        marginBottom: 40,
+        height: '100%',
+        paddingVertical: 24,
     },
-    draftMessageContainer:{
+    draftMessageContainer: {
         elevation: 2,
-        backgroundColor: Colors.FilterBar,
-        marginTop: 2,
+        marginTop: 8,
         marginBottom: 4,
         flexWrap: 'wrap',
         minHeight: 20,
         width: '100%',
     },
     draftMessageStyle: {
-        textAlign: 'center',
-        color: Colors.TextOnPrimaryColor
+        textAlign: 'left',
+        fontStyle: 'italic',
+        marginHorizontal: 12,
     },
     draftCardStyle: {
+        marginHorizontal: 12,
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,
         marginVertical: 3,
         paddingBottom: 5,
+    },
+    draftHeaderStyle: {
+        marginHorizontal: 12,
+        fontWeight: 'bold',
+        fontSize: 20,
+        color: Colors.DefaultPrimaryColor
     }
 });
