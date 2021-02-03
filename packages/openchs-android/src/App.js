@@ -16,12 +16,13 @@ import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
 import {removeBackupFile, restore} from "./BackupRestoreRealm";
 import fs from 'react-native-fs';
-import PrivilegeService from "./service/PrivilegeService";
+import DeleteDrafts from "./task/DeleteDrafts";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
 BackgroundTask.define(() => {
+    DeleteDrafts();
     PruneMedia().then(
         () => BackgroundTask.finish(),
         () => BackgroundTask.finish()
