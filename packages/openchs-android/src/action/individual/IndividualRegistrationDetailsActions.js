@@ -4,6 +4,7 @@ import IndividualRelationshipService from "../../service/relationship/Individual
 import GroupSubjectService from "../../service/GroupSubjectService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Individual} from 'avni-models';
+import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -14,6 +15,7 @@ class IndividualRegistrationDetailsActions {
 
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
+        const individualRelationGenderMappings = context.get(IndividualRelationGenderMappingService).filtered('voided = false');
         const relatives = context.get(IndividualRelationshipService).getRelatives(individual);
         const groupSubjects = context.get(GroupSubjectService).getGroupSubjects(individual);
         const subjectSummary = context.get(RuleEvaluationService).getSubjectSummary(individual, Individual.schema.name, context);
@@ -26,6 +28,7 @@ class IndividualRegistrationDetailsActions {
             expand: false,
             expandMembers: false,
             subjectSummary,
+            isRelationshipTypePresent: individualRelationGenderMappings.length > 0
         };
     }
 

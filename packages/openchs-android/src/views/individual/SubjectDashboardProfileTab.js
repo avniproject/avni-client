@@ -290,7 +290,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const relativesFeatureToggle = this.state.individual.isPerson();
+        const relativesFeatureToggle = this.state.individual.isPerson() && this.state.isRelationshipTypePresent;
         const groupSubjectToggle = this.state.individual.subjectType.isGroup();
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground}}>
