@@ -194,7 +194,7 @@ class CHSNavigator {
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -207,7 +207,8 @@ class CHSNavigator {
             checklists: _.isNil(checklists) ? [] : checklists,
             nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits,
             message,
-            workListState
+            workListState,
+            isSaveDraftOn
         }).to(SystemRecommendationView, true);
     }
 

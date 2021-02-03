@@ -51,6 +51,10 @@ class SystemRecommendationView extends AbstractComponent {
         workListState: PropTypes.object,
     };
 
+    static defaultProps = {
+        isSaveDraftOn: false
+    };
+
     static styles = {
         rulesRowView: {backgroundColor: Colors.GreyContentBackground, paddingBottom: 19, paddingLeft: 10}
     };
@@ -121,11 +125,11 @@ class SystemRecommendationView extends AbstractComponent {
 
     }
 
-    onAppHeaderBack() {
+    onAppHeaderBack(isSaveDraftOn) {
         const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, IndividualEncounterLandingView, ChecklistItemView, SubjectRegisterView];
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     render() {
@@ -134,8 +138,8 @@ class SystemRecommendationView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
-                               func={() => this.onAppHeaderBack()}
-                               displayHomePressWarning={true}/>
+                               func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
+                               displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <View style={{flexDirection: 'column'}}>
                         {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>

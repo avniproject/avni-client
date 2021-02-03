@@ -53,9 +53,9 @@ class IndividualRegisterFormView extends AbstractComponent {
         });
     }
 
-    onAppHeaderBack() {
+    onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -69,7 +69,7 @@ class IndividualRegisterFormView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
+                               func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}

@@ -92,9 +92,9 @@ class SubjectRegisterView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS);
     }
 
-    onAppHeaderBack() {
+    onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     next() {
@@ -107,7 +107,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null, nextScheduledVisits, null, state.workListState);
+                    null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts);
             },
             movedNext: this.scrollToTop
         });
@@ -133,8 +133,8 @@ class SubjectRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()}
-                               displayHomePressWarning={true}/>
+                               func={() => this.onAppHeaderBack(this.state.saveDrafts)}
+                               displayHomePressWarning={!this.state.saveDrafts}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
                             <View>

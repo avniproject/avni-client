@@ -82,9 +82,9 @@ class IndividualRegisterView extends AbstractComponent {
         return SubjectRegisterView.canLoad(args, parent);
     }
 
-    onAppHeaderBack() {
+    onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     render() {
@@ -96,7 +96,7 @@ class IndividualRegisterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
+                               func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
