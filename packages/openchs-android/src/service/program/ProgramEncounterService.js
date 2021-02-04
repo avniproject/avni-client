@@ -50,7 +50,7 @@ class ProgramEncounterService extends BaseService {
         if (_.isEmpty(encountersToUpdate) || visitCreationStrategy === 'createNew') {
             const encounterType = this.findByKey('name', encounterTypeName, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${encounterTypeName} that doesn't exist`);
-            const isProgramEncounter = this.findByCriteria(`observationsTypeEntityUUID = '${encounterType.uuid}' && form.formType = 'ProgramEncounter'`, FormMapping.schema.name);
+            const isProgramEncounter = this.findByCriteria(`observationsTypeEntityUUID = '${encounterType.uuid}' && form.formType = 'ProgramEncounter' && voided = false`, FormMapping.schema.name);
             if (isProgramEncounter) {
                 encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
             } else {
