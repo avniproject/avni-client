@@ -107,6 +107,10 @@ class BaseService {
         return this.db.objects(schema);
     }
 
+    getAllNonVoided(schema) {
+        return this.getAll(schema).filtered("voided = false");
+    }
+
     getSchema() {
         throw "getSchema should be overridden";
     }

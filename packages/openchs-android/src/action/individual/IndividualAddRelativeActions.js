@@ -8,7 +8,7 @@ import _ from "lodash";
 
 export class IndividualAddRelativeActions {
     static getInitialState(context) {
-        const relations = context.get(EntityService).getAll(IndividualRelation.schema.name);
+        const relations = context.get(EntityService).getAllNonVoided(IndividualRelation.schema.name);
         return {relations: relations, individualRelative: IndividualRelative.createEmptyInstance(), validationResults: []};
     }
 
