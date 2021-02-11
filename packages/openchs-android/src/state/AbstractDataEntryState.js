@@ -133,7 +133,8 @@ class AbstractDataEntryState {
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
-            action.popOTPVerification();
+            if (action.skipVerification)
+                action.popOTPVerification();
             this.moveNext();
             const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);

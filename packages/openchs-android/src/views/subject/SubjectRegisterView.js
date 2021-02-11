@@ -110,7 +110,7 @@ class SubjectRegisterView extends AbstractComponent {
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
                     null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts);
             },
-            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            popOTPVerification : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberVerificationObs,
             skipVerification,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),

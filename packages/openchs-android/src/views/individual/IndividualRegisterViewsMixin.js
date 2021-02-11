@@ -35,7 +35,7 @@ class Mixin {
                     view.showError(newState.validationResults[0].message);
                 }
             },
-            popOTPVerification : () => skipVerification ? TypedTransition.from(view).popToBookmark() : _.noop(),
+            popOTPVerification : () => TypedTransition.from(view).popToBookmark(),
             skipVerification,
             phoneNumberVerificationObs,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
