@@ -18,6 +18,7 @@ import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import {AvniAlert} from "../common/AvniAlert";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
+import _ from "lodash";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -38,7 +39,8 @@ class IndividualEncounterView extends AbstractComponent {
         return !nextState.wizard.isFirstPage();
     }
 
-    next() {
+    next(skipVerification) {
+        const phoneNumberVerificationObs = _.filter(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const headerMessage = `${this.I18n.t(newState.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
@@ -57,6 +59,10 @@ class IndividualEncounterView extends AbstractComponent {
                     nextScheduledVisits
                 );
             },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            phoneNumberVerificationObs,
+            skipVerification,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop,
             validationFailed: (newState) => {
             },

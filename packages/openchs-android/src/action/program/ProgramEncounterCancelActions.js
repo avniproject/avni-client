@@ -9,6 +9,7 @@ import EntityService from "../../service/EntityService";
 import GeolocationActions from "../common/GeolocationActions";
 import EncounterService from "../../service/EncounterService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -112,6 +113,8 @@ const ProgramEncounterCancelActionsNames = {
     SAVE: "ProgramEncounterCancelActions.SAVE",
     SET_CANCEL_LOCATION: "ProgramEncounterCancelActions.SET_CANCEL_LOCATION",
     SET_LOCATION_ERROR: "ProgramEncounterCancelActions.SET_LOCATION_ERROR",
+    PHONE_NUMBER_CHANGE: "ProgramEncounterCancelActions.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "ProgramEncounterCancelActions.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 const ProgramEncounterCancelActionsMap = new Map([
@@ -127,6 +130,8 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.SAVE, ProgramEncounterCancelActions.onSave],
     [ProgramEncounterCancelActionsNames.SET_CANCEL_LOCATION, ProgramEncounterCancelActions.setCancelLocation],
     [ProgramEncounterCancelActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [ProgramEncounterCancelActionsNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [ProgramEncounterCancelActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {

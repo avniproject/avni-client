@@ -16,7 +16,8 @@ import {
     PrimitiveValue,
     Duration,
     CompositeDuration,
-    ValidationResult
+    ValidationResult,
+    PhoneNumber
 } from 'avni-models';
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
@@ -27,6 +28,7 @@ import DurationFormElement from "./formElement/DurationFormElement";
 import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
 import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFormElement";
 import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormElement";
+import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -192,6 +194,13 @@ class FormElementGroup extends AbstractComponent {
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.PhoneNumber) {
+                            return this.wrap(<PhoneNumberFormElement
+                                element={formElement}
+                                inputChangeActionName={this.props.actions["PHONE_NUMBER_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PhoneNumber())}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }

@@ -15,6 +15,9 @@ const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => 
             General.logError("requests", response);
             return Promise.reject(new AuthenticationError('Http 403', response));
         }
+        if (parseInt(response.status) === 400) {
+            return Promise.reject(response);
+        }
         return Promise.reject(new ServerError(response));
     };
     return fetchWithoutTimeout ? fetch(endpoint, {"method": method, ...params}).then(processResponse) :

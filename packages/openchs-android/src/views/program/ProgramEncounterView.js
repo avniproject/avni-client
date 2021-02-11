@@ -67,7 +67,8 @@ class ProgramEncounterView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS);
     }
 
-    next() {
+    next(skipVerification) {
+        const phoneNumberVerificationObs = _.filter(this.state.programEncounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const {programEncounter} = state;
@@ -82,6 +83,10 @@ class ProgramEncounterView extends AbstractComponent {
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            phoneNumberVerificationObs,
+            skipVerification,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });
     }

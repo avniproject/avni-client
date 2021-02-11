@@ -11,6 +11,7 @@ import GroupSubjectService from "../../service/GroupSubjectService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -205,6 +206,8 @@ const actions = {
     RESET: 'IRA.RESET',
     REGISTRATION_SET_LOCATION: "REGISTRATION_SET_LOCATION",
     SET_LOCATION_ERROR: "IRA.SET_LOCATION_ERROR",
+    PHONE_NUMBER_CHANGE: "IRA.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "IRA.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 export default new Map([
@@ -229,6 +232,8 @@ export default new Map([
     [actions.SAVE, IndividualRegisterActions.onSave],
     [actions.REGISTRATION_SET_LOCATION, IndividualRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {actions as Actions};

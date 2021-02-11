@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, ValidationResult, WorkItem, WorkLists, SubjectType} from "avni-models";
+import {BaseEntity, SubjectType, ValidationResult, WorkItem, WorkLists} from "avni-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
@@ -116,6 +116,9 @@ class AbstractDataEntryState {
         }
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
+        } else if (!action.skipVerification && !_.isEmpty(action.phoneNumberVerificationObs)) {
+            const observation = action.phoneNumberVerificationObs[0];
+            action.verifyPhoneNumber(observation);
         } else if (this.wizard.isLastPage()) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
@@ -130,6 +133,7 @@ class AbstractDataEntryState {
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
+            action.popOTPVerification();
             this.moveNext();
             const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);

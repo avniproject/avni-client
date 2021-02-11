@@ -7,6 +7,7 @@ import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models
 import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import EntityService from "../../service/EntityService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -116,6 +117,8 @@ const individualEncounterViewActions = {
     SAVE: 'EA.SAVE',
     SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION",
     SET_LOCATION_ERROR: "EA.SET_LOCATION_ERROR",
+    PHONE_NUMBER_CHANGE: "EA.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "EA.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -134,6 +137,8 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.SAVE, EncounterActions.onSave],
     [individualEncounterViewActions.SET_ENCOUNTER_LOCATION, EncounterActions.setEncounterLocation],
     [individualEncounterViewActions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [individualEncounterViewActions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [individualEncounterViewActions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {

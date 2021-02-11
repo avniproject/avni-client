@@ -31,6 +31,12 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().saveDrafts;
     }
 
+    getOTPLength() {
+        //TODO: fix this
+        // return this.getSettings().otpLength;
+        return 4;
+    }
+
 }
 
 export default OrganisationConfigService;

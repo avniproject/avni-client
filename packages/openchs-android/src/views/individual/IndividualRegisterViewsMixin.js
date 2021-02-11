@@ -4,12 +4,13 @@ import {Actions} from "../../action/individual/IndividualRegisterActions";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
+import _ from "lodash";
 
 class Mixin {
-    static next(view) {
+    static next(view, skipVerification) {
         if (view.scrollToTop)
             view.scrollToTop();
-
+        const phoneNumberVerificationObs = _.filter(view.state.individual.observations, obs => obs.isPhoneNumberVerificationRequired(view.state.filteredFormElements));
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const onSaveCallback = ((source) => {
@@ -33,7 +34,11 @@ class Mixin {
                 if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
                     view.showError(newState.validationResults[0].message);
                 }
-            }
+            },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(view).popToBookmark() : _.noop(),
+            skipVerification,
+            phoneNumberVerificationObs,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
         });
     }
 }

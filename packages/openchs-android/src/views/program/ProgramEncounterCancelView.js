@@ -73,7 +73,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
             CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName}));
     }
 
-    next() {
+    next(skipVerification) {
+        const phoneNumberVerificationObs = _.filter(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
@@ -81,6 +82,10 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 const form = this.getCancelEncounterForm();
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            phoneNumberVerificationObs,
+            skipVerification,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });
     }

@@ -121,6 +121,19 @@ class ObservationsHolderActions {
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
     }
+
+    static onPhoneNumberChange(state, action, context) {
+        const newState = state.clone();
+        const observation = newState.observationsHolder.updatePhoneNumberValue(action.formElement.concept, action.value);
+        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
+        const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
+        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
+        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper().getValue());
+        newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
+        newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
+        return newState;
+    }
 }
 
 export default ObservationsHolderActions;

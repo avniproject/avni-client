@@ -9,6 +9,7 @@ import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -137,6 +138,8 @@ const actions = {
     SET_ENROLMENT_LOCATION: "PEA.SET_ENROLMENT_LOCATION",
     SET_EXIT_LOCATION: "PEA.SET_EXIT_LOCATION",
     SET_LOCATION_ERROR: "PEA.SET_LOCATION_ERROR",
+    PHONE_NUMBER_CHANGE: "PEA.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "PEA.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 export default new Map([
@@ -154,7 +157,9 @@ export default new Map([
     [actions.SAVE, ProgramEnrolmentActions.onSave],
     [actions.SET_ENROLMENT_LOCATION, ProgramEnrolmentActions.setEnrolmentLocation],
     [actions.SET_EXIT_LOCATION, ProgramEnrolmentActions.setExitLocation],
-    [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError]
+    [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
+    [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {actions as Actions};

@@ -359,6 +359,16 @@
     "dashboardsNotAvailable": "No dashboard available",
     "draft": "Draft",
     "draftDeleteMessage": "Drafts will stay here for 30 days, after which they are deleted",
-    "drafts": "Drafts"
+    "drafts": "Drafts",
+    "phoneNumberUnverified": "Phone number unverified",
+    "verifyOPT": "Verify OTP",
+    "OTPVerification": "OPT verification",
+    "change": "Change",
+    "enterOTP": "Please enter the OTP sent to",
+    "skipOTPVerification": "Skip OTP verification",
+    "codeNotReceived": "Not received your code?",
+    "resendCode": "Resend code",
+    "getAnotherOTPIn": "Get another OTP ( Wait for 00:{{seconds}} )",
+    "invalidPhoneNumber": "Invalid phone number"
   }
 }

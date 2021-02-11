@@ -19,6 +19,8 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
+import _ from "lodash";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -28,7 +30,9 @@ class ProgramFormComponent extends AbstractComponent {
         editing: PropTypes.bool.isRequired
     };
 
-    next() {
+    next(skipVerification) {
+        const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.props.state.enrolment.observations : this.props.state.enrolment.programExitObservations;
+        const phoneNumberVerificationObs = _.filter(observations, obs => obs.isPhoneNumberVerificationRequired(this.props.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
@@ -41,6 +45,10 @@ class ProgramFormComponent extends AbstractComponent {
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
             },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            phoneNumberVerificationObs,
+            skipVerification,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });
     }

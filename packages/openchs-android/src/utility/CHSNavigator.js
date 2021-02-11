@@ -38,6 +38,7 @@ import EncounterService from "../service/EncounterService";
 import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
+import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
 
 
 class CHSNavigator {
@@ -79,6 +80,15 @@ class CHSNavigator {
         } else {
             from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(GenericDashboardView, true);
         }
+    }
+
+    static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess) {
+        TypedTransition.from(source).bookmark().with({
+            source: source,
+            next: next,
+            onSuccessVerification: onSuccess,
+            phoneNumber: observation.getValue()
+        }).to(PhoneNumberVerificationView, true)
     }
 
     static navigateToIndividualEncounterDashboardView(source, individualUUID, encounter, isFromWizard, backFn, message) {

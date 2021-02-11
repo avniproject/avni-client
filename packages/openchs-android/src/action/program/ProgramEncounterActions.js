@@ -9,6 +9,7 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -141,6 +142,8 @@ const ProgramEncounterActionsNames = {
     SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION",
     SET_LOCATION_ERROR: "PEncA.SET_LOCATION_ERROR",
     DISPLAY_MESSAGE: "PEncA.DISPLAY_MESSAGE",
+    PHONE_NUMBER_CHANGE: "PEncA.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "PEncA.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -158,6 +161,8 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.SET_ENCOUNTER_LOCATION, ProgramEncounterActions.setEncounterLocation],
     [ProgramEncounterActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [ProgramEncounterActionsNames.DISPLAY_MESSAGE, ProgramEncounterActions.displayMessage],
+    [ProgramEncounterActionsNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [ProgramEncounterActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {

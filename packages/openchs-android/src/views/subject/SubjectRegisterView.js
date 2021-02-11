@@ -97,7 +97,8 @@ class SubjectRegisterView extends AbstractComponent {
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
-    next() {
+    next(skipVerification) {
+        const phoneNumberVerificationObs = _.filter(this.state.subject.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const observations = state.subject.observations;
@@ -109,6 +110,10 @@ class SubjectRegisterView extends AbstractComponent {
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
                     null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts);
             },
+            popOTPVerification : () => skipVerification ? TypedTransition.from(this).popToBookmark() : _.noop(),
+            phoneNumberVerificationObs,
+            skipVerification,
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });
     }

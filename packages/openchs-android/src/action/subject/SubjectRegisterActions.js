@@ -11,6 +11,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -167,6 +168,8 @@ const actions = {
     SET_LOCATION: "SRA.SET_LOCATION",
     SET_LOCATION_ERROR: "SRA.SET_LOCATION_ERROR",
     REGISTRATION_ENTER_TOTAL_MEMBERS: "REGISTRATION_ENTER_TOTAL_MEMBERS",
+    PHONE_NUMBER_CHANGE: "SRA.PHONE_NUMBER_CHANGE",
+    ON_SUCCESS_OTP_VERIFICATION: "SRA.ON_SUCCESS_OTP_VERIFICATION",
 };
 
 export default new Map([
@@ -186,6 +189,8 @@ export default new Map([
     [actions.SET_LOCATION, SubjectRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.REGISTRATION_ENTER_TOTAL_MEMBERS, SubjectRegisterActions.enterTotalMembers],
+    [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
 ]);
 
 export {actions as Actions};
