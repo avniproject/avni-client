@@ -12,8 +12,8 @@ class PhoneVerificationService extends BaseService {
         super(db, context);
     }
 
-    sendOTP(phoneNumber, serverURL) {
-        const body = {phoneNumber};
+    sendOTP(phoneNumber, otpLength, serverURL) {
+        const body = {phoneNumber, otpLength};
         const errorTitle = "Error while sending the OTP";
         this.getService(AuthService)
             .getAuthToken()
@@ -27,8 +27,8 @@ class PhoneVerificationService extends BaseService {
             .catch(error => this.catchError(error, errorTitle));
     }
 
-    resendOTP(phoneNumber, serverURL) {
-        const body = {phoneNumber};
+    resendOTP(phoneNumber, otpLength, serverURL) {
+        const body = {phoneNumber, otpLength};
         const errorTitle = 'Error while resending the OTP';
         this.getService(AuthService)
             .getAuthToken()
@@ -42,8 +42,8 @@ class PhoneVerificationService extends BaseService {
             .catch(error => this.catchError(error, errorTitle))
     }
 
-    verifyOTP(phoneNumber, otp, serverURL, onSuccessVerification) {
-        const body = {otp, phoneNumber};
+    verifyOTP(phoneNumber, otp, otpLength, serverURL, onSuccessVerification) {
+        const body = {otp, phoneNumber, otpLength};
         const errorTitle = 'Error while verifying the OTP';
         this.getService(AuthService)
             .getAuthToken()

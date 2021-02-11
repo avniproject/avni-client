@@ -12,7 +12,6 @@ import CHSContainer from "./CHSContainer";
 import CHSContent from "./CHSContent";
 import PhoneVerificationService from "../../service/PhoneVerificationService";
 import SettingsService from "../../service/SettingsService";
-import TypedTransition from "../../framework/routing/TypedTransition";
 
 @Path('/phoneNumberVerificationView')
 class PhoneNumberVerificationView extends AbstractComponent {
@@ -25,7 +24,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.resendSeconds = 3;
+        this.resendSeconds = 30;
         this.optLength = context.getService(OrganisationConfigService).getOTPLength();
         this.pinInput = React.createRef();
         this.state = {code: '', seconds: this.resendSeconds, attempt: 0, isConnected: true};
@@ -40,7 +39,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
             this.props.onSuccessVerification();
             this.goBack();
         };
-        this.phoneVerificationService.verifyOTP(this.phoneNumber, this.state.code, this.serverURL, onSuccessVerification)
+        this.phoneVerificationService.verifyOTP(this.phoneNumber, this.state.code, this.optLength, this.serverURL, onSuccessVerification)
     }
 
     viewName() {
@@ -48,7 +47,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.phoneVerificationService.sendOTP(this.phoneNumber, this.serverURL);
+        this.phoneVerificationService.sendOTP(this.phoneNumber, this.optLength, this.serverURL);
         let timer = this.getInterval();
         this.setState({timer});
         this.checkInternetConnection();
@@ -72,7 +71,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
     }
 
     onResendCode() {
-        this.phoneVerificationService.resendOTP(this.phoneNumber, this.serverURL);
+        this.phoneVerificationService.resendOTP(this.phoneNumber, this.optLength, this.serverURL);
         const attempt = this.state.attempt + 1;
         this.setState(prevState => ({...prevState, attempt, seconds: this.resendSeconds, timer: this.getInterval()}));
     }

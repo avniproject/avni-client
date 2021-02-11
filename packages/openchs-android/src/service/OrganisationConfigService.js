@@ -32,9 +32,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     getOTPLength() {
-        //TODO: fix this
-        // return this.getSettings().otpLength;
-        return 4;
+        return this.getSettings().otpLength || 0;
     }
 
 }
