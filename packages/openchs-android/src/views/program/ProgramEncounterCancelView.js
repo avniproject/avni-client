@@ -73,18 +73,18 @@ class ProgramEncounterCancelView extends AbstractComponent {
             CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName}));
     }
 
-    next(skipVerification) {
-        const phoneNumberVerificationObs = _.filter(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
+    next(popVerificationVew) {
+        const phoneNumberObservation = _.find(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
                 const form = this.getCancelEncounterForm();
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew);
             },
-            popOTPVerification : () => TypedTransition.from(this).popToBookmark(),
-            phoneNumberVerificationObs,
-            skipVerification,
+            popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
+            phoneNumberObservation,
+            popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });

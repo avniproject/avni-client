@@ -116,9 +116,8 @@ class AbstractDataEntryState {
         }
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
-        } else if (!action.skipVerification && !_.isEmpty(action.phoneNumberVerificationObs)) {
-            const observation = action.phoneNumberVerificationObs[0];
-            action.verifyPhoneNumber(observation);
+        } else if (!action.popVerificationVew && !_.isNil(action.phoneNumberObservation)) {
+            action.verifyPhoneNumber(action.phoneNumberObservation);
         } else if (this.wizard.isLastPage()) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
@@ -133,8 +132,8 @@ class AbstractDataEntryState {
             }
             action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context);
         } else {
-            if (action.skipVerification)
-                action.popOTPVerification();
+            if (action.popVerificationVew)
+                action.popVerificationVewFunc();
             this.moveNext();
             const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
             this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);

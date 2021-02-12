@@ -178,7 +178,7 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -200,11 +200,13 @@ class CHSNavigator {
             nextScheduledVisits,
             form,
             workListState,
-            message
+            message,
+            false,
+            popVerificationVew
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -219,7 +221,7 @@ class CHSNavigator {
             message,
             workListState,
             isSaveDraftOn
-        }).to(SystemRecommendationView, true);
+        }).to(SystemRecommendationView, true, popVerificationVew);
     }
 
     static navigateToChecklistView(source, enrolmentUUID) {

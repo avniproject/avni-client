@@ -30,9 +30,9 @@ class ProgramFormComponent extends AbstractComponent {
         editing: PropTypes.bool.isRequired
     };
 
-    next(skipVerification) {
+    next(popVerificationVew) {
         const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.props.state.enrolment.observations : this.props.state.enrolment.programExitObservations;
-        const phoneNumberVerificationObs = _.filter(observations, obs => obs.isPhoneNumberVerificationRequired(this.props.state.filteredFormElements));
+        const phoneNumberObservation = _.find(observations, obs => obs.isPhoneNumberVerificationRequired(this.props.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
@@ -43,11 +43,11 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew);
             },
-            popOTPVerification : () => TypedTransition.from(this).popToBookmark(),
-            phoneNumberVerificationObs,
-            skipVerification,
+            popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
+            phoneNumberObservation,
+            popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
             movedNext: this.scrollToTop
         });

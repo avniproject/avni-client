@@ -7,10 +7,10 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import _ from "lodash";
 
 class Mixin {
-    static next(view, skipVerification) {
+    static next(view, popVerificationVew) {
         if (view.scrollToTop)
             view.scrollToTop();
-        const phoneNumberVerificationObs = _.filter(view.state.individual.observations, obs => obs.isPhoneNumberVerificationRequired(view.state.filteredFormElements));
+        const phoneNumberObservation = _.find(view.state.individual.observations, obs => obs.isPhoneNumberVerificationRequired(view.state.filteredFormElements));
         view.dispatchAction(Actions.NEXT, {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const onSaveCallback = ((source) => {
@@ -24,7 +24,7 @@ class Mixin {
                 });
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, nextScheduledVisits, null, state.workListState,null, state.saveDrafts);
+                CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, view.state.individual, state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null, nextScheduledVisits, null, state.workListState,null, state.saveDrafts, popVerificationVew);
             },
             movedNext: (state) => {
                 if (state.wizard.isFirstFormPage())
@@ -35,9 +35,9 @@ class Mixin {
                     view.showError(newState.validationResults[0].message);
                 }
             },
-            popOTPVerification : () => TypedTransition.from(view).popToBookmark(),
-            skipVerification,
-            phoneNumberVerificationObs,
+            popVerificationVewFunc : () => TypedTransition.from(view).popToBookmark(),
+            popVerificationVew,
+            phoneNumberObservation,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
         });
     }

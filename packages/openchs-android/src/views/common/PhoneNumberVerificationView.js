@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {Button, NetInfo, Text, TouchableOpacity, View} from "react-native";
+import {Button, NetInfo, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import AppHeader from "./AppHeader";
 import Styles from "../primitives/Styles";
@@ -36,8 +36,8 @@ class PhoneNumberVerificationView extends AbstractComponent {
 
     verifyOTP() {
         const onSuccessVerification = () => {
+            this.setState(prevState => ({...prevState, optVerified: true}));
             this.props.onSuccessVerification();
-            this.goBack();
         };
         this.phoneVerificationService.verifyOTP(this.phoneNumber, this.state.code, this.optLength, this.serverURL, onSuccessVerification)
     }
@@ -93,8 +93,16 @@ class PhoneNumberVerificationView extends AbstractComponent {
     }
 
     next() {
-        const skipVerification = true;
-        this.props.next(skipVerification);
+        const popVerificationVew = true;
+        this.props.next(popVerificationVew);
+    }
+
+    renderToast() {
+        if (this.state.optVerified) {
+            this.setState(prevState => ({...prevState, optVerified: false}));
+            ToastAndroid.show(this.I18n.t("OTPVerified"), ToastAndroid.SHORT);
+            setTimeout(() => this.next(), 1000);
+        }
     }
 
     render() {
@@ -138,13 +146,14 @@ class PhoneNumberVerificationView extends AbstractComponent {
                         </View>}
                         <View style={{marginTop: 20}}>
                             <Button
-                                title={this.I18n.t("verifyOPT")}
+                                title={this.I18n.t("verifyOTP")}
                                 color={Colors.ActionButtonColor}
                                 onPress={() => this.verifyOTP()}
                                 disabled={this.state.code.length < this.optLength}
                             />
                         </View>
                         {this.renderTimer()}
+                        {this.renderToast()}
                     </View>
                 </CHSContent>
             </CHSContainer>

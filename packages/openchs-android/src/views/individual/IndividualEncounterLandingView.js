@@ -59,8 +59,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
         return !_.isNil(state.encounter);
     }
 
-    next(skipVerification) {
-        const phoneNumberVerificationObs = _.filter(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
+    next(popVerificationVew) {
+        const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         this.dispatchAction(Actions.NEXT, {
             validationFailed: (newState) => {
             },
@@ -81,12 +81,13 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     form,
                     newState.workListState,
                     message,
-                    nextScheduledVisits
+                    nextScheduledVisits,
+                    popVerificationVew
                 );
             },
-            popOTPVerification : () => TypedTransition.from(this).popToBookmark(),
-            phoneNumberVerificationObs,
-            skipVerification,
+            popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
+            phoneNumberObservation,
+            popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
         });
     }
