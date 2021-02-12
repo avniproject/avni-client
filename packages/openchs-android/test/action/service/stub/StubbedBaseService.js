@@ -10,6 +10,10 @@ class StubbedBaseService {
     existsByUuid(uuid) {
         return !!this.serviceData[uuid];
     }
+
+    getAllNonVoided() {
+        return this.serviceData;
+    }
 }
 
 export default StubbedBaseService;
