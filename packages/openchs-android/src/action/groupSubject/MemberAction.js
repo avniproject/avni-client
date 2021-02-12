@@ -8,7 +8,7 @@ import IndividualRelationGenderMappingService from "../../service/relationship/I
 export class MemberAction {
 
     static getInitialState(context) {
-        const relations = context.get(EntityService).getAll(IndividualRelation.schema.name);
+        const relations = context.get(EntityService).getAllNonVoided(IndividualRelation.schema.name);
         return {
             member: {
                 groupSubject: {},
