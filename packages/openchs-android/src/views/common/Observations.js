@@ -15,6 +15,7 @@ import AddressLevelService from "../../service/AddressLevelService";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
 import IndividualService from "../../service/IndividualService";
 import CHSNavigator from "../../utility/CHSNavigator";
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const renderTypes = {
     Image: "Image",
@@ -84,6 +85,25 @@ class Observations extends AbstractComponent {
                     backgroundColor: Colors.GreyBackground,
                     paddingHorizontal: 5,
                     paddingVertical: 2,
+                },
+                iconStyle: {
+                    fontSize: 18,
+                    marginRight: 10,
+                    padding: 0,
+                    alignSelf: 'center'
+                },
+                observationPhoneNumber: {
+                    paddingLeft: 3,
+                    paddingBottom: 2,
+                    flex: 1,
+                    textAlign: 'left',
+                    fontSize: Fonts.Small,
+                    color: Styles.blackColor
+                },
+                observationPhoneNumberContainer: {
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'center',
                 }
             }
     }
@@ -146,8 +166,20 @@ class Observations extends AbstractComponent {
                     this.makeCall(mobileNo)
                 }}>{displayable.displayValue}</Text>
             )
+        } else if(Concept.dataType.PhoneNumber === renderType) {
+            return this.renderPhoneNumber(observationModel.getValueWrapper());
         }
         return this.renderObservationText(isAbnormal, displayable.displayValue);
+    }
+
+    renderPhoneNumber(phoneNumber) {
+        const isVerified = phoneNumber.isVerified();
+        const iconName = isVerified ? 'verified' : 'alert';
+        const iconStyle = isVerified ? {color: Colors.AccentColor} : {color: Colors.ValidationError};
+        return <View style={[this.styles.observationPhoneNumberContainer, this.styles.observationColumn]}>
+            <Text style={this.styles.observationPhoneNumber}>{phoneNumber.getValue()}</Text>
+            <MCIIcon name={iconName} style={[iconStyle, this.styles.iconStyle]}/>
+        </View>
     }
 
     renderSubject(subject) {
