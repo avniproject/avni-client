@@ -5,9 +5,9 @@ import {
     EntityQueue,
     Individual,
     ObservationsHolder,
+    Privilege,
     ProgramEncounter,
-    ProgramEnrolment,
-    Privilege
+    ProgramEnrolment
 } from "avni-models";
 import _ from 'lodash';
 import moment from 'moment';
@@ -555,6 +555,13 @@ class IndividualService extends BaseService {
         });
         return filteredNextScheduledVisits;
     }
+
+    getSubjectsInLocation(addressLevel, subjectTypeName) {
+        return this.getAllNonVoided()
+            .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName)
+            .map(_.identity);
+    }
+
 }
 
 export default IndividualService;

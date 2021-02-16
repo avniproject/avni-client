@@ -69,6 +69,9 @@ class RuleEvaluationService extends BaseService {
         this.formMappingService = this.getService(FormMappingService);
         this.conceptService = this.getService(ConceptService);
         this.groupSubjectService = this.getService(GroupSubjectService);
+        this.services = {
+            individualService : this.getService(IndividualService),
+        }
     }
 
     getIndividualUUID = (entity, entityName) => {
@@ -133,7 +136,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: { decisions: defaultDecisions, entity : this.injectGroupsToSubject(entity, entityName) },
+                    params: { decisions: defaultDecisions, entity : this.injectGroupsToSubject(entity, entityName), services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
@@ -207,7 +210,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 const ruleFunc = eval(worklistUpdationRule);
                 return ruleFunc({
-                    params: { context: {entity: entityWithGroups}, workLists },
+                    params: { context: {entity: entityWithGroups}, workLists, services: this.services },
                     imports: { rulesConfig, common, lodash, moment, models }
                 });
             } catch (e) {
@@ -295,7 +298,7 @@ class RuleEvaluationService extends BaseService {
               let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
               const ruleFunc = eval(subjectType.subjectSummaryRule);
               let summaries = ruleFunc({
-                  params: { summaries: [], individual: this.injectGroupsToSubject(individual, entityName), context },
+                  params: { summaries: [], individual: this.injectGroupsToSubject(individual, entityName), context, services: this.services },
                   imports: { rulesConfig, common, lodash, moment }
               });
               summaries = this.validateSummaries(summaries, subjectType.uuid);
@@ -334,7 +337,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
-                params: { summaries: [], programEnrolment: this.injectGroupsToSubject(enrolment, entityName) },
+                params: { summaries: [], programEnrolment: this.injectGroupsToSubject(enrolment, entityName), services: this.services },
                 imports: { rulesConfig, common, lodash, moment }
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid);
@@ -360,7 +363,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.validationRule);
                 return ruleFunc({
-                    params: { entity : this.injectGroupsToSubject(entity, entityName) },
+                    params: { entity : this.injectGroupsToSubject(entity, entityName), services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             } catch (e) {
@@ -391,7 +394,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
-                    params: { visitSchedule: scheduledVisits, entity: this.injectGroupsToSubject(entity, entityName) },
+                    params: { visitSchedule: scheduledVisits, entity: this.injectGroupsToSubject(entity, entityName), services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 return nextVisits;
@@ -419,7 +422,7 @@ class RuleEvaluationService extends BaseService {
                 try {
                     const ruleFunc = eval(form.checklistsRule);
                     const allChecklists = ruleFunc({
-                        params: {entity: this.injectGroupsToSubject(entity, entityName), checklistDetails:allChecklistDetails },
+                        params: {entity: this.injectGroupsToSubject(entity, entityName), checklistDetails:allChecklistDetails, services: this.services },
                         imports: { rulesConfig, common, lodash, moment }
                     });
                     return allChecklists;
@@ -444,7 +447,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
-                params: {formElementGroup, entity: this.injectGroupsToSubject(entity, entityName)},
+                params: {formElementGroup, entity: this.injectGroupsToSubject(entity, entityName), services: this.services},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {
@@ -469,7 +472,7 @@ class RuleEvaluationService extends BaseService {
                         let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                         const ruleFunc = eval(formElement.rule);
                         return ruleFunc({
-                            params: {formElement, entity:  this.injectGroupsToSubject(entity, entityName)},
+                            params: {formElement, entity:  this.injectGroupsToSubject(entity, entityName), services: this.services},
                             imports: {rulesConfig, common, lodash, moment}
                         });
                     } catch (e) {
@@ -508,7 +511,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
                 return ruleFunc({
-                    params: { entity:  this.injectGroupsToSubject(individual, 'Individual') },
+                    params: { entity:  this.injectGroupsToSubject(individual, 'Individual'), services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
@@ -531,7 +534,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: {entity:  this.injectGroupsToSubject(individual, 'Individual'), program},
+                    params: {entity:  this.injectGroupsToSubject(individual, 'Individual'), program, services: this.services},
                     imports: { rulesConfig, common, lodash, moment }
                 });
             }
