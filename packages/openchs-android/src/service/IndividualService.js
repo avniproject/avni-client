@@ -1,7 +1,9 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {
+    ApprovalStatus,
     Encounter,
+    EntityApprovalStatus,
     EntityQueue,
     Individual,
     ObservationsHolder,
@@ -19,6 +21,7 @@ import General from "../utility/General";
 import Colors from "../views/primitives/Colors";
 import EncounterService from "./EncounterService";
 import PrivilegeService from "./PrivilegeService";
+import EntityApprovalStatusService from "./EntityApprovalStatusService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -40,6 +43,7 @@ class IndividualService extends BaseService {
 
     init() {
         this.encounterService = this.getService(EncounterService);
+        this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
     }
 
     search(criteria) {
@@ -64,6 +68,7 @@ class IndividualService extends BaseService {
         ObservationsHolder.convertObsForSave(individual.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(individual.subjectType);
         this.db.write(() => {
+            individual.latestEntityApprovalStatus = this.entityApprovalStatusService.saveStatus(individual.uuid, EntityApprovalStatus.entityType.Subject, ApprovalStatus.status.Pending, db);
             const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
