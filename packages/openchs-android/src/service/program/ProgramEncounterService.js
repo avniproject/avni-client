@@ -1,12 +1,13 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment, FormMapping} from 'avni-models';
+import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment, FormMapping, EntityApprovalStatus, ApprovalStatus} from 'avni-models';
 import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
 import MediaQueueService from "../MediaQueueService";
 import IndividualService from "../IndividualService";
 import EncounterService from "../EncounterService";
+import EntityApprovalStatusService from "../EntityApprovalStatusService";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -76,9 +77,11 @@ class ProgramEncounterService extends BaseService {
         General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
+        const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
 
         const db = this.db;
         this.db.write(() => {
+            programEncounter.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEncounter.uuid, EntityApprovalStatus.entityType.ProgramEncounter, ApprovalStatus.status.Pending, db);
             this._saveEncounter(programEncounter, db);
             this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db, programEncounter.encounterDateTime);
         });

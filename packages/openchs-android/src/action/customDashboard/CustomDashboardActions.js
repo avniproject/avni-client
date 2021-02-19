@@ -1,9 +1,11 @@
 import _ from 'lodash';
-import RuleEvaluationService from "../../service/RuleEvaluationService";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardCardMappingService from "../../service/customDashboard/DashboardCardMappingService";
 import EntityService from "../../service/EntityService";
 import {ReportCard} from "avni-models";
+import ReportCardService from "../../service/customDashboard/ReportCardService";
+import ApprovalListingView from "../../views/approval/ApprovalListingView";
+import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
 
 class CustomDashboardActions {
 
@@ -39,11 +41,11 @@ class CustomDashboardActions {
     }
 
     static onCardPress(state, action, context) {
-        const ruleEvaluationService = context.get(RuleEvaluationService);
         const newState = {...state};
         const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
-        const result = ruleEvaluationService.getDashboardCardQueryResult(reportCard.query);
-        action.cb(result, result.length);
+        const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);
+        const viewName = !_.isNil(reportCard.standardReportCardType) ? ApprovalListingView : IndividualSearchResultPaginatedView;
+        action.cb(result, result.length, status, viewName);
         return newState;
     }
 
@@ -54,7 +56,7 @@ class CustomDashboardActions {
         newState.reportCardMappings = reportCardMappings.map(rcm => {
             if (rcm.card.uuid === reportCardUUID && _.isNil(rcm.card.count)) {
                 const cardMappingsWithCount = {...rcm};
-                cardMappingsWithCount.card.count = context.get(RuleEvaluationService).getDashboardCardCount(rcm.card.query);
+                cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(rcm.card);
                 return cardMappingsWithCount;
             } else return rcm
         });

@@ -49,6 +49,7 @@ import {CustomFilterActions, CustomFilterMap} from '../action/mydashboard/Custom
 import {GenderFilterActions, GenderFilterMap} from '../action/mydashboard/GenderFilterActions'
 import {AddMemberActionMap, MemberAction, AddNewMemberActions} from "../action/groupSubject/MemberAction";
 import {CustomDashboardActions, CustomDashboardActionMap} from "../action/customDashboard/CustomDashboardActions";
+import {ApprovalActions, ApprovalActionMap} from "../action/approval/ApprovalActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -91,6 +92,7 @@ export default class Reducers {
         genderFilterActions: "genderFilterActions",
         addNewMember: "addNewMember",
         customDashboard: "customDashboard",
+        approval: "approval",
     };
 
     static createReducers(beanStore) {
@@ -133,6 +135,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.genderFilterActions] = Reducers._add(GenderFilterMap, GenderFilterActions, beanStore);
         reducerMap[Reducers.reducerKeys.addNewMember] = Reducers._add(AddMemberActionMap, MemberAction, beanStore);
         reducerMap[Reducers.reducerKeys.customDashboard] = Reducers._add(CustomDashboardActionMap, CustomDashboardActions, beanStore);
+        reducerMap[Reducers.reducerKeys.approval] = Reducers._add(ApprovalActionMap, ApprovalActions, beanStore);
         return reducerMap;
     };
 

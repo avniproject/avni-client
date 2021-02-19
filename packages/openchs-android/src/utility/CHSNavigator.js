@@ -39,6 +39,7 @@ import GenericDashboardView from "../views/program/GenericDashboardView";
 import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
+import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 
 
 class CHSNavigator {
@@ -80,6 +81,10 @@ class CHSNavigator {
         } else {
             from.with({individualUUID: individualUUID, backFunction: backFn, tab: 2}).to(GenericDashboardView, true);
         }
+    }
+
+    static navigateToApprovalDetailsView(source, entity, schema) {
+        TypedTransition.from(source).with({entity, schema}).to(ApprovalDetailsView, true);
     }
 
     static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess) {

@@ -6,14 +6,13 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {ScrollView, SafeAreaView, View, Text} from "react-native";
+import {SafeAreaView, ScrollView, Text, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import CustomDashboardCard from "./CustomDashboardCard";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
-import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 
@@ -59,13 +58,14 @@ class CustomDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
-            cb: (individualSearchResults, count) => TypedTransition.from(this).with({
+            cb: (results, count, status, viewName) => TypedTransition.from(this).with({
                 indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: 'subjectsList',
-                searchResults: individualSearchResults,
+                headerTitle: status || 'subjectsList',
+                results: results,
                 totalSearchResultsCount: count,
-                onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)
-            }).to(IndividualSearchResultPaginatedView, true)
+                onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
+                onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
+            }).to(viewName, true)
         }), 0);
     }
 

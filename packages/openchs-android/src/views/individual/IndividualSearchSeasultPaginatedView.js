@@ -23,7 +23,7 @@ import GlobalStyles from "../primitives/GlobalStyles";
 @Path('/individualSearchResultPaginatedView')
 class IndividualSearchResultPaginatedView extends AbstractComponent {
     static propTypes = {
-        searchResults: PropTypes.array.isRequired,
+        results: PropTypes.array.isRequired,
         onIndividualSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string,
     };
@@ -51,7 +51,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         const title = this.props.headerTitle || "searchResults";
         return (
             <PaginatedView
-                searchResults={this.props.searchResults}
+                results={this.props.results}
                 onIndividualSelection={this.props.onIndividualSelection}
                 title={title}
                 currentPage={this}
@@ -62,10 +62,10 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
 
 }
 
-export const PaginatedView = ({searchResults, onIndividualSelection, currentPage, title, I18n}) => {
+export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n}) => {
 
     const CHUNK_SIZE = 20;
-    const totalCount = searchResults.length;
+    const totalCount = results.length;
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(0);
@@ -76,7 +76,7 @@ export const PaginatedView = ({searchResults, onIndividualSelection, currentPage
         setLoading(true);
         const start = offset;
         const end = offset + CHUNK_SIZE;
-        setDataSource([...dataSource, ...searchResults.slice(start, end > totalCount ? totalCount : end)]);
+        setDataSource([...dataSource, ...results.slice(start, end > totalCount ? totalCount : end)]);
         setOffset(offset + CHUNK_SIZE);
         setLoading(false);
     };

@@ -10,11 +10,14 @@ import {
     ChecklistItemDetail,
     ChecklistDetail,
     ObservationsHolder,
-    EntitySyncStatus
+    EntitySyncStatus,
+    EntityApprovalStatus,
+    ApprovalStatus
 } from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "./ConceptService";
 import General from "../utility/General";
+import EntityApprovalStatusService from "./EntityApprovalStatusService";
 
 @Service("ChecklistService")
 class ChecklistService extends BaseService {
@@ -28,7 +31,10 @@ class ChecklistService extends BaseService {
     }
 
     saveChecklistItem(checklistItem) {
+        const db = this.db;
         ObservationsHolder.convertObsForSave(checklistItem.observations);
+        const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        checklistItem.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(checklistItem.uuid, EntityApprovalStatus.entityType.ChecklistItem, ApprovalStatus.status.Pending, db);
         const savedChecklistItem = super.saveOrUpdate(checklistItem, ChecklistItem.schema.name);
         const savedEntityQueueItem = EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name);
         super.saveOrUpdate(savedEntityQueueItem, EntityQueue.schema.name);

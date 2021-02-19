@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder} from 'avni-models';
+import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder, EntityApprovalStatus, ApprovalStatus } from 'avni-models';
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
@@ -9,6 +9,7 @@ import MediaQueueService from "./MediaQueueService";
 import FormMappingService from "./FormMappingService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import EntityService from "./EntityService";
+import EntityApprovalStatusService from "./EntityApprovalStatusService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -42,9 +43,10 @@ class ProgramEnrolmentService extends BaseService {
         const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);
-
+        const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
+            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.status.Pending, db);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -72,9 +74,11 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     exit(programEnrolment) {
+        const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
         this.db.write(() => {
+            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.status.Pending, db);
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

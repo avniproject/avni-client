@@ -1,0 +1,53 @@
+import BaseService from "../BaseService";
+import Service from "../../framework/bean/Service";
+import {ReportCard, StandardReportCardType, ApprovalStatus} from "avni-models";
+import EntityApprovalStatusService from "../EntityApprovalStatusService";
+import RuleEvaluationService from "../RuleEvaluationService";
+
+@Service("reportCardService")
+class ReportCardService extends BaseService {
+
+    constructor(db, context) {
+        super(db, context);
+    }
+
+    getSchema() {
+        return ReportCard.schema.name;
+    }
+
+    _getApprovalStatusForType(type) {
+        const typeToStatusMap = {
+            [StandardReportCardType.type.PendingApproval]: ApprovalStatus.status.Pending,
+            [StandardReportCardType.type.Approved]: ApprovalStatus.status.Approved,
+            [StandardReportCardType.type.Rejected]: ApprovalStatus.status.Rejected,
+        };
+        return typeToStatusMap[type];
+    }
+
+    getCountForStandardCardType(type) {
+        const {result} = this.getResultForStandardCardType(type);
+        return _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0);
+    }
+
+    getResultForStandardCardType(type) {
+        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(this._getApprovalStatusForType(type));
+    }
+
+    getReportCardCount(reportCard) {
+        if (!_.isNil(reportCard.standardReportCardType)) {
+            return this.getCountForStandardCardType(reportCard.standardReportCardType.name);
+        }
+        return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query);
+    }
+
+    getReportCardResult(reportCard) {
+        if (!_.isNil(reportCard.standardReportCardType)) {
+            return this.getResultForStandardCardType(reportCard.standardReportCardType.name);
+        }
+        const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query);
+        return {status: null, result};
+    }
+
+}
+
+export default ReportCardService

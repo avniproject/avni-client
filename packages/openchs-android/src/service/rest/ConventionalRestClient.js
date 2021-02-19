@@ -24,9 +24,11 @@ class ConventionalRestClient {
     postAllEntities(allEntities, onCompleteOfIndividualPost, onComplete) {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
+        const ESResources = ['entityApprovalStatus'];
+        const getResourceName = (resourceName) => _.includes(ESResources, resourceName) ? `${resourceName}es` : `${resourceName}s`;
         const url = entity =>
             _.isNil(entity.metaData.resourceUrl)
-                ? `${serverURL}/${entity.metaData.resourceName}s`
+                ? `${serverURL}/${getResourceName(entity.metaData.resourceName)}`
                 : `${serverURL}/${entity.metaData.resourceUrl}`;
         return _.reduce(allEntities,
             (acc, entities) => {

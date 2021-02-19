@@ -54,6 +54,9 @@ class Colors {
     static SecondaryText = '#929292';
     static SelectedTabColor = '#1C96FF';
 
+    static SubjectTypeColor = '#3949ab';
+    static EditColor = '#347cff';
+
 }
 
 export default Colors;

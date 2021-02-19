@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, Individual, ProgramEnrolment, Encounter, ProgramEncounter, ChecklistItem} from 'avni-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, EntityApprovalStatus} from 'avni-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -229,20 +229,10 @@ class SyncService extends BaseService {
             entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
         }
         if (entityMetaData.entityName === 'EntityApprovalStatus') {
-            const maxEntityApprovalStatuses = _.map(_.values(_.groupBy(entities, "entityType", "entityUUID")), ge => _.maxBy(ge, 'statusDateTime'));
-            const entityTypeToSchemaMap = {
-                'Subject': Individual.schema.name,
-                'ProgramEnrolment': ProgramEnrolment.schema.name,
-                'Encounter': Encounter.schema.name,
-                'ProgramEncounter': ProgramEncounter.schema,
-                'ChecklistItem': ChecklistItem.schema.name
-            };
-            _.forEach(maxEntityApprovalStatuses, entityApprovalStatus => {
-                const schema = entityTypeToSchemaMap[entityApprovalStatus.entityType];
-                const existingEntity = this.entityService.findByUUID(entityApprovalStatus.entityUUID, schema).cloneForEdit();
-                existingEntity.latestEntityApprovalStatus = _.maxBy([existingEntity.latestEntityApprovalStatus, entityApprovalStatus], 'statusDateTime');
-                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [existingEntity]));
-            })
+            const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
+            _.forEach(latestApprovalStatuses, ({schema, entity}) => {
+                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
+            });
         }
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
