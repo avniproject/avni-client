@@ -1,3 +1,5 @@
+import EntityApprovalStatusService from "../../service/EntityApprovalStatusService";
+
 class ApprovalActions {
 
     static getInitialState() {
@@ -48,7 +50,7 @@ class ApprovalActions {
         const newState = {...state};
         const {entity, schema, cb} = action;
         newState.openDialog = false;
-
+        context.get(EntityApprovalStatusService).approveEntity(entity, schema);
         cb();
         return newState;
     }
@@ -57,7 +59,7 @@ class ApprovalActions {
         const newState = {...state};
         const {entity, schema, cb} = action;
         newState.openDialog = false;
-
+        context.get(EntityApprovalStatusService).rejectEntity(entity, schema, newState.rejectionComment);
         cb();
         return newState;
     }

@@ -17,9 +17,9 @@ class ReportCardService extends BaseService {
 
     _getApprovalStatusForType(type) {
         const typeToStatusMap = {
-            [StandardReportCardType.type.PendingApproval]: ApprovalStatus.status.Pending,
-            [StandardReportCardType.type.Approved]: ApprovalStatus.status.Approved,
-            [StandardReportCardType.type.Rejected]: ApprovalStatus.status.Rejected,
+            [StandardReportCardType.type.PendingApproval]: ApprovalStatus.statuses.Pending,
+            [StandardReportCardType.type.Approved]: ApprovalStatus.statuses.Approved,
+            [StandardReportCardType.type.Rejected]: ApprovalStatus.statuses.Rejected,
         };
         return typeToStatusMap[type];
     }

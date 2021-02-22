@@ -68,7 +68,7 @@ class IndividualService extends BaseService {
         ObservationsHolder.convertObsForSave(individual.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(individual.subjectType);
         this.db.write(() => {
-            individual.latestEntityApprovalStatus = this.entityApprovalStatusService.saveStatus(individual.uuid, EntityApprovalStatus.entityType.Subject, ApprovalStatus.status.Pending, db);
+            individual.latestEntityApprovalStatus = this.entityApprovalStatusService.saveStatus(individual.uuid, EntityApprovalStatus.entityType.Subject, ApprovalStatus.statuses.Pending, db);
             const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);

@@ -85,7 +85,7 @@ class EncounterService extends BaseService {
 
         const db = this.db;
         this.db.write(() => {
-            encounter.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(encounter.uuid, EntityApprovalStatus.entityType.Encounter, ApprovalStatus.status.Pending, db);
+            encounter.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(encounter.uuid, EntityApprovalStatus.entityType.Encounter, ApprovalStatus.statuses.Pending, db);
             this._saveEncounter(encounter, db);
             this.saveScheduledVisits(encounter.individual, nextScheduledVisits, db, encounter.encounterDateTime);
         });

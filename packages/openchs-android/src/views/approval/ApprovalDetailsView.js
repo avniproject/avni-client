@@ -26,6 +26,7 @@ import Reducers from "../../reducer";
 import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActions";
 import {ApprovalButton} from "./ApprovalButton";
 import {ApprovalDialog} from "./ApprovalDialog";
+import {RejectionMessage} from "./RejectionMessage";
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -71,12 +72,14 @@ class ApprovalDetailsView extends AbstractComponent {
             [ProgramEncounter.schema.name]: () => this.getNavigateToEncounterView(clonedEntity),
             [ChecklistItem.schema.name]: () => CHSNavigator.navigateToChecklistItemView(this, clonedEntity)
         };
-        return <ApprovalButton
-            name={this.I18n.t('Edit')}
-            textColor={Colors.TextOnPrimaryColor}
-            buttonColor={Colors.EditColor}
-            onPress={schemaToActionMap[schema]}
-            extraStyle={{paddingHorizontal: 50}}/>
+        return <View style={styles.footerContainer}>
+            <ApprovalButton
+                name={this.I18n.t('Edit')}
+                textColor={Colors.TextOnPrimaryColor}
+                buttonColor={Colors.EditColor}
+                onPress={schemaToActionMap[schema]}
+                extraStyle={{paddingHorizontal: 50}}/>
+        </View>
     }
 
     getNavigateToEncounterView(clonedEntity) {
@@ -128,7 +131,8 @@ class ApprovalDetailsView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={title} hideIcon={true} />
+                    <AppHeader title={title} hideIcon={true}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
                     <View style={styles.container}>
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}

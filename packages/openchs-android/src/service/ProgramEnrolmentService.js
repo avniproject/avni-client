@@ -46,7 +46,7 @@ class ProgramEnrolmentService extends BaseService {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
-            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.status.Pending, db);
+            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.statuses.Pending, db);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -78,7 +78,7 @@ class ProgramEnrolmentService extends BaseService {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
         this.db.write(() => {
-            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.status.Pending, db);
+            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.statuses.Pending, db);
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

@@ -4,13 +4,13 @@ import OrganisationConfigService from "./OrganisationConfigService";
 import EntityService from "./EntityService";
 import {
     ApprovalStatus,
+    ChecklistItem,
+    Encounter,
     EntityApprovalStatus,
     EntityQueue,
     Individual,
-    ProgramEnrolment,
-    Encounter,
     ProgramEncounter,
-    ChecklistItem,
+    ProgramEnrolment,
 } from "avni-models";
 
 @Service("entityApprovalStatusService")
@@ -21,20 +21,19 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     init() {
-        this.organisationConfigService = this.getService(OrganisationConfigService);
-        this.enableApprovalWorkflow = true; //TODO: read from org config
+        this.enableApprovalWorkflow = this.getService(OrganisationConfigService).getSettings().enableApprovalWorkflow;
     }
 
     getSchema() {
         return EntityApprovalStatus.schema.name;
     }
 
-    saveStatus(entityUUID, entityType, status, db) {
+    saveStatus(entityUUID, entityType, status, db, approvalStatusComment) {
         if (!this.enableApprovalWorkflow) {
             return null;
         }
         const approvalStatus = this.getService(EntityService).findByKey("status", status, ApprovalStatus.schema.name);
-        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus);
+        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment);
         const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
         db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
         return savedStatus;
@@ -57,6 +56,29 @@ class EntityApprovalStatusService extends BaseService {
         return {status, result};
     }
 
+    approveEntity(entity, schema) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Approved);
+    }
+
+    rejectEntity(entity, schema, comment) {
+        this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
+    }
+
+    saveEntityWithStatus(entity, schema, status, comment) {
+        const schemaToEntityTypeMap = {
+            [Individual.schema.name]: EntityApprovalStatus.entityType.Subject,
+            [ProgramEnrolment.schema.name]: EntityApprovalStatus.entityType.ProgramEnrolment,
+            [Encounter.schema.name]: EntityApprovalStatus.entityType.Encounter,
+            [ProgramEncounter.schema.name]: EntityApprovalStatus.entityType.ProgramEncounter,
+            [ChecklistItem.schema.name]: EntityApprovalStatus.entityType.ChecklistItem
+        };
+        const db = this.db;
+        this.db.write(() => {
+            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, schemaToEntityTypeMap[schema], status, db, comment);
+            db.create(schema, entity, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
+        });
+    }
 
 }
 
