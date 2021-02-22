@@ -54,9 +54,11 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCardUUID = action.reportCardUUID;
         newState.reportCardMappings = reportCardMappings.map(rcm => {
-            if (rcm.card.uuid === reportCardUUID && _.isNil(rcm.card.count)) {
+            const reportCard = rcm.card;
+            const isCountRequired = _.isNil(reportCard.count) || !_.isNil(reportCard.standardReportCardType);
+            if (reportCard.uuid === reportCardUUID && isCountRequired) {
                 const cardMappingsWithCount = {...rcm};
-                cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(rcm.card);
+                cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(reportCard);
                 return cardMappingsWithCount;
             } else return rcm
         });

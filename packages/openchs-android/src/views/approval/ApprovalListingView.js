@@ -16,6 +16,7 @@ class ApprovalListingView extends AbstractComponent {
         results: PropTypes.array.isRequired,
         onApprovalSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string.isRequired,
+        onBackFunc: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -59,13 +60,18 @@ class ApprovalListingView extends AbstractComponent {
         )
     }
 
+    onBackPress() {
+        this.props.onBackFunc();
+        this.goBack();
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const title = this.props.headerTitle;
         const onApprovalSelection = this.props.onApprovalSelection;
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t(title)}/>
+                <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter(this.I18n.t(title))}
                 <CHSContent>
                     <SafeAreaView style={styles.container}>
