@@ -370,6 +370,20 @@
     "resendCode": "Resend code",
     "getAnotherOTPIn": "Get another OTP ( Wait for 00:{{seconds}} )",
     "invalidPhoneNumber": "Invalid phone number",
-    "OTPVerified": "OTP verified"
+    "OTPVerified": "OTP verified",
+    "addXHoursAgo": "added {{hrs}} hrs ago",
+    "requestName": "{{entityName}} request",
+    "approvalDetailsTitle": "{{subjectName}} {{entityName}} details",
+    "viewDetails": "View Details",
+    "reject": "Reject",
+    "approve": "Approve",
+    "commentCannotBeEmpty": "Comment Cannot Be Empty",
+    "rejectionNote": "Rejection Note",
+    "changeStatusToPendingTitle": "Change status to pending",
+    "changeStatusToPendingMsg": "An edit was made on the rejected form. Do you want to send it for the approval again?",
+    "approveRequestTitle": "Approve {{entityName}} request?",
+    "approveRequestMsg": "Do you confirm the registration details for the subject {{subjectName}} ?",
+    "rejectRequestTitle": "Reject {{entityName}} request for the subject {{subjectName}} ?",
+    "rejectRequestMsg": "Please mention the reason below:"
   }
 }

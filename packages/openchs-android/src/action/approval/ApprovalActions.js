@@ -14,11 +14,11 @@ class ApprovalActions {
 
     static onApprovePress(state, action) {
         const newState = {...state};
-        const {entity} = action;
+        const {entity, I18n} = action;
         newState.rejectionComment = "";
         newState.openDialog = true;
-        newState.title = `Approve ${entity.getName()} request?`;
-        newState.message = `Do you confirm the registration details for the subject ${entity.individual.nameString}?`;
+        newState.title = I18n.t('approveRequestTitle', {entityName: entity.getName()});
+        newState.message = I18n.t('approveRequestMsg', {subjectName: entity.individual.nameString});
         newState.showInputBox = false;
         return newState;
     }
@@ -37,11 +37,14 @@ class ApprovalActions {
 
     static onRejectPress(state, action) {
         const newState = {...state};
-        const {entity} = action;
+        const {entity, I18n} = action;
         newState.rejectionComment = "";
         newState.openDialog = true;
-        newState.title = `Reject ${entity.getName()} request for the subject ${entity.individual.nameString}?`;
-        newState.message = `Please mention the reason below:`;
+        newState.title = I18n.t('rejectRequestTitle', {
+            entityName: entity.getName(),
+            subjectName: entity.individual.nameString
+        });
+        newState.message = I18n.t('rejectRequestMsg');
         newState.showInputBox = true;
         return newState;
     }

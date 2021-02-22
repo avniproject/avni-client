@@ -66,7 +66,7 @@ class ApprovalListingView extends AbstractComponent {
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)}/>
-                {this.renderFilter(title)}
+                {this.renderFilter(this.I18n.t(title))}
                 <CHSContent>
                     <SafeAreaView style={styles.container}>
                         <SectionList

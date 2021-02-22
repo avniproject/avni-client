@@ -55,7 +55,7 @@ class ApprovalDetailsView extends AbstractComponent {
             <View style={styles.headerContainer}>
                 <Text style={styles.headerTextStyle}>{this.I18n.t(entity.getEntityTypeName())}</Text>
                 <ApprovalButton
-                    name={this.I18n.t('View Details')}
+                    name={this.I18n.t('viewDetails')}
                     textColor={Colors.DarkPrimaryColor}
                     buttonColor={Colors.cardBackgroundColor}
                     onPress={onDetailPress}
@@ -75,7 +75,7 @@ class ApprovalDetailsView extends AbstractComponent {
         };
         return <View style={styles.footerContainer}>
             <ApprovalButton
-                name={this.I18n.t('Edit')}
+                name={this.I18n.t('edit')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.EditColor}
                 onPress={schemaToActionMap[schema]}
@@ -105,19 +105,19 @@ class ApprovalDetailsView extends AbstractComponent {
                     {uuid: clonedEntity.uuid, subjectTypeName: clonedEntity.subjectType.name})])));
     }
 
-    renderApproveAndRejectButtons(entity) {
+    renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
             <ApprovalButton
-                name={this.I18n.t('Reject')}
+                name={I18n.t('reject')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
-                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity})}
+                onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
                 extraStyle={{paddingHorizontal: 50}}/>
             <ApprovalButton
-                name={this.I18n.t('Approve')}
+                name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
-                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity})}
+                onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
                 extraStyle={{paddingHorizontal: 50}}/>
         </View>)
     }
@@ -129,7 +129,7 @@ class ApprovalDetailsView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const entity = this.props.entity;
-        const title = `${entity.individual.nameString} ${entity.getName()} details`;
+        const title = this.I18n.t('approvalDetailsTitle', {subjectName: entity.individual.nameString, entityName: entity.getName()});
         const schema = this.props.schema;
         const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
@@ -142,14 +142,14 @@ class ApprovalDetailsView extends AbstractComponent {
                     <View style={styles.container}>
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
-                            <Observations observations={observations}/>
-                            {approvalStatus.isPending && this.renderApproveAndRejectButtons(entity)}
+                            <Observations observations={observations || []}/>
+                            {approvalStatus.isPending && this.renderApproveAndRejectButtons(entity, this.I18n)}
                             {approvalStatus.isRejected && this.renderEditButton(entity, schema)}
                         </View>
                     </View>
                     <ApprovalDialog
-                        primaryButton={this.I18n.t('Confirm')}
-                        secondaryButton={this.I18n.t('Cancel')}
+                        primaryButton={this.I18n.t('confirm')}
+                        secondaryButton={this.I18n.t('cancel')}
                         onPrimaryPress={() => this.dispatchAction(confirmActionName, {
                             entity,
                             schema,

@@ -35,14 +35,13 @@ class ApprovalDetailsCard extends AbstractComponent {
         const entityName = entity.getName();
         const subjectTypeName = individual.subjectTypeName;
         const hrs = moment().diff(entity.latestEntityApprovalStatus.statusDateTime, 'hours');
-        const auditText = `added ${hrs} hrs ago`;
         return (
             <SafeAreaView>
                 <View style={styles.container}>
                     <View style={styles.leftContainer}>
                         <Text style={Styles.textStyle}>{nameToDisplay}</Text>
-                        <Text style={styles.requestTextStyle}>{`${entityName} request`}</Text>
-                        <Text style={styles.auditTextStyle}>{auditText}</Text>
+                        <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName})}</Text>
+                        <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
                     </View>
                     <View style={styles.rightContainer}>
                         {this.renderSubjectType(subjectTypeName)}

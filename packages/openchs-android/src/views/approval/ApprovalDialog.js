@@ -11,7 +11,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
     const [error, setError] = React.useState("");
     const primaryButtonHandler = () => {
         if (showInputBox && _.isEmpty(rejectionComment)) {
-            setError(I18n.t('Comment cannot be empty'));
+            setError(I18n.t('commentCannotBeEmpty'));
         } else {
             onPrimaryPress();
         }

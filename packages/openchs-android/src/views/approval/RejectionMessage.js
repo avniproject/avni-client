@@ -10,7 +10,7 @@ export const RejectionMessage = ({entityApprovalStatus, I18n}) => {
     return (
         renderMessage ?
             <View style={styles.container}>
-                <Text style={styles.headerTextStyle}>{I18n.t('Rejection note')}</Text>
+                <Text style={styles.headerTextStyle}>{I18n.t('rejectionNote')}</Text>
                 <Text style={styles.commentTextStyle}>{entityApprovalStatus.approvalStatusComment}</Text>
             </View> :
             <View/>

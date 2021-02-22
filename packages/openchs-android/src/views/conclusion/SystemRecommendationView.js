@@ -129,8 +129,8 @@ class SystemRecommendationView extends AbstractComponent {
 
     getDialogState() {
         return {
-            title: this.I18n.t('Change status to pending'),
-            message: this.I18n.t('An edit was made on the rejected form. Do you want to send it for the approval again?'),
+            title: this.I18n.t('changeStatusToPendingTitle'),
+            message: this.I18n.t('changeStatusToPendingMsg'),
             openDialog: this.state.showApprovalDialog,
         }
     }
