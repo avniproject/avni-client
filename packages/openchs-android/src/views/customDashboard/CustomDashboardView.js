@@ -15,6 +15,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
+import ApprovalListingView from "../../views/approval/ApprovalListingView";
+import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -54,6 +56,14 @@ class CustomDashboardView extends AbstractComponent {
         );
     }
 
+    getViewByName(viewName) {
+        const viewNameMap = {
+            'ApprovalListingView': ApprovalListingView,
+            'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView
+        };
+        return viewNameMap[viewName]
+    }
+
     onCardPress(reportCardUUID) {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
@@ -66,7 +76,7 @@ class CustomDashboardView extends AbstractComponent {
                 onBackFunc: () => this.dispatchAction(Actions.EXECUTE_COUNT_QUERY, {reportCardUUID}),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
-            }).to(viewName, true)
+            }).to(this.getViewByName(viewName), true)
         }), 0);
     }
 

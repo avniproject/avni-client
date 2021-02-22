@@ -4,8 +4,6 @@ import DashboardCardMappingService from "../../service/customDashboard/Dashboard
 import EntityService from "../../service/EntityService";
 import {ReportCard} from "avni-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
-import ApprovalListingView from "../../views/approval/ApprovalListingView";
-import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
 
 class CustomDashboardActions {
 
@@ -44,7 +42,7 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
         const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);
-        const viewName = !_.isNil(reportCard.standardReportCardType) ? ApprovalListingView : IndividualSearchResultPaginatedView;
+        const viewName = !_.isNil(reportCard.standardReportCardType) ? 'ApprovalListingView' : 'IndividualSearchResultPaginatedView';
         action.cb(result, result.length, status, viewName);
         return newState;
     }
