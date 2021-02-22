@@ -101,7 +101,7 @@ export class SubjectRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualService).register(newState.subject, action.nextScheduledVisits);
+        context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         const {member} = newState.household;
         if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);

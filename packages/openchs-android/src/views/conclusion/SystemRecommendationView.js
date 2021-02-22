@@ -33,6 +33,8 @@ import IndividualEncounterView from "../individual/IndividualEncounterView";
 import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
+import {ApprovalDialog} from "../approval/ApprovalDialog";
+import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActions";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -49,10 +51,12 @@ class SystemRecommendationView extends AbstractComponent {
         form: PropTypes.object,
         saveAndProceed: PropTypes.object,
         workListState: PropTypes.object,
+        isRejectedEntity: PropTypes.bool,
     };
 
     static defaultProps = {
-        isSaveDraftOn: false
+        isSaveDraftOn: false,
+        isRejectedEntity: false,
     };
 
     static styles = {
@@ -65,6 +69,7 @@ class SystemRecommendationView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.state = {showApprovalDialog: false}
     }
 
     get individual() {
@@ -91,15 +96,42 @@ class SystemRecommendationView extends AbstractComponent {
         if (this.props.individual.voided) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
                 this.I18n.t("voidedIndividualAlertMessage"));
+        } else if (this.props.isRejectedEntity) {
+            this.setState({showApprovalDialog: true});
         } else {
-            this.dispatchAction(this.props.saveActionName, {
-                decisions: this.props.decisions,
-                checklists: this.props.checklists,
-                nextScheduledVisits: this.props.nextScheduledVisits,
-                message: this.props.message,
-                cb,
-                error: (message) => this.showError(message)
-            });
+            this.dispatchSaveAction(cb);
+        }
+    }
+
+    dispatchSaveAction(cb, otherParams) {
+        this.dispatchAction(this.props.saveActionName, {
+            decisions: this.props.decisions,
+            checklists: this.props.checklists,
+            nextScheduledVisits: this.props.nextScheduledVisits,
+            message: this.props.message,
+            cb,
+            error: (message) => this.showError(message),
+            ...otherParams
+        });
+    }
+
+    onYesPress(cb) {
+        this.dispatchSaveAction(cb);
+    }
+
+    onNoPress(cb) {
+        this.dispatchSaveAction(cb, {skipCreatingPendingStatus: true});
+    }
+
+    onClose() {
+        this.setState({showApprovalDialog: false});
+    }
+
+    getDialogState() {
+        return {
+            title: this.I18n.t('Change status to pending'),
+            message: this.I18n.t('An edit was made on the rejected form. Do you want to send it for the approval again?'),
+            openDialog: this.state.showApprovalDialog,
         }
     }
 
@@ -177,6 +209,14 @@ class SystemRecommendationView extends AbstractComponent {
                                            style={{marginHorizontal: 24}}/>
 
                         </View>
+                        <ApprovalDialog
+                            primaryButton={this.I18n.t('yes')}
+                            secondaryButton={this.I18n.t('no')}
+                            onPrimaryPress={() => this.onYesPress(() => this.props.onSaveCallback(this))}
+                            onSecondaryPress={() => this.onNoPress(() => this.props.onSaveCallback(this))}
+                            onClose={() => this.onClose()}
+                            state={this.getDialogState()}
+                            I18n={this.I18n}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

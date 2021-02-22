@@ -39,14 +39,15 @@ class ProgramEnrolmentService extends BaseService {
         });
     }
 
-    enrol(programEnrolment, checklists = [], nextScheduledVisits) {
+    enrol(programEnrolment, checklists = [], nextScheduledVisits, skipCreatingPendingStatus) {
         const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
-            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.statuses.Pending, db);
+            if (!skipCreatingPendingStatus)
+                programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEnrolment.uuid, ProgramEnrolment.schema.name, db);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -73,12 +74,13 @@ class ProgramEnrolmentService extends BaseService {
         return programEnrolment;
     }
 
-    exit(programEnrolment) {
+    exit(programEnrolment, skipCreatingPendingStatus) {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
         this.db.write(() => {
-            programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEnrolment.uuid, EntityApprovalStatus.entityType.ProgramEnrolment, ApprovalStatus.statuses.Pending, db);
+            if (!skipCreatingPendingStatus)
+                programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEnrolment.uuid, ProgramEnrolment.schema.name, db);
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

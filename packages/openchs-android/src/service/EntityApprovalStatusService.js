@@ -64,7 +64,20 @@ class EntityApprovalStatusService extends BaseService {
         this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
     }
 
+    createPendingStatus(entityUUID, schema, db) {
+        return this.saveStatus(entityUUID, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db);
+    }
+
     saveEntityWithStatus(entity, schema, status, comment) {
+        const db = this.db;
+        this.db.write(() => {
+            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment);
+            db.create(schema, entity, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
+        });
+    }
+
+    _getEntityTypeForSchema(schema) {
         const schemaToEntityTypeMap = {
             [Individual.schema.name]: EntityApprovalStatus.entityType.Subject,
             [ProgramEnrolment.schema.name]: EntityApprovalStatus.entityType.ProgramEnrolment,
@@ -72,12 +85,7 @@ class EntityApprovalStatusService extends BaseService {
             [ProgramEncounter.schema.name]: EntityApprovalStatus.entityType.ProgramEncounter,
             [ChecklistItem.schema.name]: EntityApprovalStatus.entityType.ChecklistItem
         };
-        const db = this.db;
-        this.db.write(() => {
-            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, schemaToEntityTypeMap[schema], status, db, comment);
-            db.create(schema, entity, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
-        });
+        return schemaToEntityTypeMap[schema];
     }
 
 }

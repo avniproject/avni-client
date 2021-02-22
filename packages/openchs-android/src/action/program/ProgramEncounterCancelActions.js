@@ -75,10 +75,10 @@ class ProgramEncounterCancelActions {
         const newState = state.clone();
 
         if (_.isNil(newState.programEncounter.programEnrolment)) {
-            context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+            context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         } else {
             context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment);
-            context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits);
+            context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         }
 
         action.cb();

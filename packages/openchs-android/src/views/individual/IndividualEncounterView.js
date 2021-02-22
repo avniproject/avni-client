@@ -57,7 +57,8 @@ class IndividualEncounterView extends AbstractComponent {
                     newState.workListState,
                     message,
                     nextScheduledVisits,
-                    popVerificationVew
+                    popVerificationVew,
+                    newState.encounter.isRejectedEntity()
                 );
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),

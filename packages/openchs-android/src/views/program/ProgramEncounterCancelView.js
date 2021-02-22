@@ -80,7 +80,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
                 const form = this.getCancelEncounterForm();
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.programEncounter.isRejectedEntity());
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,

@@ -110,12 +110,12 @@ export class ProgramEnrolmentActions {
             context
                 .get(ConceptService)
                 .addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
-            newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits);
+            newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         } else {
             context
                 .get(ConceptService)
                 .addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
-            service.exit(newState.enrolment);
+            service.exit(newState.enrolment, action.skipCreatingPendingStatus);
         }
         action.cb(newState.enrolment,true);
         return newState;

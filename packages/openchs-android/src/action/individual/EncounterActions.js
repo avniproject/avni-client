@@ -95,7 +95,7 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits);
+        context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         action.cb();
         return state;
     }

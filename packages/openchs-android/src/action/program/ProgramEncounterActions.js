@@ -104,7 +104,7 @@ class ProgramEncounterActions {
             }
         });
 
-        service.saveOrUpdate(newState.programEncounter, scheduledVisits);
+        service.saveOrUpdate(newState.programEncounter, scheduledVisits, action.skipCreatingPendingStatus);
 
         action.cb(newState.programEncounter, false);
         return newState;

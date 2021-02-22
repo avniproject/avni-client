@@ -183,7 +183,7 @@ class CHSNavigator {
         }).to(IndividualEncounterLandingView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -207,11 +207,12 @@ class CHSNavigator {
             workListState,
             message,
             false,
-            popVerificationVew
+            popVerificationVew,
+            isRejectedEntity
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -225,7 +226,8 @@ class CHSNavigator {
             nextScheduledVisits: _.isNil(nextScheduledVisits) ? [] : nextScheduledVisits,
             message,
             workListState,
-            isSaveDraftOn
+            isSaveDraftOn,
+            isRejectedEntity
         }).to(SystemRecommendationView, true, popVerificationVew);
     }
 

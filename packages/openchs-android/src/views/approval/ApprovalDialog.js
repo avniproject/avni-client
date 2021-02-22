@@ -5,15 +5,15 @@ import _ from "lodash";
 import {ApprovalButton} from "./ApprovalButton";
 import Colors from "../primitives/Colors";
 
-export const ApprovalDialog = ({onClose, onInputChange, onConfirm, state, I18n}) => {
+export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButton, onPrimaryPress, secondaryButton, onSecondaryPress}) => {
     const {title, message, showInputBox, rejectionComment, openDialog} = state;
     const modalFlex = showInputBox ? 0.4 : 0.3;
     const [error, setError] = React.useState("");
-    const onConfirmPress = () => {
+    const primaryButtonHandler = () => {
         if (showInputBox && _.isEmpty(rejectionComment)) {
             setError(I18n.t('Comment cannot be empty'));
         } else {
-            onConfirm();
+            onPrimaryPress();
         }
     };
 
@@ -37,17 +37,17 @@ export const ApprovalDialog = ({onClose, onInputChange, onConfirm, state, I18n})
                     <Text style={styles.errorTextStyle}>{error}</Text>
                     <View style={styles.buttonContainer}>
                         <ApprovalButton
-                            name={I18n.t('Cancel')}
+                            name={secondaryButton}
                             textColor={Colors.DarkPrimaryColor}
                             buttonColor={Colors.cardBackgroundColor}
-                            onPress={onClose}
+                            onPress={onSecondaryPress}
                         />
                         <View style={{width: 20}}/>
                         <ApprovalButton
-                            name={I18n.t('Confirm')}
+                            name={primaryButton}
                             textColor={Colors.TextOnPrimaryColor}
                             buttonColor={Colors.DarkPrimaryColor}
-                            onPress={onConfirmPress}
+                            onPress={primaryButtonHandler}
                         />
                     </View>
                 </View>

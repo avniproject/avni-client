@@ -73,7 +73,7 @@ class ProgramEncounterService extends BaseService {
         });
     }
 
-    saveOrUpdate(programEncounter, nextScheduledVisits) {
+    saveOrUpdate(programEncounter, nextScheduledVisits, skipCreatingPendingStatus) {
         General.logDebug('ProgramEncounterService', `New Program Encounter UUID: ${programEncounter.uuid}`);
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
@@ -81,7 +81,8 @@ class ProgramEncounterService extends BaseService {
 
         const db = this.db;
         this.db.write(() => {
-            programEncounter.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(programEncounter.uuid, EntityApprovalStatus.entityType.ProgramEncounter, ApprovalStatus.statuses.Pending, db);
+            if (!skipCreatingPendingStatus)
+                programEncounter.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEncounter.uuid, ProgramEncounter.schema.name, db);
             this._saveEncounter(programEncounter, db);
             this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db, programEncounter.encounterDateTime);
         });

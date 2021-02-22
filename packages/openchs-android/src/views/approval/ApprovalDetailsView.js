@@ -27,6 +27,7 @@ import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActi
 import {ApprovalButton} from "./ApprovalButton";
 import {ApprovalDialog} from "./ApprovalDialog";
 import {RejectionMessage} from "./RejectionMessage";
+import _ from 'lodash';
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -121,6 +122,10 @@ class ApprovalDetailsView extends AbstractComponent {
         </View>)
     }
 
+    getCancelOrExitObs(entity) {
+        return _.isEmpty(entity.cancelObservations) ? entity.programExitObservations : entity.cancelObservations;
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const entity = this.props.entity;
@@ -128,6 +133,7 @@ class ApprovalDetailsView extends AbstractComponent {
         const schema = this.props.schema;
         const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
+        const observations = _.isEmpty(entity.observations) ? this.getCancelOrExitObs(entity) : entity.observations;
         return (
             <CHSContainer>
                 <CHSContent>
@@ -136,17 +142,20 @@ class ApprovalDetailsView extends AbstractComponent {
                     <View style={styles.container}>
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
-                            <Observations observations={entity.observations}/>
+                            <Observations observations={observations}/>
                             {approvalStatus.isPending && this.renderApproveAndRejectButtons(entity)}
                             {approvalStatus.isRejected && this.renderEditButton(entity, schema)}
                         </View>
                     </View>
                     <ApprovalDialog
-                        onConfirm={() => this.dispatchAction(confirmActionName, {
+                        primaryButton={this.I18n.t('Confirm')}
+                        secondaryButton={this.I18n.t('Cancel')}
+                        onPrimaryPress={() => this.dispatchAction(confirmActionName, {
                             entity,
                             schema,
                             cb: this.goBack.bind(this)
                         })}
+                        onSecondaryPress={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
                         onClose={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
                         onInputChange={(value) => this.dispatchAction(Actions.ON_INPUT_CHANGE, {value})}
                         state={this.state}

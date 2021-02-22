@@ -43,7 +43,7 @@ class ChecklistItemActions {
         const newState = state.clone();
 
         const service = context.get(ChecklistService);
-        service.saveChecklistItem(newState.checklistItem);
+        service.saveChecklistItem(newState.checklistItem, action.skipCreatingPendingStatus);
 
         action.cb();
         return newState;

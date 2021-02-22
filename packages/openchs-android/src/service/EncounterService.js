@@ -77,7 +77,7 @@ class EncounterService extends BaseService {
         });
     }
 
-    saveOrUpdate(encounter, nextScheduledVisits = []) {
+    saveOrUpdate(encounter, nextScheduledVisits = [], skipCreatingPendingStatus) {
         General.logDebug('EncounterService', `New Encounter UUID: ${encounter.uuid}`);
         ObservationsHolder.convertObsForSave(encounter.observations);
         ObservationsHolder.convertObsForSave(encounter.cancelObservations);
@@ -85,7 +85,8 @@ class EncounterService extends BaseService {
 
         const db = this.db;
         this.db.write(() => {
-            encounter.latestEntityApprovalStatus = entityApprovalStatusService.saveStatus(encounter.uuid, EntityApprovalStatus.entityType.Encounter, ApprovalStatus.statuses.Pending, db);
+            if (!skipCreatingPendingStatus)
+                encounter.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(encounter.uuid, Encounter.schema.name, db);
             this._saveEncounter(encounter, db);
             this.saveScheduledVisits(encounter.individual, nextScheduledVisits, db, encounter.encounterDateTime);
         });
