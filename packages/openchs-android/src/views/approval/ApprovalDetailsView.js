@@ -142,7 +142,7 @@ class ApprovalDetailsView extends AbstractComponent {
                     <View style={styles.container}>
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
-                            <Observations observations={observations || []}/>
+                            <Observations observations={_.defaultTo(observations, [])}/>
                             {approvalStatus.isPending && this.renderApproveAndRejectButtons(entity, this.I18n)}
                             {approvalStatus.isRejected && this.renderEditButton(entity, schema)}
                         </View>

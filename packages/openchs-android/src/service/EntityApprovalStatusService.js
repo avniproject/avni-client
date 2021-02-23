@@ -12,6 +12,7 @@ import {
     ProgramEncounter,
     ProgramEnrolment,
 } from "avni-models";
+import _ from 'lodash';
 
 @Service("entityApprovalStatusService")
 class EntityApprovalStatusService extends BaseService {
@@ -39,7 +40,7 @@ class EntityApprovalStatusService extends BaseService {
         return savedStatus;
     }
 
-    getAllEntitiesWithStatus(status) {
+    getAllEntitiesWithStatus(status, entityType) {
         const entityWithApprovalWorkflow = [
             Individual.schema.name,
             ProgramEnrolment.schema.name,
@@ -47,7 +48,9 @@ class EntityApprovalStatusService extends BaseService {
             ProgramEncounter.schema.name,
             ChecklistItem.schema.name
         ];
-        const result = _.map(entityWithApprovalWorkflow, (schema) => {
+        const schema = this._getSchemaForEntityType(entityType);
+        const applicableEntities = entityWithApprovalWorkflow.filter(entity => _.isEmpty(schema) ? true : entity === schema);
+        const result = _.map(applicableEntities, (schema) => {
             const entities = this.getAll(schema)
                 .filtered(schema === ChecklistItem.schema.name ? 'uuid <> null' : 'voided = false')
                 .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status);
@@ -77,17 +80,13 @@ class EntityApprovalStatusService extends BaseService {
         });
     }
 
-    _getEntityTypeForSchema(schema) {
-        const schemaToEntityTypeMap = {
-            [Individual.schema.name]: EntityApprovalStatus.entityType.Subject,
-            [ProgramEnrolment.schema.name]: EntityApprovalStatus.entityType.ProgramEnrolment,
-            [Encounter.schema.name]: EntityApprovalStatus.entityType.Encounter,
-            [ProgramEncounter.schema.name]: EntityApprovalStatus.entityType.ProgramEncounter,
-            [ChecklistItem.schema.name]: EntityApprovalStatus.entityType.ChecklistItem
-        };
-        return schemaToEntityTypeMap[schema];
+    _getEntityTypeForSchema(passedSchema) {
+        return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({schema}) => schema === passedSchema), 'entityType');
     }
 
+    _getSchemaForEntityType(passedEntityType) {
+        return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({entityType}) => entityType === passedEntityType), 'schema');
+    }
 }
 
 export default EntityApprovalStatusService;

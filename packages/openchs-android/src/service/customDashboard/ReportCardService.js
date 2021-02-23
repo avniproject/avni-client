@@ -48,6 +48,11 @@ class ReportCardService extends BaseService {
         return {status: null, result};
     }
 
+    getStandardReportCardResultForEntity(reportCard, entityType) {
+        const status = this._getApprovalStatusForType(reportCard.standardReportCardType.name);
+        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, entityType)
+    }
+
 }
 
 export default ReportCardService

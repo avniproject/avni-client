@@ -58,6 +58,7 @@ class Colors {
     static EditColor = '#347cff';
     static RejectionMessageBackground = '#fff4e5';
     static RejectionMessageColor = '#663c00';
+    static DetailsTextColor = 'rgba(0, 0, 0, 0.54)'
 
 }
 

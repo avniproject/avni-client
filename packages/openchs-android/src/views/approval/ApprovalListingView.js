@@ -9,6 +9,12 @@ import AppHeader from "../common/AppHeader";
 import CHSContent from "../common/CHSContent";
 import React from "react";
 import ApprovalDetailsCard from "./ApprovalDetailsCard";
+import DropDownPicker from 'react-native-dropdown-picker';
+import {EntityApprovalStatus, ReportCard} from 'avni-models';
+import _ from 'lodash';
+import EntityService from "../../service/EntityService";
+import ReportCardService from "../../service/customDashboard/ReportCardService";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 @Path('/approvalListingView')
 class ApprovalListingView extends AbstractComponent {
@@ -17,10 +23,12 @@ class ApprovalListingView extends AbstractComponent {
         onApprovalSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string.isRequired,
         onBackFunc: PropTypes.func.isRequired,
+        reportCardUUID: PropTypes.string.isRequired
     };
 
     constructor(props, context) {
         super(props, context);
+        this.state = {results: this.props.results}
     }
 
     viewName() {
@@ -51,11 +59,34 @@ class ApprovalListingView extends AbstractComponent {
         )
     }
 
+    onFilterChange({label}) {
+        const reportCard = this.getService(EntityService).findByUUID(this.props.reportCardUUID, ReportCard.schema.name);
+        const {result} = this.getService(ReportCardService).getStandardReportCardResultForEntity(reportCard, label);
+        this.setState({results: result});
+    }
+
     renderFilter(title) {
-        const total = _.map(this.props.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
+        const options = _.map(EntityApprovalStatus.entityType, (v, k) => ({label: k, value: v}));
+        const optionsWithAll = [{label: 'All', value: 'All'}, ...options];
+        const total = _.map(this.state.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
         return (
             <View style={styles.filterContainer}>
-                <Text>{`Showing ${total} ${title} requests`}</Text>
+                <View style={{flex: 0.5, flexWrap: 'wrap'}}>
+                    <Text style={{color: Colors.DetailsTextColor}}>{`Showing ${total} ${title} requests`}</Text>
+                </View>
+                <View style={{flex: 0.5}}>
+                    <DropDownPicker
+                        items={optionsWithAll}
+                        containerStyle={{height: 40}}
+                        itemStyle={{justifyContent: 'flex-start'}}
+                        placeholder={'Select type'}
+                        dropDownStyle={{backgroundColor: '#fafafa'}}
+                        arrowColor={Colors.DefaultPrimaryColor}
+                        onChangeItem={this.onFilterChange.bind(this)}
+                        customArrowUp={() => <Icon name={'caret-up'} size={18}/>}
+                        customArrowDown={() => <Icon name={'caret-down'} size={18}/>}
+                    />
+                </View>
             </View>
         )
     }
@@ -76,7 +107,7 @@ class ApprovalListingView extends AbstractComponent {
                 <CHSContent>
                     <SafeAreaView style={styles.container}>
                         <SectionList
-                            sections={this.props.results}
+                            sections={this.state.results}
                             keyExtractor={(item, index) => item.individual.uuid + index}
                             renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
                         />
@@ -101,7 +132,10 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         marginHorizontal: 16,
-        marginVertical: 20
+        marginVertical: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     }
 });
 
