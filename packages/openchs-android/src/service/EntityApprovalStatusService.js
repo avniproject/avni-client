@@ -40,7 +40,7 @@ class EntityApprovalStatusService extends BaseService {
         return savedStatus;
     }
 
-    getAllEntitiesWithStatus(status, entityType) {
+    getAllEntitiesWithStatus(status, schema, filterQuery) {
         const entityWithApprovalWorkflow = [
             Individual.schema.name,
             ProgramEnrolment.schema.name,
@@ -48,12 +48,12 @@ class EntityApprovalStatusService extends BaseService {
             ProgramEncounter.schema.name,
             ChecklistItem.schema.name
         ];
-        const schema = this._getSchemaForEntityType(entityType);
         const applicableEntities = entityWithApprovalWorkflow.filter(entity => _.isEmpty(schema) ? true : entity === schema);
         const result = _.map(applicableEntities, (schema) => {
             const entities = this.getAll(schema)
                 .filtered(schema === ChecklistItem.schema.name ? 'uuid <> null' : 'voided = false')
-                .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status);
+                .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status)
+                .filtered(_.isEmpty(filterQuery) ? 'uuid <> null' : filterQuery);
             return {title: schema, data: entities};
         });
         return {status, result};

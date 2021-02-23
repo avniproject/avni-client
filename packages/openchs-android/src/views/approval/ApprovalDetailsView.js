@@ -53,7 +53,7 @@ class ApprovalDetailsView extends AbstractComponent {
         const onDetailPress = () => CHSNavigator.navigateToIndividualRegistrationDetails(this, entity.individual.uuid, this.goBack.bind(this));
         return (
             <View style={styles.headerContainer}>
-                <Text style={styles.headerTextStyle}>{this.I18n.t(entity.getEntityTypeName())}</Text>
+                <Text style={styles.headerTextStyle}>{entity.individual.nameString}</Text>
                 <ApprovalButton
                     name={this.I18n.t('viewDetails')}
                     textColor={Colors.DarkPrimaryColor}
@@ -77,7 +77,7 @@ class ApprovalDetailsView extends AbstractComponent {
             <ApprovalButton
                 name={this.I18n.t('edit')}
                 textColor={Colors.TextOnPrimaryColor}
-                buttonColor={Colors.EditColor}
+                buttonColor={Colors.DarkPrimaryColor}
                 onPress={schemaToActionMap[schema]}
                 extraStyle={{paddingHorizontal: 50}}/>
         </View>
@@ -118,7 +118,7 @@ class ApprovalDetailsView extends AbstractComponent {
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
                 onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50}}/>
+                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>
         </View>)
     }
 
@@ -129,7 +129,10 @@ class ApprovalDetailsView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const entity = this.props.entity;
-        const title = this.I18n.t('approvalDetailsTitle', {subjectName: entity.individual.nameString, entityName: entity.getName()});
+        const title = this.I18n.t('approvalDetailsTitle', {
+            subjectName: entity.individual.nameString,
+            entityName: entity.getName()
+        });
         const schema = this.props.schema;
         const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
@@ -179,9 +182,10 @@ const styles = StyleSheet.create({
     },
     footerContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginVertical: 20,
+        alignSelf: 'flex-end'
     },
     headerTextStyle: {
         fontSize: Styles.titleSize,

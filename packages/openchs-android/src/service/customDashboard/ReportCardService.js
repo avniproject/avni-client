@@ -48,9 +48,10 @@ class ReportCardService extends BaseService {
         return {status: null, result};
     }
 
-    getStandardReportCardResultForEntity(reportCard, entityType) {
+    getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter) {
         const status = this._getApprovalStatusForType(reportCard.standardReportCardType.name);
-        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, entityType)
+        const {schema, filterQuery} = schemaAndQueryFilter;
+        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, schema, filterQuery)
     }
 
 }

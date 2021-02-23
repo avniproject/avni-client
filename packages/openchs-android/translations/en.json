@@ -379,7 +379,7 @@
     "approve": "Approve",
     "commentCannotBeEmpty": "Comment Cannot Be Empty",
     "rejectionNote": "Rejection Note",
-    "changeStatusToPendingTitle": "Change status to pending",
+    "changeStatusToPendingTitle": "Send the form for approval?",
     "changeStatusToPendingMsg": "An edit was made on the rejected form. Do you want to send it for the approval again?",
     "approveRequestTitle": "Approve {{entityName}} request?",
     "approveRequestMsg": "Do you confirm the registration details for the subject {{subjectName}} ?",

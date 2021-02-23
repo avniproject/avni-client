@@ -28,6 +28,14 @@ class ApprovalDetailsCard extends AbstractComponent {
         return TouchableNativeFeedback.SelectableBackground();
     }
 
+    renderRejectionComment(entity) {
+        return (entity.isRejectedEntity() ?
+            <View style={{height: 30, marginTop: 6}}>
+                <Text numberOfLines={2}
+                      style={styles.commentTextStyle}>{entity.latestEntityApprovalStatus.approvalStatusComment}</Text>
+            </View> : null)
+    }
+
     render() {
         const entity = this.props.entity;
         const individual = entity.individual;
@@ -35,16 +43,22 @@ class ApprovalDetailsCard extends AbstractComponent {
         const entityName = entity.getName();
         const subjectTypeName = individual.subjectTypeName;
         const hrs = moment().diff(entity.latestEntityApprovalStatus.statusDateTime, 'hours');
+        const cardHeight = entity.isRejectedEntity() ? 125 : 90;
         return (
             <SafeAreaView>
-                <View style={styles.container}>
-                    <View style={styles.leftContainer}>
-                        <Text style={Styles.textStyle}>{nameToDisplay}</Text>
-                        <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName})}</Text>
-                        <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
+                <View style={[styles.container, {height: cardHeight}]}>
+                    <View style={{flexDirection: 'row'}}>
+                        <View style={styles.leftContainer}>
+                            <Text style={Styles.textStyle}>{nameToDisplay}</Text>
+                            <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName})}</Text>
+                        </View>
+                        <View style={styles.rightContainer}>
+                            {this.renderSubjectType(subjectTypeName)}
+                        </View>
                     </View>
-                    <View style={styles.rightContainer}>
-                        {this.renderSubjectType(subjectTypeName)}
+                    <View style={styles.leftContainer}>
+                        {this.renderRejectionComment(entity)}
+                        <Text style={styles.auditTextStyle}>{this.I18n.t('addXHoursAgo', {hrs})}</Text>
                     </View>
                 </View>
             </SafeAreaView>
@@ -54,8 +68,7 @@ class ApprovalDetailsCard extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        height: 80,
+        flexDirection: 'column',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         paddingVertical: Styles.ContainerHorizontalDistanceFromEdge,
     },
@@ -69,16 +82,32 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         flex: 1
     },
+    headerTextStyle: {
+        fontSize: Styles.normalTextSize,
+        fontStyle: 'normal',
+        color: 'rgba(0, 0, 0, 0.87)',
+        lineHeight: 24,
+        fontFamily: 'Inner',
+    },
     requestTextStyle: {
         fontSize: Styles.smallerTextSize,
         marginTop: 2,
         fontStyle: 'normal',
-        color: Styles.blackColor,
-    }, auditTextStyle: {
+        color: 'rgba(0, 0, 0, 0.66)',
+        fontFamily: 'Inner',
+    },
+    auditTextStyle: {
         fontSize: Styles.smallerTextSize,
         marginTop: 6,
         fontStyle: 'normal',
-        color: Colors.SecondaryText,
+        color: 'rgba(0, 0, 0, 0.54)',
+        fontFamily: 'Inner',
+    },
+    commentTextStyle: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: 'rgba(0, 0, 0, 0.87)',
+        fontFamily: 'Inner',
     },
     subjectTypeContainer: {
         height: 22,

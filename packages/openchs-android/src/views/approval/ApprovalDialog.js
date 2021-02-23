@@ -29,7 +29,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
                     <Text style={styles.titleTextStyle}>{title}</Text>
                     <Text style={styles.messageStyle}>{message}</Text>
                     {showInputBox &&
-                    <TextInput style={{borderWidth: 1, height: 80}}
+                    <TextInput style={{borderWidth: 1, height: 80, borderColor: '#c8c8c8', marginTop: 10}}
                                value={_.isNil(rejectionComment) ? "" : rejectionComment}
                                onChangeText={(text) => onInputChange(text)}
                                multiline={true}/>

@@ -107,7 +107,7 @@ class BaseService {
         return this.db.objects(schema);
     }
 
-    getAllNonVoided(schema) {
+    getAllNonVoided(schema = this.getSchema()) {
         return this.getAll(schema).filtered("voided = false");
     }
 

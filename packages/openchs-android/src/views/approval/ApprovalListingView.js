@@ -10,11 +10,12 @@ import CHSContent from "../common/CHSContent";
 import React from "react";
 import ApprovalDetailsCard from "./ApprovalDetailsCard";
 import DropDownPicker from 'react-native-dropdown-picker';
-import {EntityApprovalStatus, ReportCard} from 'avni-models';
+import {ReportCard, Form} from 'avni-models';
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/approvalListingView')
 class ApprovalListingView extends AbstractComponent {
@@ -59,15 +60,17 @@ class ApprovalListingView extends AbstractComponent {
         )
     }
 
-    onFilterChange({label}) {
+    onFilterChange({value}) {
+        const schemaAndQueryFilter = value;
         const reportCard = this.getService(EntityService).findByUUID(this.props.reportCardUUID, ReportCard.schema.name);
-        const {result} = this.getService(ReportCardService).getStandardReportCardResultForEntity(reportCard, label);
+        const {result} = this.getService(ReportCardService).getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter);
         this.setState({results: result});
     }
 
     renderFilter(title) {
-        const options = _.map(EntityApprovalStatus.entityType, (v, k) => ({label: k, value: v}));
-        const optionsWithAll = [{label: 'All', value: 'All'}, ...options];
+        const options = this.getService(FormMappingService).getAllNonVoided()
+            .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
+        const optionsWithAll = [{label: 'All', value: {schema: null, filterQuery: null}}, ...options];
         const total = _.map(this.state.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
         return (
             <View style={styles.filterContainer}>
