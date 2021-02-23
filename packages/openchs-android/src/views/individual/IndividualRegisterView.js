@@ -26,6 +26,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -97,6 +98,7 @@ class IndividualRegisterView extends AbstractComponent {
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',

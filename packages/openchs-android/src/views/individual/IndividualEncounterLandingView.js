@@ -25,6 +25,7 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -83,7 +84,8 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     message,
                     nextScheduledVisits,
                     popVerificationVew,
-                    this.state.encounter.isRejectedEntity()
+                    this.state.encounter.isRejectedEntity(),
+                    this.state.encounter.latestEntityApprovalStatus,
                 );
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
@@ -106,6 +108,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                     <AppHeader
                         title={`${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`}
                         func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    individual={this.state.encounter.individual}
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}

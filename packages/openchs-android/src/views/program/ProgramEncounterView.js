@@ -26,6 +26,7 @@ import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
 import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -81,7 +82,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity());
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -118,6 +119,7 @@ class ProgramEncounterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>

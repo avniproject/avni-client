@@ -21,6 +21,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -43,7 +44,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity());
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -68,6 +69,7 @@ class ProgramFormComponent extends AbstractComponent {
                     <View>
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                            individual={this.props.state.enrolment.individual}/>
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
                         <GeolocationFormElement
                             location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
                             editing={this.props.editing}

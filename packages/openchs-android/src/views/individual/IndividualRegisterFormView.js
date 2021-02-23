@@ -20,6 +20,7 @@ import _ from "lodash";
 import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -70,6 +71,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}

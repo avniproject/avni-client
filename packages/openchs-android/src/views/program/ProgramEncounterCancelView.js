@@ -23,6 +23,7 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -80,7 +81,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
                 const form = this.getCancelEncounterForm();
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.programEncounter.isRejectedEntity());
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.programEncounter.isRejectedEntity(), state.programEncounter.latestEntityApprovalStatus);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -107,6 +108,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() ?
                             <View>

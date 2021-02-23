@@ -19,6 +19,7 @@ import FormMappingService from "../../service/FormMappingService";
 import {AvniAlert} from "../common/AvniAlert";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import _ from "lodash";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -58,7 +59,8 @@ class IndividualEncounterView extends AbstractComponent {
                     message,
                     nextScheduledVisits,
                     popVerificationVew,
-                    newState.encounter.isRejectedEntity()
+                    newState.encounter.isRejectedEntity(),
+                    newState.encounter.latestEntityApprovalStatus,
                 );
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
@@ -97,6 +99,7 @@ class IndividualEncounterView extends AbstractComponent {
                 <CHSContent ref='scroll'>
                     <AppHeader title={this.I18n.t(this.state.encounter.encounterType.displayName)}
                                func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
                     <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                    onCollapse={this.scrollToTop}
                                                    individual={this.state.encounter.individual}

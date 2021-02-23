@@ -29,6 +29,7 @@ import Colors from "../primitives/Colors";
 import DGS from "../primitives/DynamicGlobalStyles";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -108,7 +109,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity());
+                    null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -140,6 +141,7 @@ class SubjectRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() && (
                             <View>

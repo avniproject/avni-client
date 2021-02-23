@@ -34,7 +34,7 @@ import ChecklistItemView from "../program/ChecklistItemView";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 import {ApprovalDialog} from "../approval/ApprovalDialog";
-import {ApprovalActionNames as Actions} from "../../action/approval/ApprovalActions";
+import {RejectionMessage} from "../approval/RejectionMessage";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -52,6 +52,7 @@ class SystemRecommendationView extends AbstractComponent {
         saveAndProceed: PropTypes.object,
         workListState: PropTypes.object,
         isRejectedEntity: PropTypes.bool,
+        entityApprovalStatus: PropTypes.object,
     };
 
     static defaultProps = {
@@ -172,6 +173,7 @@ class SystemRecommendationView extends AbstractComponent {
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
+                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     <View style={{flexDirection: 'column'}}>
                         {this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
