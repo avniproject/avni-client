@@ -34,12 +34,12 @@ class ChecklistService extends BaseService {
         const db = this.db;
         ObservationsHolder.convertObsForSave(checklistItem.observations);
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
-        if (!skipCreatingPendingStatus)
-            checklistItem.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(checklistItem.uuid, ChecklistItem.schema.name, db);
-        const savedChecklistItem = super.saveOrUpdate(checklistItem, ChecklistItem.schema.name);
-        const savedEntityQueueItem = EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name);
-        super.saveOrUpdate(savedEntityQueueItem, EntityQueue.schema.name);
-        return savedChecklistItem;
+        this.db.write(() => {
+            if (!skipCreatingPendingStatus)
+                checklistItem.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(checklistItem.uuid, ChecklistItem.schema.name, db);
+            const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
+        })
     }
 
     saveOrUpdate(programEnrolment, checklist, db = this.db) {
