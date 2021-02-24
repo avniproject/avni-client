@@ -1,4 +1,5 @@
 import EntityApprovalStatusService from "../../service/EntityApprovalStatusService";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class ApprovalActions {
 
@@ -6,10 +7,16 @@ class ApprovalActions {
         return {rejectionComment: "", openDialog: false};
     }
 
-    static onLoad(state) {
+    static onLoad(state, action, context) {
         const newState = {...state};
         const initialState = ApprovalActions.getInitialState();
-        return {...newState, ...initialState};
+        const privilegeService = context.get(PrivilegeService);
+        const {entity, schema} = action;
+        const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
+        const showRejectButton = approvalStatus.isPending && privilegeService.displayRejectEntityButton(entity, schema);
+        const showApproveButton = approvalStatus.isPending && privilegeService.displayApproveEntityButton(entity, schema);
+        const showEditButton = approvalStatus.isRejected && privilegeService.displayEditEntityButton(entity, schema);
+        return {...newState, ...initialState, showRejectButton, showApproveButton, showEditButton};
     }
 
     static onApprovePress(state, action) {

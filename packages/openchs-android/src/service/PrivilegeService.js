@@ -183,6 +183,38 @@ class PrivilegeService extends BaseService {
             return this.allowedEntityTypeUUIDListForCriteria(subjectRegisterCriteria, 'subjectTypeUuid').length > 0;
         }
     }
+
+    displayRejectEntityButton(entity, schema) {
+        const privilegeMetadata = this._getPrivilegeMetadataForSchema(schema);
+        return this.hasAllPrivileges() || this._filterByOwnedGroupsAndEntityType(privilegeMetadata, entity)
+            .filtered(`privilege.name = '${privilegeMetadata.rejectedPrivilegeName}' AND allow = true`).length > 0;
+    }
+
+    displayApproveEntityButton(entity, schema) {
+        const privilegeMetadata = this._getPrivilegeMetadataForSchema(schema);
+        return this.hasAllPrivileges() || this._filterByOwnedGroupsAndEntityType(privilegeMetadata, entity)
+            .filtered(`privilege.name = '${privilegeMetadata.approvedPrivilegeName}' AND allow = true`).length > 0;
+    }
+
+    displayEditEntityButton(entity, schema) {
+        const privilegeMetadata = this._getPrivilegeMetadataForSchema(schema);
+        return this.hasAllPrivileges() || this._filterByOwnedGroupsAndEntityType(privilegeMetadata, entity)
+            .filtered(`privilege.name = '${privilegeMetadata.editPrivilegeName}' AND allow = true`).length > 0;
+    }
+
+    _filterByOwnedGroupsAndEntityType({groupFilterQuery, entityFilterQueryFunc}, entity) {
+        const entityFilterQuery = entityFilterQueryFunc(entity);
+        return this.getAll()
+            .filtered(_.isEmpty(groupFilterQuery) ? 'uuid = null' : groupFilterQuery)
+            .filtered(_.isEmpty(entityFilterQuery) ? 'uuid = null' : entityFilterQuery);
+    }
+
+    _getPrivilegeMetadataForSchema(schema) {
+        const schemaToPrivilegeMetadata = Privilege.schemaToPrivilegeMetadata;
+        const groupFilterQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
+        const dataForSchema = _.find(schemaToPrivilegeMetadata, privilegeMetadata => privilegeMetadata.schema === schema);
+        return {...dataForSchema, groupFilterQuery};
+    }
 }
 
 export default PrivilegeService

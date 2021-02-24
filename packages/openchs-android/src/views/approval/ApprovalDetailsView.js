@@ -45,7 +45,7 @@ class ApprovalDetailsView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        this.dispatchAction(Actions.ON_LOAD,{entity: this.props.entity, schema: this.props.schema});
         super.componentWillMount();
     }
 
@@ -107,18 +107,20 @@ class ApprovalDetailsView extends AbstractComponent {
 
     renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
+            {this.state.showRejectButton &&
             <ApprovalButton
                 name={I18n.t('reject')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
                 onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50}}/>
+                extraStyle={{paddingHorizontal: 50}}/>}
+            {this.state.showApproveButton &&
             <ApprovalButton
                 name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
                 onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>
+                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>}
         </View>)
     }
 
@@ -134,7 +136,6 @@ class ApprovalDetailsView extends AbstractComponent {
             entityName: entity.getName()
         });
         const schema = this.props.schema;
-        const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
         const observations = _.isEmpty(entity.observations) ? this.getCancelOrExitObs(entity) : entity.observations;
         return (
@@ -146,8 +147,8 @@ class ApprovalDetailsView extends AbstractComponent {
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
                             <Observations observations={_.defaultTo(observations, [])}/>
-                            {approvalStatus.isPending && this.renderApproveAndRejectButtons(entity, this.I18n)}
-                            {approvalStatus.isRejected && this.renderEditButton(entity, schema)}
+                            {this.renderApproveAndRejectButtons(entity, this.I18n)}
+                            {this.state.showEditButton && this.renderEditButton(entity, schema)}
                         </View>
                     </View>
                     <ApprovalDialog
