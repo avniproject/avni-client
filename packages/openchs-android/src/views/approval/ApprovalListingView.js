@@ -107,15 +107,16 @@ class ApprovalListingView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter(this.I18n.t(title))}
-                <CHSContent>
-                    <SafeAreaView style={styles.container}>
-                        <SectionList
-                            sections={this.state.results}
-                            keyExtractor={(item, index) => item.individual.uuid + index}
-                            renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
-                        />
-                    </SafeAreaView>
-                </CHSContent>
+                <SafeAreaView>
+                    <SectionList
+                        sections={this.state.results}
+                        keyExtractor={(item) => item.uuid}
+                        renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
+                        initialNumToRender={50}
+                        updateCellsBatchingPeriod={500}
+                        maxToRenderPerBatch={20}
+                    />
+                </SafeAreaView>
             </CHSContainer>
         )
     }
@@ -123,10 +124,8 @@ class ApprovalListingView extends AbstractComponent {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        marginHorizontal: 16
-    },
     cardContainer: {
+        marginHorizontal: 16,
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,
         marginVertical: 5,
