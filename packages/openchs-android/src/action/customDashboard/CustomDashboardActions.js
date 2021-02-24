@@ -16,7 +16,7 @@ class CustomDashboardActions {
     static onLoad(state, action, context) {
         const dashboardService = context.get(CustomDashboardService);
         const newState = {...state};
-        const dashboards = dashboardService.getAllDashboards();
+        const dashboards = dashboardService.getDashboardsBasedOnPrivilege();
         newState.dashboards = dashboards;
         const firstDashboardUUID = _.get(_.head(dashboards), 'uuid');
         newState.activeDashboardUUID = firstDashboardUUID;
