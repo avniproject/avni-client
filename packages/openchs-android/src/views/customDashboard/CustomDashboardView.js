@@ -94,9 +94,14 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     render() {
+        const title = this.props.title || 'dashboards';
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('dashboards')}/>
+                <AppHeader title={this.I18n.t(title)}
+                           hideBackButton={this.props.hideBackButton}
+                           startSync={this.props.startSync}
+                           renderSync={this.props.renderSync}
+                           icon={this.props.icon}/>
                 <SafeAreaView style={{height: 50}}>
                     <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                         {this.renderDashboards()}

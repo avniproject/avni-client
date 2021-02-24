@@ -24,6 +24,8 @@ import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import PrivilegeService from "../service/PrivilegeService";
 import CustomFilterService from "../service/CustomFilterService";
+import CustomDashboardView from "./customDashboard/CustomDashboardView";
+import CustomDashboardService from "../service/customDashboard/CustomDashboardService";
 
 
 @Path('/landingView')
@@ -85,6 +87,28 @@ class LandingView extends AbstractComponent {
 
     static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
 
+    renderCustomDashboard(startSync) {
+        return <CustomDashboardView
+            startSync={startSync && this.state.syncRequired}
+            icon={(name, style) => this.Icon(name, style)}
+            title={'home'}
+            hideBackButton={true}
+            renderSync={true}
+            onlyPrimary={true}
+        />
+    }
+
+    renderDefaultDashboard(startSync) {
+        return <MyDashboardView
+            startSync={startSync && this.state.syncRequired}
+            icon={(name, style) => this.Icon(name, style)}/>
+    }
+
+    renderDashboard(startSync) {
+        const renderCustomDashboard = this.getService(CustomDashboardService).isCustomDashboardMarkedPrimary();
+        return renderCustomDashboard ? this.renderCustomDashboard(startSync) : this.renderDefaultDashboard(startSync);
+    }
+
     render() {
         General.logDebug("LandingView", "render");
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
@@ -105,7 +129,7 @@ class LandingView extends AbstractComponent {
 
         return (
             <CHSContainer>
-                {this.state.home && <MyDashboardView startSync={startSync && this.state.syncRequired} icon={(name, style) => this.Icon(name, style)}/>}
+                {this.state.home && this.renderDashboard(startSync) }
                 {this.state.search && <IndividualSearchView
                     onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
                     buttonElevated={true}
