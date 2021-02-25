@@ -21,16 +21,15 @@ class EntityApprovalStatusService extends BaseService {
         super(db, context);
     }
 
-    init() {
-        this.enableApprovalWorkflow = this.getService(OrganisationConfigService).getSettings().enableApprovalWorkflow;
-    }
+    init() {}
 
     getSchema() {
         return EntityApprovalStatus.schema.name;
     }
 
     saveStatus(entityUUID, entityType, status, db, approvalStatusComment) {
-        if (!this.enableApprovalWorkflow) {
+        const enableApprovalWorkflow = this.getService(OrganisationConfigService).getSettings().enableApprovalWorkflow;
+        if (!enableApprovalWorkflow) {
             return null;
         }
         const approvalStatus = this.getService(EntityService).findByKey("status", status, ApprovalStatus.schema.name);
