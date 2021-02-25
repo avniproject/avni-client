@@ -6,11 +6,10 @@ import {SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, Vi
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import CHSContent from "../common/CHSContent";
 import React from "react";
 import ApprovalDetailsCard from "./ApprovalDetailsCard";
 import DropDownPicker from 'react-native-dropdown-picker';
-import {ReportCard, Form} from 'avni-models';
+import {ReportCard} from 'avni-models';
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import ReportCardService from "../../service/customDashboard/ReportCardService";

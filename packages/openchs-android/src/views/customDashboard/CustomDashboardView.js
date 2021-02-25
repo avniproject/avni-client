@@ -17,6 +17,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
 import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
+import IndividualListView from "../individuallist/IndividualListView";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -59,7 +60,8 @@ class CustomDashboardView extends AbstractComponent {
     getViewByName(viewName) {
         const viewNameMap = {
             'ApprovalListingView': ApprovalListingView,
-            'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView
+            'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
+            'IndividualListView': IndividualListView
         };
         return viewNameMap[viewName]
     }
@@ -102,18 +104,19 @@ class CustomDashboardView extends AbstractComponent {
                            startSync={this.props.startSync}
                            renderSync={this.props.renderSync}
                            icon={this.props.icon}/>
+                {!this.props.onlyPrimary &&
                 <SafeAreaView style={{height: 50}}>
                     <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                         {this.renderDashboards()}
                         {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
-                </SafeAreaView>
-                <CHSContent>
+                </SafeAreaView>}
+                <View style={{marginBottom: 120}}>
                     <CustomActivityIndicator loading={this.state.loading}/>
                     <ScrollView>
                         {this.renderCards()}
                     </ScrollView>
-                </CHSContent>
+                </View>
             </CHSContainer>
         );
     }

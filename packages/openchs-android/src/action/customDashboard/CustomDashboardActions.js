@@ -43,9 +43,14 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
         const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);
-        const viewName = !_.isNil(reportCard.standardReportCardType) ? 'ApprovalListingView' : 'IndividualSearchResultPaginatedView';
+        const standardReportCardType = reportCard.standardReportCardType;
+        const viewName = !_.isNil(standardReportCardType) ? CustomDashboardActions._getViewNameForStandardReportCardType(standardReportCardType) : 'IndividualSearchResultPaginatedView';
         action.cb(result, result.length, status, viewName);
         return newState;
+    }
+
+    static _getViewNameForStandardReportCardType(standardReportCardType) {
+        return standardReportCardType.isApprovalType() ? 'ApprovalListingView' : 'IndividualListView';
     }
 
     static executeCountQuery(state, action, context) {

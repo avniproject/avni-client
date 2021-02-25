@@ -184,13 +184,7 @@ class PrivilegeService extends BaseService {
         }
     }
 
-    displayRejectEntityButton(entity, schema) {
-        const privilegeMetadata = this._getPrivilegeMetadataForSchema(schema);
-        return this.hasAllPrivileges() || this._filterByOwnedGroupsAndEntityType(privilegeMetadata, entity)
-            .filtered(`privilege.name = '${privilegeMetadata.rejectedPrivilegeName}' AND allow = true`).length > 0;
-    }
-
-    displayApproveEntityButton(entity, schema) {
+    displayApprovalEntityButtons(entity, schema) {
         const privilegeMetadata = this._getPrivilegeMetadataForSchema(schema);
         return this.hasAllPrivileges() || this._filterByOwnedGroupsAndEntityType(privilegeMetadata, entity)
             .filtered(`privilege.name = '${privilegeMetadata.approvedPrivilegeName}' AND allow = true`).length > 0;

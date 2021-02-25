@@ -16,6 +16,7 @@ import SearchResultsHeader from "../individual/SearchResultsHeader";
 import _ from 'lodash';
 import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
+import IndividualListView from "./IndividualListView";
 
 @Path('/IndividualList')
 class IndividualList extends AbstractComponent {
@@ -28,20 +29,6 @@ class IndividualList extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
     }
-
-    static styles = StyleSheet.create({
-        container: {
-            marginRight: Distances.ScaledContentDistanceFromEdge,
-            marginLeft: Distances.ScaledContentDistanceFromEdge,
-            marginTop: Distances.ScaledContentDistanceFromEdge
-        },
-        header: {
-            fontWeight: "500",
-            color: Colors.InputNormal,
-            marginTop: DynamicGlobalStyles.resizeHeight(16),
-            marginBottom: DynamicGlobalStyles.resizeHeight(16)
-        }
-    });
 
     componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
@@ -85,53 +72,16 @@ class IndividualList extends AbstractComponent {
         });
     }
 
-    renderHeader = ({section: {title}}) => (
-        <Text style={[Fonts.typography("paperFontTitle"), {
-            color: "rgba(0, 0, 0, 0.87)",
-            fontWeight: 'normal',
-            fontSize: 15,
-            paddingTop: 15
-        }]}>{_.isEmpty(title) ? 'Individual List' : title}</Text>
-    );
-
-    renderItems = (individualWithMetadata) => (
-        <IndividualDetails
-            individualWithMetadata={individualWithMetadata.item}
-            header={individualWithMetadata.section.title}
-            backFunction={this.goBack.bind(this)}/>
-    );
-
     render() {
         General.logDebug(this.viewName(), 'render');
-        const allUniqueGroups = _.uniqBy(_.map(this.state.itemsToDisplay, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
-        const data = allUniqueGroups.map(({groupingBy}) => {
-            return {
-                title: groupingBy,
-                data: _.get(_.groupBy(this.state.itemsToDisplay, 'visitInfo.groupingBy'), groupingBy, [])
-            }
-        });
-
         return (
-            <CHSContainer>
-                <AppHeader
-                    title={`${this.I18n.t(this.props.params.cardTitle)}`}
-                    func={this.props.params.backFunction} icon={"filter"} iconFunc={() => this._onFilterPress()}/>
-                <SearchResultsHeader totalCount={this.state.individuals.data.length}
-                                     displayedCount={this.state.itemsToDisplay.length}/>
-                <SectionList
-                    contentContainerStyle={{
-                        marginRight: Distances.ScaledContentDistanceFromEdge,
-                        marginLeft: Distances.ScaledContentDistanceFromEdge,
-                        marginTop: Distances.ScaledContentDistanceFromEdge,
-                    }}
-                    sections={data}
-                    renderSectionHeader={this.renderHeader}
-                    renderItem={this.renderItems}
-                    SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                        <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
-                    keyExtractor={(item, index) => index}
-                />
-            </CHSContainer>
+            <IndividualListView
+                results={this.state.itemsToDisplay}
+                totalSearchResultsCount={this.state.individuals.data.length}
+                headerTitle={this.props.params.cardTitle}
+                backFunction={this.props.params.backFunction}
+                iconName={'filter'}
+                iconFunction={this._onFilterPress.bind(this)}/>
         );
     }
 }

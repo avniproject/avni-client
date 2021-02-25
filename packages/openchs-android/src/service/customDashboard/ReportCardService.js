@@ -3,6 +3,7 @@ import Service from "../../framework/bean/Service";
 import {ReportCard, StandardReportCardType, ApprovalStatus} from "avni-models";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
+import IndividualService from "../IndividualService";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -24,25 +25,56 @@ class ReportCardService extends BaseService {
         return typeToStatusMap[type];
     }
 
-    getCountForStandardCardType(type) {
-        const {result} = this.getResultForStandardCardType(type);
+    getCountForApprovalCardsType(type) {
+        const {result} = this.getResultForApprovalCardsType(type);
         return _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0);
     }
 
-    getResultForStandardCardType(type) {
+    getResultForApprovalCardsType(type) {
         return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(this._getApprovalStatusForType(type));
     }
 
+    getResultForDefaultCardsType(type) {
+        const individualService = this.getService(IndividualService);
+        const typeToMethodMap = new Map([
+            [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
+            [StandardReportCardType.type.OverdueVisits, individualService.allOverdueVisitsIn],
+            [StandardReportCardType.type.LatestVisits, individualService.recentlyCompletedVisitsIn],
+            [StandardReportCardType.type.LatestRegistrations, individualService.recentlyRegistered],
+            [StandardReportCardType.type.LatestEnrolments, individualService.recentlyEnrolled],
+            [StandardReportCardType.type.Total, individualService.allIn]
+        ]);
+        const resultFunc = typeToMethodMap.get(type);
+        const result = type === StandardReportCardType.type.Total ? resultFunc() : resultFunc(new Date());
+        return {status: type, result}
+    }
+
+    getCountForDefaultCardsType(type) {
+        return this.getResultForDefaultCardsType(type).result.length;
+    }
+
+    getStandardReportCardCount(standardReportCardType) {
+        const cardName = standardReportCardType.name;
+        return standardReportCardType.isApprovalType() ? this.getCountForApprovalCardsType(cardName) : this.getCountForDefaultCardsType(cardName);
+    }
+
+    getStandardReportCardResult(standardReportCardType) {
+        const cardName = standardReportCardType.name;
+        return standardReportCardType.isApprovalType() ? this.getResultForApprovalCardsType(cardName) : this.getResultForDefaultCardsType(cardName);
+    }
+
     getReportCardCount(reportCard) {
-        if (!_.isNil(reportCard.standardReportCardType)) {
-            return this.getCountForStandardCardType(reportCard.standardReportCardType.name);
+        const standardReportCardType = reportCard.standardReportCardType;
+        if (!_.isNil(standardReportCardType)) {
+            return this.getStandardReportCardCount(standardReportCardType);
         }
         return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query);
     }
 
     getReportCardResult(reportCard) {
-        if (!_.isNil(reportCard.standardReportCardType)) {
-            return this.getResultForStandardCardType(reportCard.standardReportCardType.name);
+        const standardReportCardType = reportCard.standardReportCardType;
+        if (!_.isNil(standardReportCardType)) {
+            return this.getStandardReportCardResult(standardReportCardType);
         }
         const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query);
         return {status: null, result};

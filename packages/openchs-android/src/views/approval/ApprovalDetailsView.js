@@ -107,20 +107,18 @@ class ApprovalDetailsView extends AbstractComponent {
 
     renderApproveAndRejectButtons(entity, I18n) {
         return (<View style={styles.footerContainer}>
-            {this.state.showRejectButton &&
             <ApprovalButton
                 name={I18n.t('reject')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
                 onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50}}/>}
-            {this.state.showApproveButton &&
+                extraStyle={{paddingHorizontal: 50}}/>
             <ApprovalButton
                 name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
                 onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>}
+                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>
         </View>)
     }
 
@@ -147,7 +145,7 @@ class ApprovalDetailsView extends AbstractComponent {
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
                             <Observations observations={_.defaultTo(observations, [])}/>
-                            {this.renderApproveAndRejectButtons(entity, this.I18n)}
+                            {this.state.showApprovalButtons && this.renderApproveAndRejectButtons(entity, this.I18n)}
                             {this.state.showEditButton && this.renderEditButton(entity, schema)}
                         </View>
                     </View>

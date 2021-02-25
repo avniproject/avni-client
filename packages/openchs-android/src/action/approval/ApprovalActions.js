@@ -13,10 +13,9 @@ class ApprovalActions {
         const privilegeService = context.get(PrivilegeService);
         const {entity, schema} = action;
         const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
-        const showRejectButton = approvalStatus.isPending && privilegeService.displayRejectEntityButton(entity, schema);
-        const showApproveButton = approvalStatus.isPending && privilegeService.displayApproveEntityButton(entity, schema);
+        const showApprovalButtons = approvalStatus.isPending && privilegeService.displayApprovalEntityButtons(entity, schema);
         const showEditButton = approvalStatus.isRejected && privilegeService.displayEditEntityButton(entity, schema);
-        return {...newState, ...initialState, showRejectButton, showApproveButton, showEditButton};
+        return {...newState, ...initialState, showApprovalButtons, showEditButton};
     }
 
     static onApprovePress(state, action) {
