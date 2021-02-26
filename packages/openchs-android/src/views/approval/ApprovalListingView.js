@@ -106,7 +106,7 @@ class ApprovalListingView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter(this.I18n.t(title))}
-                <SafeAreaView>
+                <SafeAreaView style={{marginBottom: 150}}>
                     <SectionList
                         sections={this.state.results}
                         keyExtractor={(item) => item.uuid}

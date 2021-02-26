@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
-import DashboardCardMappingService from "../../service/customDashboard/DashboardCardMappingService";
+import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
 import {ReportCard} from "avni-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
@@ -22,20 +22,20 @@ class CustomDashboardActions {
         const firstDashboardUUID = _.get(_.head(dashboards), 'uuid');
         newState.activeDashboardUUID = firstDashboardUUID;
         if (firstDashboardUUID) {
-            newState.reportCardMappings = CustomDashboardActions.getReportsCards(firstDashboardUUID, context);
+            newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(firstDashboardUUID, context);
         }
         return newState;
     }
 
-    static getReportsCards(dashboardUUID, context, oldCardMappings) {
-        const newCardMappings = context.get(DashboardCardMappingService).getAllCardsForDashboard(dashboardUUID);
-        return _.unionBy(oldCardMappings, newCardMappings, 'uuid');
+    static getReportsCards(dashboardUUID, context, oldCardSectionMappings) {
+        const newCardSectionMappings = context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
+        return _.unionBy(oldCardSectionMappings, newCardSectionMappings, 'uuid');
     }
 
     static onDashboardChange(state, action, context) {
         const newState = {...state};
         newState.activeDashboardUUID = action.dashboardUUID;
-        newState.reportCardMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context, state.reportCardMappings);
+        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context, state.reportCardSectionMappings);
         return newState;
     }
 
@@ -54,10 +54,10 @@ class CustomDashboardActions {
     }
 
     static executeCountQuery(state, action, context) {
-        const reportCardMappings = state.reportCardMappings;
+        const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
         const reportCardUUID = action.reportCardUUID;
-        newState.reportCardMappings = reportCardMappings.map(rcm => {
+        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
             const reportCard = rcm.card;
             const isCountRequired = _.isNil(reportCard.count) || !_.isNil(reportCard.standardReportCardType);
             if (reportCard.uuid === reportCardUUID && isCountRequired) {

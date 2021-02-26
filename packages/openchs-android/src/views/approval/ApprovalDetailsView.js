@@ -133,6 +133,9 @@ class ApprovalDetailsView extends AbstractComponent {
             subjectName: entity.individual.nameString,
             entityName: entity.getName()
         });
+        const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
+        const showApproveReject = approvalStatus.isPending && this.state.showApprovalButtons;
+        const showEdit = approvalStatus.isRejected && this.state.showEditButton;
         const schema = this.props.schema;
         const confirmActionName = this.state.showInputBox ? Actions.ON_REJECT : Actions.ON_APPROVE;
         const observations = _.isEmpty(entity.observations) ? this.getCancelOrExitObs(entity) : entity.observations;
@@ -145,8 +148,8 @@ class ApprovalDetailsView extends AbstractComponent {
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
                             <Observations observations={_.defaultTo(observations, [])}/>
-                            {this.state.showApprovalButtons && this.renderApproveAndRejectButtons(entity, this.I18n)}
-                            {this.state.showEditButton && this.renderEditButton(entity, schema)}
+                            {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
+                            {showEdit && this.renderEditButton(entity, schema)}
                         </View>
                     </View>
                     <ApprovalDialog

@@ -12,9 +12,8 @@ class ApprovalActions {
         const initialState = ApprovalActions.getInitialState();
         const privilegeService = context.get(PrivilegeService);
         const {entity, schema} = action;
-        const approvalStatus = entity.latestEntityApprovalStatus.approvalStatus;
-        const showApprovalButtons = approvalStatus.isPending && privilegeService.displayApprovalEntityButtons(entity, schema);
-        const showEditButton = approvalStatus.isRejected && privilegeService.displayEditEntityButton(entity, schema);
+        const showApprovalButtons = privilegeService.displayApprovalEntityButtons(entity, schema);
+        const showEditButton = privilegeService.displayEditEntityButton(entity, schema);
         return {...newState, ...initialState, showApprovalButtons, showEditButton};
     }
 

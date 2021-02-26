@@ -1,15 +1,14 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {SafeAreaView, ScrollView, Text, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, Text, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
-import CustomDashboardCard from "./CustomDashboardCard";
+import {DashboardSection} from 'avni-models';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
@@ -18,6 +17,9 @@ import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
 import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
 import IndividualListView from "../individuallist/IndividualListView";
+import Styles from "../primitives/Styles";
+import EntityService from "../../service/EntityService";
+import CustomDashboardCard from "./CustomDashboardCard";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -42,19 +44,54 @@ class CustomDashboardView extends AbstractComponent {
     renderDashboards() {
         return _.map(this.state.dashboards, dashboard =>
             <CustomDashboardTab
+                key={dashboard.uuid}
                 dashboard={dashboard}
                 activeDashboardUUID={this.state.activeDashboardUUID}
                 onDashboardNamePress={this.onDashboardNamePress.bind(this)}/>
         );
     }
 
+    renderSectionName(name, description, viewType) {
+        return viewType === DashboardSection.viewTypeName.Default ? null :
+            <View>
+                <Text style={styles.sectionNameTextStyle}>{name}</Text>
+                <Text>{description}</Text>
+            </View>
+    }
+
     renderCards() {
-        return _.map(_.filter(this.state.reportCardMappings, ({dashboard}) => this.state.activeDashboardUUID === dashboard.uuid),
-            rcm => <CustomDashboardCard key={rcm.uuid}
-                                        reportCard={rcm.card}
-                                        executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
-                                        onCardPress={this.onCardPress.bind(this)}/>
-        );
+        const activeDashboardSectionMappings = _.filter(this.state.reportCardSectionMappings, ({dashboardSection}) => this.state.activeDashboardUUID === dashboardSection.dashboard.uuid);
+        const sectionWiseData = _.chain(activeDashboardSectionMappings)
+            .sortBy('displayOrder')
+            .groupBy(({dashboardSection}) => dashboardSection.uuid)
+            .map((groupedData, sectionUUID) => {
+                const sections = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
+                const cards = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
+                return {...sections, cards};
+            }).value();
+
+        return (
+            <View style={styles.container}>
+                {_.map(sectionWiseData, ({uuid, name, description, viewType, cards}) => (
+                    <View key={uuid} style={styles.sectionContainer}>
+                        {viewType !== DashboardSection.viewTypeName.Default &&
+                        this.renderSectionName(name, description, viewType)}
+                        <View style={styles.cardContainer}>
+                            {_.map(cards, (card, index) => (
+                                <CustomDashboardCard
+                                    key={card.uuid}
+                                    reportCard={card}
+                                    executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
+                                    onCardPress={this.onCardPress.bind(this)}
+                                    index={index}
+                                    viewType={viewType}
+                                />
+                            ))}
+                        </View>
+                    </View>
+                ))}
+            </View>
+        )
     }
 
     getViewByName(viewName) {
@@ -122,5 +159,27 @@ class CustomDashboardView extends AbstractComponent {
     }
 }
 
+const styles = StyleSheet.create({
+    container: {
+        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge
+    },
+    sectionContainer: {
+        marginVertical: Styles.ContainerHorizontalDistanceFromEdge,
+        flexDirection: 'column'
+    },
+    sectionNameTextStyle: {
+        fontSize: Styles.normalTextSize,
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+        color: Styles.blackColor,
+        opacity: 0.8
+    },
+    cardContainer: {
+        marginVertical: 20,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+    }
+});
 
 export default CustomDashboardView

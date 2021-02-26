@@ -17,7 +17,7 @@ import PropTypes from "prop-types";
 class IndividualListView extends AbstractComponent {
 
     static propTypes = {
-        results: PropTypes.object.isRequired,
+        results: PropTypes.array.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
         headerTitle: PropTypes.string.isRequired,
         indicatorActionName: PropTypes.func,
