@@ -56,7 +56,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     renderPlannedVisits() {
         const scheduledEncounters = _.filter(_.map(this.state.encounters, 'encounter'), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
         const cancelVisitCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelVisitCriteria, 'encounterTypeUuid');        
+        const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelVisitCriteria, 'encounterTypeUuid');
         const performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'encounterTypeUuid');
         return (<PreviousEncounters encounters={scheduledEncounters}
@@ -75,7 +75,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     renderCompletedVisits() {
         const actualEncounters = _.filter(this.state.encounters, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime);
         const visitEditCriteria = `privilege.name = '${Privilege.privilegeName.editVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForEditVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'encounterTypeUuid');        
+        const allowedEncounterTypeUuidsForEditVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'encounterTypeUuid');
 
         return (<PreviousEncounters encounters={actualEncounters}
                                     allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
@@ -92,8 +92,8 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
 
     render() {
         const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');        
-        
+        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
+
         const encounterActions = this.state.encounterTypes.filter((encounterType) => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
             fn: () => {
                 this.state.encounter.encounterType = encounterType;
@@ -102,7 +102,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     encounter:this.state.encounter,
                 });
             },
-            label: encounterType.displayName,
+            label: this.I18n.t(encounterType.displayName),
             backgroundColor: Colors.ActionButtonColor
         }));
         return (
