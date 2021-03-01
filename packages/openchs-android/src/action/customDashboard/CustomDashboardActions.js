@@ -69,6 +69,17 @@ class CustomDashboardActions {
         return newState;
     }
 
+    static refreshCount(state, action, context) {
+        const reportCardSectionMappings = state.reportCardSectionMappings;
+        const newState = {...state};
+        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
+            const cardMappingsWithCount = {...rcm};
+            cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(rcm.card);
+            return cardMappingsWithCount;
+        });
+        return newState;
+    }
+
     static loadIndicator(state, action) {
         const newState = {...state};
         newState.loading = action.loading;
@@ -85,6 +96,7 @@ const CustomDashboardActionNames = {
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
     EXECUTE_COUNT_QUERY: `${ActionPrefix}.EXECUTE_COUNT_QUERY`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
+    REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
 };
 
 const CustomDashboardActionMap = new Map([
@@ -93,6 +105,7 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
     [CustomDashboardActionNames.EXECUTE_COUNT_QUERY, CustomDashboardActions.executeCountQuery],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
+    [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}

@@ -71,6 +71,7 @@ class ApprovalListingView extends AbstractComponent {
             .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
         const optionsWithAll = [{label: 'All', value: {schema: null, filterQuery: null}}, ...options];
         const total = _.map(this.state.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
+        const maxFormLength = _.max(_.map(options, ({label}) => label.length));
         return (
             <View style={styles.filterContainer}>
                 <View style={{flex: 0.5, flexWrap: 'wrap'}}>
@@ -79,7 +80,7 @@ class ApprovalListingView extends AbstractComponent {
                 <View style={{flex: 0.5}}>
                     <DropDownPicker
                         items={optionsWithAll}
-                        containerStyle={{height: 40}}
+                        containerStyle={{height: maxFormLength}}
                         itemStyle={{justifyContent: 'flex-start'}}
                         placeholder={'Select type'}
                         dropDownStyle={{backgroundColor: '#fafafa'}}

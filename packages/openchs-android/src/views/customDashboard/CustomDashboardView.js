@@ -113,7 +113,7 @@ class CustomDashboardView extends AbstractComponent {
                 results: results,
                 totalSearchResultsCount: count,
                 reportCardUUID,
-                onBackFunc: () => this.dispatchAction(Actions.EXECUTE_COUNT_QUERY, {reportCardUUID}),
+                onBackFunc: () => setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 0),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
             }).to(this.getViewByName(viewName), true)
