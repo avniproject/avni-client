@@ -112,7 +112,8 @@ class SyncComponent extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else {
-            const errorMessage = isServerError ? this.I18n.t('syncServerError') : error.message;
+            const internetConnected = this.state.isConnected;
+            const errorMessage = !internetConnected ? this.I18n.t('internetConnectionError') :this.I18n.t('syncServerError');
             Alert.alert(this.I18n.t("syncError"), errorMessage, [{
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()

@@ -8,7 +8,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress}) => {
     const cardGap = 16;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const textColor = reportCard.textColor;
-    const cardColor = reportCard.cardColor;
+    const cardColor = reportCard.cardColor || '#ffffff';
     const iconName = reportCard.iconName;
 
     const renderIcon = () => {
@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
     container: {
         height: 80,
         borderRadius: 8,
-        shadowOpacity: 0.2,
         elevation: 2,
         justifyContent: 'center',
         alignItems: 'flex-start',

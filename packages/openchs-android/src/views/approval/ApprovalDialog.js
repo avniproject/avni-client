@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, StyleSheet, Text, TextInput, View} from "react-native";
+import {Dimensions, Modal, StyleSheet, Text, TextInput, View} from "react-native";
 import Styles from "../primitives/Styles";
 import _ from "lodash";
 import {ApprovalButton} from "./ApprovalButton";
@@ -7,7 +7,6 @@ import Colors from "../primitives/Colors";
 
 export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButton, onPrimaryPress, secondaryButton, onSecondaryPress}) => {
     const {title, message, showInputBox, rejectionComment, openDialog} = state;
-    const modalFlex = showInputBox ? 0.4 : 0.3;
     const [error, setError] = React.useState("");
     const primaryButtonHandler = () => {
         if (showInputBox && _.isEmpty(rejectionComment)) {
@@ -16,6 +15,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
             onPrimaryPress();
         }
     };
+    const {height} = Dimensions.get('window');
 
     return (
         <Modal
@@ -24,12 +24,12 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
             visible={openDialog}
             onRequestClose={onClose}
         >
-            <View style={styles.centeredView}>
-                <View style={[styles.modalView, {flex: modalFlex}]}>
+            <View style={[styles.centeredView, {height: height}]}>
+                <View style={[styles.modalView, {height: height / 3}]}>
                     <Text style={styles.titleTextStyle}>{title}</Text>
                     <Text style={styles.messageStyle}>{message}</Text>
                     {showInputBox &&
-                    <TextInput style={{borderWidth: 1, height: 80, borderColor: '#c8c8c8', marginTop: 10}}
+                    <TextInput style={{borderWidth: 1, height: 80, borderColor: '#c8c8c8'}}
                                value={_.isNil(rejectionComment) ? "" : rejectionComment}
                                onChangeText={(text) => onInputChange(text)}
                                multiline={true}/>
@@ -58,7 +58,6 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
 
 const styles = StyleSheet.create({
     centeredView: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -70,13 +69,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         padding: 15,
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
+        elevation: 2
     },
     titleTextStyle: {
         marginTop: 5,
@@ -99,6 +92,6 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        alignItems: 'center'
+        alignItems: 'flex-end'
     }
 });

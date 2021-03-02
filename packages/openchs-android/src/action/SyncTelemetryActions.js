@@ -10,6 +10,7 @@ class SyncTelemetryActions {
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
+        syncTelemetry.deviceInfo = "{}";
         return {syncTelemetry};
     }
 
