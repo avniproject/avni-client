@@ -16,6 +16,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
         }
     };
     const {height} = Dimensions.get('window');
+    const dialogHeight = showInputBox ? 280 : 220;
 
     return (
         <Modal
@@ -25,7 +26,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
             onRequestClose={onClose}
         >
             <View style={[styles.centeredView, {height: height}]}>
-                <View style={[styles.modalView, {height: height / 3}]}>
+                <View style={[styles.modalView, {height: dialogHeight}]}>
                     <Text style={styles.titleTextStyle}>{title}</Text>
                     <Text style={styles.messageStyle}>{message}</Text>
                     {showInputBox &&
