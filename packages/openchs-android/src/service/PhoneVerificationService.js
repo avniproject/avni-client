@@ -17,7 +17,7 @@ class PhoneVerificationService extends BaseService {
         const errorTitle = "Error while sending the OTP";
         this.getService(AuthService)
             .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/send`, body, token))
+            .then(token => post(`${serverURL}/phoneNumberVerification/otp/send`, body, token, true))
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (!success) {
@@ -32,7 +32,7 @@ class PhoneVerificationService extends BaseService {
         const errorTitle = 'Error while resending the OTP';
         this.getService(AuthService)
             .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/resend`, body, token))
+            .then(token => post(`${serverURL}/phoneNumberVerification/otp/resend`, body, token, true))
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (!success) {
@@ -47,7 +47,7 @@ class PhoneVerificationService extends BaseService {
         const errorTitle = 'Error while verifying the OTP';
         this.getService(AuthService)
             .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/verify`, body, token))
+            .then(token => post(`${serverURL}/phoneNumberVerification/otp/verify`, body, token, true))
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (success) {
@@ -61,7 +61,9 @@ class PhoneVerificationService extends BaseService {
 
     catchError(error, errorTitle) {
         if (error instanceof ServerError) {
-            error.text.then(message => AlertMessage(errorTitle, message))
+            error.text ?
+                error.text.then(message => AlertMessage(errorTitle, message)) :
+                AlertMessage(errorTitle, error.message)
         } else if (typeof error.json === "function") {
             error.json().then(({success, msg91Response}) => {
                 AlertMessage(errorTitle, msg91Response.message);

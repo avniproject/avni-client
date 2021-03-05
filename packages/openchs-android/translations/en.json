@@ -384,6 +384,7 @@
     "approveRequestTitle": "Approve {{entityName}} request?",
     "approveRequestMsg": "Do you confirm the registration details for the subject {{subjectName}} ?",
     "rejectRequestTitle": "Reject {{entityName}} request for the subject {{subjectName}} ?",
-    "rejectRequestMsg": "Please mention the reason below:"
+    "rejectRequestMsg": "Please mention the reason below:",
+    "verifyNumber": "Verify number"
   }
 }

@@ -208,6 +208,7 @@ const actions = {
     SET_LOCATION_ERROR: "IRA.SET_LOCATION_ERROR",
     PHONE_NUMBER_CHANGE: "IRA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "IRA.ON_SUCCESS_OTP_VERIFICATION",
+    ON_SKIP_VERIFICATION: "IRA.ON_SKIP_VERIFICATION",
 };
 
 export default new Map([
@@ -234,6 +235,7 @@ export default new Map([
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
+    [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);
 
 export {actions as Actions};

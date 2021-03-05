@@ -170,6 +170,7 @@ const actions = {
     REGISTRATION_ENTER_TOTAL_MEMBERS: "REGISTRATION_ENTER_TOTAL_MEMBERS",
     PHONE_NUMBER_CHANGE: "SRA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "SRA.ON_SUCCESS_OTP_VERIFICATION",
+    ON_SKIP_VERIFICATION: "SRA.ON_SKIP_VERIFICATION",
 };
 
 export default new Map([
@@ -191,6 +192,7 @@ export default new Map([
     [actions.REGISTRATION_ENTER_TOTAL_MEMBERS, SubjectRegisterActions.enterTotalMembers],
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
+    [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);
 
 export {actions as Actions};

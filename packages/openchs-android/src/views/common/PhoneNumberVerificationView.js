@@ -17,9 +17,10 @@ import SettingsService from "../../service/SettingsService";
 class PhoneNumberVerificationView extends AbstractComponent {
 
     static propTypes = {
-        next: PropTypes.func,
-        onSuccessVerification: PropTypes.func,
-        phoneNumber: PropTypes.string,
+        next: PropTypes.func.isRequired,
+        onSuccessVerification: PropTypes.func.isRequired,
+        onSkipVerification: PropTypes.func.isRequired,
+        phoneNumber: PropTypes.string.isRequired,
     };
 
     constructor(props, context) {
@@ -40,6 +41,11 @@ class PhoneNumberVerificationView extends AbstractComponent {
             this.props.onSuccessVerification();
         };
         this.phoneVerificationService.verifyOTP(this.phoneNumber, this.state.code, this.optLength, this.serverURL, onSuccessVerification)
+    }
+
+    skipVerification() {
+        this.props.onSkipVerification();
+        this.next();
     }
 
     viewName() {
@@ -141,7 +147,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
                             <Button
                                 title={this.I18n.t("skipOTPVerification")}
                                 color={Colors.ActionButtonColor}
-                                onPress={() => this.next()}
+                                onPress={() => this.skipVerification()}
                             />
                         </View>}
                         <View style={{marginTop: 20}}>

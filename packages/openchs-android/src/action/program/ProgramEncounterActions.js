@@ -144,6 +144,7 @@ const ProgramEncounterActionsNames = {
     DISPLAY_MESSAGE: "PEncA.DISPLAY_MESSAGE",
     PHONE_NUMBER_CHANGE: "PEncA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "PEncA.ON_SUCCESS_OTP_VERIFICATION",
+    ON_SKIP_VERIFICATION: "PEncA.ON_SKIP_VERIFICATION",
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -163,6 +164,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.DISPLAY_MESSAGE, ProgramEncounterActions.displayMessage],
     [ProgramEncounterActionsNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [ProgramEncounterActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
+    [ProgramEncounterActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);
 
 export {

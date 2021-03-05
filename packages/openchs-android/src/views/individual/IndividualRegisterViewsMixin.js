@@ -38,7 +38,7 @@ class Mixin {
             popVerificationVewFunc : () => TypedTransition.from(view).popToBookmark(),
             popVerificationVew,
             phoneNumberObservation,
-            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => view.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
         });
     }
 }

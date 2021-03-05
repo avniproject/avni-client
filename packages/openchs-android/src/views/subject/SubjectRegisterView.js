@@ -114,7 +114,7 @@ class SubjectRegisterView extends AbstractComponent {
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
             popVerificationVew,
-            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation})),
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop
         });
     }

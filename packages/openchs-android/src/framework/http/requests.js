@@ -63,10 +63,10 @@ let _getText = (endpoint, authToken) => {
         .then((response) => response.text(), Promise.reject)
 };
 
-let _post = (endpoint, file, authToken) => {
+let _post = (endpoint, file, authToken, fetchWithoutTimeout) => {
     const params = addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), authToken);
     General.logDebug('Requests', `POST: ${endpoint}`);
-    return fetchFactory(endpoint, "POST", params)
+    return fetchFactory(endpoint, "POST", params, fetchWithoutTimeout)
 };
 
 export let post = _post;

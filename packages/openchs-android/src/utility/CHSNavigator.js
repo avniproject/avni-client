@@ -87,11 +87,12 @@ class CHSNavigator {
         TypedTransition.from(source).with({entity, schema}).to(ApprovalDetailsView, true);
     }
 
-    static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess) {
+    static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess, onSkip) {
         TypedTransition.from(source).bookmark().with({
             source: source,
             next: next,
             onSuccessVerification: onSuccess,
+            onSkipVerification : onSkip,
             phoneNumber: observation.getValue()
         }).to(PhoneNumberVerificationView, true)
     }

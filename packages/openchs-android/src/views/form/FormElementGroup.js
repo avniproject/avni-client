@@ -200,7 +200,10 @@ class FormElementGroup extends AbstractComponent {
                             return this.wrap(<PhoneNumberFormElement
                                 element={formElement}
                                 inputChangeActionName={this.props.actions["PHONE_NUMBER_CHANGE"]}
+                                successVerificationActionName={this.props.actions["ON_SUCCESS_OTP_VERIFICATION"]}
+                                skipVerificationActionName={this.props.actions["ON_SKIP_VERIFICATION"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PhoneNumber())}
+                                observation={this.props.observationHolder.findObservation(formElement.concept)}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }

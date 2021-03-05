@@ -5,14 +5,17 @@ import {StyleSheet, TextInput, View} from "react-native";
 import Styles from "../../primitives/Styles";
 import _ from "lodash";
 import ValidationErrorMessage from "../ValidationErrorMessage";
-import {Text} from "native-base";
+import {Button, Text} from "native-base";
 import Colors from "../../primitives/Colors";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import CHSNavigator from "../../../utility/CHSNavigator";
 
 class PhoneNumberFormElement extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
         inputChangeActionName: PropTypes.string.isRequired,
+        successVerificationActionName: PropTypes.string.isRequired,
+        skipVerificationActionName: PropTypes.string.isRequired,
         value: PropTypes.object,
         validationResult: PropTypes.object,
     };
@@ -21,14 +24,33 @@ class PhoneNumberFormElement extends AbstractFormElement {
         super(props, context);
     }
 
+    componentWillMount() {
+        this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: false});
+        return super.componentWillMount();
+    }
+
     onInputChange(number) {
         this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: number});
+    }
+
+    renderVerifyButton() {
+        const onSuccess = () => this.dispatchAction(this.props.successVerificationActionName, {observation: this.props.observation});
+        const onSkip = () => this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: true});
+        return (
+            <View style={styles.skipButtonContainer}>
+                <Button primary
+                        style={{height:35}}
+                        onPress={() => CHSNavigator.navigateToPhoneNumberVerificationView(this, () => this.goBack(), this.props.observation, onSuccess, onSkip)}>
+                    <Text>{`${this.I18n.t('verifyNumber')}`}</Text>
+                </Button>
+            </View>
+        )
     }
 
     render() {
         const value = this.props.value;
         const isVerified = value.isVerified();
-        const renderUnverified = !isVerified && _.size(value.getValue()) === 10;
+        const isUnverified = !isVerified && _.size(value.getValue()) === 10;
         return (<View>
             <View style={styles.container}>
                 <Text style={Styles.formLabel}>{this.label}</Text>
@@ -41,12 +63,11 @@ class PhoneNumberFormElement extends AbstractFormElement {
                     value={_.toString(value.getValue())}
                     onChangeText={(number) => this.onInputChange(number)}
                 />
-                {renderUnverified &&
-                <MCIIcon name={'alert'} style={styles.unverifiedIconStyle}/>}
+                {isUnverified && this.renderVerifyButton(value)}
                 {isVerified &&
                 <MCIIcon name={'verified'} style={styles.verifiedIconStyle}/>}
             </View>
-            {renderUnverified &&
+            {isUnverified &&
             <Text style={{color: Colors.ValidationError, textAlign: 'right'}}>
                 {this.I18n.t("phoneNumberUnverified")}
             </Text>
@@ -86,5 +107,8 @@ const styles = StyleSheet.create({
         fontSize: 25,
         paddingBottom: 6,
         marginRight: 5,
+    },
+    skipButtonContainer: {
+        marginBottom: 15
     }
 });
