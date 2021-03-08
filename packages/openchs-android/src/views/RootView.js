@@ -5,7 +5,7 @@ import {View} from "react-native";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import BeneficiaryModePinService from "../service/BeneficiaryModePinService";
-
+import Spike from './Spike';
 
 @Path('/rootView')
 @PathRoot
@@ -21,7 +21,7 @@ class RootView extends AbstractComponent {
      * 1. User has never logged in to the app
      * 2. User is able to access the CHS server
      */
-    componentWillMount() {
+    CWM() {
         const authService = this.context.getService(AuthService);
         const beneficiaryModePinService = this.context.getService(BeneficiaryModePinService);
         if (beneficiaryModePinService.inBeneficiaryMode()) {
@@ -34,7 +34,7 @@ class RootView extends AbstractComponent {
     }
 
     render() {
-        return <View/>;
+        return <Spike/>;
     }
 }
 

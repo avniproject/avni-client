@@ -35,6 +35,7 @@
 		19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6402978875342EC987316EF /* libRNDeviceInfo.a */; };
 		2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2A833E80D084DFE91FEAE8A /* libCodePush.a */; };
 		7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */; };
+		02A4A110D944460DA7CF8BAC /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A5E2401CB75A470F9B934F5B /* libRNCWebView.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,6 +182,8 @@
 		B2A833E80D084DFE91FEAE8A /* libCodePush.a */ = {isa = PBXFileReference; name = "libCodePush.a"; path = "libCodePush.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */ = {isa = PBXFileReference; name = "RNImmediatePhoneCall.xcodeproj"; path = "../node_modules/react-native-immediate-phone-call/ios/RNImmediatePhoneCall.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */ = {isa = PBXFileReference; name = "libRNImmediatePhoneCall.a"; path = "libRNImmediatePhoneCall.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		8E7ABC0F55444ED7A2EF0E8C /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; name = "RNCWebView.xcodeproj"; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		A5E2401CB75A470F9B934F5B /* libRNCWebView.a */ = {isa = PBXFileReference; name = "libRNCWebView.a"; path = "libRNCWebView.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +221,7 @@
 				19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */,
 				2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */,
 				7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */,
+				02A4A110D944460DA7CF8BAC /* libRNCWebView.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +365,7 @@
 				48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */,
 				7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */,
 				68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */,
+				8E7ABC0F55444ED7A2EF0E8C /* RNCWebView.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -719,6 +724,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -735,6 +741,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -769,6 +776,7 @@
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
+					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 				);
 			};
 			name = Debug;
@@ -796,6 +804,7 @@
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
+					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 				);
 			};
 			name = Release;
