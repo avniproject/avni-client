@@ -61,9 +61,7 @@ class PhoneVerificationService extends BaseService {
 
     catchError(error, errorTitle) {
         if (error instanceof ServerError) {
-            error.text ?
-                error.text.then(message => AlertMessage(errorTitle, message)) :
-                AlertMessage(errorTitle, error.message)
+            error.errorText.then(message => AlertMessage(errorTitle, message));
         } else if (typeof error.json === "function") {
             error.json().then(({success, msg91Response}) => {
                 AlertMessage(errorTitle, msg91Response.message);
@@ -71,7 +69,8 @@ class PhoneVerificationService extends BaseService {
                 AlertMessage(errorTitle, "Unknown error occurred");
             });
         } else {
-            AlertMessage(errorTitle, "Unknown error occurred");
+            const errorMessage = error.message || "Unknown error occurred";
+            AlertMessage(errorTitle, errorMessage);
         }
     };
 

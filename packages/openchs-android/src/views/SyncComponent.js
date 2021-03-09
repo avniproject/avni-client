@@ -17,15 +17,13 @@ import ServerError from "../service/ServerError";
 import {Alert, Dimensions, Modal, NetInfo, Text, View, TouchableNativeFeedback} from "react-native";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
-import {EntityMetaData} from "avni-models";
+import {EntityMetaData, SyncError} from "avni-models";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
-import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
 import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
-import {firebaseEvents, logEvent} from "../utility/Analytics";
 
 const {width, height} = Dimensions.get('window');
 
@@ -111,17 +109,27 @@ class SyncComponent extends AbstractComponent {
                 tabIndex: 1,
                 menuProps: {startSync: true}
             }));
+        } else if (!this.state.isConnected) {
+            this.ErrorAlert(this.I18n.t('internetConnectionError'));
+        } else if (isServerError) {
+            error.errorText.then(errorMessage => this.ErrorAlert(errorMessage, error.errorCode));
+        } else if (error instanceof SyncError) {
+            this.ErrorAlert(error.errorText, error.errorCode)
         } else {
-            const internetConnected = this.state.isConnected;
-            const errorMessage = !internetConnected ? this.I18n.t('internetConnectionError') :this.I18n.t('syncServerError');
-            Alert.alert(this.I18n.t("syncError"), errorMessage, [{
-                    text: this.I18n.t('tryAgain'),
-                    onPress: () => this.sync()
-                },
-                    {text: this.I18n.t('cancel'), onPress: _.noop, style: 'cancel'},
-                ]
-            );
+            const errorMessage = error.message || "Unknown error occurred";
+            this.ErrorAlert(errorMessage);
         }
+    }
+
+    ErrorAlert(errorMessage, errorCode) {
+        const message = errorCode ? `Error Code : ${errorCode}\nMessage : ${errorMessage}` : errorMessage;
+        Alert.alert(this.I18n.t("syncError"), message, [{
+                text: this.I18n.t('tryAgain'),
+                onPress: () => this.sync()
+            },
+                {text: this.I18n.t('cancel'), onPress: _.noop, style: 'cancel'},
+            ]
+        );
     }
 
     componentWillMount() {

@@ -18,7 +18,7 @@ const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => 
         if (parseInt(response.status) === 400) {
             return Promise.reject(response);
         }
-        return Promise.reject(new ServerError(response));
+        return Promise.reject(new ServerError(`Http ${response.status}`, response));
     };
     return fetchWithoutTimeout ? fetch(endpoint, {"method": method, ...params}).then(processResponse) :
         fetchWithTimeOut(endpoint, {"method": method, ...params}).then(processResponse);
