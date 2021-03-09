@@ -21,7 +21,6 @@ class DraftSubjectService extends BaseService {
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(subject.subjectType);
         this.db.write(() => {
             const saved = db.create(DraftSubject.schema.name, subject, true);
-            this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, subject.observations, subject);
         });
     }
 
