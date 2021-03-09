@@ -292,7 +292,7 @@ class MenuView extends AbstractComponent {
                           onPress={this.onDelete.bind(this)} visible={__DEV__}/>,
                     <Item icon={this.icon("account-multiple")} titleKey="Family Folder"
                           onPress={this.familyFolder.bind(this)} visible={__DEV__}/>,
-                    <Item icon={this.icon("settings")} titleKey="Dev Settings"
+                    <Item icon={this.icon("cog-outline")} titleKey="Dev Settings"
                           onPress={this.devSettingsView.bind(this)} visible={__DEV__}/>
                 ]
             }

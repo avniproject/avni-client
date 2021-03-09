@@ -174,7 +174,7 @@ class Observations extends AbstractComponent {
 
     renderPhoneNumber(phoneNumber) {
         const isVerified = phoneNumber.isVerified();
-        const iconName = isVerified ? 'verified' : 'alert';
+        const iconName = isVerified ? 'shield-check' : 'alert';
         const iconStyle = isVerified ? {color: Colors.AccentColor} : {color: Colors.ValidationError};
         return <View style={[this.styles.observationPhoneNumberContainer, this.styles.observationColumn]}>
             <Text style={this.styles.observationPhoneNumber}>{phoneNumber.getValue()}</Text>

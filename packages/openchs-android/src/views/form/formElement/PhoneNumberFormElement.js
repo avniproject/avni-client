@@ -65,7 +65,7 @@ class PhoneNumberFormElement extends AbstractFormElement {
                 />
                 {isUnverified && this.renderVerifyButton(value)}
                 {isVerified &&
-                <MCIIcon name={'verified'} style={styles.verifiedIconStyle}/>}
+                <MCIIcon name={'shield-check'} style={styles.verifiedIconStyle}/>}
             </View>
             {isUnverified &&
             <Text style={{color: Colors.ValidationError, textAlign: 'right'}}>
