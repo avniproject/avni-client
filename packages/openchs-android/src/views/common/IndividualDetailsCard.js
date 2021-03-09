@@ -48,7 +48,7 @@ class IndividualDetailsCard extends AbstractComponent {
                     minHeight: this.props.minHeight || 86,
                     paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                 }}>
-                    <Icon name={this.props.individual.icon()} style={{
+                    <Icon {...this.props.individual.icon()} style={{
                         color: Colors.AccentColor,
                         fontSize: this.props.iconSize || 56,
                         paddingRight: 16

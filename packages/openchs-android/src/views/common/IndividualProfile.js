@@ -205,7 +205,7 @@ class IndividualProfile extends AbstractComponent {
                                 paddingHorizontal: 20,
                                 justifyContent: 'center',
                             }}>
-                                <Icon name={this.props.individual.icon()} style={{
+                                <Icon {...this.props.individual.icon()} style={{
                                     fontSize: DGS.resizeWidth(75),
                                     color: Colors.AccentColor,
                                     alignSelf: 'center'
