@@ -115,6 +115,13 @@ class General {
         return moment(date).format('DD-MMM-YYYY');
     }
 
+    static toDisplayDateTime(dateTime) {
+        const DATE_TIME_FORMAT = `MMMM D, YYYY _hh:mm a`;
+        return moment(dateTime)
+            .format(DATE_TIME_FORMAT)
+            .split("_");
+    }
+
     static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {

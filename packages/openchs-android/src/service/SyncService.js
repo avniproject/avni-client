@@ -16,6 +16,8 @@ import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
+import General from "../utility/General";
+import MediaService from "./MediaService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -41,6 +43,7 @@ class SyncService extends BaseService {
         this.mediaQueueService = this.getService(MediaQueueService);
         this.entityQueueService = this.getService(EntityQueueService);
         this.ruleService = this.getService(RuleService);
+        this.mediaService = this.getService(MediaService);
     }
 
     authenticate() {
@@ -232,6 +235,24 @@ class SyncService extends BaseService {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
+            });
+        }
+        if (entityMetaData.entityName === 'News') {
+            const newsWithImages = entityResources.filter(news => !_.isEmpty(news.heroImage));
+            Promise.all(
+                _.map(newsWithImages,
+                    async (news) => {
+                        const filePathInDevice = this.mediaService.getAbsolutePath(news.heroImage, 'News');
+                        const signedURL = General.getLinkPropFromResource(news, 'heroImageSignedURL');
+                        const exists = await this.mediaService.exists(filePathInDevice);
+                        if (!exists) {
+                            return this.mediaService.downloadFromUrl(signedURL, filePathInDevice)
+                        }
+                    }
+                )
+            ).catch(error => {
+                General.logError("SyncService", `Error while downloading news image`);
+                General.logError("SyncService", error);
             });
         }
 

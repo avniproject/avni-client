@@ -26,6 +26,7 @@ export default class FileSystem {
                    await FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
                         .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
                         .then(() => FileSystem.mkdir(FileSystem.getBackupDir(), 'db'))
+                        .then(() => FileSystem.mkdir(FileSystem.getNewsDir(), 'news'))
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -51,6 +52,11 @@ export default class FileSystem {
     static getVideosDir() {
         General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos/`);
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos`;
+    }
+
+    static getNewsDir() {
+        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/news/`);
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/news`;
     }
 
     static getBackupDir(){

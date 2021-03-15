@@ -50,6 +50,7 @@ import {GenderFilterActions, GenderFilterMap} from '../action/mydashboard/Gender
 import {AddMemberActionMap, MemberAction, AddNewMemberActions} from "../action/groupSubject/MemberAction";
 import {CustomDashboardActions, CustomDashboardActionMap} from "../action/customDashboard/CustomDashboardActions";
 import {ApprovalActions, ApprovalActionMap} from "../action/approval/ApprovalActions";
+import {NewsActions, NewsActionMap} from "../action/news/NewsActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -93,6 +94,7 @@ export default class Reducers {
         addNewMember: "addNewMember",
         customDashboard: "customDashboard",
         approval: "approval",
+        news: "news",
     };
 
     static createReducers(beanStore) {
@@ -136,6 +138,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.addNewMember] = Reducers._add(AddMemberActionMap, MemberAction, beanStore);
         reducerMap[Reducers.reducerKeys.customDashboard] = Reducers._add(CustomDashboardActionMap, CustomDashboardActions, beanStore);
         reducerMap[Reducers.reducerKeys.approval] = Reducers._add(ApprovalActionMap, ApprovalActions, beanStore);
+        reducerMap[Reducers.reducerKeys.news] = Reducers._add(NewsActionMap, NewsActions, beanStore);
         return reducerMap;
     };
 

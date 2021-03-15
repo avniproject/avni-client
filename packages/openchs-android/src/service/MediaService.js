@@ -39,9 +39,14 @@ class MediaService extends BaseService {
     }
 
     getAbsolutePath(uri, type) {
+        const typeToDirectoryMap = new Map([
+            ['Video', FileSystem.getVideosDir],
+            ['Image', FileSystem.getImagesDir],
+            ['News', FileSystem.getNewsDir],
+            ]);
         if (!uri) return '';
         const fileName = _.get(uri.trim().match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
-        return `${type === 'Video' ? FileSystem.getVideosDir() : FileSystem.getImagesDir()}/${fileName}`.trim();
+        return `${typeToDirectoryMap.get(type)()}/${fileName}`.trim();
     }
 
     exists(filePath) {

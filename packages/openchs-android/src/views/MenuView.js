@@ -49,6 +49,8 @@ import {backup} from "../BackupRestoreRealm";
 import moment from "moment";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
+import NewsService from "../service/news/NewsService";
+import NewsListView from "./news/NewsListView";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -204,6 +206,10 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(CustomDashboardView);
     }
 
+    onNews() {
+        TypedTransition.from(this).to(NewsListView);
+    }
+
     background() {
         return Platform['Version'] >= 21 ?
             TouchableNativeFeedback.SelectableBackgroundBorderless() :
@@ -252,17 +258,22 @@ class MenuView extends AbstractComponent {
     render() {
         General.logDebug("MenuView", "render");
         const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
+        const otherItems = [
+            <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
+            <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
+                  onPress={() => this.entitySyncStatusView()}/>,
+            <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
+                  onPress={this.onDashboard.bind(this)}/>,
+            <Item icon={this.icon("backup-restore")} titleKey="backup"
+                  onPress={this.onBackup.bind(this)}/>
+                  ];
+        if (this.getService(NewsService).isAnyNewsAvailable()) {
+            otherItems.push(<Item icon={this.icon("newspaper-variant-outline")} titleKey="news"
+                                  onPress={this.onNews.bind(this)}/>)
+        }
         const dataGroup = [
             {
-                title: 'otherItems', data: [
-                    <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
-                    <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
-                          onPress={() => this.entitySyncStatusView()}/>,
-                    <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
-                          onPress={this.onDashboard.bind(this)}/>,
-                    <Item icon={this.icon("backup-restore")} titleKey="backup"
-                          onPress={this.onBackup.bind(this)}/>
-                ]
+                title: 'otherItems', data: otherItems
             },
             {
                 title: 'beneficiaryMode', data: [
