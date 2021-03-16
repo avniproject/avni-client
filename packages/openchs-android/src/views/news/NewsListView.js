@@ -2,7 +2,7 @@ import React from "react";
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
-import {FlatList, SafeAreaView, StyleSheet, TouchableNativeFeedback, View} from "react-native";
+import {FlatList, SafeAreaView, StyleSheet} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
@@ -26,19 +26,6 @@ class NewsListView extends AbstractComponent {
         super.componentWillMount();
     }
 
-    renderItem({item}) {
-        return (
-            <TouchableNativeFeedback key={item.uuid}
-                                     onPress={() => {
-                                     }}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={styles.cardContainer}>
-                    <NewsCard news={item}/>
-                </View>
-            </TouchableNativeFeedback>
-        )
-    }
-
     render() {
         General.logDebug(this.viewName(), "render");
         return (
@@ -48,7 +35,7 @@ class NewsListView extends AbstractComponent {
                     <FlatList
                         data={this.state.news}
                         keyExtractor={(item) => item.uuid}
-                        renderItem={this.renderItem}
+                        renderItem={({item}) => <NewsCard news={item}/>}
                         initialNumToRender={50}
                         updateCellsBatchingPeriod={500}
                         maxToRenderPerBatch={20}
@@ -60,14 +47,3 @@ class NewsListView extends AbstractComponent {
 }
 
 export default NewsListView;
-
-const styles = StyleSheet.create({
-    cardContainer: {
-        marginHorizontal: 16,
-        elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 5,
-        paddingBottom: 5,
-        borderRadius: 5,
-    }
-});

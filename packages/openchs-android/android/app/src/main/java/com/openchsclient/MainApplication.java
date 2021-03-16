@@ -25,6 +25,7 @@ import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +65,8 @@ public class MainApplication extends Application implements ReactApplication {
                     new ReactNativeI18n(),
                     new RealmReactPackage(),
                     new RestartPackage(),
-                    new RNFusedLocationPackage()
+                    new RNFusedLocationPackage(),
+                    new RNCWebViewPackage()
 //                    new DeviceInfoPackage()
             );
         }
