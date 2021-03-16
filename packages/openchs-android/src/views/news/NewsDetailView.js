@@ -62,7 +62,7 @@ class NewsDetailView extends AbstractComponent {
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={title} hideIcon={true}/>
+                <AppHeader title={this.I18n.t('readNewsBroadcast')} hideIcon={true}/>
                 <WebView
                     originWhitelist={['*']}
                     source={{html: htmlToRender}}

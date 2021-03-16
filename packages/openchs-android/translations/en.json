@@ -386,6 +386,7 @@
     "rejectRequestTitle": "Reject {{entityName}} request for the subject {{subjectName}} ?",
     "rejectRequestMsg": "Please mention the reason below:",
     "verifyNumber": "Verify number",
-    "news": "News"
+    "news": "News",
+    "readNewsBroadcast": "Read news broadcast"
   }
 }
