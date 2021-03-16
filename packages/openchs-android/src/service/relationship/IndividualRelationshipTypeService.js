@@ -16,13 +16,15 @@ class IndividualRelationshipService extends BaseService {
     }
 
 
-    isRelationshipTypeApplicable(relationshipType, possibleRelationsWithIndividual, relation){
+    isRelationshipTypeApplicable(relationshipType, possibleRelationsWithIndividual, relation) {
         return _.some(possibleRelationsWithIndividual, (possibleRelation) =>
             (possibleRelation.uuid === relationshipType.individualAIsToBRelation.uuid && relation.uuid === relationshipType.individualBIsToARelation.uuid) || (possibleRelation.uuid === relationshipType.individualBIsToARelation.uuid && relation.uuid === relationshipType.individualAIsToBRelation.uuid));
     }
 
     getRelationshipType(individualRelative) {
-        const relationshipTypes = this.db.objects(IndividualRelationshipType.schema.name).filtered(`individualAIsToBRelation.uuid="${individualRelative.relation.uuid}" OR individualBIsToARelation.uuid="${individualRelative.relation.uuid}"`);
+        const relationshipTypes = this.db.objects(IndividualRelationshipType.schema.name)
+            .filtered(`voided=false`)
+            .filtered(`individualAIsToBRelation.uuid="${individualRelative.relation.uuid}" OR individualBIsToARelation.uuid="${individualRelative.relation.uuid}"`);
         if (relationshipTypes.length === 1) {
             return relationshipTypes[0];
         }
