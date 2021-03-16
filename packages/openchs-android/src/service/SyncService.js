@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, EntityApprovalStatus} from 'avni-models';
+import {EntityApprovalStatus, EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'avni-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import AuthService from "./AuthService";
@@ -16,8 +16,8 @@ import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
-import General from "../utility/General";
 import MediaService from "./MediaService";
+import NewsService from "./news/NewsService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -44,6 +44,7 @@ class SyncService extends BaseService {
         this.entityQueueService = this.getService(EntityQueueService);
         this.ruleService = this.getService(RuleService);
         this.mediaService = this.getService(MediaService);
+        this.newsService = this.getService(NewsService);
     }
 
     authenticate() {
@@ -170,7 +171,13 @@ class SyncService extends BaseService {
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(allTxEntityMetaData, onProgressPerEntity))
+            .then(() => this.downloadNewsImages())
 
+    }
+
+    downloadNewsImages() {
+        const newsWithImages = this.newsService.getAllNewsWithHeroImage();
+        return Promise.all(_.map(newsWithImages, news  => this.newsService.downloadHeroImage(news)))
     }
 
     updateAsPerNewPrivilege(entityMetadata, updateProgressSteps) {
@@ -235,24 +242,6 @@ class SyncService extends BaseService {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
-            });
-        }
-        if (entityMetaData.entityName === 'News') {
-            const newsWithImages = entityResources.filter(news => !_.isEmpty(news.heroImage));
-            Promise.all(
-                _.map(newsWithImages,
-                    async (news) => {
-                        const filePathInDevice = this.mediaService.getAbsolutePath(news.heroImage, 'News');
-                        const signedURL = General.getLinkPropFromResource(news, 'heroImageSignedURL');
-                        const exists = await this.mediaService.exists(filePathInDevice);
-                        if (!exists) {
-                            return this.mediaService.downloadFromUrl(signedURL, filePathInDevice)
-                        }
-                    }
-                )
-            ).catch(error => {
-                General.logError("SyncService", `Error while downloading news image`);
-                General.logError("SyncService", error);
             });
         }
 

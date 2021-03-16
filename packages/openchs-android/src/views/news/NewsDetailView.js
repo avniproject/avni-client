@@ -35,7 +35,7 @@ class NewsDetailView extends AbstractComponent {
     render() {
         const {title, newsPublishedDate, contentHtml, imageURI, exists} = this.props;
         const {width, height} = Dimensions.get('window');
-        const imageTag = exists ? `<img src="${imageURI}" height="200" width="${width}" alt="${title}">` : `<div/>`;
+        const imageTag = exists ? `<img src="${imageURI}" height="200" width="${width}" alt="${imageURI}">` : `<div/>`;
         const htmlToRender = `
         <!DOCTYPE html>
         <html lang="en">
