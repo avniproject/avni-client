@@ -8,6 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Dimensions} from "react-native";
 import React from "react";
 import {WebView} from 'react-native-webview';
+import {size} from 'lodash';
 
 @Path('/newsDetailView')
 class NewsDetailView extends AbstractComponent {
@@ -34,6 +35,8 @@ class NewsDetailView extends AbstractComponent {
 
     render() {
         const {title, newsPublishedDate, contentHtml, imageURI, exists} = this.props;
+        const slicedTitle = title.slice(0, 25);
+        const headerTitle = size(title) > size(slicedTitle) ? `${slicedTitle} ...` : slicedTitle;
         const {width, height} = Dimensions.get('window');
         const imageTag = exists ? `<img src="${imageURI}" height="200" width="${width}" alt="${imageURI}">` : `<div/>`;
         const htmlToRender = `
@@ -62,7 +65,7 @@ class NewsDetailView extends AbstractComponent {
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('readNewsBroadcast')} hideIcon={true}/>
+                <AppHeader title={headerTitle} hideIcon={true}/>
                 <WebView
                     originWhitelist={['*']}
                     source={{html: htmlToRender}}
