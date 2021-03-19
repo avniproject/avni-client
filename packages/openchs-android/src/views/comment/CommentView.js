@@ -11,9 +11,15 @@ import Reducers from "../../reducer";
 import {CommentActionNames as Actions} from "../../action/comment/CommentActions";
 import CommentCard from "./CommentCard";
 import Styles from "../primitives/Styles";
+import PropTypes from "prop-types";
 
 @Path('/commentView')
 class CommentView extends AbstractComponent {
+
+    static propTypes = {
+        individualUUID: PropTypes.object.isRequired,
+        refreshCountActionName: PropTypes.string.isRequired,
+    };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.comment);
@@ -28,12 +34,17 @@ class CommentView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    onBackPress() {
+        this.dispatchAction(this.props.refreshCountActionName, {individualUUID: this.props.individualUUID});
+        this.goBack();
+    }
+
     render() {
         General.logDebug(this.viewName(), "render");
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.CommentBackgroundColor}}>
-                <AppHeader title={this.I18n.t('comments')} hideIcon={true}/>
+                <AppHeader title={this.I18n.t('comments')} hideIcon={true} func={this.onBackPress.bind(this)}/>
                 <View style={styles.container}>
                     <FlatList data={this.state.comments}
                               keyExtractor={(item) => item.uuid}
@@ -45,7 +56,7 @@ class CommentView extends AbstractComponent {
                     <View style={styles.footer}>
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}
-                                       value={this.state.newCommentText}
+                                       value={this.state.comment.text}
                                        placeholder="Write a message..."
                                        underlineColorAndroid='transparent'
                                        onChangeText={(value) => this.dispatchAction(Actions.ON_CHANGE_TEXT, {value})}

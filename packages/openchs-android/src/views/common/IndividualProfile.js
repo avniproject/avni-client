@@ -129,7 +129,9 @@ class IndividualProfile extends AbstractComponent {
     };
 
     onMessagePress() {
-        TypedTransition.from(this).with({individualUUID: this.props.individual.uuid}).to(CommentView, true);
+        const individualUUID = this.props.individual.uuid;
+        const refreshCountActionName = Actions.REFRESH_MESSAGE_COUNTS;
+        TypedTransition.from(this).with({individualUUID, refreshCountActionName}).to(CommentView, true);
     }
 
     renderGroupOptions() {

@@ -42,18 +42,26 @@ export class IndividualProfileActions {
         newState.eligiblePrograms = individualService.eligiblePrograms(individualUUID);
         return newState;
     }
+
+    static refreshMessageCounts(state, action, context) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.commentsCount = context.get(CommentService).getAllBySubjectUUID(action.individualUUID).length;
+        return newState;
+    }
 }
 
 const actions = {
     INDIVIDUAL_SELECTED: "IPA.INDIVIDUAL_SELECTED",
     LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
     HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
+    REFRESH_MESSAGE_COUNTS: "IPA.REFRESH_MESSAGE_COUNTS",
 };
 
 export default new Map([
     [actions.INDIVIDUAL_SELECTED, IndividualProfileActions.individualSelected],
     [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
     [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
+    [actions.REFRESH_MESSAGE_COUNTS, IndividualProfileActions.refreshMessageCounts],
 ]);
 
 export {actions as Actions};

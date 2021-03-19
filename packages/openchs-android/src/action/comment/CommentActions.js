@@ -1,6 +1,5 @@
 import CommentService from "../../service/comment/CommentService";
 import UserInfoService from "../../service/UserInfoService";
-import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import {Comment} from 'avni-models';
 
@@ -20,34 +19,38 @@ class CommentActions {
         newState.comments = context.get(CommentService).getAllBySubjectUUID(individualUUID);
         newState.userInfo = context.get(UserInfoService).getUserInfo();
         newState.subject = context.get(IndividualService).findByUUID(individualUUID);
+        newState.comment = Comment.createEmptyInstance();
         return newState;
     }
 
     static onChangeText(state, action, context) {
         const newState = {...state};
-        newState.newCommentText = action.value;
+        newState.comment = state.comment.editComment(action.value);
         return newState;
     }
 
     static onSend(state, action, context) {
-        if (_.isEmpty(state.newCommentText)) {
+        if (state.comment.isEmpty()) {
             return state;
         }
         const newState = {...state};
-        context.get(CommentService).saveOrUpdate(CommentActions._getCommentFromState(state));
+        context.get(CommentService).saveOrUpdate(CommentActions._addUserAndAuditToComment(state, newState.isEdit));
         newState.comments = context.get(CommentService).getAllBySubjectUUID(state.subject.uuid);
-        newState.newCommentText = "";
+        newState.comment = Comment.createEmptyInstance();
         return newState;
     }
 
-    static _getCommentFromState(state) {
-        const comment = {
-            text: state.newCommentText,
-            subject: state.subject,
-            displayUsername: state.userInfo.getDisplayUsername(),
-            createdByUsername: state.userInfo.username
-        };
-        return Comment.create(comment);
+    static _addUserAndAuditToComment(state, isEdit) {
+        const comment = state.comment;
+        if (isEdit) {
+            return comment;
+        }
+        comment.displayUsername = state.userInfo.getDisplayUsername();
+        comment.createdByUsername = state.userInfo.username;
+        comment.subject = state.subject;
+        comment.lastModifiedDateTime = new Date();
+        comment.createdDateTime = new Date();
+        return comment;
     }
 
 }
