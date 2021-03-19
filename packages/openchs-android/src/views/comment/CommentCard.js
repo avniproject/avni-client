@@ -6,6 +6,9 @@ import Styles from "../primitives/Styles";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
+import Actions from "../groupSubject/Actions";
+import Reducers from "../../reducer";
+import {CommentActionNames as CommentActions} from "../../action/comment/CommentActions";
 
 class CommentCard extends AbstractComponent {
 
@@ -15,16 +18,28 @@ class CommentCard extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, Reducers.reducerKeys.comment);
     }
 
     getUserNameToDisplay(comment, myUserName) {
         return comment.createdByUsername === myUserName ? 'You' : comment.displayUsername;
     }
 
+    onCommentEdit(comment) {
+        this.dispatchAction(CommentActions.ON_EDIT, {comment})
+    }
+
+    onCommentDelete(comment) {
+        this.dispatchAction(CommentActions.ON_DELETE, {openDeleteDialog: true, comment});
+    }
+
     renderOptions(comment, myUserName) {
+        const options = [
+            {label: 'edit', fn: (comment) => this.onCommentEdit(comment)},
+            {label: 'delete', fn: (comment) => this.onCommentDelete(comment)},
+        ];
         if (comment.createdByUsername === myUserName) {
-            return <MCIcon name={"dots-vertical"} size={20}/>
+            return <Actions key={comment.uuid} actions={options} item={comment} color={Colors.DefaultPrimaryColor}/>
         }
         return <View/>
     }

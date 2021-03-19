@@ -12,6 +12,7 @@ import {CommentActionNames as Actions} from "../../action/comment/CommentActions
 import CommentCard from "./CommentCard";
 import Styles from "../primitives/Styles";
 import PropTypes from "prop-types";
+import {ApprovalDialog} from "../approval/ApprovalDialog";
 
 @Path('/commentView')
 class CommentView extends AbstractComponent {
@@ -37,6 +38,14 @@ class CommentView extends AbstractComponent {
     onBackPress() {
         this.dispatchAction(this.props.refreshCountActionName, {individualUUID: this.props.individualUUID});
         this.goBack();
+    }
+
+    getDeleteConfirmState() {
+        return {
+            title: this.I18n.t("deleteMessageTitle"),
+            message: this.I18n.t("deleteMessageDetails"),
+            openDialog: this.state.openDeleteDialog,
+        }
     }
 
     render() {
@@ -67,6 +76,14 @@ class CommentView extends AbstractComponent {
                         </TouchableOpacity>
                     </View>
                 </View>
+                <ApprovalDialog
+                    primaryButton={this.I18n.t('confirm')}
+                    secondaryButton={this.I18n.t('cancel')}
+                    onPrimaryPress={() => this.dispatchAction(Actions.ON_CONFIRM_DELETE)}
+                    onSecondaryPress={() => this.dispatchAction(Actions.ON_DELETE, {openDeleteDialog: false})}
+                    onClose={() => this.dispatchAction(Actions.ON_DELETE, {openDeleteDialog: false})}
+                    state={this.getDeleteConfirmState()}
+                    I18n={this.I18n}/>
             </CHSContainer>
         );
     }

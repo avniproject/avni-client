@@ -10,6 +10,7 @@ class CommentActions {
             comments: [],
             userInfo: {},
             subject: {},
+            openDeleteDialog: false
         };
     }
 
@@ -23,7 +24,7 @@ class CommentActions {
         return newState;
     }
 
-    static onChangeText(state, action, context) {
+    static onChangeText(state, action) {
         const newState = {...state};
         newState.comment = state.comment.editComment(action.value);
         return newState;
@@ -37,6 +38,32 @@ class CommentActions {
         context.get(CommentService).saveOrUpdate(CommentActions._addUserAndAuditToComment(state, newState.isEdit));
         newState.comments = context.get(CommentService).getAllBySubjectUUID(state.subject.uuid);
         newState.comment = Comment.createEmptyInstance();
+        newState.isEdit = false;
+        return newState;
+    }
+
+    static onEdit(state, action) {
+        const newState = {...state};
+        newState.isEdit = true;
+        newState.comment = action.comment;
+        return newState;
+    }
+
+    static onDelete(state, action) {
+        const newState = {...state};
+        newState.openDeleteDialog = action.openDeleteDialog;
+        newState.commentToDelete = action.comment;
+        return newState;
+    }
+
+    static onConfirmDelete(state, action, context) {
+        const newState = {...state};
+        const comment = state.commentToDelete.cloneForEdit();
+        comment.voided = true;
+        context.get(CommentService).saveOrUpdate(comment);
+        newState.comments = context.get(CommentService).getAllBySubjectUUID(state.subject.uuid);
+        newState.openDeleteDialog = false;
+        _.unset(newState, 'commentToDelete');
         return newState;
     }
 
@@ -61,12 +88,18 @@ const CommentActionNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_CHANGE_TEXT: `${ActionPrefix}.ON_CHANGE_TEXT`,
     ON_SEND: `${ActionPrefix}.ON_SEND`,
+    ON_EDIT: `${ActionPrefix}.ON_EDIT`,
+    ON_DELETE: `${ActionPrefix}.ON_DELETE`,
+    ON_CONFIRM_DELETE: `${ActionPrefix}.ON_CONFIRM_DELETE`,
 };
 
 const CommentActionMap = new Map([
     [CommentActionNames.ON_LOAD, CommentActions.onLoad],
     [CommentActionNames.ON_CHANGE_TEXT, CommentActions.onChangeText],
     [CommentActionNames.ON_SEND, CommentActions.onSend],
+    [CommentActionNames.ON_EDIT, CommentActions.onEdit],
+    [CommentActionNames.ON_DELETE, CommentActions.onDelete],
+    [CommentActionNames.ON_CONFIRM_DELETE, CommentActions.onConfirmDelete],
 ]);
 
 export {CommentActions, CommentActionNames, CommentActionMap}
