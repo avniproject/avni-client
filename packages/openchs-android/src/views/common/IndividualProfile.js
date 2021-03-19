@@ -22,6 +22,8 @@ import Menu from "../menu";
 import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import RNImmediatePhoneCall from "react-native-immediate-phone-call";
+import {MessageIcon} from "./MessageIcon";
+import CommentView from "../comment/CommentView";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -32,6 +34,16 @@ class IndividualProfile extends AbstractComponent {
         hideEnrol: PropTypes.bool,
         style: PropTypes.object
     };
+    static viewContext = {
+        Program: 'Program',
+        General: 'General',
+        Wizard: 'Wizard',
+        Individual: 'Individual'
+    };
+
+    constructor(props, context) {
+        super(props, context, Reducers.reducerKeys.individualProfile);
+    }
 
     getMobileNoFromObservation() {
         var i;
@@ -58,17 +70,6 @@ class IndividualProfile extends AbstractComponent {
 
     makeCall(number) {
         RNImmediatePhoneCall.immediatePhoneCall(number);
-    }
-
-    static viewContext = {
-        Program: 'Program',
-        General: 'General',
-        Wizard: 'Wizard',
-        Individual: 'Individual'
-    };
-
-    constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.individualProfile);
     }
 
     componentWillMount() {
@@ -126,6 +127,10 @@ class IndividualProfile extends AbstractComponent {
     showMenu = () => {
         this._menu.show();
     };
+
+    onMessagePress() {
+        TypedTransition.from(this).with({individualUUID: this.props.individual.uuid}).to(CommentView, true);
+    }
 
     renderGroupOptions() {
         const groupActions = this.groupActions();
@@ -217,7 +222,8 @@ class IndividualProfile extends AbstractComponent {
                                 {this.programProfileHeading()}
                             </View>
 
-                            <View>
+                            <View style={{flexDirection: 'column'}}>
+                                <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/>
                                 {this.renderCallButton()}
                             </View>
                         </View>

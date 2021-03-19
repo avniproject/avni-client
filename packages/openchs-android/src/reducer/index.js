@@ -51,6 +51,7 @@ import {AddMemberActionMap, MemberAction, AddNewMemberActions} from "../action/g
 import {CustomDashboardActions, CustomDashboardActionMap} from "../action/customDashboard/CustomDashboardActions";
 import {ApprovalActions, ApprovalActionMap} from "../action/approval/ApprovalActions";
 import {NewsActions, NewsActionMap} from "../action/news/NewsActions";
+import {CommentActions, CommentActionMap} from "../action/comment/CommentActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -95,6 +96,7 @@ export default class Reducers {
         customDashboard: "customDashboard",
         approval: "approval",
         news: "news",
+        comment: "comment",
     };
 
     static createReducers(beanStore) {
@@ -139,6 +141,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.customDashboard] = Reducers._add(CustomDashboardActionMap, CustomDashboardActions, beanStore);
         reducerMap[Reducers.reducerKeys.approval] = Reducers._add(ApprovalActionMap, ApprovalActions, beanStore);
         reducerMap[Reducers.reducerKeys.news] = Reducers._add(NewsActionMap, NewsActions, beanStore);
+        reducerMap[Reducers.reducerKeys.comment] = Reducers._add(CommentActionMap, CommentActions, beanStore);
         return reducerMap;
     };
 
