@@ -55,7 +55,10 @@ class CommentView extends AbstractComponent {
                           style={{backgroundColor: Colors.CommentBackgroundColor}}>
                 <AppHeader title={this.I18n.t('comments')} hideIcon={true} func={this.onBackPress.bind(this)}/>
                 <View style={styles.container}>
-                    <FlatList data={this.state.comments}
+                    <FlatList ref={ref => this.flatList = ref}
+                              onContentSizeChange={() => this.flatList.scrollToEnd({animated: true})}
+                              onLayout={() => this.flatList.scrollToEnd({animated: true})}
+                              data={this.state.comments}
                               keyExtractor={(item) => item.uuid}
                               renderItem={({item}) =>
                                   <CommentCard
