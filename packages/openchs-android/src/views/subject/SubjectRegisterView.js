@@ -30,6 +30,7 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -162,6 +163,7 @@ class SubjectRegisterView extends AbstractComponent {
                                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                                  multiline={false}
                                 />
+                                <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.nonIndividualValidationKeys.NAME)}/>
                                 {this.state.subject.isHousehold() && this.state.isNewEntity &&
                                 <View>
                                     <View>

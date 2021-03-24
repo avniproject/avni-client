@@ -3,6 +3,7 @@ import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
+import EntityService from "../service/EntityService";
 
 class ProgramEnrolmentState extends AbstractDataEntryState {
     static UsageKeys = {
@@ -134,6 +135,12 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getEffectiveDataEntryDate() {
         return this.enrolment.enrolmentDateTime;
+    }
+
+    getEntityResultSetByType(context) {
+        const {individual, program} = this.enrolment;
+        return context.get(EntityService).getAllNonVoided(ProgramEnrolment.schema.name)
+            .filtered('individual.subjectType.uuid = $0 and program.uuid = $1', individual.subjectType.uuid, program.uuid);
     }
 }
 

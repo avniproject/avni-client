@@ -59,10 +59,10 @@ export class SubjectRegisterActions {
         return newState;
     }
 
-    static enterName(state, action) {
+    static enterName(state, action, context) {
         const newState = state.clone();
         newState.subject.setFirstName(action.value);
-        newState.handleValidationResult(newState.subject.validateFirstName());
+        newState.handleValidationResults([newState.validateName(context), newState.subject.validateFirstName()], context);
         return newState;
     }
 

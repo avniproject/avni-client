@@ -9,6 +9,7 @@ import {  PrimitiveValue  } from 'avni-models';
 import {  Individual  } from 'avni-models';
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import Distances from "../../primitives/Distances";
+import ValidationErrorMessage from "../ValidationErrorMessage";
 
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
@@ -36,6 +37,7 @@ class IndividualNameFormElement extends AbstractComponent {
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                  multiline={false}
                 />
+                <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.NAME)}/>
             </View>
         );
     }

@@ -26,7 +26,10 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        const validationResult = action.formElement.validate(action.value);
+        let validationResult = action.formElement.validate(action.value);
+        if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
+            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.formElement, context);
+        }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         return newState;
     }
@@ -129,10 +132,36 @@ class ObservationsHolderActions {
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
-        const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper().getValue());
+        const value = _.isNil(observation) ? null : observation.getValueWrapper().getValue();
+        let validationResult = action.formElement.validate(value);
+        if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
+            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, value, action.formElement, context);
+        }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
+    }
+
+    static _validateForDuplicateObservation(state, value, formElement, context) {
+        const currentEntity = state.getEntity();
+        const observationFilter = ObservationsHolderActions._getObservationFilterQueryByConceptType(formElement.concept, value);
+        const allEntitiesOfSameType = state.getEntityResultSetByType(context);
+        const entitiesWithDuplicateObservations = allEntitiesOfSameType.filtered('uuid <> $0', currentEntity.uuid).filtered(observationFilter);
+        const subjectTypeName = _.get(currentEntity, 'individual.subjectType.name');
+        return _.isEmpty(entitiesWithDuplicateObservations) ? new ValidationResult(true, formElement.uuid, null) : new ValidationResult(false, formElement.uuid, 'duplicateValue', {subjectTypeName});
+    }
+
+    static _getObservationFilterQueryByConceptType(concept, value) {
+        switch (concept.datatype) {
+            case Concept.dataType.PhoneNumber :
+                return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and $observation.valueJSON contains '"phoneNumber":"${value}"' ).@count > 0`;
+            case Concept.dataType.Text :
+                return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and $observation.valueJSON contains '"value":"${value}"' ).@count > 0`;
+            case Concept.dataType.Numeric :
+                return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and $observation.valueJSON contains '"value":${value}' ).@count > 0`;
+            default :
+                return `uuid = null`;
+        }
     }
 }
 

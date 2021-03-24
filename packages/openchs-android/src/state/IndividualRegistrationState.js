@@ -6,6 +6,8 @@ import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkL
 import General from "../utility/General";
 import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
+import {ValidationResult} from "openchs-models";
+import EntityService from "../service/EntityService";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists) {
@@ -85,7 +87,18 @@ class IndividualRegistrationState extends AbstractDataEntryState {
             validationResults.push(this.household.validateRelativeAge(this.individual));
         }
         validationResults.push(locationValidation);
+        validationResults.push(this.validateName(context));
         return validationResults;
+    }
+
+    validateName(context) {
+        const {firstName, lastName, subjectType, uuid} = this.individual;
+        const nameValidationKey = Individual.validationKeys.NAME;
+        if (subjectType.uniqueName) {
+            const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, lastName, subjectType, uuid});
+            return _.isEmpty(savedSubjectsWithSameName) ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
+        }
+        return ValidationResult.successful(nameValidationKey);
     }
 
     validateEntityAgainstRule(ruleService) {
@@ -106,6 +119,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     getNextScheduledVisits(ruleService, context) {
         const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.individual, nextScheduledVisits);
+    }
+
+    getEntityResultSetByType(context) {
+        return context.get(EntityService).getAllNonVoided(Individual.schema.name).filtered('subjectType.uuid = $0', this.individual.subjectType.uuid);
     }
 }
 

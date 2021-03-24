@@ -387,6 +387,7 @@
     "rejectRequestMsg": "Please mention the reason below:",
     "verifyNumber": "Verify number",
     "news": "News",
-    "readNewsBroadcast": "Read news broadcast"
+    "readNewsBroadcast": "Read news broadcast",
+    "duplicateValue": "Another {{subjectTypeName}} has same value."
   }
 }
