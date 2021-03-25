@@ -12,6 +12,7 @@ import IndividualRelationshipService from "../../service/relationship/Individual
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import {ValidationResult} from "openchs-models";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -49,17 +50,17 @@ export class IndividualRegisterActions {
         return newState;
     }
 
-    static enterFirstName(state, action) {
+    static enterFirstName(state, action, context) {
         const newState = state.clone();
         newState.individual.setFirstName(action.value);
-        newState.handleValidationResult(newState.individual.validateFirstName());
+        newState.handleValidationResults([newState.validateName(context), newState.individual.validateFirstName()], context);
         return newState;
     }
 
-    static enterLastName(state, action) {
+    static enterLastName(state, action, context) {
         const newState = state.clone();
         newState.individual.setLastName(action.value);
-        newState.handleValidationResult(newState.individual.validateLastName());
+        newState.handleValidationResults([newState.validateName(context), newState.individual.validateLastName()], context);
         return newState;
     }
 

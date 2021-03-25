@@ -288,6 +288,10 @@ class AbstractDataEntryState {
                 return ValidationResult.successful(validationKey);
         }
     }
+
+    getEntityResultSetByType(context) {
+        return []
+    }
 }
 
 export default AbstractDataEntryState;

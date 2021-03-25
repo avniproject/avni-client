@@ -4,6 +4,7 @@ import {AbstractEncounter, ObservationsHolder, Encounter, StaticFormElementGroup
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
+import EntityService from "../service/EntityService";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed) {
@@ -88,6 +89,12 @@ class EncounterActionState extends AbstractDataEntryState {
     getNextScheduledVisits(ruleService, context) {
         const nextScheduledVisits = ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, []);
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.encounter.individual, nextScheduledVisits);
+    }
+
+    getEntityResultSetByType(context) {
+        const {individual, encounterType} = this.encounter;
+        return context.get(EntityService).getAllNonVoided(Encounter.schema.name)
+            .filtered('individual.subjectType.uuid = $0 and encounterType.uuid = $1', individual.subjectType.uuid, encounterType.uuid);
     }
 }
 

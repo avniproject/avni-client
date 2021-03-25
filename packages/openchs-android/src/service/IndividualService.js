@@ -1,9 +1,7 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {
-    ApprovalStatus,
     Encounter,
-    EntityApprovalStatus,
     EntityQueue,
     Individual,
     ObservationsHolder,
@@ -116,14 +114,17 @@ class IndividualService extends BaseService {
         } else {
             permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
         }
-            return individualsWithVisits;
+        return individualsWithVisits;
     }
 
     allIn(ignored, queryAdditions) {
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .map((individual) =>({individual, visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}}));
+            .map((individual) => ({
+                individual,
+                visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}
+            }));
     }
 
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {
@@ -178,7 +179,7 @@ class IndividualService extends BaseService {
             .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
             .map((enc) => {
                 const individual = enc.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;;
+                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
                 return {
                     individual,
@@ -566,6 +567,12 @@ class IndividualService extends BaseService {
         return this.getAllNonVoided()
             .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName)
             .map(_.identity);
+    }
+
+    getSubjectWithTheNameAndType({firstName, lastName, subjectType, uuid}) {
+        return this.getAllNonVoided()
+            .filtered(`uuid <> $0 and firstName = $1 and lastName = $2 and subjectType.uuid = $3`,
+                uuid, firstName, lastName, subjectType.uuid);
     }
 
 }

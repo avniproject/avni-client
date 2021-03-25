@@ -4,6 +4,7 @@ import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig, 
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 import IndividualService from "../service/IndividualService";
+import EntityService from "../service/EntityService";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed) {
@@ -96,6 +97,15 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     getEffectiveDataEntryDate() {
         return this.programEncounter.encounterDateTime;
+    }
+
+    getEntityResultSetByType(context) {
+        const {programEnrolment, encounterType} = this.programEncounter;
+        return context.get(EntityService).getAllNonVoided(ProgramEncounter.schema.name)
+            .filtered('programEnrolment.individual.subjectType.uuid = $0 and programEnrolment.program.uuid = $1 and encounterType.uuid = $2',
+                programEnrolment.individual.subjectType.uuid,
+                programEnrolment.program.uuid,
+                encounterType.uuid);
     }
 }
 

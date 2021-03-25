@@ -5,6 +5,8 @@ import {Individual, ObservationsHolder, StaticFormElementGroup} from 'avni-model
 import _ from "lodash";
 import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
+import {ValidationResult} from "openchs-models";
+import EntityService from "../service/EntityService";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists) {
@@ -100,7 +102,18 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             const totalMemberValidation = this.household.validateTotalMembers();
             validationResults.push(totalMemberValidation);
         }
+        validationResults.push(this.validateName(context));
         return validationResults;
+    }
+
+    validateName(context) {
+        const {firstName, subjectType, uuid} = this.subject;
+        const nameValidationKey = Individual.nonIndividualValidationKeys.NAME;
+        if (subjectType.uniqueName) {
+            const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, subjectType, uuid});
+            return _.isEmpty(savedSubjectsWithSameName) ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
+        }
+        return ValidationResult.successful(nameValidationKey);
     }
 
     validateEntityAgainstRule(ruleService) {
@@ -121,6 +134,10 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     getNextScheduledVisits(ruleService, context) {
         const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, []);
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.subject, nextScheduledVisits);
+    }
+
+    getEntityResultSetByType(context) {
+        return context.get(EntityService).getAllNonVoided(Individual.schema.name).filtered('subjectType.uuid = $0', this.subject.subjectType.uuid);
     }
 }
 
