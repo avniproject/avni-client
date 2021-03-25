@@ -67,7 +67,7 @@ class Members extends AbstractComponent {
                     {this.renderEnrolledPrograms(groupSubject.memberSubject)}
                 </View>
                 <View style={{flex: 0.5, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between'}}>
-                    <Actions key={index} actions={this.props.actions} groupSubject={groupSubject}/>
+                    <Actions key={index} actions={this.props.actions} item={groupSubject}/>
                 </View>
             </View>
         );

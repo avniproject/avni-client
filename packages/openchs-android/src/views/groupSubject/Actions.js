@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 class Actions extends AbstractComponent {
     static propTypes = {
         actions: PropTypes.array.isRequired,
-        groupSubject: PropTypes.object.isRequired
+        item: PropTypes.object.isRequired
     };
 
     _menu = null;
@@ -29,21 +29,22 @@ class Actions extends AbstractComponent {
 
     onPress = (cb) => {
         this.hideMenu();
-        cb(this.props.groupSubject);
+        cb(this.props.item);
     };
 
     render() {
+        const color = this.props.color || Colors.Complimentary;
         return <Menu
             ref={this.setMenuRef}
             button={<TouchableOpacity onPress={this.showMenu}>
                 <MaterialIcon
                     name='more-vert'
                     size={25}
-                    color={Colors.Complimentary}/>
+                    color={color}/>
             </TouchableOpacity>}>
             {this.props.actions.map(({fn, label}) => (
                 <MenuItem onPress={() => this.onPress(fn)}
-                          textStyle={{color: Colors.Complimentary}}>{this.I18n.t(label)}</MenuItem>))}
+                          textStyle={{color}}>{this.I18n.t(label)}</MenuItem>))}
         </Menu>
     }
 }
