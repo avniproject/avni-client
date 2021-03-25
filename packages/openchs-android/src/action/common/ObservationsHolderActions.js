@@ -158,7 +158,7 @@ class ObservationsHolderActions {
             case Concept.dataType.Text :
                 return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and $observation.valueJSON contains '"value":"${value}"' ).@count > 0`;
             case Concept.dataType.Numeric :
-                return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and $observation.valueJSON contains '"value":${value}' ).@count > 0`;
+                return `SUBQUERY(observations, $observation, $observation.concept.uuid = "${concept.uuid}" and ($observation.valueJSON contains '"value":${value}' OR $observation.valueJSON contains '"value":"${value}"') ).@count > 0`;
             default :
                 return `uuid = null`;
         }
