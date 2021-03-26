@@ -50,7 +50,7 @@ class PhoneNumberFormElement extends AbstractFormElement {
     render() {
         const value = this.props.value;
         const isVerified = value.isVerified();
-        const isUnverified = _.get(this.props.validationResult, 'success', true) && !isVerified;
+        const isUnverified = _.get(this.props.validationResult, 'success', true) && !isVerified && _.size(value.getValue()) === 10;
         return (<View>
             <View style={styles.container}>
                 <Text style={Styles.formLabel}>{this.label}</Text>

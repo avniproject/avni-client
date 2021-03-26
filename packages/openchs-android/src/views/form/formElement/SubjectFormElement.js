@@ -98,7 +98,7 @@ class SubjectFormElement extends AbstractFormElement {
                 backgroundColor: Colors.GreyBackground,
                 marginLeft: 5,
             }}>
-                <Text>{subject.nameString}</Text>
+                <Text>{subject.nameStringWithUniqueAttribute}</Text>
                 <TouchableOpacity onPress={() => this.toggleFormElementAnswerSelection(subject.uuid)}>
                     <Entypo name='cross' style={{fontSize: 20, color: Colors.ActionButtonColor, marginLeft: 5}}/>
                 </TouchableOpacity>

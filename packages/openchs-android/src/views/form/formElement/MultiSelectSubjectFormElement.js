@@ -43,7 +43,7 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
 
     renderSelectUI(subjectUUIDs) {
         const valueLabelPairs = this.subjectOptions
-            .map((subject) => new RadioLabelValue(subject.nameString, subject.uuid, false));
+            .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <RadioGroup
