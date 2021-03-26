@@ -24,6 +24,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import {MessageIcon} from "./MessageIcon";
 import CommentView from "../comment/CommentView";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -174,6 +175,11 @@ class IndividualProfile extends AbstractComponent {
         </Menu>;
     }
 
+    renderCommentIcon() {
+        const {enableComments} = this.getService(OrganisationConfigService).getSettings();
+        return enableComments ? <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
+    }
+
     render() {
         General.logDebug('IndividualProfile', 'render');
         const programActions = this.state.eligiblePrograms.map(program => ({
@@ -225,7 +231,7 @@ class IndividualProfile extends AbstractComponent {
                             </View>
 
                             <View style={{flexDirection: 'column'}}>
-                                <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/>
+                                {this.renderCommentIcon()}
                                 {this.renderCallButton()}
                             </View>
                         </View>
