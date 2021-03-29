@@ -11,7 +11,6 @@ import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
 import com.microsoft.codepush.react.CodePush;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.amazonaws.RNAWSCognitoPackage;
-import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.rnfs.RNFSPackage;
@@ -55,7 +54,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNImmediatePhoneCallPackage(),
             new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
             new RNDeviceInfo(),
-                    new BackgroundTaskPackage(),
                     new RNFetchBlobPackage(),
                     new ImagePickerPackage(),
                     new RNFSPackage(),
@@ -78,7 +76,6 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
-        BackgroundTaskPackage.useContext(this);
     }
 
     @Override

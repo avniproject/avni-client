@@ -7,7 +7,7 @@ define _install_apk
 endef
 
 uninstall_apk: ##
-	adb uninstall com.openchsclient
+	-adb uninstall com.openchsclient
 
 clear_app_data:
 	adb shell pm clear com.openchsclient
