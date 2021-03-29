@@ -22,14 +22,20 @@ const PruneMediaJob = {
 
 const SyncJobSchedule = {
     jobKey: "syncJob",
+    timeout: 10*60*1000,
+    period: 60*60*1000
 };
 
 const DeleteDraftsJobSchedule = {
     jobKey: "deleteDraftsJob",
+    timeout: 1*60*1000,
+    period: 1*24*60*1000
 };
 
 const PruneMediaJobSchedule = {
     jobKey: "pruneMediaJob",
+    timeout: 1*60*1000,
+    period: 1*24*60*1000
 };
 
 export const RegisterAndScheduleJobs = function () {
