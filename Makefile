@@ -111,6 +111,7 @@ endef
 
 as_dev: ; $(call _create_config,dev)
 as_staging: ; $(call _create_config,staging)
+as_staging_dev: ; $(call _create_config,staging_dev)
 as_uat: ; $(call _create_config,uat)
 as_prerelease: ; $(call _create_config,prerelease)
 as_prod: ; $(call _create_config,prod)

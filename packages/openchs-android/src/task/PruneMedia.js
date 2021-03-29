@@ -1,13 +1,13 @@
-import Realm from 'realm';
-import {Schema, Observation, Concept} from 'avni-models';
+import {Concept, Observation, Schema} from 'avni-models';
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
+import BaseTask from "./BaseTask";
 
 const imageObservationDoesNotExist = (db) => (image) => {
     return db.objects(Observation.schema.name).filtered(
         `(concept.datatype == "${Concept.dataType.Image}" OR  concept.datatype == "${Concept.dataType.Video}") and valueJSON contains[c] "${image}"`)
-        .length == 0;
+        .length === 0;
 };
 
 const deleteFile = (file) => {
@@ -31,16 +31,18 @@ function pruneMedia(db, directory) {
     return fs.readdir(directory)
         .then((images) => _.filter(images, imageObservationDoesNotExist(db)))
         .then((images) => _.map(images, (image) => `${directory}/${image}`))
-        .then((deleteList) => _.forEach(deleteList, deleteFile));
+        .then((deleteList) => _.forEach(deleteList, deleteFile)).then(() => General.logInfo("PruneMedia", `${directory} Com`)).then(() => Promise.resolve());
 }
 
-const PruneMedia = (db) => {
-    General.logInfo("PruneMedia", "PruneMedia service started");
+class PruneMedia extends BaseTask {
+    execute() {
+        General.logInfo("PruneMedia", "PruneMedia job started");
 
-    const pruneImageDir = pruneMedia(db, FileSystem.getImagesDir());
-    const pruneVideoDir = pruneMedia(db, FileSystem.getVideosDir());
+        const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
+        const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
 
-    return Promise.all(pruneImageDir, pruneVideoDir);
-};
+        return Promise.all(pruneImageDir, pruneVideoDir);
+    }
+}
 
-export default PruneMedia;
+export default new PruneMedia();

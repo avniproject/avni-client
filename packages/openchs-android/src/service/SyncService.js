@@ -110,8 +110,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
-        if (connectionInfo)
-            this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo});
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo});
 
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
@@ -178,7 +177,7 @@ class SyncService extends BaseService {
 
     downloadNewsImages() {
         const newsWithImages = this.newsService.getAllNewsWithHeroImage();
-        return Promise.all(_.map(newsWithImages, news  => this.newsService.downloadHeroImage(news)))
+        return Promise.all(_.map(newsWithImages, news => this.newsService.downloadHeroImage(news)))
     }
 
     updateAsPerNewPrivilege(entityMetadata, updateProgressSteps) {

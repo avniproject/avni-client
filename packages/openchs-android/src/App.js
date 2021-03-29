@@ -11,15 +11,15 @@ import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
 import FileSystem from "./model/FileSystem";
-import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
 import {removeBackupFile, restore} from "./BackupRestoreRealm";
 import fs from 'react-native-fs';
-import DeleteDrafts from "./task/DeleteDrafts";
+import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
+RegisterAndScheduleJobs();
 
 class App extends Component {
     static childContextTypes = {
@@ -48,6 +48,8 @@ class App extends Component {
                         routes = PathRegistry.routes();
                         const entitySyncStatusService = beans.get(EntitySyncStatusService);
                         entitySyncStatusService.setup(EntityMetaData.model());
+
+                        SetBackgroundTaskDependencies(db, beans);
                     }
                 }).then(() => this.setState({loadApp: true}))
         } catch (e) {
@@ -110,7 +112,9 @@ class App extends Component {
     render() {
         if (this.state.loadApp) {
             if (!_.isNil(this.state.error)) return this.renderError();
-            if (!_.isNil(routes)) return routes;
+            if (!_.isNil(routes)) {
+                return routes
+            }
             return (<Text>Something Went Wrong</Text>);
         } else {
             return <View/>
