@@ -12,6 +12,8 @@ import GroupSubjectService from "../../service/GroupSubjectService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import GroupAffiliationState from "../../state/GroupAffiliationState";
+import GroupAffiliationActions from "../common/GroupAffiliationActions";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -46,10 +48,11 @@ export class SubjectRegisterActions {
         //This will enable the value to be used in rules
         let observationsHolder = new ObservationsHolder(subject.observations);
         context.get(IdentifierAssignmentService).populateIdentifiers(form, observationsHolder);
-
+        const groupAffiliationState = new GroupAffiliationState();
+        context.get(GroupSubjectService).populateGroups(subject.uuid, form, groupAffiliationState);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn);
+        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState);
         return action.isDraftEntity ? SubjectRegisterActions.setTotalMemberForDraftSubject(newState, context) : newState;
     }
 
@@ -101,7 +104,7 @@ export class SubjectRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
         const {member} = newState.household;
         if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
@@ -171,6 +174,7 @@ const actions = {
     PHONE_NUMBER_CHANGE: "SRA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "SRA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "SRA.ON_SKIP_VERIFICATION",
+    TOGGLE_GROUPS: "SRA.TOGGLE_GROUPS",
 };
 
 export default new Map([
@@ -193,6 +197,7 @@ export default new Map([
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
 ]);
 
 export {actions as Actions};

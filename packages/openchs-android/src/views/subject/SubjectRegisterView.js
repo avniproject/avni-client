@@ -203,6 +203,7 @@ class SubjectRegisterView extends AbstractComponent {
                             formElementsUserState={this.state.formElementsUserState}
                             dataEntryDate={this.state.subject.registrationDate}
                             onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                            groupAffiliation={this.state.groupAffiliation}
                         />
                         <WizardButtons previous={{
                             func: () => this.previous(),
