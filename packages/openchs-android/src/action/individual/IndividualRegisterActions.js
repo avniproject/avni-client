@@ -134,11 +134,12 @@ export class IndividualRegisterActions {
     }
 
     static onNext(state, action, context) {
-        if (state.saveDrafts) {
+        const newState = state.clone().handleNext(action, context);
+        if (state.saveDrafts && _.isEmpty(newState.validationResults)) {
             const draftIndividual = DraftSubject.create(state.individual);
             context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
         }
-        return state.clone().handleNext(action, context);
+        return newState;
     }
 
     static onPrevious(state, action, context) {

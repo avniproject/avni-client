@@ -91,11 +91,12 @@ export class SubjectRegisterActions {
     }
 
     static onNext(state, action, context) {
-        if (state.saveDrafts) {
+        const newState = state.clone().handleNext(action, context);
+        if (state.saveDrafts && _.isEmpty(newState.validationResults)) {
             const draftSubject = DraftSubject.create(state.subject, state.household.totalMembers);
             context.get(DraftSubjectService).saveDraftSubject(draftSubject);
         }
-        return state.clone().handleNext(action, context);
+        return newState;
     }
 
     static onPrevious(state, action, context) {
