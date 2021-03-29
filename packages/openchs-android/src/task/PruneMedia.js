@@ -34,10 +34,8 @@ function pruneMedia(db, directory) {
         .then((deleteList) => _.forEach(deleteList, deleteFile));
 }
 
-const PruneMedia = () => {
+const PruneMedia = (db) => {
     General.logInfo("PruneMedia", "PruneMedia service started");
-
-    const db = new Realm(Schema);
 
     const pruneImageDir = pruneMedia(db, FileSystem.getImagesDir());
     const pruneVideoDir = pruneMedia(db, FileSystem.getVideosDir());

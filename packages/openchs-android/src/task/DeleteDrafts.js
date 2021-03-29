@@ -3,8 +3,7 @@ import Realm from "realm";
 import {DraftSubject, Schema} from "avni-models";
 import moment from "moment";
 
-const DeleteDrafts = () => {
-    const db = new Realm(Schema);
+const DeleteDrafts = (db) => {
     const ttl = 30;
     const ttlDate = moment().subtract(ttl, 'days').endOf('day').toDate();
     General.logInfo("DeleteDrafts", `deleting older drafts before ${ttlDate}`);

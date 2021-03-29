@@ -36,6 +36,7 @@
 		2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2A833E80D084DFE91FEAE8A /* libCodePush.a */; };
 		7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */; };
 		D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4EC43C92D0E4189844EFAB5 /* libRNCWebView.a */; };
+		A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -184,6 +185,8 @@
 		1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */ = {isa = PBXFileReference; name = "libRNImmediatePhoneCall.a"; path = "libRNImmediatePhoneCall.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; name = "RNCWebView.xcodeproj"; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A4EC43C92D0E4189844EFAB5 /* libRNCWebView.a */ = {isa = PBXFileReference; name = "libRNCWebView.a"; path = "libRNCWebView.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */ = {isa = PBXFileReference; name = "RNBackgroundJob.xcodeproj"; path = "../node_modules/react-native-background-job/ios/RNBackgroundJob.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */ = {isa = PBXFileReference; name = "libRNBackgroundJob.a"; path = "libRNBackgroundJob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +225,7 @@
 				2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */,
 				7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */,
 				D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */,
+				A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,6 +370,7 @@
 				7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */,
 				68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */,
 				3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */,
+				211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -725,6 +730,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -741,6 +747,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -777,6 +784,7 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
+					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 				);
 			};
 			name = Debug;
@@ -805,6 +813,7 @@
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
+					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 				);
 			};
 			name = Release;

@@ -11,7 +11,6 @@ import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
 import FileSystem from "./model/FileSystem";
-import BackgroundTask from 'react-native-background-task';
 import PruneMedia from "./task/PruneMedia";
 import codePush from "react-native-code-push";
 import {removeBackupFile, restore} from "./BackupRestoreRealm";
@@ -21,13 +20,6 @@ import DeleteDrafts from "./task/DeleteDrafts";
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
-BackgroundTask.define(() => {
-    DeleteDrafts();
-    PruneMedia().then(
-        () => BackgroundTask.finish(),
-        () => BackgroundTask.finish()
-    );
-});
 
 class App extends Component {
     static childContextTypes = {
@@ -113,8 +105,6 @@ class App extends Component {
     }
 
     componentDidMount() {
-        const SIX_HOURS = 60 * 60 * 6;
-        BackgroundTask.schedule({period: SIX_HOURS});
     }
 
     render() {

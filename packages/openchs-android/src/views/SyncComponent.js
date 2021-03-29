@@ -1,5 +1,4 @@
 import AbstractComponent from "../framework/view/AbstractComponent";
-import UserInfoService from "../service/UserInfoService";
 import Colors from "./primitives/Colors";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import ProgramConfigService from "../service/ProgramConfigService";
@@ -14,7 +13,7 @@ import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, Modal, NetInfo, Text, View, TouchableNativeFeedback} from "react-native";
+import {Alert, Dimensions, Modal, NetInfo, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
 import {EntityMetaData, SyncError} from "avni-models";
@@ -88,8 +87,6 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncActions.POST_SYNC);
         setTimeout(() => this.reset(), 1);
 
-        const userInfoService = this.context.getService(UserInfoService);
-        const userSettings = userInfoService.getUserSettings();
         this.context.getService(SettingsService).initLanguages();
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }

@@ -162,7 +162,7 @@ release-offline: ##
 
 # <log>
 log:  ## Log android
-	adb logcat *:S ReactNative:V ReactNativeJS:V
+	adb logcat *:S ReactNative:V ReactNativeJS:V BackgroundTask:V
 
 log_info: ## Log adb info level
 	adb logcat *:S ReactNative:W ReactNativeJS:I

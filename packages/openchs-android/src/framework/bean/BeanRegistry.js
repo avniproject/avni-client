@@ -6,14 +6,14 @@ class BeanRegistry extends Registry {
         this.getBean = this.getEntity;
     }
 
-    init(db, app) {
+    init(db) {
         this.entities = Array.from(this.entities).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
             map.set(beanClass, beanInstance);
             map.set(name, beanInstance);
             return map;
         }, new Map());
-        new Set(this.entities.values()).forEach(bean => bean.init(app));
+        new Set(this.entities.values()).forEach(bean => bean.init());
         return this.entities;
     }
 }
