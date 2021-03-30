@@ -23,6 +23,8 @@ import MediaQueueService from "../../../../src/service/MediaQueueService";
 import StubbedMediaQueueService from "../../service/stub/StubbedMediaQueueService";
 import IdentifierAssignmentService from "../../../../src/service/IdentifierAssignmentService";
 import StubbedIdentifierAssignmentService from "../../service/stub/StubbedIdentifierAssignmentService";
+import GroupSubjectService from "../../../../src/service/GroupSubjectService";
+import StubbedGroupSubjectService from "../../service/stub/StubbedGroupSubjectService";
 
 class TestContext {
     static stubs = new Map([
@@ -37,7 +39,8 @@ class TestContext {
         [SettingsService, (serviceData) => new StubbedSettingsService(serviceData)],
         [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)],
         [MediaQueueService, (serviceData) => new StubbedMediaQueueService(serviceData)],
-        [IdentifierAssignmentService, (serviceData) => new StubbedIdentifierAssignmentService(serviceData)]
+        [IdentifierAssignmentService, (serviceData) => new StubbedIdentifierAssignmentService(serviceData)],
+        [GroupSubjectService, (serviceData) => new StubbedGroupSubjectService(serviceData)]
     ]);
 
     constructor(serviceData) {
