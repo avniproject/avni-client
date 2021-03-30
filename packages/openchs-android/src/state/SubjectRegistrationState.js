@@ -44,7 +44,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return state;
     }
 
-    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn) {
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState) {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
@@ -58,6 +58,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
+        state.groupAffiliation = groupAffiliationState;
         return state;
     }
 

@@ -40,15 +40,15 @@ export class SubjectRegisterActions {
         const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
+        const groupAffiliationState = new GroupAffiliationState();
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs, isSaveDraftOn);
+            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState);
         }
 
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
         let observationsHolder = new ObservationsHolder(subject.observations);
         context.get(IdentifierAssignmentService).populateIdentifiers(form, observationsHolder);
-        const groupAffiliationState = new GroupAffiliationState();
         context.get(GroupSubjectService).populateGroups(subject.uuid, form, groupAffiliationState);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);

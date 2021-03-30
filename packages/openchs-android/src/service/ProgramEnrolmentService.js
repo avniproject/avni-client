@@ -10,6 +10,7 @@ import FormMappingService from "./FormMappingService";
 import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import EntityService from "./EntityService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
+import GroupSubjectService from "./GroupSubjectService";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -39,7 +40,7 @@ class ProgramEnrolmentService extends BaseService {
         });
     }
 
-    enrol(programEnrolment, checklists = [], nextScheduledVisits, skipCreatingPendingStatus) {
+    enrol(programEnrolment, checklists = [], nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations = []) {
         const db = this.db;
         const entityQueueItems = [];
         const programEncounterService = this.getService(ProgramEncounterService);
@@ -70,6 +71,7 @@ class ProgramEnrolmentService extends BaseService {
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(enrolmentForm, programEnrolment.observations, null, programEnrolment);
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(programEnrolment.individual, db));
         });
         return programEnrolment;
     }

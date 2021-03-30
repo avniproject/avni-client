@@ -21,6 +21,7 @@ import Colors from "../views/primitives/Colors";
 import EncounterService from "./EncounterService";
 import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
+import GroupSubjectService from "./GroupSubjectService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -73,21 +74,9 @@ class IndividualService extends BaseService {
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);
-            _.forEach(groupSubjectObservations, this.addSubjectToGroup(saved, db));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved, db));
             this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
         });
-    }
-
-    addSubjectToGroup(subject, db) {
-        return ({groupSubject}) => {
-            groupSubject.memberSubject = subject;
-            if (groupSubject.voided) {
-                groupSubject.membershipEndDate = new Date();
-            }
-            const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
-            subject.addGroupSubject(savedMember);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
-        };
     }
 
     eligiblePrograms(individualUUID) {
@@ -591,7 +580,7 @@ class IndividualService extends BaseService {
 
     getAllBySubjectTypeUUID(subjectTypeUUID) {
         return this.getAllNonVoided().filtered('subjectType.uuid = $0', subjectTypeUUID)
-            .sorted('firstName', true);
+            .sorted('name');
     }
 
 }

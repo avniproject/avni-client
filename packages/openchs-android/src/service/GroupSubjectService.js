@@ -68,6 +68,18 @@ class GroupSubjectService extends BaseService {
             }
         })
     }
+
+    addSubjectToGroup(subject, db) {
+        return ({groupSubject}) => {
+            groupSubject.memberSubject = subject;
+            if (groupSubject.voided) {
+                groupSubject.membershipEndDate = new Date();
+            }
+            const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
+            subject.addGroupSubject(savedMember);
+            db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
+        };
+    }
 }
 
 
