@@ -19,6 +19,20 @@ import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBack
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
+if (db === undefined) {
+    db = new Realm(Schema);
+    db.objects(EntityQueue.schema.name);
+    beans = BeanRegistry.init(db, this);
+    reduxStore = AppStore.create(beans);
+    beans.forEach(bean => bean.setReduxStore(reduxStore));
+
+    routes = PathRegistry.routes();
+    const entitySyncStatusService = beans.get(EntitySyncStatusService);
+    entitySyncStatusService.setup(EntityMetaData.model());
+
+    SetBackgroundTaskDependencies(db, beans);
+}
+
 RegisterAndScheduleJobs();
 
 class App extends Component {
@@ -29,34 +43,22 @@ class App extends Component {
     };
 
     constructor(props, context) {
-        let error; // RNUPGRADE
+        let error;
         super(props, context);
 
-        try {  // RNUPGRADE
+        try {
             new Promise((resolve, _) => resolve(FileSystem.init()))
                 .then(() => fs.readDir(FileSystem.getBackupDir()))
                 .then((files) => !_.isEmpty(files) && this.confirmForRestore(files[0].path))
                 .then(() => {
                     this.handleError = this.handleError.bind(this);
                     ErrorHandler.set(this.handleError);
-                    if (db === undefined) {
-                        db = new Realm(Schema);
-                        db.objects(EntityQueue.schema.name);
-                        beans = BeanRegistry.init(db, this);
-                        reduxStore = AppStore.create(beans);
-                        beans.forEach(bean => bean.setReduxStore(reduxStore));
-                        routes = PathRegistry.routes();
-                        const entitySyncStatusService = beans.get(EntitySyncStatusService);
-                        entitySyncStatusService.setup(EntityMetaData.model());
-
-                        SetBackgroundTaskDependencies(db, beans);
-                    }
                 }).then(() => this.setState({loadApp: true}))
         } catch (e) {
             error = e
-        } // RNUPGRADE
+        }
         this.getBean = this.getBean.bind(this);
-        this.state = {error} // RNUPGRADE
+        this.state = {error};
     }
 
 
@@ -107,6 +109,7 @@ class App extends Component {
     }
 
     componentDidMount() {
+        console.log("App", "componentDidMount");
     }
 
     render() {

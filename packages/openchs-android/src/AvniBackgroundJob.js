@@ -23,35 +23,39 @@ const PruneMediaJob = {
 const SyncJobSchedule = {
     jobKey: "syncJob",
     timeout: 10*60*1000,
-    period: 60*60*1000
+    // period: 60*60*1000,
+    persist: true
 };
 
 const DeleteDraftsJobSchedule = {
     jobKey: "deleteDraftsJob",
     timeout: 1*60*1000,
-    period: 1*24*60*1000
+    period: 1*24*60*60*1000,
+    persist: true
 };
 
 const PruneMediaJobSchedule = {
     jobKey: "pruneMediaJob",
     timeout: 1*60*1000,
-    period: 1*24*60*1000
+    period: 1*24*60*60*1000,
+    persist: true
 };
 
+//The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
 export const RegisterAndScheduleJobs = function () {
     BackgroundJob.register(DeleteDraftsJob);
     BackgroundJob.register(PruneMediaJob);
     BackgroundJob.register(SyncJob);
 
     BackgroundJob.schedule(DeleteDraftsJobSchedule)
-        .then(() => console.log("Success"))
-        .catch(err => console.error(err));
+        .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Success"))
+        .catch(err => General.logError("AvniBackgroundJob-DeleteDraftsJob", err));
     BackgroundJob.schedule(PruneMediaJobSchedule)
-        .then(() => console.log("Success"))
-        .catch(err => console.error(err));
+        .then(() => General.logInfo("AvniBackgroundJob-PruneMediaJob", "Success"))
+        .catch(err => General.logError("AvniBackgroundJob-PruneMediaJob", err));
     BackgroundJob.schedule(SyncJobSchedule)
-        .then(() => console.log("Success"))
-        .catch(err => console.error(err));
+        .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Success"))
+        .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
 };
 
 export const SetBackgroundTaskDependencies = function (db, beans) {
