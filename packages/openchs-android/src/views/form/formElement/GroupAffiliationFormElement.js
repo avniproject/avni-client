@@ -45,6 +45,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
             .map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                {!_.isEmpty(this.props.actionName) &&
                 <RadioGroup
                     multiSelect={false}
                     inPairs={true}
@@ -53,7 +54,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
+                    labelValuePairs={valueLabelPairs}/>}
             </View>);
     }
 

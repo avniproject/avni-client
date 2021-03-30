@@ -212,7 +212,7 @@ class FormElementGroup extends AbstractComponent {
                             return this.wrap(<GroupAffiliationFormElement
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_GROUPS"]}
-                                groupSubjectObservation={_.find(this.props.groupAffiliation.groupSubjectObservations, ({concept, groupSubject}) => concept.uuid === formElement.concept.uuid && !groupSubject.voided)}
+                                groupSubjectObservation={_.find(_.get(this.props.groupAffiliation, 'groupSubjectObservations'), ({concept, groupSubject}) => concept.uuid === formElement.concept.uuid && !groupSubject.voided)}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }
