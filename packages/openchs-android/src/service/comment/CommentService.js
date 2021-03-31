@@ -3,6 +3,7 @@ import Service from "../../framework/bean/Service";
 import {Comment, EntityQueue, Individual} from "avni-models";
 import EntityService from "../EntityService";
 import General from "../../utility/General";
+import UserInfoService from "../UserInfoService";
 
 @Service("commentService")
 class CommentService extends BaseService {
@@ -30,6 +31,13 @@ class CommentService extends BaseService {
     getAllBySubjectUUID(subjectUUID) {
         return this.getAllNonVoided()
             .filtered('subject.uuid = $0', subjectUUID)
+            .sorted('createdDateTime');
+    }
+
+    getAllExceptCurrentUser() {
+        const {username} = this.getService(UserInfoService).getUserInfo();
+        return this.getAllNonVoided()
+            .filtered('createdByUsername <> $0', username)
             .sorted('createdDateTime');
     }
 }

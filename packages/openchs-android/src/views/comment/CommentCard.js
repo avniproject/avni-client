@@ -14,7 +14,7 @@ class CommentCard extends AbstractComponent {
 
     static propTypes = {
         comment: PropTypes.object.isRequired,
-        userName: PropTypes.string.isRequired,
+        userName: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -47,7 +47,6 @@ class CommentCard extends AbstractComponent {
     render() {
         const {comment, userName} = this.props;
         return (
-            <View style={styles.container}>
                 <View style={styles.cardContainer}>
                     <View style={{flex: 0.1}}>
                         <MCIcon name={'account-circle'} size={30}/>
@@ -75,20 +74,11 @@ class CommentCard extends AbstractComponent {
                         </View>
                     </View>
                 </View>
-            </View>
         )
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        elevation: 0.1,
-        marginHorizontal: 16,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 5,
-        paddingBottom: 5,
-        borderRadius: 4
-    },
     cardContainer: {
         flexDirection: 'row',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,

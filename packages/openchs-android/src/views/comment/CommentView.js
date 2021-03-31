@@ -48,6 +48,16 @@ class CommentView extends AbstractComponent {
         }
     }
 
+    renderItem(item, username) {
+        return (
+            <View style={styles.cardContainer}>
+                <CommentCard
+                    comment={item}
+                    userName={username}/>
+            </View>
+        )
+    }
+
     render() {
         General.logDebug(this.viewName(), "render");
         return (
@@ -60,11 +70,7 @@ class CommentView extends AbstractComponent {
                               onLayout={() => this.flatList.scrollToEnd({animated: true})}
                               data={this.state.comments}
                               keyExtractor={(item) => item.uuid}
-                              renderItem={({item}) =>
-                                  <CommentCard
-                                      comment={item}
-                                      userName={this.state.userInfo.username}/>
-                              }/>
+                              renderItem={({item}) => this.renderItem(item, this.state.userInfo.username)}/>
                     <View style={styles.footer}>
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}
@@ -135,5 +141,13 @@ const styles = StyleSheet.create({
         marginLeft: 16,
         borderBottomColor: Styles.whiteColor,
         flex: 1
-    }
+    },
+    cardContainer: {
+        elevation: 0.1,
+        marginHorizontal: 16,
+        backgroundColor: Colors.cardBackgroundColor,
+        marginVertical: 5,
+        paddingBottom: 5,
+        borderRadius: 4
+    },
 });
