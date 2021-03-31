@@ -42,8 +42,8 @@ class Actions extends AbstractComponent {
                     size={25}
                     color={color}/>
             </TouchableOpacity>}>
-            {this.props.actions.map(({fn, label}) => (
-                <MenuItem onPress={() => this.onPress(fn)}
+            {this.props.actions.map(({fn, label}, index) => (
+                <MenuItem key={index} onPress={() => this.onPress(fn)}
                           textStyle={{color}}>{this.I18n.t(label)}</MenuItem>))}
         </Menu>
     }

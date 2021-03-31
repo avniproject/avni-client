@@ -14,6 +14,7 @@ import ExitBeneficiaryModeButton from "../beneficiaryMode/ExitBeneficiaryModeBut
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import UserInfoService from "../../service/UserInfoService";
 import {AvniAlert} from "./AvniAlert";
+import CommentResolveButton from "../comment/CommentResolveButton";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -87,6 +88,10 @@ class AppHeader extends AbstractComponent {
         return <ExitBeneficiaryModeButton/>;
     }
 
+    renderCommentResolve() {
+        return <CommentResolveButton onResolveComment={this.props.iconFunc}/>;
+    }
+
     render() {
         return (
             <View style={{
@@ -118,7 +123,8 @@ class AppHeader extends AbstractComponent {
                 </View>
                 {this.props.renderSync && this.renderSyncIcon()}
                 {this.props.renderExitBeneficiaryMode && this.renderExitBeneficiaryMode()}
-                {!this.props.renderSync && !this.props.renderExitBeneficiaryMode && this.renderHomeIcon()}
+                {this.props.renderCommentResolve && this.renderCommentResolve()}
+                {!this.props.renderSync && !this.props.renderExitBeneficiaryMode && !this.props.renderCommentResolve && this.renderHomeIcon()}
             </View>
         );
     }

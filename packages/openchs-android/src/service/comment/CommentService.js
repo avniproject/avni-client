@@ -28,9 +28,17 @@ class CommentService extends BaseService {
         return comment;
     }
 
-    getAllBySubjectUUID(subjectUUID) {
+    getThreadWiseFirstCommentForSubject(subjectUUID) {
         return this.getAllNonVoided()
             .filtered('subject.uuid = $0', subjectUUID)
+            .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
+    }
+
+    getAllBySubjectUUIDAndThreadUUID(subjectUUID, threadUUID) {
+        return this.getAllNonVoided()
+            .filtered('subject.uuid = $0 and commentThread.uuid = $1',
+                subjectUUID,
+                threadUUID)
             .sorted('createdDateTime');
     }
 

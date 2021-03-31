@@ -1,26 +1,25 @@
-import Path from "../../framework/routing/Path";
-import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {FlatList, StyleSheet, TextInput, TouchableNativeFeedback, TouchableOpacity, View} from 'react-native';
-import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import Colors from "../primitives/Colors";
-import AppHeader from "../common/AppHeader";
-import CHSContainer from "../common/CHSContainer";
-import General from "../../utility/General";
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import Path from "../../framework/routing/Path";
+import PropTypes from "prop-types";
 import Reducers from "../../reducer";
 import {CommentActionNames as Actions} from "../../action/comment/CommentActions";
-import Styles from "../primitives/Styles";
-import PropTypes from "prop-types";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import CommentDiscussionView from "./CommentDiscussionView";
+import {FlatList, StyleSheet, TextInput, TouchableOpacity, View} from "react-native";
 import CommentCard from "./CommentCard";
+import General from "../../utility/General";
+import CHSContainer from "../common/CHSContainer";
+import Colors from "../primitives/Colors";
+import AppHeader from "../common/AppHeader";
+import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import Styles from "../primitives/Styles";
+import CommentThreadService from "../../service/comment/CommentThreadService";
+import {AvniAlert} from "../common/AvniAlert";
 
-@Path('/commentView')
-class CommentView extends AbstractComponent {
+@Path('/commentDiscussionView')
+class CommentDiscussionView extends AbstractComponent {
 
     static propTypes = {
-        individualUUID: PropTypes.string.isRequired,
-        refreshCountActionName: PropTypes.string.isRequired,
+        threadUUID: PropTypes.string.isRequired
     };
 
     constructor(props, context) {
@@ -28,64 +27,59 @@ class CommentView extends AbstractComponent {
     }
 
     viewName() {
-        return 'CommentView';
+        return 'CommentDiscussionView';
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props);
+        this.dispatchAction(Actions.ON_THREAD_LOAD, this.props);
         super.componentWillMount();
     }
 
-    onBackPress() {
-        this.dispatchAction(this.props.refreshCountActionName, {individualUUID: this.props.individualUUID});
-        this.goBack();
-    }
-
-    getUserNameToDisplay(comment, myUserName) {
-        return comment.createdByUsername === myUserName ? 'You' : comment.displayUsername;
-    }
-
-    onThreadPress(threadUUID) {
-        TypedTransition.from(this).with({threadUUID}).to(CommentDiscussionView, true)
-    }
-
-    renderItem(item, username, onThreadPress) {
+    renderItem(item, username, index) {
+        const extraStyles = index === 0 ? {} : {borderRadius: 4, marginHorizontal: 16};
         return (
-            <TouchableNativeFeedback key={item.uuid}
-                                     onPress={() => onThreadPress(item.commentThread.uuid)}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={styles.cardContainer}>
-                    <CommentCard renderStatus
-                                 comment={item}
-                                 userName={username}/>
-                </View>
-            </TouchableNativeFeedback>
+            <View style={[styles.cardContainer, extraStyles]}>
+                <CommentCard
+                    comment={item}
+                    userName={username}/>
+            </View>
         )
+    }
+
+    resolveThread() {
+        const onYesPress = () => {
+            this.dispatchAction(Actions.ON_THREAD_RESOLVE, {threadUUID: this.props.threadUUID});
+            this.goBack()
+        };
+        AvniAlert(this.I18n.t('resolveMessageTitle'), this.I18n.t('resolveMessageDetails'), onYesPress, this.I18n, true);
     }
 
     render() {
         General.logDebug(this.viewName(), "render");
+        const commentThread = this.getService(CommentThreadService).findByUUID(this.props.threadUUID);
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.CommentBackgroundColor}}>
-                <AppHeader title={this.I18n.t('comments')} hideIcon={true} func={this.onBackPress.bind(this)}/>
+                <AppHeader title={this.I18n.t('discussion')} iconFunc={this.resolveThread.bind(this)}
+                           renderCommentResolve={!commentThread.isResolved()} hideIcon={true}/>
                 <View style={styles.container}>
                     <FlatList ref={ref => this.flatList = ref}
                               onContentSizeChange={() => this.flatList.scrollToEnd({animated: true})}
                               onLayout={() => this.flatList.scrollToEnd({animated: true})}
-                              data={this.state.threadComments}
+                              data={this.state.comments}
                               keyExtractor={(item) => item.uuid}
-                              renderItem={({item}) => this.renderItem(item, this.state.userInfo.username, this.onThreadPress.bind(this))}/>
+                              renderItem={({item, index}) => this.renderItem(item, this.state.userInfo.username, index)}/>
                     <View style={styles.footer}>
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}
                                        value={this.state.comment.text}
-                                       placeholder="Write a comment to start new thread..."
+                                       placeholder="Comment on this thread..."
                                        underlineColorAndroid='transparent'
                                        onChangeText={(value) => this.dispatchAction(Actions.ON_CHANGE_TEXT, {value})}
                                        multiline={true}/>
                         </View>
-                        <TouchableOpacity style={styles.btnSend} onPress={() => this.dispatchAction(Actions.ON_SEND)}>
+                        <TouchableOpacity style={styles.btnSend}
+                                          onPress={() => this.dispatchAction(Actions.ON_SEND, {threadUUID: this.props.threadUUID})}>
                             <MCIcon name={'send'} size={25} style={styles.iconSend}/>
                         </TouchableOpacity>
                     </View>
@@ -93,9 +87,10 @@ class CommentView extends AbstractComponent {
             </CHSContainer>
         );
     }
+
 }
 
-export default CommentView
+export default CommentDiscussionView;
 
 const styles = StyleSheet.create({
     container: {
@@ -140,9 +135,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     cardContainer: {
-        elevation: 1,
         backgroundColor: Colors.cardBackgroundColor,
-        marginBottom: 1,
-        minHeight: 100
+        marginBottom: 10,
+        paddingBottom: 5,
     },
 });
