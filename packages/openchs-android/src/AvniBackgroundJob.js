@@ -23,7 +23,7 @@ const PruneMediaJob = {
 const SyncJobSchedule = {
     jobKey: "syncJob",
     timeout: 10*60*1000,
-    // period: 60*60*1000,
+    period: 60*60*1000,
     persist: true
 };
 
