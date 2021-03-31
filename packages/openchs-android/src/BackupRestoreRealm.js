@@ -51,12 +51,13 @@ export const backup = (fileName) => {
         });
 };
 
-export const restore = async (backupFilePath) => {
+export const restore = async (backupFilePath, onRestoreComplete) => {
     await fs.exists(DESTINATION_FILE_PATH)
         .then((exists) => exists && fs.unlink(DESTINATION_FILE_PATH))
         .then(() => fs.copyFile(backupFilePath, DESTINATION_FILE_PATH))
         .then(() => fs.unlink(backupFilePath))
         .then(() => ToastAndroid.show('Backup Restored', ToastAndroid.SHORT))
+        .then(() => onRestoreComplete())
         .catch((error) => {
             General.logError(`Error while restoring file, ${error.message}`);
             throw error;

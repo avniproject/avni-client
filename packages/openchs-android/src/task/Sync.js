@@ -3,13 +3,12 @@ import SyncService from "../service/SyncService";
 import General from "../utility/General";
 import {NetInfo} from "react-native";
 import BaseTask from "./BaseTask";
+import ErrorHandler from "../utility/ErrorHandler";
 
 class Sync extends BaseTask {
     async execute() {
-        this.assertBeansPresent();
-
-        General.logInfo("Sync", "Sync starting");
         try {
+            this.assertBeansPresent();
             General.logInfo("Sync", "Getting SyncService");
             let syncService = this.beans.get(SyncService);
             General.logInfo("Sync", "Getting connection info");
@@ -20,10 +19,10 @@ class Sync extends BaseTask {
                 },
                 (message) => {
                 }, connectionInfo, Date.now()).then(() => General.logInfo("Sync", "Sync completed")).catch((e) => {
-                General.logError("Sync", e);
+                ErrorHandler.postScheduledJobError(e);
             });
         } catch (e) {
-            General.logError("Sync", e);
+            ErrorHandler.postScheduledJobError(e);
         }
     }
 }

@@ -6,6 +6,7 @@ import General from "./General";
 export default class ErrorHandler {
     static set(errorCallback) {
         if (Config.ENV !== 'dev') {
+            General.logInfo('ErrorHandler', "Setting global error handle");
             ErrorUtils.setGlobalHandler((error, isFatal) => {
                 ErrorHandler.postError(error, isFatal, errorCallback);
             });
@@ -14,6 +15,10 @@ export default class ErrorHandler {
 
     static setUser(username) {
         bugsnag.setUser(username, username, username);
+    }
+
+    static postScheduledJobError(error) {
+        this.postError(error, true, () => {});
     }
 
     static postError(error, isFatal, errorCallback) {
@@ -30,7 +35,6 @@ export default class ErrorHandler {
                     }));
                     General.logDebug('ErrorHandler', `Notifying Bugsnag ${error}`);
                     bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
-                    General.logDebug('ErrorHandler', `Restarting app.`);
                     errorCallback(error, JSON.stringify(frameArray));
                 });
         } else {

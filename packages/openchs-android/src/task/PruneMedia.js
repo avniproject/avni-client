@@ -3,6 +3,7 @@ import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import BaseTask from "./BaseTask";
+import ErrorHandler from "../utility/ErrorHandler";
 
 const imageObservationDoesNotExist = (db) => (image) => {
     return db.objects(Observation.schema.name).filtered(
@@ -21,6 +22,7 @@ const deleteFile = (file) => {
             (error) => {
                 General.logError("PruneMedia", `${file} could not be deleted`);
                 General.logError("PruneMedia", error);
+                throw error;
             }
         );
 };
@@ -36,12 +38,18 @@ function pruneMedia(db, directory) {
 
 class PruneMedia extends BaseTask {
     execute() {
-        General.logInfo("PruneMedia", "PruneMedia job started");
+        try {
+            General.logInfo("PruneMedia", "PruneMedia job started");
 
-        const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
-        const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
+            const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
+            const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
 
-        return Promise.all(pruneImageDir, pruneVideoDir);
+            return Promise.all(pruneImageDir, pruneVideoDir).catch((e) => {
+                ErrorHandler.postScheduledJobError(e);
+            });
+        } catch (e) {
+            ErrorHandler.postScheduledJobError(e);
+        }
     }
 }
 

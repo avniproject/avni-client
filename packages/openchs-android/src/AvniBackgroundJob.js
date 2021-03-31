@@ -48,13 +48,13 @@ export const RegisterAndScheduleJobs = function () {
     BackgroundJob.register(SyncJob);
 
     BackgroundJob.schedule(DeleteDraftsJobSchedule)
-        .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Success"))
+        .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Successfully scheduled"))
         .catch(err => General.logError("AvniBackgroundJob-DeleteDraftsJob", err));
     BackgroundJob.schedule(PruneMediaJobSchedule)
-        .then(() => General.logInfo("AvniBackgroundJob-PruneMediaJob", "Success"))
+        .then(() => General.logInfo("AvniBackgroundJob-PruneMediaJob", "Successfully scheduled"))
         .catch(err => General.logError("AvniBackgroundJob-PruneMediaJob", err));
     BackgroundJob.schedule(SyncJobSchedule)
-        .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Success"))
+        .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Successfully scheduled"))
         .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
 };
 

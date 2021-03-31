@@ -19,13 +19,16 @@ import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBack
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
 
-if (db === undefined) {
+const initialiseContext = function () {
     db = new Realm(Schema);
     db.objects(EntityQueue.schema.name);
     beans = BeanRegistry.init(db, this);
     reduxStore = AppStore.create(beans);
     beans.forEach(bean => bean.setReduxStore(reduxStore));
+};
 
+if (db === undefined) {
+    initialiseContext();
     routes = PathRegistry.routes();
     const entitySyncStatusService = beans.get(EntitySyncStatusService);
     entitySyncStatusService.setup(EntityMetaData.model());
@@ -53,14 +56,14 @@ class App extends Component {
                 .then(() => {
                     this.handleError = this.handleError.bind(this);
                     ErrorHandler.set(this.handleError);
-                }).then(() => this.setState({loadApp: true}))
+                    this.setState({loadApp: true});
+                });
         } catch (e) {
             error = e
         }
         this.getBean = this.getBean.bind(this);
         this.state = {error};
     }
-
 
     async confirmForRestore(filePath) {
         return new Promise((resolve, reject) => {
@@ -69,7 +72,7 @@ class App extends Component {
                 'Backup file found, want to restore?',
                 [
                     {text: 'No', onPress: () => resolve(removeBackupFile(filePath))},
-                    {text: 'Yes', onPress: () => resolve(restore(filePath))}
+                    {text: 'Yes', onPress: () => resolve(restore(filePath, initialiseContext))}
                 ],
                 {cancelable: false}
             )

@@ -101,7 +101,6 @@ class SyncService extends BaseService {
     }
 
     sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime) {
-
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
