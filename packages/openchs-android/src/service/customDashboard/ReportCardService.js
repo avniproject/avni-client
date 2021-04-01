@@ -4,6 +4,7 @@ import {ReportCard, StandardReportCardType, ApprovalStatus} from "avni-models";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
+import CommentService from "../comment/CommentService";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -34,6 +35,14 @@ class ReportCardService extends BaseService {
         return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(this._getApprovalStatusForType(type));
     }
 
+    getCountForCommentCardType() {
+        return this.getResultForCommentCardType().length;
+    }
+
+    getResultForCommentCardType() {
+        return this.getService(CommentService).getAllOpenCommentThreads();
+    }
+
     getResultForDefaultCardsType(type) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
@@ -53,31 +62,36 @@ class ReportCardService extends BaseService {
         return this.getResultForDefaultCardsType(type).result.length;
     }
 
-    getStandardReportCardCount(standardReportCardType) {
-        const cardName = standardReportCardType.name;
-        return standardReportCardType.isApprovalType() ? this.getCountForApprovalCardsType(cardName) : this.getCountForDefaultCardsType(cardName);
-    }
-
-    getStandardReportCardResult(standardReportCardType) {
-        const cardName = standardReportCardType.name;
-        return standardReportCardType.isApprovalType() ? this.getResultForApprovalCardsType(cardName) : this.getResultForDefaultCardsType(cardName);
-    }
-
     getReportCardCount(reportCard) {
         const standardReportCardType = reportCard.standardReportCardType;
-        if (!_.isNil(standardReportCardType)) {
-            return this.getStandardReportCardCount(standardReportCardType);
+        switch (true) {
+            case _.isNil(standardReportCardType) :
+                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query);
+            case standardReportCardType.isApprovalType() :
+                return this.getCountForApprovalCardsType(standardReportCardType.name);
+            case standardReportCardType.isDefaultType() :
+                return this.getCountForDefaultCardsType(standardReportCardType.name);
+            case standardReportCardType.isCommentType() :
+                return this.getCountForCommentCardType();
         }
-        return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query);
     }
 
     getReportCardResult(reportCard) {
         const standardReportCardType = reportCard.standardReportCardType;
-        if (!_.isNil(standardReportCardType)) {
-            return this.getStandardReportCardResult(standardReportCardType);
+        switch (true) {
+            case _.isNil(standardReportCardType) : {
+                const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query);
+                return {status: null, result}
+            }
+            case standardReportCardType.isApprovalType() :
+                return this.getResultForApprovalCardsType(standardReportCardType.name);
+            case standardReportCardType.isDefaultType() :
+                return this.getResultForDefaultCardsType(standardReportCardType.name);
+            case standardReportCardType.isCommentType() : {
+                const result = this.getResultForCommentCardType();
+                return {status: null, result}
+            }
         }
-        const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query);
-        return {status: null, result};
     }
 
     getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter) {

@@ -38,14 +38,14 @@ export class IndividualProfileActions {
         if (_.isNil(individualService.findByUUID(individualUUID))) return state;
 
         const newState = IndividualProfileActions.clone(state);
-        newState.commentsCount = context.get(CommentService).getAllBySubjectUUID(individualUUID).length;
+        newState.commentsCount = context.get(CommentService).getThreadWiseFirstCommentForSubject(individualUUID).length;
         newState.eligiblePrograms = individualService.eligiblePrograms(individualUUID);
         return newState;
     }
 
     static refreshMessageCounts(state, action, context) {
         const newState = IndividualProfileActions.clone(state);
-        newState.commentsCount = context.get(CommentService).getAllBySubjectUUID(action.individualUUID).length;
+        newState.commentsCount = context.get(CommentService).getThreadWiseFirstCommentForSubject(action.individualUUID).length;
         return newState;
     }
 }

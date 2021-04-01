@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {ProgramConfig, ProgramEnrolment, ObservationsHolder} from 'avni-models';
+import {ProgramConfig, ProgramEnrolment, ObservationsHolder, Concept} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
@@ -11,13 +11,14 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists) {
+    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState) {
         super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists);
         this.usage = usage;
         this.enrolment = enrolment;
         if (!_.isNil(enrolment)) {
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
         }
+        this.groupAffiliation = groupAffiliationState;
     }
 
     getEntity() {
@@ -34,6 +35,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;
         newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
+        newState.groupAffiliation = this.groupAffiliation;
         return newState;
     }
 
@@ -50,10 +52,12 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
+        const groupAffiliationFormElementUUIDs = this.filteredFormElements.filter(({concept}) => concept.dataType === Concept.dataType.GroupAffiliation).map(({uuid}) => uuid);
         const validationKeys = [];
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             validationKeys.push(ProgramEnrolment.validationKeys.ENROLMENT_DATE);
             validationKeys.push(ProgramEnrolment.validationKeys.ENROLMENT_LOCATION);
+            validationKeys.push(...groupAffiliationFormElementUUIDs);
         } else {
             validationKeys.push(ProgramEnrolment.validationKeys.EXIT_DATE);
             validationKeys.push(ProgramEnrolment.validationKeys.EXIT_LOCATION);
@@ -80,6 +84,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
                 context
             );
             validationResults.push(locationValidation);
+            validationResults.push(...this.groupAffiliation.validate(this.filteredFormElements));
         } else {
             validationResults = this.enrolment.validateExit();
             const locationValidation = this.validateLocation(

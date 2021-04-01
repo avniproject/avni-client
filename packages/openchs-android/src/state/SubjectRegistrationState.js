@@ -1,7 +1,7 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
-import {Individual, ObservationsHolder, StaticFormElementGroup} from 'avni-models';
+import {Concept, Individual, ObservationsHolder, StaticFormElementGroup} from 'avni-models';
 import _ from "lodash";
 import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
@@ -24,7 +24,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn) {
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new SubjectRegistrationState(
             [],
@@ -39,11 +39,12 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
+        state.groupAffiliation = groupAffiliationState;
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         return state;
     }
 
-    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn) {
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState) {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
@@ -57,6 +58,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
         state.saveDrafts = isNewEntity && isSaveDraftOn;
+        state.groupAffiliation = groupAffiliationState;
         return state;
     }
 
@@ -70,6 +72,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.isNewEntity = this.isNewEntity;
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         newState.saveDrafts = this.saveDrafts;
+        newState.groupAffiliation = this.groupAffiliation;
         super.clone(newState);
         return newState;
     }
@@ -87,7 +90,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [..._.keys(Individual.nonIndividualValidationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
+        const groupAffiliationFormElements = this.filteredFormElements.filter(({concept}) => concept.dataType === Concept.dataType.GroupAffiliation).map(({uuid}) => uuid);
+        return this.wizard.isFirstPage() ? [..._.keys(Individual.nonIndividualValidationKeys), ..._.keys(HouseholdState.validationKeys), ...groupAffiliationFormElements] : [...groupAffiliationFormElements];
     }
 
     validateEntity(context) {
@@ -103,6 +107,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             validationResults.push(totalMemberValidation);
         }
         validationResults.push(this.validateName(context));
+        validationResults.push(...this.groupAffiliation.validate(this.filteredFormElements));
         return validationResults;
     }
 

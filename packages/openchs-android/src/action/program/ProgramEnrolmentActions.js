@@ -10,6 +10,9 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import GroupAffiliationState from "../../state/GroupAffiliationState";
+import GroupSubjectService from "../../service/GroupSubjectService";
+import GroupAffiliationActions from "../common/GroupAffiliationActions";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -27,7 +30,8 @@ export class ProgramEnrolmentActions {
             //Populate identifiers much before form elements are hidden or sent to rules.
             //This will enable the value to be used in rules
             context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(action.enrolment.observations));
-
+            const groupAffiliationState = new GroupAffiliationState();
+            context.get(GroupSubjectService).populateGroups(action.enrolment.individual.uuid, form, groupAffiliationState);
             const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(action.enrolment.uuid);
             const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
@@ -43,7 +47,8 @@ export class ProgramEnrolmentActions {
                 action.enrolment,
                 isNewEnrolment,
                 filteredElements,
-                action.workLists
+                action.workLists,
+                groupAffiliationState
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
@@ -110,7 +115,7 @@ export class ProgramEnrolmentActions {
             context
                 .get(ConceptService)
                 .addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
-            newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+            newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
         } else {
             context
                 .get(ConceptService)
@@ -141,6 +146,7 @@ const actions = {
     PHONE_NUMBER_CHANGE: "PEA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "PEA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "PEA.ON_SKIP_VERIFICATION",
+    TOGGLE_GROUPS: "PEA.TOGGLE_GROUPS",
 };
 
 export default new Map([
@@ -162,6 +168,7 @@ export default new Map([
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
 ]);
 
 export {actions as Actions};

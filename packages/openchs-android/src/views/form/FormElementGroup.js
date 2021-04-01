@@ -29,6 +29,7 @@ import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormEle
 import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFormElement";
 import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormElement";
 import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
+import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -204,6 +205,14 @@ class FormElementGroup extends AbstractComponent {
                                 skipVerificationActionName={this.props.actions["ON_SKIP_VERIFICATION"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PhoneNumber())}
                                 observation={this.props.observationHolder.findObservation(formElement.concept)}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        }
+                        else if (formElement.concept.datatype === Concept.dataType.GroupAffiliation) {
+                            return this.wrap(<GroupAffiliationFormElement
+                                element={formElement}
+                                actionName={this.props.actions["TOGGLE_GROUPS"]}
+                                groupSubjectObservation={_.find(_.get(this.props.groupAffiliation, 'groupSubjectObservations'), ({concept, groupSubject}) => concept.uuid === formElement.concept.uuid && !groupSubject.voided)}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }

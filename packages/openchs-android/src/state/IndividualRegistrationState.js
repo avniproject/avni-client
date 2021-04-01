@@ -2,7 +2,7 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
 import _ from "lodash";
 import ConceptService from "../service/ConceptService";
-import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem} from "avni-models";
+import {StaticFormElementGroup, Individual, ObservationsHolder, WorkLists, WorkList, WorkItem, Concept} from "avni-models";
 import General from "../utility/General";
 import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
@@ -28,12 +28,13 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts) {
+    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
         const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))));
         individualRegistrationState.form = form;
         individualRegistrationState.minLevelTypeUUIDs = minLevelTypeUUIDs;
         individualRegistrationState.saveDrafts = saveDrafts;
+        individualRegistrationState.groupAffiliation = groupAffiliationState;
         return individualRegistrationState;
     }
 
@@ -49,6 +50,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         newState.household = this.household.clone();
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         newState.saveDrafts = this.saveDrafts;
+        newState.groupAffiliation = this.groupAffiliation;
         super.clone(newState);
         return newState;
     }
@@ -72,7 +74,8 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     get staticFormElementIds() {
-        return this.wizard.isFirstPage() ? [..._.keys(Individual.validationKeys), ..._.keys(HouseholdState.validationKeys)] : [];
+        const groupAffiliationFormElements = this.filteredFormElements.filter(({concept}) => concept.dataType === Concept.dataType.GroupAffiliation).map(({uuid}) => uuid);
+        return this.wizard.isFirstPage() ? [..._.keys(Individual.validationKeys), ..._.keys(HouseholdState.validationKeys)] : [...groupAffiliationFormElements];
     }
 
     validateEntity(context) {
@@ -88,6 +91,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         }
         validationResults.push(locationValidation);
         validationResults.push(this.validateName(context));
+        validationResults.push(...this.groupAffiliation.validate(this.filteredFormElements));
         return validationResults;
     }
 

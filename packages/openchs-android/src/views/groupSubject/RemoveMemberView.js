@@ -21,7 +21,8 @@ import GenericDashboardView from "../program/GenericDashboardView";
 class RemoveMemberView extends AbstractComponent {
 
     static propTypes = {
-        member: PropTypes.object
+        groupSubject: PropTypes.object,
+        goToMemberDashboard: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -42,12 +43,16 @@ class RemoveMemberView extends AbstractComponent {
     }
 
     removeMember() {
+        const member = this.state.member;
+        const goToMemberDashboard = this.props.params.goToMemberDashboard;
+        const individualUUID = goToMemberDashboard ? member.memberSubject.uuid : member.groupSubject.uuid;
+        const tab = goToMemberDashboard ? 2 : 1;
         this.dispatchAction(Actions.ON_DELETE_MEMBER, {
             cb: () => TypedTransition.from(this).resetStack([GenericDashboardView, RemoveMemberView],
                 [TypedTransition.createRoute(GenericDashboardView, {
-                    individualUUID: this.state.member.groupSubject.uuid,
                     message: this.I18n.t('memberDeletedMsg'),
-                    tab: 1
+                    individualUUID,
+                    tab,
                 })])
         });
     }

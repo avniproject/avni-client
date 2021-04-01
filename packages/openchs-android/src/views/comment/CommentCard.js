@@ -9,20 +9,27 @@ import General from "../../utility/General";
 import Actions from "../groupSubject/Actions";
 import Reducers from "../../reducer";
 import {CommentActionNames as CommentActions} from "../../action/comment/CommentActions";
+import {AvniAlert} from "../common/AvniAlert";
+import {CommentThread} from 'avni-models';
+import UserInfoService from "../../service/UserInfoService";
+import _ from 'lodash';
 
 class CommentCard extends AbstractComponent {
 
     static propTypes = {
         comment: PropTypes.object.isRequired,
-        userName: PropTypes.string.isRequired,
+        renderStatus: PropTypes.bool,
+        renderOptions: PropTypes.bool,
+        renderSubjectName: PropTypes.bool,
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.comment);
+        this.userName = _.get(context.getService(UserInfoService).getUserInfo(), 'username')
     }
 
-    getUserNameToDisplay(comment, myUserName) {
-        return comment.createdByUsername === myUserName ? 'You' : comment.displayUsername;
+    getUserNameToDisplay(comment) {
+        return comment.createdByUsername === this.userName ? 'You' : comment.displayUsername;
     }
 
     onCommentEdit(comment) {
@@ -30,48 +37,65 @@ class CommentCard extends AbstractComponent {
     }
 
     onCommentDelete(comment) {
-        this.dispatchAction(CommentActions.ON_DELETE, {openDeleteDialog: true, comment});
+        AvniAlert(this.I18n.t('deleteMessageTitle'), this.I18n.t('deleteMessageDetails'), () => this.dispatchAction(CommentActions.ON_DELETE, {comment}), this.I18n, true)
     }
 
-    renderOptions(comment, myUserName) {
+    renderOptions(comment) {
         const options = [
             {label: 'edit', fn: (comment) => this.onCommentEdit(comment)},
             {label: 'delete', fn: (comment) => this.onCommentDelete(comment)},
         ];
-        if (comment.createdByUsername === myUserName) {
+        if (comment.createdByUsername === this.userName) {
             return <Actions key={comment.uuid} actions={options} item={comment} color={Colors.DefaultPrimaryColor}/>
         }
         return <View/>
     }
 
+    renderStatus(comment) {
+        const status = comment.commentThread.status;
+        const statusColor = CommentThread.threadStatus.Open === status ? Colors.SubjectTypeColor : Colors.AccentColor;
+        return <View style={[styles.statusContainer, {borderColor: statusColor}]}>
+            <Text style={[styles.statusTextStyle, {color: statusColor}]}>{status}</Text>
+        </View>
+    }
+
+    renderSubjectName(comment) {
+        return <View style={styles.subjectNameContainer}>
+            <Text style={styles.subjectNameText}>{comment.subject.nameString}</Text>
+        </View>
+    }
+
+    renderMessageText(text, hideEntireMessage) {
+        const extraProps = hideEntireMessage ? {numberOfLines: 2} : {};
+        return <Text style={styles.commentTextStyle} {...extraProps}>{text}</Text>;
+    }
+
     render() {
-        const {comment, userName} = this.props;
+        const {comment, renderStatus, renderSubjectName} = this.props;
         return (
-            <View style={styles.container}>
-                <View style={styles.cardContainer}>
-                    <View style={{flex: 0.1}}>
-                        <MCIcon name={'account-circle'} size={30}/>
-                    </View>
-                    <View style={{flex: 0.9}}>
-                        <View style={{flex: 1, flexDirection: 'column'}}>
-                            <View style={{flex: 1, flexDirection: 'row'}}>
-                                <View style={{flex: 0.9, flexDirection: 'column'}}>
-                                    <Text style={styles.titleTextStyle}>
-                                        {this.getUserNameToDisplay(comment, userName)}
-                                    </Text>
-                                    <Text style={styles.timeTextStyle}>
-                                        {General.toDisplayDateTime(comment.createdDateTime)}
-                                    </Text>
-                                </View>
-                                <View style={{flex: 0.1, alignItems: 'flex-end'}}>
-                                    {this.renderOptions(comment, userName)}
-                                </View>
-                            </View>
-                            <View style={{flex: 1}}>
-                                <Text style={styles.commentTextStyle}>
-                                    {comment.text}
+            <View style={styles.cardContainer}>
+                <View style={{flex: 0.1}}>
+                    <MCIcon name={'account-circle'} size={30}/>
+                </View>
+                <View style={{flex: 0.9}}>
+                    <View style={{flex: 1, flexDirection: 'column'}}>
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                            <View style={{flex: 0.6, flexDirection: 'column'}}>
+                                <Text style={styles.titleTextStyle}>
+                                    {this.getUserNameToDisplay(comment)}
+                                </Text>
+                                <Text style={styles.timeTextStyle}>
+                                    {General.toDisplayDateTime(comment.createdDateTime)}
                                 </Text>
                             </View>
+                            <View style={{flex: 0.4, alignItems: 'flex-end'}}>
+                                {this.props.renderStatus && this.renderStatus(comment)}
+                                {this.props.renderOptions && this.renderOptions(comment)}
+                                {this.props.renderSubjectName && this.renderSubjectName(comment)}
+                            </View>
+                        </View>
+                        <View style={{flex: 1}}>
+                            {this.renderMessageText(comment.text, renderStatus || renderSubjectName)}
                         </View>
                     </View>
                 </View>
@@ -81,14 +105,6 @@ class CommentCard extends AbstractComponent {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        elevation: 0.1,
-        marginHorizontal: 16,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 5,
-        paddingBottom: 5,
-        borderRadius: 4
-    },
     cardContainer: {
         flexDirection: 'row',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
@@ -113,6 +129,34 @@ const styles = StyleSheet.create({
         color: Styles.blackColor,
         opacity: 0.87,
     },
+    statusContainer: {
+        borderWidth: 1,
+        minHeight: 22,
+        marginRight: 5,
+        borderRadius: 3,
+        paddingHorizontal: 5,
+        backgroundColor: '#FFFFFF',
+        paddingTop: 2,
+    },
+    statusTextStyle: {
+        textTransform: 'uppercase',
+        fontSize: Styles.smallTextSize,
+        fontStyle: 'normal',
+        fontWeight: 'bold',
+    },
+    subjectNameContainer: {
+        minHeight: 22,
+        marginRight: 5,
+        borderRadius: 3,
+        paddingHorizontal: 5,
+        backgroundColor: Colors.SubjectTypeColor,
+        paddingTop: 2
+    },
+    subjectNameText: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.whiteColor,
+    }
 });
 
 export default CommentCard

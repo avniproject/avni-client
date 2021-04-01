@@ -20,6 +20,7 @@ import IndividualListView from "../individuallist/IndividualListView";
 import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";
 import CustomDashboardCard from "./CustomDashboardCard";
+import CommentListView from "../comment/CommentListView";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -98,7 +99,8 @@ class CustomDashboardView extends AbstractComponent {
         const viewNameMap = {
             'ApprovalListingView': ApprovalListingView,
             'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
-            'IndividualListView': IndividualListView
+            'IndividualListView': IndividualListView,
+            'CommentListView': CommentListView,
         };
         return viewNameMap[viewName]
     }

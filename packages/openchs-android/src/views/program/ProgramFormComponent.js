@@ -93,7 +93,8 @@ class ProgramFormComponent extends AbstractComponent {
                                       formElementsUserState={this.props.state.formElementsUserState}
                                       filteredFormElements={this.props.state.filteredFormElements}
                                       dataEntryDate={this.props.state.enrolment.enrolmentDateTime}
-                                      onValidationError={(x, y) => this.scrollToPosition(x, y)}/>
+                                      onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                                      groupAffiliation={this.props.state.groupAffiliation}/>
                     <WizardButtons previous={{
                         visible: !this.props.state.wizard.isFirstPage(),
                         func: () => this.props.previous(),

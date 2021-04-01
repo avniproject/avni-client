@@ -3,6 +3,7 @@ import Service from "../framework/bean/Service";
 import {
     Encounter,
     EntityQueue,
+    GroupSubject,
     Individual,
     ObservationsHolder,
     Privilege,
@@ -20,6 +21,7 @@ import Colors from "../views/primitives/Colors";
 import EncounterService from "./EncounterService";
 import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
+import GroupSubjectService from "./GroupSubjectService";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -61,7 +63,7 @@ class IndividualService extends BaseService {
         return searchResults;
     }
 
-    register(individual, nextScheduledVisits, skipCreatingPendingStatus) {
+    register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(individual.subjectType);
@@ -72,6 +74,7 @@ class IndividualService extends BaseService {
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved, db));
             this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
         });
     }
@@ -573,6 +576,11 @@ class IndividualService extends BaseService {
         return this.getAllNonVoided()
             .filtered(`uuid <> $0 and firstName = $1 and lastName = $2 and subjectType.uuid = $3`,
                 uuid, firstName, lastName, subjectType.uuid);
+    }
+
+    getAllBySubjectTypeUUID(subjectTypeUUID) {
+        return this.getAllNonVoided().filtered('subjectType.uuid = $0', subjectTypeUUID)
+            .sorted('name');
     }
 
 }

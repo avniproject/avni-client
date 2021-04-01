@@ -40,6 +40,8 @@ import AddNewMemberView from "../views/groupSubject/AddNewMemberView";
 import {firebaseEvents, logEvent} from "./Analytics";
 import PhoneNumberVerificationView from "../views/common/PhoneNumberVerificationView";
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
+import GroupSubjectService from "../service/GroupSubjectService";
+import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 
 
 class CHSNavigator {
@@ -309,6 +311,7 @@ class CHSNavigator {
             [WorkItem.type.ADD_MEMBER, 'newMemberAddedMsg'],
             [WorkItem.type.PROGRAM_EXIT, 'enrolmentExitMsg'],
             [WorkItem.type.HOUSEHOLD, 'proceedAddHousehold'],
+            [WorkItem.type.REMOVE_MEMBER, 'proceedRemoveMember'],
         ]).get(workItem.type);
         if (tkey) {
             return i18n.t(tkey, args);
@@ -328,7 +331,8 @@ class CHSNavigator {
             SubjectRegisterView,
             ProgramEncounterView,
             ProgramEnrolmentView,
-            AddNewMemberView
+            AddNewMemberView,
+            ProgramExitView
         ];
         switch (nextWorkItem.type) {
             case WorkItem.type.REGISTRATION: {
@@ -360,6 +364,14 @@ class CHSNavigator {
                             message: message,
                             tab: 2
                         }, true)
+                    ]);
+                break;
+            }
+            case WorkItem.type.REMOVE_MEMBER: {
+                const groupSubject = context.getService(GroupSubjectService).findByUUID(nextWorkItem.parameters.groupSubjectUUID);
+                TypedTransition.from(recommendationsView)
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(RemoveMemberView, {groupSubject, goToMemberDashboard:true})
                     ]);
                 break;
             }

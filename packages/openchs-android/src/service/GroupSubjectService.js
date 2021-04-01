@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {GroupRole, GroupSubject, Individual, EntityQueue} from "avni-models";
+import {EntityQueue, GroupRole, GroupSubject, Individual, Concept} from "avni-models";
 import EntityService from "./EntityService";
 import General from "../utility/General";
 import _ from 'lodash';
@@ -51,6 +51,34 @@ class GroupSubjectService extends BaseService {
     getAllGroups(memberSubject) {
         return this.filtered(`voided = false AND memberSubject.uuid = $0`, memberSubject.uuid)
             .filtered('TRUEPREDICATE DISTINCT(groupSubject.uuid)')
+    }
+
+    getFirstGroupForMember(memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID) {
+        const groupSubject = this.getAllNonVoided()
+            .filtered('memberSubject.uuid = $0 and groupSubject.subjectType.uuid = $1 and groupRole.uuid = $2', memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID);
+        return _.isEmpty(groupSubject) ? null : groupSubject[0];
+    }
+
+    populateGroups(memberSubjectUUID, form, groupAffiliationState) {
+        if (_.isNil(form)) return groupAffiliationState;
+        _.forEach(form.getFormElementsOfType(Concept.dataType.GroupAffiliation), fe => {
+            const groupSubject = this.getFirstGroupForMember(memberSubjectUUID, fe.recordValueByKey('groupSubjectTypeUUID'), fe.recordValueByKey('groupSubjectRoleUUID'));
+            if (!_.isNil(groupSubject)) {
+                groupAffiliationState.groupSubjectObservations.push({concept: fe.concept, groupSubject})
+            }
+        })
+    }
+
+    addSubjectToGroup(subject, db) {
+        return ({groupSubject}) => {
+            groupSubject.memberSubject = subject;
+            if (groupSubject.voided) {
+                groupSubject.membershipEndDate = new Date();
+            }
+            const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
+            subject.addGroupSubject(savedMember);
+            db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
+        };
     }
 }
 

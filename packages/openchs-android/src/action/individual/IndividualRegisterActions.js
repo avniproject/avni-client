@@ -12,7 +12,8 @@ import IndividualRelationshipService from "../../service/relationship/Individual
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
-import {ValidationResult} from "openchs-models";
+import GroupAffiliationActions from "../common/GroupAffiliationActions";
+import GroupAffiliationState from "../../state/GroupAffiliationState";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -33,12 +34,14 @@ export class IndividualRegisterActions {
         //Populate identifiers much before form elements are hidden or sent to rules.
         //This will enable the value to be used in rules
         context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(individual.observations));
+        const groupAffiliationState = new GroupAffiliationState();
+        context.get(GroupSubjectService).populateGroups(individual.uuid, form, groupAffiliationState);
         const organisationConfigService = context.get(OrganisationConfigService);
         const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const saveDrafts = isNewEntity && isSaveDraftOn;
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
-        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts);
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState);
         IndividualRegisterActions.setAgeState(newState);
         return newState;
     }
@@ -131,11 +134,12 @@ export class IndividualRegisterActions {
     }
 
     static onNext(state, action, context) {
-        if (state.saveDrafts) {
+        const newState = state.clone().handleNext(action, context);
+        if (state.saveDrafts && _.isEmpty(newState.validationResults)) {
             const draftIndividual = DraftSubject.create(state.individual);
             context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
         }
-        return state.clone().handleNext(action, context);
+        return newState;
     }
 
     static onPrevious(state, action, context) {
@@ -144,7 +148,7 @@ export class IndividualRegisterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
         const {member, headOfHousehold, individualRelative} = newState.household;
         if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
@@ -210,6 +214,7 @@ const actions = {
     PHONE_NUMBER_CHANGE: "IRA.PHONE_NUMBER_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "IRA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "IRA.ON_SKIP_VERIFICATION",
+    TOGGLE_GROUPS: "IRA.TOGGLE_GROUPS",
 };
 
 export default new Map([
@@ -237,6 +242,7 @@ export default new Map([
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
 ]);
 
 export {actions as Actions};

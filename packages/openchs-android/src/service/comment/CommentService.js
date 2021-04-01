@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Comment, EntityQueue, Individual} from "avni-models";
+import {Comment, EntityQueue, Individual, CommentThread} from "avni-models";
 import EntityService from "../EntityService";
 import General from "../../utility/General";
 
@@ -27,10 +27,26 @@ class CommentService extends BaseService {
         return comment;
     }
 
-    getAllBySubjectUUID(subjectUUID) {
+    getThreadWiseFirstCommentForSubject(subjectUUID) {
         return this.getAllNonVoided()
             .filtered('subject.uuid = $0', subjectUUID)
+            .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
+            .sorted([['commentThread.status', false], ['createdDateTime', true]]);
+    }
+
+    getAllBySubjectUUIDAndThreadUUID(subjectUUID, threadUUID) {
+        return this.getAllNonVoided()
+            .filtered('subject.uuid = $0 and commentThread.uuid = $1',
+                subjectUUID,
+                threadUUID)
             .sorted('createdDateTime');
+    }
+
+    getAllOpenCommentThreads() {
+        return this.getAllNonVoided()
+            .filtered('commentThread.status = $0', CommentThread.threadStatus.Open)
+            .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
+            .sorted('createdDateTime', true);
     }
 }
 
