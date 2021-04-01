@@ -31,6 +31,7 @@ class CommentService extends BaseService {
         return this.getAllNonVoided()
             .filtered('subject.uuid = $0', subjectUUID)
             .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
+            .sorted([['commentThread.status', false], ['createdDateTime', true]]);
     }
 
     getAllBySubjectUUIDAndThreadUUID(subjectUUID, threadUUID) {
@@ -45,7 +46,7 @@ class CommentService extends BaseService {
         return this.getAllNonVoided()
             .filtered('commentThread.status = $0', CommentThread.threadStatus.Open)
             .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
-            .sorted('createdDateTime');
+            .sorted('createdDateTime', true);
     }
 }
 

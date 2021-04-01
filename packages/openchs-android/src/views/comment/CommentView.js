@@ -1,7 +1,7 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {FlatList, StyleSheet, TextInput, TouchableNativeFeedback, TouchableOpacity, View} from 'react-native';
+import {FlatList, StyleSheet, TouchableNativeFeedback, TouchableOpacity, View} from 'react-native';
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
@@ -14,6 +14,7 @@ import PropTypes from "prop-types";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CommentDiscussionView from "./CommentDiscussionView";
 import CommentCard from "./CommentCard";
+import NewThreadModal from "./NewThreadModal";
 
 @Path('/commentView')
 class CommentView extends AbstractComponent {
@@ -62,27 +63,19 @@ class CommentView extends AbstractComponent {
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.CommentBackgroundColor}}>
-                <AppHeader title={this.I18n.t('comments')} hideIcon={true} func={this.onBackPress.bind(this)}/>
+                <AppHeader title={this.I18n.t('commentThreads')} hideIcon={true} func={this.onBackPress.bind(this)}/>
                 <View style={styles.container}>
-                    <FlatList ref={ref => this.flatList = ref}
-                              onContentSizeChange={() => this.flatList.scrollToEnd({animated: true})}
-                              onLayout={() => this.flatList.scrollToEnd({animated: true})}
-                              data={this.state.threadComments}
+                    <FlatList data={this.state.threadComments}
                               keyExtractor={(item) => item.uuid}
                               renderItem={({item}) => this.renderItem(item, this.onThreadPress.bind(this))}/>
                     <View style={styles.footer}>
-                        <View style={styles.inputContainer}>
-                            <TextInput style={styles.inputs}
-                                       value={this.state.comment.text}
-                                       placeholder="Write a comment to start new thread..."
-                                       underlineColorAndroid='transparent'
-                                       onChangeText={(value) => this.dispatchAction(Actions.ON_CHANGE_TEXT, {value})}
-                                       multiline={true}/>
-                        </View>
-                        <TouchableOpacity style={styles.btnSend} onPress={() => this.dispatchAction(Actions.ON_SEND)}>
-                            <MCIcon name={'send'} size={25} style={styles.iconSend}/>
+                        <TouchableOpacity style={styles.btnAdd}
+                                          onPress={() => this.dispatchAction(Actions.ON_NEW_THREAD, {showNewThreadModal: true})}>
+                            <MCIcon name={'plus'} size={30} style={styles.iconSend}/>
                         </TouchableOpacity>
                     </View>
+                    <NewThreadModal open={this.state.showNewThreadModal}
+                                    onClose={() => this.dispatchAction(Actions.ON_NEW_THREAD, {showNewThreadModal: false})}/>
                 </View>
             </CHSContainer>
         );
@@ -97,41 +90,22 @@ const styles = StyleSheet.create({
         marginTop: 2
     },
     footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        minHeight: 60,
-        backgroundColor: Colors.CommentBackgroundColor,
-        paddingHorizontal: 10,
-        padding: 5,
+        position: 'absolute',
+        bottom: 20,
+        right: 20
     },
-    btnSend: {
-        backgroundColor: Colors.ActionButtonColor,
-        width: 40,
-        height: 40,
-        borderRadius: 360,
+    btnAdd: {
+        height: 50,
+        width: 50,
+        borderRadius: 50,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: Colors.AccentColor,
+        elevation: 2,
     },
     iconSend: {
         alignSelf: 'center',
         color: Styles.whiteColor
-    },
-    inputContainer: {
-        borderBottomColor: '#F5FCFF',
-        backgroundColor: Styles.whiteColor,
-        borderRadius: 30,
-        borderBottomWidth: 1,
-        minHeight: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-        marginRight: 10,
-    },
-    inputs: {
-        minHeight: 40,
-        marginLeft: 16,
-        borderBottomColor: Styles.whiteColor,
-        flex: 1
     },
     cardContainer: {
         elevation: 1,

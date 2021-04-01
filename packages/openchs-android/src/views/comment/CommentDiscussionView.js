@@ -71,7 +71,7 @@ class CommentDiscussionView extends AbstractComponent {
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}
                                        value={this.state.comment.text}
-                                       placeholder="Comment on this thread..."
+                                       placeholder={this.I18n.t('commentOnThread')}
                                        underlineColorAndroid='transparent'
                                        onChangeText={(value) => this.dispatchAction(Actions.ON_CHANGE_TEXT, {value})}
                                        multiline={true}/>

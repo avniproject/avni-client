@@ -61,6 +61,7 @@ class Colors {
     static DetailsTextColor = 'rgba(0, 0, 0, 0.54)';
 
     static CommentBackgroundColor = '#EEEEEE';
+    static ModalBackgroundColor = 'rgba(0,0,0,0.57)';
 
 }
 

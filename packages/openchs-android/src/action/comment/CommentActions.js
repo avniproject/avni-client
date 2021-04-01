@@ -10,7 +10,8 @@ class CommentActions {
         return {
             comments: [],
             userInfo: {},
-            subject: {}
+            subject: {},
+            showNewThreadModal: false,
         };
     }
 
@@ -49,6 +50,7 @@ class CommentActions {
         newState.comments = context.get(CommentService).getAllBySubjectUUIDAndThreadUUID(state.subject.uuid, threadUUID);
         newState.comment = Comment.createEmptyInstance();
         newState.isEdit = false;
+        newState.showNewThreadModal = false;
         return newState;
     }
 
@@ -75,6 +77,13 @@ class CommentActions {
         context.get(CommentThreadService).saveOrUpdate(commentThread.markResolved());
         newState.threadComments = context.get(CommentService).getThreadWiseFirstCommentForSubject(state.subject.uuid);
         newState.comments = context.get(CommentService).getAllBySubjectUUIDAndThreadUUID(state.subject.uuid, threadUUID);
+        newState.comment = Comment.createEmptyInstance();
+        return newState;
+    }
+
+    static onNewThread(state, action) {
+        const newState = {...state};
+        newState.showNewThreadModal = action.showNewThreadModal;
         newState.comment = Comment.createEmptyInstance();
         return newState;
     }
@@ -117,6 +126,7 @@ const CommentActionNames = {
     ON_EDIT: `${ActionPrefix}.ON_EDIT`,
     ON_DELETE: `${ActionPrefix}.ON_DELETE`,
     ON_THREAD_RESOLVE: `${ActionPrefix}.ON_THREAD_RESOLVE`,
+    ON_NEW_THREAD: `${ActionPrefix}.ON_NEW_THREAD`,
 };
 
 const CommentActionMap = new Map([
@@ -127,6 +137,7 @@ const CommentActionMap = new Map([
     [CommentActionNames.ON_EDIT, CommentActions.onEdit],
     [CommentActionNames.ON_DELETE, CommentActions.onDelete],
     [CommentActionNames.ON_THREAD_RESOLVE, CommentActions.onThreadResolve],
+    [CommentActionNames.ON_NEW_THREAD, CommentActions.onNewThread],
 ]);
 
 export {CommentActions, CommentActionNames, CommentActionMap}
