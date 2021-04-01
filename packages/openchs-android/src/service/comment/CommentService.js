@@ -1,9 +1,8 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Comment, EntityQueue, Individual} from "avni-models";
+import {Comment, EntityQueue, Individual, CommentThread} from "avni-models";
 import EntityService from "../EntityService";
 import General from "../../utility/General";
-import UserInfoService from "../UserInfoService";
 
 @Service("commentService")
 class CommentService extends BaseService {
@@ -42,10 +41,10 @@ class CommentService extends BaseService {
             .sorted('createdDateTime');
     }
 
-    getAllExceptCurrentUser() {
-        const {username} = this.getService(UserInfoService).getUserInfo();
+    getAllOpenCommentThreads() {
         return this.getAllNonVoided()
-            .filtered('createdByUsername <> $0', username)
+            .filtered('commentThread.status = $0', CommentThread.threadStatus.Open)
+            .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
             .sorted('createdDateTime');
     }
 }

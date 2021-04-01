@@ -11,21 +11,25 @@ import Reducers from "../../reducer";
 import {CommentActionNames as CommentActions} from "../../action/comment/CommentActions";
 import {AvniAlert} from "../common/AvniAlert";
 import {CommentThread} from 'avni-models';
+import UserInfoService from "../../service/UserInfoService";
+import _ from 'lodash';
 
 class CommentCard extends AbstractComponent {
 
     static propTypes = {
         comment: PropTypes.object.isRequired,
-        userName: PropTypes.string,
         renderStatus: PropTypes.bool,
+        renderOptions: PropTypes.bool,
+        renderSubjectName: PropTypes.bool,
     };
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.comment);
+        this.userName = _.get(context.getService(UserInfoService).getUserInfo(), 'username')
     }
 
-    getUserNameToDisplay(comment, myUserName) {
-        return comment.createdByUsername === myUserName ? 'You' : comment.displayUsername;
+    getUserNameToDisplay(comment) {
+        return comment.createdByUsername === this.userName ? 'You' : comment.displayUsername;
     }
 
     onCommentEdit(comment) {
@@ -36,12 +40,12 @@ class CommentCard extends AbstractComponent {
         AvniAlert(this.I18n.t('deleteMessageTitle'), this.I18n.t('deleteMessageDetails'), () => this.dispatchAction(CommentActions.ON_DELETE, {comment}), this.I18n, true)
     }
 
-    renderOptions(comment, myUserName) {
+    renderOptions(comment) {
         const options = [
             {label: 'edit', fn: (comment) => this.onCommentEdit(comment)},
             {label: 'delete', fn: (comment) => this.onCommentDelete(comment)},
         ];
-        if (comment.createdByUsername === myUserName) {
+        if (comment.createdByUsername === this.userName) {
             return <Actions key={comment.uuid} actions={options} item={comment} color={Colors.DefaultPrimaryColor}/>
         }
         return <View/>
@@ -55,17 +59,19 @@ class CommentCard extends AbstractComponent {
         </View>
     }
 
-    renderOptionOrStatus(comment, userName, renderStatus) {
-        return renderStatus ? this.renderStatus(comment) : this.renderOptions(comment, userName);
+    renderSubjectName(comment) {
+        return <View style={styles.subjectNameContainer}>
+            <Text style={styles.subjectNameText}>{comment.subject.nameString}</Text>
+        </View>
     }
 
-    renderMessageText(text, renderStatus) {
-        const extraProps = renderStatus ? {numberOfLines: 2} : {};
+    renderMessageText(text, hideEntireMessage) {
+        const extraProps = hideEntireMessage ? {numberOfLines: 2} : {};
         return <Text style={styles.commentTextStyle} {...extraProps}>{text}</Text>;
     }
 
     render() {
-        const {comment, userName, renderStatus} = this.props;
+        const {comment, renderStatus, renderSubjectName} = this.props;
         return (
             <View style={styles.cardContainer}>
                 <View style={{flex: 0.1}}>
@@ -76,18 +82,20 @@ class CommentCard extends AbstractComponent {
                         <View style={{flex: 1, flexDirection: 'row'}}>
                             <View style={{flex: 0.6, flexDirection: 'column'}}>
                                 <Text style={styles.titleTextStyle}>
-                                    {this.getUserNameToDisplay(comment, userName)}
+                                    {this.getUserNameToDisplay(comment)}
                                 </Text>
                                 <Text style={styles.timeTextStyle}>
                                     {General.toDisplayDateTime(comment.createdDateTime)}
                                 </Text>
                             </View>
                             <View style={{flex: 0.4, alignItems: 'flex-end'}}>
-                                {this.renderOptionOrStatus(comment, userName, renderStatus)}
+                                {this.props.renderStatus && this.renderStatus(comment)}
+                                {this.props.renderOptions && this.renderOptions(comment)}
+                                {this.props.renderSubjectName && this.renderSubjectName(comment)}
                             </View>
                         </View>
                         <View style={{flex: 1}}>
-                            {this.renderMessageText(comment.text, renderStatus)}
+                            {this.renderMessageText(comment.text, renderStatus || renderSubjectName)}
                         </View>
                     </View>
                 </View>
@@ -123,19 +131,31 @@ const styles = StyleSheet.create({
     },
     statusContainer: {
         borderWidth: 1,
-        height: 22,
+        minHeight: 22,
         marginRight: 5,
         borderRadius: 3,
         paddingHorizontal: 5,
         backgroundColor: '#FFFFFF',
         paddingTop: 2,
-        alignItems: 'center',
     },
     statusTextStyle: {
         textTransform: 'uppercase',
         fontSize: Styles.smallTextSize,
         fontStyle: 'normal',
         fontWeight: 'bold',
+    },
+    subjectNameContainer: {
+        minHeight: 22,
+        marginRight: 5,
+        borderRadius: 3,
+        paddingHorizontal: 5,
+        backgroundColor: Colors.SubjectTypeColor,
+        paddingTop: 2
+    },
+    subjectNameText: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.whiteColor,
     }
 });
 

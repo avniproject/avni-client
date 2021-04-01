@@ -43,11 +43,16 @@ class CommentListView extends AbstractComponent {
                                      onPress={() => onCommentPress(this, item.subject)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={styles.cardContainer}>
-                    <CommentCard comment={item}/>
+                    <CommentCard renderSubjectName={true} comment={item}/>
                 </View>
             </TouchableNativeFeedback>
         );
     };
+
+    onBackPress() {
+        this.props.onBackFunc();
+        this.goBack();
+    }
 
     render() {
         General.logDebug(this.viewName(), "render");
@@ -55,7 +60,7 @@ class CommentListView extends AbstractComponent {
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.CommentBackgroundColor}}>
-                <AppHeader title={this.I18n.t('comments')} hideIcon={true}/>
+                <AppHeader title={this.I18n.t('openComments')} func={this.onBackPress.bind(this)}/>
                 <SafeAreaView style={{flex: 1}}>
                     <FlatList
                         data={this.props.results}
@@ -77,6 +82,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         paddingBottom: 5,
         borderRadius: 5,
+        minHeight: 100
     }
 });
 

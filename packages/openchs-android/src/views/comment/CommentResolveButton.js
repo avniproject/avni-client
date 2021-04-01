@@ -24,11 +24,10 @@ class CommentResolveButton extends AbstractComponent {
                     justifyContent: 'center',
                     alignItems: 'center',
                     alignSelf: 'center',
-                    height: 30,
+                    height: 25,
                     width: 90,
                     paddingHorizontal: 16,
-                    marginRight: 5,
-                    marginTop: 5,
+                    marginRight: 10,
                     borderRadius: 6,
                     backgroundColor: '#FFFFFF'
                 }}>

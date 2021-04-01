@@ -41,23 +41,17 @@ class CommentView extends AbstractComponent {
         this.goBack();
     }
 
-    getUserNameToDisplay(comment, myUserName) {
-        return comment.createdByUsername === myUserName ? 'You' : comment.displayUsername;
-    }
-
     onThreadPress(threadUUID) {
         TypedTransition.from(this).with({threadUUID}).to(CommentDiscussionView, true)
     }
 
-    renderItem(item, username, onThreadPress) {
+    renderItem(item, onThreadPress) {
         return (
             <TouchableNativeFeedback key={item.uuid}
                                      onPress={() => onThreadPress(item.commentThread.uuid)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={styles.cardContainer}>
-                    <CommentCard renderStatus
-                                 comment={item}
-                                 userName={username}/>
+                    <CommentCard renderStatus={true} comment={item}/>
                 </View>
             </TouchableNativeFeedback>
         )
@@ -75,7 +69,7 @@ class CommentView extends AbstractComponent {
                               onLayout={() => this.flatList.scrollToEnd({animated: true})}
                               data={this.state.threadComments}
                               keyExtractor={(item) => item.uuid}
-                              renderItem={({item}) => this.renderItem(item, this.state.userInfo.username, this.onThreadPress.bind(this))}/>
+                              renderItem={({item}) => this.renderItem(item, this.onThreadPress.bind(this))}/>
                     <View style={styles.footer}>
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}

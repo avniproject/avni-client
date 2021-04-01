@@ -35,13 +35,11 @@ class CommentDiscussionView extends AbstractComponent {
         super.componentWillMount();
     }
 
-    renderItem(item, username, index) {
-        const extraStyles = index === 0 ? {} : {borderRadius: 4, marginHorizontal: 16};
+    renderItem(item, index) {
+        const extraStyles = index === 0 ? {} : {borderRadius: 4, marginHorizontal: 18, marginVertical: 5};
         return (
             <View style={[styles.cardContainer, extraStyles]}>
-                <CommentCard
-                    comment={item}
-                    userName={username}/>
+                <CommentCard renderOptions={true} comment={item}/>
             </View>
         )
     }
@@ -68,7 +66,7 @@ class CommentDiscussionView extends AbstractComponent {
                               onLayout={() => this.flatList.scrollToEnd({animated: true})}
                               data={this.state.comments}
                               keyExtractor={(item) => item.uuid}
-                              renderItem={({item, index}) => this.renderItem(item, this.state.userInfo.username, index)}/>
+                              renderItem={({item, index}) => this.renderItem(item, index)}/>
                     <View style={styles.footer}>
                         <View style={styles.inputContainer}>
                             <TextInput style={styles.inputs}

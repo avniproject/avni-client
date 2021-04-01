@@ -40,7 +40,7 @@ class ReportCardService extends BaseService {
     }
 
     getResultForCommentCardType() {
-        return this.getService(CommentService).getAllExceptCurrentUser();
+        return this.getService(CommentService).getAllOpenCommentThreads();
     }
 
     getResultForDefaultCardsType(type) {

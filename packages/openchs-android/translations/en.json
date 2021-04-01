@@ -394,6 +394,7 @@
     "proceedRemoveMember": "proceed to remove from {{groupName}}",
     "resolve": "Resolve",
     "discussion": "Discussion",
+    "openComments": "Open Comments",
     "resolveMessageTitle": "Resolve this thread",
     "resolveMessageDetails": "Are you sure you want to resolve this comment thread? You can reopen it by adding a new comment."
   }
