@@ -39,7 +39,7 @@ export class IndividualProfileActions {
 
         const newState = IndividualProfileActions.clone(state);
         newState.commentsCount = context.get(CommentService).getThreadWiseFirstCommentForSubject(individualUUID).length;
-        newState.eligiblePrograms = individualService.eligiblePrograms(individualUUID);
+        newState.eligiblePrograms = _.sortBy(individualService.eligiblePrograms(individualUUID), 'displayName');
         return newState;
     }
 
