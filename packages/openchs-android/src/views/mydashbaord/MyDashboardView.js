@@ -46,8 +46,6 @@ class MyDashboardView extends AbstractComponent {
 
     onBackCallback() {
         this.goBack();
-        this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
-        setTimeout(() => this.dispatchAction(Actions.ON_LOAD), 0);
     }
 
     _onBack() {
@@ -131,7 +129,6 @@ class MyDashboardView extends AbstractComponent {
                                           filterDate: date
                                       })}/>
                 </View>
-                <CHSContent>
                     <CustomActivityIndicator
                         loading={this.state.loading}/>
                     <View>
@@ -144,7 +141,6 @@ class MyDashboardView extends AbstractComponent {
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
             </CHSContainer>
         );
     }

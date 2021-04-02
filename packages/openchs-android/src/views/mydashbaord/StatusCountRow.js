@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import TitleNumberBlock from './TitleNumberBlock';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualList from "../individuallist/IndividualList";
+import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 
 class StatusCountRow extends AbstractComponent {
     static propTypes = {
@@ -25,12 +26,13 @@ class StatusCountRow extends AbstractComponent {
     });
 
     onPressHandler(title, count, backFunction, cardTitle) {
-        return () => TypedTransition.from(this).with({
+        this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
+        setTimeout(() => TypedTransition.from(this).with({
             listType: title,
             total: count,
             backFunction: backFunction,
             cardTitle: cardTitle,
-        }).to(IndividualList);
+        }).to(IndividualList), 0);
     }
 
     render() {
@@ -39,7 +41,7 @@ class StatusCountRow extends AbstractComponent {
             return (<View style={{paddingLeft: 3}} key={idx}>
                 <TitleNumberBlock
                     highlight={numberObj.abnormal}
-                    onPress={this.onPressHandler.bind(this)(title, numberObj.count, this.props.backFunction, cardTitle)}
+                    onPress={() => this.onPressHandler(title, numberObj.count, this.props.backFunction, cardTitle)}
                     title={cardTitle}
                     number={numberObj.count}/>
             </View>)

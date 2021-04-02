@@ -32,19 +32,8 @@ class IndividualList extends AbstractComponent {
 
     componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
+        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
         super.componentWillMount();
-    }
-
-    componentDidMount() {
-        if (!this.state.total) {
-            this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
-        }
-        setTimeout(() =>this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params}), 0);
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        return !General.arraysShallowEquals(this.state.itemsToDisplay, nextState.itemsToDisplay, x=>x.individual.uuid) ||
-            (this.state.individuals.data.length !== nextState.individuals.data.length);
     }
 
     onHardwareBackPress() {
@@ -81,7 +70,8 @@ class IndividualList extends AbstractComponent {
                 headerTitle={this.props.params.cardTitle}
                 backFunction={this.props.params.backFunction}
                 iconName={'filter'}
-                iconFunction={this._onFilterPress.bind(this)}/>
+                iconFunction={this._onFilterPress.bind(this)}
+                listType={this.props.params.listType}/>
         );
     }
 }

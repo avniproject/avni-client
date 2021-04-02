@@ -95,7 +95,7 @@ export class IndividualSearchActions {
                 time_taken: Date.now() - startTime,
                 applied_filters: searchFilterTypes
             });
-            action.cb(searchResponse.slice(0, 50), searchResponse.length);
+            action.cb(searchResponse, searchResponse.length);
             return newState;
         }
         const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters');
@@ -105,7 +105,7 @@ export class IndividualSearchActions {
             time_taken: Date.now() - startTime,
             applied_filters: searchFilterTypes
         });
-        action.cb(searchResponse.slice(0, 50), searchResponse.length);
+        action.cb(searchResponse, searchResponse.length);
         return newState;
     };
 
