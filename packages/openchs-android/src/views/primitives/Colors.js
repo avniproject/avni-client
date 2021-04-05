@@ -63,6 +63,9 @@ class Colors {
     static CommentBackgroundColor = '#EEEEEE';
     static ModalBackgroundColor = 'rgba(0,0,0,0.57)';
 
+    static BadgeColor = '#C71585';
+    static ReadCardColor = '#f3f3f3';
+
 }
 
 export default Colors;

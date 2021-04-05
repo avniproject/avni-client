@@ -16,7 +16,7 @@ export const Badge = ({number, component, badgeTopPosition, badgeLeftPosition, h
                 width,
                 top: badgeTopPosition || 1,
                 left: badgeLeftPosition || 2,
-                backgroundColor: 'mediumvioletred',
+                backgroundColor: Colors.BadgeColor,
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center'

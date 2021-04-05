@@ -39,6 +39,14 @@ class NewsService extends BaseService {
                 })
         }
     }
+
+    getUnreadNewsCount() {
+        return this.getAllNonVoided().filtered('read = false').length;
+    }
+
+    isUnreadMoreThanZero() {
+        return this.getUnreadNewsCount() > 0;
+    }
 }
 
 
