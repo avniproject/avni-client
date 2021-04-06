@@ -55,8 +55,8 @@ class CustomDashboardView extends AbstractComponent {
     renderSectionName(name, description, viewType) {
         return viewType === DashboardSection.viewTypeName.Default ? null :
             <View>
-                <Text style={styles.sectionNameTextStyle}>{name}</Text>
-                <Text>{description}</Text>
+                {name ? <Text style={styles.sectionNameTextStyle}>{name}</Text> : null}
+                {description ? <Text>{description}</Text> : null}
             </View>
     }
 
