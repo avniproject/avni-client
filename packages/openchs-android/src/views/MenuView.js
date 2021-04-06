@@ -51,6 +51,7 @@ import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import NewsService from "../service/news/NewsService";
 import NewsListView from "./news/NewsListView";
+import {Badge} from "./common/Badge";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -221,6 +222,24 @@ class MenuView extends AbstractComponent {
         Linking.openURL(url);
     }
 
+    renderNewsBadge(unreadCount) {
+        const newsText = <Text
+            style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{this.I18n.t('news')}</Text>;
+        return <TouchableNativeFeedback onPress={this.onNews.bind(this)}
+                                        background={TouchableNativeFeedback.SelectableBackground()}>
+            <View style={styles.container}>
+                {this.icon("newspaper-variant-outline")}
+                <View style={[styles.textContainer, {paddingBottom: 10}]}>
+                    <Badge
+                        hideWhenZero
+                        number={unreadCount || 0}
+                        component={newsText}/>
+                </View>
+                <Icon style={styles.iconStyle} name='chevron-right'/>
+            </View>
+        </TouchableNativeFeedback>
+    }
+
     renderTitle() {
         return (
             <TouchableNativeFeedback onPress={() => this.userSettingsView()}
@@ -268,8 +287,8 @@ class MenuView extends AbstractComponent {
                   onPress={this.onBackup.bind(this)}/>
                   ];
         if (this.getService(NewsService).isAnyNewsAvailable()) {
-            otherItems.push(<Item icon={this.icon("newspaper-variant-outline")} titleKey="news"
-                                  onPress={this.onNews.bind(this)}/>)
+            const unreadNews = this.getService(NewsService).getUnreadNewsCount();
+            otherItems.push(this.renderNewsBadge(unreadNews));
         }
         const dataGroup = [
             {

@@ -67,8 +67,18 @@ class IndividualSearchResultsView extends AbstractComponent {
         );
     }
 
-    background() {
-        return TouchableNativeFeedback.SelectableBackground();
+    renderRow(item, onResultRowPress) {
+        return <TouchableNativeFeedback onPress={() => onResultRowPress(item)}
+                                        background={TouchableNativeFeedback.SelectableBackground()}>
+            <View style={{
+                elevation: 2,
+                backgroundColor: Colors.cardBackgroundColor,
+                marginVertical: 3,
+                paddingBottom: 5,
+            }}>
+                <IndividualDetailsCard individual={item}/>
+            </View>
+        </TouchableNativeFeedback>
     }
 
     render() {
@@ -81,25 +91,11 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
-                <CHSContent>
                     <ListView enableEmptySections={true}
                               dataSource={dataSource}
                               style={{backgroundColor: Colors.cardBackgroundColor}}
-                              renderRow={(item) =>
-                                  <TouchableNativeFeedback onPress={() => this.onResultRowPress(item)}
-                                                           background={this.background()}>
-                                      <View style={{
-                                          elevation: 2,
-                                          backgroundColor: Colors.cardBackgroundColor,
-                                          marginVertical: 3,
-                                          paddingBottom: 5,
-                                      }}>
-                                          <IndividualDetailsCard individual={item}/>
-                                      </View>
-                                  </TouchableNativeFeedback>
-                              }/>
+                              renderRow={(item) => this.renderRow(item, this.onResultRowPress.bind(this))}/>
                     {this.renderZeroResultsMessageIfNeeded()}
-                </CHSContent>
             </CHSContainer>
         );
     }

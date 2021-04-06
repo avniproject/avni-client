@@ -8,6 +8,8 @@ import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import NewsDetailView from "./NewsDetailView";
+import Reducers from "../../reducer";
+import {NewsActionNames as Actions} from "../../action/news/NewsActions";
 
 class NewsCard extends AbstractComponent {
 
@@ -16,7 +18,7 @@ class NewsCard extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, Reducers.reducerKeys.news);
         this.mediaService = context.getService(MediaService);
         this.state = {};
     }
@@ -40,10 +42,9 @@ class NewsCard extends AbstractComponent {
         this.setState({mounted: false});
     }
 
-    onNewsPress(imageInfo) {
-        return TypedTransition.from(this)
-            .with({...imageInfo})
-            .to(NewsDetailView, true)
+    onNewsPress(imageInfo, newsUUID) {
+        const cb = () => TypedTransition.from(this).with({...imageInfo}).to(NewsDetailView, true);
+        this.dispatchAction(Actions.ON_NEWS_PRESS, {newsUUID, cb});
     }
 
     renderImage(imageURI) {
@@ -53,15 +54,15 @@ class NewsCard extends AbstractComponent {
     }
 
     render() {
-        const {title, publishedDate, uuid} = this.props.news;
+        const {title, publishedDate, uuid, read} = this.props.news;
         const imageURI = `file://${this.imageUriInDevice}`;
         const newsPublishedDate = General.toDisplayDateTime(publishedDate);
         const imageInfo = {...this.props.news, exists: this.state.exists, imageURI, newsPublishedDate};
         return (
             <TouchableNativeFeedback key={uuid}
-                                     onPress={this.onNewsPress.bind(this, imageInfo)}
+                                     onPress={this.onNewsPress.bind(this, imageInfo, uuid)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={styles.cardContainer}>
+                <View style={[styles.cardContainer, {backgroundColor: read ? Colors.ReadCardColor : Colors.cardBackgroundColor}]}>
                     <SafeAreaView>
                         {this.renderImage(imageURI)}
                         <View style={styles.container}>
@@ -97,7 +98,6 @@ const styles = StyleSheet.create({
     cardContainer: {
         marginHorizontal: 16,
         elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
         marginVertical: 5,
         paddingBottom: 5,
         borderRadius: 5,

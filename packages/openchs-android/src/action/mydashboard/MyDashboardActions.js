@@ -49,8 +49,11 @@ class MyDashboardActions {
         return array.length > 0 ? '( ' + array.join(' OR ') + ' )' : ''
     }
 
-    static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs) => ((_.isEmpty(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
-        otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividualsUUIDs, iInfo.individual.uuid)));
+    static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs, isTotal = false) => {
+        const getIndividualUUID  = (indInfo) => isTotal ? indInfo.uuid : indInfo.individual.uuid;
+        return ((_.isEmpty(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
+            otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividualsUUIDs, getIndividualUUID(iInfo))));
+    };
 
     static onLoad(state, action, context) {
         const individualService = context.get(IndividualService);
@@ -88,7 +91,7 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allIn(state.date.value, individualFilters), state.individualUUIDs)
+                MyDashboardActions.commonIndividuals(individualService.allIn(state.date.value, individualFilters), state.individualUUIDs, true)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total]);
 
@@ -156,27 +159,25 @@ class MyDashboardActions {
     static onListLoad(state, action, context) {
         const {listType} = action;
         const individualService = context.get(IndividualService);
-        const getResult = (db, local) => state.fetchFromDB || !local ? db : local;
 
         const methodMap = new Map([
-            ["scheduled", getResult(individualService.allScheduledVisitsIn, state.scheduled)],
-            ["overdue", getResult(individualService.allOverdueVisitsIn, state.overdue)],
-            ["recentlyCompletedVisits", getResult(individualService.recentlyCompletedVisitsIn, state.recentlyCompletedVisits)],
-            ["recentlyCompletedRegistration", getResult(individualService.recentlyRegistered, state.recentlyCompletedRegistration)],
-            ["recentlyCompletedEnrolment", getResult(individualService.recentlyEnrolled, state.recentlyCompletedEnrolment)],
-            ["total", getResult(individualService.allIn, state.total)]
+            ["scheduled", individualService.allScheduledVisitsIn],
+            ["overdue", individualService.allOverdueVisitsIn],
+            ["recentlyCompletedVisits", individualService.recentlyCompletedVisitsIn],
+            ["recentlyCompletedRegistration", individualService.recentlyRegistered],
+            ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
+            ["total", individualService.allIn]
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = state.fetchFromDB || !state[listType] ? methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters) : methodMap.get(listType);
-        const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs);
-        const totalToDisplay = _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc').slice(0, 50);
+        const allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters);
+        const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
         return {
             ...state,
             individuals: {
                 data: commonIndividuals,
             },
-            itemsToDisplay: totalToDisplay,
+            itemsToDisplay: commonIndividuals,
             [listType]: commonIndividuals,
             loading: false,
         };

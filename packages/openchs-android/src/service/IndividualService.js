@@ -58,7 +58,7 @@ class IndividualService extends BaseService {
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
                     criteria.getMaxDateOfBirth()
-                );
+                ).sorted('name');
         }
         return searchResults;
     }
@@ -124,10 +124,7 @@ class IndividualService extends BaseService {
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .map((individual) => ({
-                individual,
-                visitInfo: {uuid: individual.uuid, visitName: [], groupingBy: '', sortingBy: ''}
-            }));
+            .sorted('name');
     }
 
     allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {

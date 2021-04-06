@@ -22,10 +22,12 @@ import UserInfoService from "../service/UserInfoService";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
 import CustomFilterService from "../service/CustomFilterService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import CustomDashboardService from "../service/customDashboard/CustomDashboardService";
+import NewsService from "../service/news/NewsService";
 
 
 @Path('/landingView')
@@ -72,7 +74,7 @@ class LandingView extends AbstractComponent {
             </View>);
     }
 
-    Icon(iconName, iconStyle, isSelected) {
+    Icon(iconName, iconStyle, isSelected, renderDot = false) {
         //Arjun: i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
         //Arjun: TODO someday we need to have one single icon library.
         const style = iconStyle ? (isSelected ? {
@@ -82,7 +84,15 @@ class LandingView extends AbstractComponent {
         if (_.startsWith(iconName, 'video')) {
             return <NBIcon name={iconName} style={style}/>
         }
-        return <MCIIcon name={iconName} style={style}/>
+        return renderDot ? this.IconWithDot(iconName, style) : <MCIIcon name={iconName} style={style}/>
+    }
+
+    IconWithDot(iconName, iconStyle) {
+        return <View style={{flexDirection: 'row', flex: 1}}>
+            <MCIIcon name={iconName} style={[iconStyle, {fontSize: 30}]}/>
+            <EntypoIcon name={'dot-single'}
+                        style={{fontSize: 25, color: Colors.BadgeColor, position: 'absolute', top: -6, right: -6}}/>
+        </View>
     }
 
     static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
@@ -116,6 +126,7 @@ class LandingView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
+        const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
         const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, this.state.register), this.I18n.t("register"),
             subjectTypes[0] && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), this.state.register] : [];
         const searchMenuItem = !hideSearch ? [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"),
@@ -124,7 +135,7 @@ class LandingView extends AbstractComponent {
             [this.Icon("home", LandingView.barIconStyle, this.state.home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), this.state.home],
             registerMenuItem,
             searchMenuItem,
-            [this.Icon("menu", LandingView.barIconStyle, this.state.menu), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), this.state.menu]
+            [this.Icon("menu", LandingView.barIconStyle, this.state.menu, renderDot), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), this.state.menu]
         ];
 
         return (
