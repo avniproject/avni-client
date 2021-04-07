@@ -46,7 +46,7 @@ class ApprovalDetailsCard extends AbstractComponent {
         const cardHeight = entity.isRejectedEntity() ? 125 : 90;
         return (
             <SafeAreaView>
-                <View style={[styles.container, {height: cardHeight}]}>
+                <View style={[styles.container, {minHeight: cardHeight}]}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={styles.leftContainer}>
                             <Text style={Styles.textStyle}>{nameToDisplay}</Text>
