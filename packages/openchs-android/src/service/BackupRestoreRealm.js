@@ -33,11 +33,13 @@ export default class BackupRestoreRealmService extends BaseService {
             .then(() => zip(destFile, destZipFile))
             .then(() => General.logInfo("BackupRestoreRealm", "Zip completed"))
             .then(() => authService.getAuthToken())
-            .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl`, authToken))
+            .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/upload`, authToken))
             .then((url) => {
                 General.logInfo("BackupRestoreRealm", "Uploading the zip file");
                 mediaQueueService.foregroundUpload(url, destZipFile, cb)
             })
+            .then(() => removeBackupFile(destFile))
+            .then(() => removeBackupFile(destZipFile))
             .then(() => ToastAndroid.show('Backup Complete', ToastAndroid.SHORT))
             .catch((error) => {
                 General.logError("BackupRestoreRealm", error);
