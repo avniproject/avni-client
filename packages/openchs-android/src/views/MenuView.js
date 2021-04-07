@@ -45,7 +45,7 @@ import {Schema} from 'avni-models';
 import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
-import {backup} from "../BackupRestoreRealm";
+import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import moment from "moment";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
@@ -183,6 +183,7 @@ class MenuView extends AbstractComponent {
     };
 
     onBackup() {
+        let backupAndRestoreRealmService = this.getService(BackupRestoreRealmService);
         Alert.alert(
             this.I18n.t('backupNoticeTitle'),
             this.I18n.t('backupConfirmationMessage'),
@@ -192,7 +193,7 @@ class MenuView extends AbstractComponent {
                         const reservedChars = /[|\\?*<":>+\[\]/']/g;
                         const {organisationName, username} = this.state.userInfo;
                         const fileName = `${organisationName}_${username}_${moment().format('DD-MM-YYYY_HH-mm-ss')}.realm`;
-                        return backup(fileName.replace(reservedChars, ''));
+                        return backupAndRestoreRealmService.backup(fileName.replace(reservedChars, ''));
                     }
                 },
                 {

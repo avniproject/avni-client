@@ -79,6 +79,17 @@ class MediaQueueService extends BaseService {
         }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
     }
 
+    foregroundUpload(url, fullFilePath, cb) {
+        General.logDebug("MediaQueueService", `foreground uploading ${fullFilePath} to ${url}`);
+        return RNFetchBlob.fetch('PUT', url, {
+            "Content-Type": "application/octet-stream",
+        }, RNFetchBlob.wrap(fullFilePath))
+            .uploadProgress((written, total) => {
+                General.logDebug("MediaQueueService", 'uploaded', written / total);
+                cb(written, total);
+            });
+    }
+
     deleteFile(mediaQueueItem) {
         let absoluteFileName = this.getAbsoluteFileName(mediaQueueItem);
         General.logDebug("MediaQueueService", `Deleting media ${absoluteFileName}`);
@@ -142,7 +153,7 @@ class MediaQueueService extends BaseService {
         return Promise.all(
             _.map(mediaQueueItems,
                 (mediaQueueItem) => {
-                return this.uploadMediaQueueItem(mediaQueueItem, auth)
+                    return this.uploadMediaQueueItem(mediaQueueItem, auth)
                 }
             )
         );

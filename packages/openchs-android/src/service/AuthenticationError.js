@@ -1,5 +1,7 @@
 // Code from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
 
+export const NO_USER = 'No User';
+
 function AuthenticationError(code, message, fileName, lineNumber) {
     let instance = new Error(message, fileName, lineNumber);
     instance.authErrCode = code;

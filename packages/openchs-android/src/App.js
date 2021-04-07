@@ -12,7 +12,7 @@ import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
 import FileSystem from "./model/FileSystem";
 import codePush from "react-native-code-push";
-import {removeBackupFile, restore} from "./BackupRestoreRealm";
+import {removeBackupFile, restore} from "./service/BackupRestoreRealm";
 import fs from 'react-native-fs';
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
 

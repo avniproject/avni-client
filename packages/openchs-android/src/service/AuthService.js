@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import SettingsService from "./SettingsService";
 import _ from "lodash";
 import {getJSON} from '../framework/http/requests';
-import AuthenticationError from "./AuthenticationError";
+import AuthenticationError, {NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
 import SyncService from "./SyncService";
@@ -43,7 +43,7 @@ class AuthService extends BaseService {
 
                 this.getUser().then((cognitoUser) => {
                     if (cognitoUser === null) {
-                        reject(new AuthenticationError('No User', "No user or needs login"));
+                        reject(new AuthenticationError(NO_USER, "No user or needs login"));
                         return;
                     }
 
