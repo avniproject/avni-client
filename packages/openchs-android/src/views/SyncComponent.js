@@ -30,31 +30,10 @@ class SyncComponent extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
-
-        this.createStyles();
     }
 
     viewName() {
         return "SyncComponent";
-    }
-
-    createStyles() {
-        this.syncContainerStyle = {
-            flex: 1,
-            flexDirection: 'column',
-            flexWrap: 'nowrap',
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-        };
-        this.syncBackground = {
-            width: width * .7,
-            flexDirection: 'row',
-            flexWrap: 'nowrap',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-            alignSelf: 'center',
-            backgroundColor: Colors.getCode("paperGrey900").color,
-        };
     }
 
     _preSync() {
@@ -96,7 +75,7 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if(!ignoreBugsnag && !isServerError) bugsnag.notify(error);
+        if (!ignoreBugsnag && !isServerError) bugsnag.notify(error);
         this.dispatchAction(SyncActions.ON_ERROR);
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
@@ -167,7 +146,7 @@ class SyncComponent extends AbstractComponent {
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
-                (message) => this.messageCallBack(message), connectionInfo,this.state.startTime).catch(onError)
+                (message) => this.messageCallBack(message), connectionInfo, this.state.startTime).catch(onError)
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
@@ -175,25 +154,11 @@ class SyncComponent extends AbstractComponent {
     }
 
     renderSyncModal() {
-        return (
-            <Modal animationType={'fade'}
-                   transparent={true}
-                   onRequestClose={_.noop}
-                   visible={this.state.syncing}>
-                <View style={[this.syncContainerStyle, {backgroundColor: 'rgba(0, 0, 0, 0.25)'}]}
-                      key={`spinner_${Date.now()}`}>
-                    <View style={{flex: .4}}/>
-                    <View style={this.syncBackground}>
-                        <View style={{flex: .9}}>
-                            <ProgressBarView
-                                progress={this.state.progress}
-                                message={this.state.message}
-                                onPress={this._postSync.bind(this)}/>
-                        </View>
-                    </View>
-                    <View style={{flex: 1}}/>
-                </View>
-            </Modal>);
+        return <ProgressBarView
+            progress={this.state.progress}
+            message={this.state.message}
+            syncing={this.state.syncing}
+            onPress={this._postSync.bind(this)}/>;
     }
 
     get syncIcon() {
