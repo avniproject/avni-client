@@ -1,7 +1,6 @@
 import DeleteDrafts from "./task/DeleteDrafts";
 import PruneMedia from "./task/PruneMedia";
 import Sync from "./task/Sync";
-import {Schema} from "avni-models";
 import BackgroundJob from 'react-native-background-job';
 import General from "./utility/General";
 
@@ -29,14 +28,14 @@ const SyncJobSchedule = {
 
 const DeleteDraftsJobSchedule = {
     jobKey: "deleteDraftsJob",
-    timeout: 1*60*1000,
+    timeout: 10*60*1000,
     period: 1*24*60*60*1000,
     persist: true
 };
 
 const PruneMediaJobSchedule = {
     jobKey: "pruneMediaJob",
-    timeout: 1*60*1000,
+    timeout: 10*60*1000,
     period: 1*24*60*60*1000,
     persist: true
 };

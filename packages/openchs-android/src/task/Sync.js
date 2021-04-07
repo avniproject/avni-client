@@ -4,6 +4,7 @@ import General from "../utility/General";
 import {NetInfo} from "react-native";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
+import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
 
 class Sync extends BaseTask {
     async execute() {
@@ -22,6 +23,9 @@ class Sync extends BaseTask {
                 ErrorHandler.postScheduledJobError(e);
             });
         } catch (e) {
+            if (e instanceof AuthenticationError && e.code === NO_USER) {
+                return;
+            }
             ErrorHandler.postScheduledJobError(e);
         }
     }
