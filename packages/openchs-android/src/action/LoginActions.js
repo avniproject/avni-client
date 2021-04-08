@@ -4,6 +4,7 @@ import {ValidationResult} from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import {firebaseEvents, logEvent} from "../utility/Analytics";
+import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 
 class LoginActions {
     static getInitialState() {
@@ -15,19 +16,16 @@ class LoginActions {
             loggingIn: false,
             loginError: '',
             loginSuccess: false,
-            validationResult: ValidationResult.successful()
+            validationResult: ValidationResult.successful(),
+            dumpRestoring: false,
+            dumpRestoreProgress: 0,
+            dumpRestoreMessage: null
         };
     }
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username} : {});
-    }
-
-    static changeValue(state, key, value) {
-        let newValue = {};
-        newValue[key] = value;
-        return _.assignIn({}, state, newValue);
+        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, dumpRestoreProgress: null} : {dumpRestoreProgress: null, dumpRestoreMessage: null});
     }
 
     static onUserIdChange(state, action) {
@@ -44,11 +42,11 @@ class LoginActions {
     }
 
     static onLoginStarted(state, action, context) {
+        let newState = _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
         context.get(AuthService)
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
-                    action.success();
                     logEvent(firebaseEvents.LOG_IN);
                     return;
                 }
@@ -62,8 +60,15 @@ class LoginActions {
                 const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
                 logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg});
                 action.failure(errorMsg);
+            })
+            .then(() => {
+                let restoreService = context.get(BackupRestoreRealmService);
+                restoreService.restore((percentProgress, message) => {
+                    General.logDebug("LoginActions", message);
+                    action.cb(percentProgress, message);
+                });
             });
-        return _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
+        return newState;
     }
 
     static onStateChange(state, action, context) {
@@ -77,17 +82,24 @@ class LoginActions {
     static onEmptyLogin(state) {
         return _.assignIn({}, state, {loginError: 'Please fill in User Id and Password'});
     }
+
+    static onDumpRestoring(state, action) {
+        let newState = _.assignIn({}, state, {loggingIn: false, loginError: "", dumpRestoreProgress: action.percentProgress, dumpRestoreMessage: action.message});
+        newState.dumpRestoring = action.percentProgress !== 100;
+        return newState;
+    }
 }
 
 const LoginActionsNames = {
-    ON_USER_ID_CHANGE: 'ace85b4c-9d5b-4be9-b4df-998c1acc6919',
-    ON_PASSWORD_CHANGE: '635c0815-91a6-4611-bd84-f1fa6ac441d2',
-    ON_CANCEL: '75c1ab7a-c22d-47f0-80c1-cf71f990c47a',
-    ON_LOGIN: 'ff805a17-8397-4a2a-ab13-e01117a8c113',
-    ON_STATE_CHANGE: '3da34606-897a-43ac-b41f-0ef31abc7a01',
-    ON_TOGGLE_SHOW_PASSWORD: "9afb6cdc-aa96-4377-b092-44b218c6d9af",
-    ON_EMPTY_LOGIN: "e17aa8ec-b24b-43e5-bcc8-63f5234c04a3",
-    ON_LOAD: '8c4b600f-f000-4b9b-80d2-423069bf52b7',
+    ON_USER_ID_CHANGE: 'LA.ON_USER_ID_CHANGE',
+    ON_PASSWORD_CHANGE: 'LA.ON_PASSWORD_CHANGE',
+    ON_CANCEL: 'LA.ON_CANCEL',
+    ON_LOGIN: 'LA.ON_LOGIN',
+    ON_STATE_CHANGE: 'LA.ON_STATE_CHANGE',
+    ON_TOGGLE_SHOW_PASSWORD: "LA.ON_TOGGLE_SHOW_PASSWORD",
+    ON_EMPTY_LOGIN: "LA.ON_EMPTY_LOGIN",
+    ON_LOAD: 'LA.ON_LOAD',
+    ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING'
 };
 
 const LoginActionsMap = new Map([
@@ -98,6 +110,7 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_TOGGLE_SHOW_PASSWORD, LoginActions.onToggleShowPassword],
     [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
+    [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring]
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;

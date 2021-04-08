@@ -32,6 +32,8 @@ kill_app:
 start_app:
 	$(call _start_app)
 
+restart_app: kill_app start_app
+
 open_playstore_openchs:
 	$(call _kill_app,com.google.android.gms)
 	adb shell am start -a android.intent.action.VIEW -d 'market://details?id=${app_android_package_name}'

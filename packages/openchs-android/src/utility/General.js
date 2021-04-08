@@ -237,6 +237,8 @@ class General {
     }
 
     static getDisplayableMessage(obj) {
+        if (obj && obj instanceof Error)
+            return obj.message;
         if (typeof obj === 'object') {
             let s = JSON.stringify(obj);
             if (s === '{}') return obj;
