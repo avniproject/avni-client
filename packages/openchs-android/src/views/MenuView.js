@@ -37,20 +37,19 @@ import {Icon} from 'native-base';
 import Separator from "./primitives/Separator";
 import EntitySyncStatusView from "./entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "./settings/DevSettingsView";
-import UserInfoService from "../service/UserInfoService";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
 import {Schema} from 'avni-models';
-import SettingsService from "../service/SettingsService";
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
-import BackupRestoreRealmService from "../service/BackupRestoreRealm";
-import moment from "moment";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import NewsService from "../service/news/NewsService";
 import NewsListView from "./news/NewsListView";
+import ProgressBarView from "./ProgressBarView";
+import Reducers from "../reducer";
+import {MenuActionNames} from "../action/MenuActions";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -60,12 +59,11 @@ class MenuView extends AbstractComponent {
     static iconStyle = {color: Colors.DefaultPrimaryColor, opacity: 0.8, alignSelf: 'center', fontSize: 20, padding: 8};
 
     constructor(props, context) {
-        super(props, context);
-        const settings = context.getService(SettingsService).getSettings();
-        this.state = {
-            userInfo: context.getService(UserInfoService).getUserInfo(),
-            serverURL: settings.serverURL,
-        };
+        super(props, context, Reducers.reducerKeys.menuView);
+    }
+
+    componentDidMount() {
+        this.dispatchAction(MenuActionNames.ON_LOAD);
     }
 
     static Item({I18n, icon, titleKey, onPress, visible = true}) {
@@ -182,17 +180,13 @@ class MenuView extends AbstractComponent {
     };
 
     onBackup() {
-        let backupAndRestoreRealmService = this.getService(BackupRestoreRealmService);
         Alert.alert(
             this.I18n.t('backupNoticeTitle'),
             this.I18n.t('backupConfirmationMessage'),
             [
                 {
                     text: this.I18n.t('yes'), onPress: () => {
-                        const reservedChars = /[|\\?*<":>+\[\]/']/g;
-                        const {organisationName, username} = this.state.userInfo;
-                        const fileName = `${organisationName}_${username}_${moment().format('DD-MM-YYYY_HH-mm-ss')}.realm`;
-                        return backupAndRestoreRealmService.backup(fileName.replace(reservedChars, ''));
+                        this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {cb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {percentDone: percentDone, message: message})});
                     }
                 },
                 {
@@ -257,6 +251,8 @@ class MenuView extends AbstractComponent {
     }
 
     render() {
+        if (_.isNil(this.state.userInfo)) return null;
+
         General.logDebug("MenuView", "render");
         const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
         const otherItems = [
@@ -267,7 +263,7 @@ class MenuView extends AbstractComponent {
                   onPress={this.onDashboard.bind(this)}/>,
             <Item icon={this.icon("backup-restore")} titleKey="backup"
                   onPress={this.onBackup.bind(this)}/>
-                  ];
+        ];
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             otherItems.push(<Item icon={this.icon("newspaper-variant-outline")} titleKey="news"
                                   onPress={this.onNews.bind(this)}/>)
@@ -310,10 +306,10 @@ class MenuView extends AbstractComponent {
             }
         ];
 
-
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.renderTitle()}
+                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.state.backupProgressUserMessage} syncing={this.state.backupInProgress}/>
                 <CHSContent>
                     <ScrollView>
                         <SectionList

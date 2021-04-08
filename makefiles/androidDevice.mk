@@ -1,5 +1,5 @@
 define _start_app
-	adb shell am start -n com.openchsclient/com.openchsclient.MainActivity
+	adb shell am start -n ${app_android_package_name}/com.openchsclient.MainActivity
 endef
 
 define _install_apk
@@ -7,10 +7,10 @@ define _install_apk
 endef
 
 uninstall_apk: ##
-	-adb uninstall com.openchsclient
+	-adb uninstall ${app_android_package_name}
 
 clear_app_data:
-	adb shell pm clear com.openchsclient
+	adb shell pm clear ${app_android_package_name}
 
 install_universal_apk: ##
 	$(call _install_apk,app-release.apk)
@@ -27,14 +27,14 @@ define _kill_app
 endef
 
 kill_app:
-	$(call _kill_app,com.openchsclient)
+	$(call _kill_app,${app_android_package_name})
 
 start_app:
 	$(call _start_app)
 
 open_playstore_openchs:
 	$(call _kill_app,com.google.android.gms)
-	adb shell am start -a android.intent.action.VIEW -d 'market://details?id=com.openchsclient'
+	adb shell am start -a android.intent.action.VIEW -d 'market://details?id=${app_android_package_name}'
 
 
 # Run application from the code
@@ -50,6 +50,9 @@ run_app_staging_dev: as_staging_dev _run_app
 run_app_uat: as_uat _run_app
 run_app_prerelease: as_prerelease _run_app
 run_app_prod: as_prod _run_app
+
+stop_app:
+	adb shell am force-stop ${app_android_package_name}
 
 switch_app_to_env:
 ifeq ($(env),dev)

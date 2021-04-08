@@ -25,18 +25,6 @@ include makefiles/codepush.mk
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 
-help:
-	@IFS=$$'\n' ; \
-	help_lines=(`fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//'`); \
-	for help_line in $${help_lines[@]}; do \
-	    IFS=$$'#' ; \
-	    help_split=($$help_line) ; \
-	    help_command=`echo $${help_split[0]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-	    help_info=`echo $${help_split[2]} | sed -e 's/^ *//' -e 's/ *$$//'` ; \
-	    printf "%-30s %s\n" $$help_command $$help_info ; \
-	done
-# </makefile>
-
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
 endef
@@ -179,7 +167,7 @@ clear-log: ## Clear adb logs
 # </log>
 
 enable_firebase_debug_view:
-	adb shell setprop debug.firebase.analytics.app com.openchsclient
+	adb shell setprop debug.firebase.analytics.app ${app_android_package_name}
 
 disable_firebase_debug_view:
 	adb shell setprop debug.firebase.analytics.app .none.
@@ -189,12 +177,12 @@ dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 
 # <db>
 get_db: ## Get realmdb and copy to ../
-	mkdir -p ../db; adb pull /data/data/com.openchsclient/files/default.realm ../db
+	mkdir -p ../db; adb pull /data/data/${app_android_package_name}/files/default.realm ../db
 
 appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 
 put_db: ## Apply realmdb from ../default.realm
-	adb push $(appdb) /data/data/com.openchsclient/files/default.realm
+	adb push $(appdb) /data/data/${app_android_package_name}/files/default.realm
 
 rm_db:
 	rm -rf ../db
