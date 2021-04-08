@@ -309,7 +309,7 @@ class MenuView extends AbstractComponent {
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.renderTitle()}
-                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.state.backupProgressUserMessage} syncing={this.state.backupInProgress}/>
+                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.I18n.t(this.state.backupProgressUserMessage)} syncing={this.state.backupInProgress}/>
                 <CHSContent>
                     <ScrollView>
                         <SectionList

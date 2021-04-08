@@ -29,21 +29,21 @@ export default class BackupRestoreRealmService extends BaseService {
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         fs.readDir(FileSystem.getBackupDir())
             .then((files) => files.forEach(file => fs.unlink(file.path)))
-            .then(() => cb(1, "Creating copy of database"))
+            .then(() => cb(1, "backupCreatingCopy"))
             .then(() => this.db.writeCopyTo(destFile))
-            .then(() => cb(5, "Compressing the copied database file"))
+            .then(() => cb(5, "backupCompressing"))
             .then(() => zip(destFile, destZipFile))
-            .then(() => cb(10, "Securely getting upload location for backup"))
+            .then(() => cb(10, "backupGettingUploadLocation"))
             .then(() => authService.getAuthToken())
             .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/upload`, authToken))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
-                cb(10 + (97 - 10) * (written / total), "Uploading database backup to the secure location")
+                cb(10 + (97 - 10) * (written / total), "backupUploading")
             }))
-            .then(() => cb(97, "Removing database backup file created"))
+            .then(() => cb(97, "backupRemoveFile"))
             .then(() => removeBackupFile(destFile))
-            .then(() => cb(99, "Removing database backup compressed file created"))
+            .then(() => cb(99, "backupRemoveZipFile"))
             .then(() => removeBackupFile(destZipFile))
-            .then(() => cb(100, "Backup completed"))
+            .then(() => cb(100, "backupCompleted"))
             .catch((error) => {
                 General.logError("BackupRestoreRealm", error);
                 throw error;
