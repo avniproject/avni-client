@@ -31,9 +31,8 @@ class MenuActions {
     static onBackupDump(state, action, context) {
         let newState = MenuActions.clone(state);
         const {organisationName, username} = state.userInfo;
-        const fileName = `${organisationName}_${username}_${moment().format('DD-MM-YYYY_HH-mm-ss')}.realm`;
         let backupAndRestoreRealmService = context.get(BackupRestoreRealmService);
-        backupAndRestoreRealmService.backup(fileName.replace(reservedChars, ''), (percentage, message) => {
+        backupAndRestoreRealmService.backup((percentage, message) => {
             action.cb(percentage, message);
         });
         newState.backupInProgress = true;

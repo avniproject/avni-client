@@ -28,12 +28,15 @@ class MediaService extends BaseService {
             .then(downloadUrl => this.downloadFromUrl(downloadUrl, targetFilePath));
     }
 
-    downloadFromUrl(url, targetFilePath) {
+    downloadFromUrl(url, targetFilePath, cb) {
         return RNFetchBlob
             .config({fileCache: true, path: targetFilePath,})
             .fetch('GET', url, {})
+            .progress((received, total) => {
+                if (cb) cb(received, total);
+            })
             .then((res) => {
-                General.logDebug('The file saved to :', res.path());
+                General.logDebug("MediaService", `The file saved to :${res.path()}`);
                 return res;
             });
     }

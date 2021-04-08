@@ -8,13 +8,10 @@ import {EntityMetaData, EntityQueue, Schema} from 'avni-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
-import ErrorHandler from './utility/ErrorHandler';
 import _ from "lodash";
-import FileSystem from "./model/FileSystem";
 import codePush from "react-native-code-push";
-import {removeBackupFile, restore} from "./service/BackupRestoreRealm";
-import fs from 'react-native-fs';
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
+import ErrorHandler from "./utility/ErrorHandler";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
@@ -27,16 +24,21 @@ const initialiseContext = function () {
     beans.forEach(bean => bean.setReduxStore(reduxStore));
 };
 
-if (db === undefined) {
-    initialiseContext();
-    routes = PathRegistry.routes();
-    const entitySyncStatusService = beans.get(EntitySyncStatusService);
-    entitySyncStatusService.setup(EntityMetaData.model());
+let error;
+try {
+    if (db === undefined) {
+        initialiseContext();
+        routes = PathRegistry.routes();
+        const entitySyncStatusService = beans.get(EntitySyncStatusService);
+        entitySyncStatusService.setup(EntityMetaData.model());
 
-    SetBackgroundTaskDependencies(db, beans);
+        SetBackgroundTaskDependencies(db, beans);
+    }
+    RegisterAndScheduleJobs();
+} catch (e) {
+    console.log("App", e);
+    error = e;
 }
-
-RegisterAndScheduleJobs();
 
 class App extends Component {
     static childContextTypes = {
@@ -46,38 +48,11 @@ class App extends Component {
     };
 
     constructor(props, context) {
-        let error;
         super(props, context);
-
-        try {
-            new Promise((resolve, _) => resolve(FileSystem.init()))
-                .then(() => fs.readDir(FileSystem.getBackupDir()))
-                .then((files) => !_.isEmpty(files) && this.confirmForRestore(files[0].path))
-                .then(() => {
-                    this.handleError = this.handleError.bind(this);
-                    ErrorHandler.set(this.handleError);
-                    this.setState({loadApp: true});
-                });
-        } catch (e) {
-            error = e
-        }
         this.getBean = this.getBean.bind(this);
+        ErrorHandler.set(this.handleError);
         this.state = {error};
     }
-
-    async confirmForRestore(filePath) {
-        return new Promise((resolve, reject) => {
-            Alert.alert(
-                'Backup found',
-                'Backup file found, want to restore?',
-                [
-                    {text: 'No', onPress: () => resolve(removeBackupFile(filePath))},
-                    {text: 'Yes', onPress: () => resolve(restore(filePath, initialiseContext))}
-                ],
-                {cancelable: false}
-            )
-        })
-    };
 
     handleError(error, stacktrace) {
         this.setState({error, stacktrace});
@@ -98,7 +73,7 @@ class App extends Component {
                     text: "Copy error and Restart",
                     onPress: () => {
                         Clipboard.setString(`${this.state.error.message}\nStacktrace:\n${this.state.stacktrace}`);
-                        Restart.restart()
+                        Restart.restart();
                     }
                 }
             ],
@@ -116,15 +91,13 @@ class App extends Component {
     }
 
     render() {
-        if (this.state.loadApp) {
-            if (!_.isNil(this.state.error)) return this.renderError();
-            if (!_.isNil(routes)) {
-                return routes
-            }
-            return (<Text>Something Went Wrong</Text>);
-        } else {
-            return <View/>
+        if (this.state.error) {
+            return this.renderError();
         }
+        if (!_.isNil(routes)) {
+            return routes
+        }
+        return (<Text>Something Went Wrong</Text>);
     }
 }
 
