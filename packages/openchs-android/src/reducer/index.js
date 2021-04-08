@@ -7,29 +7,20 @@ import BeneficiaryDashboardActions from '../action/beneficiaryMode/BeneficiaryDa
 import IndividualGeneralHistoryActionsMap, {IndividualGeneralHistoryActions} from '../action/individual/IndividualGeneralHistoryActions';
 import {EncounterActions, IndividualEncounterViewActionsMap} from "../action/individual/EncounterActions";
 import {ProgramEnrolmentsActions, ProgramEnrolmentsActionsMap} from "../action/program/ProgramEnrolmentsActions";
-import {
-    ProgramEnrolmentDashboardActions,
-    ProgramEnrolmentDashboardActionsMap
-} from '../action/program/ProgramEnrolmentDashboardActions';
+import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} from '../action/program/ProgramEnrolmentDashboardActions';
 import {FamilyDashboardActions, FamilyDashboardActionsMap} from '../action/familyFolder/FamilyDashboardActions';
 import {MyDashboardActions, MyDashboardActionsMap, MyDashboardPrefix} from '../action/mydashboard/MyDashboardActions';
 import {ActionPrefix, FilterActionMap, FiltersActions} from '../action/mydashboard/FiltersActions'
 import {FamilyFolderActions, FamilyFolderActionsMap} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
-import {
-    IndividualRegistrationDetailsActions,
-    IndividualRegistrationDetailsActionsMap
-} from '../action/individual/IndividualRegistrationDetailsActions';
+import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
 import {IndividualSearchActions, IndividualSearchActionsMap} from '../action/individual/IndividualSearchActions';
 import {ChecklistActions, ChecklistActionsMap} from '../action/program/ChecklistActions';
 import _ from 'lodash';
 import {SettingsActions, SettingsActionsMap} from "../action/SettingsActions";
 import {StartProgramActions, StartProgramActionsMap} from "../action/program/StartProgramActions";
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
-import {
-    ProgramEncounterCancelActions,
-    ProgramEncounterCancelActionsMap
-} from "../action/program/ProgramEncounterCancelActions";
+import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
 import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
 import {ChecklistItemActionMap, ChecklistItemActions} from '../action/program/ChecklistItemActions';
@@ -38,20 +29,18 @@ import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
 import SubjectRegisterActionsMap, {SubjectRegisterActions} from "../action/subject/SubjectRegisterActions";
 import {LandingViewActions, LandingViewActionsMap} from "../action/LandingViewActions";
 import {SyncTelemetryActions, SyncTelemetryActionsMap} from "../action/SyncTelemetryActions";
-import {
-    CompletedVisitsFilterAction,
-    CompletedVisitsFilterActionMap
-} from '../action/program/CompletedVisitsFilterAction';
+import {CompletedVisitsFilterAction, CompletedVisitsFilterActionMap} from '../action/program/CompletedVisitsFilterAction';
 import {CompletedEncountersActionMap, CompletedEncountersActions} from "../action/encounter/CompletedEncountersActions";
 import SubjectDashboardViewActions from '../action/program/SubjectDashboardViewActions'
 import {SyncActionMap, SyncActions} from '../action/SyncActions';
 import {CustomFilterActions, CustomFilterMap} from '../action/mydashboard/CustomFilterActions'
 import {GenderFilterActions, GenderFilterMap} from '../action/mydashboard/GenderFilterActions'
-import {AddMemberActionMap, MemberAction, AddNewMemberActions} from "../action/groupSubject/MemberAction";
-import {CustomDashboardActions, CustomDashboardActionMap} from "../action/customDashboard/CustomDashboardActions";
-import {ApprovalActions, ApprovalActionMap} from "../action/approval/ApprovalActions";
-import {NewsActions, NewsActionMap} from "../action/news/NewsActions";
-import {CommentActions, CommentActionMap} from "../action/comment/CommentActions";
+import {AddMemberActionMap, MemberAction} from "../action/groupSubject/MemberAction";
+import {CustomDashboardActionMap, CustomDashboardActions} from "../action/customDashboard/CustomDashboardActions";
+import {ApprovalActionMap, ApprovalActions} from "../action/approval/ApprovalActions";
+import {NewsActionMap, NewsActions} from "../action/news/NewsActions";
+import {CommentActionMap, CommentActions} from "../action/comment/CommentActions";
+import {MenuActionMap, MenuActions} from "../action/MenuActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -97,6 +86,7 @@ export default class Reducers {
         approval: "approval",
         news: "news",
         comment: "comment",
+        menuView: "menuView"
     };
 
     static createReducers(beanStore) {
@@ -142,6 +132,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.approval] = Reducers._add(ApprovalActionMap, ApprovalActions, beanStore);
         reducerMap[Reducers.reducerKeys.news] = Reducers._add(NewsActionMap, NewsActions, beanStore);
         reducerMap[Reducers.reducerKeys.comment] = Reducers._add(CommentActionMap, CommentActions, beanStore);
+        reducerMap[Reducers.reducerKeys.menuView] = Reducers._add(MenuActionMap, MenuActions, beanStore);
         return reducerMap;
     };
 

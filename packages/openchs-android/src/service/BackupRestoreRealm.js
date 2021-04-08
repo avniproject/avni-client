@@ -29,18 +29,21 @@ export default class BackupRestoreRealmService extends BaseService {
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         fs.readDir(FileSystem.getBackupDir())
             .then((files) => files.forEach(file => fs.unlink(file.path)))
+            .then(() => cb(1, "Creating copy of database"))
             .then(() => this.db.writeCopyTo(destFile))
+            .then(() => cb(5, "Compressing the copied database file"))
             .then(() => zip(destFile, destZipFile))
-            .then(() => General.logInfo("BackupRestoreRealm", "Zip completed"))
+            .then(() => cb(10, "Securely getting upload location for backup"))
             .then(() => authService.getAuthToken())
             .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/upload`, authToken))
-            .then((url) => {
-                General.logInfo("BackupRestoreRealm", "Uploading the zip file");
-                mediaQueueService.foregroundUpload(url, destZipFile, cb)
-            })
+            .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
+                cb(10 + (97 - 10) * (written / total), "Uploading database backup to the secure location")
+            }))
+            .then(() => cb(97, "Removing database backup file created"))
             .then(() => removeBackupFile(destFile))
+            .then(() => cb(99, "Removing database backup compressed file created"))
             .then(() => removeBackupFile(destZipFile))
-            .then(() => ToastAndroid.show('Backup Complete', ToastAndroid.SHORT))
+            .then(() => cb(100, "Backup completed"))
             .catch((error) => {
                 General.logError("BackupRestoreRealm", error);
                 throw error;
