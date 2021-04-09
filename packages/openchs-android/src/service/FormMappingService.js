@@ -129,20 +129,48 @@ class FormMappingService extends BaseService {
         return new FormQueryResult(formMappings);
     }
 
-    findRegistrationForm(subjectType: SubjectType) {
+    getRegistrationFormMapping(subjectType) {
         let criteria = `voided = false AND form.formType = "${Form.formTypes.IndividualProfile}" and subjectType.uuid = "${subjectType.uuid}"`;
-        const formMapping = this.db.objects(FormMapping.schema.name)
-            .filtered(criteria)[0];
+        return this.db.objects(FormMapping.schema.name).filtered(criteria)[0];
+    }
+
+    findRegistrationForm(subjectType: SubjectType) {
+        const formMapping = this.getRegistrationFormMapping(subjectType);
         return _.get(formMapping, 'form');
     }
 
+    isApprovalEnabledForRegistrationForm(subjectType) {
+        return !!_.get(this.getRegistrationFormMapping(subjectType), 'enableApproval');
+    }
+
+    isApprovalEnabledForProgramForm(subjectType, program, isExit = false) {
+        const formType = isExit ? Form.formTypes.ProgramExit : Form.formTypes.ProgramEnrolment;
+        let criteria = `voided = false AND entityUUID="${program.uuid}" AND form.formType="${formType}" and subjectType.uuid = "${subjectType.uuid}"`;
+        const formMapping = this.findByCriteria(criteria);
+        return !!_.get(formMapping, 'enableApproval');
+    }
+
+    isApprovalEnabledForEncounterForm(subjectType, encounterType, isCancel = false) {
+        const formMapping = isCancel ?
+            this.getCancellationFormMappingsForIndividualEncounter(encounterType, subjectType) :
+            this.getIndividualEncounterFormMapping(encounterType, subjectType);
+        return !!_.get(formMapping, 'enableApproval');
+    }
+
+    isApprovalEnabledForProgramEncounterForm(subjectType, program, encounterType, isCancel = false) {
+        const formMapping = isCancel ?
+            this.getCancellationFormMappingsForProgramEncounterType(encounterType, program, subjectType) :
+            this.getProgramEncounterFormMapping(encounterType, program, subjectType);
+        return !!_.get(formMapping, 'enableApproval');
+    }
+
     findFormForCancellingEncounterType(encounterType: EncounterType, program: Program, subjectType: SubjectType) {
-        const matchingFormMapping = _.isNil(program) ? this.individualEncounterType(encounterType, subjectType) :
-            this.programEncounterType(encounterType, program, subjectType);
+        const matchingFormMapping = _.isNil(program) ? this.getCancellationFormMappingsForIndividualEncounter(encounterType, subjectType) :
+            this.getCancellationFormMappingsForProgramEncounterType(encounterType, program, subjectType);
         return _.isNil(matchingFormMapping) ? null : matchingFormMapping.form;
     }
 
-    programEncounterType(encounterType, program, subjectType) {
+    getCancellationFormMappingsForProgramEncounterType(encounterType, program, subjectType) {
         return this.allFormMappings()
             .unVoided()
             .forFormType(Form.formTypes.ProgramEncounterCancellation)
@@ -152,13 +180,36 @@ class FormMappingService extends BaseService {
             .bestMatch();
     }
 
-    individualEncounterType(encounterType, subjectType) {
+    getCancellationFormMappingsForIndividualEncounter(encounterType, subjectType) {
         return this.allFormMappings()
             .unVoided()
             .forFormType(Form.formTypes.IndividualEncounterCancellation)
             .forEncounterType(encounterType)
             .forSubjectType(subjectType)
             .bestMatch();
+    }
+
+    getIndividualEncounterFormMapping(encounterType, subjectType) {
+        return this.allFormMappings()
+            .unVoided()
+            .forEncounterType(encounterType)
+            .forFormType(Form.formTypes.Encounter)
+            .forSubjectType(subjectType)
+            .bestMatch();
+    }
+
+    getProgramEncounterFormMapping(encounterType, program, subjectType) {
+        return this.allFormMappings()
+            .unVoided()
+            .forEncounterType(encounterType)
+            .forProgram(program)
+            .forFormType(Form.formTypes.ProgramEncounter)
+            .forSubjectType(subjectType)
+            .bestMatch()
+    }
+
+    getAllWithEnableApproval() {
+        return this.getAllNonVoided().filtered('enableApproval = true').sorted('subjectType.name');
     }
 
     formMappingByCriteria(criteriaQuery) {

@@ -4,7 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {ProgramEncounter, Form, Point, WorkList, WorkLists, WorkItem} from "avni-models";
+import {Point, ProgramEncounter, WorkList, WorkLists} from "avni-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -24,14 +24,10 @@ class ProgramEncounterActions {
     };
 
     static onLoad(state, action, context) {
-        const formMapping = context.get(FormMappingService)
-            .allFormMappings()
-            .unVoided()
-            .forEncounterType(action.programEncounter.encounterType)
-            .forProgram(action.programEncounter.programEnrolment.program)
-            .forFormType(Form.formTypes.ProgramEncounter)
-            .forSubjectType(action.programEncounter.programEnrolment.individual.subjectType)
-            .bestMatch();
+        const formMapping = context.get(FormMappingService).getProgramEncounterFormMapping(
+            action.programEncounter.encounterType,
+            action.programEncounter.programEnrolment.program,
+            action.programEncounter.programEnrolment.individual.subjectType);
 
         const form = formMapping && formMapping.form;
 

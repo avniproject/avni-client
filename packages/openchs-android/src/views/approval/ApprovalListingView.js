@@ -67,7 +67,7 @@ class ApprovalListingView extends AbstractComponent {
     }
 
     renderFilter(title) {
-        const options = this.getService(FormMappingService).getAllNonVoided()
+        const options = this.getService(FormMappingService).getAllWithEnableApproval()
             .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
         const optionsWithAll = [{label: 'All', value: {schema: null, filterQuery: null}}, ...options];
         const total = _.map(this.state.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
