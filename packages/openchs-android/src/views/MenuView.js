@@ -180,22 +180,36 @@ class MenuView extends AbstractComponent {
         )
     };
 
-    onBackup() {
-        Alert.alert(
-            this.I18n.t('backupNoticeTitle'),
-            this.I18n.t('backupConfirmationMessage'),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => {
-                        this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {cb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {percentDone: percentDone, message: message})});
-                    }
-                },
-                {
+    uploadCatchmentDatabase() {
+        if (this.state.oneSyncCompleted || this.state.unsyncedTxData) {
+            Alert.alert(this.I18n.t('uploadCatchmentDatabase'),
+                this.I18n.t('uploadCatchmentDatabaseConfirmationMessage'),
+                [{
                     text: this.I18n.t('no'), onPress: () => {
                     }, style: 'cancel'
-                }
-            ]
-        )
+                }]);
+        } else {
+            Alert.alert(
+                this.I18n.t('uploadCatchmentDatabase'),
+                this.I18n.t('uploadCatchmentDatabaseConfirmationMessage'),
+                [
+                    {
+                        text: this.I18n.t('yes'), onPress: () => {
+                            this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
+                                cb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                                    percentDone: percentDone,
+                                    message: message
+                                })
+                            });
+                        }
+                    },
+                    {
+                        text: this.I18n.t('no'), onPress: () => {
+                        }, style: 'cancel'
+                    }
+                ]
+            );
+        }
     };
 
     onDashboard() {
@@ -280,8 +294,8 @@ class MenuView extends AbstractComponent {
                   onPress={() => this.entitySyncStatusView()}/>,
             <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
                   onPress={this.onDashboard.bind(this)}/>,
-            <Item icon={this.icon("backup-restore")} titleKey="backup"
-                  onPress={this.onBackup.bind(this)}/>
+            <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
+                  onPress={this.uploadCatchmentDatabase.bind(this)}/>
         ];
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
@@ -328,7 +342,8 @@ class MenuView extends AbstractComponent {
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.renderTitle()}
-                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.I18n.t(this.state.backupProgressUserMessage)} syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
+                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.I18n.t(this.state.backupProgressUserMessage)}
+                                 syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
                 <CHSContent>
                     <ScrollView>
                         <SectionList

@@ -170,7 +170,7 @@ class SyncComponent extends AbstractComponent {
             fontSize: 30
         });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
-        const totalPending = _.sum(entitySyncStatusService.geAllSyncStatus().filter(s => s.entityName !== 'SyncTelemetry').map(s => s.queuedCount));
+        const totalPending = entitySyncStatusService.getTotalEntitiesPending();
         return !this.state.syncing && totalPending > 0 ? Badge(totalPending)(icon) : icon;
     }
 

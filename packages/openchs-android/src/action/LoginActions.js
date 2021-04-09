@@ -70,6 +70,7 @@ class LoginActions {
                 return _.isEmpty(anEntity);
             })
             .then((doRestoreDump) => {
+                General.logInfo("LoginActions", `Dump restore required = ${doRestoreDump}`);
                 if (doRestoreDump) {
                     let restoreService = context.get(BackupRestoreRealmService);
                     restoreService.restore((percentProgress, message) => {

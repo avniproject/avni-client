@@ -79,7 +79,6 @@ class EntitySyncStatusService extends BaseService {
         }));
 
         return _.concat(entities, mediaEntities);
-
     }
 
     getLastLoaded() {
@@ -267,6 +266,9 @@ class EntitySyncStatusService extends BaseService {
         this.deleteEntries(`entityName = '${entityName}' && ${criteria}`)
     }
 
+    getTotalEntitiesPending() {
+        return _.sum(this.geAllSyncStatus().filter(s => s.entityName !== 'SyncTelemetry').map(s => s.queuedCount));
+    }
 }
 
 export default EntitySyncStatusService;
