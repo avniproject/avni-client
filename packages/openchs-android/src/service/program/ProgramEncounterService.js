@@ -1,6 +1,13 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EncounterType, EntityQueue, ObservationsHolder, ProgramEncounter, ProgramEnrolment, FormMapping, EntityApprovalStatus, ApprovalStatus} from 'avni-models';
+import {
+    EncounterType,
+    EntityQueue,
+    FormMapping,
+    ObservationsHolder,
+    ProgramEncounter,
+    ProgramEnrolment
+} from 'avni-models';
 import moment from "moment";
 import _ from 'lodash';
 import General from "../../utility/General";
@@ -8,6 +15,7 @@ import MediaQueueService from "../MediaQueueService";
 import IndividualService from "../IndividualService";
 import EncounterService from "../EncounterService";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
+import FormMappingService from "../FormMappingService";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -78,10 +86,12 @@ class ProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        const isCancelFlow = _.isNil(programEncounter.encounterDateTime);
+        const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramEncounterForm(_.get(programEncounter, 'individual.subjectType'), _.get(programEncounter, 'programEnrolment.program'), programEncounter.encounterType, isCancelFlow);
 
         const db = this.db;
         this.db.write(() => {
-            if (!skipCreatingPendingStatus)
+            if (!skipCreatingPendingStatus && isApprovalEnabled)
                 programEncounter.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEncounter.uuid, ProgramEncounter.schema.name, db);
             this._saveEncounter(programEncounter, db);
             this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db, programEncounter.encounterDateTime);

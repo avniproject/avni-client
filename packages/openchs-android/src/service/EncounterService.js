@@ -82,10 +82,12 @@ class EncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(encounter.observations);
         ObservationsHolder.convertObsForSave(encounter.cancelObservations);
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        const isCancelFlow = _.isNil(encounter.encounterDateTime);
+        const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForEncounterForm(encounter.individual.subjectType, encounter.encounterType, isCancelFlow);
 
         const db = this.db;
         this.db.write(() => {
-            if (!skipCreatingPendingStatus)
+            if (!skipCreatingPendingStatus && isApprovalEnabled)
                 encounter.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(encounter.uuid, Encounter.schema.name, db);
             this._saveEncounter(encounter, db);
             this.saveScheduledVisits(encounter.individual, nextScheduledVisits, db, encounter.encounterDateTime);

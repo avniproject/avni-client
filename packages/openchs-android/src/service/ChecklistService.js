@@ -30,13 +30,11 @@ class ChecklistService extends BaseService {
         return ChecklistService.schema.name;
     }
 
-    saveChecklistItem(checklistItem, skipCreatingPendingStatus) {
+    saveChecklistItem(checklistItem) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(checklistItem.observations);
-        const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        //TODO: implement approval workflow for checklist form as well. We don't have formMapping for this form so skipping it now.
         this.db.write(() => {
-            if (!skipCreatingPendingStatus)
-                checklistItem.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(checklistItem.uuid, ChecklistItem.schema.name, db);
             const savedChecklistItem = db.create(ChecklistItem.schema.name, checklistItem, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(savedChecklistItem, ChecklistItem.schema.name));
         })

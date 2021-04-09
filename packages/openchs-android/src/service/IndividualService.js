@@ -66,9 +66,11 @@ class IndividualService extends BaseService {
     register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
-        const registrationForm = this.getService(FormMappingService).findRegistrationForm(individual.subjectType);
+        const formMappingService = this.getService(FormMappingService);
+        const registrationForm = formMappingService.findRegistrationForm(individual.subjectType);
+        const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
         this.db.write(() => {
-            if (!skipCreatingPendingStatus)
+            if (!skipCreatingPendingStatus && isApprovalEnabled)
                 individual.latestEntityApprovalStatus = this.entityApprovalStatusService.createPendingStatus(individual.uuid, Individual.schema.name, db);
             const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
