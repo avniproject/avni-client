@@ -14,7 +14,8 @@ class ProgressBarView extends AbstractComponent {
         onPress: PropTypes.func.isRequired,
         progress: PropTypes.number,
         message: PropTypes.string,
-        syncing: PropTypes.bool.isRequired
+        syncing: PropTypes.bool.isRequired,
+        notifyUserOnCompletion: PropTypes.bool.isRequired
     };
 
     constructor(props, context) {
@@ -80,7 +81,7 @@ class ProgressBarView extends AbstractComponent {
                                         </Text>
                                     </View>)
                                     :
-                                    (<View>
+                                    (this.props.notifyUserOnCompletion ? <View>
                                         <View style={this.container}>
                                             <Text
                                                 style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextOnPrimaryColor}]}>
@@ -94,7 +95,7 @@ class ProgressBarView extends AbstractComponent {
                                                 color={Colors.ActionButtonColor}
                                                 onPress={() => this.props.onPress()}/>
                                         </View>
-                                    </View>)}
+                                    </View> : <View/>)}
                             </View>
                         </View>
                     </View>
