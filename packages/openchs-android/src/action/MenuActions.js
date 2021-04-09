@@ -4,6 +4,7 @@ import moment from "moment";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
+import General from "../utility/General";
 
 const reservedChars = /[|\\?*<":>+\[\]/']/g;
 
@@ -43,10 +44,12 @@ class MenuActions {
         const {organisationName, username} = state.userInfo;
         let backupAndRestoreRealmService = context.get(BackupRestoreRealmService);
         backupAndRestoreRealmService.backup((percentage, message) => {
-            action.cb(percentage, message);
+            General.logDebug("MenuActions.onBackupDump", message);
+            action.onBackupDumpCb(percentage, message);
         });
         newState.backupInProgress = true;
         newState.backupProgressUserMessage = "Starting backup";
+        newState.percentDone = 1;
         return newState;
     }
 

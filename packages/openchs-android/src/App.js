@@ -12,6 +12,7 @@ import _ from "lodash";
 import codePush from "react-native-code-push";
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
+import FileSystem from "./model/FileSystem";
 
 const {Restart} = NativeModules;
 let routes, beans, reduxStore, db = undefined;
@@ -49,6 +50,7 @@ class App extends Component {
 
     constructor(props, context) {
         super(props, context);
+        FileSystem.init();
         this.getBean = this.getBean.bind(this);
         ErrorHandler.set(this.handleError);
         this.state = {error};

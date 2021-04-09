@@ -60,7 +60,6 @@ export default class FileSystem {
     }
 
     static getBackupDir(){
-        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`);
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`;
     }
 }
