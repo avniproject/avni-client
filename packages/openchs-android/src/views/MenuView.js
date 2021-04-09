@@ -181,11 +181,11 @@ class MenuView extends AbstractComponent {
     };
 
     uploadCatchmentDatabase() {
-        if (this.state.oneSyncCompleted || this.state.unsyncedTxData) {
-            Alert.alert(this.I18n.t('uploadCatchmentDatabase'),
-                this.I18n.t('uploadCatchmentDatabaseConfirmationMessage'),
+        if (!this.state.oneSyncCompleted || this.state.unsyncedTxData) {
+            Alert.alert(this.I18n.t('uploadCatchmentDatabaseErrorTitle'),
+                this.getCatchmentUploadErrorMessage(),
                 [{
-                    text: this.I18n.t('no'), onPress: () => {
+                    text: this.I18n.t('ok'), onPress: () => {
                     }, style: 'cancel'
                 }]);
         } else {
@@ -196,7 +196,7 @@ class MenuView extends AbstractComponent {
                     {
                         text: this.I18n.t('yes'), onPress: () => {
                             this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
-                                cb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                                onBackupDumpCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
                                     percentDone: percentDone,
                                     message: message
                                 })
@@ -211,6 +211,12 @@ class MenuView extends AbstractComponent {
             );
         }
     };
+
+    getCatchmentUploadErrorMessage() {
+        let unSyncedDataMessage = this.state.unsyncedTxData ? `${this.I18n.t('uploadCatchmentDatabaseLocalUnsavedData')}` : "";
+        let noSyncCompletedMessage = this.state.oneSyncCompleted ? "" : `${this.I18n.t('uploadCatchmentDatabaseLocalOneSyncNeeded')}`;
+        return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
+    }
 
     onDashboard() {
         TypedTransition.from(this).to(CustomDashboardView);

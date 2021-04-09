@@ -30,12 +30,8 @@ export default class BackupRestoreRealmService extends BaseService {
         let settingsService = this.getService(SettingsService);
         let authService = this.getService(AuthService);
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
-        fs.readDir(FileSystem.getBackupDir())
-            .then((files) => files.forEach(file => fs.unlink(file.path)))
-            .then(() => cb(1, "backupCreatingCopy"))
-            .then(() => this.db.writeCopyTo(destFile))
-            .then(() => cb(5, "backupCompressing"))
-            .then(() => zip(destFile, destZipFile))
+        this.db.writeCopyTo(destFile);
+        zip(destFile, destZipFile)
             .then(() => cb(10, "backupGettingUploadLocation"))
             .then(() => authService.getAuthToken())
             .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/upload`, authToken))
@@ -48,7 +44,7 @@ export default class BackupRestoreRealmService extends BaseService {
             .then(() => removeBackupFile(destZipFile))
             .then(() => cb(100, "backupCompleted"))
             .catch((error) => {
-                General.logError("BackupRestoreRealm", error);
+                General.logError("BackupRestoreRealmService", error);
                 throw error;
             });
     }
