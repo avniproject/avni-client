@@ -158,7 +158,9 @@ class SyncComponent extends AbstractComponent {
             progress={this.state.progress}
             message={this.state.message}
             syncing={this.state.syncing}
-            onPress={this._postSync.bind(this)}/>;
+            onPress={this._postSync.bind(this)}
+            notifyUserOnCompletion={true}
+        />;
     }
 
     get syncIcon() {

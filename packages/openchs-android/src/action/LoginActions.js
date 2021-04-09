@@ -1,10 +1,11 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import {ValidationResult} from 'avni-models';
+import {ValidationResult, Concept} from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import EntityService from "../service/EntityService";
 
 class LoginActions {
     static getInitialState() {
@@ -48,6 +49,7 @@ class LoginActions {
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     logEvent(firebaseEvents.LOG_IN);
+                    action.cb(0, "Login successful, checking for prepared database");
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
@@ -62,11 +64,21 @@ class LoginActions {
                 action.failure(errorMsg);
             })
             .then(() => {
-                let restoreService = context.get(BackupRestoreRealmService);
-                restoreService.restore((percentProgress, message) => {
-                    General.logDebug("LoginActions", message);
-                    action.cb(percentProgress, message);
-                });
+                let entityService = context.get(EntityService);
+                let entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle = Concept;
+                let anEntity = entityService.findOnly(entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle.schema.name);
+                return _.isEmpty(anEntity);
+            })
+            .then((doRestoreDump) => {
+                if (doRestoreDump) {
+                    let restoreService = context.get(BackupRestoreRealmService);
+                    restoreService.restore((percentProgress, message) => {
+                        if (percentProgress === 100) action.successCb();
+                        else action.cb(percentProgress, message);
+                    });
+                } else {
+                    action.successCb();
+                }
             });
         return newState;
     }
@@ -110,7 +122,7 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_TOGGLE_SHOW_PASSWORD, LoginActions.onToggleShowPassword],
     [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
-    [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring]
+    [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;
