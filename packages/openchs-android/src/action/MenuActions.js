@@ -2,6 +2,8 @@ import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
 import moment from "moment";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import SyncTelemetryService from "../service/SyncTelemetryService";
+import EntitySyncStatusService from "../service/EntitySyncStatusService";
 
 const reservedChars = /[|\\?*<":>+\[\]/']/g;
 
@@ -11,8 +13,10 @@ class MenuActions {
             userInfo: null,
             serverURL: null,
             backupInProgress: false,
-            backupProgressUserMessage: null,
-            percentDone: 0
+            backupProgressUserMessage: '',
+            percentDone: 0,
+            oneSyncCompleted: false,
+            unsyncedTxData: false
         }
     }
 
@@ -21,6 +25,12 @@ class MenuActions {
         let newState = MenuActions.clone(state);
         newState.userInfo = context.get(UserInfoService).getUserInfo();
         newState.serverURL = settings.serverURL;
+
+        newState.oneSyncCompleted = context.get(SyncTelemetryService).atLeastOneSyncCompleted();
+        const entitySyncStatusService = context.get(EntitySyncStatusService);
+        const totalPending = entitySyncStatusService.getTotalEntitiesPending();
+        newState.unsyncedTxData = totalPending !== 0;
+
         return newState;
     }
 
