@@ -149,10 +149,10 @@ class LoginView extends AbstractComponent {
     }
 
     render() {
-        General.logDebug(this.viewName(), 'render');
+        General.logDebug("LoginView", 'render');
         return (
             <CHSContainer>
-                <ProgressBarView progress={this.state.percentDone / 100} message={this.state.dumpRestoreMessage} syncing={this.state.dumpRestoring} onPress={_.noop} notifyUserOnCompletion={false}/>
+                <ProgressBarView progress={this.state.percentProgress / 100} message={this.state.dumpRestoreMessage} syncing={this.state.dumpRestoring} onPress={_.noop} notifyUserOnCompletion={false}/>
                 <CHSContent>
                     {this.renderMultiUserLoginFailure()}
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
@@ -282,7 +282,7 @@ class LoginView extends AbstractComponent {
         this.dispatchAction(Actions.ON_LOGIN, {
             failure: this.loginFailure.bind(this),
             newPasswordRequired: this.newPasswordRequired.bind(this),
-            cb: (percentProgress, message) => {
+            onLoginProgress: (percentProgress, message) => {
                 General.logDebug("LoginView", message);
                 this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
             },

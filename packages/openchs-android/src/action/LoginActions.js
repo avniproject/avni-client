@@ -19,14 +19,14 @@ class LoginActions {
             loginSuccess: false,
             validationResult: ValidationResult.successful(),
             dumpRestoring: false,
-            dumpRestoreProgress: 0,
+            percentProgress: 0,
             dumpRestoreMessage: null
         };
     }
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, dumpRestoreProgress: null} : {dumpRestoreProgress: null, dumpRestoreMessage: null});
+        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {percentProgress: null, dumpRestoreMessage: null});
     }
 
     static onUserIdChange(state, action) {
@@ -49,7 +49,7 @@ class LoginActions {
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     logEvent(firebaseEvents.LOG_IN);
-                    action.cb(0, "Login successful, checking for prepared database");
+                    action.onLoginProgress(0, "Login successful, checking for prepared database");
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
@@ -75,7 +75,7 @@ class LoginActions {
                     let restoreService = context.get(BackupRestoreRealmService);
                     restoreService.restore((percentProgress, message) => {
                         if (percentProgress === 100) action.successCb();
-                        else action.cb(percentProgress, message);
+                        else action.onLoginProgress(percentProgress, message);
                     });
                 } else {
                     action.successCb();
@@ -97,7 +97,7 @@ class LoginActions {
     }
 
     static onDumpRestoring(state, action) {
-        let newState = _.assignIn({}, state, {loggingIn: false, loginError: "", dumpRestoreProgress: action.percentProgress, dumpRestoreMessage: action.message});
+        let newState = _.assignIn({}, state, {loggingIn: false, loginError: "", percentProgress: action.percentProgress, dumpRestoreMessage: action.message});
         newState.dumpRestoring = action.percentProgress !== 100;
         return newState;
     }
