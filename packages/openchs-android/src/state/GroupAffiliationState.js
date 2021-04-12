@@ -30,9 +30,10 @@ class GroupAffiliationState {
         newState.groupSubjectObservations = updatedObs;
     }
 
-    validate(formElements) {
+    validate(formElements = []) {
         const validationResults = [];
-        _.forEach(formElements, fe => {
+        const GAFormElements = formElements.filter(fe => fe.concept.datatype === Concept.dataType.GroupAffiliation);
+        _.forEach(GAFormElements, fe => {
             const obs = _.find(this.groupSubjectObservations, ({concept}) => concept.uuid === fe.concept.uuid);
             if (fe.mandatory && _.isEmpty(obs)) {
                 validationResults.push(new ValidationResult(false, fe.uuid, "emptyValidationMessage"));
