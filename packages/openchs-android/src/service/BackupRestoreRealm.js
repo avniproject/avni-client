@@ -21,8 +21,8 @@ export default class BackupRestoreRealmService extends BaseService {
         super(db, context);
     }
 
-    backup(cb) {
-        const fileName = `${General.randomUUID()}.realm`;
+    backup(dumpType, cb) {
+        const fileName = dumpType === MediaQueueService.DumpType.Adhoc ? `adhoc-${General.randomUUID()}.realm` : `${General.randomUUID()}.realm`;
 
         let destFile = `${FileSystem.getBackupDir()}/${fileName}`;
         let destZipFile = `${FileSystem.getBackupDir()}/${fileName}.zip`;
@@ -34,7 +34,7 @@ export default class BackupRestoreRealmService extends BaseService {
         zip(destFile, destZipFile)
             .then(() => cb(10, "backupGettingUploadLocation"))
             .then(() => authService.getAuthToken())
-            .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/upload`, authToken))
+            .then((authToken) => mediaQueueService.getDumpUploadUrl(dumpType, authToken, `adhoc-dump-as-zip-${General.randomUUID()}`))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
                 cb(10 + (97 - 10) * (written / total), "backupUploading")
             }))

@@ -51,6 +51,7 @@ import {Badge} from "./common/Badge";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import {MenuActionNames} from "../action/MenuActions";
+import MediaQueueService from "../service/MediaQueueService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -189,28 +190,37 @@ class MenuView extends AbstractComponent {
                     }, style: 'cancel'
                 }]);
         } else {
-            Alert.alert(
-                this.I18n.t('uploadCatchmentDatabase'),
-                this.I18n.t('uploadCatchmentDatabaseConfirmationMessage'),
-                [
-                    {
-                        text: this.I18n.t('yes'), onPress: () => {
-                            this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
-                                onBackupDumpCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
-                                    percentDone: percentDone,
-                                    message: message
-                                })
-                            });
-                        }
-                    },
-                    {
-                        text: this.I18n.t('no'), onPress: () => {
-                        }, style: 'cancel'
-                    }
-                ]
-            );
+            this.startUploadDatabase('uploadCatchmentDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Catchment);
         }
     };
+
+    uploadDatabase() {
+        this.startUploadDatabase('uploadDatabase', 'uploadDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
+    }
+
+    startUploadDatabase(titleKey, messageKey, dumpType) {
+        Alert.alert(
+            this.I18n.t(titleKey),
+            this.I18n.t(messageKey),
+            [
+                {
+                    text: this.I18n.t('yes'), onPress: () => {
+                        this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
+                            dumpType: dumpType,
+                            onBackupDumpCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                                percentDone: percentDone,
+                                message: message
+                            })
+                        });
+                    }
+                },
+                {
+                    text: this.I18n.t('no'), onPress: () => {
+                    }, style: 'cancel'
+                }
+            ]
+        );
+    }
 
     getCatchmentUploadErrorMessage() {
         let unSyncedDataMessage = this.state.unsyncedTxData ? `${this.I18n.t('uploadCatchmentDatabaseLocalUnsavedData')}` : "";
@@ -301,7 +311,9 @@ class MenuView extends AbstractComponent {
             <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
                   onPress={this.onDashboard.bind(this)}/>,
             <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
-                  onPress={this.uploadCatchmentDatabase.bind(this)}/>
+                  onPress={this.uploadCatchmentDatabase.bind(this)}/>,
+            <Item icon={this.icon("backup-restore")} titleKey="uploadDatabase"
+                  onPress={this.uploadDatabase.bind(this)}/>
         ];
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
