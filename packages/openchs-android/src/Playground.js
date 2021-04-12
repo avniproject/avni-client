@@ -18,7 +18,7 @@ export default class App extends Component {
         super(props, context);
         if (db === undefined) {
             db = new Realm(Schema);
-            beans = BeanRegistry.init(db, this);
+            beans = BeanRegistry.init(db);
             mockStore = createStore((state, action) => this.mockReducer(state, action), {});
             const entitySyncStatusService = beans.get(EntitySyncStatusService);
             entitySyncStatusService.setup(EntityMetaData.model());

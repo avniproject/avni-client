@@ -21,6 +21,10 @@ export default class BackupRestoreRealmService extends BaseService {
         super(db, context);
     }
 
+    subscribeOnRestore(notify) {
+        this.notify = notify;
+    }
+
     backup(dumpType, cb) {
         const fileName = dumpType === MediaQueueService.DumpType.Adhoc ? `adhoc-${General.randomUUID()}.realm` : `${General.randomUUID()}.realm`;
 
@@ -76,10 +80,12 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logInfo("BackupRestoreRealm", `Replacing realm file with: ${fullFilePath}`);
                 return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
             })
-            .then(() => cb(92, "Removing downloaded files"))
+            .then(() => cb(92, "Refreshing application context"))
+            .then(() => this.notify && this.notify())
+            .then(() => cb(94, "Removing downloaded files"))
             .then(() => removeBackupFile(downloadedFile))
             .then(() => removeBackupFile(downloadedUncompressedDir))
-            .then(() => cb(95, "Personalising database"))
+            .then(() => cb(97, "Personalising database"))
             .then(() => this._deleteUserInfoAndIdAssignment())
             .then(() => cb(100, "Personalisation of database complete"))
             .catch((error) => {

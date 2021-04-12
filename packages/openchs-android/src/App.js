@@ -13,27 +13,38 @@ import codePush from "react-native-code-push";
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
+import BackupRestoreRealmService from "./service/BackupRestoreRealm";
+import GlobalContext from "./GlobalContext";
 
 const {Restart} = NativeModules;
-let routes, beans, reduxStore, db = undefined;
+
+let globalContext = new GlobalContext();
+
+const updateDatabase = function (globalContext) {
+    globalContext.db = new Realm(Schema);
+    globalContext.beanRegistry.updateDatabase(globalContext.db);
+};
 
 const initialiseContext = function () {
-    db = new Realm(Schema);
-    db.objects(EntityQueue.schema.name);
-    beans = BeanRegistry.init(db, this);
-    reduxStore = AppStore.create(beans);
-    beans.forEach(bean => bean.setReduxStore(reduxStore));
+    globalContext.db = new Realm(Schema);
+    globalContext.beanRegistry = BeanRegistry;
+    BeanRegistry.init(globalContext.db);
+    globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beans);
+    globalContext.beanRegistry.setReduxStore(globalContext.reduxStore);
+
+    let restoreRealmService = globalContext.beanRegistry.getService(BackupRestoreRealmService);
+    restoreRealmService.subscribeOnRestore(() => updateDatabase(globalContext));
 };
 
 let error;
 try {
-    if (db === undefined) {
+    if (globalContext.db === undefined) {
         initialiseContext();
-        routes = PathRegistry.routes();
-        const entitySyncStatusService = beans.get(EntitySyncStatusService);
+        globalContext.routes = PathRegistry.routes();
+        const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
 
-        SetBackgroundTaskDependencies(db, beans);
+        SetBackgroundTaskDependencies(globalContext.db, globalContext.beans);
     }
     RegisterAndScheduleJobs();
 } catch (e) {
@@ -61,11 +72,11 @@ class App extends Component {
     }
 
     getChildContext = () => ({
-        getDB: () => db,
+        getDB: () => globalContext.db,
         getService: (serviceName) => {
-            return beans.get(serviceName)
+            return globalContext.beanRegistry.getService(serviceName);
         },
-        getStore: () => reduxStore,
+        getStore: () => globalContext.reduxStore,
     });
 
     renderError() {
@@ -85,7 +96,7 @@ class App extends Component {
     }
 
     getBean(name) {
-        return beans.get(name);
+        return globalContext.beanRegistry.getService(name);
     }
 
     componentDidMount() {
@@ -96,8 +107,8 @@ class App extends Component {
         if (this.state.error) {
             return this.renderError();
         }
-        if (!_.isNil(routes)) {
-            return routes
+        if (!_.isNil(globalContext.routes)) {
+            return globalContext.routes
         }
         return (<Text>Something Went Wrong</Text>);
     }
