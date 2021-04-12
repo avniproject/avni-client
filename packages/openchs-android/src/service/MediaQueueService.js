@@ -1,8 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {MediaQueue, Individual, Encounter, ProgramEncounter, ProgramEnrolment} from 'avni-models';
+import {Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'avni-models';
 import General from "../utility/General";
-import SettingsService from "./SettingsService";
 import _ from 'lodash';
 import {get} from '../framework/http/requests';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -16,6 +15,11 @@ import * as mime from 'react-native-mime-types';
 
 @Service("mediaQueueService")
 class MediaQueueService extends BaseService {
+    static DumpType = {
+        Catchment: 'catchment',
+        Adhoc: 'Adhoc'
+    }
+
     constructor(db, context) {
         super(db, context);
     }
@@ -61,10 +65,19 @@ class MediaQueueService extends BaseService {
         return `${directory}/${mediaQueueItem.fileName}`;
     }
 
+    getDumpUploadUrl(dumpType, authToken, fileName) {
+        if (dumpType === MediaQueueService.DumpType.Catchment)
+            return get(`${this.getServerUrl()}/media/mobileDatabaseBackupUrl/upload`, authToken);
+        else if (dumpType === MediaQueueService.DumpType.Adhoc)
+            return get(`${this.getServerUrl()}/media/uploadUrl/${fileName}`, authToken);
+    }
+
     getUploadUrl(mediaQueueItem, auth) {
-        const settingsService = this.getService(SettingsService);
-        const serverUrl = settingsService.getSettings().serverURL;
-        return get(`${serverUrl}/media/uploadUrl/${mediaQueueItem.fileName}`, auth)
+        return this.getUploadUrlForFile(mediaQueueItem.fileName, auth);
+    }
+
+    getUploadUrlForFile(file, auth) {
+        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`, auth);
     }
 
     mediaExists(mediaQueueItem) {

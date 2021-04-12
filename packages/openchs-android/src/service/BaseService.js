@@ -29,6 +29,11 @@ class BaseService {
         return this.context.getBean(name);
     }
 
+    getServerUrl() {
+        const settingsService = this.getService("settingsService");
+        return settingsService.getSettings().serverURL;
+    }
+
     findAllByKey(keyName, value, schemaName) {
         return this.findAllByCriteria(`${keyName}="${value}"`, schemaName);
     }

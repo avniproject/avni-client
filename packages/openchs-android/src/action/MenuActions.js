@@ -1,12 +1,9 @@
 import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
-import moment from "moment";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
-
-const reservedChars = /[|\\?*<":>+\[\]/']/g;
 
 class MenuActions {
     static getInitialState() {
@@ -43,12 +40,12 @@ class MenuActions {
         let newState = MenuActions.clone(state);
         const {organisationName, username} = state.userInfo;
         let backupAndRestoreRealmService = context.get(BackupRestoreRealmService);
-        backupAndRestoreRealmService.backup((percentage, message) => {
+        backupAndRestoreRealmService.backup(action.dumpType, (percentage, message) => {
             General.logDebug("MenuActions.onBackupDump", message);
             action.onBackupDumpCb(percentage, message);
         });
         newState.backupInProgress = true;
-        newState.backupProgressUserMessage = "Starting backup";
+        newState.backupProgressUserMessage = "backupStarting";
         newState.percentDone = 1;
         return newState;
     }
