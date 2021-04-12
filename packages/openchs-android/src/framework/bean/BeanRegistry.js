@@ -16,6 +16,22 @@ class BeanRegistry extends Registry {
         new Set(this.entities.values()).forEach(bean => bean.init());
         return this.entities;
     }
+
+    get beans() {
+        return this.entities;
+    }
+
+    updateDatabase(db) {
+        new Set(this.entities.values()).forEach(bean => bean.updateDatabase(db));
+    }
+
+    setReduxStore(reduxStore) {
+        this.entities.forEach(bean => bean.setReduxStore(reduxStore));
+    }
+
+    getService(service) {
+        return this.entities.get(service);
+    }
 }
 
 export default new BeanRegistry();

@@ -22,6 +22,10 @@ class BaseService {
         return this.reduxStore.dispatch({type, ...params});
     }
 
+    updateDatabase(db) {
+        this.db = db;
+    }
+
     init() {
     }
 
