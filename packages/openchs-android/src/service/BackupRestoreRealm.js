@@ -81,7 +81,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
             })
             .then(() => cb(92, "Refreshing application context"))
-            .then(() => this.notify && this.notify())
+            .then(() => this.notify())
             .then(() => cb(94, "Removing downloaded files"))
             .then(() => removeBackupFile(downloadedFile))
             .then(() => removeBackupFile(downloadedUncompressedDir))
@@ -89,8 +89,8 @@ export default class BackupRestoreRealmService extends BaseService {
             .then(() => this._deleteUserInfoAndIdAssignment())
             .then(() => cb(100, "Personalisation of database complete"))
             .catch((error) => {
-                General.logError("BackupRestoreRealm", error);
-                cb(100, "Restore complete");
+                General.logErrorAsInfo("BackupRestoreRealm", error);
+                cb(100, "Restore failed, will sync from server");
             });
     }
 
