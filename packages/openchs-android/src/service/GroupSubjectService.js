@@ -39,13 +39,17 @@ class GroupSubjectService extends BaseService {
     saveOrUpdate(groupSubject) {
         const db = this.db;
         this.db.write(() => {
-            const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
-            let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
-            groupSubjectInd.addGroupSubject(savedMember);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
-            General.logDebug('GroupSubjectService', 'Member Saved');
+            this.saveGroupSubject(db, groupSubject);
         });
         return groupSubject;
+    }
+
+    saveGroupSubject(db, groupSubject) {
+        const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
+        let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
+        groupSubjectInd.addGroupSubject(savedMember);
+        db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
+        General.logDebug('GroupSubjectService', 'Member Saved');
     }
 
     getAllGroups(memberSubject) {
@@ -75,9 +79,7 @@ class GroupSubjectService extends BaseService {
             if (groupSubject.voided) {
                 groupSubject.membershipEndDate = new Date();
             }
-            const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
-            subject.addGroupSubject(savedMember);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
+            this.saveGroupSubject(db, groupSubject);
         };
     }
 }
