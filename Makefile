@@ -340,7 +340,12 @@ dev_deploy_platform_translations:
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
 
 deploy_platform_translations_staging:
+ifndef password
+	@echo "Please provide password"
+	exit 1
+else
 	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.openchs.org port=443 username=admin password=$(password)
+endif
 
 deploy_platform_translations_uat:
 	make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.openchs.org port=443 username=admin password=$(password)

@@ -310,6 +310,7 @@
     "uploadCatchmentDatabaseLocalUnsavedData": "You have local unsaved data which should be saved to server.",
     "uploadCatchmentDatabaseLocalOneSyncNeeded": "You have not completed a full sync with server.",
     "uploadCatchmentDatabaseActionRecommended": "Please perform a full sync, before trying this.",
+    "uploadDatabase": "Upload database",
     "feedback": "Provide Feedback",
     "disableAutoRefresh": "Disable Dashboard Auto Refresh",
     "autoRefresh": "Dashboard Auto Refresh",
@@ -405,12 +406,13 @@
     "startNewThread": "Write a comment to start new thread...",
     "commentOnThread": "Comment on this thread...",
     "createThread": "Create Thread",
-    "backupCreatingCopy": "Creating copy of database",
-    "backupCompressing": "Compressing the copied database file",
-    "backupGettingUploadLocation": "Securely getting upload location for backup",
     "backupUploading": "Uploading database backup to the secure location",
-    "backupRemoveFile": "Removing database backup file created",
-    "backupRemoveZipFile": "Removing database backup compressed file created",
-    "backupCompleted": "Backup completed"
+    "backupCompleted": "Backup completed",
+    "restoreCheckDb": "Finding pre-existing database",
+    "restoreDownloadPreparedDb": "Downloading prepared database",
+    "restoringDb": "Restoring database",
+    "restoreComplete": "Restore complete",
+    "restoreFailed": "Restore failed, will sync from server",
+    "restoreNoDump": "No dump present, will sync fully from server"
   }
 }

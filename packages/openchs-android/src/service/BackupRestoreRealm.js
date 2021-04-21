@@ -31,20 +31,29 @@ export default class BackupRestoreRealmService extends BaseService {
         let destFile = `${FileSystem.getBackupDir()}/${fileName}`;
         let destZipFile = `${FileSystem.getBackupDir()}/${fileName}.zip`;
         let mediaQueueService = this.getService(MediaQueueService);
-        let settingsService = this.getService(SettingsService);
         let authService = this.getService(AuthService);
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         this.db.writeCopyTo(destFile);
         zip(destFile, destZipFile)
-            .then(() => cb(10, "backupGettingUploadLocation"))
+            .then(() => {
+                General.logDebug("BackupRestoreRealmService", "Getting upload location");
+                cb(10, "backupUploading");
+            })
             .then(() => authService.getAuthToken())
             .then((authToken) => mediaQueueService.getDumpUploadUrl(dumpType, authToken, `adhoc-dump-as-zip-${General.randomUUID()}`))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
-                cb(10 + (97 - 10) * (written / total), "backupUploading")
+                General.logDebug("BackupRestoreRealmService", `Upload in progress ${written}/${total}`);
+                cb(10 + (97 - 10) * (written / total), "backupUploading");
             }))
-            .then(() => cb(97, "backupRemoveFile"))
+            .then(() => {
+                General.logDebug("BackupRestoreRealmService", "Removing database backup file created");
+                cb(97, "backupUploading");
+            })
             .then(() => removeBackupFile(destFile))
-            .then(() => cb(99, "backupRemoveZipFile"))
+            .then(() => {
+                General.logDebug("BackupRestoreRealmService", "Removing database backup compressed file created");
+                cb(99, "backupUploading");
+            })
             .then(() => removeBackupFile(destZipFile))
             .then(() => cb(100, "backupCompleted"))
             .catch((error) => {
@@ -60,37 +69,73 @@ export default class BackupRestoreRealmService extends BaseService {
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
 
-        General.logInfo("BackupRestoreRealm", `Downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
+        General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
         return authService.getAuthToken()
-            .then(cb(1, "Finding pre-existing database"))
-            .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`, authToken))
-            .then((url) => mediaService.downloadFromUrl(url, downloadedFile, (received, total) => {
-                cb(1 + (received * 85) / total, "Downloading prepared database")
-            }))
-            .then(() => cb(87, "Decompressing downloaded database dump"))
-            .then(() => unzip(downloadedFile, downloadedUncompressedDir))
-            .then(() => cb(89, "Deleting local database"))
-            .then(() => fs.exists(REALM_FILE_FULL_PATH))
-            .then((exists) => exists && fs.unlink(REALM_FILE_FULL_PATH))
-            .then(() => cb(90, "Create database from downloaded file"))
-            .then(() => fs.readDir(downloadedUncompressedDir))
-            .then((files) => _.find(files, (file) => file.name.endsWith("realm")).path)
-            .then((fullFilePath) => {
-                General.logInfo("BackupRestoreRealm", `Replacing realm file with: ${fullFilePath}`);
-                return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
+            .then((authToken) => {
+                cb(1, "restoreCheckDb")
+                return get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/exists`, authToken)
             })
-            .then(() => cb(92, "Refreshing application context"))
-            .then(() => this.notify())
-            .then(() => cb(94, "Removing downloaded files"))
-            .then(() => removeBackupFile(downloadedFile))
-            .then(() => removeBackupFile(downloadedUncompressedDir))
-            .then(() => cb(97, "Personalising database"))
-            .then(() => this._deleteUserInfoAndIdAssignment())
-            .then(() => cb(100, "Personalisation of database complete"))
+            .then((exists) => {
+                General.logDebug("BackupRestoreRealmService", `Backup file exists:${exists}`);
+                if (exists === "true") {
+                    authService.getAuthToken()
+                        .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`, authToken)
+                        .then((url) => mediaService.downloadFromUrl(url, downloadedFile, (received, total) => {
+                            cb(1 + (received * 85) / total, "restoreDownloadPreparedDb")
+                        })))
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Decompressing downloaded database dump");
+                            cb(87, "restoringDb");
+                        })
+                        .then(() => unzip(downloadedFile, downloadedUncompressedDir))
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Deleting local database");
+                            cb(89, "restoringDb");
+                        })
+                        .then(() => fs.exists(REALM_FILE_FULL_PATH))
+                        .then((exists) => exists && fs.unlink(REALM_FILE_FULL_PATH))
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Create database from downloaded file");
+                            cb(90, "restoringDb");
+                        })
+                        .then(() => fs.readDir(downloadedUncompressedDir))
+                        .then((files) => _.find(files, (file) => file.name.endsWith("realm")).path)
+                        .then((fullFilePath) => {
+                            General.logInfo("BackupRestoreRealm", `Replacing realm file with: ${fullFilePath}`);
+                            return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
+                        })
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Refreshing application context");
+                            cb(92, "restoringDb");
+                        })
+                        .then(() => this.notify())
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Removing downloaded files");
+                            cb(94, "restoringDb");
+                        })
+                        .then(() => removeBackupFile(downloadedFile))
+                        .then(() => removeBackupFile(downloadedUncompressedDir))
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Personalising database");
+                            cb(97, "restoringDb");
+                        })
+                        .then(() => this._deleteUserInfoAndIdAssignment())
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
+                            cb(100, "restoreComplete");
+                        })
+                        .catch((error) => {
+                            General.logErrorAsInfo("BackupRestoreRealm", error);
+                            cb(100, "restoreFailed");
+                        });
+                } else {
+                    cb(100, "restoreNoDump");
+                }
+            })
             .catch((error) => {
                 General.logErrorAsInfo("BackupRestoreRealm", error);
-                cb(100, "Restore failed, will sync from server");
+                cb(100, "restoreFailed");
             });
     }
 

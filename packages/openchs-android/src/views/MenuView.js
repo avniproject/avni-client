@@ -195,7 +195,7 @@ class MenuView extends AbstractComponent {
     };
 
     uploadDatabase() {
-        this.startUploadDatabase('uploadDatabase', 'uploadDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
+        this.startUploadDatabase('uploadDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
     }
 
     startUploadDatabase(titleKey, messageKey, dumpType) {

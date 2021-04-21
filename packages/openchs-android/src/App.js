@@ -44,7 +44,7 @@ try {
         const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
 
-        SetBackgroundTaskDependencies(globalContext.db, globalContext.beans);
+        SetBackgroundTaskDependencies(globalContext.db, globalContext.beanRegistry.beans);
     }
     RegisterAndScheduleJobs();
 } catch (e) {
