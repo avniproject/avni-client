@@ -413,6 +413,9 @@
     "restoringDb": "Restoring database",
     "restoreComplete": "Restore complete",
     "restoreFailed": "Restore failed, will sync from server",
-    "restoreNoDump": "No dump present, will sync fully from server"
+    "restoreNoDump": "No dump present, will sync fully from server",
+    "audioFileTitle": "Only audio file supported",
+    "audioFileDescription": "Please select an audio file.",
+    "recordingStartedMessage": "Recording started, use stop button to stop it."
   }
 }

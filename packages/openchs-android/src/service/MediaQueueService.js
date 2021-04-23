@@ -60,8 +60,19 @@ class MediaQueueService extends BaseService {
         this.db.write(() => this.db.delete(itemToBeDeleted));
     }
 
+    getDirByType(type) {
+        switch (type) {
+            case 'Image':
+                return FileSystem.getImagesDir();
+            case 'Video':
+                return FileSystem.getVideosDir();
+            case 'Audio':
+                return FileSystem.getAudioDir();
+        }
+    }
+
     getAbsoluteFileName(mediaQueueItem) {
-        const directory = mediaQueueItem.type === "Image" ? FileSystem.getImagesDir() : FileSystem.getVideosDir();
+        const directory = this.getDirByType(mediaQueueItem.type);
         return `${directory}/${mediaQueueItem.fileName}`;
     }
 

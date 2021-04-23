@@ -18,6 +18,7 @@ class Colors {
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';
     static BlackBackground = '#212121';
     static ActionButtonColor = '#009688';
+    static DisabledButtonColor = '#c2c5c6';
     static SecondaryActionButtonColor = '#e0e0e0';
     static GreyContentBackground = '#f7f7f7';
     static HighlightBackgroundColor = 'lightgrey';

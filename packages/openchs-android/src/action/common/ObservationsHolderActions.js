@@ -27,6 +27,9 @@ class ObservationsHolderActions {
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         let validationResult = action.formElement.validate(action.value);
+        if (action.validationResult && validationResult.success) {
+            validationResult = action.validationResult;
+        }
         if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
             validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.formElement, context);
         }

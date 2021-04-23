@@ -8,6 +8,7 @@ export default class FileSystem {
         General.logDebug("FileSystem", "Creating directories if they don't exist");
         General.logDebug("FileSystem", FileSystem.getImagesDir());
         General.logDebug("FileSystem", FileSystem.getVideosDir());
+        General.logDebug("FileSystem", FileSystem.getAudioDir());
 
         const grantSuccess = (grant) => {
             return typeof (grant) === 'boolean'? grant: PermissionsAndroid.RESULTS.GRANTED === grant;
@@ -25,6 +26,7 @@ export default class FileSystem {
                 if (grantSuccess(grant)) {
                    await FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
                         .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
+                        .then(() => FileSystem.mkdir(FileSystem.getAudioDir(), 'audios'))
                         .then(() => FileSystem.mkdir(FileSystem.getBackupDir(), 'db'))
                         .then(() => FileSystem.mkdir(FileSystem.getNewsDir(), 'news'))
                         .catch(err => General.logError("FileSystem", err));
@@ -52,6 +54,11 @@ export default class FileSystem {
     static getVideosDir() {
         General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos/`);
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos`;
+    }
+
+    static getAudioDir() {
+        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/audios/`);
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/audios`;
     }
 
     static getNewsDir() {

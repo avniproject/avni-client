@@ -143,7 +143,7 @@ class Observations extends AbstractComponent {
             i18n: this.I18n
         });
 
-        if ([Concept.dataType.Image, Concept.dataType.Video].includes(renderType)) {
+        if ([Concept.dataType.Image, Concept.dataType.Video, Concept.dataType.Audio].includes(renderType)) {
             return (
                 <View style={this.styles.observationColumn}>
                     <ExpandableMedia source={displayable.displayValue} type={renderType}/>

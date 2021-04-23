@@ -30,6 +30,7 @@ import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFor
 import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormElement";
 import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
+import AudioFormElement from "./formElement/AudioFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -213,6 +214,15 @@ class FormElementGroup extends AbstractComponent {
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_GROUPS"]}
                                 groupSubjectObservation={_.find(_.get(this.props.groupAffiliation, 'groupSubjectObservations'), ({concept, groupSubject}) => concept.uuid === formElement.concept.uuid && !groupSubject.voided)}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        }
+                        else if ([Concept.dataType.Audio].includes(formElement.concept.datatype)) {
+                            return this.wrap(<AudioFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }

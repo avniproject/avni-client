@@ -111,6 +111,8 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-audio-recorder-player')
+    implementation project(':react-native-document-picker')
     implementation project(':react-native-zip-archive')
     implementation project(':react-native-background-job')
     implementation project(':react-native-webview')

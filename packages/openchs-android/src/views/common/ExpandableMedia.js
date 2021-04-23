@@ -8,6 +8,7 @@ import General from "../../utility/General";
 import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../primitives/Colors";
+import ExpandableAudio from "./ExpandableAudio";
 
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
@@ -78,10 +79,18 @@ export default class ExpandableMedia extends AbstractFormElement {
         }
     }
 
+    getMediaComponentByType(type) {
+        switch (type) {
+            case 'Video' : return ExpandableVideo;
+            case 'Image' : return ExpandableImage;
+            case 'Audio' : return ExpandableAudio;
+        }
+    }
+
     showExpandableMedia() {
         if (this.props.source && this.state.exists) {
-            return this.props.type === 'Video' ? <ExpandableVideo source={this.mediaUriInDevice}/>
-                : <ExpandableImage source={this.mediaUriInDevice}/>;
+            const MediaComponent = this.getMediaComponentByType(this.props.type);
+            return <MediaComponent source={this.mediaUriInDevice}/>;
         }
     }
 

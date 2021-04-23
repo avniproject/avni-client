@@ -45,6 +45,7 @@ class MediaService extends BaseService {
         const typeToDirectoryMap = new Map([
             ['Video', FileSystem.getVideosDir],
             ['Image', FileSystem.getImagesDir],
+            ['Audio', FileSystem.getAudioDir],
             ['News', FileSystem.getNewsDir],
             ]);
         if (!uri) return '';
