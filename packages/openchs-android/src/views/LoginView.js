@@ -4,12 +4,9 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {
     Alert,
-    Dimensions,
-    Modal,
     StatusBar,
     Text,
     TouchableNativeFeedback,
-    TouchableWithoutFeedback,
     View,
 } from "react-native";
 import TextFormElement from "./form/formElement/TextFormElement";
@@ -24,7 +21,7 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
-import {Button, CheckBox, Spinner} from "native-base";
+import {CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
 import AuthService from "../service/AuthService";
 import {ConfirmDialog} from 'react-native-simple-dialogs';
@@ -148,11 +145,22 @@ class LoginView extends AbstractComponent {
         </ConfirmDialog>);
     }
 
+    restoreFailureAlert(errorMessage) {
+        Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
+                text: this.I18n.t('tryAgain'),
+                onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, this.dumpRestoreAction())
+            },
+                {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(), style: 'cancel'}
+            ]
+        );
+    }
+
     render() {
         General.logDebug("LoginView", 'render');
         return (
             <CHSContainer>
-                <ProgressBarView progress={this.state.percentProgress / 100} message={this.state.dumpRestoreMessage} syncing={this.state.dumpRestoring} onPress={_.noop} notifyUserOnCompletion={false}/>
+                <ProgressBarView progress={this.state.percentProgress / 100} message={this.state.dumpRestoreMessage} syncing={this.state.dumpRestoring} onPress={_.noop}
+                                 notifyUserOnCompletion={false}/>
                 <CHSContent>
                     {this.renderMultiUserLoginFailure()}
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
@@ -282,12 +290,21 @@ class LoginView extends AbstractComponent {
         this.dispatchAction(Actions.ON_LOGIN, {
             failure: this.loginFailure.bind(this),
             newPasswordRequired: this.newPasswordRequired.bind(this),
+            ...this.dumpRestoreAction()
+        });
+    }
+
+    dumpRestoreAction() {
+        return {
             onLoginProgress: (percentProgress, message) => {
                 General.logDebug("LoginView", message);
                 this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
             },
+            checkForRetry: (errorMessage) => {
+                this.restoreFailureAlert(errorMessage);
+            },
             successCb: this.loginComplete.bind(this)
-        });
+        }
     }
 }
 

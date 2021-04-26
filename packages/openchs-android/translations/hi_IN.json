@@ -294,6 +294,14 @@
     "backPressMessage": "क्या आप वाकई वापस जाना चाहते हैं? आप सभी भरे हुए डेटा को बरबाद कर देंगे।",
     "subjectSummary": "सारांश",
     "homePressTitle": "होम स्क्रीन पर जाएं",
-    "homePressMessage": "क्या आप वाकई होम स्क्रीन पर वापस जाना चाहते हैं? आप सभी प्रपत्र परिवर्तनों को खो देंगे।"
+    "homePressMessage": "क्या आप वाकई होम स्क्रीन पर वापस जाना चाहते हैं? आप सभी प्रपत्र परिवर्तनों को खो देंगे।",
+    "restoreCheckDb": "देटाबसे चेक जारी",
+    "restoreDownloadPreparedDb": "देटाबसे डाउनलोड चालू",
+    "restoringDb": "देटाबसे लोड चालू",
+    "restoreComplete": "देटाबसे लोड ख़त्म",
+    "restoreFailedTitle": "देटाबसे रेस्टॉर फ़ेल",
+    "restoreFailedMessage": "फ़ास्ट सिंक फ़ेल",
+    "restoreNoDump": "कोई डम्प मौजूद नहीं, फ़्रेश सिंक चालू",
+    "performNormalSync": "स्लो सिंक करो"
   }
 }

@@ -26,7 +26,10 @@ class LoginActions {
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {percentProgress: null, dumpRestoreMessage: null});
+        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {
+            percentProgress: null,
+            dumpRestoreMessage: null
+        });
     }
 
     static onUserIdChange(state, action) {
@@ -70,13 +73,9 @@ class LoginActions {
                 return _.isEmpty(anEntity);
             })
             .then((doRestoreDump) => {
-                General.logInfo("LoginActions", `Dump restore required = ${doRestoreDump}`);
+                General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
                 if (doRestoreDump) {
-                    let restoreService = context.get(BackupRestoreRealmService);
-                    restoreService.restore((percentProgress, message) => {
-                        if (percentProgress === 100) action.successCb();
-                        else action.onLoginProgress(percentProgress, message);
-                    });
+                    LoginActions.restoreDump(context, action);
                 } else {
                     action.successCb();
                 }
@@ -84,7 +83,16 @@ class LoginActions {
         return newState;
     }
 
-    static onStateChange(state, action, context) {
+    static restoreDump(context, action) {
+        let restoreService = context.get(BackupRestoreRealmService);
+        restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
+            if (failed) action.checkForRetry(failureMessage);
+            else if (percentProgress === 100) action.successCb();
+            else action.onLoginProgress(percentProgress, message);
+        });
+    }
+
+    static onStateChange(state, action) {
         return _.assignIn({}, state, action.newState);
     }
 
@@ -101,6 +109,12 @@ class LoginActions {
         newState.dumpRestoring = action.percentProgress !== 100;
         return newState;
     }
+
+    static onDumpRestoreRetry(state, action, context) {
+        let newState = _.assignIn({}, state, {percentProgress: 0});
+        LoginActions.restoreDump(context, action);
+        return newState;
+    }
 }
 
 const LoginActionsNames = {
@@ -112,7 +126,8 @@ const LoginActionsNames = {
     ON_TOGGLE_SHOW_PASSWORD: "LA.ON_TOGGLE_SHOW_PASSWORD",
     ON_EMPTY_LOGIN: "LA.ON_EMPTY_LOGIN",
     ON_LOAD: 'LA.ON_LOAD',
-    ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING'
+    ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING',
+    ON_DUMP_RESTORE_RETRY: 'LA.ON_DUMP_RESTORE_RETRY'
 };
 
 const LoginActionsMap = new Map([
@@ -124,6 +139,7 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
     [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring],
+    [LoginActionsNames.ON_DUMP_RESTORE_RETRY, LoginActions.onDumpRestoreRetry]
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;

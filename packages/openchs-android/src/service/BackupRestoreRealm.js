@@ -80,10 +80,10 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", `Backup file exists:${exists}`);
                 if (exists === "true") {
                     authService.getAuthToken()
-                        .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`, authToken)
+                        .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`, authToken))
                         .then((url) => mediaService.downloadFromUrl(url, downloadedFile, (received, total) => {
-                            cb(1 + (received * 85) / total, "restoreDownloadPreparedDb")
-                        })))
+                                cb(1 + (received * 85) / total, "restoreDownloadPreparedDb")
+                            }))
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Decompressing downloaded database dump");
                             cb(87, "restoringDb");
@@ -127,7 +127,7 @@ export default class BackupRestoreRealmService extends BaseService {
                         })
                         .catch((error) => {
                             General.logErrorAsInfo("BackupRestoreRealm", error);
-                            cb(100, "restoreFailed");
+                            cb(100, "restoreFailed", true, error.message);
                         });
                 } else {
                     cb(100, "restoreNoDump");
@@ -135,7 +135,7 @@ export default class BackupRestoreRealmService extends BaseService {
             })
             .catch((error) => {
                 General.logErrorAsInfo("BackupRestoreRealm", error);
-                cb(100, "restoreFailed");
+                cb(100, "restoreFailed", true, error.message);
             });
     }
 
