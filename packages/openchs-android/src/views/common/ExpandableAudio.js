@@ -28,7 +28,7 @@ export default class ExpandableAudio extends React.Component {
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
                 <View style={styles.previewContainer}>
-                    <Icon name={'play-circle'} style={styles.playIconStyle}/>
+                    <Icon name={'headphones'} style={styles.playIconStyle}/>
                 </View>
             </TouchableNativeFeedback>
             {this.state.showModal && (
@@ -46,11 +46,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 36,
-        width: 36
+        width: 36,
+        opacity: 0.8,
     },
     playIconStyle: {
-        color: Colors.ActionButtonColor,
-        opacity: 0.8,
+        color: Colors.headerIconColor,
         fontSize: 20
     }
 });

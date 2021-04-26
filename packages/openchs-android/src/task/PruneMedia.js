@@ -7,7 +7,7 @@ import ErrorHandler from "../utility/ErrorHandler";
 
 const imageObservationDoesNotExist = (db) => (image) => {
     return db.objects(Observation.schema.name).filtered(
-        `(concept.datatype == "${Concept.dataType.Image}" OR  concept.datatype == "${Concept.dataType.Video}") and valueJSON contains[c] "${image}"`)
+        `(concept.datatype == "${Concept.dataType.Image}" OR  concept.datatype == "${Concept.dataType.Video}" OR  concept.datatype == "${Concept.dataType.Audio}") and valueJSON contains[c] "${image}"`)
         .length === 0;
 };
 
