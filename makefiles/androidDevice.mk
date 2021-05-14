@@ -52,6 +52,7 @@ run_app_staging_dev: as_staging_dev _run_app
 run_app_uat: as_uat _run_app
 run_app_prerelease: as_prerelease _run_app
 run_app_prod: as_prod _run_app
+run_app_prod_dev: as_prod_dev _run_app
 
 stop_app:
 	adb shell am force-stop ${app_android_package_name}

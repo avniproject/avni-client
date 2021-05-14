@@ -21,6 +21,7 @@ const {Restart} = NativeModules;
 let globalContext = new GlobalContext();
 
 const updateDatabase = function (globalContext) {
+    globalContext.db.close();
     globalContext.db = new Realm(Schema);
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };

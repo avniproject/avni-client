@@ -103,6 +103,7 @@ as_staging_dev: ; $(call _create_config,staging_dev)
 as_uat: ; $(call _create_config,uat)
 as_prerelease: ; $(call _create_config,prerelease)
 as_prod: ; $(call _create_config,prod)
+as_prod_dev: ; $(call _create_config,prod_dev)
 
 release_clean:
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
