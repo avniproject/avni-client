@@ -18,11 +18,6 @@ class RootView extends AbstractComponent {
         super(props, context);
     }
 
-    /**
-     * Login page will be shown on startup only if
-     * 1. User has never logged in to the app
-     * 2. User is able to access the CHS server
-     */
     componentWillMount() {
         const authService = this.context.getService(AuthService);
         const beneficiaryModePinService = this.context.getService(BeneficiaryModePinService);
