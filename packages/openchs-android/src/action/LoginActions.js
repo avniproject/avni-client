@@ -67,10 +67,8 @@ class LoginActions {
                 action.failure(errorMsg);
             })
             .then(() => {
-                let entityService = context.get(EntityService);
-                let entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle = Concept;
-                let anEntity = entityService.findOnly(entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle.schema.name);
-                return _.isEmpty(anEntity);
+                let backupRestoreRealmService = context.get(BackupRestoreRealmService);
+                return backupRestoreRealmService.isDatabaseNotSynced();
             })
             .then((doRestoreDump) => {
                 General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
