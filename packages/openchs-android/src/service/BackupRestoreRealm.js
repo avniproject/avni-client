@@ -1,4 +1,4 @@
-import {EntitySyncStatus, IdentifierAssignment, UserInfo} from 'avni-models';
+import {EntitySyncStatus, IdentifierAssignment, UserInfo, Concept} from 'avni-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
@@ -11,6 +11,7 @@ import SettingsService from "../service/SettingsService";
 import AuthService from "../service/AuthService";
 import MediaService from "./MediaService";
 import _ from 'lodash';
+import EntityService from "./EntityService";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -23,6 +24,13 @@ export default class BackupRestoreRealmService extends BaseService {
 
     subscribeOnRestore(notify) {
         this.notify = notify;
+    }
+
+    isDatabaseNotSynced() {
+        let entityService = this.getService(EntityService);
+        let entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle = Concept;
+        let anEntity = entityService.findOnly(entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle.schema.name);
+        return _.isEmpty(anEntity);
     }
 
     backup(dumpType, cb) {
