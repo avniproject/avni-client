@@ -36,5 +36,13 @@
   "forgot_password_first_page_note" : "Please enter your User ID, We will send you One-time password (OTP) to reset your password.",
   "forgot_password_OPT_sent_alert" : "We have sent OTP on your registered Mobile Number",
   "forgot_password_changes_success_alert" : "Your password has been reset successfully",
-  "confirm_password_error" : "Password Mismatch"
+  "confirm_password_error" : "Password Mismatch",
+  "restoreCheckDb": "Finding pre-existing database",
+  "restoreDownloadPreparedDb": "Downloading prepared database",
+  "restoringDb": "Restoring database",
+  "restoreComplete": "Restore complete",
+  "restoreFailed": "Restore failed, will sync from server",
+  "restoreFailedTitle": "Fast sync failed",
+  "restoreNoDump": "No dump present, will sync fully from server",
+  "performNormalSync": "Perform slow sync"
 }
