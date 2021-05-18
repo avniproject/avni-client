@@ -38,6 +38,7 @@
 		D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4EC43C92D0E4189844EFAB5 /* libRNCWebView.a */; };
 		A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */; };
 		8B6CE7F57B1C405EA2137E7A /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C7551BEC7D423FA8CFCD2F /* libRNZipArchive.a */; };
+		C35D921593614313BD9EBD24 /* libKCKeepAwake.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4B502999FC14DDC9E65806B /* libKCKeepAwake.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,6 +191,8 @@
 		FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */ = {isa = PBXFileReference; name = "libRNBackgroundJob.a"; path = "libRNBackgroundJob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		B2D0AAFA51CA4E86ADD2CD50 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; name = "RNZipArchive.xcodeproj"; path = "../node_modules/react-native-zip-archive/ios/RNZipArchive.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		72C7551BEC7D423FA8CFCD2F /* libRNZipArchive.a */ = {isa = PBXFileReference; name = "libRNZipArchive.a"; path = "libRNZipArchive.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */ = {isa = PBXFileReference; name = "KCKeepAwake.xcodeproj"; path = "../node_modules/react-native-keep-awake/ios/KCKeepAwake.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		F4B502999FC14DDC9E65806B /* libKCKeepAwake.a */ = {isa = PBXFileReference; name = "libKCKeepAwake.a"; path = "libKCKeepAwake.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -230,6 +233,7 @@
 				D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */,
 				A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */,
 				8B6CE7F57B1C405EA2137E7A /* libRNZipArchive.a in Frameworks */,
+				C35D921593614313BD9EBD24 /* libKCKeepAwake.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,6 +380,7 @@
 				3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */,
 				211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */,
 				B2D0AAFA51CA4E86ADD2CD50 /* RNZipArchive.xcodeproj */,
+				8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -737,6 +742,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -753,6 +759,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -793,6 +800,7 @@
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",
+					"$(SRCROOT)/../node_modules/react-native-keep-awake/ios",
 				);
 			};
 			name = Debug;
@@ -823,6 +831,7 @@
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",
+					"$(SRCROOT)/../node_modules/react-native-keep-awake/ios",
 				);
 			};
 			name = Release;
