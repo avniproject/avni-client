@@ -4,6 +4,7 @@ import android.app.Application;
 import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.facebook.react.ReactApplication;
+import com.corbt.keepawake.KCKeepAwakePackage;
 import com.dooboolab.RNAudioRecorderPlayerPackage;
 import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
 import com.rnziparchive.RNZipArchivePackage;
@@ -51,6 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new KCKeepAwakePackage(),
             new RNAudioRecorderPlayerPackage(),
             new DocumentPickerPackage(),
             new RNZipArchivePackage(),

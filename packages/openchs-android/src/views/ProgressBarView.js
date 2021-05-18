@@ -6,6 +6,7 @@ import Colors from "./primitives/Colors";
 import _ from "lodash";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import KeepAwake from 'react-native-keep-awake';
 
 const {width, height} = Dimensions.get('window');
 
@@ -62,6 +63,7 @@ class ProgressBarView extends AbstractComponent {
                    transparent={true}
                    onRequestClose={_.noop}
                    visible={this.props.syncing}>
+                <KeepAwake />
                 <View style={[this.syncContainerStyle, {backgroundColor: 'rgba(0, 0, 0, 0.25)'}]}
                       key={`spinner_${Date.now()}`}>
                     <View style={{flex: .4}}/>

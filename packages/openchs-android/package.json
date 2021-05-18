@@ -55,6 +55,7 @@
     "react-native-image-picker": "0.28.0",
     "react-native-image-zoom-viewer": "2.2.24",
     "react-native-immediate-phone-call": "^2.0.0",
+    "react-native-keep-awake": "^4.0.0",
     "react-native-mime-types": "2.2.1",
     "react-native-simple-dialogs": "1.1.0",
     "react-native-smooth-pincode-input": "^1.0.7",
