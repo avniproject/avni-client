@@ -254,8 +254,8 @@ class CHSNavigator {
         TypedTransition.from(source).to(ForgotPasswordView, true);
     }
 
-    static navigateToSetPasswordView(source, user) {
-        TypedTransition.from(source).with({user: user}).to(SetPasswordView, true);
+    static navigateToSetPasswordView(source, user, onSuccessCB) {
+        TypedTransition.from(source).with({user, onSuccessCB}).to(SetPasswordView, true);
     }
 
     static navigateToResetPasswordView(source, user) {

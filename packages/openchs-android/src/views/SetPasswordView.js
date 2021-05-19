@@ -2,25 +2,28 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Image, Text, View, Dimensions, TextInput, TouchableNativeFeedback} from "react-native";
+import {Text, TextInput, TouchableNativeFeedback, View} from "react-native";
 import Styles from "./primitives/Styles";
 import {CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
-import themes from "./primitives/themes";
-import Distances from "./primitives/Distances";
 import AuthService from "../service/AuthService";
-import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
+import DBRestoreProgress from "./DBRestoreProgress";
 
 @Path('/setPasswordView')
 class SetPasswordView extends AbstractComponent {
     static propTypes = {
-        user: PropTypes.object
+        user: PropTypes.object,
+        onSuccessCB: PropTypes.func,
     };
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    viewName() {
+        return "SetPasswordView";
     }
 
     componentWillMount() {
@@ -43,7 +46,7 @@ class SetPasswordView extends AbstractComponent {
                 this.setState(() => {
                     return {showSpinner: false}
                 });
-                CHSNavigator.navigateToLandingView(this, true, {tabIndex: 1, menuProps: {startSync: true}})
+                this.props.onSuccessCB(this);
             },
             (error) => {
                 this.setState(() => {
@@ -74,6 +77,7 @@ class SetPasswordView extends AbstractComponent {
     render() {
         return (
             <CHSContainer>
+                <DBRestoreProgress/>
                 <CHSContent>
                     <View style={{
                         padding: 72,

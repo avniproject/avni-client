@@ -52,11 +52,11 @@ class LoginActions {
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     logEvent(firebaseEvents.LOG_IN);
-                    action.onLoginProgress(0, "Login successful, checking for prepared database");
+                    LoginActions.startDumpRestore(context, action, action.source);
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
-                    action.newPasswordRequired(response.user);
+                    action.newPasswordRequired(response.user, (source) => LoginActions.startDumpRestore(context, action, source));
                     return;
                 }
                 General.logError("Unreachable code");
@@ -65,27 +65,27 @@ class LoginActions {
                 const errorMsg = _.includes(error.message, "Network request failed") ? error.message.concat('. Network is slow or disconnected. Please check internet connection') : error.authErrCode;
                 logEvent(firebaseEvents.LOG_IN_ERROR, {error_message: errorMsg});
                 action.failure(errorMsg);
-            })
-            .then(() => {
-                let backupRestoreRealmService = context.get(BackupRestoreRealmService);
-                return backupRestoreRealmService.isDatabaseNotSynced();
-            })
-            .then((doRestoreDump) => {
-                General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
-                if (doRestoreDump) {
-                    LoginActions.restoreDump(context, action);
-                } else {
-                    action.successCb();
-                }
             });
         return newState;
     }
 
-    static restoreDump(context, action) {
+    static startDumpRestore(context, action, source) {
+        action.onLoginProgress(0, "Login successful, checking for prepared database");
+        let backupRestoreRealmService = context.get(BackupRestoreRealmService);
+        const doRestoreDump = backupRestoreRealmService.isDatabaseNotSynced();
+        General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
+        if (doRestoreDump) {
+            LoginActions.restoreDump(context, action, source);
+        } else {
+            action.successCb(source);
+        }
+    }
+
+    static restoreDump(context, action, source) {
         let restoreService = context.get(BackupRestoreRealmService);
         restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
-            if (failed) action.checkForRetry(failureMessage);
-            else if (percentProgress === 100) action.successCb();
+            if (failed) action.checkForRetry(failureMessage, source);
+            else if (percentProgress === 100) action.successCb(source);
             else action.onLoginProgress(percentProgress, message);
         });
     }
@@ -110,7 +110,7 @@ class LoginActions {
 
     static onDumpRestoreRetry(state, action, context) {
         let newState = _.assignIn({}, state, {percentProgress: 0});
-        LoginActions.restoreDump(context, action);
+        LoginActions.restoreDump(context, action, action.source);
         return newState;
     }
 }

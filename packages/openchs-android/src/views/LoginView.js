@@ -28,6 +28,7 @@ import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from "./primitives/Fonts";
 import Config from '../framework/Config';
 import ProgressBarView from "./ProgressBarView";
+import DBRestoreProgress from "./DBRestoreProgress";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -50,12 +51,12 @@ class LoginView extends AbstractComponent {
         this.dispatchAction(Actions.ON_PASSWORD_CHANGE, {value: passwdBeforeReset});
     }
 
-    loginComplete() {
-        const backFunction = _.get(this.props, 'params.backFunction');
+    loginComplete(source) {
+        const backFunction = _.get(source.props, 'params.backFunction');
         if (backFunction) {
-            backFunction(this);
+            backFunction(source);
         } else {
-            CHSNavigator.navigateToLandingView(this, true, {tabIndex: 1, menuProps: {startSync: true}});
+            CHSNavigator.navigateToLandingView(source, true, {tabIndex: 1, menuProps: {startSync: true}});
         }
     }
 
@@ -68,14 +69,14 @@ class LoginView extends AbstractComponent {
         });
     }
 
-    newPasswordRequired(user) {
+    newPasswordRequired(user, onSuccessCB) {
         this.dispatchAction(Actions.ON_STATE_CHANGE, {
             newState: {
                 loginError: "",
                 loggingIn: false
             }
         });
-        CHSNavigator.navigateToSetPasswordView(this, user);
+        CHSNavigator.navigateToSetPasswordView(this, user, onSuccessCB);
     }
 
     forgotPassword() {
@@ -145,12 +146,12 @@ class LoginView extends AbstractComponent {
         </ConfirmDialog>);
     }
 
-    restoreFailureAlert(errorMessage) {
+    restoreFailureAlert(errorMessage, source) {
         Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
                 text: this.I18n.t('tryAgain'),
-                onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, this.dumpRestoreAction())
+                onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {...this.dumpRestoreAction.call(this), source})
             },
-                {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(), style: 'cancel'}
+                {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(source), style: 'cancel'}
             ]
         );
     }
@@ -159,8 +160,7 @@ class LoginView extends AbstractComponent {
         General.logDebug("LoginView", 'render');
         return (
             <CHSContainer>
-                <ProgressBarView progress={this.state.percentProgress / 100} message={this.state.dumpRestoreMessage} syncing={this.state.dumpRestoring} onPress={_.noop}
-                                 notifyUserOnCompletion={false}/>
+                <DBRestoreProgress/>
                 <CHSContent>
                     {this.renderMultiUserLoginFailure()}
                     <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
@@ -290,20 +290,21 @@ class LoginView extends AbstractComponent {
         this.dispatchAction(Actions.ON_LOGIN, {
             failure: this.loginFailure.bind(this),
             newPasswordRequired: this.newPasswordRequired.bind(this),
-            ...this.dumpRestoreAction()
+            ...this.dumpRestoreAction(),
+            source: this
         });
+    }
+
+    onLoginProgress(percentProgress, message) {
+        General.logDebug("LoginView", message);
+        this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
     }
 
     dumpRestoreAction() {
         return {
-            onLoginProgress: (percentProgress, message) => {
-                General.logDebug("LoginView", message);
-                this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
-            },
-            checkForRetry: (errorMessage) => {
-                this.restoreFailureAlert(errorMessage);
-            },
-            successCb: this.loginComplete.bind(this)
+            onLoginProgress: (percentProgress, message) => this.onLoginProgress(percentProgress, message),
+            checkForRetry: (errorMessage, source) => this.restoreFailureAlert(errorMessage, source),
+            successCb: (source) => this.loginComplete(source)
         }
     }
 }
