@@ -26,10 +26,12 @@ class LoginActions {
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        return _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {
+        const newState = _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {
             percentProgress: null,
             dumpRestoreMessage: null
         });
+        newState.dumpRestoring = false;
+        return newState;
     }
 
     static onUserIdChange(state, action) {
