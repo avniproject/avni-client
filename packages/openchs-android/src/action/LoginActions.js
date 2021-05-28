@@ -1,11 +1,10 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import {ValidationResult, Concept} from 'avni-models';
+import {ValidationResult} from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
-import EntityService from "../service/EntityService";
 
 class LoginActions {
     static getInitialState() {
@@ -115,6 +114,10 @@ class LoginActions {
         LoginActions.restoreDump(context, action, action.source);
         return newState;
     }
+
+    static onNoCatchmentError(state) {
+        return _.assignIn({}, state, {dumpRestoring: false});
+    }
 }
 
 const LoginActionsNames = {
@@ -127,7 +130,8 @@ const LoginActionsNames = {
     ON_EMPTY_LOGIN: "LA.ON_EMPTY_LOGIN",
     ON_LOAD: 'LA.ON_LOAD',
     ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING',
-    ON_DUMP_RESTORE_RETRY: 'LA.ON_DUMP_RESTORE_RETRY'
+    ON_DUMP_RESTORE_RETRY: 'LA.ON_DUMP_RESTORE_RETRY',
+    ON_NO_CATCHMENT_ERROR: 'LA.ON_NO_CATCHMENT_ERROR'
 };
 
 const LoginActionsMap = new Map([
@@ -139,7 +143,8 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_LOAD, LoginActions.onLoad],
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
     [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring],
-    [LoginActionsNames.ON_DUMP_RESTORE_RETRY, LoginActions.onDumpRestoreRetry]
+    [LoginActionsNames.ON_DUMP_RESTORE_RETRY, LoginActions.onDumpRestoreRetry],
+    [LoginActionsNames.ON_NO_CATCHMENT_ERROR, LoginActions.onNoCatchmentError],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;

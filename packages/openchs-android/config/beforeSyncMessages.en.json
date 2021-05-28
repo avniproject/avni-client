@@ -44,5 +44,6 @@
   "restoreFailed": "Restore failed, will sync from server",
   "restoreFailedTitle": "Fast sync failed",
   "restoreNoDump": "No dump present, will sync fully from server",
-  "performNormalSync": "Perform slow sync"
+  "performNormalSync": "Perform slow sync",
+  "NoCatchmentFoundErrorMessage": "No catchment found for the user, please contact administrator."
 }

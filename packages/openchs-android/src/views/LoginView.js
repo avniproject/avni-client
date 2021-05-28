@@ -13,7 +13,7 @@ import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
 import {LoginActionsNames as Actions} from '../action/LoginActions';
 import Distances from './primitives/Distances';
-import {PrimitiveValue} from 'avni-models';
+import {PrimitiveValue, ErrorCodes} from 'avni-models';
 import Reducers from "../reducer";
 import CHSNavigator from "../utility/CHSNavigator";
 import CHSContainer from "./common/CHSContainer";
@@ -27,7 +27,6 @@ import AuthService from "../service/AuthService";
 import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from "./primitives/Fonts";
 import Config from '../framework/Config';
-import ProgressBarView from "./ProgressBarView";
 import DBRestoreProgress from "./DBRestoreProgress";
 
 @Path('/loginView')
@@ -147,11 +146,22 @@ class LoginView extends AbstractComponent {
     }
 
     restoreFailureAlert(errorMessage, source) {
+        const isCatchmentError = ErrorCodes[errorMessage] === ErrorCodes.NoCatchmentFound;
+        isCatchmentError ? this.noCatchmentAlert(this.I18n.t(ErrorCodes[errorMessage])) :
         Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
                 text: this.I18n.t('tryAgain'),
                 onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {...this.dumpRestoreAction.call(this), source})
             },
                 {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(source), style: 'cancel'}
+            ]
+        );
+    }
+
+    noCatchmentAlert(errorMessage) {
+        Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
+                text: this.I18n.t('ok'),
+                onPress: () => this.dispatchAction(Actions.ON_NO_CATCHMENT_ERROR)
+            }
             ]
         );
     }
