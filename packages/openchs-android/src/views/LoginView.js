@@ -8,6 +8,7 @@ import {
     Text,
     TouchableNativeFeedback,
     View,
+    BackHandler
 } from "react-native";
 import TextFormElement from "./form/formElement/TextFormElement";
 import StaticFormElement from "./viewmodel/StaticFormElement";
@@ -160,7 +161,7 @@ class LoginView extends AbstractComponent {
     noCatchmentAlert(errorMessage) {
         Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
                 text: this.I18n.t('ok'),
-                onPress: () => this.dispatchAction(Actions.ON_NO_CATCHMENT_ERROR)
+                onPress: () => BackHandler.exitApp()
             }
             ]
         );
