@@ -18,9 +18,9 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
 
     render() {
         const subjectUUIDs = _.get(this.props.value, 'answer');
-
-        if (!_.isEmpty(this.subjectOptions) && this.subjectOptions.length <= this.SWITCH_TO_SEARCH_UI_THRESHOLD) {
-            return this.renderSelectUI(subjectUUIDs);
+        const subjectOptions = this.getSubjectOptions();
+        if (!_.isEmpty(subjectOptions) && subjectOptions.length <= this.SWITCH_TO_SEARCH_UI_THRESHOLD) {
+            return this.renderSelectUI(subjectUUIDs, subjectOptions);
         } else {
             return this.renderSearchUI(subjectUUIDs);
         }
@@ -41,8 +41,8 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
         )
     }
 
-    renderSelectUI(subjectUUIDs) {
-        const valueLabelPairs = this.subjectOptions
+    renderSelectUI(subjectUUIDs, subjectOptions) {
+        const valueLabelPairs = subjectOptions
             .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>

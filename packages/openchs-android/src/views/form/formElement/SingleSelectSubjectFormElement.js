@@ -18,8 +18,9 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
 
     render() {
         const subject = _.get(this.props.value, 'answer') ? this.individualService.findByUUID(this.props.value.answer) : null;
-        if (!_.isEmpty(this.subjectOptions) && this.subjectOptions.length <= this.SWITCH_TO_SEARCH_UI_THRESHOLD) {
-            return this.renderSelectUI(subject);
+        const subjectOptions = this.getSubjectOptions();
+        if (!_.isEmpty(subjectOptions) && subjectOptions.length <= this.SWITCH_TO_SEARCH_UI_THRESHOLD) {
+            return this.renderSelectUI(subject, subjectOptions);
         } else {
             return this.renderSearchUI(subject);
         }
@@ -40,8 +41,8 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
         )
     }
 
-    renderSelectUI(subject) {
-        const valueLabelPairs = this.subjectOptions
+    renderSelectUI(subject, subjectOptions) {
+        const valueLabelPairs = subjectOptions
             .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>

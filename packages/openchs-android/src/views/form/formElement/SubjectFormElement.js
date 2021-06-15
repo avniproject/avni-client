@@ -30,21 +30,20 @@ class SubjectFormElement extends AbstractFormElement {
         super(props, context);
         this.individualService = context.getService(IndividualService);
         this.entityService = context.getService(EntityService);
-        this.subjectOptions = [];
     }
 
-    componentWillMount() {
+    getSubjectOptions() {
         const answersToShow = this.props.element.answersToShow;
+        const subjectOptions = [];
         if (!_.isEmpty(answersToShow)) {
             answersToShow.map(uuid => {
                 const subject = this.individualService.findByUUID(uuid);
                 if (subject != null && this.individualService.unVoided(subject)) {
-                    this.subjectOptions.push(subject);
+                    subjectOptions.push(subject);
                 }
             });
-            this.subjectOptions = _.sortBy(this.subjectOptions, ['nameString']);
+            return _.sortBy(subjectOptions, ['nameString']);
         }
-        super.componentWillMount();
     }
 
     renderSearchIcon() {
