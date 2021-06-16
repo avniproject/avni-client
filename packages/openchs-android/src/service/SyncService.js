@@ -7,7 +7,6 @@ import SettingsService from "./SettingsService";
 import {EntityApprovalStatus, EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'avni-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
-import AuthService from "./AuthService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
@@ -38,17 +37,12 @@ class SyncService extends BaseService {
         this.entityService = this.getService(EntityService);
         this.conventionalRestClient = new ConventionalRestClient(this.getService(SettingsService), this.getService(PrivilegeService));
         this.messageService = this.getService(MessageService);
-        this.authService = this.getService(AuthService);
         this.ruleEvaluationService = this.getService(RuleEvaluationService);
         this.mediaQueueService = this.getService(MediaQueueService);
         this.entityQueueService = this.getService(EntityQueueService);
         this.ruleService = this.getService(RuleService);
         this.mediaService = this.getService(MediaService);
         this.newsService = this.getService(NewsService);
-    }
-
-    authenticate() {
-        return this.authService.getAuthToken();
     }
 
     getProgressSteps(allEntitiesMetaData) {
@@ -133,12 +127,8 @@ class SyncService extends BaseService {
     }
 
     imageSync(statusMessageCallBack) {
-        return this.authenticate()
-            .then((idToken) => {
-                statusMessageCallBack("uploadMedia");
-                return idToken;
-            })
-            .then((idToken) => this.mediaQueueService.uploadMedia(idToken));
+        return statusMessageCallBack("uploadMedia")
+            .then(() => this.mediaQueueService.uploadMedia());
     }
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
@@ -147,9 +137,7 @@ class SyncService extends BaseService {
         const entitiesToPost = telemetryMetadata.reverse()
             .map(this.entityQueueService.getAllQueuedItems)
             .filter((entities) => !_.isEmpty(entities.entities));
-        return this.authenticate()
-            .then((idToken) => this.conventionalRestClient.setToken(idToken))
-            .then(() => this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity))
+        return this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity);
     }
 
     dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
@@ -157,10 +145,7 @@ class SyncService extends BaseService {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
         const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
-        return this.authenticate()
-            .then((idToken) => this.conventionalRestClient.setToken(idToken))
-
-            .then(() => statusMessageCallBack("uploadLocallySavedData"))
+        return statusMessageCallBack("uploadLocallySavedData")
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0))
 

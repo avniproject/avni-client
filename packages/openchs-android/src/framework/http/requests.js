@@ -3,8 +3,15 @@ import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import Config from '../Config';
+import BeanRegistry from "../bean/BeanRegistry";
+import AuthService from "../../service/AuthService";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
+
+const getAuthToken = async  () => {
+    const authService = BeanRegistry.getService(AuthService);
+    return await authService.getAuthToken();
+};
 
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
@@ -42,39 +49,42 @@ const makeHeader = (type) => new Map([['json', {
 
 const makeRequest = (type, opts = {}) => _.assignIn({...makeHeader(type), ...opts});
 
-const addAuthIfRequired = (request, authToken) => {
-    if (Config.ENV === 'dev' || _.isEmpty(authToken)) {
-        return _.merge({}, request, {headers: {"USER-NAME": authToken}});
-    } else {
-        return _.merge({}, request, {headers: {'AUTH-TOKEN': authToken}});
+const _addAuthIfRequired = async (request, bypassAuth) => {
+    if (bypassAuth) {
+        return request;
     }
-    return request;
-}
+    const token = await getAuthToken();
+    return Config.ENV === 'dev' ?
+        _.merge({}, request, {headers: {"USER-NAME": token}}) :
+        _.merge({}, request, {headers: {'AUTH-TOKEN': token}});
+};
 
-let _get = (endpoint, authToken) => {
+let _get = (endpoint, bypassAuth) => {
     General.logDebug('Requests', `GET: ${endpoint}`);
-    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("json"), authToken))
+    return _addAuthIfRequired(makeHeader("json"), bypassAuth)
+        .then((headers) => fetchFactory(endpoint, "GET", headers))
         .then((response) => response.json(), Promise.reject)
 };
 
-let _getText = (endpoint, authToken) => {
+let _getText = (endpoint, bypassAuth) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
-    return fetchFactory(endpoint, "GET", addAuthIfRequired(makeHeader("text"), authToken), true)
+    return _addAuthIfRequired(makeHeader("text"), bypassAuth)
+        .then((headers) => fetchFactory(endpoint, "GET", headers , true))
         .then((response) => response.text(), Promise.reject)
 };
 
-let _post = (endpoint, file, authToken, fetchWithoutTimeout) => {
-    const params = addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), authToken);
+let _post = (endpoint, file, fetchWithoutTimeout, bypassAuth = false) => {
+    const params = _addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), bypassAuth);
     General.logDebug('Requests', `POST: ${endpoint}`);
-    return fetchFactory(endpoint, "POST", params, fetchWithoutTimeout)
+    return params.then((headers) => fetchFactory(endpoint, "POST", headers, fetchWithoutTimeout))
 };
 
 export let post = _post;
 
-export let get = (endpoint, authToken) => {
-    return _getText(endpoint, authToken);
+export let get = (endpoint, bypassAuth = false) => {
+    return _getText(endpoint, bypassAuth);
 };
 
-export let getJSON = (endpoint, authToken) => {
-    return _get(endpoint, authToken);
+export let getJSON = (endpoint, bypassAuth = false) => {
+    return _get(endpoint, bypassAuth);
 };

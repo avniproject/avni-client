@@ -225,7 +225,7 @@ class AuthService extends BaseService {
         const settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
         const url = `${serverURL}/cognito-details`;
-        return getJSON(url).then((authDetails) => {
+        return getJSON(url, true).then((authDetails) => {
             let newSettings = settings.clone();
             newSettings.poolId = authDetails.poolId;
             newSettings.clientId = authDetails.clientId;

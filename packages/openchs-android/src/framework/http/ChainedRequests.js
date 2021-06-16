@@ -13,12 +13,12 @@ class ChainedRequests {
         this.requestQueue.push(request);
     }
 
-    get(endpoint, authToken, onComplete) {
-        return () => httpGet(endpoint, authToken).then(onComplete);
+    get(endpoint, onComplete) {
+        return () => httpGet(endpoint).then(onComplete);
     }
 
-    post(endpoint, filecontents, authToken, onComplete) {
-        return () => httpPost(endpoint, filecontents, authToken).then(onComplete);
+    post(endpoint, filecontents, onComplete) {
+        return () => httpPost(endpoint, filecontents).then(onComplete);
     }
 
     fire() {

@@ -8,7 +8,6 @@ import BaseService from "../service/BaseService";
 import MediaQueueService from "../service/MediaQueueService";
 import {get} from '../framework/http/requests';
 import SettingsService from "../service/SettingsService";
-import AuthService from "../service/AuthService";
 import MediaService from "./MediaService";
 import _ from 'lodash';
 import EntityService from "./EntityService";
@@ -39,7 +38,6 @@ export default class BackupRestoreRealmService extends BaseService {
         let destFile = `${FileSystem.getBackupDir()}/${fileName}`;
         let destZipFile = `${FileSystem.getBackupDir()}/${fileName}.zip`;
         let mediaQueueService = this.getService(MediaQueueService);
-        let authService = this.getService(AuthService);
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         this.db.writeCopyTo(destFile);
         zip(destFile, destZipFile)
@@ -47,8 +45,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
             })
-            .then(() => authService.getAuthToken())
-            .then((authToken) => mediaQueueService.getDumpUploadUrl(dumpType, authToken, `adhoc-dump-as-zip-${General.randomUUID()}`))
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, `adhoc-dump-as-zip-${General.randomUUID()}`))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
                 General.logDebug("BackupRestoreRealmService", `Upload in progress ${written}/${total}`);
                 cb(10 + (97 - 10) * (written / total), "backupUploading");
@@ -71,7 +68,6 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     restore(cb) {
-        let authService = this.getService(AuthService);
         let settingsService = this.getService(SettingsService);
         let mediaService = this.getService(MediaService);
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
@@ -79,19 +75,15 @@ export default class BackupRestoreRealmService extends BaseService {
 
         General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
-        return authService.getAuthToken()
-            .then((authToken) => {
-                cb(1, "restoreCheckDb")
-                return get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/exists`, authToken)
-            })
+        cb(1, "restoreCheckDb");
+        return get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/exists`)
             .then((exists) => {
                 General.logDebug("BackupRestoreRealmService", `Backup file exists:${exists}`);
                 if (exists === "true") {
-                    authService.getAuthToken()
-                        .then((authToken) => get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`, authToken))
+                    get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/download`)
                         .then((url) => mediaService.downloadFromUrl(url, downloadedFile, (received, total) => {
-                                cb(1 + (received * 85) / total, "restoreDownloadPreparedDb")
-                            }))
+                            cb(1 + (received * 85) / total, "restoreDownloadPreparedDb")
+                        }))
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Decompressing downloaded database dump");
                             cb(87, "restoringDb");

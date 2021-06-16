@@ -18,7 +18,7 @@ class ConventionalRestClient {
     getUserInfo() {
         let settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
-        return getJSON(`${serverURL}/me`, this.token);
+        return getJSON(`${serverURL}/me`);
     }
 
     postAllEntities(allEntities, onCompleteOfIndividualPost, onComplete) {
@@ -33,24 +33,23 @@ class ConventionalRestClient {
         return _.reduce(allEntities,
             (acc, entities) => {
                 return acc
-                    .then(this.chainPostEntities(url(entities), entities, this.token, onCompleteOfIndividualPost))
+                    .then(this.chainPostEntities(url(entities), entities, onCompleteOfIndividualPost))
                     .then(() => onComplete(entities.metaData.entityName, 0));
             },
             Promise.resolve());
     }
 
-    chainPostEntities(url, entities, authToken, onComplete) {
+    chainPostEntities(url, entities, onComplete) {
         return () => {
             const chainedRequest = new ChainedRequests();
             entities.entities.map((entity) => {
-                return chainedRequest.push(chainedRequest.post(url, entity.resource, authToken, onComplete(entities.metaData, entity.resource.uuid)))
+                return chainedRequest.push(chainedRequest.post(url, entity.resource, onComplete(entities.metaData, entity.resource.uuid)))
             });
             return chainedRequest.fire();
         }
     }
 
     getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity) {
-        const token = this.token;
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
         const resourceEndpoint = [
@@ -70,25 +69,25 @@ class ConventionalRestClient {
                 size: size,
                 page: page
             });
-            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage);
+            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
         } else {
             const params = (page, size) => this.makeParams({
                 lastModifiedDateTime: moment(loadedSince).toISOString(),
                 size: size,
                 page: page
             });
-            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage);
+            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
         }
     }
 
-    fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, token, onGetOfFirstPage) {
+    fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage) {
         const processResponse = (resp) => {
             onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
             afterGetOfEntity(entityMetadata.entityName, resp["page"]["totalPages"])
         };
 
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
-        return getJSON(endpoint(), token).then((response) => {
+        return getJSON(endpoint()).then((response) => {
             //first page
             const page = response["page"];
             processResponse(response);
@@ -98,7 +97,7 @@ class ConventionalRestClient {
             const chainedRequests = new ChainedRequests();
             _.range(1, page.totalPages, 1)
                 .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
-                    endpoint(pageNumber), token,
+                    endpoint(pageNumber),
                     (resp) => processResponse(resp))));
 
             return chainedRequests.fire();
@@ -112,10 +111,6 @@ class ConventionalRestClient {
                     .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity));
             },
             Promise.resolve());
-    }
-
-    setToken(idToken) {
-        this.token = idToken;
     }
 }
 

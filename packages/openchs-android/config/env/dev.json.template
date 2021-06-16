@@ -1,5 +1,5 @@
 {
-  "SERVER_URL": "http://SERVER_URL_VAR:8021",
+  "SERVER_URL": "http://10.0.2.2:8021",
   "ENV": "dev",
   "CLIENT_ID": "dummy",
   "goToLastPageOnNext": false,

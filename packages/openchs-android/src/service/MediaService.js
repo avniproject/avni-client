@@ -1,14 +1,13 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import SettingsService from "./SettingsService";
-import AuthService from "./AuthService";
 import RNFetchBlob from "rn-fetch-blob";
 import General from "../utility/General";
 import {get} from "../framework/http/requests";
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
 
-@Service("authService")
+@Service("mediaService")
 class MediaService extends BaseService {
     constructor(db, context) {
         super(db, context);
@@ -16,15 +15,12 @@ class MediaService extends BaseService {
 
     init() {
         this.settingsService = this.getService(SettingsService);
-        this.authService = this.getService(AuthService);
     }
 
     downloadMedia(remoteFilePath, targetFilePath) {
-        const authService = this.getService(AuthService);
         const settingsService = this.getService(SettingsService);
         const serverUrl = settingsService.getSettings().serverURL;
-        return authService.getAuthToken()
-            .then(auth => get(`${serverUrl}/media/signedUrl?url=${remoteFilePath}`, auth))
+        return get(`${serverUrl}/media/signedUrl?url=${remoteFilePath}`)
             .then(downloadUrl => this.downloadFromUrl(downloadUrl, targetFilePath));
     }
 

@@ -1,6 +1,5 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import AuthService from "./AuthService";
 import {post} from "../framework/http/requests";
 import {AlertMessage} from "../views/common/AlertMessage";
 import ServerError from "./ServerError";
@@ -15,9 +14,7 @@ class PhoneVerificationService extends BaseService {
     sendOTP(phoneNumber, otpLength, serverURL) {
         const body = {phoneNumber, otpLength};
         const errorTitle = "Error while sending the OTP";
-        this.getService(AuthService)
-            .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/send`, body, token, true))
+        post(`${serverURL}/phoneNumberVerification/otp/send`, body, true)
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (!success) {
@@ -30,9 +27,7 @@ class PhoneVerificationService extends BaseService {
     resendOTP(phoneNumber, otpLength, serverURL) {
         const body = {phoneNumber, otpLength};
         const errorTitle = 'Error while resending the OTP';
-        this.getService(AuthService)
-            .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/resend`, body, token, true))
+        post(`${serverURL}/phoneNumberVerification/otp/resend`, body, true)
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (!success) {
@@ -45,9 +40,7 @@ class PhoneVerificationService extends BaseService {
     verifyOTP(phoneNumber, otp, otpLength, serverURL, onSuccessVerification) {
         const body = {otp, phoneNumber, otpLength};
         const errorTitle = 'Error while verifying the OTP';
-        this.getService(AuthService)
-            .getAuthToken()
-            .then(token => post(`${serverURL}/phoneNumberVerification/otp/verify`, body, token, true))
+        post(`${serverURL}/phoneNumberVerification/otp/verify`, body, true)
             .then(res => res.json())
             .then(({success, msg91Response}) => {
                 if (success) {

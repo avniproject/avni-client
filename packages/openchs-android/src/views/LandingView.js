@@ -18,7 +18,6 @@ import {SubjectType} from "avni-models";
 import _ from "lodash";
 import Colors from "./primitives/Colors";
 import RegisterView from "./RegisterView";
-import UserInfoService from "../service/UserInfoService";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";

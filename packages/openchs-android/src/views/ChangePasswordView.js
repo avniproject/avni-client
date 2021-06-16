@@ -7,7 +7,6 @@ import Styles from "./primitives/Styles";
 import {CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
-import themes from "./primitives/themes";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";

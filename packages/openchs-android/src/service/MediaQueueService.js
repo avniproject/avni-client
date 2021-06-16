@@ -76,19 +76,19 @@ class MediaQueueService extends BaseService {
         return `${directory}/${mediaQueueItem.fileName}`;
     }
 
-    getDumpUploadUrl(dumpType, authToken, fileName) {
+    getDumpUploadUrl(dumpType, fileName) {
         if (dumpType === MediaQueueService.DumpType.Catchment)
-            return get(`${this.getServerUrl()}/media/mobileDatabaseBackupUrl/upload`, authToken);
+            return get(`${this.getServerUrl()}/media/mobileDatabaseBackupUrl/upload`);
         else if (dumpType === MediaQueueService.DumpType.Adhoc)
-            return get(`${this.getServerUrl()}/media/uploadUrl/${fileName}`, authToken);
+            return get(`${this.getServerUrl()}/media/uploadUrl/${fileName}`);
     }
 
-    getUploadUrl(mediaQueueItem, auth) {
-        return this.getUploadUrlForFile(mediaQueueItem.fileName, auth);
+    getUploadUrl(mediaQueueItem) {
+        return this.getUploadUrlForFile(mediaQueueItem.fileName);
     }
 
-    getUploadUrlForFile(file, auth) {
-        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`, auth);
+    getUploadUrlForFile(file) {
+        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`);
     }
 
     mediaExists(mediaQueueItem) {
@@ -141,7 +141,7 @@ class MediaQueueService extends BaseService {
         }
     }
 
-    async uploadMediaQueueItem(mediaQueueItem, auth) {
+    async uploadMediaQueueItem(mediaQueueItem) {
         // Media can get deleted from the system by a user action.
         // The system should still work with missing media.
         // However, we need to find some way of highlighting this to user.
@@ -153,7 +153,7 @@ class MediaQueueService extends BaseService {
 
         let uploadUrl = "";
 
-        return this.getUploadUrl(mediaQueueItem, auth)
+        return this.getUploadUrl(mediaQueueItem)
             .then((url) => {
                 uploadUrl = url
             })
@@ -170,14 +170,14 @@ class MediaQueueService extends BaseService {
         return this.findAll().length > 0;
     }
 
-    uploadMedia(auth) {
+    uploadMedia() {
         // Parallel push to S3 ensures maximal usage of existing bandwidth.
         // Return only once everything is complete. Errors are logged in console only
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         return Promise.all(
             _.map(mediaQueueItems,
                 (mediaQueueItem) => {
-                    return this.uploadMediaQueueItem(mediaQueueItem, auth)
+                    return this.uploadMediaQueueItem(mediaQueueItem)
                 }
             )
         );
