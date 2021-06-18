@@ -86,6 +86,10 @@ class AbstractDataEntryState {
         _.remove(this.validationResults, (validationResult) => validationResult.formIdentifier === BaseEntity.fieldKeys.EXTERNAL_RULE)
     }
 
+    removeRuleValidationErrors() {
+        _.remove(this.validationResults, (validationResult) => _.isEmpty(validationResult.formIdentifier))
+    }
+
     handlePrevious(action, context) {
         this.movePrevious();
 
@@ -121,6 +125,8 @@ class AbstractDataEntryState {
         } else if (this.wizard.isLastPage()) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
+            //remove the older rule validation error before validating the form again.
+            this.removeRuleValidationErrors();
             const validationResults = this.validateEntityAgainstRule(ruleService);
             this.handleValidationResults(validationResults, context);
             let decisions, checklists, nextScheduledVisits;
