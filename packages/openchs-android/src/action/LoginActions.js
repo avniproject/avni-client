@@ -115,9 +115,6 @@ class LoginActions {
         return newState;
     }
 
-    static onNoCatchmentError(state) {
-        return _.assignIn({}, state, {dumpRestoring: false});
-    }
 }
 
 const LoginActionsNames = {
@@ -131,7 +128,6 @@ const LoginActionsNames = {
     ON_LOAD: 'LA.ON_LOAD',
     ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING',
     ON_DUMP_RESTORE_RETRY: 'LA.ON_DUMP_RESTORE_RETRY',
-    ON_NO_CATCHMENT_ERROR: 'LA.ON_NO_CATCHMENT_ERROR'
 };
 
 const LoginActionsMap = new Map([
@@ -144,7 +140,6 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
     [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring],
     [LoginActionsNames.ON_DUMP_RESTORE_RETRY, LoginActions.onDumpRestoreRetry],
-    [LoginActionsNames.ON_NO_CATCHMENT_ERROR, LoginActions.onNoCatchmentError],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;
