@@ -22,8 +22,6 @@ class GroupAffiliationFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
-        this.groupSubjectTypeUUID = this.props.element.recordValueByKey('groupSubjectTypeUUID');
-        this.groupSubjectRoleUUID = this.props.element.recordValueByKey('groupSubjectRoleUUID');
         this.individualService = context.getService(IndividualService);
     }
 
@@ -34,14 +32,14 @@ class GroupAffiliationFormElement extends AbstractFormElement {
     onPress(groupSubjectUUID) {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
-            groupSubjectRoleUUID: this.groupSubjectRoleUUID,
+            groupSubjectRoleUUID: this.props.element.recordValueByKey('groupSubjectRoleUUID'),
             groupSubjectUUID,
         });
     }
 
     render() {
         const groupSubjectObservation = this.props.groupSubjectObservation;
-        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(this.groupSubjectTypeUUID)
+        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(this.props.element.recordValueByKey('groupSubjectTypeUUID'))
             .map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
