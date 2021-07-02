@@ -113,6 +113,7 @@ class SyncService extends BaseService {
 
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
+        console.log('mediaUploadRequired', mediaUploadRequired);
         return mediaUploadRequired ?
             firstDataServerSync
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
@@ -127,7 +128,7 @@ class SyncService extends BaseService {
     }
 
     imageSync(statusMessageCallBack) {
-        return statusMessageCallBack("uploadMedia")
+        return Promise.resolve(statusMessageCallBack("uploadMedia"))
             .then(() => this.mediaQueueService.uploadMedia());
     }
 
