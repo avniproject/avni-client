@@ -19,8 +19,8 @@ class ObservationsHolderActions {
         const newState = state.clone();
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-
-        newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, action.value);
+        const value = action.convertToNumber ? _.toNumber(action.value) : action.value;
+        newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, value);
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);

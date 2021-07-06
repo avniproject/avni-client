@@ -41,8 +41,8 @@ class NumericFormElement extends AbstractFormElement {
 
     }
 
-    onInputChange(text) {
-        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text});
+    onInputChange(text, convertToNumber) {
+        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text, convertToNumber});
     }
 
     color() {
@@ -72,7 +72,7 @@ class NumericFormElement extends AbstractFormElement {
                                          underlineColorAndroid={this.borderColor} keyboardType='numeric'
                                          value={_.toString(this.props.value.getValue())}
                                          onChangeText={(text) => this.onInputChange(text)}
-                                         onEndEditing={(text) => this.onInputChange(text)}/>
+                                         onEndEditing={(event) => this.onInputChange(event.nativeEvent.text, true)}/>
                             <ValidationErrorMessage validationResult={this.props.validationResult}/></View>
                     }
                 </View>
