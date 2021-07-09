@@ -27,6 +27,9 @@ import CustomFilterService from "../service/CustomFilterService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import CustomDashboardService from "../service/customDashboard/CustomDashboardService";
 import NewsService from "../service/news/NewsService";
+import {CustomDashboardActionNames} from "../action/customDashboard/CustomDashboardActions";
+import {MyDashboardActionNames} from "../action/mydashboard/MyDashboardActions";
+import UserInfoService from "../service/UserInfoService";
 
 
 @Path('/landingView')
@@ -51,6 +54,14 @@ class LandingView extends AbstractComponent {
         });
 
         return super.componentWillMount();
+    }
+
+    didFocus() {
+        const isCustomDashboard = this.getService(CustomDashboardService).isCustomDashboardMarkedPrimary();
+        if (isCustomDashboard) {
+            this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
+        }
+        super.didFocus();
     }
 
 

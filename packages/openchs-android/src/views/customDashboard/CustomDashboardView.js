@@ -38,6 +38,11 @@ class CustomDashboardView extends AbstractComponent {
         super.componentWillMount();
     }
 
+    didFocus() {
+        this.dispatchAction(Actions.REFRESH_COUNT);
+        super.didFocus();
+    }
+
     onDashboardNamePress(uuid) {
         this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid})
     }
@@ -116,7 +121,7 @@ class CustomDashboardView extends AbstractComponent {
                 totalSearchResultsCount: count,
                 reportCardUUID,
                 listType: _.lowerCase(status),
-                onBackFunc: () => setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 0),
+                onBackFunc: () => _.noop,
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
             }).to(this.getViewByName(viewName), true)
