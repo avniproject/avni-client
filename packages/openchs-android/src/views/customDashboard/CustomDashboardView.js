@@ -68,13 +68,14 @@ class CustomDashboardView extends AbstractComponent {
     renderCards() {
         const activeDashboardSectionMappings = _.filter(this.state.reportCardSectionMappings, ({dashboardSection}) => this.state.activeDashboardUUID === dashboardSection.dashboard.uuid);
         const sectionWiseData = _.chain(activeDashboardSectionMappings)
-            .sortBy('displayOrder')
             .groupBy(({dashboardSection}) => dashboardSection.uuid)
             .map((groupedData, sectionUUID) => {
                 const sections = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
                 const cards = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
                 return {...sections, cards};
-            }).value();
+            })
+            .sortBy('displayOrder')
+            .value();
 
         return (
             <View style={styles.container}>
