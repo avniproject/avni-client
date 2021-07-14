@@ -40,7 +40,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress}) => {
                         <View style={{height: 20, marginBottom: 10}}>
                             {renderNumber()}
                         </View>
-                        <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{name}</Text>
+                        <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(name)}</Text>
                     </View>
                     {iconName && renderIcon()}
                 </View>
