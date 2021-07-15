@@ -1,7 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Gender, Individual, ObservationsHolder, Point, SubjectType, DraftSubject} from "avni-models";
+import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
 import _ from 'lodash';
 import GeolocationActions from "../common/GeolocationActions";
@@ -180,10 +180,8 @@ export class IndividualRegisterActions {
         }
         const currentWorkItem = action.workLists.getCurrentWorkItem();
         const relativeGender = _.get(currentWorkItem, 'parameters.relativeGender');
-        const member = _.get(currentWorkItem, 'parameters.member');
-        const householdAddressLevel = _.get(member, 'groupSubject.lowestAddressLevel');
         if(isNewEntity && relativeGender) {
-            individual.lowestAddressLevel = householdAddressLevel;
+            individual.lowestAddressLevel = _.get(currentWorkItem, 'parameters.member.groupSubject.lowestAddressLevel');
         }
 
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
