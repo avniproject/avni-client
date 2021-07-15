@@ -167,8 +167,13 @@ class AbstractDataEntryState {
         if (!_.isEmpty(nextScheduledVisits)) {
             workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
         }
-        if (!workLists.peekNextWorkItem() && currentWorkItem.type === WorkItem.type.REGISTRATION) {
-            workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
+
+        if (!workLists.peekNextWorkItem()) {
+            if (currentWorkItem.type === WorkItem.type.REGISTRATION) {
+                workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION, {subjectTypeName: currentWorkItem.parameters.subjectTypeName}));
+            } else if (currentWorkItem.type === WorkItem.type.ADD_MEMBER) {
+                workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), WorkItem.type.ADD_MEMBER, {...currentWorkItem.parameters}));
+            }
         }
 
         return ruleService.updateWorkLists(workLists, {entity: this.getEntity()}, this.getEntityType());
