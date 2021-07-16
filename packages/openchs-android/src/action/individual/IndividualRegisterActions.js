@@ -179,9 +179,9 @@ export class IndividualRegisterActions {
             individual = subjectFromDB.cloneForEdit();
         }
         const currentWorkItem = action.workLists.getCurrentWorkItem();
-        const relativeGender = _.get(currentWorkItem, 'parameters.relativeGender');
-        if(isNewEntity && relativeGender) {
-            individual.lowestAddressLevel = _.get(currentWorkItem, 'parameters.member.groupSubject.lowestAddressLevel');
+        const groupSubject = _.get(currentWorkItem, 'parameters.member.groupSubject');
+        if (isNewEntity && (groupSubject && groupSubject.isHousehold())) {
+            individual.lowestAddressLevel = _.get(groupSubject, 'lowestAddressLevel');
         }
 
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
