@@ -29,6 +29,7 @@ import {ConfirmDialog} from 'react-native-simple-dialogs';
 import Fonts from "./primitives/Fonts";
 import Config from '../framework/Config';
 import DBRestoreProgress from "./DBRestoreProgress";
+import SyncService from "../service/SyncService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -277,7 +278,8 @@ class LoginView extends AbstractComponent {
     }
 
     clearDataAndLogin() {
-        this.getService(AuthService).clearData()
+        this.getService(AuthService).logout()
+            .then(() => this.getService(SyncService).clearData())
             .then(() => this.reset())
             .then(() => this.justLogin());
     }

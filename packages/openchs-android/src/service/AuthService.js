@@ -7,7 +7,6 @@ import {getJSON} from '../framework/http/requests';
 import AuthenticationError, {NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
-import SyncService from "./SyncService";
 import UserInfoService from "./UserInfoService";
 
 @Service("authService")
@@ -141,10 +140,6 @@ class AuthService extends BaseService {
                 });
             });
         });
-    }
-
-    clearData() {
-        return this.logout().then(() => this.getService(SyncService).clearData());
     }
 
     verifyOtpAndSetPassword(cognitoUser, verificationCode, newPassword) {

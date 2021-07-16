@@ -52,6 +52,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import {MenuActionNames} from "../action/MenuActions";
 import MediaQueueService from "../service/MediaQueueService";
+import SyncService from "../service/SyncService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -162,7 +163,8 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).clearData()
+        this.getService(AuthService).logout()
+            .then(() => this.getService(SyncService).clearData())
             .then(() => this.reset())
             .then(() => CHSNavigator.navigateToLoginView(this, false));
     }
