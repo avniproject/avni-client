@@ -18,8 +18,17 @@ export class IndividualSearchActions {
         };
     }
 
+    static resetFilters(state) {
+        return {
+            searchCriteria: IndividualSearchCriteria.empty(),
+            subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone())),
+            selectedCustomFilters: {},
+            genders: {}
+        }
+    }
+
     static onLoad(state, action, context) {
-        const newState = IndividualSearchActions.clone(state);
+        const newState = IndividualSearchActions.resetFilters(state);
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = context.get(PrivilegeService);
         const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
@@ -59,7 +68,7 @@ export class IndividualSearchActions {
     };
 
     static enterSubjectTypeCriteria = function (state, action, beans) {
-        const newState = IndividualSearchActions.clone(state);
+        const newState = IndividualSearchActions.resetFilters(state);
         const selectedSubjectType = newState.subjectTypes.find(
             (subjectType) => subjectType.name === action.subjectType);
         newState.searchCriteria.addSubjectTypeCriteria(selectedSubjectType);
