@@ -34,7 +34,7 @@ class Members extends AbstractComponent {
 
     renderGroupMember(groupSubject) {
         const memberSubject = groupSubject.memberSubject;
-        const component = this.getTextComponent(memberSubject.name, Colors.Complimentary);
+        const component = this.getTextComponent(memberSubject.nameString, Colors.Complimentary);
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
         const undoneGeneralVisits = this.getService(EncounterService).getAllDueForSubject(memberSubject.uuid).length;
         const roleDescription = groupSubject.getRoleDescription(this.getRelatives(groupSubject));
