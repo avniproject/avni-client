@@ -25,7 +25,11 @@ export default class BackupRestoreRealmService extends BaseService {
         this.notify = notify;
     }
 
-    isDatabaseNotSynced() {
+    isDatabaseEverSynced() {
+        return !this.isDatabaseNeverSynced();
+    }
+
+    isDatabaseNeverSynced() {
         let entityService = this.getService(EntityService);
         let entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle = Concept;
         let anEntity = entityService.findOnly(entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle.schema.name);

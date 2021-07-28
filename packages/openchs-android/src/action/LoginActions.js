@@ -73,7 +73,7 @@ class LoginActions {
     static startDumpRestore(context, action, source) {
         action.onLoginProgress(0, "Login successful, checking for prepared database");
         let backupRestoreRealmService = context.get(BackupRestoreRealmService);
-        const doRestoreDump = backupRestoreRealmService.isDatabaseNotSynced();
+        const doRestoreDump = backupRestoreRealmService.isDatabaseNeverSynced();
         General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
         if (doRestoreDump) {
             LoginActions.restoreDump(context, action, source);

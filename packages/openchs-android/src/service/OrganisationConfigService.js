@@ -7,7 +7,6 @@ import _ from "lodash";
 class OrganisationConfigService extends BaseService {
     constructor(db, context) {
         super(db, context);
-
     }
 
     getSchema() {
@@ -33,6 +32,19 @@ class OrganisationConfigService extends BaseService {
 
     getOTPLength() {
         return this.getSettings().otpLength || 0;
+    }
+
+    hasHomeScreen() {
+        return this.getHomeScreen() !== undefined;
+    }
+
+    getHomeScreen() {
+        console.log('getting home screen');
+        return _.find(this.getExtensions(), extension => extension.extensionScope.scopeType === 'Field App Home Screen');
+    }
+
+    getExtensions() {
+        return this.getSettings().extensions || [];
     }
 
 }

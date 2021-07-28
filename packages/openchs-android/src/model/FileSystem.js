@@ -9,6 +9,7 @@ export default class FileSystem {
         General.logDebug("FileSystem", FileSystem.getImagesDir());
         General.logDebug("FileSystem", FileSystem.getVideosDir());
         General.logDebug("FileSystem", FileSystem.getAudioDir());
+        General.logDebug("FileSystem", FileSystem.getExtensionsDir());
 
         const grantSuccess = (grant) => {
             return typeof (grant) === 'boolean'? grant: PermissionsAndroid.RESULTS.GRANTED === grant;
@@ -29,6 +30,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getAudioDir(), 'audios'))
                         .then(() => FileSystem.mkdir(FileSystem.getBackupDir(), 'db'))
                         .then(() => FileSystem.mkdir(FileSystem.getNewsDir(), 'news'))
+                        .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -68,5 +70,9 @@ export default class FileSystem {
 
     static getBackupDir(){
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`;
+    }
+
+    static getExtensionsDir(){
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/extensions`;
     }
 }

@@ -17,6 +17,7 @@ import PrivilegeService from "./PrivilegeService";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
+import ExtensionService from "./ExtensionService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -43,6 +44,7 @@ class SyncService extends BaseService {
         this.ruleService = this.getService(RuleService);
         this.mediaService = this.getService(MediaService);
         this.newsService = this.getService(NewsService);
+        this.extensionService = this.getService(ExtensionService);
     }
 
     getProgressSteps(allEntitiesMetaData) {
@@ -97,7 +99,9 @@ class SyncService extends BaseService {
     sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime) {
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
-        const onProgressPerEntity = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
+        const onProgressPerEntity = (entityType, numOfPages) => {
+            progressBarStatus.onComplete(entityType, numOfPages);
+        };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
         const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps);
 
@@ -109,7 +113,8 @@ class SyncService extends BaseService {
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
-            .then(() => this.clearDataIn([RuleFailureTelemetry]));
+            .then(() => this.clearDataIn([RuleFailureTelemetry]))
+            .then(() => this.downloadNewsImages());
 
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
@@ -157,7 +162,12 @@ class SyncService extends BaseService {
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(allTxEntityMetaData, onProgressPerEntity))
             .then(() => this.downloadNewsImages())
+            .then(() => this.downloadExtensions())
 
+    }
+
+    downloadExtensions() {
+        this.extensionService.downloadExtensions();
     }
 
     downloadNewsImages() {

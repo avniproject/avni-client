@@ -280,6 +280,10 @@ class General {
     static getLinkPropFromResource(resource, property) {
         return _.get(resource, ['_links', property, 'href']);
     }
+
+    static delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 }
 
 export default General;
