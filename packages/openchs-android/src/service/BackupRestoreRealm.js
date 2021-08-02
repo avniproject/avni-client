@@ -1,4 +1,4 @@
-import {EntitySyncStatus, IdentifierAssignment, UserInfo, Concept} from 'avni-models';
+import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept} from 'avni-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
@@ -11,6 +11,7 @@ import SettingsService from "../service/SettingsService";
 import MediaService from "./MediaService";
 import _ from 'lodash';
 import EntityService from "./EntityService";
+import EntitySyncStatusService from "./EntitySyncStatusService";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -74,6 +75,7 @@ export default class BackupRestoreRealmService extends BaseService {
     restore(cb) {
         let settingsService = this.getService(SettingsService);
         let mediaService = this.getService(MediaService);
+        let entitySyncStatusService = this.getService(EntitySyncStatusService);
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
 
@@ -118,6 +120,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Removing downloaded files");
                             cb(94, "restoringDb");
                         })
+                        .then(() => entitySyncStatusService.setup(EntityMetaData.model()))
                         .then(() => removeBackupFile(downloadedFile))
                         .then(() => removeBackupFile(downloadedUncompressedDir))
                         .then(() => {
