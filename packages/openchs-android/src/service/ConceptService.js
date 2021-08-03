@@ -77,14 +77,18 @@ class ConceptService extends BaseService {
     obsValue(concept, decision) {
         switch (concept.datatype) {
             case Concept.dataType.Coded:
-                let value = [];
-                decision.value.forEach((codedAnswerConceptName) => {
-                    const answerConcept = this.conceptFor(codedAnswerConceptName);
-                    if (!_.isNil(answerConcept)) {
-                        value.push(answerConcept.uuid);
-                    }
-                });
-                return value;
+                if (_.isArray(decision.value)) {
+                    let value = [];
+                    decision.value.forEach((codedAnswerConceptName) => {
+                        const answerConcept = this.conceptFor(codedAnswerConceptName);
+                        if (!_.isNil(answerConcept)) {
+                            value.push(answerConcept.uuid);
+                        }
+                    });
+                    return value;
+                }
+                const answerConcept = this.conceptFor(decision.value);
+                return !_.isNil(answerConcept) ? answerConcept.uuid : null;
             default:
                 return decision.value;
         }
@@ -92,7 +96,7 @@ class ConceptService extends BaseService {
 
     conceptFor(conceptName) {
         const concept = this.findConcept(conceptName);
-        if (_.isNil(concept)) General.logWarn('ConceptService', `${concept.name} doesn't exist`);
+        if (_.isNil(concept)) General.logWarn('ConceptService', `${conceptName} doesn't exist`);
         return concept;
     }
 

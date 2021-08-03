@@ -31,6 +31,18 @@ describe('ConceptServiceTest', () => {
         testConceptService.addDecisions(observations, [EntityFactory.createDecision('c2', null)]);
         expect(observations.length).is.equal(1);
 
+        //add empty answer for a single select question
+        testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', null)]);
+        expect(observations.length).is.equal(1);
+
+        //add wrong answer for a single select question
+        testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', 'wrong answer')]);
+        expect(observations.length).is.equal(1);
+
+        //add answer for a single select question
+        testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', 'a1')]);
+        expect(observations.length).is.equal(2);
+
         //add empty answer for a multiselect question
         testConceptService.addDecisions(observations, [EntityFactory.createDecision('c3', [])]);
         expect(observations.length).is.equal(1);
