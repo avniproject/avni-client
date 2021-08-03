@@ -37,10 +37,15 @@ class GroupAffiliationFormElement extends AbstractFormElement {
         });
     }
 
+    groupsToShow() {
+        const answersToShow = this.props.element.answersToShow;
+        const allGroups = this.individualService.getAllBySubjectTypeUUID(this.props.element.recordValueByKey('groupSubjectTypeUUID'));
+        return !_.isEmpty(answersToShow) ? _.filter(allGroups, ({uuid}) => _.includes(answersToShow, uuid)) : allGroups;
+    }
+
     render() {
         const groupSubjectObservation = this.props.groupSubjectObservation;
-        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(this.props.element.recordValueByKey('groupSubjectTypeUUID'))
-            .map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
+        const valueLabelPairs = this.groupsToShow().map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 {!_.isEmpty(this.props.actionName) &&
