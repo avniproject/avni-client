@@ -100,10 +100,12 @@ class RuleEvaluationService extends BaseService {
                 return clonedEntity;
             case 'ProgramEnrolment':
             case 'Encounter':
+            case 'IndividualEncounterCancellation':
                 clonedEntity.individual = clonedEntity.individual.cloneForEdit();
                 injectGroup(clonedEntity.individual);
                 return clonedEntity;
             case 'ProgramEncounter':
+            case 'ProgramEncounterCancellation':
                 clonedEntity.programEnrolment = clonedEntity.programEnrolment.cloneForEdit();
                 clonedEntity.programEnrolment.individual = clonedEntity.programEnrolment.individual.cloneForEdit();
                 injectGroup(clonedEntity.programEnrolment.individual);
