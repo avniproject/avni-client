@@ -14,7 +14,7 @@ import ExtensionService from "../service/ExtensionService";
 @PathRoot
 class RootView extends AbstractComponent {
     static propTypes = {};
-    TIME_TO_SHOW_SPLASH_SCREEN = 2000;
+    TIME_TO_SHOW_SPLASH_SCREEN = 3000;
 
     constructor(props, context) {
         super(props, context);
