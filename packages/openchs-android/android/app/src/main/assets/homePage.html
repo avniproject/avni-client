@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Avni</title>
+    </head>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        .image-container {
+            animation-name: rotate;
+            animation-duration: 1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        @keyframes rotate {
+            0% {
+                transform: rotate(0);
+            }
+            100% {
+                transform: rotate(720deg);
+            }
+        }
+    </style>
+    <body>
+        <div class="image-container">
+            <img src="avni-logo.png">
+        </div>
+    </body>
+</html>
