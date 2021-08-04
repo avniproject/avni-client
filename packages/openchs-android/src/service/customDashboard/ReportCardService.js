@@ -5,6 +5,7 @@ import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
 import CommentService from "../comment/CommentService";
+import _ from "lodash";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -55,7 +56,8 @@ class ReportCardService extends BaseService {
         ]);
         const resultFunc = typeToMethodMap.get(type);
         const result = type === StandardReportCardType.type.Total ? resultFunc() : resultFunc(new Date());
-        return {status: type, result}
+        const sortedResult = type === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
+        return {status: type, result: sortedResult}
     }
 
     getCountForDefaultCardsType(type) {

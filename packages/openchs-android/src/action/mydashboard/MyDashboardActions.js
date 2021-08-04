@@ -172,13 +172,14 @@ class MyDashboardActions {
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
         const allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters);
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
+        const totalToDisplay = listType === 'total' ? commonIndividuals : _.orderBy(allIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {
             ...state,
             individuals: {
-                data: commonIndividuals,
+                data: totalToDisplay,
             },
-            itemsToDisplay: commonIndividuals,
-            [listType]: commonIndividuals,
+            itemsToDisplay: totalToDisplay,
+            [listType]: totalToDisplay,
             loading: false,
         };
     }
