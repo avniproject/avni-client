@@ -108,8 +108,6 @@ as_prod_dev: ; $(call _create_config,prod_dev)
 release_clean:
 	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
-	rm -rf packages/openchs-android/android/app/src/main/assets
-	mkdir -p packages/openchs-android/android/app/src/main/assets
 	mkdir -p packages/openchs-android/android/app/build/generated
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
 	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
