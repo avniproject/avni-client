@@ -4,7 +4,8 @@ import {
     Text,
     TouchableNativeFeedback,
     TouchableWithoutFeedback,
-    View
+    View,
+    ScrollView
 } from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
@@ -25,6 +26,20 @@ const styles = {
         padding: 20,
         alignSelf: 'center',
         borderRadius: 8
+    },
+    spacer: {
+        width: width * 0.15
+    },
+    modal: {
+        flexDirection: 'row'
+    },
+    closeIcon: {
+        justifyContent: 'flex-end',
+        flexDirection: 'row'
+    },
+    heading: {
+        fontSize: 20,
+        color: Styles.blackColor
     }
 };
 
@@ -37,31 +52,11 @@ class ActionSelector extends AbstractComponent {
         title: PropTypes.string.isRequired
     };
 
-
     constructor(props, context) {
         super(props, context);
     }
 
-    renderButton(onPress, buttonColor, text, textColor, index) {
-        return (
-            <View key={index} style={{paddingTop:10}}>
-                <TouchableNativeFeedback onPress={() => {
-                    this.props.hide();
-                    onPress();
-                }}>
-                    <View style={[Styles.basicPrimaryButtonView, {backgroundColor:buttonColor, height: 50}]}>
-                        <Text style={{
-                            fontSize: 18,
-                            color: textColor
-                        }}>{text}</Text>
-                    </View>
-                </TouchableNativeFeedback>
-            </View>
-        );
-    }
-
     render() {
-
         return (
             <Modal
                 animationType={"fade"}
@@ -69,36 +64,78 @@ class ActionSelector extends AbstractComponent {
                 visible={this.props.visible}
                 onRequestClose={() => this.props.hide()}
             >
-                <TouchableWithoutFeedback onPress={() => this.props.hide()}>
-                    <View style={{
-                        flex: 1,
-                        flexWrap: 'nowrap',
-                        backgroundColor: 'rgba(60,60,60,0.9)',
-                        flexDirection: 'column',
-                    }}>
-                        <View style={{flex: .4}}/>
-                        <View style={[styles.modalBackground]}>
-                            <View style={{justifyContent: 'flex-end', flexDirection: 'row'}}>
-                                <MCIIcon name={'close'} style={{fontSize: 24}}/>
-                            </View>
-                            <View style={{margin:8}}>
-                                <Text style={{fontSize: 20, color: Styles.blackColor}}>{this.props.title}</Text>
-                            </View>
-                            {_.map(this.props.actions, (action, key) =>
-                                this.renderButton(
-                                    action.fn,
-                                    action.backgroundColor || Colors.ActionButtonColor,
-                                    action.label,
-                                    Colors.TextOnPrimaryColor,
-                                    key
-                                )
-                            )}
-                        </View>
-                        <View style={{flex: 1}}/>
-                    </View>
-                </TouchableWithoutFeedback>
-
+                <View style={styles.modal}>
+                    {this.spacer()}
+                    {this.contentContainer()}
+                    {this.spacer()}
+                </View>
             </Modal>
+        );
+    }
+
+    spacer() {
+        return (
+            <TouchableWithoutFeedback onPress={() => this.props.hide()}>
+                <View style={styles.spacer}/>
+            </TouchableWithoutFeedback>
+        );
+    }
+
+    contentContainer() {
+        return (
+            <ScrollView contentContainerStyle={[styles.modalBackground]}>
+                {this.closeButton()}
+                {this.heading()}
+                {this.actionButtons()}
+            </ScrollView>
+        );
+    }
+
+    closeButton() {
+        return (
+            <TouchableWithoutFeedback onPress={() => this.props.hide()}>
+                <View style={styles.closeIcon}>
+                    <MCIIcon name={'close'} style={{fontSize: 24}}/>
+                </View>
+            </TouchableWithoutFeedback>
+        );
+    }
+
+    heading() {
+        return (
+            <View style={{margin: 8}}>
+                <Text style={styles.heading}>{this.props.title}</Text>
+            </View>
+        );
+    }
+
+    actionButtons() {
+        return _.map(this.props.actions, (action, key) =>
+            this.actionButton(
+                action.fn,
+                action.backgroundColor || Colors.ActionButtonColor,
+                action.label,
+                Colors.TextOnPrimaryColor,
+                key
+            )
+        )
+    }
+
+    actionButton(onPress, buttonColor, text, textColor, index) {
+        return (
+            <View key={index} style={{paddingTop: 10}}>
+                <TouchableNativeFeedback onPress={() => {
+                    this.props.hide();
+                    onPress();
+                }}>
+                    <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, height: 50}]}>
+                        <Text style={{
+                            fontSize: 18,
+                            color: textColor
+                        }}>{text}</Text>
+                    </View>
+                </TouchableNativeFeedback>
+            </View>
         );
     }
 }
