@@ -14,7 +14,7 @@ export default class AppliedFilters extends AbstractComponent {
 
     renderContent(label, content, contentSeparator) {
         const separator = _.isNil(contentSeparator) ? '' : contentSeparator;
-        return <Text>
+        return <Text key={label}>
             <Text style={{
                 fontSize: 14,
                 color: Colors.TextOnPrimaryColor,

@@ -17,13 +17,16 @@ import DatePicker from "../primitives/DatePicker";
 import TimePicker from "../primitives/TimePicker";
 import moment from "moment";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import IndividualService from "../../service/IndividualService";
+import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 
 class CustomFilters extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.customFilterActions);
         this.conceptService = context.getService(ConceptService);
-        this.customFilterService = context.getService(CustomFilterService)
+        this.customFilterService = context.getService(CustomFilterService);
+        this.individualService = context.getService(IndividualService);
     }
 
     componentWillMount() {
@@ -44,6 +47,16 @@ class CustomFilters extends AbstractComponent {
                 titleKey: filter.titleKey,
                 subjectTypeUUID: filter.subjectTypeUUID,
                 ...params
+            })
+    }
+
+    onGroupSubjectChange(name, groupSubjectUUID, filter) {
+        this.dispatchAction(CustomFilterNames.ON_GROUP_SUBJECT_CHANGE,
+            {
+                titleKey: filter.titleKey,
+                subjectTypeUUID: filter.subjectTypeUUID,
+                groupSubjectUUID,
+                name
             })
     }
 
@@ -95,10 +108,27 @@ class CustomFilters extends AbstractComponent {
                     return widget === CustomFilter.widget.Range ?
                         this.dateFilterWithRange(filter, idx, requiredDateObject, false)
                         : this.dateConceptFilter(filter, idx, requiredDateObject, false);
+                case(CustomFilter.type.GroupSubject):
+                    return this.groupSubjectFilter(filter, idx);
                 default:
                     return <View key={idx}/>
             }
         })
+    };
+
+    groupSubjectFilter(filter, idx) {
+        const {titleKey, groupSubjectTypeUUID} = filter;
+        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(groupSubjectTypeUUID).map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
+        const selectedGroupSubjectUUIDs = _.map(this.state.selectedCustomFilters[titleKey], ({groupSubjectUUID}) => groupSubjectUUID);
+        return this.wrap(<View style={{flexDirection: 'column'}}>
+            <RadioGroup
+                multiSelect={true}
+                inPairs={true}
+                onPress={({label, value}) => this.onGroupSubjectChange(label, value, filter)}
+                selectionFn={(groupSubjectUUID) => _.includes(selectedGroupSubjectUUIDs, groupSubjectUUID)}
+                labelKey={titleKey}
+                labelValuePairs={valueLabelPairs}/>
+        </View>, idx);
     };
 
     timeConceptFilter(filter, idx, timeObject) {

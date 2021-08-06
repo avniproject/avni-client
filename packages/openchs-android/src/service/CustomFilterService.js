@@ -7,7 +7,8 @@ import {
     ProgramEncounter,
     ProgramEnrolment,
     Concept,
-    CustomFilter
+    CustomFilter,
+    GroupSubject,
 } from "avni-models";
 import General from "../utility/General";
 import _ from "lodash";
@@ -102,7 +103,7 @@ class CustomFilterService extends BaseService {
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
-    queryEntityByDate(schemaName, selectedAnswerFilters, otherFilters, indFunc) {
+    queryEntity(schemaName, selectedAnswerFilters, otherFilters, indFunc) {
         return [...this.db.objects(schemaName)
             .filtered(`voided = false `)
             .filtered(`${selectedAnswerFilters()}`)
@@ -157,9 +158,15 @@ class CustomFilterService extends BaseService {
             return this.otherDateFilter(selectedOptions, widget, 'enrolmentDateTime');
         } else if (type === CustomFilter.type.ProgramEncounterDate || type === CustomFilter.type.EncounterDate) {
             return this.otherDateFilter(selectedOptions, widget, 'encounterDateTime');
+        } else if (type === CustomFilter.type.GroupSubject) {
+            return this.groupSubjectQuery.bind(this, selectedOptions);
         } else {
             return () => 'uuid != null'
         }
+    }
+
+    groupSubjectQuery(selectedOptions) {
+        return _.map(selectedOptions, ({groupSubjectUUID}) => ` (voided = false AND groupSubject.uuid = '${groupSubjectUUID}') `).join(" OR ");
     }
 
     otherDateFilter(selectedOptions, widget, queryColumn) {
@@ -284,19 +291,22 @@ class CustomFilterService extends BaseService {
                         this.queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilterQuery, conceptFilter, widget);
                         break;
                     case CustomFilter.type.RegistrationDate:
-                        this.updateIndividuals(this.queryEntityByDate(Individual.schema.name, selectedAnswerFilterQuery, null, ind => ind.uuid));
+                        this.updateIndividuals(this.queryEntity(Individual.schema.name, selectedAnswerFilterQuery, null, ind => ind.uuid));
                         break;
                     case CustomFilter.type.EnrolmentDate:
                         const otherEnrolmentFilters = `individual.voided = false and programExitDateTime = null`;
-                        this.updateIndividuals(this.queryEntityByDate(ProgramEnrolment.schema.name, selectedAnswerFilterQuery, otherEnrolmentFilters, enl => enl.individual.uuid));
+                        this.updateIndividuals(this.queryEntity(ProgramEnrolment.schema.name, selectedAnswerFilterQuery, otherEnrolmentFilters, enl => enl.individual.uuid));
                         break;
                     case CustomFilter.type.ProgramEncounterDate:
                         const otherProgramEncounterFilters = `programEnrolment.individual.voided = false and programEnrolment.programExitDateTime = null and programEnrolment.voided = false`;
-                        this.updateIndividuals(this.queryEntityByDate(ProgramEncounter.schema.name, selectedAnswerFilterQuery, otherProgramEncounterFilters, enc => enc.programEnrolment.individual.uuid));
+                        this.updateIndividuals(this.queryEntity(ProgramEncounter.schema.name, selectedAnswerFilterQuery, otherProgramEncounterFilters, enc => enc.programEnrolment.individual.uuid));
                         break;
                     case CustomFilter.type.EncounterDate:
                         const otherEncounterFilters = `individual.voided = false`;
-                        this.updateIndividuals(this.queryEntityByDate(Encounter.schema.name, selectedAnswerFilterQuery, otherEncounterFilters, enc => enc.individual.uuid));
+                        this.updateIndividuals(this.queryEntity(Encounter.schema.name, selectedAnswerFilterQuery, otherEncounterFilters, enc => enc.individual.uuid));
+                        break;
+                    case CustomFilter.type.GroupSubject:
+                        this.updateIndividuals(this.queryEntity(GroupSubject.schema.name, selectedAnswerFilterQuery, null, gs => gs.memberSubject.uuid));
                         break;
                     default :
                         General.logDebug("Filter type not found")
