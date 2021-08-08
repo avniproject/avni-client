@@ -28,6 +28,7 @@ const styles = {
         borderRadius: 8
     },
     spacer: {
+        opacity: 0.5,
         width: width * 0.15
     },
     modal: {
@@ -83,7 +84,7 @@ class ActionSelector extends AbstractComponent {
 
     contentContainer() {
         return (
-            <ScrollView contentContainerStyle={[styles.modalBackground]}>
+            <ScrollView style={{width: width + 0.7}} contentContainerStyle={[styles.modalBackground]}>
                 {this.closeButton()}
                 {this.heading()}
                 {this.actionButtons()}
@@ -128,10 +129,12 @@ class ActionSelector extends AbstractComponent {
                     this.props.hide();
                     onPress();
                 }}>
-                    <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, height: 50}]}>
+                    <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
                         <Text style={{
                             fontSize: 18,
-                            color: textColor
+                            color: textColor,
+                            textAlign: 'center',
+                            paddingVertical: 8,
                         }}>{text}</Text>
                     </View>
                 </TouchableNativeFeedback>
