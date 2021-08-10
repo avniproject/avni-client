@@ -227,8 +227,8 @@ class FilterView extends AbstractComponent {
         const allowedSubjectTypeUuidsForView = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
         const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
-        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
-        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, this.state.selectedSubjectType.uuid);
+        const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
+        const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
@@ -251,8 +251,8 @@ class FilterView extends AbstractComponent {
                                 this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                             }}/>)
                             }
-                            {!_.isEmpty(nonCodedCustomFilters) ?
-                                <CustomFilters filters={nonCodedCustomFilters}
+                            {!_.isEmpty(topLevelFilters) ?
+                                <CustomFilters filters={topLevelFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                 /> : null}
@@ -271,10 +271,11 @@ class FilterView extends AbstractComponent {
                                         })
                                     }}
                                     multiSelect={true}/> : null}
-                            {!_.isEmpty(codedCustomFilters) ?
-                                <CustomFilters filters={codedCustomFilters}
+                            {!_.isEmpty(bottomLevelFilters) ?
+                                <CustomFilters filters={bottomLevelFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                               locationSearchCriteria={this.state.locationSearchCriteria}
                                 /> : null}
                             <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>

@@ -71,8 +71,8 @@ class IndividualSearchView extends AbstractComponent {
         const buttonHeight = !_.isNil(this.props.buttonElevated) ? 110 : 50;
         const filterScreenName = 'searchFilters';
         const subjectTypeUUID = this.state.searchCriteria.subjectType.uuid;
-        const nonCodedCustomFilters = this.customFilterService.getAllExceptCodedConceptFilters(filterScreenName, subjectTypeUUID);
-        const codedCustomFilters = this.customFilterService.getCodedConceptFilters(filterScreenName, subjectTypeUUID);
+        const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, subjectTypeUUID);
+        const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, subjectTypeUUID);
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = this.context.getService(PrivilegeService);
         const allowedSubjectTypeUuidsForView = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
@@ -115,8 +115,8 @@ class IndividualSearchView extends AbstractComponent {
                                              style={Styles.simpleTextFormElement}
                                              value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                              multiline={false}/> : null}
-                        {!_.isEmpty(nonCodedCustomFilters) ?
-                            <CustomFilters filters={nonCodedCustomFilters}
+                        {!_.isEmpty(topLevelFilters) ?
+                            <CustomFilters filters={topLevelFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                             /> : null}
@@ -138,10 +138,11 @@ class IndividualSearchView extends AbstractComponent {
                             checked={this.state.searchCriteria.includeVoided}
                             onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
                                 {value: !this.state.searchCriteria.includeVoided})}/>
-                        {!_.isEmpty(codedCustomFilters) ?
-                            <CustomFilters filters={codedCustomFilters}
+                        {!_.isEmpty(bottomLevelFilters) ?
+                            <CustomFilters filters={bottomLevelFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                           locationSearchCriteria={this.state.locationSearchCriteria}
                             /> : null}
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>

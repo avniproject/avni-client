@@ -19,6 +19,7 @@ import moment from "moment";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import IndividualService from "../../service/IndividualService";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 
 class CustomFilters extends AbstractComponent {
 
@@ -118,7 +119,10 @@ class CustomFilters extends AbstractComponent {
 
     groupSubjectFilter(filter, idx) {
         const {titleKey, groupSubjectTypeUUID} = filter;
-        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(groupSubjectTypeUUID).map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
+        const selectedAddress = _.get(this.props, 'locationSearchCriteria', IndividualSearchCriteria.empty()).getAllAddressLevelUUIDs();
+        const valueLabelPairs = this.individualService.getAllBySubjectTypeUUID(groupSubjectTypeUUID)
+            .filter(subject => !_.isEmpty(selectedAddress) ? _.includes(selectedAddress, subject.lowestAddressLevel.uuid) : true)
+            .map((subject) => new RadioLabelValue(`${subject.nameString} (${subject.lowestAddressLevel.translatedFieldValue})`, subject.uuid));
         const selectedGroupSubjectUUIDs = _.map(this.state.selectedCustomFilters[titleKey], ({groupSubjectUUID}) => groupSubjectUUID);
         return this.wrap(<View style={{flexDirection: 'column'}}>
             <RadioGroup

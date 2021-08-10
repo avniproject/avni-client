@@ -89,17 +89,21 @@ class CustomFilterService extends BaseService {
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
-    getAllExceptCodedConceptFilters(filterName, subjectTypeUUID) {
-        const {Concept, RegistrationDate, EnrolmentDate, ProgramEncounterDate, EncounterDate} = CustomFilter.type;
+    getTopLevelFilters(filterName, subjectTypeUUID) {
+        const {Concept, RegistrationDate, EnrolmentDate, ProgramEncounterDate, EncounterDate, GroupSubject} = CustomFilter.type;
         const filterOrder = [RegistrationDate, EnrolmentDate, ProgramEncounterDate, EncounterDate, Concept];
-        const nonConceptFilters = _.filter(this.getSettings()[filterName], filter => filter.type !== Concept && filter.subjectTypeUUID === subjectTypeUUID);
+        const nonConceptFilters = _.filter(this.getSettings()[filterName], filter => !_.includes([Concept, GroupSubject], filter.type) && filter.subjectTypeUUID === subjectTypeUUID);
         return _.sortBy([...this.getNonCodedConceptFilters(filterName, subjectTypeUUID), ...nonConceptFilters], (f) => _.indexOf(filterOrder, f.type))
     }
 
-    getCodedConceptFilters(filterName, subjectTypeUUID) {
+    getCodedOrGroupSubjectFilters(filterName) {
+        return _.filter(this.getSettings()[filterName], filter => _.includes([CustomFilter.type.Concept, CustomFilter.type.GroupSubject], filter.type));
+    }
+
+    getBottomLevelFilters(filterName, subjectTypeUUID) {
         const conceptService = this.getService(ConceptService);
-        return this.getFiltersByType(filterName, CustomFilter.type.Concept)
-            .filter(filter => conceptService.getConceptByUUID(filter.conceptUUID).datatype === Concept.dataType.Coded
+        return this.getCodedOrGroupSubjectFilters(filterName)
+            .filter(filter => filter.type === CustomFilter.type.GroupSubject || conceptService.getConceptByUUID(filter.conceptUUID).datatype === Concept.dataType.Coded
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
