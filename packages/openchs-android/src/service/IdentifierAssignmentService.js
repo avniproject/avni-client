@@ -26,7 +26,7 @@ class IdentifierAssignmentService extends BaseService {
     }
 
     getNextIdentifier(identifierSourceUUID) {
-        return _.get(this.getNextIdentifierAssignment(identifierSourceUUID), 'identifier');
+        return this.getNextIdentifierAssignment(identifierSourceUUID);
     }
 
     haveEnoughIdentifiers(form) {
@@ -42,7 +42,10 @@ class IdentifierAssignmentService extends BaseService {
         _.filter(form.getFormElementsOfType(Concept.dataType.Id), fe => _.isNil(observationHolder.findObservation(fe.concept)))
             .forEach(fe => {
                 const nextIdentifier = this.getNextIdentifier(fe.recordValueByKey(FormElement.keys.IdSourceUUID));
-                observationHolder.addOrUpdateObservation(fe.concept, nextIdentifier);
+                observationHolder.addOrUpdateObservation(fe.concept, {
+                    uuid: nextIdentifier.uuid,
+                    value: nextIdentifier.identifier
+                });
             });
         return observationHolder;
     }
@@ -62,9 +65,11 @@ class IdentifierAssignmentService extends BaseService {
         _.each(form.getFormElementsOfType(Concept.dataType.Id), (formElement) => {
             let observation = observationsHolder.findObservation(formElement.concept);
             if (observation) {
-                const id = observation.getValue();
-                const identifierSource = formElement.recordValueByKey(FormElement.keys.IdSourceUUID);
-                const identifierAssignment = this.getIdentifierByIdAndSource(id, identifierSource);
+                const uuid = observation.getValueWrapper().uuid;
+                if (!uuid) {
+                    return;
+                }
+                const identifierAssignment = this.findByUUID(uuid);
 
                 if (!_.isNil(identifierAssignment)) {
                     identifierAssignment.individual = individual;

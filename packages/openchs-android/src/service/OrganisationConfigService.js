@@ -39,7 +39,6 @@ class OrganisationConfigService extends BaseService {
     }
 
     getHomeScreen() {
-        console.log('getting home screen');
         return _.find(this.getExtensions(), extension => extension.extensionScope.scopeType === 'Field App Home Screen');
     }
 

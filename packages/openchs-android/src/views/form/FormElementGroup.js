@@ -31,6 +31,7 @@ import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormE
 import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 import AudioFormElement from "./formElement/AudioFormElement";
+import Identifier from "openchs-models/dist/Identifier";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -170,7 +171,7 @@ class FormElementGroup extends AbstractComponent {
                                 key={idx}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
-                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                value={this.getSelectedAnswer(formElement.concept, new Identifier())}
                                 validationResult={validationResult}
                                 multiline={false}
                             />, idx, formElement.uuid === erroredUUID);
