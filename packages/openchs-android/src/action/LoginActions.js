@@ -53,11 +53,11 @@ class LoginActions {
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
                     logEvent(firebaseEvents.LOG_IN);
-                    LoginActions.startDumpRestore(context, action, action.source);
+                    LoginActions.startDumpRestore(context, action, action.source, action.successCb);
                     return;
                 }
                 if (response.status === "NEWPASSWORD_REQUIRED") {
-                    action.newPasswordRequired(response.user, (source) => LoginActions.startDumpRestore(context, action, source));
+                    action.newPasswordRequired(response.user, (source) => LoginActions.startDumpRestore(context, action, source, action.successCBFromSetPasswordView));
                     return;
                 }
                 General.logError("Unreachable code");
@@ -70,23 +70,23 @@ class LoginActions {
         return newState;
     }
 
-    static startDumpRestore(context, action, source) {
+    static startDumpRestore(context, action, source, successCb) {
         action.onLoginProgress(0, "Login successful, checking for prepared database");
         let backupRestoreRealmService = context.get(BackupRestoreRealmService);
         const doRestoreDump = backupRestoreRealmService.isDatabaseNeverSynced();
         General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
         if (doRestoreDump) {
-            LoginActions.restoreDump(context, action, source);
+            LoginActions.restoreDump(context, action, source, successCb);
         } else {
-            action.successCb(source);
+            successCb(source);
         }
     }
 
-    static restoreDump(context, action, source) {
+    static restoreDump(context, action, source, successCb) {
         let restoreService = context.get(BackupRestoreRealmService);
         restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
             if (failed) action.checkForRetry(failureMessage, source);
-            else if (percentProgress === 100) action.successCb(source);
+            else if (percentProgress === 100) successCb(source);
             else action.onLoginProgress(percentProgress, message);
         });
     }

@@ -30,6 +30,9 @@ import Fonts from "./primitives/Fonts";
 import Config from '../framework/Config';
 import DBRestoreProgress from "./DBRestoreProgress";
 import SyncService from "../service/SyncService";
+import TypedTransition from "../framework/routing/TypedTransition";
+import SetPasswordView from "./SetPasswordView";
+import LandingView from "./LandingView";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -313,11 +316,18 @@ class LoginView extends AbstractComponent {
         this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
     }
 
+    successCBFromSetPasswordView(source) {
+        TypedTransition.from(source).resetStack([LoginView, SetPasswordView], [
+            TypedTransition.createRoute(LandingView, {tabIndex: 1, menuProps: {startSync: true}}, true)
+        ]);
+    }
+
     dumpRestoreAction() {
         return {
             onLoginProgress: (percentProgress, message) => this.onLoginProgress(percentProgress, message),
             checkForRetry: (errorMessage, source) => this.restoreFailureAlert(errorMessage, source),
-            successCb: (source) => this.loginComplete(source)
+            successCb: (source) => this.loginComplete(source),
+            successCBFromSetPasswordView: (source) => this.successCBFromSetPasswordView(source),
         }
     }
 }
