@@ -183,7 +183,8 @@ class RuleEvaluationService extends BaseService {
 
     filterValues(decision, ruleUUID, individualUUID) {
         const nameConcept = this.conceptService.findConcept(decision.name);
-        decision.value = nameConcept.datatype !== 'Coded' ? decision.value : decision.value.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
+        const values = _.flatten([decision.value]);
+        decision.value = nameConcept.datatype !== 'Coded' ? decision.value : values.filter(conceptName => this.checkConceptForRule(conceptName, ruleUUID, individualUUID));
         return decision;
     }
 
