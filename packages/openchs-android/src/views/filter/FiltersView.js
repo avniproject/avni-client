@@ -275,7 +275,7 @@ class FilterView extends AbstractComponent {
                                 <CustomFilters filters={bottomLevelFilters}
                                                selectedCustomFilters={this.props.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                               locationSearchCriteria={this.state.locationSearchCriteria}
+                                               addressLevelState={this.state.addressLevelState}
                                 /> : null}
                             <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>

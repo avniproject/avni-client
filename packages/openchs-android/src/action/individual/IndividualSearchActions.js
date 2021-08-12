@@ -7,6 +7,7 @@ import CustomFilterService from "../../service/CustomFilterService";
 import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import AddressLevelState from "../common/AddressLevelsState";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -14,7 +15,8 @@ export class IndividualSearchActions {
             searchCriteria: state.searchCriteria.clone(),
             subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone())),
             selectedCustomFilters: {...state.selectedCustomFilters},
-            genders: {...state.genders}
+            genders: {...state.genders},
+            addressLevelState: state.addressLevelState.clone(),
         };
     }
 
@@ -23,7 +25,8 @@ export class IndividualSearchActions {
             searchCriteria: IndividualSearchCriteria.empty(),
             subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone())),
             selectedCustomFilters: {},
-            genders: {}
+            genders: {},
+            addressLevelState: new AddressLevelState(),
         }
     }
 
@@ -78,10 +81,12 @@ export class IndividualSearchActions {
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         const addressLevelService = beans.get(AddressLevelService);
-        const lowestSelectedAddressLevels = action.values;
+        const addressLevelState = action.values;
+        const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
         const lowestAddressLevels = lowestSelectedAddressLevels
             .reduce((acc, parent) => acc.concat(addressLevelService.getLeavesOfParent(parent)), []);
         newState.searchCriteria.toggleLowestAddresses(lowestAddressLevels);
+        newState.addressLevelState = addressLevelState;
         return newState;
     };
 

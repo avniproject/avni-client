@@ -129,7 +129,7 @@ class IndividualSearchView extends AbstractComponent {
                             <AddressLevels
                                 key={this.state.key}
                                 onSelect={(addressLevelState) =>
-                                    this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState.lowestSelectedAddresses})
+                                    this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
                                 }
                                 multiSelect={true}/> : null}
                         <CheckBoxFormElement
@@ -142,7 +142,7 @@ class IndividualSearchView extends AbstractComponent {
                             <CustomFilters filters={bottomLevelFilters}
                                            selectedCustomFilters={this.state.selectedCustomFilters}
                                            onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                           locationSearchCriteria={this.state.locationSearchCriteria}
+                                           addressLevelState={this.state.addressLevelState}
                             /> : null}
                     </View>
                     <Separator height={170} backgroundColor={Styles.whiteColor}/>

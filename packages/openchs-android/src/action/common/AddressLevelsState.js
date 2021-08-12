@@ -106,6 +106,10 @@ class AddressLevelsState {
     clone() {
         return new AddressLevelsState(Array.from(this._asList()));
     }
+
+    get selectedAddressLevelUUIDs() {
+        return _.map(this.selectedAddresses, ({uuid}) => uuid);
+    }
 }
 
 export default AddressLevelsState;
