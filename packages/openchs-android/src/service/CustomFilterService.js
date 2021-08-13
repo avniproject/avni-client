@@ -103,7 +103,7 @@ class CustomFilterService extends BaseService {
     getBottomLevelFilters(filterName, subjectTypeUUID) {
         const conceptService = this.getService(ConceptService);
         return this.getCodedOrGroupSubjectFilters(filterName)
-            .filter(filter => filter.type === CustomFilter.type.GroupSubject || conceptService.getConceptByUUID(filter.conceptUUID).datatype === Concept.dataType.Coded
+            .filter(filter => (filter.type === CustomFilter.type.GroupSubject || conceptService.getConceptByUUID(filter.conceptUUID).datatype === Concept.dataType.Coded)
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
