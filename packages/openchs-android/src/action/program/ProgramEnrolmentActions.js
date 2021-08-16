@@ -22,8 +22,9 @@ export class ProgramEnrolmentActions {
     static onLoad(state: ProgramEnrolmentState, action, context) {
         if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action) || action.forceLoad) {
             const formMappingService = context.get(FormMappingService);
+            const isProgramEnrolment = action.usage === ProgramEnrolmentState.UsageKeys.Enrol;
             const form =
-                action.usage === ProgramEnrolmentState.UsageKeys.Enrol
+                isProgramEnrolment
                     ? formMappingService.findFormForProgramEnrolment(action.enrolment.program, action.enrolment.individual.subjectType)
                     : formMappingService.findFormForProgramExit(action.enrolment.program, action.enrolment.individual.subjectType);
 
@@ -31,7 +32,8 @@ export class ProgramEnrolmentActions {
             //This will enable the value to be used in rules
             context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(action.enrolment.observations));
             const groupAffiliationState = new GroupAffiliationState();
-            context.get(GroupSubjectService).populateGroups(action.enrolment.individual.uuid, form, groupAffiliationState);
+            const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(action.enrolment.program, action.enrolment.individual.subjectType);
+            context.get(GroupSubjectService).populateGroups(action.enrolment.individual.uuid, enrolmentForm, groupAffiliationState);
             const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(action.enrolment.uuid);
             const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
@@ -52,6 +54,10 @@ export class ProgramEnrolmentActions {
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
+            if (!isProgramEnrolment) {
+                programEnrolmentState.groupAffiliation.removeMemberFromGroup();
+                GroupAffiliationActions.injectGroupsToIndividual(programEnrolmentState.groupAffiliation, programEnrolmentState);
+            }
             return programEnrolmentState;
         } else {
             return state.clone();
@@ -120,7 +126,7 @@ export class ProgramEnrolmentActions {
             context
                 .get(ConceptService)
                 .addDecisions(newState.enrolment.programExitObservations, action.decisions.enrolmentDecisions);
-            service.exit(newState.enrolment, action.skipCreatingPendingStatus);
+            service.exit(newState.enrolment, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
         }
         action.cb(newState.enrolment,true);
         return newState;

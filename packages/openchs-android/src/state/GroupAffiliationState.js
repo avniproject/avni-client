@@ -8,21 +8,21 @@ class GroupAffiliationState {
 
     updateGroupSubjectObservations(concept, groupSubject) {
         const newState = this.cloneForEdit();
-        this.removeOrVoidOlderMemberForConcept(concept, newState);
+        this.removeOrVoidOlderMemberForConcept(concept, newState, groupSubject);
         if (!groupSubject.memberSubject) {
             newState.groupSubjectObservations.push({concept, groupSubject});
         }
         return newState.groupSubjectObservations;
     }
 
-    removeOrVoidOlderMemberForConcept(concept, newState) {
+    removeOrVoidOlderMemberForConcept(concept, newState, {groupSubject}) {
         const updatedObs = [];
         _.forEach(newState.groupSubjectObservations, obs => {
             if (obs.concept.uuid !== concept.uuid) {
                 updatedObs.push(obs);
             } else if (obs.groupSubject.memberSubject) {
                 const newGroupSubject = obs.groupSubject.cloneForEdit();
-                newGroupSubject.voided = true;
+                newGroupSubject.voided = groupSubject.uuid !== obs.groupSubject.groupSubject.uuid;
                 obs.groupSubject = newGroupSubject;
                 updatedObs.push(obs);
             }
@@ -46,6 +46,17 @@ class GroupAffiliationState {
 
     cloneForEdit() {
         return new GroupAffiliationState(this.groupSubjectObservations);
+    }
+
+    removeMemberFromGroup() {
+        const updatedObs = [];
+        _.forEach(this.groupSubjectObservations, obs => {
+            const newGroupSubject = obs.groupSubject.cloneForEdit();
+            newGroupSubject.voided = true;
+            obs.groupSubject = newGroupSubject;
+            updatedObs.push(obs);
+        });
+        this.groupSubjectObservations = updatedObs;
     }
 
 }

@@ -72,12 +72,12 @@ class ProgramEnrolmentService extends BaseService {
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(enrolmentForm, programEnrolment.observations, null, programEnrolment);
 
             entityQueueItems.forEach((entityQueue) => db.create(EntityQueue.schema.name, entityQueue));
-            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(programEnrolment.individual, db));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));
         });
         return programEnrolment;
     }
 
-    exit(programEnrolment, skipCreatingPendingStatus) {
+    exit(programEnrolment, skipCreatingPendingStatus, groupSubjectObservations = []) {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
@@ -88,6 +88,7 @@ class ProgramEnrolmentService extends BaseService {
                 programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEnrolment.uuid, ProgramEnrolment.schema.name, db);
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));
         });
     }
 

@@ -35,6 +35,7 @@ import SubjectRegisterView from "../subject/SubjectRegisterView";
 import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsForOtherSubjects";
 import {ApprovalDialog} from "../approval/ApprovalDialog";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -199,6 +200,7 @@ class SystemRecommendationView extends AbstractComponent {
                                                  title={this.I18n.t('visitsBeingScheduled')}/>
                             <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
                                                  title={this.I18n.t('visitsBeingScheduledForOthers')}/>
+                            <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

@@ -45,10 +45,12 @@ class GroupSubjectService extends BaseService {
     }
 
     saveGroupSubject(db, groupSubject) {
-        const savedMember = db.create(GroupSubject.schema.name, groupSubject, true);
+        const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
         let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
-        groupSubjectInd.addGroupSubject(savedMember);
-        db.create(EntityQueue.schema.name, EntityQueue.create(savedMember, GroupSubject.schema.name));
+        let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
+        groupSubjectInd.addGroupSubject(savedGroupSubject);
+        memberSubjectInd.addGroup(savedGroupSubject);
+        db.create(EntityQueue.schema.name, EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
         General.logDebug('GroupSubjectService', 'Member Saved');
     }
 

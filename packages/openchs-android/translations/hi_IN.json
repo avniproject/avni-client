@@ -302,6 +302,9 @@
     "restoreFailedTitle": "देटाबसे रेस्टॉर फ़ेल",
     "restoreFailedMessage": "फ़ास्ट सिंक फ़ेल",
     "restoreNoDump": "कोई डम्प मौजूद नहीं, फ़्रेश सिंक चालू",
-    "performNormalSync": "स्लो सिंक करो"
+    "performNormalSync": "स्लो सिंक करो",
+    "groupInformation": "समूह की जानकारी",
+    "groupAdditionMessage" : "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
+    "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |"
   }
 }
