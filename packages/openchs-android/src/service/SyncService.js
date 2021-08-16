@@ -213,6 +213,18 @@ class SyncService extends BaseService {
         return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled);
     }
 
+    associateParent(entityResources, entities, entityMetaData) {
+        const parentEntities = _.zip(entityResources, entities)
+            .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
+        return _.values(_.groupBy(parentEntities, 'uuid')).map(entityMetaData.parent.entityClass.merge(entityMetaData.entityClass));
+    }
+
+    associateMultipleParents(entityResources, entities, entityMetaData) {
+        const parentEntities = _.zip(entityResources, entities)
+            .flatMap(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChildToMultipleParents(entity, entityMetaData.entityClass, entityResource, this.entityService));
+        return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass, entities));
+    }
+
     persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
@@ -226,12 +238,13 @@ class SyncService extends BaseService {
         //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
         //`<A Model>.associateChild()` called many times as many children
         if (!_.isEmpty(entityMetaData.parent)) {
-            const parentEntities = _.zip(entityResources, entities)
-                .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
-            const mergedParentEntities =
-                _.values(_.groupBy(parentEntities, 'uuid'))
-                    .map(entityMetaData.parent.entityClass.merge(entityMetaData.entityClass));
-            entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
+            if (entityMetaData.hasMoreThanOneAssociation) {
+                const mergedParentEntities = this.associateMultipleParents(entityResources, entities, entityMetaData);
+                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
+            } else {
+                const mergedParentEntities = this.associateParent(entityResources, entities, entityMetaData);
+                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
+            }
         }
         if (entityMetaData.entityName === 'EntityApprovalStatus') {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
