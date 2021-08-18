@@ -26,6 +26,7 @@ class IndividualDetailsCard extends AbstractComponent {
                       marginRight: 4,
                       borderRadius: 2,
                       paddingHorizontal: 4,
+                      marginVertical: 1,
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
                   }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
@@ -95,7 +96,8 @@ class IndividualDetailsCard extends AbstractComponent {
                         </View>
                         <View style={{
                             flexDirection: 'row',
-                            justifyContent: 'flex-end'
+                            justifyContent: 'flex-end',
+                            flexWrap: 'wrap',
                         }}>
                             {_.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
                         </View>
