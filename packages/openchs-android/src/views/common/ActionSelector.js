@@ -32,7 +32,11 @@ const styles = {
         width: width * 0.15
     },
     modal: {
-        flexDirection: 'row'
+        paddingTop: 50,
+        flex: 1,
+        flexWrap: 'nowrap',
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        flexDirection: 'row',
     },
     closeIcon: {
         justifyContent: 'flex-end',
