@@ -9,7 +9,8 @@ class CustomDashboardActions {
 
     static getInitialState(context) {
         return {
-            loading: false
+            loading: false,
+            reportCardSectionMappings: []
         };
     }
 
