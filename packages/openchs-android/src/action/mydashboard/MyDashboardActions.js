@@ -8,7 +8,6 @@ import CustomFilterService from "../../service/CustomFilterService";
 import PrivilegeService from "../../service/PrivilegeService";
 import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
-import AddressLevelService from "../../service/AddressLevelService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 class MyDashboardActions {
@@ -336,33 +335,63 @@ class MyDashboardActions {
     static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total}, displayProgramTab) {
         const row1 = {
             visits: {
-                scheduled: {count: scheduled, abnormal: false},
-                overdue: {count: overdue, abnormal: false},
-            }
+                scheduled: {
+                    count: scheduled,
+                    abnormal: false,
+                    cardColor: "#388e3c",
+                    textColor: "#FFF",
+                    numberColor: '#FFF'
+                },
+                overdue: {
+                    count: overdue,
+                    abnormal: false,
+                    cardColor: "#d32f2f",
+                    textColor: "#FFF",
+                    numberColor: '#FFF'
+                },
+            },
+            sectionName: "visitDetailsSection"
         };
         const row2 = {
             visits: {
                 recentlyCompletedRegistration: {
                     count: recentlyCompletedRegistration,
                     abnormal: false,
-                    label: 'RecentRegistration'
+                    label: 'RecentRegistration',
+                    cardColor: "#FFF",
+                    textColor: "rgba(44,44,44,0.69)",
+                    numberColor: '#2c2c2c'
                 },
                 recentlyCompletedEnrolment: {
                     count: recentlyCompletedEnrolment,
                     abnormal: false,
-                    label: 'RecentEnrollment'
+                    label: 'RecentEnrollment',
+                    cardColor: "#FFF",
+                    textColor: "rgba(44,44,44,0.69)",
+                    numberColor: '#2c2c2c'
                 },
                 recentlyCompletedVisits: {
                     count: recentlyCompletedVisits,
                     abnormal: false,
-                    label: 'RecentVisits'
+                    label: 'RecentVisits',
+                    cardColor: "#FFF",
+                    textColor: "rgba(44,44,44,0.69)",
+                    numberColor: '#2c2c2c'
                 },
-            }
+            },
+            sectionName: "recentStatisticsSection"
         };
         const row3 = {
             visits: {
-                total: {count: total, abnormal: false}
-            }
+                total: {
+                    count: total,
+                    abnormal: false,
+                    cardColor: "#FFF",
+                    textColor: "rgba(44,44,44,0.69)",
+                    numberColor: '#2c2c2c'
+                }
+            },
+            sectionName: "registrationOverviewSection"
         };
         if (!displayProgramTab) {
             delete row2.visits.recentlyCompletedEnrolment;

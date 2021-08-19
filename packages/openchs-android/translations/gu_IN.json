@@ -248,9 +248,9 @@
     "NotEnoughIdForAnotherRegistration": "અન્ય નોંધણી માટે પૂરતી ઓળખકર્તાઓ ઉપલબ્ધ નથી. હોમ સ્ક્રીન પર જઈ ને સિંક દબાવો",
     "syncNow": "હવે સમન્વયિત કરો",
     "syncLater": "પછી સમન્વયિત કરો",
-    "RecentRegistration": "છેલ્લા 24 કલાક નોંધણી",
-    "RecentEnrollment": "છેલ્લા 24 કલાક એનરોલમેન્ટ",
-    "RecentVisits": "છેલ્લા 24 કલાક મુલાકાતો",
+    "RecentRegistration": "નોંધણી",
+    "RecentEnrollment": "એનરોલમેન્ટ",
+    "RecentVisits": "મુલાકાતો",
     "The locale of the switching user is not known. That's why these are in English.": "",
     "cannotChangeUserTitle": "Multiple users cannot login",
     "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
@@ -274,6 +274,9 @@
     "logoutConfirmationTitle": "શું તમે ખાતરી કરો છો?",
     "logoutConfirmationMessage": "જો તમે લૉગ આઉટ કરો છો, તો એપ્લિકેશનનો ઉપયોગ કરવાનું ચાલુ રાખવા માટે તમારે ફરીથી ઇન્ટરનેટથી લૉગ ઇન કરવું પડશે.\n",
     "logoutConfirmed": "લૉગ આઉટ",
-    "logoutCancelled": "રદ કરો"
+    "logoutCancelled": "રદ કરો",
+    "visitDetailsSection": "વિગતોની મુલાકાત લો",
+    "recentStatisticsSection": "છેલ્લા 24 કલાકના આંકડા",
+    "registrationOverviewSection": "નોંધણી ઝાંખી"
   }
 }

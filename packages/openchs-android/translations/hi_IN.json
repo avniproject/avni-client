@@ -253,9 +253,9 @@
     "NotEnoughIdForAnotherRegistration": "अन्य पंजीकरण के लिए पर्याप्त पहचानकर्ता उपलब्ध नहीं है. होम स्क्रीन पर जा के सिंक दबाये.",
     "syncNow": "अभी सिंक करें",
     "syncLater": "बाद में सिंक करें",
-    "RecentRegistration": "पिछले 24 घंटे के रजिसस्ट्रेशन",
-    "RecentEnrollment": "पिछले 24 घंटे के एनरोलमेण्ट",
-    "RecentVisits": "पिछले 24 घंटे के विजिट",
+    "RecentRegistration": "रजिसस्ट्रेशन",
+    "RecentEnrollment": "एनरोलमेण्ट",
+    "RecentVisits": "विजिट",
     "The locale of the switching user is not known. That's why these are in English.": "",
     "cannotChangeUserTitle": "Multiple users cannot login",
     "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
@@ -305,6 +305,9 @@
     "performNormalSync": "स्लो सिंक करो",
     "groupInformation": "समूह की जानकारी",
     "groupAdditionMessage" : "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
-    "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |"
+    "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |",
+    "visitDetailsSection": "विजिट का विवरण",
+    "recentStatisticsSection": "पिछले 24 घंटे के आंकड़े",
+    "registrationOverviewSection": "पंजीकरण अवलोकन"
   }
 }

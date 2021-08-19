@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import React, {Component} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import React, {Fragment} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TitleNumberBlock from './TitleNumberBlock';
@@ -17,11 +17,12 @@ class StatusCountRow extends AbstractComponent {
 
     static styles = StyleSheet.create({
         visitBlockContainer: {
-            marginTop: 3,
+            marginTop: 2,
             flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: 1,
+            marginHorizontal: 10,
+            flex: 1,
+            flexWrap: 'wrap',
+            marginBottom: 15,
         }
     });
 
@@ -38,18 +39,29 @@ class StatusCountRow extends AbstractComponent {
     render() {
         const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) => {
             const cardTitle = _.has(numberObj, "label") ? numberObj.label : title;
-            return (<View style={{paddingLeft: 3}} key={idx}>
+            return (<View key={idx}>
                 <TitleNumberBlock
                     highlight={numberObj.abnormal}
                     onPress={() => this.onPressHandler(title, numberObj.count, this.props.backFunction, cardTitle)}
                     title={cardTitle}
-                    number={numberObj.count}/>
+                    number={numberObj.count}
+                    index={idx}
+                    {...numberObj}
+                />
             </View>)
         });
         return (
-            <View style={StatusCountRow.styles.visitBlockContainer}>
-                {visitBlocks}
-            </View>
+            <Fragment>
+                <Text style={[{
+                    paddingHorizontal: 10,
+                    fontSize: 17,
+                }]}>
+                    {this.I18n.t(this.props.sectionName)}
+                </Text>
+                <View style={StatusCountRow.styles.visitBlockContainer}>
+                    {visitBlocks}
+                </View>
+            </Fragment>
         );
     }
 }

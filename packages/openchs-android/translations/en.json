@@ -247,9 +247,9 @@
     "NotEnoughIdForAnotherRegistration": "Not Enough Identifiers available for another Registration. Please goto Home screen and press Sync",
     "syncNow": "Sync now",
     "syncLater": "Sync later",
-    "RecentRegistration": "Last 24 hours Registrations",
-    "RecentEnrollment": "Last 24 hours Enrolments",
-    "RecentVisits": "Last 24 hours Visits",
+    "RecentRegistration": "Registrations",
+    "RecentEnrollment": "Enrolments",
+    "RecentVisits": "Visits",
     "cannotChangeUserTitle": "Multiple users cannot login",
     "cannotChangeUserDesc": "'{{oldUser}}' user was previously logged in. Proceeding to login as '{{newUser}}' will delete un-synced data of '{{oldUser}}'. Do you want to delete and login?",
     "clearDataAndLogin": "Delete data and login",
@@ -421,6 +421,9 @@
     "recordingStartedMessage": "Recording started, use stop button to stop it.",
     "groupInformation": "Group information",
     "groupAdditionMessage" : "{{memberName}} will be added to the {{groupSubjectTypeName}} {{groupSubjectName}}.",
-    "groupRemovalMessage": "{{memberName}} will be removed from the {{groupSubjectTypeName}} {{groupSubjectName}}."
+    "groupRemovalMessage": "{{memberName}} will be removed from the {{groupSubjectTypeName}} {{groupSubjectName}}.",
+    "visitDetailsSection": "Visit details",
+    "recentStatisticsSection": "Last 24 hours statistics",
+    "registrationOverviewSection": "Registration overview"
 }
 }

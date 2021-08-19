@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
-import React, {Component} from 'react';
-import {View, Text, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import React from 'react';
+import {Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
-import DGS from '../primitives/DynamicGlobalStyles';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 
+const cardGap = 10;
 
 class TitleNumberBlock extends AbstractComponent {
     static propTypes = {
@@ -16,42 +16,44 @@ class TitleNumberBlock extends AbstractComponent {
 
     static styles = StyleSheet.create({
         container: {
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            width: DGS.resizeWidth(190),
-            minHeight: DGS.resizeHeight(200),
-            shadowOffset: {width: 0, height: 2},
-            shadowOpacity: 0.5,
+            borderRadius: 8,
             elevation: 2,
+            justifyContent: 'center',
+            paddingHorizontal: 10,
+            flexWrap: 'wrap',
+            minHeight: 80,
             backgroundColor: 'white',
-            shadowColor: "black",
-            shadowRadius: 2,
+            marginTop: cardGap,
+            width: (Dimensions.get('window').width - cardGap * 3) / 3,
         },
-        title: {
-            color: "#2c2c2c",
-        },
-        highlight: {
-            color: "#960000",
+        titleStyle: {
+            fontSize: 12,
         }
     });
 
     render() {
-        const textColor = this.props.highlight ? TitleNumberBlock.styles.highlight : TitleNumberBlock.styles.title;
+        const textColor = {color: this.props.textColor, opacity: 0.9};
+        const numberColor = {color: this.props.numberColor};
+        const backgroundColor = this.props.cardColor;
+        const index = this.props.index;
         return (
             <TouchableNativeFeedback onPress={() => this.props.onPress()}>
-                <View style={TitleNumberBlock.styles.container}>
-                    <Text style={[Fonts.typography("paperFontBody2"), textColor, {
-                        fontWeight: "400",
-                        textAlign: "center",
-                        paddingHorizontal: 3
+                <View
+                    style={[TitleNumberBlock.styles.container, {
+                        marginLeft: _.includes([1, 2], index) ? cardGap / 2 : 0,
+                        backgroundColor
                     }]}>
-                        {this.I18n.t(this.props.title)}
-                    </Text>
-                    <Text style={[Fonts.typography("paperFontBody2"), textColor]}>
-                        {this.props.number}
-                    </Text>
+                    <View style={{flexDirection: 'column'}}>
+                        <Text style={[Fonts.typography("paperFontBody2"), numberColor, {fontSize: 20}]}>
+                            {this.props.number}
+                        </Text>
+                        <View style={{marginTop: 5}}>
+                            <Text
+                                style={[TitleNumberBlock.styles.titleStyle, Fonts.typography("paperFontBody2"), textColor]}>
+                                {this.I18n.t(this.props.title)}
+                            </Text>
+                        </View>
+                    </View>
                 </View>
             </TouchableNativeFeedback>
         );

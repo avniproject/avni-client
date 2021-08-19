@@ -137,6 +137,7 @@ class MyDashboardView extends AbstractComponent {
                                   removeClippedSubviews={true}
                                   renderHeader={() => this.renderHeader()}
                                   renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
+                                                                          sectionName={rowData.sectionName}
                                                                           backFunction={() => this.onBackCallback()}/>}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </View>

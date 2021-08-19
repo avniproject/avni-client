@@ -257,9 +257,9 @@
     "NotEnoughIdForAnotherRegistration": "इतर नोंदणीसाठी पुरेसे अभिज्ञापक उपलब्ध नाहीत. कृपया होम मिळवा आणि सिंक दाबा",
     "syncNow": "आता संकालन करा",
     "syncLater": "नंतर संकालन करा",
-    "RecentRegistration": "शेवटचे 24 तास नोंदणी",
-    "RecentEnrollment": "शेवटचे 24 तास एनरोलमेण्ट",
-    "RecentVisits": "शेवटचे 24 तास भेटी",
+    "RecentRegistration": "नोंदणी",
+    "RecentEnrollment": "एनरोलमेण्ट",
+    "RecentVisits": "भेटी",
     "overdue": "दिलेल्या मुदतीत न झालेल्या परंतु द्यावयाच्या भेटी",
     "total": "एकूण नोंदणी",
     "The locale of the switching user is not known. That's why these are in English.": "",
@@ -326,6 +326,9 @@
     "logoutConfirmationTitle": "तुला खात्री आहे?",
     "logoutConfirmationMessage": "आपण लॉग आउट केल्यास, अॅप वापरणे सुरू ठेवण्यासाठी आपल्याला इंटरनेटसह पुन्हा लॉग इन करावे लागेल.\n",
     "logoutConfirmed": "लॉगआउट",
-    "logoutCancelled": "रद्द करा"
+    "logoutCancelled": "रद्द करा",
+    "visitDetailsSection": "तपशीलांना भेट द्या",
+    "recentStatisticsSection": "गेल्या २४ तासांची आकडेवारी",
+    "registrationOverviewSection": "नोंदणी विहंगावलोकन"
   }
 }
