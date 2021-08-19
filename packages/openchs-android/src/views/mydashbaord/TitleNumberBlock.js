@@ -24,7 +24,7 @@ class TitleNumberBlock extends AbstractComponent {
             minHeight: 80,
             backgroundColor: 'white',
             marginTop: cardGap,
-            width: (Dimensions.get('window').width - cardGap * 3) / 3,
+            width: (Dimensions.get('window').width - (cardGap * 4)) / 3,
         },
         titleStyle: {
             fontSize: 12,
@@ -40,7 +40,7 @@ class TitleNumberBlock extends AbstractComponent {
             <TouchableNativeFeedback onPress={() => this.props.onPress()}>
                 <View
                     style={[TitleNumberBlock.styles.container, {
-                        marginLeft: _.includes([1, 2], index) ? cardGap / 2 : 0,
+                        marginLeft: _.includes([1, 2], index) ? cardGap : 0,
                         backgroundColor
                     }]}>
                     <View style={{flexDirection: 'column'}}>

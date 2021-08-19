@@ -65,7 +65,6 @@ class MyDashboardView extends AbstractComponent {
                 <View style={{alignItems: 'center'}}>
                     <Text style={{
                         paddingTop: 10,
-                        marginRight: 50,
                         textAlign: 'center',
                         fontSize: 20,
                         color: Colors.DefaultPrimaryColor,
@@ -132,7 +131,8 @@ class MyDashboardView extends AbstractComponent {
                     <CustomActivityIndicator
                         loading={this.state.loading}/>
                     <View>
-                        <ListView dataSource={dataSource}
+                        <ListView style={{marginBottom: 190}}
+                                  dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderHeader={() => this.renderHeader()}
