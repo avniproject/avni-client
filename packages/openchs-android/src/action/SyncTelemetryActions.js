@@ -15,7 +15,7 @@ class SyncTelemetryActions {
     }
 
     static onSyncStart(state, action) {
-        const newState = SyncTelemetryActions.clone(state);
+        const newState = SyncTelemetryActions.getInitialState();
         const syncTelemetry = newState.syncTelemetry;
         const deviceInfo = SyncTelemetryActions.getDeviceInfo();
         const {type, effectiveType} = action.connectionInfo;

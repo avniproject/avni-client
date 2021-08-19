@@ -13,7 +13,7 @@ import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, Modal, NetInfo, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Dimensions, NetInfo, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
 import {EntityMetaData, SyncError} from "avni-models";
@@ -30,6 +30,7 @@ class SyncComponent extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
+        this.state = {syncStarted: false};
     }
 
     viewName() {
@@ -63,6 +64,7 @@ class SyncComponent extends AbstractComponent {
     }
 
     _postSync() {
+        this.setState({syncStarted: false});
         this.dispatchAction(SyncActions.POST_SYNC);
         setTimeout(() => this.reset(), 1);
 
@@ -72,6 +74,7 @@ class SyncComponent extends AbstractComponent {
 
     _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
+        this.setState({syncStarted: false});
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
@@ -136,7 +139,16 @@ class SyncComponent extends AbstractComponent {
         NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
     }
 
-    async sync() {
+    sync() {
+        this.setState(({syncStarted}) => {
+            if (!syncStarted) {
+                this.startSync();
+                return {syncStarted: true}
+            }
+        });
+    }
+
+    async startSync() {
         if (this.state.isConnected) {
             const syncService = this.context.getService(SyncService);
             const onError = this._onError.bind(this);
