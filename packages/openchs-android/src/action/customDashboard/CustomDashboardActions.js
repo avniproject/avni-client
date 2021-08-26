@@ -63,22 +63,6 @@ class CustomDashboardActions {
         }
     }
 
-    static executeCountQuery(state, action, context) {
-        const reportCardSectionMappings = state.reportCardSectionMappings;
-        const newState = {...state};
-        const reportCardUUID = action.reportCardUUID;
-        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
-            const reportCard = rcm.card;
-            const isCountRequired = _.isNil(reportCard.count) || !_.isNil(reportCard.standardReportCardType);
-            if (reportCard.uuid === reportCardUUID && isCountRequired) {
-                const cardMappingsWithCount = {...rcm};
-                cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(reportCard);
-                return cardMappingsWithCount;
-            } else return rcm
-        });
-        return newState;
-    }
-
     static refreshCount(state, action, context) {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
@@ -104,7 +88,6 @@ const CustomDashboardActionNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_DASHBOARD_CHANGE: `${ActionPrefix}.ON_DASHBOARD_CHANGE`,
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
-    EXECUTE_COUNT_QUERY: `${ActionPrefix}.EXECUTE_COUNT_QUERY`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
 };
@@ -113,7 +96,6 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_LOAD, CustomDashboardActions.onLoad],
     [CustomDashboardActionNames.ON_DASHBOARD_CHANGE, CustomDashboardActions.onDashboardChange],
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
-    [CustomDashboardActionNames.EXECUTE_COUNT_QUERY, CustomDashboardActions.executeCountQuery],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
 ]);
