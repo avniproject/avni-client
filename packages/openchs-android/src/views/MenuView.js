@@ -81,7 +81,7 @@ class MenuView extends AbstractComponent {
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
                     {(['logout', 'Delete Data', 'backup', 'feedback'].includes(titleKey)) ? <View/> :
-                        <Icon style={styles.iconStyle} name='chevron-right'/>}
+                        <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons' />}
                 </View>
             </TouchableNativeFeedback>)
             : <View/>

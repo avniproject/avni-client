@@ -53,7 +53,7 @@ class FunctionalHeader extends AbstractComponent {
                         width: 72,
                         paddingHorizontal: 16
                     }}>
-                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                        <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
                     </View>
                 </TouchableNativeFeedback>
 

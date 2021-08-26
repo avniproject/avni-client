@@ -90,7 +90,7 @@ class LandingView extends AbstractComponent {
             color: Colors.iconSelectedColor
         } : iconStyle) : MenuView.iconStyle;
         if (_.startsWith(iconName, 'video')) {
-            return <NBIcon name={iconName} style={style}/>
+            return <NBIcon name={iconName} type='MaterialIcons' style={style}/>
         }
         return renderDot ? this.IconWithDot(iconName, style) : <MCIIcon name={iconName} style={style}/>
     }

@@ -111,7 +111,7 @@ class AppHeader extends AbstractComponent {
                             width: 72,
                             paddingHorizontal: 16
                         }}>
-                            <Icon style={{fontSize: 35, color: Colors.headerIconColor}} name='keyboard-arrow-left'/>
+                            <Icon style={{fontSize: 35, color: Colors.headerIconColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
                         </View>
                     </TouchableNativeFeedback>}
 

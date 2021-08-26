@@ -57,7 +57,7 @@ class VideoPlayerWrapper extends React.Component {
                 style={{margin: 8, padding: 16, position: 'absolute', top: 0, left: 0}}
             >
                 <View>
-                    <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left'/>
+                    <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
                 </View>
             </TouchableHighlight>
         );

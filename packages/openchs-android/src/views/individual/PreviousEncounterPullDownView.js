@@ -58,7 +58,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                 textStyle={{color: '#212121'}}>
                             <Text style={{fontSize: Fonts.Normal, color: Styles.greyText}}
                                   onPress={this.toggleExpandCollapse}>Expand</Text>
-                            <Icon style={{color: '#212121', color: Styles.greyText}} name='arrow-downward'/>
+                            <Icon style={{color: '#212121', color: Styles.greyText}} name='arrow-downward' type='MaterialIcons'/>
                         </Button>
                     </View>
                 </View>
