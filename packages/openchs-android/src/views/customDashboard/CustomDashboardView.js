@@ -88,7 +88,7 @@ class CustomDashboardView extends AbstractComponent {
                                 <CustomDashboardCard
                                     key={card.uuid}
                                     reportCard={card}
-                                    executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
+                                    // executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
                                     viewType={viewType}

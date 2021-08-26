@@ -18,10 +18,6 @@ export default class CustomDashboardCard extends AbstractComponent {
         super.componentWillMount();
     }
 
-    componentDidMount() {
-        setTimeout(() => this.dispatchAction(this.props.executeQueryActionName, {reportCardUUID: this.props.reportCard.uuid}), 1000);
-    }
-
     render() {
         const {reportCard, index, viewType, onCardPress} = this.props;
         return viewType === 'Tile' ?
