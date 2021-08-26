@@ -43,10 +43,15 @@ class MediaService extends BaseService {
             ['Image', FileSystem.getImagesDir],
             ['Audio', FileSystem.getAudioDir],
             ['News', FileSystem.getNewsDir],
+            ['File', FileSystem.getFileDir],
             ]);
         if (!uri) return '';
-        const fileName = _.get(uri.trim().match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
+        const fileName = this.getFileName(uri);
         return `${typeToDirectoryMap.get(type)()}/${fileName}`.trim();
+    }
+
+    getFileName(uri) {
+        return _.get(uri.trim().match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
     }
 
     exists(filePath) {

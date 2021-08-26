@@ -32,6 +32,7 @@ import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 import AudioFormElement from "./formElement/AudioFormElement";
 import Identifier from "openchs-models/dist/Identifier";
+import FileFormElement from "./formElement/FileFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -220,6 +221,15 @@ class FormElementGroup extends AbstractComponent {
                         }
                         else if ([Concept.dataType.Audio].includes(formElement.concept.datatype)) {
                             return this.wrap(<AudioFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        }
+                        else if ([Concept.dataType.File].includes(formElement.concept.datatype)) {
+                            return this.wrap(<FileFormElement
                                 key={idx}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
