@@ -92,14 +92,13 @@ class AudioFormElement extends AbstractFormElement {
                     if (uri && type && !copyError) {
                         fs.copyFile(uri, `${directory}/${fileName}`)
                             .then(() => this.updateValue(fileName))
-                            .catch(err => {
-                                if (!DocumentPicker.isCancel(err)) {
-                                    //Throw error only when user does not cancel it using back press
-                                    throw err;
-                                }
-                            })
                     }
-                })
+                }).catch(err => {
+                if (!DocumentPicker.isCancel(err)) {
+                    //Throw error only when user does not cancel it using back press
+                    throw err;
+                }
+            })
         }
     }
 
