@@ -79,6 +79,6 @@ export default class FileSystem {
     }
 
     static getFileDir() {
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/files`;
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/files`;
     }
 }
