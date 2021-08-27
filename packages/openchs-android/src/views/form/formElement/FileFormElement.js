@@ -18,6 +18,7 @@ import General from "../../../utility/General";
 import FileSystem from "../../../model/FileSystem";
 import {AlertMessage} from "../../common/AlertMessage";
 import fs from "react-native-fs";
+import {FileFormat} from 'avni-models';
 
 class FileFormElement extends AbstractFormElement {
     static propTypes = {
@@ -48,28 +49,47 @@ class FileFormElement extends AbstractFormElement {
         return `${General.randomUUID()}.${extension || ''}`
     }
 
+    checkFileSizeAndType(type, size) {
+        const formElement = this.props.element;
+        const allowedMaxSize = formElement.allowedMaxSize;
+        const allowedTypes = formElement.allowedTypes;
+        if (_.isNil(type)) {
+            AlertMessage(this.I18n.t("noFileTypeErrorMessage"));
+        }
+        if (!_.isEmpty(allowedTypes) && !_.includes(allowedTypes, type)) {
+            const allowedTypeNames = allowedTypes.map(type => FileFormat.getName(type)).join(', ');
+            throw Error(this.I18n.t("FileTypeErrorMessage", {type, allowedTypeNames}));
+        }
+        if (size > allowedMaxSize) {
+            const oneMBInBytes = 1000000;
+            throw Error(this.I18n.t("FileSizeErrorMessage", {
+                size: (size / oneMBInBytes),
+                allowedMaxSize: (allowedMaxSize / oneMBInBytes)
+            }));
+        }
+    }
+
     async selectFile() {
-        const options = {type: DocumentPicker.types.allFiles};
+        const formElement = this.props.element;
+        const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [DocumentPicker.types.allFiles] : formElement.allowedTypes;
+        const options = {type: applicableTypes};
         const directory = FileSystem.getFileDir();
         if (await this.isPermissionGranted()) {
             DocumentPicker.pick(options)
                 .then(({uri, copyError, type, name, size}) => {
-                    if (_.isNil(type)) {
-                        AlertMessage("Please select a", "Please select a file");
-                    }
-                    if (name && uri && type && !copyError) {
+                    this.checkFileSizeAndType(type, size);
+                    if (name && uri && !copyError) {
                         const fileName = this.getFileName(name);
                         fs.copyFile(uri, `${directory}/${fileName}`)
                             .then(() => this.updateValue(fileName))
                             .catch(err => {
-                                AlertMessage("error while coping file", err.message)
+                                AlertMessage("Error while coping file", err.message);
                             })
                     }
                 })
                 .catch(err => {
                     if (!DocumentPicker.isCancel(err)) {
-                        //Throw error only when user does not cancel it using back press
-                        throw err;
+                        AlertMessage(this.I18n.t("FileSelectionErrorTitle"), err.message);
                     }
                 })
         }
