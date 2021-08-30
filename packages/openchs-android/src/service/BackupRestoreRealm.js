@@ -1,4 +1,4 @@
-import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept} from 'avni-models';
+import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups} from 'avni-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
@@ -128,6 +128,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             cb(97, "restoringDb");
                         })
                         .then(() => this._deleteUserInfoAndIdAssignment())
+                        .then(() => this._deleteUserGroups())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
@@ -163,6 +164,20 @@ export default class BackupRestoreRealmService extends BaseService {
             db.delete(objects);
             db.delete(assignmentObjects);
             entitySyncStatus.forEach(({uuid, entityName, entityTypeUuid}) => {
+                const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
+                db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+            })
+        });
+    }
+
+    _deleteUserGroups() {
+        const db = this.db;
+        const myGroups = db.objects(EntitySyncStatus.schema.name)
+            .filtered(`entityName = 'MyGroups'`)
+            .map(u => _.assign({}, u));
+        this.db.write(() => {
+            db.delete(db.objects(MyGroups.schema.name));
+            myGroups.forEach(({uuid, entityName, entityTypeUuid}) => {
                 const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
                 db.create(EntitySyncStatus.schema.name, updatedEntity, true);
             })
