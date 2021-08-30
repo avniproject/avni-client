@@ -424,6 +424,10 @@
     "groupRemovalMessage": "{{memberName}} will be removed from the {{groupSubjectTypeName}} {{groupSubjectName}}.",
     "visitDetailsSection": "Visit details",
     "recentStatisticsSection": "Last 24 hours statistics",
-    "registrationOverviewSection": "Registration overview"
+    "registrationOverviewSection": "Registration overview",
+    "noFileTypeErrorMessage": "File type not recognised, please select correct file.",
+    "FileTypeErrorMessage": "Selected file type {{type}} does not match with the required file type(s) {{allowedTypeNames}}",
+    "FileSizeErrorMessage": "File size {{size}} MB increases the max file size {{allowedMaxSize}} MB",
+    "FileSelectionErrorTitle": "Error while selecting the file"
 }
 }

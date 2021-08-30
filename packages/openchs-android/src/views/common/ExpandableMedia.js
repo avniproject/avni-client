@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, {Fragment} from 'react';
 import ExpandableVideo from "./ExpandableVideo";
 import ExpandableImage from "./ExpandableImage";
 import AbstractFormElement from "../form/formElement/AbstractFormElement";
@@ -9,6 +9,7 @@ import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../primitives/Colors";
 import ExpandableAudio from "./ExpandableAudio";
+import ExpandableFile from "./ExpandableFile";
 
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
@@ -25,6 +26,10 @@ export default class ExpandableMedia extends AbstractFormElement {
 
     get mediaUriInDevice() {
         return this.props.source && this.mediaService.getAbsolutePath(this.props.source, this.props.type);
+    }
+
+    get fileName() {
+        return this.props.source && this.mediaService.getFileName(this.props.source);
     }
 
     componentDidMount() {
@@ -84,22 +89,23 @@ export default class ExpandableMedia extends AbstractFormElement {
             case 'Video' : return ExpandableVideo;
             case 'Image' : return ExpandableImage;
             case 'Audio' : return ExpandableAudio;
+            case 'File'  : return ExpandableFile;
         }
     }
 
     showExpandableMedia() {
         if (this.props.source && this.state.exists) {
             const MediaComponent = this.getMediaComponentByType(this.props.type);
-            return <MediaComponent source={this.mediaUriInDevice}/>;
+            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName}/>;
         }
     }
 
     render() {
         return (
-            <View>
+            <Fragment>
                 {this.showDownloadIcon()}
                 {this.showExpandableMedia()}
-            </View>
+            </Fragment>
         );
     }
 

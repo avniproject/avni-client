@@ -308,6 +308,10 @@
     "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |",
     "visitDetailsSection": "विजिट का विवरण",
     "recentStatisticsSection": "पिछले 24 घंटे के आंकड़े",
-    "registrationOverviewSection": "पंजीकरण अवलोकन"
+    "registrationOverviewSection": "पंजीकरण अवलोकन",
+    "noFileTypeErrorMessage": "फ़ाइल प्रकार पहचाना नहीं गया, कृपया सही फ़ाइल चुनें।",
+    "FileTypeErrorMessage": "चयनित फ़ाइल प्रकार {{type}} आवश्यक फ़ाइल प्रकार से मेल नहीं खाता {{allowedTypeNames}}",
+    "FileSizeErrorMessage": "फ़ाइल का आकार {{size}} MB अधिकतम फ़ाइल आकार {{allowedMaxSize}} MB",
+    "FileSelectionErrorTitle": "फ़ाइल का चयन करते समय त्रुटि"
   }
 }

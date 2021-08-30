@@ -68,6 +68,8 @@ class MediaQueueService extends BaseService {
                 return FileSystem.getVideosDir();
             case 'Audio':
                 return FileSystem.getAudioDir();
+            case 'File':
+                return FileSystem.getFileDir();
         }
     }
 
