@@ -167,7 +167,7 @@ class RegisterView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t("register")} hideBackButton={true} hideIcon={true}/>
                 <CHSContent>
-                    <ScrollView>
+                    <ScrollView style={{marginBottom: 110}}>
                         {_.map(actions, (action, key) =>
                             this.renderButton(
                                 action.fn,
