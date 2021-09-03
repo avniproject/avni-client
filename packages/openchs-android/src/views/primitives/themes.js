@@ -2,6 +2,7 @@ import Color from 'color';
 import Colors from "./Colors";
 
 import {Platform} from 'react-native';
+import {CheckBox} from "native-base";
 
 export default {
 
@@ -75,9 +76,11 @@ export default {
     // Check Box
     checkboxBgColor: Colors.AccentColor,
     checkboxSize: 16,
+    CheckboxIconSize: 14,
     checkboxTickColor: '#fff',
     CheckboxBorderWidth: Platform.OS === "ios" ? 1 : 2,
-    CheckboxPaddingLeft: Platform.OS === "ios" ? 4 : 1,
+    CheckboxPaddingLeft: Platform.OS === "ios" ? 4 : 0,
+    CheckboxPaddingRight: Platform.OS === "ios" ? 4 : 3,
     CheckboxIconMarginTop:  Platform.OS === "ios" ? undefined : 0,
     CheckboxPaddingBottom: 2,
     CheckboxRadius: 3,
