@@ -24,7 +24,7 @@ class SubjectFormElement extends AbstractFormElement {
         style: {}
     };
 
-    SWITCH_TO_SEARCH_UI_THRESHOLD: number = 20;
+    SWITCH_TO_SEARCH_UI_THRESHOLD: number = 30;
 
     constructor(props, context) {
         super(props, context);

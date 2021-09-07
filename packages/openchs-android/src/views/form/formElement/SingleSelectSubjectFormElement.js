@@ -29,7 +29,7 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
     renderSearchUI(subject) {
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
                     {this.label}
                     {this.renderSearchIcon()}
                 </View>
