@@ -35,7 +35,12 @@ class CustomDashboardView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
+        this.refreshCounts();
         super.componentWillMount();
+    }
+
+    refreshCounts() {
+        setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 1000);
     }
 
     didFocus() {
@@ -44,7 +49,8 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onDashboardNamePress(uuid) {
-        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid})
+        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
+        this.refreshCounts();
     }
 
     renderDashboards() {
@@ -88,7 +94,6 @@ class CustomDashboardView extends AbstractComponent {
                                 <CustomDashboardCard
                                     key={card.uuid}
                                     reportCard={card}
-                                    // executeQueryActionName={Actions.EXECUTE_COUNT_QUERY}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
                                     viewType={viewType}
