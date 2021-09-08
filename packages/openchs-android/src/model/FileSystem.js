@@ -33,6 +33,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getNewsDir(), 'news'))
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
+                        .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -76,6 +77,10 @@ export default class FileSystem {
 
     static getExtensionsDir(){
         return `${fs.ExternalStorageDirectoryPath}/OpenCHS/extensions`;
+    }
+
+    static getIconsDir() {
+        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/icons`;
     }
 
     static getFileDir() {

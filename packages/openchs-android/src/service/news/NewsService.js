@@ -27,19 +27,6 @@ class NewsService extends BaseService {
         return this.getAllNonVoided().filtered('heroImage <> null');
     }
 
-    async downloadHeroImage(news) {
-        const mediaService = this.getService(MediaService);
-        const filePathInDevice = mediaService.getAbsolutePath(news.heroImage, 'News');
-        const exists = await mediaService.exists(filePathInDevice);
-        if (!exists) {
-            return mediaService.downloadMedia(news.heroImage, filePathInDevice)
-                .catch((error) => {
-                    General.logDebug('NewsService', `Error while downloading image ${filePathInDevice}`);
-                    General.logDebug('NewsService', error);
-                })
-        }
-    }
-
     getUnreadNewsCount() {
         return this.getAllNonVoided().filtered('read = false').length;
     }

@@ -44,6 +44,7 @@ class MediaService extends BaseService {
             ['Audio', FileSystem.getAudioDir],
             ['News', FileSystem.getNewsDir],
             ['File', FileSystem.getFileDir],
+            ['Icons', FileSystem.getIconsDir],
             ]);
         if (!uri) return '';
         const fileName = this.getFileName(uri);
@@ -59,6 +60,18 @@ class MediaService extends BaseService {
             return Promise.resolve(false);
         }
         return fs.exists(filePath);
+    }
+
+    async downloadFileIfRequired(s3Key, type) {
+        const filePathInDevice = this.getAbsolutePath(s3Key, type);
+        const exists = await this.exists(filePathInDevice);
+        if (!exists) {
+            return this.downloadMedia(s3Key, filePathInDevice)
+                .catch((error) => {
+                    General.logDebug('ImageDownloadService', `Error while downloading image with s3 key ${s3Key}`);
+                    General.logDebug('ImageDownloadService', error);
+                })
+        }
     }
 }
 

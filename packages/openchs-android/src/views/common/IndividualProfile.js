@@ -25,6 +25,8 @@ import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import {MessageIcon} from "./MessageIcon";
 import CommentView from "../comment/CommentView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import MediaService from "../../service/MediaService";
+import {SubjectTypeIcon} from "./SubjectTypeIcon";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -218,11 +220,12 @@ class IndividualProfile extends AbstractComponent {
                                 paddingHorizontal: 20,
                                 justifyContent: 'center',
                             }}>
-                                <Icon {...this.props.individual.icon()} style={{
-                                    fontSize: DGS.resizeWidth(75),
-                                    color: Colors.AccentColor,
-                                    alignSelf: 'center'
-                                }}/>
+                                <SubjectTypeIcon
+                                    size={DGS.resizeWidth(75)}
+                                    individual={this.props.individual}
+                                    mediaService={this.getService(MediaService)}
+                                    style={{alignSelf: 'center'}}
+                                />
                             </View>
                             <View style={{flex: 1, paddingHorizontal: 5}}>
                                 <Text

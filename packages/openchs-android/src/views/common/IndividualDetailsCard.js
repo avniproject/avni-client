@@ -2,9 +2,10 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from 'prop-types';
 import {Text, View, TouchableNativeFeedback} from "react-native";
-import {Icon} from "native-base";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
+import {SubjectTypeIcon} from "./SubjectTypeIcon";
+import MediaService from "../../service/MediaService";
 
 class IndividualDetailsCard extends AbstractComponent {
 
@@ -33,6 +34,19 @@ class IndividualDetailsCard extends AbstractComponent {
         );
     }
 
+    renderAgeAndGender(i18n) {
+        return <View style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start'
+        }}>
+            <Text
+                style={Styles.userProfileSubtext}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
+            <Text
+                style={Styles.userProfileSubtext}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
+        </View>
+    }
+
     background() {
         return TouchableNativeFeedback.SelectableBackground();
     }
@@ -49,11 +63,12 @@ class IndividualDetailsCard extends AbstractComponent {
                     minHeight: this.props.minHeight || 86,
                     paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge
                 }}>
-                    <Icon {...this.props.individual.icon()} style={{
-                        color: Colors.AccentColor,
-                        fontSize: this.props.iconSize || 56,
-                        paddingRight: 16
-                    }}/>
+                    <SubjectTypeIcon
+                        size={this.props.iconSize || 56}
+                        individual={this.props.individual}
+                        mediaService={this.getService(MediaService)}
+                        style={{marginRight: 16}}
+                    />
                     <View
                         style={{
                             flexDirection: 'column',
@@ -73,16 +88,7 @@ class IndividualDetailsCard extends AbstractComponent {
                             </Text>
                             }
                         </Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'flex-start',
-                            alignItems: 'flex-start'
-                        }}>
-                            <Text
-                                style={Styles.userProfileSubtext}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
-                            <Text
-                                style={Styles.userProfileSubtext}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
-                        </View>
+                        {this.props.individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
                     </View>
                     <View style={{
                         flexDirection: 'column',

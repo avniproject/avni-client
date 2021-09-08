@@ -18,6 +18,7 @@ import {firebaseEvents, logEvent} from "../utility/Analytics";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
+import SubjectTypeService from "./SubjectTypeService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -45,6 +46,7 @@ class SyncService extends BaseService {
         this.mediaService = this.getService(MediaService);
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
+        this.subjectTypeService = this.getService(SubjectTypeService);
     }
 
     getProgressSteps(allEntitiesMetaData) {
@@ -163,6 +165,7 @@ class SyncService extends BaseService {
             .then(() => this.getTxData(allTxEntityMetaData, onProgressPerEntity))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
+            .then(() => this.downloadIcons())
 
     }
 
@@ -172,7 +175,12 @@ class SyncService extends BaseService {
 
     downloadNewsImages() {
         const newsWithImages = this.newsService.getAllNewsWithHeroImage();
-        return Promise.all(_.map(newsWithImages, news => this.newsService.downloadHeroImage(news)))
+        return Promise.all(_.map(newsWithImages, ({heroImage}) => this.mediaService.downloadFileIfRequired(heroImage, 'News')))
+    }
+
+    downloadIcons() {
+        const subjectTypesWithIcons = this.subjectTypeService.getAllSubjectTypesWithIcon();
+        return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')))
     }
 
     updateAsPerNewPrivilege(entityMetadata, updateProgressSteps) {
