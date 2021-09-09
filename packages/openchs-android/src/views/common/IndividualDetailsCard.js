@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import {Text, View, TouchableNativeFeedback} from "react-native";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
-import {SubjectTypeIcon} from "./SubjectTypeIcon";
-import MediaService from "../../service/MediaService";
+import SubjectTypeIcon from "./SubjectTypeIcon";
 
 class IndividualDetailsCard extends AbstractComponent {
 
@@ -65,8 +64,7 @@ class IndividualDetailsCard extends AbstractComponent {
                 }}>
                     <SubjectTypeIcon
                         size={this.props.iconSize || 56}
-                        individual={this.props.individual}
-                        mediaService={this.getService(MediaService)}
+                        subjectType={this.props.individual.subjectType}
                         style={{marginRight: 16}}
                     />
                     <View

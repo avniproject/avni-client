@@ -23,6 +23,8 @@ import IndividualDetailsCard from "./common/IndividualDetailsCard";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SubjectRegisterView from "./subject/SubjectRegisterView";
 import IndividualRegisterView from "./individual/IndividualRegisterView";
+import SubjectTypeIcon from "./common/SubjectTypeIcon";
+import Separator from "./primitives/Separator";
 
 
 @Path('/registerView')
@@ -87,19 +89,22 @@ class RegisterView extends AbstractComponent {
         return _.map(programs, program => this._addProgramAction(subjectType, program));
     }
 
-    renderButton(onPress, buttonColor, text, textColor, index) {
+    renderButton(onPress, buttonColor, text, textColor, index, subjectType) {
         return (
             <View key={index}>
                 <TouchableNativeFeedback onPress={() => {
                     onPress()
                 }}>
-                    <View style={[styles.container, {backgroundColor: buttonColor}]}>
-                        {/* <View style={styles.strip}/>*/}
-                        <View style={[styles.textContainer, {backgroundColor: buttonColor}]}>
+                    <View style={{marginRight: Distances.ScaledContentDistanceFromEdge, marginLeft: Distances.ScaledContentDistanceFromEdge,}}>
+                    <View style={[styles.container]}>
+                        <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
+                        <View style={[styles.textContainer]}>
                             <Text
                                 style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
                         </View>
                         <Icon style={styles.iconStyle} name='chevron-right'/>
+                    </View>
+                    <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal:32}}/>
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -153,13 +158,13 @@ class RegisterView extends AbstractComponent {
             if (!formMappingService.findRegistrationForm(subjectType)) {
                 return;
             }
-            actions = actions.concat(this._addRegistrationAction(subjectType));
+            actions = actions.concat({action: this._addRegistrationAction(subjectType), subjectType});
             const enrolCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${subjectType.uuid}'`;
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
             const programs = formMappingService.findActiveProgramsForSubjectType(subjectType)
                                 .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             if (this.userSettings.registerEnrol) {
-                actions = actions.concat(this._addProgramActions(subjectType, programs));
+                actions = actions.concat({action: this._addProgramActions(subjectType, programs), subjectType});
             }
         });
 
@@ -168,13 +173,14 @@ class RegisterView extends AbstractComponent {
                 <AppHeader title={this.I18n.t("register")} hideBackButton={true} hideIcon={true}/>
                 <CHSContent>
                     <ScrollView style={{marginBottom: 110}}>
-                        {_.map(actions, (action, key) =>
+                        {_.map(actions, ({action, subjectType}, key) =>
                             this.renderButton(
                                 action.fn,
                                 action.backgroundColor || Colors.ActionButtonColor,
                                 action.label,
-                                Colors.TextOnPrimaryColor,
-                                key
+                                Colors.InputNormal,
+                                key,
+                                subjectType
                             )
                         )}
                         {this.renderDrafts()}
@@ -189,18 +195,11 @@ export default RegisterView
 
 const styles = StyleSheet.create({
     container: {
-        marginRight: Distances.ScaledContentDistanceFromEdge,
-        marginLeft: Distances.ScaledContentDistanceFromEdge,
-        marginTop: Distances.ScaledContentDistanceFromEdge,
-        margin: 4,
-        elevation: 3,
-        minHeight: 48,
-        marginVertical: 4,
+        minHeight: 72,
         backgroundColor: Colors.cardBackgroundColor,
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'center',
-        borderRadius: 5,
     },
     strip: {
         width: 8,
@@ -222,7 +221,7 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
     },
     iconStyle: {
-        color: '#fefefe',
+        color: Colors.AccentColor,
         opacity: 0.8,
         alignSelf: 'center',
         fontSize: 40
