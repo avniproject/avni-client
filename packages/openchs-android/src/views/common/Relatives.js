@@ -5,9 +5,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
-import {Icon, Button} from "native-base";
-import IndividualDetailsCard from "./IndividualDetailsCard";
-import Distances from "../primitives/Distances";
+import {Button} from "native-base";
+import SubjectInfoCard from "./SubjectInfoCard";
 
 class Relatives extends AbstractComponent {
     static propTypes = {
@@ -126,7 +125,7 @@ class Relatives extends AbstractComponent {
                                               {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) :
                                                   <View/>}
                                           </View>
-                                          <IndividualDetailsCard individual={relative.relative} minHeight={10} iconSize={30}/>
+                                          <SubjectInfoCard individual={relative.relative} />
                                       </View>
                                   </TouchableNativeFeedback>
                               }>

@@ -86,12 +86,7 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
             <TouchableNativeFeedback key={item.uuid}
                                      onPress={() => onIndividualSelection(currentPage, item)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={{
-                    elevation: 2,
-                    backgroundColor: Colors.cardBackgroundColor,
-                    marginVertical: 3,
-                    paddingBottom: 5,
-                }}>
+                <View>
                     <IndividualDetailsCard individual={item}/>
                 </View>
             </TouchableNativeFeedback>

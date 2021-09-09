@@ -1,5 +1,5 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {TouchableNativeFeedback, View, ListView, Dimensions, Text} from "react-native";
+import {ListView, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import Path from "../../framework/routing/Path";
@@ -8,7 +8,6 @@ import AppHeader from "../common/AppHeader";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
@@ -70,12 +69,7 @@ class IndividualSearchResultsView extends AbstractComponent {
     renderRow(item, onResultRowPress) {
         return <TouchableNativeFeedback onPress={() => onResultRowPress(item)}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
-            <View style={{
-                elevation: 2,
-                backgroundColor: Colors.cardBackgroundColor,
-                marginVertical: 3,
-                paddingBottom: 5,
-            }}>
+            <View>
                 <IndividualDetailsCard individual={item}/>
             </View>
         </TouchableNativeFeedback>
@@ -93,7 +87,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                                      displayedCount={this.props.searchResults.length}/>
                     <ListView enableEmptySections={true}
                               dataSource={dataSource}
-                              style={{backgroundColor: Colors.cardBackgroundColor}}
+                              style={{marginBottom: 16}}
                               renderRow={(item) => this.renderRow(item, this.onResultRowPress.bind(this))}/>
                     {this.renderZeroResultsMessageIfNeeded()}
             </CHSContainer>

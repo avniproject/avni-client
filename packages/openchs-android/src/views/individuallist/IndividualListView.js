@@ -1,7 +1,6 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {SafeAreaView, SectionList, StyleSheet, Text, View} from "react-native";
-import Distances from "../primitives/Distances";
+import {SectionList, StyleSheet, Text} from "react-native";
 import Fonts from "../primitives/Fonts";
 import _ from "lodash";
 import IndividualDetails from "./IndividualDetails";
@@ -13,6 +12,7 @@ import Separator from "../primitives/Separator";
 import PropTypes from "prop-types";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
+import Distances from "../primitives/Distances";
 
 @Path('/IndividualListView')
 class IndividualListView extends AbstractComponent {
@@ -46,18 +46,19 @@ class IndividualListView extends AbstractComponent {
     }
 
     renderHeader = ({section: {title}}) => (
-        <Text style={[Fonts.typography("paperFontTitle"), styles.TextHeaderStyle]}>
-            {_.isEmpty(title) ? 'Individual List' : title}
+        _.isEmpty(title) ? null : <Text style={[Fonts.typography("paperFontTitle"), styles.TextHeaderStyle]}>
+            {title}
         </Text>
     );
 
-    renderItems = (item, section, listType) => {
+    renderItems = (item, section, listType, cardType) => {
         const individualWithMetadata = listType === 'total' ? {individual: item, visitInfo: {visitName: []}} : item;
         return (
             <IndividualDetails
                 individualWithMetadata={individualWithMetadata}
                 header={section.title}
-                backFunction={this.goBack.bind(this)}/>
+                backFunction={this.goBack.bind(this)}
+                cardType={cardType}/>
         );
     };
 
@@ -91,13 +92,13 @@ class IndividualListView extends AbstractComponent {
                     totalCount={this.props.totalSearchResultsCount}
                     displayedCount={this.props.results.length}/>
                 <SectionList
-                    contentContainerStyle={styles.container}
+                    style={{marginBottom: 16}}
                     keyExtractor={(item, index) => item.uuid || item.individual.uuid}
                     sections={data}
-                    renderItem={({item, section}) => this.renderItems(item, section, this.props.listType)}
+                    renderItem={({item, section}) => this.renderItems(item, section, this.props.listType, this.props.headerTitle)}
                     renderSectionHeader={this.renderHeader}
                     SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                        <Separator style={{alignSelf: 'stretch'}} height={5}/>) : null}
+                        <Separator style={{alignSelf: 'stretch'}} height={5} backgroundColor={Colors.GreyContentBackground}/>) : null}
                     initialNumToRender={50}
                     updateCellsBatchingPeriod={500}
                     maxToRenderPerBatch={30}
@@ -111,15 +112,11 @@ class IndividualListView extends AbstractComponent {
 export default IndividualListView;
 
 const styles = StyleSheet.create({
-    container: {
-        marginRight: Distances.ScaledContentDistanceFromEdge,
-        marginLeft: Distances.ScaledContentDistanceFromEdge,
-        marginTop: Distances.ScaledContentDistanceFromEdge
-    },
     TextHeaderStyle: {
         color: "rgba(0, 0, 0, 0.87)",
         fontWeight: 'normal',
         fontSize: 15,
-        paddingTop: 15
+        paddingTop: 15,
+        paddingLeft: Distances.ScaledContentDistanceFromEdge
     }
 });

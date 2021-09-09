@@ -95,7 +95,7 @@ class RegisterView extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => {
                     onPress()
                 }}>
-                    <View style={{marginRight: Distances.ScaledContentDistanceFromEdge, marginLeft: Distances.ScaledContentDistanceFromEdge,}}>
+                    <View style={{marginRight: Distances.ScaledContentDistanceFromEdge, marginLeft: Distances.ScaledContentDistanceFromEdge}}>
                     <View style={[styles.container]}>
                         <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
                         <View style={[styles.textContainer]}>
@@ -120,7 +120,7 @@ class RegisterView extends AbstractComponent {
                 isDraftEntity: true,
                 workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
             }).to(subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView)}>
-                <View style={styles.draftCardStyle}>
+                <View>
                     <IndividualDetailsCard individual={subject} renderDraftString/>
                 </View>
             </TouchableNativeFeedback>
@@ -244,13 +244,6 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         fontStyle: 'italic',
         marginHorizontal: 12,
-    },
-    draftCardStyle: {
-        marginHorizontal: 12,
-        elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 3,
-        paddingBottom: 5,
     },
     draftHeaderStyle: {
         marginHorizontal: 12,
