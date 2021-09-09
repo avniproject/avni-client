@@ -54,15 +54,6 @@ class LandingView extends AbstractComponent {
         return super.componentWillMount();
     }
 
-    didFocus() {
-        const isCustomDashboard = this.getService(CustomDashboardService).isCustomDashboardMarkedPrimary();
-        if (isCustomDashboard) {
-            this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
-        }
-        super.didFocus();
-    }
-
-
     renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
         return _.isNil(menuMessageKey) ? null :
             (<View key={idx} style={[{

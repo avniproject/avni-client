@@ -22,7 +22,7 @@ class ApprovalListingView extends AbstractComponent {
         results: PropTypes.array.isRequired,
         onApprovalSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string.isRequired,
-        onBackFunc: PropTypes.func.isRequired,
+        backFunction: PropTypes.func.isRequired,
         reportCardUUID: PropTypes.string.isRequired
     };
 
@@ -95,8 +95,7 @@ class ApprovalListingView extends AbstractComponent {
     }
 
     onBackPress() {
-        this.props.onBackFunc();
-        this.goBack();
+        this.props.backFunction();
     }
 
     render() {

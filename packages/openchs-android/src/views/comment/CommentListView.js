@@ -15,7 +15,8 @@ class CommentListView extends AbstractComponent {
 
     static propTypes = {
         results: PropTypes.object.isRequired,
-        onIndividualSelection: PropTypes.func
+        onIndividualSelection: PropTypes.func,
+        backFunction: PropTypes.func
     };
 
     constructor(props, context) {
@@ -50,8 +51,7 @@ class CommentListView extends AbstractComponent {
     };
 
     onBackPress() {
-        this.props.onBackFunc();
-        this.goBack();
+        this.props.backFunction();
     }
 
     render() {

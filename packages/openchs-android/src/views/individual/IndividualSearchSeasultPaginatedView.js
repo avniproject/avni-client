@@ -26,6 +26,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         results: PropTypes.array.isRequired,
         onIndividualSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string,
+        backFunction: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -56,13 +57,14 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
                 title={title}
                 currentPage={this}
                 I18n={this.I18n}
+                backFunction={this.props.backFunction}
             />
         );
     }
 
 }
 
-export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n}) => {
+export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n, backFunction}) => {
 
     const CHUNK_SIZE = 20;
     const totalCount = results.length;
@@ -142,7 +144,7 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
 
     return (
         <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
-            <AppHeader title={I18n.t(title)}/>
+            <AppHeader title={I18n.t(title)} func={backFunction}/>
             <SearchResultsHeader totalCount={totalCount} displayedCount={dataSource.length} displayResultCounts={true}/>
             <CHSContent>
                 <SafeAreaView style={{flex: 1}}>

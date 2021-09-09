@@ -40,12 +40,8 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     refreshCounts() {
-        setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 1000);
-    }
-
-    didFocus() {
-        this.dispatchAction(Actions.REFRESH_COUNT);
-        super.didFocus();
+        this.dispatchAction(Actions.REMOVE_OLDER_COUNTS);
+        setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 500);
     }
 
     onDashboardNamePress(uuid) {
@@ -116,6 +112,11 @@ class CustomDashboardView extends AbstractComponent {
         return viewNameMap[viewName]
     }
 
+    onBackPress() {
+        this.goBack();
+        this.refreshCounts();
+    }
+
     onCardPress(reportCardUUID) {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
@@ -127,7 +128,7 @@ class CustomDashboardView extends AbstractComponent {
                 totalSearchResultsCount: count,
                 reportCardUUID,
                 listType: _.lowerCase(status),
-                onBackFunc: () => _.noop,
+                backFunction: this.onBackPress.bind(this),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
             }).to(this.getViewByName(viewName), true)

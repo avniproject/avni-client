@@ -74,6 +74,17 @@ class CustomDashboardActions {
         return newState;
     }
 
+    static removeOlderCounts(state) {
+        const reportCardSectionMappings = state.reportCardSectionMappings;
+        const newState = {...state};
+        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
+            const cardMappingsWithCount = {...rcm};
+            cardMappingsWithCount.card.count = null;
+            return cardMappingsWithCount;
+        });
+        return newState;
+    }
+
     static loadIndicator(state, action) {
         const newState = {...state};
         newState.loading = action.loading;
@@ -90,6 +101,7 @@ const CustomDashboardActionNames = {
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
+    REMOVE_OLDER_COUNTS: `${ActionPrefix}.REMOVE_OLDER_COUNTS`,
 };
 
 const CustomDashboardActionMap = new Map([
@@ -98,6 +110,7 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
+    [CustomDashboardActionNames.REMOVE_OLDER_COUNTS, CustomDashboardActions.removeOlderCounts],
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}
