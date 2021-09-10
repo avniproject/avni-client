@@ -89,7 +89,7 @@ class RegisterView extends AbstractComponent {
         return _.map(programs, program => this._addProgramAction(subjectType, program));
     }
 
-    renderButton(onPress, buttonColor, text, textColor, index, subjectType) {
+    renderButton(onPress, buttonColor, text, textColor, index, subjectType, totalActions) {
         return (
             <View key={index}>
                 <TouchableNativeFeedback onPress={() => {
@@ -104,7 +104,9 @@ class RegisterView extends AbstractComponent {
                         </View>
                         <Icon style={styles.iconStyle} name='chevron-right'/>
                     </View>
+                    {index + 1 !== totalActions &&
                     <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal:32}}/>
+                    }
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -180,7 +182,8 @@ class RegisterView extends AbstractComponent {
                                 action.label,
                                 Colors.InputNormal,
                                 key,
-                                subjectType
+                                subjectType,
+                                _.size(actions)
                             )
                         )}
                         {this.renderDrafts()}
