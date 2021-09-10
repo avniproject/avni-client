@@ -61,6 +61,7 @@ class SubjectInfoCard extends AbstractComponent {
                     size={24}
                     subjectType={this.props.individual.subjectType}
                     style={{marginRight: 8}}
+                    individual={this.props.individual}
                 />
                 <View
                     style={{

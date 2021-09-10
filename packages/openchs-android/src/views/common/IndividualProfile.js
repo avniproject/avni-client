@@ -224,6 +224,7 @@ class IndividualProfile extends AbstractComponent {
                                     subjectType={this.props.individual.subjectType}
                                     style={{alignSelf: 'center'}}
                                     round={true}
+                                    individual={this.props.individual}
                                 />
                             </View>
                             <View style={{flex: 1, paddingHorizontal: 5}}>
