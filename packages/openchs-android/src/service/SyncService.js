@@ -27,6 +27,11 @@ class SyncService extends BaseService {
         this.persistAll = this.persistAll.bind(this);
     }
 
+    static syncSources = {
+        BACKGROUND_JOB: 'automatic',
+        SYNC_BUTTON: 'manual'
+    };
+
     getFormattedMetadata(metadata, reduceWeightBy) {
         return _.map(metadata, (data) => ({
             name: data.entityName,
@@ -98,7 +103,7 @@ class SyncService extends BaseService {
         }
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime) {
+    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON) {
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => {
@@ -109,7 +114,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo});
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource});
 
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))

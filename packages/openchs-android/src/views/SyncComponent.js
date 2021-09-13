@@ -158,7 +158,7 @@ class SyncComponent extends AbstractComponent {
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
-                (message) => this.messageCallBack(message), connectionInfo, this.state.startTime).catch(onError)
+                (message) => this.messageCallBack(message), connectionInfo, this.state.startTime, SyncService.syncSources.SYNC_BUTTON).catch(onError)
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);

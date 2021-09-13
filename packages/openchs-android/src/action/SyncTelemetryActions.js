@@ -1,4 +1,4 @@
-import {SyncTelemetry} from 'avni-models';
+import {SyncTelemetry, Individual, ProgramEnrolment, ProgramEncounter, Encounter} from 'avni-models';
 import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
@@ -22,6 +22,7 @@ class SyncTelemetryActions {
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
+        syncTelemetry.syncSource = action.syncSource;
         return newState;
     }
 
@@ -102,6 +103,16 @@ class SyncTelemetryActions {
         syncTelemetry.syncEndTime = new Date();
 
         const entityService = context.get(EntityService);
+
+        const entityStatus = syncTelemetry.getEntityStatus();
+        entityStatus.totalCounts = {
+            subjects: entityService.getCount(Individual.schema.name),
+            programEnrolments: entityService.getCount(ProgramEnrolment.schema.name),
+            programEncounters: entityService.getCount(ProgramEncounter.schema.name),
+            encounters: entityService.getCount(Encounter.schema.name)
+        };
+        syncTelemetry.setEntityStatus(entityStatus);
+
         entityService.saveAndPushToEntityQueue(syncTelemetry, SyncTelemetry.schema.name);
 
         return newState;

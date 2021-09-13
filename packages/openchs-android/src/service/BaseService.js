@@ -116,6 +116,10 @@ class BaseService {
         return this.db.objects(schema);
     }
 
+    getCount(schema) {
+        return this.getAll(schema).length;
+    }
+
     getAllNonVoided(schema = this.getSchema()) {
         return this.getAll(schema).filtered("voided = false");
     }
