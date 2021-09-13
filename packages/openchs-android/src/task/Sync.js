@@ -19,7 +19,7 @@ class Sync extends BaseTask {
                     General.logInfo("Sync", progress);
                 },
                 (message) => {
-                }, connectionInfo, Date.now()).then(() => General.logInfo("Sync", "Sync completed")).catch((e) => {
+                }, connectionInfo, Date.now(), SyncService.syncSources.BACKGROUND_JOB).then(() => General.logInfo("Sync", "Sync completed")).catch((e) => {
                 ErrorHandler.postScheduledJobError(e);
             });
         } catch (e) {
