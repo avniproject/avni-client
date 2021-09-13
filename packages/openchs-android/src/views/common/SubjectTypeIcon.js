@@ -22,29 +22,8 @@ class SubjectTypeIcon extends AbstractComponent {
         super(props, context);
     }
 
-    getAgeSuffix(age) {
-        return age <= 10 ? 'child' : 'adult';
-    }
-
-    getDefaultPersonIconName(individual) {
-        const ageInYears = individual.getAgeInYears();
-        const gender = _.toLower(individual.gender.name);
-        if (ageInYears < 1) {
-            return 'person_baby.png';
-        }
-        if (gender === 'other') {
-            return 'person.png';
-        } else {
-            return `person_${this.getAgeSuffix(ageInYears)}_${gender}.png`
-        }
-    }
-
-    getDefaultIconName(subjectType, individual) {
-        return subjectType.isPerson() && !_.isNil(individual) ? this.getDefaultPersonIconName(individual) : `${_.toLower(subjectType.type)}.png`;
-    }
-
     renderDefaultIcon({subjectType, size, style}) {
-        const defaultIconFileName = this.getDefaultIconName(subjectType, this.props.individual);
+        const defaultIconFileName = `${_.toLower(subjectType.type)}.png`;
         return <Image source={{uri: `asset:/icons/${defaultIconFileName}`}}
                       style={{height: size, width: size, ...style}}/>
     }
