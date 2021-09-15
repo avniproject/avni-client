@@ -152,9 +152,9 @@ class RegisterView extends AbstractComponent {
         const privilegeService = this.context.getService(PrivilegeService);
         const allowedSubjectTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(registerCriteria, 'subjectTypeUuid');
         const subjectTypes = this.context.getService(EntityService).findAllByCriteria('voided = false AND active = true', SubjectType.schema.name)
-            .sorted('name').filter(st => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuids, st.uuid));
+            .filter(st => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuids, st.uuid));
 
-        subjectTypes.forEach(subjectType => {
+        _.sortBy(subjectTypes, ({name}) => this.I18n.t(name)).forEach(subjectType => {
             let formMappingService = this.context.getService(FormMappingService);
             // Sometimes, a register form might not be provided. Register functionality does not work without that.
             if (!formMappingService.findRegistrationForm(subjectType)) {

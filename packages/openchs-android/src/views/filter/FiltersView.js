@@ -225,7 +225,7 @@ class FilterView extends AbstractComponent {
         const filterScreenName = 'myDashboardFilters';
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypeUuidsForView = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), st => _.toLower(st.name));
+        const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), ({name}) => this.I18n.t(name));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
         const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
