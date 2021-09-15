@@ -25,6 +25,7 @@ import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "../filter/GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
+import _ from "lodash";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -76,7 +77,7 @@ class IndividualSearchView extends AbstractComponent {
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = this.context.getService(PrivilegeService);
         const allowedSubjectTypeUuidsForView = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypes = _.filter(this.state.subjectTypes, subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid));
+        const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), st => _.toLower(st.name));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.searchCriteria.subjectType);
 
         return (
