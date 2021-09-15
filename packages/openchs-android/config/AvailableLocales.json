@@ -63,5 +63,10 @@
     "locale": "ur_IN",
     "displayText": "Urdu",
     "uuid": "c35b7952-5efa-4d45-8717-c84dbcad797c"
+  },
+  {
+    "locale": "as_IN",
+    "displayText": "Assamese",
+    "uuid": "4b2f995b-f252-4207-bbe1-80cde2d90b67"
   }
 ]
