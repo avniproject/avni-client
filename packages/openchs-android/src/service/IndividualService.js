@@ -129,13 +129,13 @@ class IndividualService extends BaseService {
             .sorted('name');
     }
 
-    allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria) {
+    allScheduledVisitsIn(date, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const privilegeService = this.getService(PrivilegeService);
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
-        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = queryProgramEncounter ? this.db.objects(ProgramEncounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
@@ -166,10 +166,10 @@ class IndividualService extends BaseService {
                         allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
-            });
+            }) : [];
 
         const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
-        const encounters = this.db.objects(Encounter.schema.name)
+        const encounters = queryGeneralEncounter ? this.db.objects(Encounter.schema.name)
             .filtered('earliestVisitDateTime <= $0 ' +
                 'AND maxVisitDateTime >= $1 ' +
                 'AND encounterDateTime = null ' +
@@ -197,7 +197,7 @@ class IndividualService extends BaseService {
                         allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
-            });
+            }) : [];
         const allEncounters = [...
             [...programEncounters, ...encounters]
                 .reduce(this._uniqIndividualWithVisitName, new Map())
@@ -234,12 +234,12 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria) {
+    allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const privilegeService = this.getService(PrivilegeService);
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
-        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = queryProgramEncounter ? this.db.objects(ProgramEncounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
@@ -268,10 +268,10 @@ class IndividualService extends BaseService {
                         allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
-            });
+            }) : [];
 
         const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
-        const encounters = this.db.objects(Encounter.schema.name)
+        const encounters = queryGeneralEncounter ? this.db.objects(Encounter.schema.name)
             .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
@@ -297,7 +297,7 @@ class IndividualService extends BaseService {
                         allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
-            });
+            }) : [];
         const allEncounters = [...
             [...programEncounters, ...encounters]
                 .reduce(this._uniqIndividualWithVisitName, new Map())
@@ -345,10 +345,10 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyCompletedVisitsIn(date, programEncounterCriteria, encounterCriteria) {
+    recentlyCompletedVisitsIn(date, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
-        const programEncounters = this.db.objects(ProgramEncounter.schema.name)
+        const programEncounters = queryProgramEncounter ? this.db.objects(ProgramEncounter.schema.name)
             .filtered('voided = false ' +
                 'AND programEnrolment.voided = false ' +
                 'AND programEnrolment.individual.voided = false ' +
@@ -370,8 +370,8 @@ class IndividualService extends BaseService {
                         allow: true,
                     }
                 };
-            });
-        const encounters = this.db.objects(Encounter.schema.name)
+            }) : [];
+        const encounters = queryGeneralEncounter ? this.db.objects(Encounter.schema.name)
             .filtered('voided = false ' +
                 'AND individual.voided = false ' +
                 'AND encounterDateTime <= $0 ' +
@@ -392,7 +392,7 @@ class IndividualService extends BaseService {
                         allow: true,
                     }
                 };
-            });
+            }) : [];
         return [...[...programEncounters, ...encounters]
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]

@@ -77,6 +77,9 @@ class MyDashboardActions {
             generalEncountersFilters = state.generalEncountersFilters;
         }
 
+        const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
+        const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
+
         const [
             allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
@@ -85,9 +88,9 @@ class MyDashboardActions {
             allIndividualsWithRecentEnrolments,
             allIndividuals
         ] = state.returnEmpty ? [[], [], [], [], [], []] : (fetchFromDB ? [
-                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allIn(state.date.value, individualFilters), state.individualUUIDs, true)
@@ -169,7 +172,9 @@ class MyDashboardActions {
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
-        const allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters);
+        const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
+        const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
+        const allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
         const totalToDisplay = listType === 'total' ? commonIndividuals : _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {
@@ -202,6 +207,18 @@ class MyDashboardActions {
     static addFilter(state, action, context) {
         const newFilters = MyDashboardActions.cloneFilters(state.filters.set(action.filter.label, action.filter));
         return {...state, filters: newFilters};
+    }
+
+    static shouldQueryGeneralEncounter(state) {
+        return !_.isEmpty(state.selectedGeneralEncounterTypes) || MyDashboardActions.isNoProgramOrVisitFilterSelected(state);
+    }
+
+    static shouldQueryProgramEncounter(state) {
+        return !_.isEmpty(state.selectedPrograms) || !_.isEmpty(state.selectedEncounterTypes) || MyDashboardActions.isNoProgramOrVisitFilterSelected(state);
+    }
+
+    static isNoProgramOrVisitFilterSelected({selectedGeneralEncounterTypes, selectedPrograms, selectedEncounterTypes}) {
+        return _.isEmpty(selectedGeneralEncounterTypes) && _.isEmpty(selectedPrograms) && _.isEmpty(selectedEncounterTypes)
     }
 
     static assignFilters(state, action, context) {
