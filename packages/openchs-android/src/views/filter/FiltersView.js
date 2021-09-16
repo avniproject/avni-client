@@ -171,7 +171,7 @@ class FilterView extends AbstractComponent {
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Visits'}/>;
-        return <View style={{
+        return this.state.programs.length === 0 ? null : <View style={{
             marginTop: Styles.VerticalSpacingBetweenFormElements,
             marginBottom: Styles.VerticalSpacingBetweenFormElements,
         }}>
@@ -260,8 +260,8 @@ class FilterView extends AbstractComponent {
                                 <GenderFilter selectedGenders={this.props.selectedGenders}
                                               onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
                                 /> : null}
-                            {this.renderProgramEncounterGroup()}
-                            {this.renderEncounterGroup()}
+                            {_.isEmpty(this.state.selectedGeneralEncounterTypes) && this.renderProgramEncounterGroup()}
+                            {_.isEmpty(this.state.selectedPrograms) && _.isEmpty(this.state.selectedEncounterTypes) && this.renderEncounterGroup()}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
                                 <AddressLevels
                                     addressLevelState={this.state.addressLevelState}
