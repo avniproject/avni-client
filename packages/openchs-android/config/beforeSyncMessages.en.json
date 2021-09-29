@@ -45,5 +45,6 @@
   "restoreFailedTitle": "Fast sync failed",
   "restoreNoDump": "No dump present, will sync fully from server",
   "performNormalSync": "Perform slow sync",
-  "NoCatchmentFoundErrorMessage": "No catchment found for the user, please contact administrator."
+  "NoCatchmentFoundErrorMessage": "No catchment found for the user, please contact administrator.",
+  "FetchingChangedResource": "Fetching changed resources from the server"
 }

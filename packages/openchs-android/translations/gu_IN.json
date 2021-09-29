@@ -277,6 +277,7 @@
     "logoutCancelled": "રદ કરો",
     "visitDetailsSection": "વિગતોની મુલાકાત લો",
     "recentStatisticsSection": "છેલ્લા 24 કલાકના આંકડા",
-    "registrationOverviewSection": "નોંધણી ઝાંખી"
+    "registrationOverviewSection": "નોંધણી ઝાંખી",
+    "FetchingChangedResource": "બદલાયેલ ડેટા પ્રાપ્ત કરી રહ્યા છે"
   }
 }

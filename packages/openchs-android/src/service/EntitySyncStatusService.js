@@ -10,10 +10,6 @@ import {
     IndividualRelationship,
     ProgramEncounter,
     ProgramEnrolment,
-    SubjectType,
-    Program,
-    ChecklistDetail,
-    FormMapping,
     GroupSubject
 } from 'avni-models';
 import General from '../utility/General';
@@ -24,7 +20,6 @@ import MediaQueueService from "./MediaQueueService";
 import PrivilegeService from "./PrivilegeService";
 import FormMappingService from "./FormMappingService";
 import ChecklistService from "./ChecklistService";
-import EntityService from "./EntityService";
 
 @Service("entitySyncStatusService")
 class EntitySyncStatusService extends BaseService {
@@ -103,14 +98,21 @@ class EntitySyncStatusService extends BaseService {
         });
     }
 
-    updateEntitySyncStatusWithNewPrivileges(entityMetaDataModel) {
+    updateAsPerSyncDetails(entitySyncStatuses) {
+        _.forEach(entitySyncStatuses, ({uuid, entityName, loadedSince, entityTypeUuid}) => {
+            const entitySyncStatus = EntitySyncStatus.create(entityName, loadedSince, uuid, entityTypeUuid);
+            this.saveOrUpdate(entitySyncStatus);
+        })
+    }
+
+    removeRevokedPrivileges(entityMetaDataModel) {
         const hasAllPrivileges = this.getService(PrivilegeService).hasAllPrivileges();
+        if (hasAllPrivileges) return;
         const privilegeEntities = entityMetaDataModel.filter(entity => entity.privilegeParam);
-        if (hasAllPrivileges) {
-            this.addAllPrivileges(privilegeEntities);
-        } else {
-            this.updatePrivileges(privilegeEntities);
-        }
+        privilegeEntities.forEach(entity => {
+            const {privilegeEntity, privilegeName, privilegeParam} = entity;
+            this.deleteRevokedEntries(entity, this.getService(PrivilegeService).getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam));
+        })
     }
 
     deleteEntries(criteriaQuery) {
@@ -118,72 +120,6 @@ class EntitySyncStatusService extends BaseService {
         db.write(() => {
             const objects = this.findAllByCriteria(criteriaQuery);
             db.delete(objects);
-        });
-    }
-
-    updatePrivileges(entityMetaDataModel) {
-        entityMetaDataModel.forEach(entity => {
-            const {privilegeEntity, privilegeName, privilegeParam, entityName} = entity;
-            const entityTypeUUIDsForAllowedPrivilege = this.getService(PrivilegeService).getEntityTypeUuidListForMetadata(privilegeEntity, privilegeName, privilegeParam, true);
-            const presentEntityTypeUUIDs = this.findAllByCriteria(`entityTypeUuid <> '' && entityName = '${entityName}'`)
-                .map(entitySyncStatus => entitySyncStatus.entityTypeUuid);
-            const EntityTypeUUIDsToBeAdded = _.difference(entityTypeUUIDsForAllowedPrivilege, presentEntityTypeUUIDs);
-            _.forEach(EntityTypeUUIDsToBeAdded, uuid => {
-                try {
-                    const entitySyncStatus = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, General.randomUUID(), uuid);
-                    this.save(entitySyncStatus);
-                } catch (e) {
-                    General.logError('EntitySyncStatusService', ` entityName : ${entity.entityName} entityTypeUuid: ${uuid} failed`);
-                    throw e;
-                }
-            });
-            this.deleteRevokedEntries(entity, this.getService(PrivilegeService).getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam));
-        })
-    }
-
-    addAllPrivileges(entityMetaDataModel) {
-        entityMetaDataModel.forEach(entity => {
-            switch (entity.privilegeParam) {
-                case "subjectTypeUuid": {
-                    const subjectTypes = this.getService(EntityService).findAll(SubjectType.schema.name);
-                    this.addPrivilegeIfNotPresent(subjectTypes, entity, 'uuid');
-                    break;
-                }
-                case "programUuid": {
-                    const programs = this.getService(EntityService).findAll(Program.schema.name);
-                    this.addPrivilegeIfNotPresent(programs, entity, 'uuid');
-                    break;
-                }
-                case "programEncounterTypeUuid": {
-                    const formMappings = this.getService(EntityService).findAll(FormMapping.schema.name)
-                        .filtered('observationsTypeEntityUUID <> null AND entityUUID <> null AND voided = false')
-                        .filtered(`TRUEPREDICATE DISTINCT(observationsTypeEntityUUID)`);
-                    this.addPrivilegeIfNotPresent(formMappings, entity, 'observationsTypeEntityUUID');
-                    break;
-                }
-                case "encounterTypeUuid": {
-                    const formMappings = this.getService(EntityService).findAll(FormMapping.schema.name)
-                        .filtered('observationsTypeEntityUUID <> null AND entityUUID = null AND voided = false')
-                        .filtered(`TRUEPREDICATE DISTINCT(observationsTypeEntityUUID)`);
-                    this.addPrivilegeIfNotPresent(formMappings, entity, 'observationsTypeEntityUUID');
-                    break;
-                }
-                case "checklistDetailUuid": {
-                    const checklistDetails = this.getService(EntityService).findAll(ChecklistDetail.schema.name);
-                    this.addPrivilegeIfNotPresent(checklistDetails, entity, 'uuid');
-                    break;
-                }
-            }
-        });
-    }
-
-    addPrivilegeIfNotPresent(entityTypes, entity, entityTypeUUID) {
-        _.forEach(entityTypes, entityType => {
-            const presentRecord = this.findByCriteria(`entityTypeUuid = '${entityType[entityTypeUUID]}' && entityName = '${entity.entityName}'`);
-            if (!presentRecord) {
-                const entitySyncStatus = EntitySyncStatus.create(entity.entityName, EntitySyncStatus.REALLY_OLD_DATE, General.randomUUID(), entityType[entityTypeUUID]);
-                this.save(entitySyncStatus);
-            }
         });
     }
 

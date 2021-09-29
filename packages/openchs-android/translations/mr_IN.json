@@ -329,6 +329,7 @@
     "logoutCancelled": "रद्द करा",
     "visitDetailsSection": "तपशीलांना भेट द्या",
     "recentStatisticsSection": "गेल्या २४ तासांची आकडेवारी",
-    "registrationOverviewSection": "नोंदणी विहंगावलोकन"
+    "registrationOverviewSection": "नोंदणी विहंगावलोकन",
+    "FetchingChangedResource": "बदललेला डेटा प्राप्त करणे"
   }
 }

@@ -19,6 +19,8 @@ import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
 import SubjectTypeService from "./SubjectTypeService";
+import {post} from "../framework/http/requests";
+import General from "../utility/General";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -153,21 +155,33 @@ class SyncService extends BaseService {
         return this.conventionalRestClient.postAllEntities(entitiesToPost, onCompleteOfIndividualPost, onProgressPerEntity);
     }
 
-    dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
+    getMetadataByType(entityMetadata, type) {
+        return entityMetadata.filter((entityMetaData) => entityMetaData.type === type);
+    }
 
-        const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
-        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
-
-        return Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
+        const serverURL = this.getService(SettingsService).getSettings().serverURL;
+        const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
+        const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
+        const {syncDetails, now, nowMinus10Seconds} = await Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0))
+            .then(() =>  statusMessageCallBack("FetchingChangedResource"))
+            .then(() => post(`${serverURL}/syncDetails`, entitySyncStatus, true))
+            .then(res => res.json());
 
-            .then(() => statusMessageCallBack("downloadForms"))
-            .then(() => this.getRefData(allReferenceDataMetaData, onProgressPerEntity))
-            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData, updateProgressSteps))
+        const filteredMetadata = _.filter(allEntitiesMetaData, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
+        const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
+        const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
+        this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
+
+        return Promise.resolve(statusMessageCallBack("downloadForms"))
+            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
+            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getTxData(allTxEntityMetaData, onProgressPerEntity))
+            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, nowMinus10Seconds))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
@@ -188,42 +202,40 @@ class SyncService extends BaseService {
         return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')))
     }
 
-    updateAsPerNewPrivilege(entityMetadata, updateProgressSteps) {
-        const entitySyncStatusService = this.getService(EntitySyncStatusService);
-        entitySyncStatusService.updateEntitySyncStatusWithNewPrivileges(entityMetadata);
-        updateProgressSteps(entityMetadata, entitySyncStatusService.findAll());
+    updateAsPerNewPrivilege(allTxEntityMetaData) {
+        this.entitySyncStatusService.removeRevokedPrivileges(allTxEntityMetaData)
     }
 
-    getRefData(entitiesMetadata, afterEachPagePulled) {
+    getRefData(entitiesMetadata, afterEachPagePulled, now) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => _.assignIn({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
             }, entityMetadata));
-        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled);
+        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now);
     }
 
-    getTxData(entitiesMetadata, afterEachPagePulled) {
+    getTxData(entitiesMetadata, afterEachPagePulled, syncDetails, now) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .reverse()
             .map((entityMetadata) => {
-                const metadata = this.entitySyncStatusService.getAllByEntityName(entityMetadata.entityName);
-                return _.reduce(metadata, (acc, m) => {
+                const entitiesToSync = _.filter(syncDetails, ({entityName}) => entityMetadata.entityName === entityName);
+                return _.reduce(entitiesToSync, (acc, m) => {
                     acc.push(_.assignIn({syncStatus: m}, entityMetadata));
                     return acc;
                 }, [])
             }).flat(1);
-        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled);
+        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now);
     }
 
-    getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled) {
+    getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now) {
         const onGetOfFirstPage = (entityName, page) =>
             this.dispatchAction(SyncTelemetryActions.RECORD_FIRST_PAGE_OF_PULL, {
                 entityName,
                 totalElements: page.totalElements
             });
 
-        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled);
+        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled, now);
     }
 
     associateParent(entityResources, entities, entityMetaData) {

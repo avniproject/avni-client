@@ -49,7 +49,7 @@ class ConventionalRestClient {
         }
     }
 
-    getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity) {
+    getAllForEntity(entityMetadata, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity, now) {
         const searchFilter = !_.isEmpty(entityMetadata.resourceSearchFilterURL) ? `search/${entityMetadata.resourceSearchFilterURL}` : '';
         let settings = this.settingsService.getSettings();
         const resourceEndpoint = [
@@ -66,6 +66,7 @@ class ConventionalRestClient {
             const params = (page, size) => this.makeParams({
                 [privilegeParam]: entityTypeUuid,
                 lastModifiedDateTime: moment(loadedSince).toISOString(),
+                now: now,
                 size: size,
                 page: page
             });
@@ -73,6 +74,7 @@ class ConventionalRestClient {
         } else {
             const params = (page, size) => this.makeParams({
                 lastModifiedDateTime: moment(loadedSince).toISOString(),
+                now: now,
                 size: size,
                 page: page
             });
@@ -104,11 +106,11 @@ class ConventionalRestClient {
         });
     }
 
-    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity) {
+    getAll(entitiesMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity, now) {
         return _.reduce(entitiesMetadataWithSyncStatus,
             (acc, entityMetadataWithSyncStatus) => {
                 return acc
-                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity));
+                    .then(() => this.getAllForEntity(entityMetadataWithSyncStatus, onGetOfAnEntity, onGetOfFirstPage, afterGetOfEntity, now));
             },
             Promise.resolve());
     }
