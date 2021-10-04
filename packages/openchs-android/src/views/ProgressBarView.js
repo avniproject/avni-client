@@ -49,7 +49,7 @@ class ProgressBarView extends AbstractComponent {
         this.syncTextContent = {
             color: Colors.TextOnPrimaryColor,
             lineHeight: 30,
-            height: 50,
+            height: 70,
         };
         this.percentageText = {
             color: Colors.TextOnPrimaryColor,
