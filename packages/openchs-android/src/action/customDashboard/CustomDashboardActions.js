@@ -4,6 +4,7 @@ import DashboardSectionCardMappingService from "../../service/customDashboard/Da
 import EntityService from "../../service/EntityService";
 import {ReportCard} from "avni-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
+import General from "../../utility/General";
 
 class CustomDashboardActions {
 
@@ -28,15 +29,14 @@ class CustomDashboardActions {
         return newState;
     }
 
-    static getReportsCards(dashboardUUID, context, oldCardSectionMappings) {
-        const newCardSectionMappings = context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
-        return _.unionBy(oldCardSectionMappings, newCardSectionMappings, 'uuid');
+    static getReportsCards(dashboardUUID, context) {
+        return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
     }
 
     static onDashboardChange(state, action, context) {
         const newState = {...state};
         newState.activeDashboardUUID = action.dashboardUUID;
-        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context, state.reportCardSectionMappings);
+        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context);
         return newState;
     }
 
@@ -68,7 +68,9 @@ class CustomDashboardActions {
         const newState = {...state};
         newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
             const cardMappingsWithCount = {...rcm};
+            const start = new Date();
             cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(rcm.card);
+            General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
             return cardMappingsWithCount;
         });
         return newState;

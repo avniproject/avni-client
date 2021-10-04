@@ -28,6 +28,7 @@ import {ApprovalButton} from "./ApprovalButton";
 import {ApprovalDialog} from "./ApprovalDialog";
 import {RejectionMessage} from "./RejectionMessage";
 import _ from 'lodash';
+import Fonts from "../primitives/Fonts";
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -62,6 +63,18 @@ class ApprovalDetailsView extends AbstractComponent {
                 />
             </View>
         )
+    }
+
+    renderEntityDate(entity, schema, I18n) {
+        const schemaToDatePropertyMap = {
+            [Individual.schema.name]: {label: I18n.t('registeredOn'), dateProperty: 'registrationDate'},
+            [ProgramEnrolment.schema.name]: {label: `${I18n.t('enrolmentDate')}: `, dateProperty: 'enrolmentDateTime'},
+            [Encounter.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
+            [ProgramEncounter.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
+            [ChecklistItem.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'completionDate'}
+        };
+        const {label, dateProperty} = schemaToDatePropertyMap[schema];
+        return <Text style={styles.entityDateStyle}>{`${I18n.t(label)}${General.toDisplayDate(entity[dateProperty])}`}</Text>
     }
 
     renderEditButton(entity, schema) {
@@ -147,6 +160,7 @@ class ApprovalDetailsView extends AbstractComponent {
                     <View style={styles.container}>
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
+                            {this.renderEntityDate(entity, schema, this.I18n)}
                             <Observations observations={_.defaultTo(observations, [])}/>
                             {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
                             {showEdit && this.renderEditButton(entity, schema)}
@@ -199,6 +213,10 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 12,
         borderRadius: 5,
+    },
+    entityDateStyle: {
+        fontSize: Fonts.Medium,
+        color: Colors.DefaultPrimaryColor
     }
 });
 
