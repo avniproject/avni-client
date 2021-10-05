@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
-import ImagePicker from "react-native-image-picker";
+import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -83,13 +83,14 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     addMediaFromPicker(response) {
-        if (!response.didCancel && !response.error) {
+        console.log("response =>>>", response);
+        if (!response.didCancel && !response.errorCode) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
             const fileName = `${General.randomUUID()}.${ext}`;
             const directory = this.isVideo ? FileSystem.getVideosDir() : FileSystem.getImagesDir();
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
 
-            fileSystemAction(response.path, `${directory}/${fileName}`)
+            fileSystemAction(response.uri, `${directory}/${fileName}`)
                 .then(() => {
                     this.dispatchAction(this.props.actionName, {
                         formElement: this.props.element,
@@ -123,14 +124,10 @@ export default class MediaFormElement extends AbstractFormElement {
             maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
             videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
-            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT),
-            noData: true,
-            storageOptions: {
-                waitUntilSaved: true,
-            }
+            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)
         };
         if (await this.isPermissionGranted()) {
-            ImagePicker.launchCamera(options,
+            launchCamera(options,
                 (response) => this.addMediaFromPicker(response));
         }
     }
@@ -142,7 +139,7 @@ export default class MediaFormElement extends AbstractFormElement {
             mediaType: this.isVideo ? 'video' : 'photo',
         };
         if (await this.isPermissionGranted()) {
-            ImagePicker.launchImageLibrary(options,
+            launchImageLibrary(options,
                 (response) => this.addMediaFromPicker(response));
         }
     }
