@@ -190,7 +190,7 @@ class CHSNavigator {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
-                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView], [
+                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView, GenericDashboardView], [
                     TypedTransition.createRoute(GenericDashboardView, {
                         individualUUID: encounter.individual.uuid, message, tab: 3
                     }, true)
