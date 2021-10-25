@@ -109,7 +109,7 @@ export class SubjectRegisterActions {
         const {member} = newState.household;
         if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
-            context.get(GroupSubjectService).addMember(member);
+            context.get(GroupSubjectService).addMember(member, false);
         }
         action.cb();
         context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.subject.uuid);

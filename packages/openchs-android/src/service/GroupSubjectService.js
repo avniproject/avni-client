@@ -4,6 +4,7 @@ import {EntityQueue, GroupRole, GroupSubject, Individual, Concept} from "avni-mo
 import EntityService from "./EntityService";
 import General from "../utility/General";
 import _ from 'lodash';
+import IndividualRelationshipService from "./relationship/IndividualRelationshipService";
 
 @Service("groupSubjectService")
 class GroupSubjectService extends BaseService {
@@ -23,9 +24,15 @@ class GroupSubjectService extends BaseService {
         return this.getAll(GroupRole.schema.name).filtered('voided = false and groupSubjectType.uuid = $0', groupSubjectType.uuid).map(_.identity);
     }
 
-    addMember(groupSubject) {
+    addMember(groupSubject, addRelative, individualRelative) {
+        const db = this.db;
         const groupSubjectEntity = GroupSubject.create(groupSubject);
-        this.saveOrUpdate(groupSubjectEntity);
+        this.db.write(() => {
+            if (addRelative && individualRelative.isRelationPresent()) {
+                this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative, db)
+            }
+            this.saveGroupSubject(db, groupSubjectEntity);
+        });
     }
 
     deleteMember(groupSubject) {

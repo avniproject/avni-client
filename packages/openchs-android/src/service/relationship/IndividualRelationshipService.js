@@ -38,7 +38,7 @@ class IndividualRelationshipService extends BaseService {
         this.saveOrUpdate(individualRelationship);
     }
 
-    addOrUpdateRelative(individualRelative) {
+    addOrUpdateRelative(individualRelative, db) {
         const relatives = this.getRelatives(individualRelative.individual);
         const oldRelationWithRelative = relatives.filter(({relative}) => relative.uuid === individualRelative.relative.uuid);
         if (!_.isEmpty(oldRelationWithRelative)) {
@@ -46,32 +46,44 @@ class IndividualRelationshipService extends BaseService {
             if (oldRelation.relation.uuid === individualRelative.relation.uuid) {
                 return;
             }
-            this.deleteRelative(oldRelation);
+            const voidedRelative = this.voidRelative(oldRelation);
+            this.writeRecord(db, voidedRelative)
         }
-        this.addRelative(individualRelative);
+        const relationshipType = this.getService(IndividualRelationshipTypeService).getRelationshipType(individualRelative);
+        const individualRelationship = IndividualRelationship.create(individualRelative, relationshipType);
+        this.writeRecord(db, individualRelationship);
     }
 
     deleteRelative(individualRelative) {
+        const relationship = this.voidRelative(individualRelative);
+        this.saveOrUpdate(relationship);
+    }
+
+    voidRelative(individualRelative) {
         General.logDebug('IndividualRelationshipService', 'Came to delete relative');
         const relationshipLoadedFromDb = this.findByUUID(individualRelative.relationshipUUID);
         const relationship = relationshipLoadedFromDb.cloneForEdit();
         relationship.voided = true;
-        this.saveOrUpdate(relationship);
+        return relationship;
     }
 
     saveOrUpdate(relationship) {
         const db = this.db;
         this.db.write(() => {
-            const savedRelationship = db.create(IndividualRelationship.schema.name, relationship, true);
-            let individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name);
-            let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
-            individualA.addRelationship(savedRelationship);
-            individualB.addRelationship(savedRelationship);
-            db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
-            General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
+            this.writeRecord(db, relationship);
         });
 
         return relationship;
+    }
+
+    writeRecord(db, relationship) {
+        const savedRelationship = db.create(IndividualRelationship.schema.name, relationship, true);
+        let individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name);
+        let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
+        individualA.addRelationship(savedRelationship);
+        individualB.addRelationship(savedRelationship);
+        db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
+        General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
     }
 }
 
