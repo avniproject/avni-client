@@ -449,7 +449,7 @@ class CHSNavigator {
                 let encounter;
                 if (_.isEmpty(nextWorkItem.parameters.uuid)) {
                     const {subjectUUID, encounterType} = nextWorkItem.parameters;
-                    const subject = context.getService(ProgramEnrolmentService).findByUUID(subjectUUID);
+                    const subject = context.getService(IndividualService).findByUUID(subjectUUID);
                     const encounterService = context.getService(EncounterService);
                     //Use a due encounter if available
                     const dueEncounter = encounterService.findDueEncounter({

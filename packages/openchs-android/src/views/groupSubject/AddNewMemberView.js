@@ -157,6 +157,7 @@ class AddNewMemberView extends AbstractComponent {
             member: this.state.member,
             individualRelative: this.state.individualRelative,
             relativeGender: this.state.relativeGender,
+            headOfHousehold: this.isHeadOfHousehold(),
         });
         return workLists;
     }

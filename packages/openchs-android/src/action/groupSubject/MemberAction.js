@@ -149,8 +149,7 @@ export class MemberAction {
         const groupRole = state.member.groupRole;
         MemberAction.checkValidationErrors(newState, MemberAction.validateRelative(newState, context));
         if (_.isEmpty(newState.validationResults)) {
-            context.get(GroupSubjectService).addMember(newState.member);
-            groupRole.isHouseholdMember && context.get(IndividualRelationshipService).addOrUpdateRelative(newState.individualRelative);
+            context.get(GroupSubjectService).addMember(newState.member, groupRole.isHouseholdMember, newState.individualRelative);
             action.cb();
         }
         return newState;

@@ -152,11 +152,9 @@ export class IndividualRegisterActions {
         const {member, headOfHousehold, individualRelative} = newState.household;
         if (!_.isNil(member)) {
             member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
-            context.get(GroupSubjectService).addMember(member);
-            if (member.groupSubject.isHousehold() && !headOfHousehold) {
-                individualRelative.relative = newState.individual;
-                individualRelative.isRelationPresent() && context.get(IndividualRelationshipService).addOrUpdateRelative(individualRelative);
-            }
+            const addRelative = member.groupSubject.isHousehold() && !headOfHousehold;
+            individualRelative.relative = newState.individual;
+            context.get(GroupSubjectService).addMember(member, addRelative, individualRelative);
         }
         action.cb();
         context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.individual.uuid);
