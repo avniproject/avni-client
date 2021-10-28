@@ -39,6 +39,7 @@ class DatePicker extends AbstractComponent {
     }
 
     async showDatePicker(datePickerOptions, timePickerOptions) {
+        this.dismissKeyboard();
         const {action, year, month, day} = await DatePickerAndroid.open(datePickerOptions);
         if (action !== DatePickerAndroid.dismissedAction) {
             this.props.actionObject.value = new Date(year, month, day);
@@ -58,6 +59,7 @@ class DatePicker extends AbstractComponent {
     }
 
     removeDate() {
+        this.dismissKeyboard();
         this.props.actionObject.value = null;
         this.dispatchAction(this.props.actionName, this.props.actionObject);
     }

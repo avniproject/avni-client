@@ -65,6 +65,7 @@ class SubjectFormElement extends AbstractFormElement {
     }
 
     search() {
+        this.dismissKeyboard();
         const subjectTypeUUID = this.subjectTypeUUID();
         if (subjectTypeUUID) {
             const subjectType = this.entityService.findByUUID(subjectTypeUUID, SubjectType.schema.name);

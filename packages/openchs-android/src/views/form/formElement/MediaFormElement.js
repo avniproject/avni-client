@@ -101,6 +101,7 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     clearAnswer() {
+        this.dismissKeyboard();
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             value: null,

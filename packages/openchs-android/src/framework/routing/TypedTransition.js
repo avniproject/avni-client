@@ -1,6 +1,7 @@
 import invariant from "invariant";
 import _ from "lodash";
 import General from "../../utility/General";
+import {Keyboard} from 'react-native';
 
 // navigator commands are async in their actual effect of their execution. so if you run more than one navigator action one after other the output is indeterminate
 export default class TypedTransition {
@@ -41,7 +42,7 @@ export default class TypedTransition {
 
     safeDismissKeyboard() {
         try {
-            // require("dismissKeyboard")();
+            Keyboard.dismiss();
         } catch (e) {
         }
     }

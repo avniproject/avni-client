@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component, Text, View} from "react";
-import {Alert, StyleSheet} from "react-native";
+import {Alert, StyleSheet, Keyboard} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
@@ -140,6 +140,10 @@ class AbstractComponent extends Component {
 
     viewName() {
         return this.constructor.name;
+    }
+
+    dismissKeyboard() {
+        Keyboard.dismiss();
     }
 }
 

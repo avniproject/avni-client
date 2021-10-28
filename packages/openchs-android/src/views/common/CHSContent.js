@@ -5,7 +5,7 @@ import {Content} from "native-base";
 
 class CHSContent extends Content {
     static defaultProps = {
-        keyboardShouldPersistTaps: "always"
+        keyboardShouldPersistTaps: "handled"
     };
 }
 
