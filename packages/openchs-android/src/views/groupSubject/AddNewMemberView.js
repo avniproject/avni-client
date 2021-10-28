@@ -128,6 +128,7 @@ class AddNewMemberView extends AbstractComponent {
                         individualRelative: this.state.individualRelative,
                         headOfHousehold: this.isHeadOfHousehold(),
                         relativeGender: this.state.relativeGender,
+                        groupSubjectUUID: this.state.member.groupSubject.uuid,
                     }
                 )])));
         }
@@ -142,10 +143,7 @@ class AddNewMemberView extends AbstractComponent {
             headOfHousehold: this.isHeadOfHousehold(),
             relativeGender: this.state.relativeGender,
         };
-        const updatedWorkLists = _.isEmpty(this.props.workLists) ? {} : this.updateWorkList();
-        const workLists = _.isEmpty(updatedWorkLists) ? new WorkLists(new WorkList(subjectType.name)
-            .withAddMember(params)
-            .withAddMember(params)) : updatedWorkLists;
+        const workLists = new WorkLists(new WorkList(subjectType.name).withAddMember(params));
         CHSNavigator.navigateToRegisterView(this, workLists);
     }
 

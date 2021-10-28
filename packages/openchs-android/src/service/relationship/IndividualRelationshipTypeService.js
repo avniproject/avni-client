@@ -4,6 +4,7 @@ import {IndividualRelationshipType} from 'avni-models';
 import _ from 'lodash';
 import IndividualRelationGenderMappingService from "./IndividualRelationGenderMappingService";
 import General from "../../utility/General";
+import {AlertMessage} from "../../views/common/AlertMessage";
 
 @Service("individualRelationshipTypeService")
 class IndividualRelationshipService extends BaseService {
@@ -36,6 +37,7 @@ class IndividualRelationshipService extends BaseService {
             return applicableRelationshipTypes[0];
         }
         General.logDebug("IndividualRelationshipTypeService", applicableRelationshipTypes);
+        AlertMessage(`Non determinate relationshipType`, `Please create relationshipType for "${individualRelative.relation.name}"`);
         throw Error(`Non determinate relationshipType`);
     }
 
