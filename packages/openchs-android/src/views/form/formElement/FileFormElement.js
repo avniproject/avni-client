@@ -123,6 +123,7 @@ class FileFormElement extends AbstractFormElement {
     }
 
     updateValue(value) {
+        this.dismissKeyboard();
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             value,

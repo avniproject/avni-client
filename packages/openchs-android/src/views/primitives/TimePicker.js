@@ -62,6 +62,7 @@ render() {
     }
 
     async showTimePicker(options) {
+        this.dismissKeyboard();
         const {action, hour, minute} = await TimePickerAndroid.open(options);
         if (action !== TimePickerAndroid.dismissedAction) {
             this.props.actionObject.value = General.toISOFormatTime(hour, minute);
@@ -70,6 +71,7 @@ render() {
     }
 
     removeTime() {
+        this.dismissKeyboard();
         this.props.actionObject.value = null;
         this.dispatchAction(this.props.actionName, this.props.actionObject);
     }
