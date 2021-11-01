@@ -173,12 +173,12 @@ class SyncService extends BaseService {
         const filteredMetadata = _.filter(allEntitiesMetaData, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
-        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
+        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid]).join("\n")}`);
         this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
-            .then(() => this.updateAsPerNewPrivilege(allTxEntityMetaData))
+            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
 
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, nowMinus10Seconds))
@@ -202,8 +202,9 @@ class SyncService extends BaseService {
         return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')))
     }
 
-    updateAsPerNewPrivilege(allTxEntityMetaData) {
-        this.entitySyncStatusService.removeRevokedPrivileges(allTxEntityMetaData)
+    updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {
+        this.entitySyncStatusService.removeRevokedPrivileges(allEntitiesMetaData);
+        updateProgressSteps(allEntitiesMetaData, syncDetails);
     }
 
     getRefData(entitiesMetadata, afterEachPagePulled, now) {
