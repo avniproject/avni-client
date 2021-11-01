@@ -64,6 +64,7 @@ class App extends Component {
         super(props, context);
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
+        this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
         this.state = {error};
     }
