@@ -21,6 +21,8 @@ import ExtensionService from "./ExtensionService";
 import SubjectTypeService from "./SubjectTypeService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
+import SubjectMigrationService from "./SubjectMigrationService";
+import {now} from "moment";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -105,14 +107,14 @@ class SyncService extends BaseService {
         }
     }
 
-    sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON) {
+    async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON) {
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => {
             progressBarStatus.onComplete(entityType, numOfPages);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps);
+        const firstDataServerSync = () => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
@@ -129,11 +131,11 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         console.log('mediaUploadRequired', mediaUploadRequired);
         return mediaUploadRequired ?
-            firstDataServerSync
+            firstDataServerSync()
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, _.noop))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps))
                 .then(syncCompleted)
-            : firstDataServerSync.then(syncCompleted);
+            : firstDataServerSync().then(syncCompleted);
     }
 
     logSyncCompleteEvent(syncStartTime) {
@@ -159,33 +161,45 @@ class SyncService extends BaseService {
         return entityMetadata.filter((entityMetaData) => entityMetaData.type === type);
     }
 
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
-        const serverURL = this.getService(SettingsService).getSettings().serverURL;
+    async getSyncDetails() {
+        const url = this.getService(SettingsService).getSettings().serverURL;
         const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
+        console.log('entitySyncStatus', JSON.stringify(entitySyncStatus.filter(item => item.entityName === 'SubjectMigration')));
+        return post(`${url}/syncDetails`, entitySyncStatus, true)
+            .then(res => res.json())
+            .then(({syncDetails, nowMinus10Seconds}) => ({
+                syncDetails,
+                endDateTime: nowMinus10Seconds
+            }));
+    }
+
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
-        const {syncDetails, now, nowMinus10Seconds} = await Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
+        await Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0))
-            .then(() =>  statusMessageCallBack("FetchingChangedResource"))
-            .then(() => post(`${serverURL}/syncDetails`, entitySyncStatus, true))
-            .then(res => res.json());
+            .then(() =>  statusMessageCallBack("FetchingChangedResource"));
 
-        const filteredMetadata = _.filter(allEntitiesMetaData, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
+        const {syncDetails, endDateTime} = await this.getSyncDetails();
+
+        const entitiesWithoutSubjectMigration = _.filter(allEntitiesMetaData, ({entityName}) => entityName !== "SubjectMigration");
+        const filteredMetadata = _.filter(entitiesWithoutSubjectMigration, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
-        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid]).join("\n")}`);
+        const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
+        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
         this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
+            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getService(SubjectMigrationService).migrateSubjects())
+            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, endDateTime))
             .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
-
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, nowMinus10Seconds))
+            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
-
     }
 
     downloadExtensions() {

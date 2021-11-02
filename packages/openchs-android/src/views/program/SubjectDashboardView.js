@@ -78,6 +78,7 @@ class SubjectDashboardView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
+        General.logDebug(this.viewName(), individualUUID);
         const options = [
             [this.icon(MCIcon, 'face-profile', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
             [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program, this.state.displayProgramTab],

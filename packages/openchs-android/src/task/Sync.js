@@ -1,4 +1,4 @@
-import {EntityMetaData, Schema, SyncError} from "avni-models";
+import {EntityMetaData} from "avni-models";
 import SyncService from "../service/SyncService";
 import General from "../utility/General";
 import {NetInfo} from "react-native";
