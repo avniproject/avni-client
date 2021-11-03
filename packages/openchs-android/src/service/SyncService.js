@@ -167,8 +167,9 @@ class SyncService extends BaseService {
         console.log('entitySyncStatus', JSON.stringify(entitySyncStatus.filter(item => item.entityName === 'SubjectMigration')));
         return post(`${url}/syncDetails`, entitySyncStatus, true)
             .then(res => res.json())
-            .then(({syncDetails, nowMinus10Seconds}) => ({
+            .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,
+                now,
                 endDateTime: nowMinus10Seconds
             }));
     }
@@ -180,7 +181,7 @@ class SyncService extends BaseService {
             .then(() => onAfterMediaPush("After_Media", 0))
             .then(() =>  statusMessageCallBack("FetchingChangedResource"));
 
-        const {syncDetails, endDateTime} = await this.getSyncDetails();
+        const {syncDetails, endDateTime, now} = await this.getSyncDetails();
 
         const entitiesWithoutSubjectMigration = _.filter(allEntitiesMetaData, ({entityName}) => entityName !== "SubjectMigration");
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigration, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
@@ -191,7 +192,7 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, endDateTime))
+            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
             .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
