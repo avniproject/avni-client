@@ -21,6 +21,7 @@ import MessageService from "./MessageService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import AddressLevelService from "./AddressLevelService";
 import IndividualService from "./IndividualService";
+import IndividualRelationshipService from "./relationship/IndividualRelationshipService";
 
 @Service('SubjectMigrationService')
 class SubjectMigrationService extends BaseService {
@@ -49,6 +50,11 @@ class SubjectMigrationService extends BaseService {
             .then(response => this.saveEntities(response.content));
     }
 
+
+    getUUIDFor(resource, property) {
+        return _.get(resource, ["_links", property, "href"]);
+    }
+
     saveEntities({individual, programEnrolments, programEncounters, encounters, checklists, checklistItems, groupSubjects, individualRelationships}) {
         const entityMetaData = EntityMetaData.model();
         const metadataFor = (name) => entityMetaData.find(item => item.entityName === name);
@@ -63,8 +69,10 @@ class SubjectMigrationService extends BaseService {
             groupSubject => this.individualService.existsByUuid(groupSubject.groupSubjectUUID) &&
                 this.individualService.existsByUuid(groupSubject.memberSubjectUUID)));
         this.persistAll(metadataFor(IndividualRelationship.schema.name),individualRelationships.filter(
-            individualRelationship => this.individualService.existsByUuid(individualRelationship.individualAUUID) &&
-                this.individualService.existsByUuid(individualRelationship.individualBUUID)));
+            individualRelationship => {
+                return this.individualService.existsByUuid(this.getUUIDFor(individualRelationship, 'individualAUUID')) &&
+                    this.individualService.existsByUuid(this.getUUIDFor(individualRelationship, 'individualBUUID'));
+            }));
     }
 
     associateParent(entityResources, entities, entityMetaData) {
@@ -129,7 +137,7 @@ class SubjectMigrationService extends BaseService {
                 });
                 db.delete(enrolment)
             });
-            db.delete(subject.relationships);
+            db.delete(this.getService(IndividualRelationshipService).findBySubject(subject));
             subject.latestEntityApprovalStatus && db.delete(subject.latestEntityApprovalStatus);
             db.delete(subject.comments);
             db.delete(subject.groupSubjects);

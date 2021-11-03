@@ -191,11 +191,11 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getService(SubjectMigrationService).migrateSubjects())
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, endDateTime))
             .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
+            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getService(SubjectMigrationService).migrateSubjects())
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())

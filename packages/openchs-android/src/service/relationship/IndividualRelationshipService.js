@@ -85,6 +85,11 @@ class IndividualRelationshipService extends BaseService {
         db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
         General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
     }
+
+    findBySubject(subject) {
+        return this.getAll().filtered('individualA = $0 or individualB = $0', subject);
+    }
+
 }
 
 export default IndividualRelationshipService;
