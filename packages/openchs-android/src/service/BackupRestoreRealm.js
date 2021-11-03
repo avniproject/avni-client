@@ -155,7 +155,7 @@ export default class BackupRestoreRealmService extends BaseService {
         const db = this.db;
 
         const entitySyncStatus = db.objects(EntitySyncStatus.schema.name)
-            .filtered(`entityName = 'IdentifierAssignment'`)
+            .filtered(`entityName = 'IdentifierAssignment' or entityName = 'UserInfo'`)
             .map(u => _.assign({}, u));
 
         this.db.write(() => {
