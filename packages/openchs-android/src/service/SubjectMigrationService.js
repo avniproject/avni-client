@@ -120,6 +120,7 @@ class SubjectMigrationService extends BaseService {
 
     removeEntitiesFor({subjectUUID}) {
         const subject = this.entityService.findByUUID(subjectUUID, Individual.schema.name);
+        if (_.isNil(subject)) return;
         const db = this.db;
         db.write(() => {
             db.delete(subject.encounters);
