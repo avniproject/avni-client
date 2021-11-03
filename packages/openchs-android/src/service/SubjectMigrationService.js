@@ -22,6 +22,7 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import AddressLevelService from "./AddressLevelService";
 import IndividualService from "./IndividualService";
 import IndividualRelationshipService from "./relationship/IndividualRelationshipService";
+import General from "../utility/General";
 
 @Service('SubjectMigrationService')
 class SubjectMigrationService extends BaseService {
@@ -44,7 +45,7 @@ class SubjectMigrationService extends BaseService {
         }
     }
 
-    addEntitiesFor({subjectUUID}) {
+    async addEntitiesFor({subjectUUID}) {
         const serverUrl = this.getService(SettingsService).getSettings().serverURL;
         return getJSON(`${serverUrl}/subject/${subjectUUID}/allEntities`)
             .then(response => this.saveEntities(response.content));
@@ -121,6 +122,7 @@ class SubjectMigrationService extends BaseService {
     removeEntitiesFor({subjectUUID}) {
         const subject = this.entityService.findByUUID(subjectUUID, Individual.schema.name);
         if (_.isNil(subject)) return;
+        General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subjectUUID}`);
         const db = this.db;
         db.write(() => {
             db.delete(subject.encounters);
@@ -156,7 +158,7 @@ class SubjectMigrationService extends BaseService {
         }
 
         if (!oldAddressExists && newAddressExists) {
-            this.addEntitiesFor(subjectMigration);
+            await this.addEntitiesFor(subjectMigration);
         }
 
         const db = this.db;
