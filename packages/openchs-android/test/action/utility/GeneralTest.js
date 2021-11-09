@@ -35,17 +35,25 @@ describe('General', () => {
 
     it('isEmptyOrBlank', () => {
         const isEmptyOrBlank = General.isEmptyOrBlank;
-        expect(isEmptyOrBlank()).to.be.true; 
-        expect(isEmptyOrBlank({})).to.be.true; 
-        expect(isEmptyOrBlank([])).to.be.true; 
+        expect(isEmptyOrBlank()).to.be.true;
+        expect(isEmptyOrBlank({})).to.be.true;
+        expect(isEmptyOrBlank([])).to.be.true;
         expect(isEmptyOrBlank("")).to.be.true;
-        expect(isEmptyOrBlank(new String(""))).to.be.true; 
-        expect(isEmptyOrBlank(null)).to.be.true; 
-        expect(isEmptyOrBlank(NaN)).to.be.true; 
+        expect(isEmptyOrBlank(new String(""))).to.be.true;
+        expect(isEmptyOrBlank(null)).to.be.true;
+        expect(isEmptyOrBlank(NaN)).to.be.true;
         expect(isEmptyOrBlank(0)).to.be.false;
-        expect(isEmptyOrBlank("abc")).to.be.false; 
-        expect(isEmptyOrBlank(false)).to.be.false; 
-        expect(isEmptyOrBlank(true)).to.be.false; 
+        expect(isEmptyOrBlank("abc")).to.be.false;
+        expect(isEmptyOrBlank(false)).to.be.false;
+        expect(isEmptyOrBlank(true)).to.be.false;
     });
+
+    it('logError should not fail', () => {
+        General.setCurrentLogLevel(General.LogLevel.Debug);
+        General.logError("Test", new Error()); //Correct usage
+        General.logError("Test", "Some error message"); //Correct usage
+        General.logError("Test"); //Incorrect usage, but should work when message is undefined
+        General.logError(); //Incorrect usage, but should not fail when logging
+    })
 
 });

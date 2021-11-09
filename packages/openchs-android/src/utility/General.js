@@ -222,8 +222,9 @@ class General {
     }
 
     static logError(source, error) {
-        if (General.LogLevel.Error >= General.getCurrentLogLevel())
-            console["error"](source, `${error.message}, ${JSON.stringify(error)}`);
+        if (General.LogLevel.Error >= General.getCurrentLogLevel()) {
+            console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`);
+        }
     }
 
     static logErrorAsInfo(source, error) {

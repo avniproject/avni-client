@@ -39,7 +39,7 @@ export default class FileSystem {
                     General.logError("FileSystem", "No permissions to write to external storage")
                 }
             } catch (err) {
-                General.logError(err);
+                General.logError("FileSystem", err);
             }
         })();
     }
