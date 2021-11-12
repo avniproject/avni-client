@@ -41,7 +41,12 @@ export default class Router extends Component {
                 return element.onHardwareBackPress();
             }
             if (!this.onInitialScreen) {
-                this.navigator.pop();
+                try {
+                    this.navigator.pop();
+                }catch (e) {
+                    General.logErrorAsInfo("Router", e);
+                    return false;
+                }
                 return true;
             }
             return false;
