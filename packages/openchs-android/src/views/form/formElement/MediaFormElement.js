@@ -83,7 +83,6 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     addMediaFromPicker(response) {
-        console.log("response =>>>", response);
         if (!response.didCancel && !response.errorCode) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
             const fileName = `${General.randomUUID()}.${ext}`;

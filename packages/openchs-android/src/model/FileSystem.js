@@ -52,38 +52,38 @@ export default class FileSystem {
     }
 
     static getImagesDir() {
-        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images/`);
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/images`;
+        General.logDebug("FileSystem", `${fs.ExternalDirectoryPath}/Avni/media/images/`);
+        return `${fs.ExternalDirectoryPath}/Avni/media/images`;
     }
 
     static getVideosDir() {
-        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos/`);
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/videos`;
+        General.logDebug("FileSystem", `${fs.ExternalDirectoryPath}/Avni/media/videos/`);
+        return `${fs.ExternalDirectoryPath}/Avni/media/videos`;
     }
 
     static getAudioDir() {
-        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/audios/`);
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/audios`;
+        General.logDebug("FileSystem", `${fs.ExternalDirectoryPath}/Avni/media/audios/`);
+        return `${fs.ExternalDirectoryPath}/Avni/media/audios`;
     }
 
     static getNewsDir() {
-        General.logDebug("FileSystem", `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/news/`);
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/news`;
+        General.logDebug("FileSystem", `${fs.ExternalDirectoryPath}/Avni/media/news/`);
+        return `${fs.ExternalDirectoryPath}/Avni/media/news`;
     }
 
     static getBackupDir(){
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/db/`;
+        return `${fs.ExternalDirectoryPath}/Avni/db/`;
     }
 
     static getExtensionsDir(){
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/extensions`;
+        return `${fs.ExternalDirectoryPath}/Avni/extensions`;
     }
 
     static getIconsDir() {
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/icons`;
+        return `${fs.ExternalDirectoryPath}/Avni/icons`;
     }
 
     static getFileDir() {
-        return `${fs.ExternalStorageDirectoryPath}/OpenCHS/media/files`;
+        return `${fs.ExternalDirectoryPath}/Avni/media/files`;
     }
 }
