@@ -1,6 +1,6 @@
 import fs from 'react-native-fs';
 import General from "../utility/General";
-import { PermissionsAndroid } from 'react-native';
+import {PermissionsAndroid} from 'react-native';
 
 export default class FileSystem {
 
@@ -34,6 +34,11 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
+                       .then(() => {
+                           const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
+                           const newBasePath = `${fs.ExternalDirectoryPath}/Avni`;
+                           FileSystem.migrateOldData(olderBasePath, newBasePath);
+                       })
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -85,5 +90,30 @@ export default class FileSystem {
 
     static getFileDir() {
         return `${fs.ExternalDirectoryPath}/Avni/media/files`;
+    }
+
+    static async migrateOldData(source, destination) {
+        General.logDebug("FileSystem", `Copying from ${source} -> ${destination}`);
+        try {
+            const olderItems = await fs.readDir(source);
+            await olderItems.forEach(async (item) => {
+                if (item.isFile()) {
+                    const destPath = `${destination}/${item.name}`;
+                    const fileExists = await fs.exists(destPath);
+                    if (!fileExists) {
+                        await fs.copyFile(item.path, destPath);
+                        await fs.unlink(item.path);
+                    }
+                } else {
+                    const subDirectory = source + "/" + item.name;
+                    const subDestination = destination + "/" + item.name;
+                    await FileSystem.mkdir(subDestination, subDestination);
+                    await this.migrateOldData(subDirectory, subDestination);
+                }
+            });
+        } catch (e) {
+            General.logDebug("FileSystem", "Got error while migrating older files");
+            General.logError("FileSystem", e);
+        }
     }
 }
