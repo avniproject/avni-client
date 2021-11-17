@@ -136,6 +136,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                             formElementsUserState={this.state.formElementsUserState}
                             dataEntryDate={this.state.programEncounter.cancelDateTime}
                             onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                            subjectUUID={this.state.programEncounter.individual.uuid}
                         />
                         <WizardButtons previous={{
                             func: () => this.previous(),

@@ -91,6 +91,10 @@ class GroupSubjectService extends BaseService {
             this.saveGroupSubject(db, groupSubject);
         };
     }
+
+    getAllByGroupSubjectUUID(groupSubjectUUID) {
+        return this.getAllNonVoided().filtered(`groupSubject.uuid = $0`, groupSubjectUUID);
+    }
 }
 
 

@@ -147,6 +147,7 @@ class ProgramEncounterView extends AbstractComponent {
                             formElementsUserState={this.state.formElementsUserState}
                             dataEntryDate={this.state.programEncounter.encounterDateTime}
                             onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                            subjectUUID={this.state.programEncounter.programEnrolment.individual.uuid}
                         />
                         <WizardButtons previous={{
                             func: () => this.previous(),

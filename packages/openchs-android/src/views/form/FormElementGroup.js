@@ -27,12 +27,12 @@ import IdFormElement from "./formElement/IdFormElement";
 import DurationFormElement from "./formElement/DurationFormElement";
 import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
 import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFormElement";
-import MultiSelectSubjectFormElement from "./formElement/MultiSelectSubjectFormElement";
 import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 import AudioFormElement from "./formElement/AudioFormElement";
 import Identifier from "openchs-models/dist/Identifier";
 import FileFormElement from "./formElement/FileFormElement";
+import MultiSelectSubjectLandingFormElement from "./formElement/MultiSelectSubjectLandingFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -44,6 +44,7 @@ class FormElementGroup extends AbstractComponent {
         formElementsUserState: PropTypes.object,
         dataEntryDate: PropTypes.object,
         onValidationError: PropTypes.func,
+        subjectUUID: PropTypes.string,
     };
 
     constructor(props, context) {
@@ -193,10 +194,11 @@ class FormElementGroup extends AbstractComponent {
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isMultiSelect()) {
-                            return this.wrap(<MultiSelectSubjectFormElement
+                            return this.wrap(<MultiSelectSubjectLandingFormElement
                                 key={idx}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
+                                subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
