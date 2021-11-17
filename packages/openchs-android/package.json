@@ -34,7 +34,7 @@
     "color": "2.0.0",
     "immutable": "3.8.1",
     "invariant": "2.2.2",
-    "lodash": "4.17.11",
+    "lodash": "4.17.21",
     "moment": "2.19.3",
     "native-base": "2.15.2",
     "openchs-models": "1.9.3",
