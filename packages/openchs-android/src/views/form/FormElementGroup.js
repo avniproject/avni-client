@@ -26,13 +26,13 @@ import MediaFormElement from "./formElement/MediaFormElement";
 import IdFormElement from "./formElement/IdFormElement";
 import DurationFormElement from "./formElement/DurationFormElement";
 import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
-import SingleSelectSubjectFormElement from "./formElement/SingleSelectSubjectFormElement";
 import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 import AudioFormElement from "./formElement/AudioFormElement";
 import Identifier from "openchs-models/dist/Identifier";
 import FileFormElement from "./formElement/FileFormElement";
 import MultiSelectSubjectLandingFormElement from "./formElement/MultiSelectSubjectLandingFormElement";
+import SingleSelectSubjectLandingFormElement from "./formElement/SingleSelectSubjectLandingFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -186,10 +186,11 @@ class FormElementGroup extends AbstractComponent {
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isSingleSelect()) {
-                            return this.wrap(<SingleSelectSubjectFormElement
+                            return this.wrap(<SingleSelectSubjectLandingFormElement
                                 key={idx}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
+                                subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);

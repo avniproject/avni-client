@@ -4,8 +4,8 @@ import AttendanceFormElement from "./AttendanceFormElement";
 import MultiSelectSubjectFormElement from "./MultiSelectSubjectFormElement";
 
 const MultiSelectSubjectLandingFormElement = (props) => {
-    const isAttendance = props.element.recordValueByKey(FormElement.keys.isAttendance);
-    return isAttendance ? <AttendanceFormElement {...props} /> : <MultiSelectSubjectFormElement {...props} />;
+    const displayAllGroupMembers = props.element.recordValueByKey(FormElement.keys.displayAllGroupMembers);
+    return displayAllGroupMembers ? <AttendanceFormElement {...props} /> : <MultiSelectSubjectFormElement {...props} />;
 
 };
 

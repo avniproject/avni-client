@@ -1,14 +1,12 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import {StyleSheet, View} from "react-native";
-import {Text} from "native-base";
+import {CheckBox, Text} from "native-base";
 import Styles from "../../primitives/Styles";
 import ValidationErrorMessage from "../ValidationErrorMessage";
-import {Switch} from "native-base";
 import GroupSubjectService from "../../../service/GroupSubjectService";
 import _ from 'lodash';
 import Colors from "../../primitives/Colors";
-import Distances from "../../primitives/Distances";
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
@@ -25,20 +23,21 @@ class AttendanceFormElement extends AbstractFormElement {
         return (
             <Fragment>
                 <Text style={Styles.formLabel}>{this.label}</Text>
-                <View style={styles.container}>
-                    {_.map(groupsSubjects, ({memberSubject}) => {
+                <View>
+                    {_.map(groupsSubjects, ({memberSubject}, i) => {
                         return (
-                            <View key={memberSubject.uuid} style={styles.memberContainer}>
-                                <View style={{flex: 10}}>
+                            <View key={memberSubject.uuid}
+                                  style={[styles.memberContainer, i % 2 === 0 ? {backgroundColor: Colors.InputBorderNormal} : {backgroundColor: 'white'}]}>
+                                <View style={{flex: .8}}>
                                     <Text style={Styles.formBodyText}>{memberSubject.nameString}</Text>
                                 </View>
-                                <View style={{flex: 2}}>
-                                    <Switch
-                                        value={_.includes(subjectUUIDs, memberSubject.uuid)}
-                                        onValueChange={() => this.dispatchAction(this.props.actionName, {
+                                <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
+                                    <CheckBox
+                                        onPress={() => this.dispatchAction(this.props.actionName, {
                                             formElement: this.props.element,
                                             answerUUID: memberSubject.uuid,
-                                        })}/>
+                                        })}
+                                        checked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
                                 </View>
                             </View>
                         )
@@ -53,17 +52,10 @@ class AttendanceFormElement extends AbstractFormElement {
 export default AttendanceFormElement;
 
 const styles = StyleSheet.create({
-    container: {
-        borderWidth: 1,
-        borderRadius: 1,
-        borderStyle: 'dashed',
-        borderColor: Colors.InputBorderNormal,
-        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
-        paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
-    },
     memberContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10
+        paddingVertical: 10,
+        paddingHorizontal: 5,
     }
 });
