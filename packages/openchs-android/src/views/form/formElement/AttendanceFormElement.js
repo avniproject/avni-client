@@ -7,6 +7,7 @@ import ValidationErrorMessage from "../ValidationErrorMessage";
 import GroupSubjectService from "../../../service/GroupSubjectService";
 import _ from 'lodash';
 import Colors from "../../primitives/Colors";
+import {Concept} from 'openchs-models';
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
@@ -18,12 +19,13 @@ class AttendanceFormElement extends AbstractFormElement {
     }
 
     render() {
-        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID);
+        const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
+        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID);
         const subjectUUIDs = _.get(this.props.value, 'answer');
         return (
             <Fragment>
                 <Text style={Styles.formLabel}>{this.label}</Text>
-                <View>
+                <View style={{paddingVertical: 5}}>
                     {_.map(groupsSubjects, ({memberSubject}, i) => {
                         return (
                             <View key={memberSubject.uuid}

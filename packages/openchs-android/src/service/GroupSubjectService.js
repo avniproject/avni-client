@@ -92,8 +92,8 @@ class GroupSubjectService extends BaseService {
         };
     }
 
-    getAllByGroupSubjectUUID(groupSubjectUUID) {
-        return this.getAllNonVoided().filtered(`groupSubject.uuid = $0`, groupSubjectUUID);
+    getAllByGroupSubjectUUID(groupSubjectUUID, subjectTypeUUID) {
+        return this.getAllNonVoided().filtered(`groupSubject.uuid = $0 and memberSubject.subjectType.uuid = $1`, groupSubjectUUID, subjectTypeUUID);
     }
 }
 
