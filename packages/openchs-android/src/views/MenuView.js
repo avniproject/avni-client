@@ -262,7 +262,7 @@ class MenuView extends AbstractComponent {
                         number={unreadCount || 0}
                         component={newsText}/>
                 </View>
-                <Icon style={styles.iconStyle} name='chevron-right'/>
+                <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
             </View>
         </TouchableNativeFeedback>
     }
