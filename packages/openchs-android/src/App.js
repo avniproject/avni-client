@@ -70,7 +70,8 @@ class App extends Component {
     }
 
     handleError(error, stacktrace) {
-        this.setState({error, stacktrace});
+        //It is possible for App to not be available during this time, so check if state is available before setting to it
+        this.setState && this.setState({error, stacktrace});
     }
 
     getChildContext = () => ({
