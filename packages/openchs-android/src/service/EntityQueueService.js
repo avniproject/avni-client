@@ -2,6 +2,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {EntityMetaData, EntityQueue, MediaQueue} from 'avni-models';
 import _ from "lodash";
+import bugsnag from "../utility/bugsnag";
 
 @Service("entityQueueService")
 class EntityQueueService extends BaseService {
@@ -33,11 +34,21 @@ class EntityQueueService extends BaseService {
             .slice(), 'entityUUID');
 
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
+        const getEntityResource = (item) => {
+            const entity = getEntity(item);
+            if (_.isNil(entity)) {
+                bugsnag.notify(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}` ));
+                this.db.write(() => this.db.delete(item));
+                return undefined;
+            }
+            return entity.toResource;
+        };
+
         return {
             metaData: entityMetadata,
             entities: items.map((item) => _.assignIn({
-                resource: getEntity(item).toResource
-            }))
+                resource: getEntityResource(item)
+            })).filter(resourceItem => !_.isNil(resourceItem.resource))
         };
     }
 
@@ -54,7 +65,7 @@ class EntityQueueService extends BaseService {
     popItem(uuid) {
         return () => {
             const itemToDelete = this.findByKey("entityUUID", uuid, EntityQueue.schema.name);
-            this.db.write(() => this.db.delete(itemToDelete))
+            this.db.write(() => this.db.delete(itemToDelete));
         };
     }
 }

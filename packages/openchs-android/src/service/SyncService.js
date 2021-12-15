@@ -22,7 +22,6 @@ import SubjectTypeService from "./SubjectTypeService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
-import {now} from "moment";
 
 @Service("syncService")
 class SyncService extends BaseService {
