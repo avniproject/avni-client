@@ -56,9 +56,11 @@ class EncounterService extends BaseService {
         this.getService(MediaQueueService).addMediaToQueue(encounter, Encounter.schema.name);
     }
 
-    saveScheduledVisit(individual, nextScheduledVisit, db, schedulerDate) {
-        let encountersToUpdate = individual.scheduledEncountersOfType(nextScheduledVisit.encounterType);
-        if (_.isEmpty(encountersToUpdate)) {
+    saveScheduledVisit(ind, nextScheduledVisit, db, schedulerDate) {
+        const {encounterType: encounterTypeName, visitCreationStrategy = 'default', individual = ind} = nextScheduledVisit;
+
+        let encountersToUpdate = individual.scheduledEncountersOfType(encounterTypeName);
+        if (_.isEmpty(encountersToUpdate) || visitCreationStrategy === 'createNew') {
             const encounterType = this.findByKey('name', nextScheduledVisit.encounterType, EncounterType.schema.name);
             if (_.isNil(encounterType)) throw Error(`NextScheduled visit is for encounter type=${nextScheduledVisit.encounterType} that doesn't exist`);
             const isProgramEncounter = this.findByCriteria(`observationsTypeEntityUUID = '${encounterType.uuid}' && form.formType = 'ProgramEncounter' && voided = false`, FormMapping.schema.name);
