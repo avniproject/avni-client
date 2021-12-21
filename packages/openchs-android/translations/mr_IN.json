@@ -330,6 +330,8 @@
     "visitDetailsSection": "तपशीलांना भेट द्या",
     "recentStatisticsSection": "गेल्या २४ तासांची आकडेवारी",
     "registrationOverviewSection": "नोंदणी विहंगावलोकन",
-    "FetchingChangedResource": "बदललेला डेटा प्राप्त करणे"
+    "FetchingChangedResource": "बदललेला डेटा प्राप्त करणे",
+    "chooseVisitType": "भेट प्रकार निवडा",
+    "apply": "लागू करा"
   }
 }

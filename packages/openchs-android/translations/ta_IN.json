@@ -288,6 +288,8 @@
     "unVoidIndividualConfirmationMessage": "இந்தத் தனிநபரை மீண்டும் இணைக்கிறீர்களா?  ",
     "beneficiaryNotFound": "அடையாளம் காண முடியவில்லை",
     "beneficiaryNotFoundMessage": "கொடுக்கப்பட்ட விவரங்களுக்குத் தனிப்பட்ட பதிவைப் பெற முடியவில்லை",
-    "FetchingChangedResource": "மாற்றப்பட்ட தரவைப் பெறுதல்"
+    "FetchingChangedResource": "மாற்றப்பட்ட தரவைப் பெறுதல்",
+    "chooseVisitType": "வருகை வகையைத் தேர்ந்தெடுக்கவும்",
+    "apply": "விண்ணப்பிக்க"
   }
 }

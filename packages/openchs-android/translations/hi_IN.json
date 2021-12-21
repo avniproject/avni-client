@@ -313,6 +313,8 @@
     "FileTypeErrorMessage": "चयनित फ़ाइल प्रकार {{type}} आवश्यक फ़ाइल प्रकार से मेल नहीं खाता {{allowedTypeNames}}",
     "FileSizeErrorMessage": "फ़ाइल का आकार {{size}} MB अधिकतम फ़ाइल आकार {{allowedMaxSize}} MB",
     "FileSelectionErrorTitle": "फ़ाइल का चयन करते समय त्रुटि",
-    "FetchingChangedResource": "परिवर्तित डेटा प्राप्त हो राहा हैं"
+    "FetchingChangedResource": "परिवर्तित डेटा प्राप्त हो राहा हैं",
+    "chooseVisitType": "विज़िट प्रकार चुनें",
+    "apply": "लागू"
   }
 }

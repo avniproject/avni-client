@@ -40,11 +40,11 @@ class CompletedVisitsFilterView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const selectedVisit = this.state.selectedEncounterTypes.map(e => e.operationalEncounterTypeName);
         const optsFnMap = this.state.encounterTypes.reduce((visitTypesMap, visitType) => visitTypesMap.set(visitType.operationalEncounterTypeName, visitType), new Map());
-        const filterModel = new MultiSelectFilterModel("Choose Visit Type", optsFnMap, new Map(), selectedVisit).selectOption(selectedVisit);
+        const filterModel = new MultiSelectFilterModel(this.I18n.t("chooseVisitType"), optsFnMap, new Map(), selectedVisit).selectOption(selectedVisit);
 
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
-                <AppHeader title={this.I18n.t('Filter')}/>
+                <AppHeader title={this.I18n.t('filter')}/>
                 <CHSContent>
                     <View style={{margin: Styles.VerticalSpacingBetweenFormElements}}>
                         <MultiSelectFilter filter={filterModel}
@@ -67,7 +67,7 @@ class CompletedVisitsFilterView extends AbstractComponent {
                         fontSize: Styles.normalTextSize,
                         color: Colors.TextOnPrimaryColor,
                         alignSelf: "center"
-                    }}>Apply</Text>
+                    }}>{this.I18n.t('apply')}</Text>
                 </TouchableOpacity>
             </CHSContainer>
         );

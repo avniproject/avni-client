@@ -288,6 +288,8 @@
         "unVoidIndividualConfirmationMessage": "ಈ ವ್ಯಕ್ತಿಯನ್ನು ತಪ್ಪಿಸಲು ನೀವು ಬಯಸುವಿರಾ?",
         "beneficiaryNotFound": "ಗುರುತಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ",
         "beneficiaryNotFoundMessage": "ನೀಡಿರುವ ವಿವರಗಳಿಗಾಗಿ ದಾಖಲೆಯನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ",
-        "FetchingChangedResource": "ಬದಲಾದ ಡೇಟಾವನ್ನು ಸ್ವೀಕರಿಸುವುದು"
+        "FetchingChangedResource": "ಬದಲಾದ ಡೇಟಾವನ್ನು ಸ್ವೀಕರಿಸುವುದು",
+        "chooseVisitType": "ಭೇಟಿ ಪ್ರಕಾರವನ್ನು ಆರಿಸಿ",
+        "apply": "ಅನ್ವಯಿಸು"
     }
 }

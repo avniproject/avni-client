@@ -278,6 +278,8 @@
     "visitDetailsSection": "વિગતોની મુલાકાત લો",
     "recentStatisticsSection": "છેલ્લા 24 કલાકના આંકડા",
     "registrationOverviewSection": "નોંધણી ઝાંખી",
-    "FetchingChangedResource": "બદલાયેલ ડેટા પ્રાપ્ત કરી રહ્યા છે"
+    "FetchingChangedResource": "બદલાયેલ ડેટા પ્રાપ્ત કરી રહ્યા છે",
+    "chooseVisitType": "મુલાકાતનો પ્રકાર પસંદ કરો",
+    "apply": "અરજી કરો"
   }
 }

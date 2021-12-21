@@ -429,6 +429,8 @@
     "FileTypeErrorMessage": "Selected file type {{type}} does not match with the required file type(s) {{allowedTypeNames}}",
     "FileSizeErrorMessage": "File size {{size}} MB increases the max file size {{allowedMaxSize}} MB",
     "FileSelectionErrorTitle": "Error while selecting the file",
-    "FetchingChangedResource": "Fetching changed resources from the server"
+    "FetchingChangedResource": "Fetching changed resources from the server",
+    "chooseVisitType": "Choose Visit Type",
+    "apply": "Apply"
 }
 }
