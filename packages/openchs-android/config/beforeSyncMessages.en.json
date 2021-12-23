@@ -46,5 +46,9 @@
   "restoreNoDump": "No dump present, will sync fully from server",
   "performNormalSync": "Perform slow sync",
   "NoCatchmentFoundErrorMessage": "No catchment found for the user, please contact administrator.",
-  "FetchingChangedResource": "Fetching changed resources from the server"
+  "FetchingChangedResource": "Fetching changed resources from the server",
+  "yearReview": "Year 2021 review",
+  "yearInAvni": "Year 2021 in Avni",
+  "msg1": "Welcome to your personal highlight of 2021!",
+  "msg2": "See your stats and totals (so far)."
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import {ListView, Text, TouchableNativeFeedback, View} from 'react-native';
+import {ListView, Text, TouchableNativeFeedback, View, ScrollView} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -18,6 +18,7 @@ import {Icon} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
 import moment from "moment";
 import RefreshReminder from "./RefreshReminder";
+import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -100,6 +101,7 @@ class MyDashboardView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={this.props.startSync}
                            renderSync={true} icon={this.props.icon}/>
+                <YearReviewBanner from={this} t={this.I18n.t}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}
@@ -130,7 +132,7 @@ class MyDashboardView extends AbstractComponent {
                 </View>
                     <CustomActivityIndicator
                         loading={this.state.loading}/>
-                    <View>
+                    <ScrollView>
                         <ListView style={{marginBottom: 190}}
                                   dataSource={dataSource}
                                   initialListSize={1}
@@ -140,7 +142,7 @@ class MyDashboardView extends AbstractComponent {
                                                                           sectionName={rowData.sectionName}
                                                                           backFunction={() => this.onBackCallback()}/>}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
-                    </View>
+                    </ScrollView>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </CHSContainer>
         );
