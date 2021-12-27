@@ -40,8 +40,8 @@ class YearReviewBanner extends AbstractComponent {
                             <Icon style={styles.iconStyle} name='trophy-outline' type='MaterialCommunityIcons'/>
                         </View>
                         <View style={{flex: 0.8}}>
-                            <Text style={{color:'#f0f047'}}>{this.I18n.t('msg1')}</Text>
-                            <Text style={{color:'#f0f047'}}>{this.I18n.t('msg2')}</Text>
+                            <Text style={{color:'#f1fbf8'}}>{this.I18n.t('msg1')}</Text>
+                            <Text style={{color:'#f1fbf8'}}>{this.I18n.t('msg2')}</Text>
                         </View>
                     </View>
                 </View>
@@ -54,14 +54,14 @@ const styles = StyleSheet.create({
     container: {
         height: 40,
         padding: 5,
-        backgroundColor: '#335c69',
+        backgroundColor: '#aacf4f',
     },
     headerContainer: {
         fontSize: 25,
         opacity: 0.8,
         fontWeight: 'bold',
         fontStyle: 'normal',
-        color: '#f0f047',
+        color: '#f1fbf8',
         textAlignVertical: 'center',
         alignSelf: 'center'
     },
@@ -71,12 +71,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#335c69'
+        backgroundColor: '#aacf4f'
     },
     iconStyle: {
         alignSelf: 'center',
         fontSize: 40,
-        color:'#f0f047',
+        color:'#e5efec',
     }
 });
 export {YearReviewBanner}
