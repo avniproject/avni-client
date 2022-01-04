@@ -29,7 +29,7 @@ export default class HouseholdState {
     }
 
     validateRelativeGender(selectedGender) {
-        if (!_.isEmpty(this.relativeGender)) {
+        if (!_.isEmpty(this.relativeGender) && !_.isNil(selectedGender)) {
             return _.isEmpty(_.find(this.relativeGender, ({uuid}) => selectedGender.uuid === uuid)) ? ValidationResult.failure(HouseholdState.validationKeys.RELATIVE_GENDER, 'genderDoesNotMatchWithRelativeGender') : ValidationResult.successful(HouseholdState.validationKeys.RELATIVE_GENDER);
         } else {
             return ValidationResult.successful(HouseholdState.validationKeys.RELATIVE_GENDER)
