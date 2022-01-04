@@ -65,7 +65,11 @@ class EntityQueueService extends BaseService {
     popItem(uuid) {
         return () => {
             const itemToDelete = this.findByKey("entityUUID", uuid, EntityQueue.schema.name);
-            this.db.write(() => this.db.delete(itemToDelete));
+            if (_.isNil(itemToDelete)) {
+                bugsnag.notify(new Error(`Item to delete is undefined in entityQueue. Details: ${uuid}`));
+            } else {
+                this.db.write(() => this.db.delete(itemToDelete));
+            }
         };
     }
 }
