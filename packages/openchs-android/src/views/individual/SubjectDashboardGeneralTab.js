@@ -80,6 +80,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
         return (<PreviousEncounters encounters={actualEncounters}
                                     allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
                                     formType={Form.formTypes.Encounter}
+                                    cancelFormType={Form.formTypes.IndividualEncounterCancellation}
                                     style={{marginBottom: 21}}
                                     showPartial={true}
                                     showCount={this.state.showCount}

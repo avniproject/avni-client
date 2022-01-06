@@ -57,6 +57,7 @@ class ProgramEnrolmentView extends AbstractComponent {
             usage: ProgramEnrolmentView.usageContext.usage,
             workLists: this.props.workLists,
             forceLoad: this.props.editing,
+            pageNumber: this.props.pageNumber,
         });
         return super.componentWillMount();
     }

@@ -14,6 +14,7 @@ import DraftSubjectService from "../../service/draft/DraftSubjectService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import GroupAffiliationState from "../../state/GroupAffiliationState";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -43,7 +44,11 @@ export class IndividualRegisterActions {
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState);
         IndividualRegisterActions.setAgeState(newState);
-        return newState;
+        return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegistrationState);
+    }
+
+    static onFormLoad(state, action, context) {
+        return action.pageNumber ? IndividualRegisterActions.onLoad(state, action, context) : state.clone();
     }
 
     static enterRegistrationDate(state, action) {
@@ -193,6 +198,7 @@ export class IndividualRegisterActions {
 
 const actions = {
     ON_LOAD: "REGISTRATION_ON_LOAD",
+    ON_FORM_LOAD: "REGISTRATION_ON_FORM_LOAD",
     NEXT: "REGISTRATION_NEXT",
     PREVIOUS: "REGISTRATION_PREVIOUS",
     REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
@@ -222,6 +228,7 @@ const actions = {
 
 export default new Map([
     [actions.ON_LOAD, IndividualRegisterActions.onLoad],
+    [actions.ON_FORM_LOAD, IndividualRegisterActions.onFormLoad],
     [actions.NEXT, IndividualRegisterActions.onNext],
     [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],

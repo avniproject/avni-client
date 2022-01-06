@@ -111,6 +111,17 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     })])));
     }
 
+    editSubjectByFEG(pageNumber) {
+        logEvent(firebaseEvents.EDIT_SUBJECT);
+        CHSNavigator.navigateToRegisterView(this, new WorkLists(
+            new WorkList(`${this.state.individual.subjectType.name} `,
+                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                    {
+                        uuid: this.state.individual.uuid,
+                        subjectTypeName: this.state.individual.subjectType.name,
+                    })])), pageNumber);
+    }
+
     onSubjectSelection(individualUUID) {
         TypedTransition.from(this).resetStack([GenericDashboardView],
             [TypedTransition.createRoute(GenericDashboardView, {individualUUID, tab: 1}, true)])
@@ -265,7 +276,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     <View style={{paddingHorizontal: 10}}>
                         <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)}
                                       observations={this.state.individual.observations}
-                                      style={{marginVertical: 3}}/>
+                                      style={{marginVertical: 3}}
+                                      quickFormEdit={true}
+                                      onFormElementGroupEdit={(pageNumber) => this.editSubjectByFEG(pageNumber)}
+                        />
                     </View> : <View/>}
                 {this.renderSelectionOptions()}
             </View>

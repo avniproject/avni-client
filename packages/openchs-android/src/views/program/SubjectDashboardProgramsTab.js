@@ -37,6 +37,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEnrolmentDashboard);
         this.getForm = this.getForm.bind(this);
+        this.getExitForm = this.getExitForm.bind(this);
         this.privilegeService = context.getService(PrivilegeService);
     }
 
@@ -63,15 +64,15 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.dispatchAction(Actions.ON_FOCUS, this.props);
     }
 
-    editEnrolment() {
+    editEnrolment(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true)
+            cb: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true, pageNumber)
         });
     }
 
-    editExit() {
+    editExit(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT_EXIT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true)
+            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true, pageNumber)
         });
     }
 
@@ -98,6 +99,11 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return formMappingService.findFormForProgramEnrolment(this.state.enrolment.program, this.state.enrolment.individual.subjectType);
     }
 
+    getExitForm() {
+        const formMappingService = this.context.getService(FormMappingService);
+        return formMappingService.findFormForProgramExit(this.state.enrolment.program, this.state.enrolment.individual.subjectType);
+    }
+
     getEnrolmentContextActions(isExit) {
         const editEnrolmentCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEnrolmentTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editEnrolmentCriteria, 'programUuid');
@@ -120,7 +126,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     getPrimaryEnrolmentContextAction() {
         const exitProgramCriteria = `privilege.name = '${Privilege.privilegeName.exitEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const allowedEnrolmentTypeUuidsForExit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(exitProgramCriteria, 'programUuid');
-        
+
         if (!this.state.hideExit && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedEnrolmentTypeUuidsForExit))) {
             return _.isNil(this.state.enrolment.programExitDateTime) ?
                 new ContextAction('exitProgram', () => this.exitProgram()) :
@@ -158,6 +164,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return (<PreviousEncounters encounters={actualEncounters}
                                     allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
                                     formType={Form.formTypes.ProgramEncounter}
+                                    cancelFormType={Form.formTypes.ProgramEncounterCancellation}
                                     showCount={this.state.showCount}
                                     showPartial={true}
                                     title={this.I18n.t('visitsCompleted')}
@@ -179,9 +186,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                 marginVertical: 16
             }}>
                 <Text style={[Fonts.MediumBold]}>{this.getExitHeaderMessage(this.state.enrolment)}</Text>
-                <Observations form={this.getForm()}
+                <Observations form={this.getExitForm()}
                               observations={_.defaultTo(this.state.enrolment.programExitObservations, [])}
-                              style={{marginVertical: DGS.resizeHeight(8)}}/>
+                              style={{marginVertical: DGS.resizeHeight(8)}}
+                              quickFormEdit={true}
+                              onFormElementGroupEdit={(pageNumber) => this.editExit(pageNumber)}
+                />
                 <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true)}/>
             </View>);
     }
@@ -225,7 +235,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                 <View>
                     <Observations form={this.getForm()}
                                   observations={this.state.enrolment.observations}
-                                  style={{marginVertical: DGS.resizeHeight(8)}}/>
+                                  style={{marginVertical: DGS.resizeHeight(8)}}
+                                  quickFormEdit={true}
+                                  onFormElementGroupEdit={(pageNumber) => this.editEnrolment(pageNumber)}
+                                  />
                 </View> : <View/>}
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
                 <View style={{paddingTop: 6}}>

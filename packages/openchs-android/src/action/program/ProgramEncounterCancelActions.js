@@ -10,6 +10,7 @@ import GeolocationActions from "../common/GeolocationActions";
 import EncounterService from "../../service/EncounterService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -60,7 +61,8 @@ class ProgramEncounterCancelActions {
             return ProgramEncounterCancelState.createOnLoadStateForEmptyForm(programEncounter, form, workLists);
         }
         let filteredElements = ProgramEncounterCancelActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, programEncounter);
-        return ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements, workLists);
+        const newState = ProgramEncounterCancelState.createOnLoad(programEncounter, form, firstGroupWithAtLeastOneVisibleElement, filteredElements, workLists);
+        return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterCancelActions);
     }
 
     static onNext(state, action, context) {

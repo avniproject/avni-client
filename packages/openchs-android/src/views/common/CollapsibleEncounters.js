@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import {View, TouchableOpacity} from "react-native";
 import ObservationsSectionOptions from "./ObservationsSectionOptions";
 import Observations from "./Observations";
+import _ from "lodash";
+import CHSNavigator from "../../utility/CHSNavigator";
 
 class CollapsibleEncounters extends AbstractComponent {
 
@@ -22,10 +24,18 @@ class CollapsibleEncounters extends AbstractComponent {
         super(props, context);
     }
 
+    editEncounterByFEG(pageNumber) {
+        const encounter = this.props.encountersInfo.encounter.cloneForEdit();
+        const editing = !encounter.isScheduled();
+        encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
+        CHSNavigator.navigateToEncounterView(this, {encounter, editing, pageNumber});
+    }
 
     render() {
         const formMappingService = this.context.getService(FormMappingService);
         const encounterInfo = this.props.encountersInfo;
+        const isCancelled = !_.isNil(encounterInfo.encounter.cancelDateTime);
+        const formType = isCancelled ? this.props.cancelFormType : this.props.formType;
         return (
             <View style={this.appendedStyle(this.props.style)}>
                 <TouchableOpacity onPress={() => this.dispatchAction(this.props.onToggleAction, {
@@ -41,9 +51,11 @@ class CollapsibleEncounters extends AbstractComponent {
                 {encounterInfo.expand === true ?
                     <View>
                         <Observations
-                            form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType,
-                                this.props.formType, encounterInfo.encounter.subjectType)}
-                            observations={encounterInfo.encounter.getObservations()}/>
+                            form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType, formType, encounterInfo.encounter.subjectType)}
+                            observations={encounterInfo.encounter.getObservations()}
+                            quickFormEdit={true}
+                            onFormElementGroupEdit={(pageNumber) => this.editEncounterByFEG(pageNumber)}
+                        />
                     </View> : <View/>}
                 <TouchableOpacity onPress={() => this.dispatchAction(this.props.onToggleAction, {
                     encounterInfo: {...encounterInfo, expand: !encounterInfo.expand}

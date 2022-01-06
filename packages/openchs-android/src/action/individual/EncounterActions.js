@@ -8,6 +8,7 @@ import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import EntityService from "../../service/EntityService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -42,7 +43,8 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        return EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActionState);
     }
 
     static onNext(state, action, context) {
@@ -56,7 +58,7 @@ export class EncounterActions {
     }
 
     static onEncounterViewLoad(state, action, context) {
-        return state.clone();
+        return action.pageNumber ? EncounterActions.onEncounterLandingViewLoad(state, action, context) : state.clone();
     }
 
     static onEncounterDateTimeChange(state, action, context) {

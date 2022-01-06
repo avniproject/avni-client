@@ -64,6 +64,7 @@ class IndividualRegisterView extends AbstractComponent {
                 individualUUID: this.props.params.individualUUID,
                 workLists: this.props.params.workLists,
                 isDraftEntity: this.props.params.isDraftEntity,
+                pageNumber: this.props.params.pageNumber,
             });
         super.componentWillMount();
     }

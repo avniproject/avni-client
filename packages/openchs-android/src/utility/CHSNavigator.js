@@ -56,12 +56,13 @@ class CHSNavigator {
         TypedTransition.from(source).with(props).to(LandingView, true, replace);
     }
 
-    static navigateToProgramEnrolmentView(source, enrolment, workLists, editing = false) {
+    static navigateToProgramEnrolmentView(source, enrolment, workLists, editing = false, pageNumber) {
         if (ProgramEnrolmentView.canLoad({enrolment}, source)) {
             TypedTransition.from(source).with({
                 enrolment: enrolment,
                 editing,
-                workLists
+                workLists,
+                pageNumber
             }).to(ProgramEnrolmentView, true);
         }
     }
@@ -118,8 +119,8 @@ class CHSNavigator {
         }
     }
 
-    static navigateToExitProgram(source, enrolment, workLists, editing = false) {
-        TypedTransition.from(source).with({enrolment, workLists, editing}).to(ProgramExitView);
+    static navigateToExitProgram(source, enrolment, workLists, editing = false, pageNumber) {
+        TypedTransition.from(source).with({enrolment, workLists, editing, pageNumber}).to(ProgramExitView);
     }
 
     static navigateToStartEncounterPage(source, enrolmentUUID, allowedEncounterTypeUuids) {
@@ -133,7 +134,7 @@ class CHSNavigator {
         TypedTransition.from(source).goBack()
     }
 
-    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message, backFn, onSaveCallback) {
+    static navigateToProgramEncounterView(source, programEncounter, editing = false, encounterTypeName, enrolmentUUID, message, backFn, onSaveCallback, pageNumber) {
         TypedTransition.from(source).with({
             programEncounter: programEncounter,
             editing,
@@ -141,7 +142,8 @@ class CHSNavigator {
             enrolmentUUID,
             message,
             backFunction: backFn,
-            onSaveCallback
+            onSaveCallback,
+            pageNumber
         }).to(ProgramEncounterView);
     }
 
@@ -149,8 +151,8 @@ class CHSNavigator {
         TypedTransition.from(source).with({checklistItem: checklistItem}).to(ChecklistItemView);
     }
 
-    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing}).to(ProgramEncounterCancelView);
+    static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber) {
+        TypedTransition.from(source).with({programEncounter: programEncounter, editing, pageNumber}).to(ProgramEncounterCancelView);
     }
 
     static navigateToIndividualRegistrationDetails(source, individualUUID, backFunction) {
@@ -161,29 +163,50 @@ class CHSNavigator {
         }).to(GenericDashboardView);
     }
 
-    static navigateToRegisterView(source, workLists, message) {
+    static navigateToRegisterView(source, workLists, pageNumber) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
         const subjectType = source.context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
-        const target = subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView;
-        if (target.canLoad({uuid, subjectTypeName}, source)) {
-            TypedTransition.from(source).with({
-                subjectUUID: uuid,
-                individualUUID: uuid,
-                editing: !_.isNil(uuid),
-                workLists,
-                message
-            }).to(target)
+        const params = {
+            subjectUUID: uuid,
+            individualUUID: uuid,
+            editing: !_.isNil(uuid),
+            workLists,
+        };
+        if (subjectType.isPerson()) {
+            if (IndividualRegisterView.canLoad({uuid, subjectTypeName}, source)) {
+                const toBePushed = pageNumber > 0 ? [
+                        TypedTransition.createRoute(IndividualRegisterView, params),
+                        TypedTransition.createRoute(IndividualRegisterFormView, {...params, pageNumber: pageNumber + 1})
+                    ] :
+                    [TypedTransition.createRoute(IndividualRegisterView, params)];
+                TypedTransition.from(source).resetStack([], [...toBePushed]);
+            }
+        } else if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
+            TypedTransition.from(source).with({...params, pageNumber}).to(SubjectRegisterView)
         }
     }
 
-    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing = false) {
-        TypedTransition.from(source).bookmark().with({
+    static navigateToIndividualEncounterLandingView(source, individualUUID, encounter, editing = false, pageNumber) {
+        const params = {
             encounter: encounter,
             individualUUID: individualUUID,
             editing
-        }).to(IndividualEncounterLandingView, true);
+        };
+        if (pageNumber > 1) {
+            TypedTransition.from(source).bookmark()
+                .resetStack([GenericDashboardView], [
+                    TypedTransition.createRoute(GenericDashboardView, {individualUUID: encounter.individual.uuid, tab: 3}, true),
+                    TypedTransition.createRoute(IndividualEncounterLandingView, params, true),
+                    TypedTransition.createRoute(IndividualEncounterView, {...params, pageNumber}, true)
+                ])
+        } else {
+            TypedTransition.from(source).bookmark().with({
+                ...params,
+                pageNumber
+            }).to(IndividualEncounterLandingView, true);
+        }
     }
 
     static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
@@ -516,13 +539,13 @@ class CHSNavigator {
         const eventName = encounter instanceof Encounter ? 'EDIT_ENCOUNTER' : 'EDIT_PROGRAM_ENCOUNTER';
         editing && logEvent(firebaseEvents[eventName]);
         if (isCancelPage) {
-            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing);
+            CHSNavigator.navigateToProgramEncounterCancelView(source, encounter, editing, params.pageNumber);
         } else if (encounter instanceof Encounter) {
             CHSNavigator.navigateToIndividualEncounterLandingView(
-                source, params.individualUUID, encounter, editing, null, null, null, backFunction);
+                source, params.individualUUID, encounter, editing, params.pageNumber);
         } else {
             CHSNavigator.navigateToProgramEncounterView(
-                source, encounter, editing, null, null, null, backFunction, params.onSaveCallback);
+                source, encounter, editing, null, null, null, backFunction, params.onSaveCallback, params.pageNumber);
         }
     }
 }

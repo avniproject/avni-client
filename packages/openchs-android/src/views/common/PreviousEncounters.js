@@ -28,6 +28,7 @@ class PreviousEncounters extends AbstractComponent {
         allowedEncounterTypeUuidsForEditVisit: PropTypes.array,
         allowedEncounterTypeUuidsForCancelVisit: PropTypes.array,
         formType: PropTypes.string.isRequired,
+        cancelFormType: PropTypes.string,
         style: PropTypes.object,
         showCount: PropTypes.number,
         showPartial: PropTypes.bool.isRequired,
@@ -191,6 +192,7 @@ class PreviousEncounters extends AbstractComponent {
                                                encounterActions={() => this.encounterActions(encounter.encounter)}
                                                cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
                                                formType={this.props.formType}
+                                               cancelFormType={this.props.cancelFormType}
                         />
                         : this.renderNormalView(encounter)}
                 </View>}

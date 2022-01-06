@@ -43,9 +43,9 @@ class IndividualEncounterLandingView extends AbstractComponent {
     }
 
     componentWillMount() {
-        const {encounterType, individualUUID, encounter, workLists} = this.props;
+        const {encounterType, individualUUID, encounter, workLists, pageNumber} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists});
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber});
             return super.componentWillMount();
         }
         const encounterByType = this.context.getService(EncounterService)

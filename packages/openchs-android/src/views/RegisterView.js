@@ -26,17 +26,11 @@ import IndividualRegisterView from "./individual/IndividualRegisterView";
 import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
 
-
-@Path('/registerView')
 class RegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
         this.userSettings = context.getService(UserInfoService).getUserSettings();
-    }
-
-    viewName() {
-        return "RegisterView";
     }
 
     componentWillMount() {

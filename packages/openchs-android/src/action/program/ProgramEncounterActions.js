@@ -10,6 +10,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -52,7 +53,8 @@ class ProgramEncounterActions {
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        return ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        const newState = ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 
     static onNext(state, action, context) {

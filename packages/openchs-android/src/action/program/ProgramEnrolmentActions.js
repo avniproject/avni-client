@@ -13,6 +13,7 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import GroupAffiliationState from "../../state/GroupAffiliationState";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -58,7 +59,7 @@ export class ProgramEnrolmentActions {
                 programEnrolmentState.groupAffiliation.removeMemberFromGroup();
                 GroupAffiliationActions.injectGroupsToIndividual(programEnrolmentState.groupAffiliation, programEnrolmentState);
             }
-            return programEnrolmentState;
+            return QuickFormEditingActions.moveToPage(programEnrolmentState, action, context, ProgramEnrolmentActions);
         } else {
             return state.clone();
         }

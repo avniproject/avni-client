@@ -40,7 +40,10 @@ class ProgramEncounterCancelView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {programEncounter: this.props.params.programEncounter});
+        this.dispatchAction(Actions.ON_LOAD, {
+            programEncounter: this.props.params.programEncounter,
+            pageNumber: this.props.params.pageNumber,
+        });
         return super.componentWillMount();
     }
 

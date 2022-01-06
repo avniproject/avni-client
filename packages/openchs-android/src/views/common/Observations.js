@@ -28,7 +28,9 @@ class Observations extends AbstractComponent {
         style: PropTypes.object,
         title: PropTypes.string,
         highlight: PropTypes.bool,
-        form: PropTypes.object
+        form: PropTypes.object,
+        quickFormEdit: PropTypes.bool,
+        onFormElementGroupEdit: PropTypes.func,
     };
 
     constructor(props, context) {
@@ -61,6 +63,11 @@ class Observations extends AbstractComponent {
                     backgroundColor: Colors.GreyBackground,
                     paddingHorizontal: 5,
                     paddingVertical: 2,
+                },
+                conceptNameStyle: {
+                    textAlign: 'left',
+                    fontSize: Fonts.Small,
+                    color: Styles.greyText,
                 }
             }
             :
@@ -104,6 +111,11 @@ class Observations extends AbstractComponent {
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
+                },
+                conceptNameStyle: {
+                    textAlign: 'left',
+                    fontSize: Fonts.Small,
+                    color: Styles.greyText,
                 }
             }
     }
@@ -166,7 +178,7 @@ class Observations extends AbstractComponent {
                     this.makeCall(mobileNo)
                 }}>{displayable.displayValue}</Text>
             )
-        } else if(Concept.dataType.PhoneNumber === renderType) {
+        } else if (Concept.dataType.PhoneNumber === renderType) {
             return this.renderPhoneNumber(observationModel.getValueWrapper());
         }
         return this.renderObservationText(isAbnormal, displayable.displayValue);
@@ -201,34 +213,81 @@ class Observations extends AbstractComponent {
         }, this.styles.observationColumn, additionalStyles]}>{obs}</Text>;
     }
 
-    render() {
-        if (this.props.observations.length === 0) return <View/>;
+    editTable(groupUUID, groupName, observations) {
+        return <View style={{flexDirection: 'column'}} key={groupUUID}>
+            <View style={[{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 4,
+                backgroundColor: 'rgba(0, 0, 0, 0.12)'
+            }, this.styles.observationRow, this.styles.observationColumn]}>
+                <View style={{flex: 0.9, flexWrap: 'wrap'}}>
+                    <Text style={{fontWeight: 'bold'}}>{this.I18n.t(groupName)}</Text>
+                </View>
+                {groupUUID &&
+                <View style={{flex: 0.1}}>
+                    <TouchableOpacity
+                        onPress={() => this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID))}>
+                        <Text style={{color: Colors.ActionButtonColor,}}>{this.I18n.t('edit')}</Text>
+                    </TouchableOpacity>
+                </View>}
+            </View>
+            {_.map(observations, (observation) => this.renderObservationValue(observation, {paddingLeft: 8}))}
+        </View>;
+    }
 
+    renderObservationValue(observation, extraConceptStyle) {
+        return <View style={[{flexDirection: "row"}, this.styles.observationRow]} key={observation.concept.uuid}>
+            <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, extraConceptStyle]}>
+                {this.I18n.t(observation.concept.name)}
+            </Text>
+            {this.renderValue(observation)}
+        </View>;
+    }
+
+    renderNormalObservationTable() {
         const orderedObservation = this.getOrderedObservation()
             .map(observation => [observation]);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
+
+        return <ListView
+            enableEmptySections={true}
+            dataSource={dataSource}
+            style={this.styles.observationTable}
+            pageSize={20}
+            initialListSize={10}
+            removeClippedSubviews={true}
+            renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
+            renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
+            renderRow={([observation]) => this.renderObservationValue(observation)}
+        />;
+    }
+
+    renderFormEditTable() {
+        const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sectionWiseObs);
+
+        return <ListView
+            enableEmptySections={true}
+            dataSource={dataSource}
+            style={this.styles.observationTable}
+            pageSize={20}
+            initialListSize={10}
+            removeClippedSubviews={true}
+            renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
+            renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
+            renderRow={({groupName, groupUUID, observations}) => this.editTable(groupUUID, groupName, observations)}
+        />;
+    }
+
+    render() {
+        if (this.props.observations.length === 0) return <View/>;
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
                 {this.renderTitle()}
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={dataSource}
-                    style={this.styles.observationTable}
-                    pageSize={20}
-                    initialListSize={10}
-                    removeClippedSubviews={true}
-                    renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
-                    renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-                    renderRow={([observation]) =>
-                        < View style={[{flexDirection: "row"}, this.styles.observationRow]}>
-                            <Text style={[{
-                                textAlign: 'left',
-                                fontSize: Fonts.Small,
-                                color: Styles.greyText
-                            }, this.styles.observationColumn]}>{this.I18n.t(observation.concept.name)}</Text>
-                            {this.renderValue(observation)}
-                        </View>}
-                />
+                {this.props.quickFormEdit ?
+                    this.renderFormEditTable() : this.renderNormalObservationTable()}
             </View>
         );
     }

@@ -34,6 +34,7 @@ class ProgramExitView extends AbstractComponent {
             enrolment: this.props.params.enrolment,
             usage: ProgramExitView.context.usage,
             workLists: this.props.params.workLists,
+            pageNumber: this.props.params.pageNumber,
         });
         return super.componentWillMount();
     }

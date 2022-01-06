@@ -32,7 +32,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        this.dispatchAction(Actions.ON_LOAD, {...this.props});
         return super.componentWillMount();
     }
 

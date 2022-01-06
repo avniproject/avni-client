@@ -21,6 +21,7 @@ import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SubjectRegisterView from "../subject/SubjectRegisterView";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -32,6 +33,17 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
+    }
+
+    componentWillMount() {
+        this.dispatchAction(Actions.ON_FORM_LOAD,
+            {
+                individualUUID: this.props.params.individualUUID,
+                workLists: this.props.params.workLists,
+                isDraftEntity: this.props.params.isDraftEntity,
+                pageNumber: this.props.params.pageNumber,
+            });
+        super.componentWillMount();
     }
 
     get registrationType() {
