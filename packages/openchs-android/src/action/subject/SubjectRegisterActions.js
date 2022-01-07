@@ -101,6 +101,10 @@ export class SubjectRegisterActions {
         return newState;
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -159,6 +163,7 @@ export class SubjectRegisterActions {
 const actions = {
     ON_LOAD: "5eb95861-b093-4210-9d87-04b07719918e",
     NEXT: "ef514731-1e10-4c5a-8f8c-16eb0d13ceb7",
+    SUMMARY_PAGE: "7b3c26ec-ac66-40ea-9188-7b51ec3a85d5",
     PREVIOUS: "170a7491-b168-4297-90ed-b0bbbba40fae",
     REGISTRATION_ENTER_REGISTRATION_DATE: "19057ea4-361e-45be-af07-fbaa7b712a1a",
     REGISTRATION_ENTER_NAME: "REGISTRATION_ENTER_NAME",
@@ -183,6 +188,7 @@ const actions = {
 export default new Map([
     [actions.ON_LOAD, SubjectRegisterActions.onLoad],
     [actions.NEXT, SubjectRegisterActions.onNext],
+    [actions.SUMMARY_PAGE, SubjectRegisterActions.onSummaryPage],
     [actions.PREVIOUS, SubjectRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, SubjectRegisterActions.enterRegistrationDate],
     [actions.REGISTRATION_ENTER_ADDRESS_LEVEL, SubjectRegisterActions.enterSubjectAddressLevel],

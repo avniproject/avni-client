@@ -20,6 +20,7 @@ import {AvniAlert} from "../common/AvniAlert";
 import IndividualEncounterLandingView from "./IndividualEncounterLandingView";
 import _ from "lodash";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SummaryButton from "../common/SummaryButton";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -40,9 +41,9 @@ class IndividualEncounterView extends AbstractComponent {
         return !nextState.wizard.isFirstPage();
     }
 
-    next(popVerificationVew) {
+    getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const headerMessage = `${this.I18n.t(newState.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
@@ -70,7 +71,15 @@ class IndividualEncounterView extends AbstractComponent {
             movedNext: this.scrollToTop,
             validationFailed: (newState) => {
             },
-        });
+        }
+    }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
     onHardwareBackPress() {
@@ -106,6 +115,7 @@ class IndividualEncounterView extends AbstractComponent {
                                                    actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}
                                                    encounters={this.state.previousEncounters}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: DGS.resizeWidth(26)}}>
+                        <SummaryButton onPress={() => this.onGoToSummary()}/>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.encounter.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions}

@@ -27,6 +27,8 @@ import NewVisitPageView from "./NewVisitPageView";
 import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SummaryButton from "../common/SummaryButton";
+import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -68,9 +70,9 @@ class ProgramEncounterView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS);
     }
 
-    next(popVerificationVew) {
+    getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.programEncounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const {programEncounter} = state;
                 const {programEnrolment} = programEncounter;
@@ -89,7 +91,15 @@ class ProgramEncounterView extends AbstractComponent {
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop
-        });
+        }
+    }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -123,6 +133,7 @@ class ProgramEncounterView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
                             <View>
+                                <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
                                     location={this.state.programEncounter.encounterLocation}
                                     editing={this.props.params.editing}
@@ -138,6 +149,8 @@ class ProgramEncounterView extends AbstractComponent {
                             :
                             <View/>
                         }
+                        {!this.state.wizard.isFirstFormPage() &&
+                        <SummaryButton onPress={() => this.onGoToSummary()}/>}
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
                             group={this.state.formElementGroup}

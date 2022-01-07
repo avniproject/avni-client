@@ -44,7 +44,7 @@ export class IndividualRegisterActions {
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState);
         IndividualRegisterActions.setAgeState(newState);
-        return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegistrationState);
+        return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegisterActions);
     }
 
     static onFormLoad(state, action, context) {
@@ -147,6 +147,10 @@ export class IndividualRegisterActions {
         return newState;
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -200,6 +204,7 @@ const actions = {
     ON_LOAD: "REGISTRATION_ON_LOAD",
     ON_FORM_LOAD: "REGISTRATION_ON_FORM_LOAD",
     NEXT: "REGISTRATION_NEXT",
+    SUMMARY_PAGE: "REGISTRATION_SUMMARY_PAGE",
     PREVIOUS: "REGISTRATION_PREVIOUS",
     REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
     REGISTRATION_ENTER_FIRST_NAME: "REGISTRATION_ENTER_FIRST_NAME",
@@ -230,6 +235,7 @@ export default new Map([
     [actions.ON_LOAD, IndividualRegisterActions.onLoad],
     [actions.ON_FORM_LOAD, IndividualRegisterActions.onFormLoad],
     [actions.NEXT, IndividualRegisterActions.onNext],
+    [actions.SUMMARY_PAGE, IndividualRegisterActions.onSummaryPage],
     [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
     [actions.REGISTRATION_ENTER_FIRST_NAME, IndividualRegisterActions.enterFirstName],

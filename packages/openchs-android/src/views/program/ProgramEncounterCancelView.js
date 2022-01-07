@@ -24,6 +24,7 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SummaryButton from "../common/SummaryButton";
 
 @Path('/ProgramEncounterCancelView')
 class ProgramEncounterCancelView extends AbstractComponent {
@@ -76,10 +77,9 @@ class ProgramEncounterCancelView extends AbstractComponent {
             CHSNavigator.navigateToIndividualEncounterDashboardView(source, encounter.individual.uuid, encounter, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName})) :
             CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName}));
     }
-
-    next(popVerificationVew) {
+    getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
@@ -91,7 +91,15 @@ class ProgramEncounterCancelView extends AbstractComponent {
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop
-        });
+        }
+    }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -115,6 +123,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstPage() ?
                             <View>
+                                <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
                                     location={this.state.programEncounter.cancelLocation}
                                     editing={this.props.params.editing}
@@ -130,6 +139,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
                                 </View>
                             </View> : <View/>
                         }
+                        {!this.state.wizard.isFirstFormPage() &&
+                        <SummaryButton onPress={() => this.onGoToSummary()}/>}
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
                             group={this.state.formElementGroup}

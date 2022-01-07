@@ -69,6 +69,10 @@ class ProgramEncounterCancelActions {
         return state.clone().handleNext(action, context);
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -112,6 +116,7 @@ const ProgramEncounterCancelActionsNames = {
     DURATION_CHANGE: 'ProgramEncounterCancelActions.DURATION_CHANGE',
     PREVIOUS: 'ProgramEncounterCancelActions.PREVIOUS',
     NEXT: 'ProgramEncounterCancelActions.NEXT',
+    SUMMARY_PAGE: 'ProgramEncounterCancelActions.SUMMARY_PAGE',
     SAVE: "ProgramEncounterCancelActions.SAVE",
     SET_CANCEL_LOCATION: "ProgramEncounterCancelActions.SET_CANCEL_LOCATION",
     SET_LOCATION_ERROR: "ProgramEncounterCancelActions.SET_LOCATION_ERROR",
@@ -129,6 +134,7 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [ProgramEncounterCancelActionsNames.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [ProgramEncounterCancelActionsNames.NEXT, ProgramEncounterCancelActions.onNext],
+    [ProgramEncounterCancelActionsNames.SUMMARY_PAGE, ProgramEncounterCancelActions.onSummaryPage],
     [ProgramEncounterCancelActionsNames.PREVIOUS, ProgramEncounterCancelActions.onPrevious],
     [ProgramEncounterCancelActionsNames.SAVE, ProgramEncounterCancelActions.onSave],
     [ProgramEncounterCancelActionsNames.SET_CANCEL_LOCATION, ProgramEncounterCancelActions.setCancelLocation],

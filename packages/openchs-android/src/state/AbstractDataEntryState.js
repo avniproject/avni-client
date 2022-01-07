@@ -106,6 +106,17 @@ class AbstractDataEntryState {
         return this;
     }
 
+    handleSummaryPage(action, context) {
+        while (!this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
+            this.handleNext(action, context);
+        }
+        // after the last page one more next to go to SR page
+        if (this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
+            this.handleNext(action, context);
+        }
+        return this;
+    }
+
     handleNext(action, context) {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);

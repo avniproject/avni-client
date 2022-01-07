@@ -22,6 +22,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SubjectRegisterView from "../subject/SubjectRegisterView";
+import {Button, Text as NBText} from "native-base";
+import SummaryButton from "../common/SummaryButton";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -85,6 +87,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions}

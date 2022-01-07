@@ -61,6 +61,10 @@ class ProgramEncounterActions {
         return state.clone().handleNext(action, context);
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -135,6 +139,7 @@ const ProgramEncounterActionsNames = {
     DURATION_CHANGE: 'PEncA.DURATION_CHANGE',
     PREVIOUS: 'PEncA.PREVIOUS',
     NEXT: 'PEncA.NEXT',
+    SUMMARY_PAGE: 'PEncA.SUMMARY_PAGE',
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
     SAVE: "PEncA.SAVE",
     SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION",
@@ -154,6 +159,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [ProgramEncounterActionsNames.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],
+    [ProgramEncounterActionsNames.SUMMARY_PAGE, ProgramEncounterActions.onSummaryPage],
     [ProgramEncounterActionsNames.PREVIOUS, ProgramEncounterActions.onPrevious],
     [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave],

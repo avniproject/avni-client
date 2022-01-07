@@ -111,6 +111,11 @@ export class ProgramEnrolmentActions {
         return state.clone().handleNext(action, context);
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -143,6 +148,7 @@ const actions = {
     PRIMITIVE_VALUE_CHANGE: "PEA.PRIMITIVE_VALUE_CHANGE",
     PRIMITIVE_VALUE_END_EDITING: "PEA.PRIMITIVE_VALUE_END_EDITING",
     NEXT: "PEA.NEXT",
+    SUMMARY_PAGE: "PEA.SUMMARY_PAGE",
     PREVIOUS: "PEA.PREVIOUS",
     SAVE: "PEA.SAVE",
     DURATION_CHANGE: "PEA.DURATION_CHANGE",
@@ -167,6 +173,7 @@ export default new Map([
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.NEXT, ProgramEnrolmentActions.onNext],
+    [actions.SUMMARY_PAGE, ProgramEnrolmentActions.onSummaryPage],
     [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
     [actions.SAVE, ProgramEnrolmentActions.onSave],
     [actions.SET_ENROLMENT_LOCATION, ProgramEnrolmentActions.setEnrolmentLocation],

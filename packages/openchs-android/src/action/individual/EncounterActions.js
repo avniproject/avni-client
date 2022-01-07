@@ -53,6 +53,10 @@ export class EncounterActions {
         return newState;
     }
 
+    static onSummaryPage(state, action, context) {
+        return state.clone().handleSummaryPage(action, context);
+    }
+
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
     }
@@ -102,6 +106,7 @@ const individualEncounterViewActions = {
     ENCOUNTER_DATE_TIME_CHANGE: 'EA.',
     PREVIOUS: 'EA.PREVIOUS',
     NEXT: 'EA.NEXT',
+    SUMMARY_PAGE: 'EA.SUMMARY_PAGE',
     TOGGLE_MULTISELECT_ANSWER: "EA.TOGGLE_MULTISELECT_ANSWER",
     TOGGLE_SINGLESELECT_ANSWER: "EA.TOGGLE_SINGLESELECT_ANSWER",
     PRIMITIVE_VALUE_CHANGE: 'EA.PRIMITIVE_VALUE_CHANGE',
@@ -121,6 +126,7 @@ const individualEncounterViewActions = {
 const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.PREVIOUS, EncounterActions.onPrevious],
     [individualEncounterViewActions.NEXT, EncounterActions.onNext],
+    [individualEncounterViewActions.SUMMARY_PAGE, EncounterActions.onSummaryPage],
     [individualEncounterViewActions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [individualEncounterViewActions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [individualEncounterViewActions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],

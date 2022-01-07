@@ -26,6 +26,7 @@ import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import EncounterService from "../../service/EncounterService";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SummaryButton from "../common/SummaryButton";
 
 @Path('/IndividualEncounterLandingView')
 class IndividualEncounterLandingView extends AbstractComponent {
@@ -60,9 +61,9 @@ class IndividualEncounterLandingView extends AbstractComponent {
         return !_.isNil(state.encounter);
     }
 
-    next(popVerificationVew) {
+    getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             validationFailed: (newState) => {
             },
             movedNext: () => {
@@ -92,8 +93,18 @@ class IndividualEncounterLandingView extends AbstractComponent {
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
-        });
+        }
     }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        const params = this.getNextParams(false);
+        this.dispatchAction(Actions.SUMMARY_PAGE, params)
+    }
+
 
     onAppHeaderBack() {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualEncounterLandingView]);
@@ -118,6 +129,7 @@ class IndividualEncounterLandingView extends AbstractComponent {
                         paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         flexDirection: 'column'
                     }}>
+                        <SummaryButton onPress={() => this.onGoToSummary()}/>
                         <GeolocationFormElement
                             location={this.state.encounter.encounterLocation}
                             editing={this.props.editing}

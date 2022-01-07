@@ -22,6 +22,7 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import SummaryButton from "../common/SummaryButton";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -31,10 +32,11 @@ class ProgramFormComponent extends AbstractComponent {
         editing: PropTypes.bool.isRequired
     };
 
-    next(popVerificationVew) {
+
+    getNextParams(popVerificationVew) {
         const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.props.state.enrolment.observations : this.props.state.enrolment.programExitObservations;
         const phoneNumberObservation = _.find(observations, obs => obs.isPhoneNumberVerificationRequired(this.props.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
                 const message = observations === state.enrolment.observations ? this.I18n.t('enrolmentSavedMsg', {programName: state.enrolment.program.name}) : this.I18n.t('enrolmentExitMsg', {programName: state.enrolment.program.name});
@@ -46,12 +48,20 @@ class ProgramFormComponent extends AbstractComponent {
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
             },
-            popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
+                popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
             movedNext: this.scrollToTop
-        });
+        }
+    }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
     render() {
@@ -70,6 +80,7 @@ class ProgramFormComponent extends AbstractComponent {
                         <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                            individual={this.props.state.enrolment.individual}/>
                         <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
+                        <SummaryButton onPress={() => this.onGoToSummary()} styles={{marginRight: Distances.ScaledContentDistanceFromEdge}}/>
                         <GeolocationFormElement
                             location={enrol ? this.props.state.enrolment.enrolmentLocation : this.props.state.enrolment.exitLocation}
                             editing={this.props.editing}
@@ -87,6 +98,8 @@ class ProgramFormComponent extends AbstractComponent {
                     :
                     <View/>}
                 <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
+                    {!this.props.state.wizard.isFirstFormPage() &&
+                    <SummaryButton onPress={() => this.onGoToSummary()}/>}
                     <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
                                       observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}

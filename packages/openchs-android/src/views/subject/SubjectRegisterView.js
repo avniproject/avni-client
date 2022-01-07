@@ -31,6 +31,8 @@ import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import {Button, Text as NBText} from "native-base";
+import SummaryButton from "../common/SummaryButton";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -100,9 +102,9 @@ class SubjectRegisterView extends AbstractComponent {
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
-    next(popVerificationVew) {
+    getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.subject.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        this.dispatchAction(Actions.NEXT, {
+        return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
                 const observations = state.subject.observations;
                 const onSaveCallback = (source) => {
@@ -113,12 +115,23 @@ class SubjectRegisterView extends AbstractComponent {
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
                     null, nextScheduledVisits, null, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus);
             },
-            popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
+            popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
             popVerificationVew,
-            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {
+                observation,
+                skipVerification: true
+            })),
             movedNext: this.scrollToTop
-        });
+        }
+    }
+
+    next(popVerificationVew) {
+        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+    }
+
+    onGoToSummary() {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
 
@@ -145,6 +158,7 @@ class SubjectRegisterView extends AbstractComponent {
                                displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        <SummaryButton onPress={() => this.onGoToSummary()}/>
                         {this.state.wizard.isFirstFormPage() && (
                             <View>
                                 <GeolocationFormElement
