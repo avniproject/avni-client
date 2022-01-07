@@ -175,12 +175,14 @@ class CHSNavigator {
         };
         if (subjectType.isPerson()) {
             if (IndividualRegisterView.canLoad({uuid, subjectTypeName}, source)) {
-                const toBePushed = pageNumber > 0 ? [
+                if (pageNumber > 0) {
+                    TypedTransition.from(source).resetStack([], [
                         TypedTransition.createRoute(IndividualRegisterView, params),
                         TypedTransition.createRoute(IndividualRegisterFormView, {...params, pageNumber: pageNumber + 1})
-                    ] :
-                    [TypedTransition.createRoute(IndividualRegisterView, params)];
-                TypedTransition.from(source).resetStack([], [...toBePushed]);
+                    ]);
+                } else {
+                    TypedTransition.from(source).with({...params}).to(IndividualRegisterView)
+                }
             }
         } else if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
             TypedTransition.from(source).with({...params, pageNumber}).to(SubjectRegisterView)

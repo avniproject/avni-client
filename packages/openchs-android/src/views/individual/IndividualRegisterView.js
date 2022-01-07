@@ -27,8 +27,6 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
-import {Button, Text as NBText} from "native-base";
-import SummaryButton from "../common/SummaryButton";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -91,10 +89,6 @@ class IndividualRegisterView extends AbstractComponent {
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
-    onGoToSummary() {
-        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
-    }
-
     render() {
         General.logDebug(this.viewName(), `render`);
         const editing = !_.isNil(this.props.params.individualUUID);
@@ -111,7 +105,6 @@ class IndividualRegisterView extends AbstractComponent {
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                     }}>
-                        <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
                         <GeolocationFormElement
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}

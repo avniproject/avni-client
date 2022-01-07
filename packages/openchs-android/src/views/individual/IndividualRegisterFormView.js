@@ -1,10 +1,8 @@
-import {BackHandler, View} from "react-native";
-import PropTypes from 'prop-types';
+import {View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import {Actions} from "../../action/individual/IndividualRegisterActions";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AppHeader from "../common/AppHeader";
@@ -21,8 +19,6 @@ import IndividualRegisterView from "./IndividualRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
-import SubjectRegisterView from "../subject/SubjectRegisterView";
-import {Button, Text as NBText} from "native-base";
 import SummaryButton from "../common/SummaryButton";
 
 @Path('/IndividualRegisterFormView')
