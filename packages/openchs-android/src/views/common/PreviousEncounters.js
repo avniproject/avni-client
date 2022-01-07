@@ -141,7 +141,9 @@ class PreviousEncounters extends AbstractComponent {
                 renderTitleAndDetails: (encounter) => this.renderTitleAndDetails(encounter),
                 encounterActions: (encounter) => this.encounterActions(encounter),
                 cancelVisitAction: (encounter) => this.cancelVisitAction(encounter),
-                subjectInfo: this.props.subjectInfo
+                subjectInfo: this.props.subjectInfo,
+                formType: this.props.formType,
+                cancelFormType: this.props.cancelFormType,
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>

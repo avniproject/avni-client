@@ -24,7 +24,7 @@ import GeolocationFormElement from "../form/formElement/GeolocationFormElement";
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import moment from "moment";
 import NewVisitPageView from "./NewVisitPageView";
-import IndividualEncounterLandingView from "../individual/IndividualEncounterLandingView";
+import IndividualEncounterView from "../individual/IndividualEncounterView";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";

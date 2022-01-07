@@ -6,7 +6,7 @@ import ProgramExitView from "../views/program/ProgramExitView";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
 import IndividualRegisterView from "../views/individual/IndividualRegisterView";
-import IndividualEncounterLandingView from "../views/individual/IndividualEncounterLandingView";
+import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
 import NewVisitPageView from "../views/program/NewVisitPageView";
@@ -23,7 +23,6 @@ import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
-import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
 import ProgramService from "../service/program/ProgramService";
@@ -194,26 +193,17 @@ class CHSNavigator {
             individualUUID: individualUUID,
             editing
         };
-        if (pageNumber > 1) {
-            TypedTransition.from(source).bookmark()
-                .resetStack([GenericDashboardView], [
-                    TypedTransition.createRoute(GenericDashboardView, {individualUUID: encounter.individual.uuid, tab: 3}, true),
-                    TypedTransition.createRoute(IndividualEncounterLandingView, params, true),
-                    TypedTransition.createRoute(IndividualEncounterView, {...params, pageNumber}, true)
-                ])
-        } else {
-            TypedTransition.from(source).bookmark().with({
-                ...params,
-                pageNumber
-            }).to(IndividualEncounterLandingView, true);
-        }
+        TypedTransition.from(source).bookmark().with({
+            ...params,
+            pageNumber
+        }).to(IndividualEncounterView, true);
     }
 
     static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
-                .resetStack([SystemRecommendationView, IndividualEncounterLandingView, IndividualEncounterView, GenericDashboardView], [
+                .resetStack([SystemRecommendationView, IndividualEncounterView, GenericDashboardView], [
                     TypedTransition.createRoute(GenericDashboardView, {
                         individualUUID: encounter.individual.uuid, message, tab: 3
                     }, true)
@@ -494,7 +484,7 @@ class CHSNavigator {
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
                         TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
-                        TypedTransition.createRoute(IndividualEncounterLandingView, {
+                        TypedTransition.createRoute(IndividualEncounterView, {
                             individualUUID: nextWorkItem.parameters.subjectUUID,
                             encounterType: nextWorkItem.parameters.encounterType,
                             workLists: workListState.workLists,

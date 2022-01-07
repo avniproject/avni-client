@@ -44,7 +44,7 @@ export class EncounterActions {
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
-        return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActionState);
+        return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 
     static onNext(state, action, context) {
@@ -59,10 +59,6 @@ export class EncounterActions {
 
     static onPrevious(state, action, context) {
         return state.clone().handlePrevious(action, context);
-    }
-
-    static onEncounterViewLoad(state, action, context) {
-        return action.pageNumber ? EncounterActions.onEncounterLandingViewLoad(state, action, context) : state.clone();
     }
 
     static onEncounterDateTimeChange(state, action, context) {
@@ -113,7 +109,6 @@ const individualEncounterViewActions = {
     PRIMITIVE_VALUE_END_EDITING: 'EA.PRIMITIVE_VALUE_END_EDITING',
     DATE_DURATION_CHANGE: 'EA.DATE_DURATION_CHANGE',
     DURATION_CHANGE: 'EA.DURATION_CHANGE',
-    ON_LOAD: 'EA.ON_LOAD',
     TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: 'EA.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER',
     SAVE: 'EA.SAVE',
     SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION",
@@ -133,7 +128,6 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsEndEditing],
     [individualEncounterViewActions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [individualEncounterViewActions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
-    [individualEncounterViewActions.ON_LOAD, EncounterActions.onEncounterViewLoad],
     [individualEncounterViewActions.ON_ENCOUNTER_LANDING_LOAD, EncounterActions.onEncounterLandingViewLoad],
     [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
     [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter],
