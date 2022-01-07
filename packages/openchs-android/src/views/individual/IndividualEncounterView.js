@@ -71,7 +71,7 @@ class IndividualEncounterView extends AbstractComponent {
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this,
                     encounterDecisions,
                     ruleValidationErrors,
-                    this.state.encounter,
+                    newState.encounter,
                     Actions.SAVE,
                     headerMessage,
                     form,
