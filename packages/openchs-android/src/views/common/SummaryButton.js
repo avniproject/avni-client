@@ -5,12 +5,18 @@ import PropTypes from "prop-types";
 import {View} from 'react-native';
 import Colors from "../primitives/Colors";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 class SummaryButton extends AbstractComponent {
     static propTypes = {
         onPress: PropTypes.func.isRequired,
         styles: PropTypes.object,
     };
+
+    onSummaryPress() {
+        logEvent(firebaseEvents.SUMMARY_PRESSED);
+        this.props.onPress
+    }
 
     render() {
         const showButton = this.getService(OrganisationConfigService).isSummaryButtonSetup();
@@ -28,7 +34,7 @@ class SummaryButton extends AbstractComponent {
                             alignSelf: 'flex-end',
                             backgroundColor: Colors.SecondaryActionButtonColor
                         }}
-                        onPress={this.props.onPress}
+                        onPress={() => this.onSummaryPress()}
                         iconRight={true}>
                     <Text style={{color: '#212121'}}>{this.I18n.t('goToSummary')}</Text>
                     <Icon style={{color: '#212121'}} name='fastforward' type='AntDesign' />

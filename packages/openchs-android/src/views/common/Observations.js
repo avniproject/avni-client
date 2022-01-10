@@ -16,6 +16,7 @@ import LocationHierarchyService from "../../service/LocationHierarchyService";
 import IndividualService from "../../service/IndividualService";
 import CHSNavigator from "../../utility/CHSNavigator";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
 const renderTypes = {
     Image: "Image",
@@ -213,6 +214,11 @@ class Observations extends AbstractComponent {
         }, this.styles.observationColumn, additionalStyles]}>{obs}</Text>;
     }
 
+    onFEGEdit(groupUUID) {
+        logEvent(firebaseEvents.QUICK_FORM_EDIT);
+        this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID));
+    }
+
     editTable(groupUUID, groupName, observations) {
         return <View style={{flexDirection: 'column'}} key={groupUUID}>
             <View style={[{
@@ -228,7 +234,7 @@ class Observations extends AbstractComponent {
                 {groupUUID &&
                 <View style={{flex: 0.1}}>
                     <TouchableOpacity
-                        onPress={() => this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID))}>
+                        onPress={() => this.onFEGEdit(groupUUID)}>
                         <Text style={{color: Colors.ActionButtonColor,}}>{this.I18n.t('edit')}</Text>
                     </TouchableOpacity>
                 </View>}

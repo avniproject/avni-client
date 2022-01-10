@@ -51,5 +51,7 @@ export const firebaseEvents = {
     ABORT_FORM: 'abort_form',
     LOG_IN: 'login',
     LOG_IN_ERROR: 'login_error',
-    LOG_OUT: 'logout'
+    LOG_OUT: 'logout',
+    SUMMARY_PRESSED: 'summary_pressed',
+    QUICK_FORM_EDIT: 'quick_form_edit'
 };
