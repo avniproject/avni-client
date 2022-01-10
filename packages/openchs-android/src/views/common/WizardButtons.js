@@ -1,7 +1,7 @@
 import {View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
-import {Button, Text} from "native-base";
+import {Button, Icon, Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
@@ -51,12 +51,20 @@ class WizardButtons extends AbstractComponent {
                                 backgroundColor: Colors.SecondaryActionButtonColor,
                                 justifyContent: "center"
                             }}
-                            onPress={() => previousButton.func()}><Text style={{color: '#212121'}}>{previousButton.label}</Text></Button> :
+                            onPress={() => previousButton.func()}
+                            iconLeft={true}>
+                        <Icon style={{color: '#212121'}} name='stepbackward' type='AntDesign' />
+                        <Text style={{color: '#212121'}}>{previousButton.label}</Text>
+                    </Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
                             style={{flex: 0.5, marginLeft: 8, justifyContent: "center"}}
-                            onPress={() => nextButton.func()}><Text>{nextButton.label}</Text></Button> : <View style={{flex: 0.5}}/>}
+                            onPress={() => nextButton.func()}
+                            iconRight={true}>
+                        <Text>{nextButton.label}</Text>
+                        <Icon name='stepforward' type='AntDesign' />
+                    </Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);
     }

@@ -46,6 +46,10 @@ class OrganisationConfigService extends BaseService {
         return this.getSettings().extensions || [];
     }
 
+    isSummaryButtonSetup() {
+        return !!this.getSettings().showSummaryButton;
+    }
+
 }
 
 export default OrganisationConfigService;
