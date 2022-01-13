@@ -15,7 +15,7 @@ class SummaryButton extends AbstractComponent {
 
     onSummaryPress() {
         logEvent(firebaseEvents.SUMMARY_PRESSED);
-        this.props.onPress
+        this.props.onPress();
     }
 
     render() {
