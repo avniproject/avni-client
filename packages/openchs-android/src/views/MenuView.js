@@ -201,12 +201,6 @@ class MenuView extends AbstractComponent {
         this.startUploadDatabase('uploadDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
     }
 
-    async onYearReview() {
-        const serverURL = this.getService(SettingsService).getSettings().serverURL;
-        const token = await this.getService(AuthService).getAuthToken();
-        Linking.openURL(`${serverURL}/userReview?AUTH-TOKEN=${token}`);
-    }
-
     startUploadDatabase(titleKey, messageKey, dumpType) {
         Alert.alert(
             this.I18n.t(titleKey),
@@ -322,9 +316,7 @@ class MenuView extends AbstractComponent {
             <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
                   onPress={this.uploadCatchmentDatabase.bind(this)}/>,
             <Item icon={this.icon("backup-restore")} titleKey="uploadDatabase"
-                  onPress={this.uploadDatabase.bind(this)}/>,
-            <Item icon={this.icon("account-clock")} titleKey="yearReview"
-            onPress={this.onYearReview.bind(this)}/>
+                  onPress={this.uploadDatabase.bind(this)}/>
         ];
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
