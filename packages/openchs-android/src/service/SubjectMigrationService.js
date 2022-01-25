@@ -126,12 +126,22 @@ class SubjectMigrationService extends BaseService {
         const db = this.db;
         db.write(() => {
             db.delete(subject.encounters);
-            subject.enrolments.forEach((enrolment) => {
+            _.forEach(subject.enrolments, (enrolment) => {
+                //For some reason, the last element shows up as undefined when there are multiple enrolments for a subject
+                if (_.isNil(enrolment)) {
+                    return;
+                }
                 db.delete(enrolment.encounters);
                 db.delete(enrolment.observations);
                 db.delete(enrolment.programExitObservations);
-                enrolment.checklists.forEach((checklist) => {
-                    checklist.items.forEach((checklistItem) => {
+                _.forEach(enrolment.checklists, (checklist) => {
+                    if (_.isNil(checklist)) {
+                        return;
+                    }
+                    _.forEach(checklist.items, (checklistItem) => {
+                        if (_.isNil(checklistItem)) {
+                            return;
+                        }
                         db.delete(checklistItem.observations);
                         checklistItem.latestEntityApprovalStatus && db.delete(checklistItem.latestEntityApprovalStatus);
                         db.delete(checklistItem);
