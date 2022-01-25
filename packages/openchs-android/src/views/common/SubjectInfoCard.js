@@ -5,6 +5,8 @@ import {Text, View} from "react-native";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import SubjectTypeIcon from "./SubjectTypeIcon";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
+import _ from 'lodash';
 
 class SubjectInfoCard extends AbstractComponent {
     static propTypes = {
@@ -45,6 +47,17 @@ class SubjectInfoCard extends AbstractComponent {
         </View>
     }
 
+    renderCustomSearchResultFields(i18n) {
+        const searchResultConcepts = this.getService(OrganisationConfigService).getCustomSearchResultConceptsForSubjectType(this.props.individual.subjectType);
+        return _.map(searchResultConcepts, ({name}) => {
+            const obsValue = this.props.individual.getObservationReadableValue(name);
+            return _.isNil(obsValue) ? null :
+                <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>
+                    {typeof obsValue === 'string' ? i18n.t(obsValue) : obsValue}
+                </Text>
+        })
+    }
+
     render() {
         const i18n = this.I18n;
         return (
@@ -83,6 +96,7 @@ class SubjectInfoCard extends AbstractComponent {
                         }
                     </Text>
                     {this.props.individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
+                    {this.renderCustomSearchResultFields(i18n)}
                 </View>
                 <View style={{
                     flexDirection: 'column',

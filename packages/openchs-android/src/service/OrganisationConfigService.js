@@ -50,6 +50,11 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().showSummaryButton;
     }
 
+    getCustomSearchResultConceptsForSubjectType(subjectType) {
+        const searchResultField = _.find(this.getSettings().searchResultFields, ({subjectTypeUUID}) => subjectTypeUUID === subjectType.uuid);
+        return _.sortBy(_.get(searchResultField, 'searchResultConcepts', []), 'displayOrder');
+    }
+
 }
 
 export default OrganisationConfigService;
