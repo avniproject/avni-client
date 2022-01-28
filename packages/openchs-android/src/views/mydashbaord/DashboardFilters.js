@@ -9,6 +9,7 @@ import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import _ from "lodash";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
+import moment from "moment";
 
 export default class DashboardFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -28,6 +29,23 @@ export default class DashboardFilters extends AbstractComponent {
             justifyContent: "space-between",
             paddingTop: 8,
         },
+        filterButton: {
+            paddingHorizontal: 12,
+            paddingVertical: 4,
+            backgroundColor: Colors.ActionButtonColor,
+            borderRadius: 3
+        },
+        buttonText: {
+            color: Colors.TextOnPrimaryColor,
+            fontSize: Styles.normalTextSize
+        },
+        todayButton: {
+            paddingVertical: 2,
+            backgroundColor: Colors.ActionButtonColor,
+            borderRadius: 3,
+            paddingHorizontal: 8,
+            marginLeft: 4,
+        }
     });
 
     dateDisplay(date) {
@@ -43,6 +61,7 @@ export default class DashboardFilters extends AbstractComponent {
     }
 
     render() {
+        const isToday = moment(this.props.date.value).isSame(moment(), "day");
         const iconStyle = {
             color: Colors.ActionButtonColor,
             opacity: 0.8,
@@ -63,19 +82,18 @@ export default class DashboardFilters extends AbstractComponent {
                                 })}>
                                 <MCIIcon name={'calendar'} style={iconStyle}/>
                             </TouchableOpacity>
+                            {!isToday &&
+                            <TouchableOpacity
+                                style={DashboardFilters.styles.todayButton}
+                                onPress={() => this.dispatchAction(Actions.ON_DATE, {value: new Date()})}
+                            >
+                                <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t('Today')}</Text>
+                            </TouchableOpacity>}
                         </View>
                         <TouchableOpacity
-                            style={{
-                                width: 90,
-                                height: 30,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: Colors.ActionButtonColor,
-                                borderRadius: 3
-                            }}
+                            style={DashboardFilters.styles.filterButton}
                             onPress={this.props.onPress}>
-                            <Text style={{color: Colors.TextOnPrimaryColor, fontSize: Styles.normalTextSize}}>{this.I18n.t("filter")}</Text>
+                            <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t("filter")}</Text>
                         </TouchableOpacity>
                     </View>
                     <AppliedFilters filters={this.props.filters}
