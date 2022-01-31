@@ -170,7 +170,7 @@ class SubjectRegisterView extends AbstractComponent {
                                 <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
                                                  element={new StaticFormElement('registrationDate')}
                                                  dateValue={new PrimitiveValue(this.state.subject.registrationDate)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME)}/>
+                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
                                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
                                                  element={new StaticFormElement(`${this.state.subject.subjectTypeName} Name`, true)}
                                                  validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}

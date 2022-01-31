@@ -162,7 +162,7 @@ class CHSNavigator {
         }).to(GenericDashboardView);
     }
 
-    static navigateToRegisterView(source, workLists, pageNumber) {
+    static navigateToRegisterView(source, workLists, pageNumber, canMoveToNextView) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
@@ -175,7 +175,7 @@ class CHSNavigator {
         };
         if (subjectType.isPerson()) {
             if (IndividualRegisterView.canLoad({uuid, subjectTypeName}, source)) {
-                if (pageNumber > 0) {
+                if (pageNumber > 0 && canMoveToNextView) {
                     TypedTransition.from(source).resetStack([], [
                         TypedTransition.createRoute(IndividualRegisterView, params),
                         TypedTransition.createRoute(IndividualRegisterFormView, {...params, pageNumber: pageNumber + 1})
