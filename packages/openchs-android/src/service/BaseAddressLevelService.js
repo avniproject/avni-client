@@ -6,9 +6,14 @@ class BaseAddressLevelService extends BaseService {
         super(db, beanStore);
     }
 
-    maxLevel() {
-        let sortedByLevels = this.findAll(this.getSchema()).filtered('voided = false').sorted('level', true)[0];
-        return _.defaultTo(sortedByLevels, {level: 0}).level;
+    getAllRootParents() {
+        return this.findAll(this.getSchema())
+            .filtered('voided = false and locationMappings.@count == 0')
+            .filtered('TRUEPREDICATE DISTINCT(typeUuid)');
+    }
+
+    maxLevels() {
+        return [...this.getAllRootParents().map(al => al.level).map(_.identity)];
     }
 
     minLevel() {
@@ -31,8 +36,8 @@ class BaseAddressLevelService extends BaseService {
         return [...this.findAllByCriteria(`typeUuid = '${typeUUID}' AND voided = false`, this.getSchema()).map(_.identity)];
     }
 
-    getAllAtLevel(level) {
-        return [...this.findAllByCriteria(`level = ${level} AND voided = false`, this.getSchema()).map(_.identity)];
+    getAllAtLevel(levelQuery) {
+        return [...this.findAllByCriteria(`${levelQuery} AND voided = false`, this.getSchema()).sorted('level', true).map(_.identity)];
     }
 
     getAllAtLevelWithParent(level, parentUUID) {
@@ -41,12 +46,13 @@ class BaseAddressLevelService extends BaseService {
     }
 
     highestLevel() {
-        const maxLevel = this.maxLevel();
-        return this.getAllAtLevel(maxLevel);
+        const maxLevels = this.maxLevels();
+        const levelQuery = _.isEmpty(maxLevels) ? 'level = 0' : _.map(maxLevels, l => `level = ${l}`).join(" or ");
+        return this.getAllAtLevel(`(${levelQuery})`);
     }
 
     isRoot(parent) {
-        return parent.level === this.maxLevel();
+        return _.includes(this.maxLevels(), parent.level);
     }
 
     lowestLevelAmongst(addressLevels) {

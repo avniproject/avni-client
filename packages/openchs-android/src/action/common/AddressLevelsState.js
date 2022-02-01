@@ -3,7 +3,7 @@ import _ from 'lodash';
 class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
-            .reduce((acc, {uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
+            .reduce((acc, {locationMappings, uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
                 acc[type] = _.defaultTo(acc[type], []).concat([{
                     uuid,
                     name,
@@ -11,7 +11,8 @@ class AddressLevelsState {
                     type,
                     parentUuid,
                     typeUuid,
-                    isSelected
+                    isSelected,
+                    locationMappings
                 }]);
                 return acc;
             }, {}));
@@ -30,7 +31,7 @@ class AddressLevelsState {
     }
 
     canBeUsed(level) {
-        return level.isSelected || level.level === this.maxSelectedLevel || _.isEmpty(this.selectedAddresses);
+        return level.isSelected || level.level === this.maxSelectedLevel || _.isEmpty(this.selectedAddresses) || _.isEmpty(level.locationMappings);
     }
 
     _asList(levelMap = new Map(this.levels)) {
@@ -67,10 +68,16 @@ class AddressLevelsState {
 
     selectLevel(type, selectedLevel, newLevels = []) {
         const allCurrentLevels = this._asList();
-        allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
-            l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
-        });
-        const toRemove = allCurrentLevels.filter(l => l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
+        if (_.isEmpty(selectedLevel.locationMappings)) {
+            allCurrentLevels.forEach(l => {
+                l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false;
+            })
+        } else {
+            allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
+                l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
+            });
+        }
+        const toRemove = allCurrentLevels.filter(l => !_.isEmpty(l.locationMappings) && l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
         return new AddressLevelsState(allCurrentLevels).addLevels(newLevels)
             .removeLevels(toRemove)
             .removeUnwantedLevels();
@@ -88,7 +95,7 @@ class AddressLevelsState {
         const levels = this._asList();
         const getParent = parentUUID => _.filter(levels, it => it.uuid === parentUUID);
         return new AddressLevelsState(levels.filter(l => {
-            return this.canBeUsed(l) || _(getParent(l.parentUuid)).reject(_.isNil)
+            return this.canBeUsed(l) || _(getParent(l.parentUuid)).reject(p => _.isNil(p) || !p.isSelected)
                 .some(this.canBeUsed);
         }));
     }
