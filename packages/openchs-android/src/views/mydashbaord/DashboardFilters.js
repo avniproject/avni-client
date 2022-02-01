@@ -41,7 +41,6 @@ export default class DashboardFilters extends AbstractComponent {
         },
         todayButton: {
             paddingVertical: 2,
-            backgroundColor: Colors.ActionButtonColor,
             borderRadius: 3,
             paddingHorizontal: 8,
             marginLeft: 4,
@@ -60,8 +59,22 @@ export default class DashboardFilters extends AbstractComponent {
         }
     }
 
+    renderQuickDateOptions(label, value, isFilled) {
+        const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.DisabledButtonColor};
+        const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Colors.InputNormal};
+        return (
+            <TouchableOpacity
+                style={[DashboardFilters.styles.todayButton, backgroundColor]}
+                onPress={() => this.dispatchAction(Actions.ON_DATE, {value})}
+            >
+                <Text style={[DashboardFilters.styles.buttonText, textColor]}>{this.I18n.t(label)}</Text>
+            </TouchableOpacity>
+        )
+    }
+
     render() {
         const isToday = moment(this.props.date.value).isSame(moment(), "day");
+        const isTomorrow = moment(this.props.date.value).isSame(moment().add(1, "day"), "day");
         const iconStyle = {
             color: Colors.ActionButtonColor,
             opacity: 0.8,
@@ -72,7 +85,7 @@ export default class DashboardFilters extends AbstractComponent {
             <View>
                 <View style={DashboardFilters.styles.itemContent}>
                     <View style={DashboardFilters.styles.buttons}>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', flex: 0.8}}>
                             <Text style={{fontSize: 15, color: Colors.TextOnPrimaryColor}}>{this.I18n.t("asOnDate")}
                                 : {this.dateDisplay(this.props.date.value)}</Text>
                             <TouchableOpacity
@@ -82,19 +95,16 @@ export default class DashboardFilters extends AbstractComponent {
                                 })}>
                                 <MCIIcon name={'calendar'} style={iconStyle}/>
                             </TouchableOpacity>
-                            {!isToday &&
-                            <TouchableOpacity
-                                style={DashboardFilters.styles.todayButton}
-                                onPress={() => this.dispatchAction(Actions.ON_DATE, {value: new Date()})}
-                            >
-                                <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t('Today')}</Text>
-                            </TouchableOpacity>}
+                            {this.renderQuickDateOptions('Today', new Date(), isToday)}
+                            {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                         </View>
-                        <TouchableOpacity
-                            style={DashboardFilters.styles.filterButton}
-                            onPress={this.props.onPress}>
-                            <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t("filter")}</Text>
-                        </TouchableOpacity>
+                        <View style={{flex:0.2}}>
+                            <TouchableOpacity
+                                style={DashboardFilters.styles.filterButton}
+                                onPress={this.props.onPress}>
+                                <Text style={DashboardFilters.styles.buttonText}>{this.I18n.t("filter")}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                     <AppliedFilters filters={this.props.filters}
                                     selectedLocations={this.props.selectedLocations}
