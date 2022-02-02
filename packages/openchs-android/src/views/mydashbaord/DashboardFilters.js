@@ -30,7 +30,7 @@ export default class DashboardFilters extends AbstractComponent {
             paddingTop: 8,
         },
         filterButton: {
-            paddingHorizontal: 12,
+            paddingHorizontal: 8,
             paddingVertical: 4,
             backgroundColor: Colors.ActionButtonColor,
             borderRadius: 3
@@ -65,7 +65,7 @@ export default class DashboardFilters extends AbstractComponent {
         return (
             <TouchableOpacity
                 style={[DashboardFilters.styles.todayButton, backgroundColor]}
-                onPress={() => this.dispatchAction(Actions.ON_DATE, {value})}
+                onPress={() => isFilled ? _.noop() : this.dispatchAction(Actions.ON_DATE, {value})}
             >
                 <Text style={[DashboardFilters.styles.buttonText, textColor]}>{this.I18n.t(label)}</Text>
             </TouchableOpacity>
@@ -98,7 +98,7 @@ export default class DashboardFilters extends AbstractComponent {
                             {this.renderQuickDateOptions('Today', new Date(), isToday)}
                             {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                         </View>
-                        <View style={{flex:0.2}}>
+                        <View style={{flex:0.2, alignItems: 'center'}}>
                             <TouchableOpacity
                                 style={DashboardFilters.styles.filterButton}
                                 onPress={this.props.onPress}>
