@@ -7,6 +7,8 @@ import Styles from "../primitives/Styles";
 import SubjectTypeIcon from "./SubjectTypeIcon";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import _ from 'lodash';
+import ConceptService from "../../service/ConceptService";
+import {Observation} from 'avni-models';
 
 class SubjectInfoCard extends AbstractComponent {
     static propTypes = {
@@ -47,19 +49,19 @@ class SubjectInfoCard extends AbstractComponent {
         </View>
     }
 
-    renderCustomSearchResultFields(i18n) {
+    renderCustomSearchResultFields(i18n, conceptService) {
         const searchResultConcepts = this.getService(OrganisationConfigService).getCustomSearchResultConceptsForSubjectType(this.props.individual.subjectType);
-        return _.map(searchResultConcepts, ({name}) => {
-            const obsValue = this.props.individual.getObservationReadableValue(name);
-            return _.isNil(obsValue) ? null :
-                <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>
-                    {typeof obsValue === 'string' ? i18n.t(obsValue) : obsValue}
-                </Text>
+        return _.map(searchResultConcepts, ({name, uuid}) => {
+            const observation = this.props.individual.findObservation(name);
+            if(_.isNil(observation)) return null;
+            const displayable = Observation.valueForDisplay({observation, conceptService, i18n});
+            return <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{displayable.displayValue}</Text>
         })
     }
 
     render() {
         const i18n = this.I18n;
+        const conceptService = this.getService(ConceptService);
         return (
             <View style={{
                 flexDirection: 'row',
@@ -96,7 +98,7 @@ class SubjectInfoCard extends AbstractComponent {
                         }
                     </Text>
                     {this.props.individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
-                    {this.renderCustomSearchResultFields(i18n)}
+                    {this.renderCustomSearchResultFields(i18n, conceptService)}
                 </View>
                 <View style={{
                     flexDirection: 'column',
