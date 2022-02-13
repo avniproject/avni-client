@@ -37,7 +37,11 @@ export default class TypedTransition {
 
     goBack() {
         this.safeDismissKeyboard();
-        this.navigator.pop();
+        //This is a quick fix until we upgrade
+        try {
+            this.navigator.pop();
+        } catch (e) {
+        }
     }
 
     safeDismissKeyboard() {
@@ -76,7 +80,10 @@ export default class TypedTransition {
 
     _popN(n) {
         this.safeDismissKeyboard();
-        this.navigator.popN(n);
+        try {
+            this.navigator.popN(n);
+        } catch (e) {
+        }
         return this;
     }
 
