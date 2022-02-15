@@ -39,7 +39,7 @@ class AddressLevels extends AbstractComponent {
 
     defaultState() {
         if (_.isNil(this.props.maxLevelTypeUUID)) {
-            const highestAddressLevels = this.addressLevelService.highestLevel();
+            const highestAddressLevels = this.addressLevelService.highestLevel(this.props.minLevelTypeUUIDs);
             return new AddressLevelsState(highestAddressLevels);
         } else {
             return new AddressLevelsState(this.addressLevelService.getAllWithTypeUUID(this.props.maxLevelTypeUUID))
