@@ -45,10 +45,24 @@ class BaseAddressLevelService extends BaseService {
             this.getSchema()).map(_.identity)];
     }
 
-    highestLevel() {
+    highestLevel(minLevelTypeUUIDs) {
         const maxLevels = this.maxLevels();
         const levelQuery = _.isEmpty(maxLevels) ? 'level = 0' : _.map(maxLevels, l => `level = ${l}`).join(" or ");
-        return this.getAllAtLevel(`(${levelQuery})`);
+        const highestAddressLevels = this.getAllAtLevel(`(${levelQuery})`);
+        return _.isEmpty(minLevelTypeUUIDs) ? highestAddressLevels : this.filterTheHierarchy(highestAddressLevels, minLevelTypeUUIDs);
+    }
+
+    filterTheHierarchy(highestAddressLevels, minLevelTypeUUIDs) {
+        return _.filter(highestAddressLevels, al => this.isTypeUUIDPresent(al, minLevelTypeUUIDs))
+    }
+
+    isTypeUUIDPresent(addressLevel, levelTypeUUIDs) {
+        if (_.includes(levelTypeUUIDs, addressLevel.typeUuid)) return true;
+        else {
+            const childrenParent = this.getChildrenParent(addressLevel.uuid);
+            if (_.isEmpty(childrenParent)) return false;
+            else return this.isTypeUUIDPresent(_.head(childrenParent), levelTypeUUIDs);
+        }
     }
 
     isRoot(parent) {
