@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
-import {StyleSheet, View, FlatList} from "react-native";
+import {StyleSheet, View, FlatList, TouchableOpacity} from "react-native";
 import {CheckBox, Text} from "native-base";
 import Styles from "../../primitives/Styles";
 import ValidationErrorMessage from "../ValidationErrorMessage";
@@ -19,23 +19,19 @@ class AttendanceFormElement extends AbstractFormElement {
     }
 
     renderSubject({memberSubject}, subjectUUIDs, index) {
+        const onPress = () => this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: memberSubject.uuid});
         return (
-            <View style={{paddingVertical: 5}}>
+            <TouchableOpacity style={{paddingVertical: 5}} onPress={onPress}>
                 <View key={memberSubject.uuid}
                       style={[styles.memberContainer, index % 2 === 0 ? {backgroundColor: Colors.InputBorderNormal} : {backgroundColor: 'white'}]}>
                     <View style={{flex: .8}}>
                         <Text style={Styles.formBodyText}>{memberSubject.nameString}</Text>
                     </View>
                     <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
-                        <CheckBox
-                            onPress={() => this.dispatchAction(this.props.actionName, {
-                                formElement: this.props.element,
-                                answerUUID: memberSubject.uuid,
-                            })}
-                            checked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
+                        <CheckBox onPress={onPress} checked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
                     </View>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
 
