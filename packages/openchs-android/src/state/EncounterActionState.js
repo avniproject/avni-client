@@ -12,6 +12,7 @@ class EncounterActionState extends AbstractDataEntryState {
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
+        this.loadPullDownView = false;
     }
 
     getEntity() {
@@ -26,6 +27,7 @@ class EncounterActionState extends AbstractDataEntryState {
         const newState = new EncounterActionState();
         newState.encounter = _.isNil(this.encounter) ? this.encounter : this.encounter.cloneForEdit();
         newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
+        newState.loadPullDownView = this.loadPullDownView;
         newState.messageDisplayed = this.messageDisplayed;
         if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;

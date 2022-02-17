@@ -89,6 +89,12 @@ export class EncounterActions {
         return newState;
     }
 
+    static onFocus(state){
+        const newState = state.clone();
+        newState.loadPullDownView = true;
+        return newState;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
@@ -99,6 +105,7 @@ export class EncounterActions {
 
 const individualEncounterViewActions = {
     ON_ENCOUNTER_LANDING_LOAD: 'EA.ON_ENCOUNTER_LANDING_LOAD',
+    ON_FOCUS: 'EA.ON_FOCUS',
     ENCOUNTER_DATE_TIME_CHANGE: 'EA.',
     PREVIOUS: 'EA.PREVIOUS',
     NEXT: 'EA.NEXT',
@@ -131,6 +138,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.ON_ENCOUNTER_LANDING_LOAD, EncounterActions.onEncounterLandingViewLoad],
     [individualEncounterViewActions.ENCOUNTER_DATE_TIME_CHANGE, EncounterActions.onEncounterDateTimeChange],
     [individualEncounterViewActions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER, EncounterActions.onToggleShowingPreviousEncounter],
+    [individualEncounterViewActions.ON_FOCUS, EncounterActions.onFocus],
     [individualEncounterViewActions.SAVE, EncounterActions.onSave],
     [individualEncounterViewActions.SET_ENCOUNTER_LOCATION, EncounterActions.setEncounterLocation],
     [individualEncounterViewActions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
