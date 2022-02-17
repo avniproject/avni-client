@@ -196,7 +196,7 @@ class Observations extends AbstractComponent {
     }
 
     renderSubject(subject) {
-        return <TouchableOpacity style={this.styles.observationSubject} onPress={() =>
+        return <TouchableOpacity key={subject.entityObject.uuid} style={this.styles.observationSubject} onPress={() =>
             CHSNavigator.navigateToProgramEnrolmentDashboardView(this, subject.entityObject.uuid, null, true, null, null, 1)}>
             {this.renderChip(subject.displayValue)}
         </TouchableOpacity>

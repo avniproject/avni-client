@@ -56,6 +56,11 @@ class IndividualEncounterView extends AbstractComponent {
         return super.componentWillMount();
     }
 
+    didFocus() {
+        super.didFocus();
+        this.dispatchAction(Actions.ON_FOCUS);
+    }
+
     shouldComponentUpdate(nextProps, state) {
         return !_.isNil(state.encounter);
     }
@@ -127,10 +132,11 @@ class IndividualEncounterView extends AbstractComponent {
                         <View>
                             <RejectionMessage I18n={this.I18n}
                                               entityApprovalStatus={this.state.encounter.latestEntityApprovalStatus}/>
+                            {this.state.loadPullDownView &&
                             <PreviousEncounterPullDownView showExpanded={this.state.previousEncountersDisplayed}
                                                            individual={this.state.encounter.individual}
                                                            actionName={Actions.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER}
-                                                           encounters={this.state.previousEncounters}/>
+                                                           encounters={this.state.previousEncounters}/>}
                             <View style={styles.container}>
                                 <SummaryButton onPress={() => this.onGoToSummary()}/>
                                 <GeolocationFormElement
