@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {EntityQueue, Individual, ObservationsHolder, ProgramEnrolment} from 'avni-models';
+import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder, EntityApprovalStatus, ApprovalStatus } from 'avni-models';
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
@@ -11,7 +11,6 @@ import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import EntityService from "./EntityService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
-import bugsnag from "../utility/bugsnag";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -19,37 +18,7 @@ class ProgramEnrolmentService extends BaseService {
         super(db, beanStore);
     }
 
-    //This method should be removed once we know and fix the cause of observation deletion from the program enrolment.
-    //This might give false positive result, as form element might get hidden during edit.
-    static checkForMissingObservations(programEnrolment, workflow, getService) {
-        const formMappingService = getService(FormMappingService);
-        const program = programEnrolment.program;
-        const subjectType = programEnrolment.individual.subjectType;
-        const programEnrolmentForm = formMappingService.findFormForProgramEnrolment(program, subjectType);
-        const mandatoryConcepts = programEnrolmentForm.getMandatoryConcepts();
-        const savedInDb = getService(ProgramEnrolmentService).findByUUID(programEnrolment.uuid);
-        const conceptsRemovedInCurrentObservation = [];
-        _.forEach(mandatoryConcepts, concept => {
-            const savedMandatoryObs = _.find(savedInDb.observations, obs => concept.uuid === obs.concept.uuid);
-            if (!_.isNil(savedMandatoryObs)) {
-                const currentMandatoryObs = _.find(programEnrolment.observations, cObs => cObs.concept.uuid === savedMandatoryObs.concept.uuid);
-                if (_.isNil(currentMandatoryObs)) {
-                    conceptsRemovedInCurrentObservation.push({workflow, missingConcept: savedMandatoryObs.concept.name})
-                }
-            }
-        });
-        if (!_.isEmpty(conceptsRemovedInCurrentObservation)) {
-            const error = new Error(`Mandatory fields removed from enrolment observations. Details: ${JSON.stringify(conceptsRemovedInCurrentObservation)}`);
-            General.logDebug('ProgramEnrolmentService', `Notifying Bugsnag ${error}`);
-            bugsnag.notify(error);
-        }
-    }
-
-    static convertObsForSave(programEnrolment, workflow, getService) {
-        const isNewEntity = getService(ProgramEnrolmentService).findByUUID(programEnrolment.uuid);
-        if (!_.isNil(isNewEntity)) {
-            ProgramEnrolmentService.checkForMissingObservations(programEnrolment, workflow, getService);
-        }
+    static convertObsForSave(programEnrolment) {
         ObservationsHolder.convertObsForSave(programEnrolment.observations);
         ObservationsHolder.convertObsForSave(programEnrolment.programExitObservations);
         _.forEach(programEnrolment.checklists, c => _.forEach(c.items, i => ObservationsHolder.convertObsForSave(i.observations)));
@@ -59,10 +28,10 @@ class ProgramEnrolmentService extends BaseService {
         return ProgramEnrolment.schema.name;
     }
 
-    updateObservations(programEnrolment, workflow) {
+    updateObservations(programEnrolment) {
         const db = this.db;
         this.db.write(() => {
-            ProgramEnrolmentService.convertObsForSave(programEnrolment, workflow, this.getService.bind(this));
+            ProgramEnrolmentService.convertObsForSave(programEnrolment);
             db.create(ProgramEnrolment.schema.name, {
                 uuid: programEnrolment.uuid,
                 observations: programEnrolment.observations
@@ -79,7 +48,7 @@ class ProgramEnrolmentService extends BaseService {
         const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramForm(individual.subjectType, programEnrolment.program);
         this.db.write(() => {
-            ProgramEnrolmentService.convertObsForSave(programEnrolment, 'Program enrolment', this.getService.bind(this));
+            ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 programEnrolment.latestEntityApprovalStatus = entityApprovalStatusService.createPendingStatus(programEnrolment.uuid, ProgramEnrolment.schema.name, db);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
@@ -110,7 +79,7 @@ class ProgramEnrolmentService extends BaseService {
 
     exit(programEnrolment, skipCreatingPendingStatus, groupSubjectObservations = []) {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
-        ProgramEnrolmentService.convertObsForSave(programEnrolment, 'Program exit', this.getService.bind(this));
+        ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const db = this.db;
         const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramForm(individual.subjectType, programEnrolment.program, true);
@@ -140,7 +109,7 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     reJoinProgram(programEnrolment) {
-        ProgramEnrolmentService.convertObsForSave(programEnrolment, 'Undo exit', this.getService.bind(this));
+        ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const entityService = this.getService(EntityService);
         entityService.saveAndPushToEntityQueue(programEnrolment, ProgramEnrolment.schema.name);
     }
