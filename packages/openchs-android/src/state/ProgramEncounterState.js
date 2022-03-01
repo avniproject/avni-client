@@ -1,6 +1,12 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
-import {AbstractEncounter, ObservationsHolder, ProgramEncounter, ProgramConfig, StaticFormElementGroup} from "avni-models";
+import {
+    AbstractEncounter,
+    ObservationsHolder,
+    ProgramConfig,
+    ProgramEncounter,
+    StaticFormElementGroup
+} from "avni-models";
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 import IndividualService from "../service/IndividualService";
@@ -81,7 +87,9 @@ class ProgramEncounterState extends AbstractDataEntryState {
         context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions.encounterDecisions);
 
         const enrolment = this.programEncounter.programEnrolment.cloneForEdit();
-        context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
+        if (!_.isEmpty(decisions.enrolmentDecisions)) {
+            context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
+        }
         this.programEncounter.programEnrolment = enrolment;
 
         return decisions;

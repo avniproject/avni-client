@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {ProgramEnrolment, Individual, EntityQueue, ObservationsHolder, EntityApprovalStatus, ApprovalStatus } from 'avni-models';
+import {EntityQueue, Individual, ObservationsHolder, ProgramEnrolment} from 'avni-models';
 import _ from "lodash";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import General from "../utility/General";
@@ -11,6 +11,8 @@ import IdentifierAssignmentService from "./IdentifierAssignmentService";
 import EntityService from "./EntityService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
+import RuleEvaluationService from "./RuleEvaluationService";
+import bugsnag from "../utility/bugsnag";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -28,7 +30,36 @@ class ProgramEnrolmentService extends BaseService {
         return ProgramEnrolment.schema.name;
     }
 
-    updateObservations(programEnrolment) {
+    //This method should be removed once we know and fix the cause of observation deletion from the program enrolment.
+    checkAndNotifyForRemovedObservations(programEnrolment, workflow) {
+        const programEnrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program, programEnrolment.individual.subjectType);
+        const ruleEvaluationService = this.getService(RuleEvaluationService);
+        const savedInDb = this.findByUUID(programEnrolment.uuid);
+        const conceptsRemovedInCurrentObservation = [];
+        _.forEach(programEnrolmentForm.nonVoidedFormElementGroups(), feg => {
+            const formElementStatuses = ruleEvaluationService.getFormElementsStatuses(programEnrolment, this.getSchema(), feg);
+            _.forEach(feg.nonVoidedFormElements(), fe => {
+                const formElementStatus = _.find(formElementStatuses, ({uuid}) => uuid === fe.uuid);
+                if (_.get(formElementStatus, 'visibility') && fe.mandatory) {
+                    const savedMandatoryObs = _.find(savedInDb.observations, obs => obs.concept.uuid === fe.concept.uuid);
+                    if (!_.isNil(savedMandatoryObs)) {
+                        const currentMandatoryObs = _.find(programEnrolment.observations, cObs => cObs.concept.uuid === savedMandatoryObs.concept.uuid);
+                        if (_.isNil(currentMandatoryObs)) {
+                            conceptsRemovedInCurrentObservation.push({workflow, missingConcept: savedMandatoryObs.concept.name})
+                        }
+                    }
+                }
+            })
+        });
+        if (!_.isEmpty(conceptsRemovedInCurrentObservation)) {
+            const error = new Error(`Mandatory fields removed from enrolment observations. Details: ${JSON.stringify(conceptsRemovedInCurrentObservation)}`);
+            General.logDebug('ProgramEnrolmentService', `Notifying Bugsnag ${error}`);
+            bugsnag.notify(error);
+        }
+    }
+
+    updateObservations(programEnrolment, workflow) {
+        this.checkAndNotifyForRemovedObservations(programEnrolment, workflow);
         const db = this.db;
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
