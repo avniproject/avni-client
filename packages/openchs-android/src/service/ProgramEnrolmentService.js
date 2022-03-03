@@ -31,7 +31,7 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     //This method should be removed once we know and fix the cause of observation deletion from the program enrolment.
-    checkAndNotifyForRemovedObservations(programEnrolment, workflow) {
+    checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo) {
         const programEnrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program, programEnrolment.individual.subjectType);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         const savedInDb = this.findByUUID(programEnrolment.uuid);
@@ -45,7 +45,7 @@ class ProgramEnrolmentService extends BaseService {
                     if (!_.isNil(savedMandatoryObs)) {
                         const currentMandatoryObs = _.find(programEnrolment.observations, cObs => cObs.concept.uuid === savedMandatoryObs.concept.uuid);
                         if (_.isNil(currentMandatoryObs)) {
-                            conceptsRemovedInCurrentObservation.push({workflow, missingConcept: savedMandatoryObs.concept.name})
+                            conceptsRemovedInCurrentObservation.push({programEnrolmentUuid: programEnrolment.uuid, missingConcept: savedMandatoryObs.concept.name, ...workflowInfo})
                         }
                     }
                 }
@@ -58,8 +58,8 @@ class ProgramEnrolmentService extends BaseService {
         }
     }
 
-    updateObservations(programEnrolment, workflow) {
-        this.checkAndNotifyForRemovedObservations(programEnrolment, workflow);
+    updateObservations(programEnrolment, workflowInfo) {
+        this.checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo);
         const db = this.db;
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);

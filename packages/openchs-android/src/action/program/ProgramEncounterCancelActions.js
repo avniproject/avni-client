@@ -83,7 +83,8 @@ class ProgramEncounterCancelActions {
         if (_.isNil(newState.programEncounter.programEnrolment)) {
             context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         } else {
-            context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, 'Program encounter cancel');
+            const workflowInfo = {workflow: 'Program encounter cancel', programEncounterUuid: newState.programEncounter.uuid};
+            context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, workflowInfo);
             context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         }
 

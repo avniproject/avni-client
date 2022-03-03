@@ -85,8 +85,8 @@ class ProgramEncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-
-        context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, 'Program encounter');
+        const workflowInfo = {workflow: 'Program encounter', programEncounterUuid: newState.programEncounter.uuid};
+        context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, workflowInfo);
         const service = context.get(ProgramEncounterService);
 
         const scheduledVisits = [];
