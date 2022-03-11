@@ -93,6 +93,7 @@ export default class MediaFormElement extends AbstractFormElement {
                 .then(() => {
                     this.dispatchAction(this.props.actionName, {
                         formElement: this.props.element,
+                        parentFormElement: this.props.parentElement,
                         value: fileName
                     });
                 });
@@ -103,6 +104,7 @@ export default class MediaFormElement extends AbstractFormElement {
         this.dismissKeyboard();
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
+            parentFormElement: this.props.parentElement,
             value: null,
         });
     }

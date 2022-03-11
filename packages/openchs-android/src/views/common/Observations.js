@@ -1,6 +1,6 @@
 import {ListView, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
-import React from "react";
+import React, {Fragment} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import {Concept, Observation} from 'avni-models';
@@ -243,13 +243,48 @@ class Observations extends AbstractComponent {
         </View>;
     }
 
+    renderNormalView(observation, extraConceptStyle) {
+        return (
+            <View style={[{flexDirection: "row"}, this.styles.observationRow]} key={observation.concept.uuid}>
+                <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, extraConceptStyle]}>
+                    {this.I18n.t(observation.concept.name)}
+                </Text>
+                {this.renderValue(observation)}
+            </View>
+        )
+    }
+
+    renderGroupQuestionView(observation) {
+        const valueWrapper = observation.getValueWrapper();
+        const groupObservations = valueWrapper ? valueWrapper.getValue() : [];
+        return (
+            <Fragment key={observation.concept.uuid}>
+                <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
+                    <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
+                    <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn]}>
+                        {this.I18n.t(observation.concept.name)}
+                    </Text>
+                    <View style={[this.styles.observationColumn, {backgroundColor: 'rgba(0, 0, 0, 0.12)'}]}/>
+                </View>
+                {_.map(groupObservations, obs => (
+                    <View key={obs.concept.uuid} style={[{flexDirection: "row"}, this.styles.observationRow]}>
+                        <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
+                        <View style={this.styles.observationColumn}>
+                            <Text style={[this.styles.conceptNameStyle, {paddingLeft: 10}]}>
+                                {this.I18n.t(obs.concept.name)}
+                            </Text>
+                        </View>
+                        {this.renderValue(obs)}
+                    </View>
+                ))}
+            </Fragment>
+        )
+    }
+
     renderObservationValue(observation, extraConceptStyle) {
-        return <View style={[{flexDirection: "row"}, this.styles.observationRow]} key={observation.concept.uuid}>
-            <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, extraConceptStyle]}>
-                {this.I18n.t(observation.concept.name)}
-            </Text>
-            {this.renderValue(observation)}
-        </View>;
+        return observation.concept.isQuestionGroup() ?
+            this.renderGroupQuestionView(observation, extraConceptStyle) :
+            this.renderNormalView(observation, extraConceptStyle);
     }
 
     renderNormalObservationTable() {
@@ -266,7 +301,7 @@ class Observations extends AbstractComponent {
             removeClippedSubviews={true}
             renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
             renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={([observation]) => this.renderObservationValue(observation)}
+            renderRow={([observation]) => this.renderObservationValue(observation,{paddingLeft: 8})}
         />;
     }
 

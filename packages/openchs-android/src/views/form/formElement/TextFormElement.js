@@ -17,6 +17,9 @@ class TextFormElement extends AbstractFormElement {
         multiline: PropTypes.bool.isRequired,
         extraStyle: PropTypes.object,
         keyboardType: PropTypes.string,
+        containerStyle: PropTypes.object,
+        labelStyle: PropTypes.object,
+        inputStyle: PropTypes.object
     };
     static defaultProps = {
         style: {}
@@ -40,14 +43,23 @@ class TextFormElement extends AbstractFormElement {
     }
 
     renderWritable() {
+        const containerStyle = _.get(this.props, 'containerStyle', {flexDirection: 'column', justifyContent: 'flex-start'});
+        const labelStyle = _.get(this.props, 'labelStyle', {});
+        const inputStyle = _.get(this.props, 'inputStyle', {});
         return (
-            <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-                {this.label}
-                <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]} underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                           value={_.isNil(this.props.value) ? "" : this.props.value.answer} onChangeText={(text) => this.onInputChange(text)} multiline={false} numberOfLines={this.props.multiline ? 4 : 1}
-                           keyboardType={this.props.keyboardType || 'default'}/>
-
-                <ValidationErrorMessage validationResult={this.props.validationResult}/>
+            <View style={containerStyle}>
+                <View style={labelStyle}>
+                    {this.label}
+                </View>
+                <View style={inputStyle}>
+                    <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
+                               underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
+                               value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                               onChangeText={(text) => this.onInputChange(text)} multiline={false}
+                               numberOfLines={this.props.multiline ? 4 : 1}
+                               keyboardType={this.props.keyboardType || 'default'}/>
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                </View>
             </View>);
     }
 
@@ -56,7 +68,7 @@ class TextFormElement extends AbstractFormElement {
     }
 
     onInputChange(text) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, value: text});
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, parentFormElement: this.props.parentElement, value: text});
     }
 }
 

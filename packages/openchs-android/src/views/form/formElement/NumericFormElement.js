@@ -12,9 +12,12 @@ class NumericFormElement extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
         inputChangeActionName: PropTypes.string.isRequired,
-        endEditingActionName: PropTypes.string.isRequired,
+        endEditingActionName: PropTypes.string,
         value: PropTypes.object,
-        validationResult: PropTypes.object
+        validationResult: PropTypes.object,
+        containerStyle: PropTypes.object,
+        labelStyle: PropTypes.object,
+        inputStyle: PropTypes.object
     };
 
     constructor(props, context) {
@@ -42,7 +45,7 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     onInputChange(text, convertToNumber) {
-        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text, convertToNumber});
+        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text, parentFormElement: this.props.parentElement, convertToNumber});
     }
 
     color() {
@@ -56,12 +59,15 @@ class NumericFormElement extends AbstractFormElement {
         let rangeText = this.rangeText();
         let unitText = this.unitText();
         let labelText = this.label;
+        const containerStyle = _.get(this.props, 'containerStyle', {});
+        const labelStyle = _.get(this.props, 'labelStyle', {});
+        const inputStyle = _.get(this.props, 'inputStyle', {});
         return (
-            <View>
-                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1}}>
+            <View style={containerStyle}>
+                <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1, ...labelStyle}}>
                     <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
                 </View>
-                <View>
+                <View style={inputStyle}>
                     {this.props.element.editable === false ?
                         <Text style={[{
                             flex: 1,

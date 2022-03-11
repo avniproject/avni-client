@@ -121,6 +121,7 @@ const individualEncounterViewActions = {
     SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION",
     SET_LOCATION_ERROR: "EA.SET_LOCATION_ERROR",
     PHONE_NUMBER_CHANGE: "EA.PHONE_NUMBER_CHANGE",
+    GROUP_QUESTION_VALUE_CHANGE: "EA.GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "EA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "EA.ON_SKIP_VERIFICATION",
 };
@@ -143,6 +144,7 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.SET_ENCOUNTER_LOCATION, EncounterActions.setEncounterLocation],
     [individualEncounterViewActions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [individualEncounterViewActions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [individualEncounterViewActions.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [individualEncounterViewActions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [individualEncounterViewActions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);

@@ -121,6 +121,7 @@ const ProgramEncounterCancelActionsNames = {
     SET_CANCEL_LOCATION: "ProgramEncounterCancelActions.SET_CANCEL_LOCATION",
     SET_LOCATION_ERROR: "ProgramEncounterCancelActions.SET_LOCATION_ERROR",
     PHONE_NUMBER_CHANGE: "ProgramEncounterCancelActions.PHONE_NUMBER_CHANGE",
+    GROUP_QUESTION_VALUE_CHANGE: "ProgramEncounterCancelActions.GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "ProgramEncounterCancelActions.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "ProgramEncounterCancelActions.ON_SKIP_VERIFICATION",
 };
@@ -140,6 +141,7 @@ const ProgramEncounterCancelActionsMap = new Map([
     [ProgramEncounterCancelActionsNames.SET_CANCEL_LOCATION, ProgramEncounterCancelActions.setCancelLocation],
     [ProgramEncounterCancelActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [ProgramEncounterCancelActionsNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [ProgramEncounterCancelActionsNames.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [ProgramEncounterCancelActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [ProgramEncounterCancelActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);

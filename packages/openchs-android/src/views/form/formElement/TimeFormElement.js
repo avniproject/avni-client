@@ -37,7 +37,7 @@ class TimeFormElement extends AbstractFormElement {
                          }, Styles.formBodyText]}>{_.isNil(this.props.timeValue.getValue()) ? this.I18n.t('Not Known Yet') :this.props.timeValue.asDisplayDate()}</Text>:
                         <TimePicker timeValue={this.props.timeValue.getValue()}
                                     validationResult={this.props.validationResult}
-                                    actionObject={{formElement: this.props.element}}
+                                    actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement}}
                                     actionName={this.props.actionName}
                                     timePickerMode={_.isNil(this.props.element.timePickerMode)
                                         ? this.userSettings.timePickerMode

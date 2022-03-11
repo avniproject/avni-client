@@ -29,6 +29,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         const addressLevel = _.head(lowestSelectedAddresses);
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
+            parentFormElement: this.props.parentElement,
             value: addressLevel ? addressLevel.uuid : null
         });
     }

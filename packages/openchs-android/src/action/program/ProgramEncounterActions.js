@@ -146,6 +146,7 @@ const ProgramEncounterActionsNames = {
     SET_LOCATION_ERROR: "PEncA.SET_LOCATION_ERROR",
     DISPLAY_MESSAGE: "PEncA.DISPLAY_MESSAGE",
     PHONE_NUMBER_CHANGE: "PEncA.PHONE_NUMBER_CHANGE",
+    GROUP_QUESTION_VALUE_CHANGE: "PEncA.GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "PEncA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "PEncA.ON_SKIP_VERIFICATION",
 };
@@ -167,6 +168,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [ProgramEncounterActionsNames.DISPLAY_MESSAGE, ProgramEncounterActions.displayMessage],
     [ProgramEncounterActionsNames.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
+    [ProgramEncounterActionsNames.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
     [ProgramEncounterActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [ProgramEncounterActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
 ]);

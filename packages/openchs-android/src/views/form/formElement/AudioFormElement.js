@@ -56,6 +56,7 @@ class AudioFormElement extends AbstractFormElement {
         this.dismissKeyboard();
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
+            parentFormElement: this.props.parentElement,
             value,
             validationResult,
         });
