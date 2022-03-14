@@ -35,6 +35,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
         const parentFormElement = this.props.element;
         return this.getService(EntityService)
             .findAllByCriteria(`voided = false and groupUuid = '${parentFormElement.uuid}'`, FormElement.schema.name)
+            .sorted('displayOrder')
             .map(_.identity);
     }
 
