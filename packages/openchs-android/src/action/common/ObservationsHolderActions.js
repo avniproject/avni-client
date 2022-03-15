@@ -160,6 +160,7 @@ class ObservationsHolderActions {
         if (action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }
+        newState.validationResults = _.filter(newState.validationResults, vr => vr.formIdentifier === action.formElement.uuid);
         if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
             validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.parentFormElement, context);
         }
