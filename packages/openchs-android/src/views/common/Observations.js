@@ -264,7 +264,7 @@ class Observations extends AbstractComponent {
                     <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn]}>
                         {this.I18n.t(observation.concept.name)}
                     </Text>
-                    <View style={[this.styles.observationColumn, {backgroundColor: 'rgba(0, 0, 0, 0.12)'}]}/>
+                    <View style={this.styles.observationColumn}/>
                 </View>
                 {_.map(groupObservations, obs => (
                     <View key={obs.concept.uuid} style={[{flexDirection: "row"}, this.styles.observationRow]}>
