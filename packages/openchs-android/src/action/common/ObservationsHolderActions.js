@@ -19,7 +19,7 @@ class ObservationsHolderActions {
         const newState = state.clone();
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        const value = action.convertToNumber ? _.toNumber(action.value) : action.value;
+        const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value;
         newState.observationsHolder.addOrUpdatePrimitiveObs(action.formElement.concept, value);
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -149,7 +149,7 @@ class ObservationsHolderActions {
         const newState = state.clone();
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        const value = action.convertToNumber ? _.toNumber(action.value) : action.value;
+        const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value;
         newState.observationsHolder.updateGroupQuestion(action.parentFormElement.concept, action.formElement.concept, value, action.formElement);
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);

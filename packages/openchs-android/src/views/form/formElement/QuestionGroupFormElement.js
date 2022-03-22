@@ -2,8 +2,7 @@ import React from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {StyleSheet, View} from "react-native";
-import EntityService from "../../../service/EntityService";
-import {Concept, FormElement, PrimitiveValue, ValidationResult, MultipleCodedValues, SingleCodedValue, Identifier} from 'avni-models';
+import {Concept, PrimitiveValue, ValidationResult, MultipleCodedValues, SingleCodedValue, Identifier} from 'avni-models';
 import _ from 'lodash';
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import NumericFormElement from "./NumericFormElement";
@@ -25,6 +24,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
         validationResults: PropTypes.array,
+        filteredFormElements: PropTypes.array,
     };
 
     constructor(props, context) {
@@ -32,11 +32,10 @@ class QuestionGroupFormElement extends AbstractFormElement {
     }
 
     getChildFormElements() {
-        const parentFormElement = this.props.element;
-        return this.getService(EntityService)
-            .findAllByCriteria(`voided = false and groupUuid = '${parentFormElement.uuid}'`, FormElement.schema.name)
-            .sorted('displayOrder')
-            .map(_.identity);
+        return _.sortBy(
+            _.filter(this.props.filteredFormElements, ffe => ffe.groupUuid === this.props.element.uuid && !ffe.voided),
+            "displayOrder"
+        );
     }
 
     getValidationResultForFormElement(formElement) {

@@ -248,6 +248,7 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["GROUP_QUESTION_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new QuestionGroup())}
                                 validationResults={this.props.validationResults}
+                                filteredFormElements={this.props.filteredFormElements}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })
