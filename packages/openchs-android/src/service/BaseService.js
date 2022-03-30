@@ -152,7 +152,7 @@ class BaseService {
     }
 
     existsByUuid(uuid, schema = this.getSchema()) {
-        return this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
+        return _.isEmpty(uuid) ? false : this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
     }
 
     filtered(...args) {

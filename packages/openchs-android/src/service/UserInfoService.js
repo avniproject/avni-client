@@ -21,6 +21,10 @@ class UserInfoService extends BaseService {
         return this.getUserInfo().getSettings();
     }
 
+    getUserSyncSettings() {
+        return this.getUserInfo().getSyncSettings();
+    }
+
     saveOrUpdate(entity) {
         return super.saveOrUpdate(entity, UserInfo.schema.name);
     }

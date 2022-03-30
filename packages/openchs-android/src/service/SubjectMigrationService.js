@@ -23,6 +23,8 @@ import AddressLevelService from "./AddressLevelService";
 import IndividualService from "./IndividualService";
 import IndividualRelationshipService from "./relationship/IndividualRelationshipService";
 import General from "../utility/General";
+import SubjectTypeService from "./SubjectTypeService";
+import UserInfoService from "./UserInfoService";
 
 @Service('SubjectMigrationService')
 class SubjectMigrationService extends BaseService {
@@ -161,13 +163,25 @@ class SubjectMigrationService extends BaseService {
 
     async migrateSubjectIfRequired(subjectMigration) {
         const addressLevelService = this.getService(AddressLevelService);
+        const userInfoService = this.getService(UserInfoService);
+        const userSyncSettings = userInfoService.getUserSyncSettings();
+        const syncConcept1Values = _.get(userSyncSettings, 'syncConcept1Values', []);
+        const syncConcept2Values = _.get(userSyncSettings, 'syncConcept2Values', []);
         const oldAddressExists = addressLevelService.existsByUuid(subjectMigration.oldAddressLevelUUID);
         const newAddressExists = addressLevelService.existsByUuid(subjectMigration.newAddressLevelUUID);
-        if (oldAddressExists && !newAddressExists) {
+        const oldSyncConcept1ValueExists = _.includes(syncConcept1Values, subjectMigration.oldSyncConcept1Value);
+        const newSyncConcept1ValueExists =_.includes(syncConcept1Values, subjectMigration.newSyncConcept1Value);
+        const oldSyncConcept2ValueExists = _.includes(syncConcept2Values, subjectMigration.oldSyncConcept2Value);
+        const newSyncConcept2ValueExists = _.includes(syncConcept2Values, subjectMigration.newSyncConcept2Value);
+        if ((oldAddressExists && !newAddressExists) ||
+            (oldSyncConcept1ValueExists && !newSyncConcept1ValueExists) ||
+            (oldSyncConcept2ValueExists && !newSyncConcept2ValueExists)) {
             this.removeEntitiesFor(subjectMigration);
         }
 
-        if (!oldAddressExists && newAddressExists) {
+        if ((!oldAddressExists && newAddressExists) ||
+            (!oldSyncConcept1ValueExists && newSyncConcept1ValueExists) ||
+            (!oldSyncConcept2ValueExists && newSyncConcept2ValueExists)) {
             await this.addEntitiesFor(subjectMigration);
         }
 
