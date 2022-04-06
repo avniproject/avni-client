@@ -73,14 +73,20 @@ class NumericFormElement extends AbstractFormElement {
                             flex: 1,
                             marginVertical: 0,
                             paddingVertical: 5
-                        }, Styles.formBodyText, {color: this.color()}] }>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
-                        <View><TextInput style={[{flex: 1, marginVertical: 0, paddingVertical: 5}, Styles.formBodyText, {color: this.color()}]}
-                                         underlineColorAndroid={this.borderColor} keyboardType='numeric'
-                                         value={_.toString(this.props.value.getValue())}
-                                         onChangeText={(text) => this.onInputChange(text)}
-                                         onEndEditing={(event) => this.onInputChange(event.nativeEvent.text, true)}/>
-                            <ValidationErrorMessage validationResult={this.props.validationResult}/></View>
+                        }, Styles.formBodyText, {color: this.color()}]}>{_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}</Text> :
+                        <View>
+                            <TextInput style={[{
+                                flex: 1,
+                                marginVertical: 0,
+                                paddingVertical: 5
+                            }, Styles.formBodyText, {color: this.color()}]}
+                                       underlineColorAndroid={this.borderColor} keyboardType='numeric'
+                                       value={_.toString(this.props.value.getValue())}
+                                       onChangeText={(text) => this.onInputChange(text)}
+                                       onEndEditing={(event) => this.onInputChange(event.nativeEvent.text, true)}/>
+                        </View>
                     }
+                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>
         );

@@ -39,6 +39,7 @@ class TextFormElement extends AbstractFormElement {
             }, Styles.formBodyText, { color: Colors.InputNormal }]}>
                 {_.isNil(this.props.value.getValue()) ? this.I18n.t('Not Known Yet') : _.toString(this.props.value.getValue())}
             </Text>
+            <ValidationErrorMessage validationResult={this.props.validationResult}/>
         </View>);
     }
 
