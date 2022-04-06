@@ -189,6 +189,16 @@ class FormMappingService extends BaseService {
             .bestMatch();
     }
 
+    getIndividualEncounterForm(encounterType, subjectType) {
+        const formMapping = this.getIndividualEncounterFormMapping(encounterType, subjectType);
+        return _.get(formMapping, 'form');
+    }
+
+    getIndividualEncounterCancellationForm(encounterType, subjectType) {
+        const formMapping = this.getCancellationFormMappingsForIndividualEncounter(encounterType, subjectType);
+        return _.get(formMapping, 'form');
+    }
+
     getIndividualEncounterFormMapping(encounterType, subjectType) {
         return this.allFormMappings()
             .unVoided()
@@ -206,6 +216,11 @@ class FormMappingService extends BaseService {
             .forFormType(Form.formTypes.ProgramEncounter)
             .forSubjectType(subjectType)
             .bestMatch()
+    }
+
+    getProgramEncounterForm(encounterType, program, subjectType) {
+        const formMapping = this.getProgramEncounterFormMapping(encounterType, program, subjectType);
+        return _.get(formMapping, 'form');
     }
 
     getAllWithEnableApproval() {

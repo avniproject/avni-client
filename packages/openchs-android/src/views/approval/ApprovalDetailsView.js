@@ -29,6 +29,7 @@ import {ApprovalDialog} from "./ApprovalDialog";
 import {RejectionMessage} from "./RejectionMessage";
 import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
+import FormMappingService from "../../service/FormMappingService";
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -139,6 +140,29 @@ class ApprovalDetailsView extends AbstractComponent {
         return _.isEmpty(entity.cancelObservations) ? entity.programExitObservations : entity.cancelObservations;
     }
 
+    findForm(schema, entity) {
+        const service = this.getService(FormMappingService);
+        const get = property => _.get(entity, property);
+        switch (schema) {
+            case(Individual.schema.name) :
+                return service.findRegistrationForm(get('subjectType'));
+            case(ProgramEnrolment.schema.name) :
+                return _.isEmpty(entity.observations) ?
+                    service.findFormForProgramEnrolment(get('program'), get('individual.subjectType')) :
+                    service.findFormForProgramExit(get('program'), get('individual.subjectType'));
+            case(Encounter.schema.name) :
+                return _.isEmpty(entity.observations) ?
+                    service.getIndividualEncounterForm(get('encounterType'), get('individual.subjectType')) :
+                    service.getIndividualEncounterCancellationForm(get('encounterType'), get('individual.subjectType'));
+            case(ProgramEncounter.schema.name) :
+                return _.isEmpty(entity.observations) ?
+                    service.getProgramEncounterForm(get('encounterType'), get('programEnrolment.program'), get('individual.subjectType')) :
+                    service.findFormForCancellingEncounterType(get('encounterType'), get('programEnrolment.program'), get('individual.subjectType'));
+            default :
+                return null;
+        }
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const entity = this.props.entity;
@@ -161,7 +185,10 @@ class ApprovalDetailsView extends AbstractComponent {
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             {this.renderDetails(entity)}
                             {this.renderEntityDate(entity, schema, this.I18n)}
-                            <Observations observations={_.defaultTo(observations, [])}/>
+                            <Observations
+                                observations={_.defaultTo(observations, [])}
+                                form={this.findForm(schema, entity)}
+                            />
                             {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
                             {showEdit && this.renderEditButton(entity, schema)}
                         </View>
