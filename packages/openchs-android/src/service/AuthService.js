@@ -182,7 +182,7 @@ class AuthService extends BaseService {
                     return;
                 },
                 onFailure: function (err) {
-                    reject(new AuthenticationError('Unable to change password', err));
+                    reject(err);
                     return;
                 }
             });
