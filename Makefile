@@ -153,7 +153,7 @@ log:  ## Log android
 	adb logcat *:S ReactNative:V ReactNativeJS:V BackgroundTask:V
 
 log_background_job:
-	adb logcat | grep BackgroundJob
+	adb logcat | grep -e ReactNativeEventStarter -e BackgroundJob
 
 log_info: ## Log adb info level
 	adb logcat *:S ReactNative:W ReactNativeJS:I

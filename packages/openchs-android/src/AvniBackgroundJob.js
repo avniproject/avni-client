@@ -23,21 +23,24 @@ const SyncJobSchedule = {
     jobKey: "syncJob",
     timeout: 10*60*1000,
     period: 60*60*1000,
-    persist: true
+    persist: true,
+    exact: true
 };
 
 const DeleteDraftsJobSchedule = {
     jobKey: "deleteDraftsJob",
     timeout: 10*60*1000,
     period: 1*24*60*60*1000,
-    persist: true
+    persist: true,
+    exact: true
 };
 
 const PruneMediaJobSchedule = {
     jobKey: "pruneMediaJob",
     timeout: 10*60*1000,
     period: 1*24*60*60*1000,
-    persist: true
+    persist: true,
+    exact: true
 };
 
 //The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
