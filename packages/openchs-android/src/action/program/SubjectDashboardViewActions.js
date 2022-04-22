@@ -31,7 +31,9 @@ export default class SubjectDashboardViewActions {
         const individual = context.get(IndividualService).findByUUID(individualUUID);
         const privilegeService = context.get(PrivilegeService);
         const displayProgramTab = privilegeService.displayProgramTab(individual.subjectType);
-        const displayGeneralTab = privilegeService.displayGeneralTab(individual.subjectType);
+        const hasAnyGeneralEncounters = privilegeService.hasAnyGeneralEncounters(individual.subjectType);
+        const displayGeneralTab = displayProgramTab && hasAnyGeneralEncounters;
+        const displayGeneralInfoInProfileTab = hasAnyGeneralEncounters && !displayGeneralTab;
         const tabName = SubjectDashboardViewActions.getTabByNumber(tab, displayProgramTab, displayGeneralTab);
         return {
             ...newState,
@@ -44,7 +46,8 @@ export default class SubjectDashboardViewActions {
             backFunction,
             messageDisplayed: !!_.isNil(messageDisplayed),
             displayProgramTab,
-            displayGeneralTab
+            displayGeneralTab,
+            displayGeneralInfoInProfileTab
         };
     }
 

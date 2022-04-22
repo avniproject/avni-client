@@ -162,7 +162,7 @@ class PrivilegeService extends BaseService {
         }
     }
 
-    displayGeneralTab(subjectType) {
+    hasAnyGeneralEncounters(subjectType) {
         if (this.hasAllPrivileges()) {
             return this.getService(FormMappingService).findEncounterTypesForSubjectType(subjectType).length > 0;
         } else {

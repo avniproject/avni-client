@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Text, TouchableNativeFeedback, View} from 'react-native';
+import {View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import Reducers from "../../reducer";
 import PreviousEncounters from "../common/PreviousEncounters";
@@ -9,11 +9,10 @@ import _ from "lodash";
 import Colors from '../primitives/Colors';
 import {Form, Privilege} from 'avni-models';
 import Separator from "../primitives/Separator";
-import Styles from "../primitives/Styles";
-import Fonts from "../primitives/Fonts";
 import CHSNavigator from "../../utility/CHSNavigator";
 import ActionSelector from "../common/ActionSelector";
 import PrivilegeService from "../../service/PrivilegeService";
+import NewFormButton from "../common/NewFormButton";
 
 class SubjectDashboardGeneralTab extends AbstractComponent {
     static propTypes = {
@@ -32,25 +31,6 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
 
     shouldComponentUpdate(nextProps, state) {
         return !_.isNil(state.individual);
-    }
-
-    renderButton(onPress, buttonStyle, text, textColor, index) {
-        return (
-            <TouchableNativeFeedback onPress={onPress} key={index}>
-                <View style={buttonStyle}>
-                    <Text style={{
-                        fontSize: Fonts.Medium,
-                        color: textColor,
-                        paddingHorizontal: 10
-                    }}>{text}</Text>
-                </View>
-            </TouchableNativeFeedback>
-        );
-    }
-
-    startEncounter() {
-        this.dispatchAction(Reducers.STATE_CHANGE_POSSIBLE_EXTERNALLY);
-        this.dispatchAction(Actions.LAUNCH_ENCOUNTER_SELECTOR);
     }
 
     renderPlannedVisits() {
@@ -115,12 +95,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     actions={encounterActions}
                 />
                 <View style={{marginHorizontal: 10}}>
-                    <View style={{marginTop: 2, position: 'absolute', right: 8}}>
-                        {_.isEmpty(this.state.encounterTypes) || (this.privilegeService.hasEverSyncedGroupPrivileges() && !this.privilegeService.hasAllPrivileges() && _.isEmpty(allowedEncounterTypeUuidsForPerformVisit)) ? <View/> :
-                            this.renderButton(() => this.startEncounter(), Styles.basicPrimaryButtonView,
-                                this.I18n.t('newGeneralVisit'), Colors.TextOnPrimaryColor)
-                        }
-                    </View>
+                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab}/>
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
                 </View>

@@ -98,7 +98,7 @@ class SubjectDashboardView extends AbstractComponent {
                         />
                     </View>
                     {this.state.individualProfile && (
-                        <SubjectDashboardProfileTab params={{individualUUID: individualUUID}}/>
+                        <SubjectDashboardProfileTab params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
                     )}
                     {this.state.program && (
                         <SubjectDashboardProgramsTab
@@ -108,9 +108,10 @@ class SubjectDashboardView extends AbstractComponent {
                         <SubjectDashboardGeneralTab params={{individualUUID: individualUUID}}/>
                     )}
                 </CHSContent>
+                {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>
                     {this.renderOptions(options)}
-                </View>
+                </View>}
             </CHSContainer>
         );
     }

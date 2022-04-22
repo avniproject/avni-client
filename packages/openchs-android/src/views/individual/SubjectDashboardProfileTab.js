@@ -5,6 +5,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
 import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action/individual/IndividualRegistrationDetailsActions";
+import {Actions as GeneralEncounterActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
@@ -30,6 +31,8 @@ import RemoveMemberView from "../groupSubject/RemoveMemberView";
 import {AvniAlert} from "../common/AvniAlert";
 import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
+import NewFormButton from "../common/NewFormButton";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -44,6 +47,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
+        this.dispatchAction(GeneralEncounterActions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
         return super.componentWillMount();
     }
 
@@ -305,13 +309,13 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const displayGeneralEncounterInfo = this.props.params.displayGeneralInfoInProfileTab;
         const relativesFeatureToggle = this.state.individual.isPerson() && this.state.isRelationshipTypePresent;
         const groupSubjectToggle = this.state.individual.subjectType.isGroup();
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground}}>
-                <View style={{backgroundColor: Styles.defaultBackground}}>
-                </View>
-                <View style={{marginHorizontal: 10, marginTop: 10}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
+                <View style={{marginHorizontal: 10}}>
+                    <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
@@ -319,6 +323,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
+                {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </View>
         );
