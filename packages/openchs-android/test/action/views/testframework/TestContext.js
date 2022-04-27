@@ -25,6 +25,8 @@ import IdentifierAssignmentService from "../../../../src/service/IdentifierAssig
 import StubbedIdentifierAssignmentService from "../../service/stub/StubbedIdentifierAssignmentService";
 import GroupSubjectService from "../../../../src/service/GroupSubjectService";
 import StubbedGroupSubjectService from "../../service/stub/StubbedGroupSubjectService";
+import PrivilegeService from "../../../../src/service/PrivilegeService";
+import StubbedPrivilegeService from "../../service/stub/StubbedPrivilegeService";
 
 class TestContext {
     static stubs = new Map([
@@ -40,7 +42,8 @@ class TestContext {
         [UserInfoService, (serviceData) => new StubbedUserInfoService(serviceData)],
         [MediaQueueService, (serviceData) => new StubbedMediaQueueService(serviceData)],
         [IdentifierAssignmentService, (serviceData) => new StubbedIdentifierAssignmentService(serviceData)],
-        [GroupSubjectService, (serviceData) => new StubbedGroupSubjectService(serviceData)]
+        [GroupSubjectService, (serviceData) => new StubbedGroupSubjectService(serviceData)],
+        [PrivilegeService, (serviceData) => new StubbedPrivilegeService(serviceData)]
     ]);
 
     constructor(serviceData) {

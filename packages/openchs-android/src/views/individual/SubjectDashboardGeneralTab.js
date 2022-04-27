@@ -25,7 +25,13 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
+        const newEncounterCallback = (encounter) => {
+            CHSNavigator.navigateToEncounterView(this, {
+                individualUUID: this.props.params.individualUUID,
+                encounter: encounter,
+            });
+        };
+        this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID, newEncounterCallback});
         return super.componentWillMount();
     }
 
@@ -80,10 +86,9 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
                     visible={this.state.displayActionSelector}
                     actions={this.state.encounterActions}
-                    currentView={this}
                 />
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab} currentView={this}/>
+                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab}/>
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
                 </View>

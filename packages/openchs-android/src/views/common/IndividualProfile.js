@@ -79,7 +79,17 @@ class IndividualProfile extends AbstractComponent {
     }
 
     componentDidMount() {
-        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual: this.props.individual}), 300);
+        const individual = this.props.individual;
+        const programEnrolmentCallback = (program) => {
+            const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
+            CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, new WorkLists(new WorkList('Enrol', [
+                new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENROLMENT, {
+                    programName: program.name,
+                    subjectUUID: _.get(individual, 'uuid')
+                })
+            ])));
+        };
+        setTimeout(() => this.dispatchAction(Actions.INDIVIDUAL_SELECTED, {individual, programEnrolmentCallback}), 300);
     }
 
 
@@ -182,7 +192,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderNameDirectly(programAction) {
-        return this.renderProfileActionButton('add', this.I18n.t('enrolIn', {program: this.I18n.t(programAction.label)}), () => programAction.fn(this.props.currentView))
+        return this.renderProfileActionButton('add', this.I18n.t('enrolIn', {program: this.I18n.t(programAction.label)}), () => programAction.fn())
     }
 
     renderTitle() {
@@ -209,7 +219,6 @@ class IndividualProfile extends AbstractComponent {
                             hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
                             visible={this.state.displayActionSelector}
                             actions={this.state.programActions}
-                            currentView={this}
                         />
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <View style={{

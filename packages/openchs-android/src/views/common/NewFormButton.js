@@ -38,7 +38,7 @@ class NewFormButton extends AbstractComponent {
     }
 
     renderEncounterNameButton(encounterAction) {
-        return this.renderButton(() => encounterAction.fn(this.props.currentView), Styles.basicPrimaryButtonView, this.I18n.t(encounterAction.label), Colors.TextOnPrimaryColor)
+        return this.renderButton(() => encounterAction.fn(), Styles.basicPrimaryButtonView, this.I18n.t(encounterAction.label), Colors.TextOnPrimaryColor)
     }
 
     renderButtonBasedOnEncounters() {

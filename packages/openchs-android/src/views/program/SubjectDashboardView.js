@@ -95,7 +95,6 @@ class SubjectDashboardView extends AbstractComponent {
                                            viewContext={IndividualProfile.viewContext.Program}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}
-                                           currentView={this}
                         />
                     </View>
                     {this.state.individualProfile && (

@@ -5,7 +5,6 @@ import _ from 'lodash'
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Encounter, Privilege} from "avni-models";
-import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../../views/primitives/Colors";
 import PrivilegeService from "../../service/PrivilegeService";
 
@@ -32,7 +31,7 @@ export class IndividualGeneralHistoryActions {
             .filter(encounterType => context.get(RuleEvaluationService)
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
-        const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService);
+        const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
         return {
             ...newState,
             programsAvailable: context.get(ProgramService).programsAvailable,
@@ -42,20 +41,17 @@ export class IndividualGeneralHistoryActions {
         };
     }
 
-    static getEncounterActions(newState, privilegeService) {
+    static getEncounterActions(newState, privilegeService, action) {
         const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${newState.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
-        return newState.encounterTypes.filter((encounterType) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
-            fn: (currentView) => {
-                newState.encounter.encounterType = encounterType;
-                CHSNavigator.navigateToEncounterView(currentView, {
-                    individualUUID: newState.individualUUID,
-                    encounter: newState.encounter,
-                });
-            },
-            label: encounterType.displayName,
-            backgroundColor: Colors.ActionButtonColor
-        }));
+        return newState.encounterTypes.filter((encounterType) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
+            newState.encounter.encounterType = encounterType;
+            return ({
+                fn: () => action.newEncounterCallback(newState.encounter),
+                label: encounterType.displayName,
+                backgroundColor: Colors.ActionButtonColor
+            });
+        });
     }
 
     static clone(state) {

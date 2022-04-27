@@ -131,7 +131,7 @@ class ActionSelector extends AbstractComponent {
             <View key={index} style={{paddingTop: 10}}>
                 <TouchableNativeFeedback onPress={() => {
                     this.props.hide();
-                    onPress(this.props.currentView);
+                    onPress();
                 }}>
                     <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
                         <Text style={{
