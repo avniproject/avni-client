@@ -1,5 +1,5 @@
 // @flow
-import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
+import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem, Individual} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -41,6 +41,7 @@ import PhoneNumberVerificationView from "../views/common/PhoneNumberVerification
 import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
+import moment from "moment";
 
 
 class CHSNavigator {
@@ -539,6 +540,20 @@ class CHSNavigator {
             CHSNavigator.navigateToProgramEncounterView(
                 source, encounter, editing, null, null, null, backFunction, params.onSaveCallback, params.pageNumber);
         }
+    }
+
+    static proceedEncounter(typeorencounter, parent, onSaveCallback, source) {
+        const selectedEncounter = typeorencounter instanceof EncounterType
+            ? parent instanceof Individual
+                ? Encounter.createScheduled(typeorencounter, parent)
+                : ProgramEncounter.createScheduled(typeorencounter, parent)
+            : typeorencounter;
+        const encounter = selectedEncounter.cloneForEdit();
+        encounter.encounterDateTime = moment().toDate();
+        CHSNavigator.navigateToEncounterView(source, {
+            encounter,
+            onSaveCallback: onSaveCallback,
+        });
     }
 }
 

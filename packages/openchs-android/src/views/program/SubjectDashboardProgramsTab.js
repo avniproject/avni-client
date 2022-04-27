@@ -42,6 +42,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     componentWillMount() {
+        this.dispatchAction(Actions.ON_LANDING, this.props);
         return super.componentWillMount();
     }
 

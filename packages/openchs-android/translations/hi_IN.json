@@ -57,6 +57,7 @@
     "dateOfBirthVerified": "जन्म तारीख सही",
     "chooseADate": "तारीख़ चुनें",
     "enrolInProgram": "प्रोग्राम में एनरोल करें",
+    "enrolIn": "{{program}} में एनरोल करें",
     "followupTypes": "फोलो-अप प्रकार",
     "proceed": "  बढ़ें  ",
     "enrol": "इंरोल करें",

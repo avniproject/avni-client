@@ -4,9 +4,9 @@ import {
     NullProgramEnrolment,
     ProgramEncounter,
     ProgramEnrolment,
-    WorkLists,
+    WorkItem,
     WorkList,
-    WorkItem, ObservationsHolder
+    WorkLists
 } from 'avni-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
@@ -107,6 +107,13 @@ class ProgramEnrolmentDashboardActions {
         newState.completedEncounters = _.filter(enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
             .map(encounter => ({encounter, expand: false}));
         return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
+    }
+
+    static onLanding(state, action, context) {
+        const {enrolmentUUID, individualUUID} = action;
+        const newState = ProgramEnrolmentDashboardActions.clone(state);
+        newState.enrolment = ProgramEnrolmentDashboardActions._getEnrolment(newState, context, individualUUID, enrolmentUUID);
+        return newState;
     }
 
     static _updateStateWithBackFunction(action, newState, state) {
@@ -306,6 +313,7 @@ class ProgramEnrolmentDashboardActions {
 
 const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
+    ON_LANDING: 'PEDA.ON_LANDING',
     ON_FOCUS: 'PEDA.ON_FOCUS',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
     ON_EDIT_ENROLMENT_EXIT: 'PEDA.ON_EDIT_ENROLMENT_EXIT',
@@ -325,6 +333,7 @@ const EncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('ENCOUNTE
 
 const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
+    [ProgramEnrolmentDashboardActionsNames.ON_LANDING, ProgramEnrolmentDashboardActions.onLanding],
     [ProgramEnrolmentDashboardActionsNames.ON_FOCUS, ProgramEnrolmentDashboardActions.onFocus],
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],

@@ -72,30 +72,18 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     }
 
     render() {
-        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
 
-        const encounterActions = this.state.encounterTypes.filter((encounterType) => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
-            fn: () => {
-                this.state.encounter.encounterType = encounterType;
-                CHSNavigator.navigateToEncounterView(this, {
-                    individualUUID:this.state.individualUUID,
-                    encounter:this.state.encounter,
-                });
-            },
-            label: this.I18n.t(encounterType.displayName),
-            backgroundColor: Colors.ActionButtonColor
-        }));
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <ActionSelector
                     title={this.I18n.t("followupTypes")}
                     hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}
                     visible={this.state.displayActionSelector}
-                    actions={encounterActions}
+                    actions={this.state.encounterActions}
+                    currentView={this}
                 />
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab}/>
+                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab} currentView={this}/>
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
                 </View>

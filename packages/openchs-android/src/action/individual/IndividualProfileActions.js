@@ -1,6 +1,9 @@
 import IndividualService from "../../service/IndividualService";
 import _ from "lodash";
 import CommentService from "../../service/comment/CommentService";
+import CHSNavigator from "../../utility/CHSNavigator";
+import General from "../../utility/General";
+import {ProgramEnrolment, WorkItem, WorkLists, WorkList} from 'avni-models';
 
 export class IndividualProfileActions {
 
@@ -17,6 +20,7 @@ export class IndividualProfileActions {
             eligiblePrograms: state.eligiblePrograms.slice(),
             displayActionSelector: state.displayActionSelector,
             commentsCount: state.commentsCount,
+            programActions: state.programActions
         }
     }
 
@@ -36,11 +40,28 @@ export class IndividualProfileActions {
         const individualService = context.get(IndividualService);
         const individualUUID = action.individual.uuid;
         if (_.isNil(individualService.findByUUID(individualUUID))) return state;
-
+        const individual = individualService.findByUUID(individualUUID);
         const newState = IndividualProfileActions.clone(state);
         newState.commentsCount = context.get(CommentService).getThreadWiseFirstCommentForSubject(individualUUID).length;
         newState.eligiblePrograms = _.sortBy(individualService.eligiblePrograms(individualUUID), 'displayName');
+        newState.programActions = IndividualProfileActions.getProgramActions(newState, individual, individualUUID);
         return newState;
+    }
+
+    static getProgramActions(newState, individual, individualUUID) {
+        return newState.eligiblePrograms.map(program => ({
+            fn: (currentView) => {
+                const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
+                CHSNavigator.navigateToProgramEnrolmentView(currentView, enrolment, new WorkLists(new WorkList('Enrol', [
+                    new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENROLMENT, {
+                        programName: program.name,
+                        subjectUUID: individualUUID
+                    })
+                ])));
+            },
+            label: program.displayName,
+            backgroundColor: program.colour,
+        }));
     }
 
     static refreshMessageCounts(state, action, context) {

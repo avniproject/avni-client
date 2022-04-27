@@ -4,7 +4,10 @@ import SettingsService from "../../service/SettingsService";
 import _ from 'lodash'
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter} from "avni-models";
+import {Encounter, Privilege} from "avni-models";
+import CHSNavigator from "../../utility/CHSNavigator";
+import Colors from "../../views/primitives/Colors";
+import PrivilegeService from "../../service/PrivilegeService";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -18,8 +21,10 @@ export class IndividualGeneralHistoryActions {
 
     static onLoad(state, action, context) {
         const individual = context.get(IndividualService).findByUUID(action.individualUUID);
+        const privilegeService = context.get(PrivilegeService);
         const encounters = _.map(individual.nonVoidedEncounters(), encounter => ({encounter, expand: false}));
         const newState = IndividualGeneralHistoryActions.clone(state);
+        newState.individual = individual;
         newState.encounter = Encounter.create();
         newState.encounter.individual = individual;
         newState.encounterTypes = context.get(FormMappingService)
@@ -27,13 +32,30 @@ export class IndividualGeneralHistoryActions {
             .filter(encounterType => context.get(RuleEvaluationService)
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
+        const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService);
         return {
             ...newState,
             programsAvailable: context.get(ProgramService).programsAvailable,
             showCount: SettingsService.IncrementalEncounterDisplayCount,
-            individual,
             encounters,
+            encounterActions
         };
+    }
+
+    static getEncounterActions(newState, privilegeService) {
+        const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${newState.individual.subjectType.uuid}'`;
+        const allowedEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
+        return newState.encounterTypes.filter((encounterType) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => ({
+            fn: (currentView) => {
+                newState.encounter.encounterType = encounterType;
+                CHSNavigator.navigateToEncounterView(currentView, {
+                    individualUUID: newState.individualUUID,
+                    encounter: newState.encounter,
+                });
+            },
+            label: encounterType.displayName,
+            backgroundColor: Colors.ActionButtonColor
+        }));
     }
 
     static clone(state) {

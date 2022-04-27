@@ -131,7 +131,7 @@ class ActionSelector extends AbstractComponent {
             <View key={index} style={{paddingTop: 10}}>
                 <TouchableNativeFeedback onPress={() => {
                     this.props.hide();
-                    onPress();
+                    onPress(this.props.currentView);
                 }}>
                     <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
                         <Text style={{
@@ -139,7 +139,7 @@ class ActionSelector extends AbstractComponent {
                             color: textColor,
                             textAlign: 'center',
                             paddingVertical: 8,
-                        }}>{text}</Text>
+                        }}>{this.I18n.t(text)}</Text>
                     </View>
                 </TouchableNativeFeedback>
             </View>

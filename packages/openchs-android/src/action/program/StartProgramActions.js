@@ -5,6 +5,7 @@ import UserInfoService from "../../service/UserInfoService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Action} from "../util";
 import IndividualService from "../../service/IndividualService";
+import PrivilegeService from "../../service/PrivilegeService";
 
 class StartProgramActions {
 
@@ -24,7 +25,7 @@ class StartProgramActions {
     @Action('StartProgramActions.onLoad')
     static onLoad(state, action, context) {
         const formMappingService = context.get(FormMappingService);
-
+        const privilegeService = context.get(PrivilegeService);
         const newState = {};
         const enrolment = action.enrolmentUUID && context.get(ProgramEnrolmentService).findByUUID(action.enrolmentUUID);
         const individual = action.individualUUID && context.get(IndividualService).findByUUID(action.individualUUID);
@@ -60,7 +61,15 @@ class StartProgramActions {
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
         newState.hideUnplanned = context.get(UserInfoService).getUserSettings().hideUnplanned;
-
+        newState.allowedEncounters = _.filter(newState.encounters, ({encounter}) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounter.encounterType.uuid));
+        newState.allowedEncounterTypes = _.filter(newState.encounterTypes, ({encounterType}) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounterType.uuid));
+        newState.isSingle = _.size([...newState.allowedEncounters, ...newState.allowedEncounterTypes]) === 1;
+        const allAllowed = newState.allowedEncounters;
+        if (!newState.hideUnplanned) {
+            allAllowed.push(...newState.allowedEncounterTypes)
+        }
+        newState.allAllowed = allAllowed;
+        newState.enrolment = enrolment;
         return newState;
     }
 }

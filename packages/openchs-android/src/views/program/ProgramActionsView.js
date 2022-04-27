@@ -7,20 +7,38 @@ import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
-import {ProgramEnrolmentDashboardActionsNames} from "../../action/program/ProgramEnrolmentDashboardActions";
 import GrowthChartView from "./GrowthChartView";
 import * as _ from "lodash";
 import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
-import {Privilege} from "avni-models";
+import {Privilege, EncounterType} from "avni-models";
 import PrivilegeService from "../../service/PrivilegeService";
+import {StartProgramActions as Actions} from "../../action/program/StartProgramActions";
 
 @Path('/ProgramActionsView')
 class ProgramActionsView extends AbstractComponent {
     constructor(props, context) {
-        super(props, context, "something");
+        super(props, context, Reducers.reducerKeys.startProgramActions);
         this.goToView = this.goToView.bind(this);
         this.privilegeService = context.getService(PrivilegeService);
+    }
+
+    componentWillMount() {
+        const allowedEncounterTypeUuids = this.props.allowedEncounterTypeUuids;
+        const enrolment = this.props.enrolment;
+        this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
+        return super.componentWillMount();
+    }
+
+    shouldComponentUpdate(nextProps, state) {
+        const enrolment = this.state.enrolment;
+        return !_.isNil(enrolment) && _.get(nextProps, 'enrolment.uuid') !== enrolment.uuid;
+    }
+
+    componentDidUpdate() {
+        const allowedEncounterTypeUuids = this.props.allowedEncounterTypeUuids;
+        const enrolment = this.props.enrolment;
+        this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
     }
 
     static propTypes = {
@@ -57,6 +75,26 @@ class ProgramActionsView extends AbstractComponent {
         );
     }
 
+    renderNormalButton() {
+        return this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), Styles.basicPrimaryButtonView,
+            this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
+    }
+
+    renderSingleEncounter() {
+        const firstAllowed = _.head(this.state.allAllowed);
+        const encounterOrType = firstAllowed.encounter || firstAllowed.encounterType;
+        const name = encounterOrType instanceof EncounterType ? encounterOrType.operationalEncounterTypeName : encounterOrType.name;
+        return this.renderButton(() => CHSNavigator.proceedEncounter(encounterOrType, firstAllowed.parent, null, this),
+            Styles.basicPrimaryButtonView,
+            this.I18n.t(name),
+            Colors.TextOnPrimaryColor
+        );
+    }
+
+    renderOption() {
+        return this.state.isSingle ? this.renderSingleEncounter() : this.renderNormalButton()
+    }
+
     render() {
         const checklistPredicate = this.props.enrolment.hasChecklist &&
             this.props.enrolment.checklists.map(checklist => `checklistDetailUuid = '${checklist.detail.uuid}'`).join(' OR ');
@@ -66,11 +104,7 @@ class ProgramActionsView extends AbstractComponent {
         return (
             <View
                 style={{flex: 1, flexDirection: 'column', marginTop: 8}}>
-                {this.props.enrolment.isActive && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(this.props.allowedEncounterTypeUuids)) ?
-                    this.renderButton(() => this.startProgramEncounter(this.props.allowedEncounterTypeUuids), Styles.basicPrimaryButtonView,
-                        this.I18n.t('newProgramVisit'), Colors.TextOnPrimaryColor)
-                    :
-                    <View/>}
+                {this.props.enrolment.isActive && (_.size(this.state.allAllowed) > 0) ? this.renderOption() : <View/>}
                 {this.props.enrolment.hasChecklist && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || !_.isEmpty(allowedChecklistTypeUuids)) ?
                     this.renderButton(() => this.openChecklist(), Styles.basicPrimaryButtonView,
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)

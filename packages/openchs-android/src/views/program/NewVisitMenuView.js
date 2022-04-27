@@ -11,7 +11,6 @@ import moment from "moment";
 import Distances from "../primitives/Distances";
 import General from "../../utility/General";
 import _ from "lodash";
-import {Encounter, EncounterType, Individual, ProgramEncounter} from "avni-models";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -33,20 +32,6 @@ class NewVisitMenuView extends AbstractComponent {
     componentWillMount() {
         this.dispatchAction(Actions.onLoad, this.props);
         return super.componentWillMount();
-    }
-
-    proceed(typeorencounter, parent) {
-        const selectedEncounter = typeorencounter instanceof EncounterType
-            ? parent instanceof Individual
-                ? Encounter.createScheduled(typeorencounter, parent)
-                : ProgramEncounter.createScheduled(typeorencounter, parent)
-            : typeorencounter;
-        const encounter = selectedEncounter.cloneForEdit();
-        encounter.encounterDateTime = moment().toDate();
-        CHSNavigator.navigateToEncounterView(this, {
-            encounter,
-            onSaveCallback: this.props.onSaveCallback,
-        });
     }
 
     static Header = ({section: {title, data}}) => {
@@ -90,7 +75,7 @@ class NewVisitMenuView extends AbstractComponent {
         return <NewVisitMenuView.Item name={encounterName}
                                       displayDate={displayDate}
                                       statusColor={color}
-                                      onSelect={() => this.proceed(encounter, parent)}/>;
+                                      onSelect={() => CHSNavigator.proceedEncounter(encounter, parent, this.props.onSaveCallback, this)}/>;
     };
 
     renderEncounterType = ({item: {encounterType, parent}}) => {
@@ -98,7 +83,7 @@ class NewVisitMenuView extends AbstractComponent {
         return <NewVisitMenuView.Item name={encounterName}
                                       displayDate=''
                                       statusColor={Colors.FutureVisitColor}
-                                      onSelect={() => this.proceed(encounterType, parent)}/>;
+                                      onSelect={() => CHSNavigator.proceedEncounter(encounterType, parent, this.props.onSaveCallback, this)}/>;
     };
 
     render() {

@@ -74,6 +74,7 @@
     "Female": "Female",
     "Other": "Other",
     "enrolInProgram": "Enrol in Program",
+    "enrolIn": "Enrol in {{program}}",
     "followupTypes": "Types",
     "proceed": "Proceed",
     "enrol": "ENROL",

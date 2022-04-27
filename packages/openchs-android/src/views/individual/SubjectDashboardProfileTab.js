@@ -315,7 +315,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
+                    <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}} currentView={this}/>
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}

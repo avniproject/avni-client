@@ -103,7 +103,7 @@ class IndividualProfile extends AbstractComponent {
                     color: Colors.DarkPrimaryColor,
                     paddingRight: 4
                 }}/>
-                <Text style={Styles.programProfileButtonText}>{this.I18n.t(displayTextMessageKey)}</Text>
+                <Text style={Styles.programProfileButtonText}>{displayTextMessageKey}</Text>
             </View>
         </TouchableNativeFeedback>);
     }
@@ -181,24 +181,20 @@ class IndividualProfile extends AbstractComponent {
         return enableComments ? <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
     }
 
+    renderNameDirectly(programAction) {
+        return this.renderProfileActionButton('add', this.I18n.t('enrolIn', {program: this.I18n.t(programAction.label)}), () => programAction.fn(this.props.currentView))
+    }
+
+    renderTitle() {
+        return this.renderProfileActionButton('add', this.I18n.t('enrolInProgram'), () => this.launchChooseProgram())
+    }
+
+    renderBasedOnProgramActions() {
+        return _.size(this.state.programActions) === 1 ? this.renderNameDirectly(_.head(this.state.programActions)) : this.renderTitle();
+    }
+
     render() {
         General.logDebug('IndividualProfile', 'render');
-        const programActions = this.state.eligiblePrograms.map(program => ({
-            fn: () => {
-                const enrolment = ProgramEnrolment.createEmptyInstance({
-                    individual: this.props.individual,
-                    program: program
-                });
-                CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, new WorkLists(new WorkList('Enrol', [
-                    new WorkItem(General.randomUUID(), WorkItem.type.PROGRAM_ENROLMENT, {
-                        programName: program.name,
-                        subjectUUID: this.props.individual.uuid
-                    })
-                ])));
-            },
-            label: this.I18n.t(program.displayName),
-            backgroundColor: program.colour,
-        }));
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
         return <View style={{backgroundColor: backgroundColor}}>
             {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
@@ -212,7 +208,8 @@ class IndividualProfile extends AbstractComponent {
                             title={this.I18n.t("enrolInProgram")}
                             hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
                             visible={this.state.displayActionSelector}
-                            actions={programActions}
+                            actions={this.state.programActions}
+                            currentView={this}
                         />
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <View style={{
@@ -246,7 +243,7 @@ class IndividualProfile extends AbstractComponent {
                                 paddingVertical: 8,
                                 alignItems: 'center'
                             }}>
-                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderProfileActionButton('add', 'enrolInProgram', () => this.launchChooseProgram()) :
+                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderBasedOnProgramActions() :
                                 <View/>}
                             {this.renderGroupOptions()}
                         </View>

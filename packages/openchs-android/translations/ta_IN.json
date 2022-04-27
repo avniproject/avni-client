@@ -73,6 +73,7 @@
     "Female": "பெண்",
     "Other": "மற்ற",
     "enrolInProgram": "நிரலில் பதிவு செய்",
+    "enrolIn": "{{program}} பதிவு செய்",
     "followupTypes": "வகைகள்",
     "proceed": "தொடர",
     "enrol": "சேர",
