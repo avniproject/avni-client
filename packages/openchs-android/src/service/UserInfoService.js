@@ -25,6 +25,14 @@ class UserInfoService extends BaseService {
         return this.getUserInfo().getSyncSettings();
     }
 
+    getSyncConcept1Values() {
+        return _.get(this.getUserSyncSettings(), 'syncConcept1Values', []);
+    }
+
+    getSyncConcept2Values() {
+        return _.get(this.getUserSyncSettings(), 'syncConcept2Values', []);
+    }
+
     saveOrUpdate(entity) {
         return super.saveOrUpdate(entity, UserInfo.schema.name);
     }

@@ -13,7 +13,8 @@ class SelectFormElement extends AbstractFormElement {
         element: PropTypes.object.isRequired,
         actionName: PropTypes.string.isRequired,
         isSelected: PropTypes.func.isRequired,
-        validationResult: PropTypes.object
+        validationResult: PropTypes.object,
+        allowedValues: PropTypes.array
     };
 
     constructor(props, context) {
@@ -25,9 +26,17 @@ class SelectFormElement extends AbstractFormElement {
         this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: answer.concept.uuid, parentFormElement: this.props.parentElement, value: answer.concept.uuid});
     }
 
+    getOnlyAllowedAnswers() {
+        return this.props.element.getAnswers().filter(answer => _.includes(this.props.allowedValues, answer.concept.uuid))
+    }
+
+    getAnswers() {
+        return _.isNil(this.props.allowedValues) ? this.props.element.getAnswers() : this.getOnlyAllowedAnswers();
+    }
+
     render() {
         const disabled = this.props.element.editable === false;
-        const valueLabelPairs = this.props.element.getAnswers()
+        const valueLabelPairs = this.getAnswers()
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>

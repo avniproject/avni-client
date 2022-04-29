@@ -7,6 +7,7 @@ import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
+import ValueSelectFormElement from "./ValueSelectFormElement";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -17,7 +18,8 @@ class NumericFormElement extends AbstractFormElement {
         validationResult: PropTypes.object,
         containerStyle: PropTypes.object,
         labelStyle: PropTypes.object,
-        inputStyle: PropTypes.object
+        inputStyle: PropTypes.object,
+        allowedValues: PropTypes.array
     };
 
     constructor(props, context) {
@@ -45,17 +47,22 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     onInputChange(text, convertToNumber) {
-        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: text, parentFormElement: this.props.parentElement, convertToNumber});
+        this.dispatchAction(this.props.inputChangeActionName, {
+            formElement: this.props.element,
+            value: text,
+            parentFormElement: this.props.parentElement,
+            convertToNumber
+        });
     }
 
     color() {
-        if (_.isNil(this.props.value.getValue())){
+        if (_.isNil(this.props.value.getValue())) {
             return Colors.InputNormal;
         }
         return this.props.element.concept.isAbnormal(this.props.value.getValue()) ? Colors.AbnormalValueHighlight : Colors.InputNormal;
     }
 
-    render() {
+    renderNormalView() {
         let rangeText = this.rangeText();
         let unitText = this.unitText();
         let labelText = this.label;
@@ -90,6 +97,18 @@ class NumericFormElement extends AbstractFormElement {
                 </View>
             </View>
         );
+    }
+
+    renderOptionView() {
+        return <ValueSelectFormElement
+            onPress={(text) => this.onInputChange(text)}
+            values={this.props.allowedValues}
+            {...this.props}
+        />
+    }
+
+    render() {
+        return _.isNil(this.props.allowedValues) ? this.renderNormalView() : this.renderOptionView()
     }
 
 

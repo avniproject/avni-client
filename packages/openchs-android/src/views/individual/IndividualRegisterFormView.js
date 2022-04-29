@@ -20,6 +20,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -76,6 +77,8 @@ class IndividualRegisterFormView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
+        const subjectType = this.state.individual.subjectType;
+        const userInfoService = this.context.getService(UserInfoService);
         return (
             <CHSContainer>
                 <CHSContent ref='scroll'>
@@ -93,6 +96,10 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           dataEntryDate={this.state.individual.registrationDate}
                                           onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                           groupAffiliation={this.state.groupAffiliation}
+                                          syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
+                                          syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
+                                          allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
+                                          allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
                         />
                         <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                        next={{

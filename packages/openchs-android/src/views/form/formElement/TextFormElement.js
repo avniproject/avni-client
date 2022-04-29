@@ -7,6 +7,7 @@ import AbstractFormElement from "./AbstractFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
+import ValueSelectFormElement from "./ValueSelectFormElement";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -19,7 +20,8 @@ class TextFormElement extends AbstractFormElement {
         keyboardType: PropTypes.string,
         containerStyle: PropTypes.object,
         labelStyle: PropTypes.object,
-        inputStyle: PropTypes.object
+        inputStyle: PropTypes.object,
+        allowedValues: PropTypes.array
     };
     static defaultProps = {
         style: {}
@@ -64,12 +66,24 @@ class TextFormElement extends AbstractFormElement {
             </View>);
     }
 
-    render() {
+    renderNormalView() {
         return this.props.element.editable === false ? this.renderReadOnly() : this.renderWritable();
     }
 
     onInputChange(text) {
         this.dispatchAction(this.props.actionName, {formElement: this.props.element, parentFormElement: this.props.parentElement, value: text});
+    }
+
+    renderOptionView() {
+        return <ValueSelectFormElement
+            onPress={(text) => this.onInputChange(text)}
+            values={this.props.allowedValues}
+            {...this.props}
+        />
+    }
+
+    render() {
+        return _.isNil(this.props.allowedValues) ? this.renderNormalView() : this.renderOptionView()
     }
 }
 

@@ -47,6 +47,10 @@ class FormElementGroup extends AbstractComponent {
         dataEntryDate: PropTypes.object,
         onValidationError: PropTypes.func,
         subjectUUID: PropTypes.string,
+        syncRegistrationConcept1UUID: PropTypes.string,
+        syncRegistrationConcept2UUID: PropTypes.string,
+        allowedSyncConcept1Values: PropTypes.array,
+        allowedSyncConcept2Values: PropTypes.array,
     };
 
     constructor(props, context) {
@@ -87,6 +91,15 @@ class FormElementGroup extends AbstractComponent {
         return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
     }
 
+    allowedValues(concept) {
+        if (this.props.syncRegistrationConcept1UUID === concept.uuid) {
+            return this.props.allowedSyncConcept1Values;
+        } else if (this.props.syncRegistrationConcept2UUID === concept.uuid) {
+            return this.props.allowedSyncConcept2Values;
+        }
+        return null;
+    }
+
     render() {
         const sortedFormElements = this.props.group.getFormElements();
         const firstErroredFE = _.chain(sortedFormElements)
@@ -101,13 +114,15 @@ class FormElementGroup extends AbstractComponent {
                 {
                     formElements.map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
+                        const allowedValues = this.allowedValues(formElement.concept);
                         if (!formElement.isQuestionGroup() && formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                 element={formElement}
                                 inputChangeActionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 endEditingActionName={this.props.actions["PRIMITIVE_VALUE_END_EDITING"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                validationResult={validationResult}
+                                allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
                         } else if (!formElement.isQuestionGroup() && (formElement.concept.datatype === Concept.dataType.Text || formElement.concept.datatype === Concept.dataType.Notes)) {
                             return this.wrap(<TextFormElement
                                 element={formElement}
@@ -115,19 +130,22 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                                 multiline={formElement.concept.datatype !== Concept.dataType.Text}
+                                allowedValues={allowedValues}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (!formElement.isQuestionGroup() && formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectFormElement key={idx}
                                                                      element={formElement}
                                                                      multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                                                      actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
-                                                                     validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                                                     validationResult={validationResult}
+                                                                     allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
                         } else if (!formElement.isQuestionGroup() && formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectFormElement key={idx}
                                                                       element={formElement}
                                                                       singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                                                       actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
-                                                                      validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                                                      validationResult={validationResult}
+                                                                      allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
                         } else if (!formElement.isQuestionGroup() && formElement.concept.datatype === Concept.dataType.Date && _.isNil(formElement.durationOptions)) {
                             return this.wrap(<DateFormElement key={idx}
                                                               element={formElement}
