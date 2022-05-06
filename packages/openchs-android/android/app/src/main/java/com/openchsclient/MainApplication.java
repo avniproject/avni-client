@@ -27,6 +27,7 @@ import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
+import com.openchsclient.module.BackgroundWorkerPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
@@ -75,6 +76,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new ReactNativeI18n(),
                     new RealmReactPackage(),
                     new RestartPackage(),
+                    new BackgroundWorkerPackage(),
                     new RNFusedLocationPackage(),
                     new RNCWebViewPackage()
 //                    new DeviceInfoPackage()

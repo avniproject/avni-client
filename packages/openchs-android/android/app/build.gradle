@@ -142,6 +142,9 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha03'
+    implementation "androidx.work:work-runtime:2.6.0"
+    implementation "androidx.work:work-rxjava2:2.6.0"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.0.0"
 }
 
 // Run this once to be able to run the application with BUCK
