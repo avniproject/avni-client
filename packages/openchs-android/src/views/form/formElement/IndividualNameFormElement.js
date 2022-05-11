@@ -10,6 +10,7 @@ import {  Individual  } from 'avni-models';
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
 import Distances from "../../primitives/Distances";
 import ValidationErrorMessage from "../ValidationErrorMessage";
+import _ from "lodash";
 
 class IndividualNameFormElement extends AbstractComponent {
     static propTypes = {
@@ -29,6 +30,7 @@ class IndividualNameFormElement extends AbstractComponent {
                                  value={new PrimitiveValue(this.props.state.individual.firstName)}
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                  multiline={false}
+                                 helpText={_.get(this.props.state.individual, 'subjectType.nameHelpText')}
                 />
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_LAST_NAME}
                                  element={new StaticFormElement('lastName', true)}

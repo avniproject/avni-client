@@ -236,6 +236,13 @@ Styles.formLabel = {
     lineHeight: Styles.normalTextSize + 8,
 };
 
+Styles.helpText = {
+    fontSize: 13,
+    fontStyle: 'normal',
+    color: Styles.greyText,
+    lineHeight: 16,
+};
+
 Styles.formGroupLabel = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
