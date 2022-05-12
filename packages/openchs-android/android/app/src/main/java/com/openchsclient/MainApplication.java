@@ -4,12 +4,12 @@ import android.app.Application;
 import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.facebook.react.ReactApplication;
-import com.openchsclient.module.BackgroundJobPackage;
 import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 import com.corbt.keepawake.KCKeepAwakePackage;
 import com.dooboolab.RNAudioRecorderPlayerPackage;
 import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
 import com.rnziparchive.RNZipArchivePackage;
+import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
@@ -52,13 +52,13 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
-                    new BackgroundJobPackage(),
                     new MainReactPackage(),
             new RNFileViewerPackage(),
             new KCKeepAwakePackage(),
             new RNAudioRecorderPlayerPackage(),
             new DocumentPickerPackage(),
             new RNZipArchivePackage(),
+            new BackgroundJobPackage(),
             new ReactNativeFirebaseAnalyticsPackage(),
             new ReactNativeFirebaseAppPackage(),
             new RNImmediatePhoneCallPackage(),

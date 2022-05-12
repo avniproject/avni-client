@@ -1,25 +1,63 @@
 import DeleteDrafts from "./task/DeleteDrafts";
 import PruneMedia from "./task/PruneMedia";
 import Sync from "./task/Sync";
+import BackgroundJob from 'react-native-background-job';
 import General from "./utility/General";
-import {AppRegistry, NativeModules, AppState} from 'react-native';
-import _ from 'lodash';
 
-
-const executeJob = async (func) => {
-    if (AppState.currentState !== "active") {
-        func()
-    } else {
-        _.noop()
-    }
+const SyncJob = {
+    jobKey: "syncJob",
+    job: () => Sync.execute()
 };
 
-export const RegisterAndScheduleJobs = function () {
-    AppRegistry.registerHeadlessTask('syncJob', () => () => executeJob(() => Sync.execute()));
-    AppRegistry.registerHeadlessTask('deleteDraftsJob', () => () => executeJob(() => DeleteDrafts.execute()));
-    AppRegistry.registerHeadlessTask('pruneMediaJob', () => () => executeJob(() => PruneMedia.execute()));
+const DeleteDraftsJob = {
+    jobKey: "deleteDraftsJob",
+    job: () => DeleteDrafts.execute()
+};
 
-    NativeModules.AvniBackgroundJob.startService();
+const PruneMediaJob = {
+    jobKey: "pruneMediaJob",
+    job: () => PruneMedia.execute()
+};
+
+const SyncJobSchedule = {
+    jobKey: "syncJob",
+    timeout: 10*60*1000,
+    period: 60*60*1000,
+    persist: true,
+    exact: true
+};
+
+const DeleteDraftsJobSchedule = {
+    jobKey: "deleteDraftsJob",
+    timeout: 10*60*1000,
+    period: 1*24*60*60*1000,
+    persist: true,
+    exact: true
+};
+
+const PruneMediaJobSchedule = {
+    jobKey: "pruneMediaJob",
+    timeout: 10*60*1000,
+    period: 1*24*60*60*1000,
+    persist: true,
+    exact: true
+};
+
+//The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
+export const RegisterAndScheduleJobs = function () {
+    BackgroundJob.register(DeleteDraftsJob);
+    BackgroundJob.register(PruneMediaJob);
+    BackgroundJob.register(SyncJob);
+
+    BackgroundJob.schedule(DeleteDraftsJobSchedule)
+        .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Successfully scheduled"))
+        .catch(err => General.logError("AvniBackgroundJob-DeleteDraftsJob", err));
+    BackgroundJob.schedule(PruneMediaJobSchedule)
+        .then(() => General.logInfo("AvniBackgroundJob-PruneMediaJob", "Successfully scheduled"))
+        .catch(err => General.logError("AvniBackgroundJob-PruneMediaJob", err));
+    BackgroundJob.schedule(SyncJobSchedule)
+        .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Successfully scheduled"))
+        .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
 };
 
 export const SetBackgroundTaskDependencies = function (db, beans) {
