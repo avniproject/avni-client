@@ -239,7 +239,7 @@ Styles.formLabel = {
 Styles.helpText = {
     fontSize: 13,
     fontStyle: 'normal',
-    color: Styles.greyText,
+    color: '#8e8e8e',
     lineHeight: 16,
 };
 
