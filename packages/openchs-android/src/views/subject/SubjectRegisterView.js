@@ -180,6 +180,7 @@ class SubjectRegisterView extends AbstractComponent {
                                                  value={new PrimitiveValue(this.state.subject.firstName)}
                                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                                                  multiline={false}
+                                                 helpText={_.get(this.state.subject, 'subjectType.nameHelpText')}
                                 />
                                 <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.nonIndividualValidationKeys.NAME)}/>
                                 {this.state.subject.isHousehold() && this.state.isNewEntity &&

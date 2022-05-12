@@ -14,7 +14,6 @@ export class IndividualGeneralHistoryActions {
             encounters: [],
             encounterTypes: [],
             displayActionSelector: false,
-            encounter: Encounter.create(),
         };
     }
 
@@ -24,8 +23,7 @@ export class IndividualGeneralHistoryActions {
         const encounters = _.map(individual.nonVoidedEncounters(), encounter => ({encounter, expand: false}));
         const newState = IndividualGeneralHistoryActions.clone(state);
         newState.individual = individual;
-        newState.encounter = Encounter.create();
-        newState.encounter.individual = individual;
+
         newState.encounterTypes = context.get(FormMappingService)
             .findActiveEncounterTypesForEncounter(individual.subjectType)
             .filter(encounterType => context.get(RuleEvaluationService)
@@ -45,9 +43,11 @@ export class IndividualGeneralHistoryActions {
         const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${newState.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
         return newState.encounterTypes.filter((encounterType) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
-            newState.encounter.encounterType = encounterType;
+            const newEncounter = Encounter.create();
+            newEncounter.individual = newState.individual;
+            newEncounter.encounterType = encounterType;
             return ({
-                fn: () => action.newEncounterCallback(newState.encounter),
+                fn: () => action.newEncounterCallback(newEncounter),
                 label: encounterType.displayName,
                 backgroundColor: Colors.ActionButtonColor
             });
@@ -59,7 +59,6 @@ export class IndividualGeneralHistoryActions {
             individual: state.individual,
             programsAvailable: state.programsAvailable,
             showCount: state.showCount,
-            encounter: state.encounter.cloneForEdit(),
             encounterTypes: state.encounterTypes.slice(),
         };
     }

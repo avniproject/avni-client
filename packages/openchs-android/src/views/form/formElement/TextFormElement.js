@@ -8,6 +8,7 @@ import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import ValueSelectFormElement from "./ValueSelectFormElement";
+import {HelpText} from "../../common/HelpText";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -21,7 +22,8 @@ class TextFormElement extends AbstractFormElement {
         containerStyle: PropTypes.object,
         labelStyle: PropTypes.object,
         inputStyle: PropTypes.object,
-        allowedValues: PropTypes.array
+        allowedValues: PropTypes.array,
+        helpText: PropTypes.string
     };
     static defaultProps = {
         style: {}
@@ -53,6 +55,7 @@ class TextFormElement extends AbstractFormElement {
             <View style={containerStyle}>
                 <View style={labelStyle}>
                     {this.label}
+                    <HelpText t={this.I18n.t} text={this.props.helpText}/>
                 </View>
                 <View style={inputStyle}>
                     <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
