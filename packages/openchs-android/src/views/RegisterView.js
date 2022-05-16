@@ -160,7 +160,7 @@ class RegisterView extends AbstractComponent {
             const programs = formMappingService.findActiveProgramsForSubjectType(subjectType)
                                 .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             if (this.userSettings.registerEnrol) {
-                actions = actions.concat({action: this._addProgramActions(subjectType, programs), subjectType});
+                actions = actions.concat(this._addProgramActions(subjectType, programs).map(action => ({action, subjectType})));
             }
         });
 
