@@ -13,7 +13,7 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import Actions from "./Actions";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import EncounterService from "../../service/EncounterService";
-import SubjectTypeIcon from "../common/SubjectTypeIcon";
+import SubjectProfilePicture from "../common/SubjectProfilePicture";
 
 class Members extends AbstractComponent {
     static propTypes = {
@@ -61,7 +61,7 @@ class Members extends AbstractComponent {
         return (
             <View key={index} style={[styles.container, {alignItems: 'center', minHeight: 20}]}>
                 <View>
-                    <SubjectTypeIcon size={18} subjectType={groupSubject.memberSubject.subjectType} individual={groupSubject.memberSubject}/>
+                    <SubjectProfilePicture size={18} subjectType={groupSubject.memberSubject.subjectType} individual={groupSubject.memberSubject}/>
                 </View>
                 <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}
                                   style={{flex: 1, alignSelf: 'center', flexWrap: 'wrap'}}>

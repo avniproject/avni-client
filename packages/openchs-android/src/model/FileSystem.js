@@ -34,6 +34,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
+                        .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
                        .then(() => {
                            const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
                            const newBasePath = `${fs.ExternalDirectoryPath}/Avni`;
@@ -86,6 +87,10 @@ export default class FileSystem {
 
     static getIconsDir() {
         return `${fs.ExternalDirectoryPath}/Avni/icons`;
+    }
+
+    static getProfilePicsDir() {
+        return `${fs.ExternalDirectoryPath}/Avni/profile-pics`;
     }
 
     static getFileDir() {
