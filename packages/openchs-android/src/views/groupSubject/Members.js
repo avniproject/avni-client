@@ -58,11 +58,10 @@ class Members extends AbstractComponent {
     }
 
     renderRow(groupSubject, index) {
+        const iconContainerStyle = {minHeight: 40, alignItems: 'center', justifyContent: 'center'};
         return (
             <View key={index} style={[styles.container, {alignItems: 'center', minHeight: 20}]}>
-                <View>
-                    <SubjectProfilePicture size={18} subjectType={groupSubject.memberSubject.subjectType} individual={groupSubject.memberSubject}/>
-                </View>
+                <SubjectProfilePicture containerStyle={iconContainerStyle} size={18} subjectType={groupSubject.memberSubject.subjectType} individual={groupSubject.memberSubject}/>
                 <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}
                                   style={{flex: 1, alignSelf: 'center', flexWrap: 'wrap'}}>
                     {this.renderGroupMember(groupSubject)}

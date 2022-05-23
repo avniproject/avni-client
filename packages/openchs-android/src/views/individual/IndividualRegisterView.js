@@ -98,7 +98,7 @@ class IndividualRegisterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
-        const profilePicFormElement = new StaticFormElement("profilePicture", "false", 'Profile-Pics', []);
+        const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const editing = !_.isNil(this.props.params.individualUUID);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         {this.displayMessage(this.props.params.message)}

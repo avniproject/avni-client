@@ -53,7 +53,7 @@ class SubjectInfoCard extends AbstractComponent {
         const searchResultConcepts = this.getService(OrganisationConfigService).getCustomSearchResultConceptsForSubjectType(this.props.individual.subjectType);
         return _.map(searchResultConcepts, ({name, uuid}) => {
             const observation = this.props.individual.findObservation(name);
-            if(_.isNil(observation)) return null;
+            if (_.isNil(observation)) return null;
             const displayable = Observation.valueForDisplay({observation, conceptService, i18n});
             return <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{displayable.displayValue}</Text>
         })
@@ -62,6 +62,7 @@ class SubjectInfoCard extends AbstractComponent {
     render() {
         const i18n = this.I18n;
         const conceptService = this.getService(ConceptService);
+        const iconContainerStyle = {minHeight: 72, alignItems: 'center', justifyContent: 'center'};
         return (
             <View style={{
                 flexDirection: 'row',
@@ -78,6 +79,7 @@ class SubjectInfoCard extends AbstractComponent {
                     style={{marginRight: 8}}
                     round={true}
                     individual={this.props.individual}
+                    containerStyle={iconContainerStyle}
                 />
                 <View
                     style={{
