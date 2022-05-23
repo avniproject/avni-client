@@ -28,7 +28,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
         this.resendSeconds = 30;
         this.optLength = context.getService(OrganisationConfigService).getOTPLength();
         this.pinInput = React.createRef();
-        this.state = {code: '', seconds: this.resendSeconds, attempt: 0, isConnected: true};
+        this.state = {code: '', seconds: this.resendSeconds, attempt: 1, isConnected: true};
         this.onResendCode = this.onResendCode.bind(this);
         this.phoneNumber = this.props.phoneNumber;
         this.phoneVerificationService = this.getService(PhoneVerificationService);
