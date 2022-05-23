@@ -27,6 +27,10 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
+import MediaFormElement from "../form/formElement/MediaFormElement";
+import {PrimitiveValue, SubjectType} from "openchs-models";
+import StaticFormElement from "../viewmodel/StaticFormElement";
+import EntityService from "../../service/EntityService";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -37,7 +41,10 @@ class IndividualRegisterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
         this.formRow = {marginTop: Distances.ScaledVerticalSpacingBetweenFormElements};
-        this.state = {displayed:true};
+        let currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
+        const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
+        this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
     }
 
     viewName() {
@@ -91,6 +98,7 @@ class IndividualRegisterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
+        const profilePicFormElement = new StaticFormElement("profilePicture", "false", 'Profile-Pics', []);
         const editing = !_.isNil(this.props.params.individualUUID);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         {this.displayMessage(this.props.params.message)}
@@ -113,6 +121,11 @@ class IndividualRegisterView extends AbstractComponent {
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
                         <RegistrationDateFormElement state={this.state}/>
                         <IndividualNameFormElement state={this.state}/>
+                        <MediaFormElement
+                            element={{...profilePicFormElement}}
+                            value={new PrimitiveValue(this.state.individual.profilePicture)}
+                            isShown={this.state.isAllowedProfilePicture}
+                            actionName={Actions.REGISTRATION_SET_PROFILE_PICTURE}/>
                         <DateOfBirthAndAgeFormElement state={this.state}/>
                         <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, HouseholdState.validationKeys.RELATIVE_AGE)}/>
                         <GenderFormElement state={this.state}/>

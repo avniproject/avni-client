@@ -72,6 +72,12 @@ export class IndividualRegisterActions {
         return newState;
     }
 
+    static setProfilePicture(state, action, context) {
+        const newState = state.clone();
+        newState.individual.profilePicture = action.value;
+        return newState;
+    }
+
     static setLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
@@ -223,6 +229,7 @@ const actions = {
     DURATION_CHANGE: 'b1136ef7-202b-4a41-8b82-5603a4f90000',
     SAVE: 'IRA.SAVE',
     RESET: 'IRA.RESET',
+    REGISTRATION_SET_PROFILE_PICTURE: "REGISTRATION_SET_PROFILE_PICTURE",
     REGISTRATION_SET_LOCATION: "REGISTRATION_SET_LOCATION",
     SET_LOCATION_ERROR: "IRA.SET_LOCATION_ERROR",
     PHONE_NUMBER_CHANGE: "IRA.PHONE_NUMBER_CHANGE",
@@ -254,6 +261,7 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, IndividualRegisterActions.onSave],
+    [actions.REGISTRATION_SET_PROFILE_PICTURE, IndividualRegisterActions.setProfilePicture],
     [actions.REGISTRATION_SET_LOCATION, IndividualRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],

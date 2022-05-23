@@ -32,7 +32,7 @@ class MediaQueueService extends BaseService {
         return this.getAll().filtered(`fileName == '${fileName}'`).length > 0;
     }
 
-    addToQueue(entity, schemaName, fileName, type) {
+    addToQueue(entity, schemaName, fileName, datatype, entityTargetField = "observations") {
         //Guard against infinite loop. Uploading MediaQueueItem saves entity with the uploaded url.
         //This will trigger an addToQueue once again.
         const fileHasAlreadyBeenUploaded = _.startsWith(fileName, 'http');
@@ -44,13 +44,17 @@ class MediaQueueService extends BaseService {
         General.logInfo('MediaQueueService', `Adding ${fileName} to queue`);
         if (this.fileExistsInQueue(fileName)) return;
         this.runInTransaction(() => {
-            this.db.create(MediaQueue.schema.name, MediaQueue.create(entity.uuid, schemaName, fileName, type));
+            this.db.create(MediaQueue.schema.name,
+                MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField));
         });
     }
 
     addMediaToQueue(entity, schemaName) {
+        if(schemaName === Individual.schema.name && !_.isEmpty(entity.getProfilePicture())) {
+            this.addToQueue(entity, schemaName, entity.getProfilePicture(), 'Profile-Pics', "profilePicture")
+        }
         _.forEach(entity.findMediaObservations(), (observation) => {
-            this.addToQueue(entity, schemaName, observation.getValue(), observation.concept.datatype)
+            this.addToQueue(entity, schemaName, observation.getValue(), observation.concept.datatype, "observations")
         });
     }
 
@@ -60,10 +64,12 @@ class MediaQueueService extends BaseService {
         this.db.write(() => this.db.delete(itemToBeDeleted));
     }
 
-    getDirByType(type) {
-        switch (type) {
+    getDirByType(mediaQueueItem) {
+        switch (mediaQueueItem.type) {
             case 'Image':
                 return FileSystem.getImagesDir();
+            case 'Profile-Pics':
+                return FileSystem.getProfilePicsDir();
             case 'Video':
                 return FileSystem.getVideosDir();
             case 'Audio':
@@ -74,7 +80,7 @@ class MediaQueueService extends BaseService {
     }
 
     getAbsoluteFileName(mediaQueueItem) {
-        const directory = this.getDirByType(mediaQueueItem.type);
+        const directory = this.getDirByType(mediaQueueItem);
         return `${directory}/${mediaQueueItem.fileName}`;
     }
 
@@ -127,10 +133,15 @@ class MediaQueueService extends BaseService {
 
         const canonicalUrl = url.substring(0, url.indexOf("?"));
         const entity = this.findByUUID(mediaQueueItem.entityUUID, mediaQueueItem.entityName).cloneForEdit();
-        entity.replaceObservation(mediaQueueItem.fileName, canonicalUrl);
+        if (mediaQueueItem.entityTargetField === "profilePicture") {
+            entity.updateProfilePicture(canonicalUrl);
+        } else if (mediaQueueItem.entityTargetField === "observations") {
+            entity.replaceObservation(mediaQueueItem.fileName, canonicalUrl);
+        }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
-                return this.getService(IndividualService).register(entity);
+                this.getService(IndividualService).register(entity);
+                break;
             case Encounter.schema.name:
                 this.getService(EncounterService).saveOrUpdate(entity);
                 break;

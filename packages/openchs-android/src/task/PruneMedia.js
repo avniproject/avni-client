@@ -42,9 +42,10 @@ class PruneMedia extends BaseTask {
             General.logInfo("PruneMedia", "PruneMedia job started");
 
             const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
+            const pruneProfilePicsDir = pruneMedia(this.db, FileSystem.getProfilePicsDir());
             const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
 
-            return Promise.all(pruneImageDir, pruneVideoDir).catch((e) => {
+            return Promise.all(pruneImageDir, pruneProfilePicsDir, pruneVideoDir).catch((e) => {
                 ErrorHandler.postScheduledJobError(e);
             });
         } catch (e) {

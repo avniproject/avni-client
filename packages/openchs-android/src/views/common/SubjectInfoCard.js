@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {Text, View} from "react-native";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
-import SubjectTypeIcon from "./SubjectTypeIcon";
+import SubjectProfilePicture from "./SubjectProfilePicture";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
@@ -72,10 +72,11 @@ class SubjectInfoCard extends AbstractComponent {
                 backgroundColor: Colors.cardBackgroundColor,
                 paddingHorizontal: 8
             }}>
-                <SubjectTypeIcon
+                <SubjectProfilePicture
                     size={24}
                     subjectType={this.props.individual.subjectType}
                     style={{marginRight: 8}}
+                    round={true}
                     individual={this.props.individual}
                 />
                 <View

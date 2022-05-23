@@ -49,10 +49,12 @@ export default class MediaFormElement extends AbstractFormElement {
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
         validationResult: PropTypes.object,
-        extraStyle: PropTypes.object
+        extraStyle: PropTypes.object,
+        isShown: PropTypes.bool,
     };
     static defaultProps = {
-        style: {}
+        style: {},
+        isShown: true
     };
 
     constructor(props, context) {
@@ -65,7 +67,8 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     get isImage() {
-        return this.props.element.concept.datatype === 'Image';
+        return this.props.element.concept.datatype === 'Image'
+            || this.props.element.concept.datatype === 'Profile-Pics';
     }
 
     get mediaUri() {
@@ -86,7 +89,8 @@ export default class MediaFormElement extends AbstractFormElement {
         if (!response.didCancel && !response.errorCode) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
             const fileName = `${General.randomUUID()}.${ext}`;
-            const directory = this.isVideo ? FileSystem.getVideosDir() : FileSystem.getImagesDir();
+            const directory = this.isVideo ? FileSystem.getVideosDir() :
+                (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir(): FileSystem.getImagesDir() );
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
 
             fileSystemAction(response.uri, `${directory}/${fileName}`)
@@ -192,6 +196,7 @@ export default class MediaFormElement extends AbstractFormElement {
 
     render() {
         return (
+            this.props.isShown &&
             <View style={{marginVertical: 16}}>
                 {this.label}
                 {this.showInputOptions()}

@@ -34,6 +34,7 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import {Button, Text as NBText} from "native-base";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
+import MediaFormElement from "../form/formElement/MediaFormElement";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -43,7 +44,10 @@ class SubjectRegisterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.subject);
-        this.state = {displayed: true};
+        let currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
+        const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
+        this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
     }
 
     getTitleForGroupSubject() {
@@ -150,6 +154,7 @@ class SubjectRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         {this.displayMessage(this.props.message)}
+        const profilePicFormElement = new StaticFormElement("profilePicture", "false", 'Profile-Pics', []);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         const subjectType = this.state.subject.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
@@ -170,6 +175,11 @@ class SubjectRegisterView extends AbstractComponent {
                                     location={this.state.subject.registrationLocation}
                                     editing={this.props.params.editing}
                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
+                                <MediaFormElement
+                                    element={{...profilePicFormElement}}
+                                    value={new PrimitiveValue(this.state.subject.profilePicture)}
+                                    isShown={this.state.isAllowedProfilePicture}
+                                    actionName={Actions.SET_PROFILE_PICTURE}/>
                                 <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
                                                  element={new StaticFormElement('registrationDate')}
                                                  dateValue={new PrimitiveValue(this.state.subject.registrationDate)}

@@ -45,6 +45,7 @@ class MediaService extends BaseService {
             ['News', FileSystem.getNewsDir],
             ['File', FileSystem.getFileDir],
             ['Icons', FileSystem.getIconsDir],
+            ['Profile-Pics', FileSystem.getProfilePicsDir]
             ]);
         if (!uri) return '';
         const fileName = this.getFileName(uri);
@@ -72,6 +73,7 @@ class MediaService extends BaseService {
                     General.logDebug('ImageDownloadService', error);
                 })
         }
+        return filePathInDevice;
     }
 }
 

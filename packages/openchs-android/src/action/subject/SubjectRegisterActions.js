@@ -78,6 +78,12 @@ export class SubjectRegisterActions {
         return newState;
     }
 
+    static setProfilePicture(state, action, context) {
+        const newState = state.clone();
+        newState.subject.profilePicture = action.value;
+        return newState;
+    }
+
     static setLocation(state, action, context) {
         const newState = state.clone();
         const position = action.value;
@@ -176,6 +182,7 @@ const actions = {
     DURATION_CHANGE: 'c45669d7-a79f-48e5-a786-cc60e873e7dd',
     SAVE: 'f52a8a2b-2d46-4bfc-9bcc-34851d754422',
     RESET: 'b0fc5ebb-03db-4449-abac-e9790f926447',
+    SET_PROFILE_PICTURE: "SRA.SET_PROFILE_PICTURE",
     SET_LOCATION: "SRA.SET_LOCATION",
     SET_LOCATION_ERROR: "SRA.SET_LOCATION_ERROR",
     REGISTRATION_ENTER_TOTAL_MEMBERS: "REGISTRATION_ENTER_TOTAL_MEMBERS",
@@ -201,6 +208,7 @@ export default new Map([
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
     [actions.SAVE, SubjectRegisterActions.onSave],
+    [actions.SET_PROFILE_PICTURE, SubjectRegisterActions.setProfilePicture],
     [actions.SET_LOCATION, SubjectRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.REGISTRATION_ENTER_TOTAL_MEMBERS, SubjectRegisterActions.enterTotalMembers],
