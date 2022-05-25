@@ -80,7 +80,8 @@ export class SubjectRegisterActions {
 
     static setProfilePicture(state, action, context) {
         const newState = state.clone();
-        newState.subject.profilePicture = action.value;
+        const isSame = action.value === newState.subject.profilePicture;
+        newState.subject.profilePicture = isSame ? null : action.value;
         return newState;
     }
 

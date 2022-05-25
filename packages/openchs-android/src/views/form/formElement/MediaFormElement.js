@@ -1,8 +1,6 @@
 import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
-import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
@@ -44,19 +42,6 @@ const DEFAULT_VIDEO_QUALITY = 'high';
 const DEFAULT_DURATION_LIMIT = 60;
 
 export default class MediaFormElement extends AbstractFormElement {
-    static propTypes = {
-        element: PropTypes.object.isRequired,
-        actionName: PropTypes.string.isRequired,
-        value: PropTypes.object,
-        validationResult: PropTypes.object,
-        extraStyle: PropTypes.object,
-        isShown: PropTypes.bool,
-    };
-    static defaultProps = {
-        style: {},
-        isShown: true
-    };
-
     constructor(props, context) {
         super(props, context);
         this.state = {};
@@ -71,46 +56,27 @@ export default class MediaFormElement extends AbstractFormElement {
             || this.props.element.concept.datatype === 'Profile-Pics';
     }
 
-    get mediaUri() {
-        return _.get(this, 'props.value.answer');
-    }
-
     get label() {
         let label = super.label;
         if (this.isVideo) {
             let duration = this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT);
-            let durationSuffix = duration > 60 ? `(`+this.I18n.t(`Upto ${Math.floor(duration/60)} min ${duration%60} sec`)+`)` : `(`+this.I18n.t(`Upto ${duration} sec`)+`)`;
+            let durationSuffix = duration > 60 ? `(` + this.I18n.t(`Upto ${Math.floor(duration / 60)} min ${duration % 60} sec`) + `)` : `(` + this.I18n.t(`Upto ${duration} sec`) + `)`;
             return React.cloneElement(label, {}, [...label.props.children, durationSuffix]);
         }
         return label;
     }
 
-    addMediaFromPicker(response) {
+    addMediaFromPicker(response, onUpdateObservations) {
         if (!response.didCancel && !response.errorCode) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
             const fileName = `${General.randomUUID()}.${ext}`;
             const directory = this.isVideo ? FileSystem.getVideosDir() :
-                (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir(): FileSystem.getImagesDir() );
+                (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
 
             fileSystemAction(response.uri, `${directory}/${fileName}`)
-                .then(() => {
-                    this.dispatchAction(this.props.actionName, {
-                        formElement: this.props.element,
-                        parentFormElement: this.props.parentElement,
-                        value: fileName
-                    });
-                });
+                .then(() => onUpdateObservations(fileName));
         }
-    }
-
-    clearAnswer() {
-        this.dismissKeyboard();
-        this.dispatchAction(this.props.actionName, {
-            formElement: this.props.element,
-            parentFormElement: this.props.parentElement,
-            value: null,
-        });
     }
 
     getFromKeyValue(key, defaultVal) {
@@ -121,7 +87,7 @@ export default class MediaFormElement extends AbstractFormElement {
         return value;
     }
 
-    async launchCamera() {
+    async launchCamera(onUpdateObservations) {
         this.setState({mode: Mode.Camera});
 
         const options = {
@@ -134,11 +100,11 @@ export default class MediaFormElement extends AbstractFormElement {
         };
         if (await this.isPermissionGranted()) {
             launchCamera(options,
-                (response) => this.addMediaFromPicker(response));
+                (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
     }
 
-    async launchMediaLibrary() {
+    async launchMediaLibrary(onUpdateObservations) {
         this.setState({mode: Mode.MediaLibrary});
 
         const options = {
@@ -146,7 +112,7 @@ export default class MediaFormElement extends AbstractFormElement {
         };
         if (await this.isPermissionGranted()) {
             launchImageLibrary(options,
-                (response) => this.addMediaFromPicker(response));
+                (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
     }
 
@@ -162,48 +128,33 @@ export default class MediaFormElement extends AbstractFormElement {
             && permissionRequest[cameraPermission] === granted
     }
 
-    showMedia() {
-        if (this.mediaUri) {
-            return (
-                <View style={[styles.contentRow, styles.imageRow]}>
-                    <ExpandableMedia source={this.mediaUri} type={this.props.element.concept.datatype}/>
-                    <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
-                        <Icon name={"backspace"} style={[styles.icon]}/>
-                    </TouchableNativeFeedback>
-                </View>
-            );
-        }
-    }
-
-    showInputOptions() {
-        return !this.mediaUri && (
-            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-                <TouchableNativeFeedback onPress={() => {
-                    this.launchMediaLibrary()
-                }}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={'folder-open'} style={styles.icon}/>
-                </TouchableNativeFeedback>
-                <TouchableNativeFeedback onPress={() => {
-                    this.launchCamera()
-                }}
-                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                    <Icon name={this.isImage? 'camera': this.isVideo ? 'video': 'alert-octagon'} style={styles.icon}/>
+    showMedia(mediaUri, onClearAnswer) {
+        return (
+            <View style={[styles.contentRow, styles.imageRow]}>
+                <ExpandableMedia source={mediaUri} type={this.props.element.concept.datatype}/>
+                <TouchableNativeFeedback onPress={() => onClearAnswer()}>
+                    <Icon name={"backspace"} style={[styles.icon]}/>
                 </TouchableNativeFeedback>
             </View>
         );
     }
 
-    render() {
+    showInputOptions(onUpdateObservations) {
         return (
-            this.props.isShown &&
-            <View style={{marginVertical: 16}}>
-                {this.label}
-                {this.showInputOptions()}
-                {this.showMedia()}
-                <View
-                    style={{flex: 1, borderColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, opacity: 0.1}}/>
-                <ValidationErrorMessage validationResult={this.props.validationResult}/>
+            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
+                <TouchableNativeFeedback onPress={() => {
+                    this.launchMediaLibrary(onUpdateObservations)
+                }}
+                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                    <Icon name={'folder-open'} style={styles.icon}/>
+                </TouchableNativeFeedback>
+                <TouchableNativeFeedback onPress={() => {
+                    this.launchCamera(onUpdateObservations)
+                }}
+                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                    <Icon name={this.isImage ? 'camera' : this.isVideo ? 'video' : 'alert-octagon'}
+                          style={styles.icon}/>
+                </TouchableNativeFeedback>
             </View>
         );
     }

@@ -14,7 +14,8 @@ import ExpandableFile from "./ExpandableFile";
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
         source: PropTypes.string,
-        type: PropTypes.string
+        type: PropTypes.string,
+        relatedMediaURIs: PropTypes.array
     };
 
     constructor(props, context) {
@@ -22,6 +23,31 @@ export default class ExpandableMedia extends AbstractFormElement {
         this.mediaService = context.getService(MediaService);
         this.state = {};
 
+    }
+
+    async componentWillMount() {
+        await this.mediaService.exists(this.mediaUriInDevice).then(async (exists) => {
+            if (exists) {
+                await this.downloadDependentURIs();
+            }
+        });
+        super.componentWillMount();
+    }
+
+    downloadDependentURIs() {
+        const allMediaAbsolutePath = [];
+        if (this.props.relatedMediaURIs) {
+            _.forEach(this.props.relatedMediaURIs, mediaURI => {
+                const path = this.mediaService.getAbsolutePath(mediaURI, this.props.type);
+                allMediaAbsolutePath.push(path);
+                this.mediaService.exists(path).then((exists) => {
+                    if (!exists) {
+                        return this.mediaService.downloadMedia(mediaURI, path);
+                    }
+                });
+            });
+            this.setState(state => ({...state, allMediaAbsolutePath}))
+        }
     }
 
     get mediaUriInDevice() {
@@ -60,7 +86,7 @@ export default class ExpandableMedia extends AbstractFormElement {
     };
 
     _errDownload = (err) => {
-        General.logDebug('MediaFormElement', `${err}`);
+        General.logDebug('ExpandableMedia', `${err}`);
     };
 
     download() {
@@ -97,7 +123,7 @@ export default class ExpandableMedia extends AbstractFormElement {
     showExpandableMedia() {
         if (this.props.source && this.state.exists) {
             const MediaComponent = this.getMediaComponentByType(this.props.type);
-            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName}/>;
+            return <MediaComponent source={this.mediaUriInDevice} fileName={this.fileName} allMediaAbsolutePath={this.state.allMediaAbsolutePath}/>;
         }
     }
 

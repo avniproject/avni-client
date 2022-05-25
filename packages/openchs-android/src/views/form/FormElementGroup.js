@@ -23,7 +23,7 @@ import {
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
-import MediaFormElement from "./formElement/MediaFormElement";
+import SingleSelectMediaFormElement from "./formElement/SingleSelectMediaFormElement";
 import IdFormElement from "./formElement/IdFormElement";
 import DurationFormElement from "./formElement/DurationFormElement";
 import LocationHierarchyFormElement from "./formElement/LocationHierarchyFormElement";
@@ -35,6 +35,9 @@ import FileFormElement from "./formElement/FileFormElement";
 import MultiSelectSubjectLandingFormElement from "./formElement/MultiSelectSubjectLandingFormElement";
 import SingleSelectSubjectLandingFormElement from "./formElement/SingleSelectSubjectLandingFormElement";
 import QuestionGroupFormElement from "./formElement/QuestionGroupFormElement";
+import MultiSelectMediaFormElement from "./formElement/MultiSelectMediaFormElement";
+import SingleSelectFileFormElement from "./formElement/SingleSelectFileFormElement";
+import MultiSelectFileFormElement from "./formElement/MultiSelectFileFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -180,12 +183,20 @@ class FormElementGroup extends AbstractComponent {
                                                                   noDateMessageKey='chooseADate'
                                                                   validationResult={validationResult}
                                                                   element={formElement}/>, idx, formElement.uuid === erroredUUID);
-                        } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype)) {
-                            return this.wrap(<MediaFormElement
+                        } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype) && formElement.isSingleSelect()) {
+                            return this.wrap(<SingleSelectMediaFormElement
                                 key={idx}
                                 element={formElement}
-                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
-                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype) && formElement.isMultiSelect()) {
+                            return this.wrap(<MultiSelectMediaFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
+                                value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Id) {
@@ -251,12 +262,20 @@ class FormElementGroup extends AbstractComponent {
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }
-                        else if ([Concept.dataType.File].includes(formElement.concept.datatype)) {
-                            return this.wrap(<FileFormElement
+                        else if ([Concept.dataType.File].includes(formElement.concept.datatype) && formElement.isSingleSelect()) {
+                            return this.wrap(<SingleSelectFileFormElement
                                 key={idx}
                                 element={formElement}
-                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
-                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if ([Concept.dataType.File].includes(formElement.concept.datatype) && formElement.isMultiSelect()) {
+                            return this.wrap(<MultiSelectFileFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
+                                value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup) {

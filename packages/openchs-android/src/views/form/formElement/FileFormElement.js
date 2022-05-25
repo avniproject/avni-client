@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     PermissionsAndroid,
-    SafeAreaView,
     StyleSheet,
     TouchableNativeFeedback,
     TouchableOpacity,
@@ -9,11 +8,9 @@ import {
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import AbstractFormElement from "./AbstractFormElement";
-import PropTypes from "prop-types";
 import Colors from "../../primitives/Colors";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ExpandableMedia from "../../common/ExpandableMedia";
-import ValidationErrorMessage from "../ValidationErrorMessage";
 import General from "../../../utility/General";
 import FileSystem from "../../../model/FileSystem";
 import {AlertMessage} from "../../common/AlertMessage";
@@ -21,19 +18,9 @@ import fs from "react-native-fs";
 import {FileFormat} from 'avni-models';
 
 class FileFormElement extends AbstractFormElement {
-    static propTypes = {
-        element: PropTypes.object.isRequired,
-        actionName: PropTypes.string.isRequired,
-        value: PropTypes.object,
-        validationResult: PropTypes.object,
-    };
 
     constructor(props, context) {
         super(props, context);
-    }
-
-    get mediaUri() {
-        return _.get(this, 'props.value.answer');
     }
 
     async isPermissionGranted() {
@@ -69,7 +56,7 @@ class FileFormElement extends AbstractFormElement {
         }
     }
 
-    async selectFile() {
+    async selectFile(onUpdateObservations) {
         const formElement = this.props.element;
         const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [DocumentPicker.types.allFiles] : formElement.allowedTypes;
         const options = {type: applicableTypes};
@@ -81,7 +68,7 @@ class FileFormElement extends AbstractFormElement {
                     if (name && uri && !copyError) {
                         const fileName = this.getFileName(name);
                         fs.copyFile(uri, `${directory}/${fileName}`)
-                            .then(() => this.updateValue(fileName))
+                            .then(() => onUpdateObservations(fileName))
                             .catch(err => {
                                 AlertMessage("Error while coping file", err.message);
                             })
@@ -95,53 +82,31 @@ class FileFormElement extends AbstractFormElement {
         }
     };
 
-    showInputOptions() {
-        return !this.mediaUri && (
+    showInputOptions(onUpdateObservations) {
+        return (
             <View style={[{
                 justifyContent: 'flex-end', alignItems: 'flex-end', flexDirection: 'row',
                 height: 40,
                 marginTop: 16
             }]}>
-                <TouchableOpacity onPress={() => this.selectFile()}>
+                <TouchableOpacity onPress={() => this.selectFile(onUpdateObservations)}>
                     <Icon name={'folder-open'} style={[styles.icon, {marginRight: 3}]}/>
                 </TouchableOpacity>
             </View>
         );
     }
 
-    showMedia() {
-        if (this.mediaUri) {
-            return (
-                <View style={styles.content}>
-                    <ExpandableMedia source={this.mediaUri} type={this.props.element.concept.datatype}/>
-                    <TouchableNativeFeedback onPress={() => this.updateValue(null)}>
-                        <Icon name={"backspace"} style={[styles.icon]}/>
-                    </TouchableNativeFeedback>
-                </View>
-            );
-        }
-    }
-
-    updateValue(value) {
-        this.dismissKeyboard();
-        this.dispatchAction(this.props.actionName, {
-            formElement: this.props.element,
-            parentFormElement: this.props.parentElement,
-            value,
-        });
-    }
-
-    render() {
+    showMedia(mediaUri, onClearAnswer) {
         return (
-            <SafeAreaView>
-                {this.label}
-                {this.showInputOptions()}
-                {this.showMedia()}
-                <View style={styles.lineStyle}/>
-                <ValidationErrorMessage validationResult={this.props.validationResult}/>
-            </SafeAreaView>
+            <View style={styles.content}>
+                <ExpandableMedia source={mediaUri} type={this.props.element.concept.datatype}/>
+                <TouchableNativeFeedback onPress={() => onClearAnswer()}>
+                    <Icon name={"backspace"} style={[styles.icon]}/>
+                </TouchableNativeFeedback>
+            </View>
         );
     }
+
 }
 
 export default FileFormElement;
@@ -160,11 +125,5 @@ const styles = StyleSheet.create({
         marginRight: 10,
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-    },
-    lineStyle: {
-        flex: 1,
-        borderColor: Colors.BlackBackground,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        opacity: 0.1
     }
 });

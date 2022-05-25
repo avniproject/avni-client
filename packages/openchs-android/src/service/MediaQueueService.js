@@ -32,7 +32,7 @@ class MediaQueueService extends BaseService {
         return this.getAll().filtered(`fileName == '${fileName}'`).length > 0;
     }
 
-    addToQueue(entity, schemaName, fileName, datatype, entityTargetField = "observations") {
+    addToQueue(entity, schemaName, fileName, datatype, entityTargetField = "observations", conceptUUID) {
         //Guard against infinite loop. Uploading MediaQueueItem saves entity with the uploaded url.
         //This will trigger an addToQueue once again.
         const fileHasAlreadyBeenUploaded = _.startsWith(fileName, 'http');
@@ -45,7 +45,7 @@ class MediaQueueService extends BaseService {
         if (this.fileExistsInQueue(fileName)) return;
         this.runInTransaction(() => {
             this.db.create(MediaQueue.schema.name,
-                MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField));
+                MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField, conceptUUID));
         });
     }
 
@@ -54,7 +54,9 @@ class MediaQueueService extends BaseService {
             this.addToQueue(entity, schemaName, entity.getProfilePicture(), 'Profile-Pics', "profilePicture")
         }
         _.forEach(entity.findMediaObservations(), (observation) => {
-            this.addToQueue(entity, schemaName, observation.getValue(), observation.concept.datatype, "observations")
+            _.forEach(_.flatten([observation.getValue()]), filename => {
+                this.addToQueue(entity, schemaName, filename, observation.concept.datatype, "observations", observation.concept.uuid)
+            })
         });
     }
 
@@ -136,7 +138,7 @@ class MediaQueueService extends BaseService {
         if (mediaQueueItem.entityTargetField === "profilePicture") {
             entity.updateProfilePicture(canonicalUrl);
         } else if (mediaQueueItem.entityTargetField === "observations") {
-            entity.replaceObservation(mediaQueueItem.fileName, canonicalUrl);
+            entity.replaceMediaObservation(mediaQueueItem.fileName, canonicalUrl, mediaQueueItem.conceptUUID);
         }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:

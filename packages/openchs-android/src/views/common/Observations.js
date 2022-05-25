@@ -157,9 +157,13 @@ class Observations extends AbstractComponent {
         });
 
         if (Concept.dataType.Media.includes(renderType)) {
+            const allMediaURIs = _.split(displayable.displayValue, ',');
             return (
                 <View style={this.styles.observationColumn}>
-                    <ExpandableMedia source={displayable.displayValue} type={renderType}/>
+                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {_.map(allMediaURIs, (value, index) =>
+                        <ExpandableMedia key={index} source={value} type={renderType} relatedMediaURIs={allMediaURIs}/>)}
+                    </View>
                 </View>
             );
         } else if (Concept.dataType.Subject === renderType) {
