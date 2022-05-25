@@ -12,7 +12,7 @@ import DateFormElement from "./DateFormElement";
 import FileFormElement from "./FileFormElement";
 import AudioFormElement from "./AudioFormElement";
 import TimeFormElement from "./TimeFormElement";
-import MediaFormElement from "./MediaFormElement";
+import SingleSelectMediaFormElement from "./SingleSelectMediaFormElement";
 import IdFormElement from "./IdFormElement";
 import LocationHierarchyFormElement from "./LocationHierarchyFormElement";
 import SingleSelectFormElement from "./SingleSelectFormElement";
@@ -132,7 +132,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
                                 timeValue={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                         }
                         if (_.includes([dataTypes.Image, dataTypes.Video], dataType)) {
-                            return <MediaFormElement
+                            return <SingleSelectMediaFormElement
                                 value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                         }
                         if (dataType === dataTypes.Id) {

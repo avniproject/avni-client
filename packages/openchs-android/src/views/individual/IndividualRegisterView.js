@@ -27,7 +27,7 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
-import MediaFormElement from "../form/formElement/MediaFormElement";
+import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import {PrimitiveValue, SubjectType} from "openchs-models";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
@@ -121,7 +121,7 @@ class IndividualRegisterView extends AbstractComponent {
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
                         <RegistrationDateFormElement state={this.state}/>
                         <IndividualNameFormElement state={this.state}/>
-                        <MediaFormElement
+                        <SingleSelectMediaFormElement
                             element={{...profilePicFormElement}}
                             value={new PrimitiveValue(this.state.individual.profilePicture)}
                             isShown={this.state.isAllowedProfilePicture}

@@ -34,7 +34,7 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import {Button, Text as NBText} from "native-base";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
-import MediaFormElement from "../form/formElement/MediaFormElement";
+import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -187,7 +187,7 @@ class SubjectRegisterView extends AbstractComponent {
                                                  multiline={false}
                                                  helpText={_.get(this.state.subject, 'subjectType.nameHelpText')}
                                 />
-                                <MediaFormElement
+                                <SingleSelectMediaFormElement
                                     element={{...profilePicFormElement}}
                                     value={new PrimitiveValue(this.state.subject.profilePicture)}
                                     isShown={this.state.isAllowedProfilePicture}

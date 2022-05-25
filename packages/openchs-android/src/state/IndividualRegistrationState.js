@@ -63,7 +63,9 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     get observationsHolder() {
-        return new ObservationsHolder(this.individual.observations);
+        const observationsHolder = new ObservationsHolder(this.individual.observations);
+        observationsHolder.migrateMultiSelectMediaObservations(this.formElementGroup.form);
+        return observationsHolder;
     }
 
     movePrevious() {
