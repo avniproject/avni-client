@@ -71,19 +71,20 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
     }
 
     render() {
+        const isDisabled = _.size(this.mediaUris) !== this.state.mediaCount;
         return (
             <View style={{marginVertical: 16}}>
                 {this.label}
                 {_.map(_.range(0, this.state.mediaCount), index => this.renderMedia(index))}
-                <Button style={{
-                    height: 22,
-                    backgroundColor: Colors.ActionButtonColor,
-                    alignSelf: 'flex-end',
-                    marginTop: 10,
-                }}
+                <Button disabled={isDisabled}
+                        style={{
+                            height: 22,
+                            backgroundColor: isDisabled ? Colors.DisabledButtonColor : Colors.ActionButtonColor,
+                            alignSelf: 'flex-end',
+                            marginTop: 10,
+                        }}
                         onPress={() => this.onAdd()}>
-                    <Text style={{fontSize: Fonts.Normal, color: Styles.whiteColor}}
-                          onPress={() => this.onAdd()}>{this.I18n.t('addMore')}</Text>
+                    <Text style={{fontSize: Fonts.Normal, color: Styles.whiteColor}}>{this.I18n.t('addMore')}</Text>
                 </Button>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
