@@ -9,7 +9,7 @@ import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
-import {Individual, WorkItem} from 'avni-models';
+import {Individual, WorkItem, SingleCodedValue, SubjectType} from 'avni-models';
 import General from "../../utility/General";
 import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -28,7 +28,6 @@ import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
-import {PrimitiveValue, SubjectType} from "openchs-models";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
 
@@ -123,7 +122,7 @@ class IndividualRegisterView extends AbstractComponent {
                         <IndividualNameFormElement state={this.state}/>
                         <SingleSelectMediaFormElement
                             element={{...profilePicFormElement}}
-                            value={new PrimitiveValue(this.state.individual.profilePicture)}
+                            value={new SingleCodedValue(this.state.individual.profilePicture)}
                             isShown={this.state.isAllowedProfilePicture}
                             actionName={Actions.REGISTRATION_SET_PROFILE_PICTURE}/>
                         <DateOfBirthAndAgeFormElement state={this.state}/>

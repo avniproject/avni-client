@@ -74,8 +74,8 @@ export class IndividualRegisterActions {
 
     static setProfilePicture(state, action, context) {
         const newState = state.clone();
-        const isSame = action.value === newState.individual.profilePicture;
-        newState.individual.profilePicture = isSame ? null : action.value;
+        const isSame = action.answerUUID === newState.individual.profilePicture;
+        newState.individual.profilePicture = isSame ? null : action.answerUUID;
         return newState;
     }
 

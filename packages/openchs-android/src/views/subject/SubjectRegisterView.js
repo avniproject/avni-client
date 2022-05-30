@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType, WorkItem} from "avni-models";
+import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType, WorkItem, SingleCodedValue} from "avni-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -189,7 +189,7 @@ class SubjectRegisterView extends AbstractComponent {
                                 />
                                 <SingleSelectMediaFormElement
                                     element={{...profilePicFormElement}}
-                                    value={new PrimitiveValue(this.state.subject.profilePicture)}
+                                    value={new SingleCodedValue(this.state.subject.profilePicture)}
                                     isShown={this.state.isAllowedProfilePicture}
                                     actionName={Actions.SET_PROFILE_PICTURE}/>
                                 <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.nonIndividualValidationKeys.NAME)}/>
