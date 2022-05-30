@@ -38,6 +38,8 @@ import QuestionGroupFormElement from "./formElement/QuestionGroupFormElement";
 import MultiSelectMediaFormElement from "./formElement/MultiSelectMediaFormElement";
 import SingleSelectFileFormElement from "./formElement/SingleSelectFileFormElement";
 import MultiSelectFileFormElement from "./formElement/MultiSelectFileFormElement";
+import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
+import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -286,6 +288,24 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new QuestionGroup())}
                                 validationResults={this.props.validationResults}
                                 filteredFormElements={this.props.filteredFormElements}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isSingleSelect()) {
+                            return this.wrap(<SingleSelectEncounterFormElement
+                                key={idx}
+                                element={formElement}
+                                value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
+                                subjectUUID={this.props.subjectUUID}
+                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isMultiSelect()) {
+                            return this.wrap(<MultiSelectEncounterFormElement
+                                key={idx}
+                                element={formElement}
+                                value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
+                                subjectUUID={this.props.subjectUUID}
+                                actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
+                                validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })

@@ -17,6 +17,7 @@ import IndividualService from "../../service/IndividualService";
 import CHSNavigator from "../../utility/CHSNavigator";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import EncounterService from "../../service/EncounterService";
 
 const renderTypes = {
     Image: "Image",
@@ -137,6 +138,7 @@ class Observations extends AbstractComponent {
     renderValue(observationModel) {
         const conceptService = this.context.getService(ConceptService);
         const subjectService = this.context.getService(IndividualService);
+        const encounterService = this.context.getService(EncounterService);
         const concept = observationModel.concept;
         const mobileNo = observationModel.getMobileNo();
         const renderType = observationModel.concept.datatype;
@@ -153,7 +155,8 @@ class Observations extends AbstractComponent {
             conceptService,
             subjectService,
             addressLevelService,
-            i18n: this.I18n
+            i18n: this.I18n,
+            encounterService
         });
 
         if (Concept.dataType.Media.includes(renderType)) {
@@ -172,6 +175,13 @@ class Observations extends AbstractComponent {
                 alignItems: 'flex-start', flexWrap: 'wrap'
             }, this.styles.observationColumn]}>
                 {_.map(displayable, subject => this.renderSubject(subject))}
+            </View>
+        } else if (Concept.dataType.Encounter === renderType) {
+            const allEncounterNames = _.map(displayable, ({displayValue}) => displayValue).join(', ');
+            return <View style={[{
+                flexDirection: 'row', alignItems: 'flex-start', flexWrap: 'wrap'
+            }, this.styles.observationColumn]}>
+                <Text style={{color: Styles.blackColor}}>{allEncounterNames}</Text>
             </View>
         } else if (mobileNo) {
             return (
