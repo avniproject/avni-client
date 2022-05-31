@@ -38,8 +38,6 @@ import QuestionGroupFormElement from "./formElement/QuestionGroupFormElement";
 import MultiSelectMediaFormElement from "./formElement/MultiSelectMediaFormElement";
 import SingleSelectFileFormElement from "./formElement/SingleSelectFileFormElement";
 import MultiSelectFileFormElement from "./formElement/MultiSelectFileFormElement";
-import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
-import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
