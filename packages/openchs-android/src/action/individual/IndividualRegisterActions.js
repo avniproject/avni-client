@@ -8,7 +8,6 @@ import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
-import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
@@ -235,6 +234,7 @@ const actions = {
     SET_LOCATION_ERROR: "IRA.SET_LOCATION_ERROR",
     PHONE_NUMBER_CHANGE: "IRA.PHONE_NUMBER_CHANGE",
     GROUP_QUESTION_VALUE_CHANGE: "IRA.GROUP_QUESTION_VALUE_CHANGE",
+    REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: "IRA.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "IRA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "IRA.ON_SKIP_VERIFICATION",
     TOGGLE_GROUPS: "IRA.TOGGLE_GROUPS",
@@ -267,6 +267,7 @@ export default new Map([
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],
+    [actions.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],

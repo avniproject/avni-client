@@ -150,7 +150,20 @@ class ObservationsHolderActions {
         if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
         const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value;
-        newState.observationsHolder.updateGroupQuestion(action.parentFormElement.concept, action.formElement.concept, value, action.formElement);
+        newState.observationsHolder.updateGroupQuestion(action.parentFormElement, action.formElement, value);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action);
+    }
+
+    static onRepeatableGroupQuestionChange(state, action, context) {
+        const newState = state.clone();
+        if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
+            return newState;
+        const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value;
+        newState.observationsHolder.updateRepeatableGroupQuestion(action.index, action.parentFormElement, action.formElement, value, action.action);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action);
+    }
+
+    static handleFormElementStatuses(newState, context, action) {
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);

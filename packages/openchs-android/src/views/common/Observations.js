@@ -268,9 +268,37 @@ class Observations extends AbstractComponent {
         )
     }
 
+    renderQuestionGroup(questionGroupObservations, index) {
+        return (
+            _.map(questionGroupObservations, obs => (
+                <View key={`${obs.concept.uuid}-${index}`} style={[{flexDirection: "row"}, this.styles.observationRow]}>
+                    <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
+                    <View style={this.styles.observationColumn}>
+                        <Text style={[this.styles.conceptNameStyle, {paddingLeft: 10}]}>
+                            {this.I18n.t(obs.concept.name)}
+                        </Text>
+                    </View>
+                    {this.renderValue(obs)}
+                </View>
+            ))
+        )
+    }
+
+    renderRepeatableQuestionGroup(repeatableObservations) {
+        return (
+            _.map(repeatableObservations, (questionGroupObservations, index) => (
+                <Fragment key={index}>
+                    {index !== 0 && <Separator/>}
+                    {this.renderQuestionGroup(questionGroupObservations.getValue(), index)}
+                </Fragment>
+            ))
+        )
+    }
+
     renderGroupQuestionView(observation) {
         const valueWrapper = observation.getValueWrapper();
-        const groupObservations = valueWrapper ? valueWrapper.getValue() : [];
+        const isRepeatable = valueWrapper && valueWrapper.isRepeatable();
+        const observations = valueWrapper ? valueWrapper.getValue() : [];
         return (
             <Fragment key={observation.concept.uuid}>
                 <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
@@ -280,17 +308,9 @@ class Observations extends AbstractComponent {
                     </Text>
                     <View style={this.styles.observationColumn}/>
                 </View>
-                {_.map(groupObservations, obs => (
-                    <View key={obs.concept.uuid} style={[{flexDirection: "row"}, this.styles.observationRow]}>
-                        <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
-                        <View style={this.styles.observationColumn}>
-                            <Text style={[this.styles.conceptNameStyle, {paddingLeft: 10}]}>
-                                {this.I18n.t(obs.concept.name)}
-                            </Text>
-                        </View>
-                        {this.renderValue(obs)}
-                    </View>
-                ))}
+                {isRepeatable ?
+                    this.renderRepeatableQuestionGroup(observations) :
+                    this.renderQuestionGroup(observations, 0)}
             </Fragment>
         )
     }

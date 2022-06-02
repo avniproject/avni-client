@@ -57,6 +57,7 @@ class AudioFormElement extends AbstractFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
+            index: this.props.index,
             value,
             validationResult,
         });

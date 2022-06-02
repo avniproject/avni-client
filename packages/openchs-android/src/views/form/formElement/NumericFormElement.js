@@ -51,6 +51,7 @@ class NumericFormElement extends AbstractFormElement {
             formElement: this.props.element,
             value: text,
             parentFormElement: this.props.parentElement,
+            index: this.props.index,
             convertToNumber
         });
     }

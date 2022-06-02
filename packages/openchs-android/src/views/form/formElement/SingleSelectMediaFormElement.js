@@ -32,6 +32,7 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
+            index: this.props.index,
             answerUUID: this.mediaUri,
         });
     }
@@ -40,6 +41,7 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
+            index: this.props.index,
             answerUUID: fileName
         });
     }

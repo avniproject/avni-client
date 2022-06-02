@@ -18,7 +18,8 @@ import {
     CompositeDuration,
     ValidationResult,
     PhoneNumber,
-    QuestionGroup
+    QuestionGroup,
+    RepeatableQuestionGroup
 } from 'avni-models';
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
@@ -31,13 +32,13 @@ import PhoneNumberFormElement from "./formElement/PhoneNumberFormElement";
 import GroupAffiliationFormElement from "./formElement/GroupAffiliationFormElement";
 import AudioFormElement from "./formElement/AudioFormElement";
 import Identifier from "openchs-models/dist/Identifier";
-import FileFormElement from "./formElement/FileFormElement";
 import MultiSelectSubjectLandingFormElement from "./formElement/MultiSelectSubjectLandingFormElement";
 import SingleSelectSubjectLandingFormElement from "./formElement/SingleSelectSubjectLandingFormElement";
 import QuestionGroupFormElement from "./formElement/QuestionGroupFormElement";
 import MultiSelectMediaFormElement from "./formElement/MultiSelectMediaFormElement";
 import SingleSelectFileFormElement from "./formElement/SingleSelectFileFormElement";
 import MultiSelectFileFormElement from "./formElement/MultiSelectFileFormElement";
+import RepeatableFormElement from "./formElement/RepeatableFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -278,7 +279,7 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
                             />, idx, formElement.uuid === erroredUUID);
-                        } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup) {
+                        } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup && !formElement.repeatable) {
                             return this.wrap(<QuestionGroupFormElement
                                 key={idx}
                                 element={formElement}
@@ -304,6 +305,15 @@ class FormElementGroup extends AbstractComponent {
                                 subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 validationResult={validationResult}
+                            />, idx, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup && formElement.repeatable) {
+                            return this.wrap(<RepeatableFormElement
+                                key={idx}
+                                element={formElement}
+                                actionName={this.props.actions["REPEATABLE_GROUP_QUESTION_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new RepeatableQuestionGroup())}
+                                validationResult={validationResult}
+                                filteredFormElements={this.props.filteredFormElements}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })
