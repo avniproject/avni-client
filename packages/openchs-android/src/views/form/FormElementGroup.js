@@ -39,6 +39,7 @@ import MultiSelectMediaFormElement from "./formElement/MultiSelectMediaFormEleme
 import SingleSelectFileFormElement from "./formElement/SingleSelectFileFormElement";
 import MultiSelectFileFormElement from "./formElement/MultiSelectFileFormElement";
 import RepeatableFormElement from "./formElement/RepeatableFormElement";
+import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
