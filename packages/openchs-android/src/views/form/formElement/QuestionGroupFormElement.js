@@ -24,6 +24,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
                     value={this.props.value}
                     validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}
+                    questionGroupIndex={0}
                 />
             </View>
         )

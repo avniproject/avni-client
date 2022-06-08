@@ -32,7 +32,11 @@ class QuestionGroup extends AbstractFormElement {
         value: PropTypes.object,
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
-        index: PropTypes.number
+        questionGroupIndex: PropTypes.number
+    };
+
+    static defaultProps = {
+        questionGroupIndex: 0
     };
 
     constructor(props, context) {
@@ -40,8 +44,10 @@ class QuestionGroup extends AbstractFormElement {
     }
 
     getChildFormElements() {
+        //form elements without rule will not have questionGroupIndex. Since these FE does not have rule it's always visible
         return _.sortBy(
-            _.filter(this.props.filteredFormElements, ffe => ffe.groupUuid === this.props.element.uuid && !ffe.voided),
+            _.filter(this.props.filteredFormElements, ({questionGroupIndex, groupUuid, voided}) =>
+                groupUuid === this.props.element.uuid && (_.isNil(questionGroupIndex) || questionGroupIndex === this.props.questionGroupIndex) && !voided),
             "displayOrder"
         );
     }
@@ -67,7 +73,7 @@ class QuestionGroup extends AbstractFormElement {
             containerStyle={styles.groupContainerStyle}
             labelStyle={styles.groupLabelStyle}
             inputStyle={styles.groupInputStyle}
-            index={this.props.index}
+            questionGroupIndex={this.props.questionGroupIndex}
         />
     }
 
@@ -82,7 +88,7 @@ class QuestionGroup extends AbstractFormElement {
             containerStyle={styles.groupContainerStyle}
             labelStyle={styles.groupLabelStyle}
             inputStyle={styles.groupInputStyle}
-            index={this.props.index}
+            questionGroupIndex={this.props.questionGroupIndex}
         />
     }
 
@@ -114,7 +120,7 @@ class QuestionGroup extends AbstractFormElement {
                         actionName: this.props.actionName,
                         validationResult: validationResult,
                         parentElement: this.props.element,
-                        index: this.props.index
+                        questionGroupIndex: this.props.questionGroupIndex
                     };
                     const dataType = concept.datatype;
                     const dataTypes = Concept.dataType;

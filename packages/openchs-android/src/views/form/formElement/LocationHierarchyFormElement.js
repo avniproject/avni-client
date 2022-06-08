@@ -30,7 +30,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
-            index: this.props.index,
+            questionGroupIndex: this.props.questionGroupIndex,
             value: addressLevel ? addressLevel.uuid : null
         });
     }

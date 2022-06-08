@@ -434,34 +434,42 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
+    getTheChildFormElementStatues(childFormElement, entity, entityName) {
+        const parentFormElement = childFormElement.getParentFormElement();
+        const questionGroupObservations = entity.findObservation(parentFormElement.concept.uuid);
+        const questionGroupObs = questionGroupObservations && questionGroupObservations.getValueWrapper();
+        const size = questionGroupObs ? questionGroupObs.size() : 1;
+        return _.range(size)
+            .map(questionGroupIndex => {
+                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex);
+                formElementStatus.addQuestionGroupInformation(questionGroupIndex, childFormElement.groupUuid);
+                return formElementStatus;
+            })
+            .filter(fs => !_.isNil(fs))
+            .reduce((all, curr) => all.concat(curr), [])
+    }
+
     getFormElementsStatuses(entity, entityName, formElementGroup) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const formElementsWithRules = formElementGroup
             .getFormElements()
             .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
-         const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName);
-         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
+        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName);
+        const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
+        const applicableFormElements = formElementsWithRules
+            .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
         if (!_.isEmpty(formElementsWithRules) && !_.isEmpty(visibleFormElementsUUIDs)) {
-            let formElementStatuses = formElementsWithRules
-                .filter(({uuid}) => _.includes(visibleFormElementsUUIDs, uuid))
+            let formElementStatuses = applicableFormElements
                 .map(formElement => {
-                    try {
-                        let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                        const ruleFunc = eval(formElement.rule);
-                        return ruleFunc({
-                            params: {formElement, entity, services: this.services},
-                            imports: {rulesConfig, common, lodash, moment}
-                        });
-                    } catch (e) {
-                        General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
-                        this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName));
-                        return null;
+                    if (formElement.groupUuid) {
+                        return this.getTheChildFormElementStatues(formElement, entity, entityName);
                     }
+                    return this.runFormElementStatusRule(formElement, entity, entityName);
                 })
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
-                .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
+                .reduce((acc, fs) => acc.set(`${fs.uuid}-${fs.questionGroupIndex || 0}`, fs), new Map())
                 .values();
             return [...formElementStatuses];
         }
@@ -471,6 +479,21 @@ class RuleEvaluationService extends BaseService {
             .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
             .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
             .values()];
+    }
+
+    runFormElementStatusRule(formElement, entity, entityName, questionGroupIndex) {
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(formElement.rule);
+            return ruleFunc({
+                params: {formElement, entity, questionGroupIndex, services: this.services},
+                imports: {rulesConfig, common, lodash, moment}
+            });
+        } catch (e) {
+            General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
+            this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName));
+            return null;
+        }
     }
 
     getAllRuleItemsFor(entity, type, entityTypeHardCoded) {

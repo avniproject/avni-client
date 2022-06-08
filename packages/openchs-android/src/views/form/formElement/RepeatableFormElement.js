@@ -35,12 +35,12 @@ class RepeatableFormElement extends AbstractFormElement {
         });
     }
 
-    onRemove(index) {
+    onRemove(questionGroupIndex) {
         this.dispatchAction(this.props.actionName, {
             action: RepeatableQuestionGroup.actions.remove,
             parentFormElement: this.props.element,
             formElement: this.props.element,
-            index
+            questionGroupIndex
         });
     }
 
@@ -57,22 +57,22 @@ class RepeatableFormElement extends AbstractFormElement {
         )
     }
 
-    getValidationResultByIndex(index) {
+    getValidationResultByIndex(questionGroupIndex) {
         const validationResult = _.get(this.props, 'validationResult.groupValidations', []);
-        return validationResult[index] || [];
+        return validationResult[questionGroupIndex] || [];
     }
 
-    renderQuestionGroup(index) {
+    renderQuestionGroup(questionGroupIndex) {
         const isRemoveDisabled = this.props.value.size() <= 1;
         return (
-            <Fragment key={index}>
-                {this.actionButton('remove-circle', () => this.onRemove(index), isRemoveDisabled, Colors.NegativeActionButtonColor)}
+            <Fragment key={questionGroupIndex}>
+                {this.actionButton('remove-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
-                    index={index}
+                    questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
                     actionName={this.props.actionName}
-                    value={this.props.value.getGroupObservationAtIndex(index) || new QuestionGroupModel()}
-                    validationResults={this.getValidationResultByIndex(index)}
+                    value={this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel()}
+                    validationResults={this.getValidationResultByIndex(questionGroupIndex)}
                     filteredFormElements={this.props.filteredFormElements}
                     extraContainerStyle={{marginVertical: 0}}
                 />

@@ -74,7 +74,7 @@ class TextFormElement extends AbstractFormElement {
     }
 
     onInputChange(text) {
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, parentFormElement: this.props.parentElement, value: text, index: this.props.index});
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, parentFormElement: this.props.parentElement, value: text, questionGroupIndex: this.props.questionGroupIndex});
     }
 
     renderOptionView() {

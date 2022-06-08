@@ -23,7 +23,7 @@ class SelectFormElement extends AbstractFormElement {
 
     toggleFormElementAnswerSelection(value) {
         const answer = this.props.element.getAnswers().find((ans) => ans.concept.uuid === value);
-        this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: answer.concept.uuid, parentFormElement: this.props.parentElement, value: answer.concept.uuid, index: this.props.index});
+        this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: answer.concept.uuid, parentFormElement: this.props.parentElement, value: answer.concept.uuid, questionGroupIndex: this.props.questionGroupIndex});
     }
 
     getOnlyAllowedAnswers() {

@@ -30,7 +30,7 @@ class SingleSelectFileFormElement extends FileFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
-            index: this.props.index,
+            questionGroupIndex: this.props.questionGroupIndex,
             answerUUID: this.mediaUri,
         });
     }
@@ -39,7 +39,7 @@ class SingleSelectFileFormElement extends FileFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
-            index: this.props.index,
+            questionGroupIndex: this.props.questionGroupIndex,
             answerUUID: fileName
         });
     }
