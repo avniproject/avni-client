@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {StyleSheet, View} from "react-native";
@@ -92,26 +92,10 @@ class QuestionGroup extends AbstractFormElement {
         />
     }
 
-    render() {
-        const allGroupQuestions = this.getChildFormElements();
-        const textNumericAndNotes = _.filter(allGroupQuestions, ({concept}) => _.includes([Concept.dataType.Text, Concept.dataType.Numeric, Concept.dataType.Notes], concept.datatype));
-        const otherQuestions = _.filter(allGroupQuestions, ({concept}) => !_.includes([Concept.dataType.Text, Concept.dataType.Numeric, Concept.dataType.Notes], concept.datatype));
-        const extraStyle = this.props.extraContainerStyle || {};
+    renderNormalView(allGroupQuestions) {
         return (
-            <View>
-                <View style={[styles.mainContainerStyle, extraStyle]}>
-                    {_.map(textNumericAndNotes, groupQuestionFormElement => {
-                        const concept = groupQuestionFormElement.concept;
-                        switch (concept.datatype) {
-                            case Concept.dataType.Text :
-                                return this.renderTextFormElement(groupQuestionFormElement);
-                            case Concept.dataType.Numeric:
-                            case Concept.dataType.Notes:
-                                return this.renderNumericFormElement(groupQuestionFormElement);
-                        }
-                    })}
-                </View>
-                {_.map(otherQuestions, fe => {
+            <Fragment>
+                {_.map(allGroupQuestions, fe => {
                     const concept = fe.concept;
                     const validationResult = this.getValidationResultForFormElement(fe);
                     const commonProps = {
@@ -124,6 +108,14 @@ class QuestionGroup extends AbstractFormElement {
                     };
                     const dataType = concept.datatype;
                     const dataTypes = Concept.dataType;
+                    if (dataType === dataTypes.Numeric) {
+                        return <NumericFormElement value={this.getSelectedAnswer(concept, new PrimitiveValue())}
+                                                   inputChangeActionName={this.props.actionName} {...commonProps}/>
+                    }
+                    if (_.includes([dataTypes.Text, dataTypes.Notes], dataType)) {
+                        return <TextFormElement value={this.getSelectedAnswer(concept, new PrimitiveValue())}
+                                                multiline={dataType !== dataTypes.Text} {...commonProps}/>
+                    }
                     if (dataType === dataTypes.Coded && fe.isSingleSelect()) {
                         return <SingleSelectFormElement
                             singleCodedValue={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
@@ -162,6 +154,35 @@ class QuestionGroup extends AbstractFormElement {
                             value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                     }
                 })}
+            </Fragment>
+        )
+    }
+
+    renderGridView(allGroupQuestions) {
+        const extraStyle = this.props.extraContainerStyle || {};
+        return (
+            <View style={[styles.mainContainerStyle, extraStyle]}>
+                {_.map(allGroupQuestions, groupQuestionFormElement => {
+                    const concept = groupQuestionFormElement.concept;
+                    switch (concept.datatype) {
+                        case Concept.dataType.Text :
+                            return this.renderTextFormElement(groupQuestionFormElement);
+                        case Concept.dataType.Numeric:
+                        case Concept.dataType.Notes:
+                            return this.renderNumericFormElement(groupQuestionFormElement);
+                    }
+                })}
+            </View>
+        )
+    }
+
+    render() {
+        const allGroupQuestions = this.getChildFormElements();
+        const hasOtherTypesThanTextNumericAndNotes = _.some(allGroupQuestions, ({concept}) => !_.includes([Concept.dataType.Text, Concept.dataType.Numeric, Concept.dataType.Notes], concept.datatype));
+        return (
+            <View>
+                {hasOtherTypesThanTextNumericAndNotes ?
+                    this.renderNormalView(allGroupQuestions) : this.renderGridView(allGroupQuestions)}
                 <ValidationErrorMessage
                     validationResult={this.getValidationResultForFormElement(this.props.element)}/>
             </View>
