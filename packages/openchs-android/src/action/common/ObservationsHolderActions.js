@@ -10,6 +10,15 @@ class ObservationsHolderActions {
         return formElementStatuses;
     }
 
+    // We need to re-fetch the statuses to make sure any hidden form element due to empty values shows up this time.
+    static hasQuestionGroupWithValueInElementStatus(formElementStatuses, allFormElements) {
+        return _.some(formElementStatuses, ({uuid, value}) => {
+            if (value) {
+                return _.get(_.find(allFormElements, fe => fe.uuid === uuid), 'concept.datatype') === Concept.dataType.QuestionGroup
+            }
+        })
+    }
+
     static getRuleValidationErrors(formElementStatuses) {
         return _.flatMap(formElementStatuses,
             status => new ValidationResult(_.isEmpty(status.validationErrors), status.uuid, _.head(status.validationErrors), null, status.questionGroupIndex));
@@ -171,7 +180,10 @@ class ObservationsHolderActions {
     }
 
     static handleFormElementStatuses(newState, context, action) {
-        const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        let formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, action.formElement.formElementGroup.getFormElements())) {
+            formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
+        }
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
