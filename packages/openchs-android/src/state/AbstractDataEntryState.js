@@ -45,14 +45,15 @@ class AbstractDataEntryState {
     }
 
     handleValidationResult(validationResult) {
-        _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formIdentifier === validationResult.formIdentifier);
+        _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formIdentifier === validationResult.formIdentifier
+            && existingValidationResult.questionGroupIndex === validationResult.questionGroupIndex);
         if (!validationResult.success) {
             this.validationResults.push(validationResult);
         }
     }
 
     removeHiddenFormValidationResults(hiddenFormElementStatus) {
-        this.validationResults = _.differenceWith(this.validationResults, hiddenFormElementStatus, (a, b) => a.formIdentifier === b.uuid);
+        this.validationResults = _.differenceWith(this.validationResults, hiddenFormElementStatus, (a, b) => a.formIdentifier === b.uuid && a.questionGroupIndex === b.questionGroupIndex);
     }
 
     handleValidationResults(validationResults, context) {
@@ -121,8 +122,8 @@ class AbstractDataEntryState {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
-        const allValidationResults = _.unionBy(validationResults, formElementGroupValidations , 'formIdentifier');
-        const allRuleValidationResults  = _.unionBy(this.validationResults, allValidationResults, 'formIdentifier');
+        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations , (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex && b.questionGroupIndex);
+        const allRuleValidationResults  = _.unionWith(this.validationResults, allValidationResults, (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex && b.questionGroupIndex);
         this.handleValidationResults(allRuleValidationResults, context);
         if(Config.ENV === "dev" && Config.goToLastPageOnNext) {
             while (!this.wizard.isLastPage()) {

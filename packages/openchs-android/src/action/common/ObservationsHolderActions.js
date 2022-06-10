@@ -12,7 +12,7 @@ class ObservationsHolderActions {
 
     static getRuleValidationErrors(formElementStatuses) {
         return _.flatMap(formElementStatuses,
-            status => new ValidationResult(_.isEmpty(status.validationErrors), status.uuid, _.head(status.validationErrors)));
+            status => new ValidationResult(_.isEmpty(status.validationErrors), status.uuid, _.head(status.validationErrors), null, status.questionGroupIndex));
     }
 
     static onPrimitiveObsUpdateValue(state, action, context) {
@@ -38,11 +38,18 @@ class ObservationsHolderActions {
     }
 
     static checkValidationResult(ruleValidationErrors, validationResult) {
-        return _.map(ruleValidationErrors, error => (error.formIdentifier === validationResult.formIdentifier && !validationResult.success) ? validationResult : error)
+        return _.map(ruleValidationErrors, error => {
+            const {formIdentifier, questionGroupIndex, success} = validationResult;
+            if ((error.formIdentifier === formIdentifier && (_.isNil(error.questionGroupIndex) || error.questionGroupIndex === questionGroupIndex) && !success)) {
+                return validationResult
+            }
+            error.addQuestionGroupIndex(questionGroupIndex);
+            return error;
+        })
     }
 
     static addPreviousValidationErrors(ruleValidationErrors, validationResult, previousErrors) {
-        const otherFEFailedStatuses = previousErrors.filter(({formIdentifier, success}) => (validationResult.formIdentifier !== formIdentifier && !success));
+        const otherFEFailedStatuses = previousErrors.filter(({formIdentifier, success, questionGroupIndex}) => (validationResult.formIdentifier !== formIdentifier && !success && (_.isNil(questionGroupIndex) || questionGroupIndex !== validationResult.questionGroupIndex)));
         return [...ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), ...otherFEFailedStatuses]
     }
 
@@ -170,12 +177,12 @@ class ObservationsHolderActions {
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         let validationResult = action.formElement.validate(action.value);
+        validationResult.addQuestionGroupIndex(action.questionGroupIndex);
         if (action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }
-        newState.validationResults = _.filter(newState.validationResults, vr => vr.formIdentifier === action.formElement.uuid);
         if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
-            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.parentFormElement, context);
+            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         return newState;

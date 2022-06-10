@@ -313,7 +313,7 @@ class FormElementGroup extends AbstractComponent {
                                 element={formElement}
                                 actionName={this.props.actions["REPEATABLE_GROUP_QUESTION_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new RepeatableQuestionGroup())}
-                                validationResult={validationResult}
+                                validationResults={this.props.validationResults}
                                 filteredFormElements={this.props.filteredFormElements}
                             />, idx, formElement.uuid === erroredUUID);
                         }

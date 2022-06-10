@@ -53,7 +53,8 @@ class QuestionGroup extends AbstractFormElement {
     }
 
     getValidationResultForFormElement(formElement) {
-        return ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid)
+        return  _.find(this.props.validationResults, ({formIdentifier, questionGroupIndex}) =>
+            formIdentifier === formElement.uuid && questionGroupIndex === this.props.questionGroupIndex);
     }
 
     getSelectedAnswer(concept, nullReplacement) {

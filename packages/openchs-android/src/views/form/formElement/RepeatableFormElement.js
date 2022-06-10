@@ -14,7 +14,7 @@ class RepeatableFormElement extends AbstractFormElement {
         element: PropTypes.object.isRequired,
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
-        validationResult: PropTypes.object,
+        validationResults: PropTypes.array,
         extraStyle: PropTypes.object,
         filteredFormElements: PropTypes.array,
     };
@@ -57,11 +57,6 @@ class RepeatableFormElement extends AbstractFormElement {
         )
     }
 
-    getValidationResultByIndex(questionGroupIndex) {
-        const validationResult = _.get(this.props, 'validationResult.groupValidations', []);
-        return validationResult[questionGroupIndex] || [];
-    }
-
     renderQuestionGroup(questionGroupIndex) {
         const isRemoveDisabled = this.props.value.size() <= 1;
         return (
@@ -72,7 +67,7 @@ class RepeatableFormElement extends AbstractFormElement {
                     element={this.props.element}
                     actionName={this.props.actionName}
                     value={this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel()}
-                    validationResults={this.getValidationResultByIndex(questionGroupIndex)}
+                    validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}
                     extraContainerStyle={{marginVertical: 0}}
                 />
