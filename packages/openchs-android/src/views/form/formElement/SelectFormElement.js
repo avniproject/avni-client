@@ -34,9 +34,14 @@ class SelectFormElement extends AbstractFormElement {
         return _.isNil(this.props.allowedValues) ? this.props.element.getAnswers() : this.getOnlyAllowedAnswers();
     }
 
+    getSelectedAnswers() {
+        return _.filter(this.getAnswers(), ans => this.props.isSelected(ans.concept.uuid));
+    }
+
     render() {
         const disabled = this.props.element.editable === false;
-        const valueLabelPairs = this.getAnswers()
+        const answers = disabled ? this.getSelectedAnswers() : this.getAnswers();
+        const valueLabelPairs = answers
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
