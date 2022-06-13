@@ -131,7 +131,7 @@ class QuestionGroup extends AbstractFormElement {
                     }
                     if (dataType === dataTypes.File && fe.isSingleSelect()) {
                         return <SingleSelectFileFormElement
-                            value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
+                            value={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Audio) {
                         return <AudioFormElement
@@ -143,7 +143,7 @@ class QuestionGroup extends AbstractFormElement {
                     }
                     if (_.includes([dataTypes.Image, dataTypes.Video], dataType) && fe.isSingleSelect()) {
                         return <SingleSelectMediaFormElement
-                            value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
+                            value={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Id) {
                         return <IdFormElement
