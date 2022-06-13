@@ -442,7 +442,8 @@ class RuleEvaluationService extends BaseService {
         return _.range(size)
             .map(questionGroupIndex => {
                 const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex);
-                formElementStatus.addQuestionGroupInformation(questionGroupIndex, childFormElement.groupUuid);
+                if (formElementStatus)
+                    formElementStatus.addQuestionGroupInformation(questionGroupIndex, childFormElement.groupUuid);
                 return formElementStatus;
             })
             .filter(fs => !_.isNil(fs))
