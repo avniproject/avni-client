@@ -52,7 +52,8 @@ class ObservationsHolderActions {
             if ((error.formIdentifier === formIdentifier && (_.isNil(error.questionGroupIndex) || error.questionGroupIndex === questionGroupIndex) && !success)) {
                 return validationResult
             }
-            error.addQuestionGroupIndex(questionGroupIndex);
+            if (error.formIdentifier === formIdentifier && _.isNil(error.questionGroupIndex))
+                error.addQuestionGroupIndex(questionGroupIndex);
             return error;
         })
     }
