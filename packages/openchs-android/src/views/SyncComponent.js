@@ -23,6 +23,7 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
+import AsyncAlert from "./common/AsyncAlert";
 
 const {width, height} = Dimensions.get('window');
 
@@ -158,7 +159,12 @@ class SyncComponent extends AbstractComponent {
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
-                (message) => this.messageCallBack(message), connectionInfo, this.state.startTime, SyncService.syncSources.SYNC_BUTTON).catch(onError)
+                (message) => this.messageCallBack(message),
+                connectionInfo,
+                this.state.startTime,
+                SyncService.syncSources.SYNC_BUTTON,
+                () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
+            ).catch(onError)
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);

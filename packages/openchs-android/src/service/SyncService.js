@@ -22,6 +22,7 @@ import SubjectTypeService from "./SubjectTypeService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
+import ResetSyncService from "./ResetSyncService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -106,14 +107,14 @@ class SyncService extends BaseService {
         }
     }
 
-    async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON) {
+    async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
         const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => {
             progressBarStatus.onComplete(entityType, numOfPages);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = () => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps);
+        const firstDataServerSync = (isSyncResetRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
@@ -129,12 +130,13 @@ class SyncService extends BaseService {
         //Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
         console.log('mediaUploadRequired', mediaUploadRequired);
+        const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
         return mediaUploadRequired ?
-            firstDataServerSync()
+            firstDataServerSync(false)
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation))
                 .then(syncCompleted)
-            : firstDataServerSync().then(syncCompleted);
+            : firstDataServerSync(isManualSync).then(syncCompleted);
     }
 
     logSyncCompleteEvent(syncStartTime) {
@@ -163,7 +165,6 @@ class SyncService extends BaseService {
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
         const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
-        console.log('entitySyncStatus', JSON.stringify(entitySyncStatus.filter(item => item.entityName === 'SubjectMigration')));
         return post(`${url}/syncDetails`, entitySyncStatus, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
@@ -173,17 +174,31 @@ class SyncService extends BaseService {
             }));
     }
 
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps) {
+    async confirmUserAndResetSync(userConfirmation) {
+        if (userConfirmation) {
+            const userResponse = await userConfirmation();
+            if (userResponse === 'YES')
+                return this.getService(ResetSyncService).resetSync();
+        }
+    }
+
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
+        const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         await Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
             .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0))
-            .then(() =>  statusMessageCallBack("FetchingChangedResource"));
+            .then(() => statusMessageCallBack("FetchingChangedResource"))
+            .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
+            .then(async () => {
+                const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
+                return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
+            });
 
         const {syncDetails, endDateTime, now} = await this.getSyncDetails();
 
-        const entitiesWithoutSubjectMigration = _.filter(allEntitiesMetaData, ({entityName}) => entityName !== "SubjectMigration");
-        const filteredMetadata = _.filter(entitiesWithoutSubjectMigration, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
+        const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
+        const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
@@ -228,6 +243,14 @@ class SyncService extends BaseService {
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
             }, entityMetadata));
         return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now);
+    }
+
+    getResetSyncData(entitiesMetadata, afterEachPagePulled ) {
+        const entitiesMetaDataWithSyncStatus = entitiesMetadata
+            .map((entityMetadata) => _.assignIn({
+                syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
+            }, entityMetadata));
+        return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, new Date().toISOString());
     }
 
     getTxData(entitiesMetadata, afterEachPagePulled, syncDetails, now) {
