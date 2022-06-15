@@ -49,10 +49,10 @@ class PresetOptionItem extends AbstractComponent {
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         if (this.props.multiSelect)
             return (<CheckBox disabled={disabled} checked={this.props.checked}
-                              onPress={() => this.onPress()} color={color}/>);
+                              onPress={() => this.onPress()} selectedColor={color}/>);
         else
             return (<Radio disabled={disabled} selected={this.props.checked}
-                           onPress={() => this.onPress()} color={color}/>);
+                           onPress={() => this.onPress()} selectedColor={color}/>);
     }
 
     shouldComponentUpdate(nextProps) {

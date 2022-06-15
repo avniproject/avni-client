@@ -65,8 +65,7 @@ const styles = StyleSheet.create({
     },
     cardNameTextStyle: {
         fontSize: 12,
-        fontStyle: 'normal',
-        opacity: 0.5
+        fontStyle: 'normal'
     },
     cardCountTextStyle: {
         fontSize: 19,
