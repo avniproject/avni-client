@@ -56,7 +56,7 @@ class ResetSyncService extends BaseService {
                 const subjectTypeUUID = resetSync.subjectTypeUUID;
                 General.logDebug('ResetSyncService', `Deleting data and resetting the sync for subject type uuid ${subjectTypeUUID}`);
                 this.entitySyncStatusService.deleteEntries(`entityTypeUuid = '${subjectTypeUUID}'`);
-                const allSubjects = this.individualService.findAll().filtered(`subjectType.uuid = $0`, subjectTypeUUID);
+                const allSubjects = this.individualService.findAll().filtered(`subjectType.uuid = $0`, subjectTypeUUID).map(_.identity);
                 _.forEach(allSubjects, subject => this.subjectMigrationService.deleteSubjectAndChildren(subject));
                 this._updateHasMigrated(resetSync);
             });
