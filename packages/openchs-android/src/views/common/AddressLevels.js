@@ -13,6 +13,7 @@ import Distances from "../primitives/Distances";
 import {Text} from "native-base";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
+import AutocompleteSearchWithLabel from "../AutoCompleteSearch/AutocompleteSearchWithLabel";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -113,13 +114,22 @@ class AddressLevels extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
-            <AddressLevel
-                onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
-                key={idx}
-                validationError={this.props.validationError}
-                levelType={levelType}
-                multiSelect={this.props.multiSelect}
-                levels={levels}/>);
+            _.size(levels) > 30 ?
+                <AutocompleteSearchWithLabel
+                    key={idx}
+                    options={levels}
+                    onSelectedItemChange={(uuid) => this.onSelect(levelType, uuid, !this.props.multiSelect)}
+                    selectionFn={level => level.isSelected}
+                    multiSelect={this.props.multiSelect}
+                    labelKey={levelType}
+                /> :
+                <AddressLevel
+                    onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
+                    key={idx}
+                    validationError={this.props.validationError}
+                    levelType={levelType}
+                    multiSelect={this.props.multiSelect}
+                    levels={levels}/>);
         return (
             <View style={{
                 marginTop: Styles.VerticalSpacingBetweenFormElements,
