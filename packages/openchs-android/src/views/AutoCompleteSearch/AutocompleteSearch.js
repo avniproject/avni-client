@@ -141,10 +141,10 @@ export default class AutocompleteSearch extends AbstractComponent {
         const filteredItems = [];
         items.forEach(item => {
             const tokens = searchTerm.trim().split(/[ \-:]+/);
-            const regex = new RegExp(`(${tokens.join('.*')})`, 'ig');
+            const tokenWiseReExps = tokens.map(token => new RegExp(`${token}`, 'ig'));
             const displayValue = get(item, displayKey);
             const i18nDisplayValue = displayValue ? this.I18n.t(displayValue) : displayValue;
-            if (regex.test(i18nDisplayValue)) {
+            if ( _.every(tokenWiseReExps, regEx => regEx.test(i18nDisplayValue))) {
                 filteredItems.push(item);
             }
         });
