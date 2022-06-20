@@ -16,7 +16,10 @@ class RepeatableFormElement extends AbstractFormElement {
         value: PropTypes.object,
         validationResults: PropTypes.array,
         extraStyle: PropTypes.object,
+        formElementsUserState: PropTypes.object,
+        observationHolder: PropTypes.object,
         filteredFormElements: PropTypes.array,
+        actions: PropTypes.array
     };
 
     static defaultProps = {
@@ -66,6 +69,9 @@ class RepeatableFormElement extends AbstractFormElement {
                     questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
                     actionName={this.props.actionName}
+                    actions={this.props.actions}
+                    formElementsUserState={this.props.formElementsUserState}
+                    observationHolder={this.props.observationHolder}
                     value={this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel()}
                     validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}

@@ -122,8 +122,8 @@ class AbstractDataEntryState {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
-        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations , (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex && b.questionGroupIndex);
-        const allRuleValidationResults  = _.unionWith(this.validationResults, allValidationResults, (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex && b.questionGroupIndex);
+        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations , (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        const allRuleValidationResults  = _.unionWith(this.validationResults, allValidationResults, (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
         this.handleValidationResults(allRuleValidationResults, context);
         if(Config.ENV === "dev" && Config.goToLastPageOnNext) {
             while (!this.wizard.isLastPage()) {

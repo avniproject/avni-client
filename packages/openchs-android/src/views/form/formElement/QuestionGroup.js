@@ -8,7 +8,9 @@ import {
     MultipleCodedValues,
     PrimitiveValue,
     SingleCodedValue,
-    ValidationResult
+    PhoneNumber,
+    Duration,
+    CompositeDuration
 } from 'avni-models';
 import _ from 'lodash';
 import ValidationErrorMessage from "../ValidationErrorMessage";
@@ -24,15 +26,22 @@ import LocationHierarchyFormElement from "./LocationHierarchyFormElement";
 import SingleSelectFormElement from "./SingleSelectFormElement";
 import MultiSelectFormElement from "./MultiSelectFormElement";
 import SingleSelectFileFormElement from "./SingleSelectFileFormElement";
+import DurationDateFormElement from "./DurationDateFormElement";
+import DurationFormElement from "./DurationFormElement";
+import MultiSelectMediaFormElement from "./MultiSelectMediaFormElement";
+import PhoneNumberFormElement from "./PhoneNumberFormElement";
 
 class QuestionGroup extends AbstractFormElement {
     static propTypes = {
         element: PropTypes.object.isRequired,
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
+        formElementsUserState: PropTypes.object,
+        observationHolder: PropTypes.object,
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
-        questionGroupIndex: PropTypes.number
+        questionGroupIndex: PropTypes.number,
+        actions: PropTypes.array
     };
 
     static defaultProps = {
@@ -41,6 +50,30 @@ class QuestionGroup extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+    }
+
+    getCompositeDuration(concept, formElement) {
+        const observation = this.props.observationHolder.findQuestionGroupObservation(concept, this.props.element, this.props.questionGroupIndex);
+        const durationOptions = formElement.durationOptions;
+        if (_.isNil(observation)) {
+            return CompositeDuration.fromOpts(durationOptions);
+        } else {
+            return observation.getValueWrapper();
+        }
+    }
+
+    getDuration(concept, formElementUserState, formElement) {
+        const observation = this.props.observationHolder.findQuestionGroupObservation(concept, this.props.element, this.props.questionGroupIndex);
+        if (_.isNil(observation)) {
+            return new Duration(null, formElement.durationOptions[0]);
+        } else {
+            const date = observation.getValueWrapper().getValue();
+            if (_.isNil(formElementUserState)) {
+                return Duration.fromDataEntryDate(formElement.durationOptions[0], date, this.props.dataEntryDate);
+            } else {
+                return Duration.fromDataEntryDate(formElementUserState.durationUnit, date, this.props.dataEntryDate);
+            }
+        }
     }
 
     getChildFormElements() {
@@ -53,7 +86,7 @@ class QuestionGroup extends AbstractFormElement {
     }
 
     getValidationResultForFormElement(formElement) {
-        return  _.find(this.props.validationResults, ({formIdentifier, questionGroupIndex}) =>
+        return _.find(this.props.validationResults, ({formIdentifier, questionGroupIndex}) =>
             formIdentifier === formElement.uuid && questionGroupIndex === this.props.questionGroupIndex);
     }
 
@@ -145,6 +178,10 @@ class QuestionGroup extends AbstractFormElement {
                         return <SingleSelectMediaFormElement
                             value={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
+                    if (_.includes([dataTypes.Image, dataTypes.Video], dataType) && fe.isMultiSelect()) {
+                        return <MultiSelectMediaFormElement
+                            value={this.getSelectedAnswer(fe.concept, new MultipleCodedValues())} {...commonProps}/>;
+                    }
                     if (dataType === dataTypes.Id) {
                         return <IdFormElement
                             value={this.getSelectedAnswer(fe.concept, new Identifier())}
@@ -153,6 +190,27 @@ class QuestionGroup extends AbstractFormElement {
                     if (dataType === dataTypes.Location) {
                         return <LocationHierarchyFormElement
                             value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
+                    }
+                    if (dataType === dataTypes.Date && !_.isNil(fe.durationOptions)) {
+                        return <DurationDateFormElement
+                            label={fe.name}
+                            durationOptions={fe.durationOptions}
+                            duration={this.getDuration(fe.concept, this.props.formElementsUserState[`${fe.uuid}-${this.props.questionGroupIndex}`], fe)}
+                            dateValue={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>
+                    }
+                    if (dataType === dataTypes.Duration && !_.isNil(fe.durationOptions)) {
+                        return <DurationFormElement
+                            compositeDuration={this.getCompositeDuration(fe.concept, fe)}
+                            noDateMessageKey='chooseADate' {...commonProps}/>
+                    }
+                    if (dataType === dataTypes.PhoneNumber) {
+                        return <PhoneNumberFormElement
+                            inputChangeActionName={this.props.actionName}
+                            successVerificationActionName={this.props.actions["ON_SUCCESS_OTP_VERIFICATION"]}
+                            skipVerificationActionName={this.props.actions["ON_SKIP_VERIFICATION"]}
+                            value={this.getSelectedAnswer(fe.concept, new PhoneNumber())}
+                            observation={this.props.observationHolder.findQuestionGroupObservation(fe.concept, this.props.element, this.props.questionGroupIndex)}
+                            {...commonProps}/>
                     }
                 })}
             </Fragment>

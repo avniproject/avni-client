@@ -46,12 +46,12 @@ class DurationDateFormElement extends AbstractFormElement {
                     <View style={{flexDirection: 'row'}}>
                         <Text style={DGS.formElementLabel}>{`${this.I18n.t("enterDate")}: `}</Text>
                         <View style={{paddingHorizontal:5}}>
-                            <DatePicker actionName={this.props.actionName} 
-                                        actionObject={{formElement: this.props.element}}
+                            <DatePicker actionName={this.props.actionName}
+                                        actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}}
                                         datePickerMode={_.isNil(this.props.element.datePickerMode)
                                             ? this.userSettings.datePickerMode
                                             : this.props.element.datePickerMode
-                                        } 
+                                        }
                                         validationResult={this.props.validationResult}
                                         dateValue={this.props.dateValue.getValue()} />
                         </View>
@@ -67,14 +67,18 @@ class DurationDateFormElement extends AbstractFormElement {
                                    value={_.isNil(this.props.duration) ? "" : _.toString(this.props.duration.durationValue)}
                                    onChangeText={(text) => this.dispatchAction(this.props.actionName, {
                                        formElement: this.props.element,
-                                       duration: this.props.duration.changeValue(text)
+                                       duration: this.props.duration.changeValue(text),
+                                       parentFormElement: this.props.parentElement,
+                                       questionGroupIndex: this.props.questionGroupIndex
                                    })}/>
                     {this.props.durationOptions.map((durationOption, index) => {
                         return <View key={index} style={{flexDirection: 'row'}}>
                             <Radio style={{marginLeft:DGS.resizeWidth(20)}} selected={durationOption === this.props.duration.durationUnit}
                                    onPress={() => this.dispatchAction(this.props.actionName, {
                                        formElement: this.props.element,
-                                       duration: this.props.duration.changeUnit(durationOption)
+                                       duration: this.props.duration.changeUnit(durationOption),
+                                       parentFormElement: this.props.parentElement,
+                                       questionGroupIndex: this.props.questionGroupIndex
                                    })} color={Colors.AccentColor}/>
                             <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
                         </View>

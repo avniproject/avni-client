@@ -31,7 +31,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     getOTPLength() {
-        return this.getSettings().otpLength || 0;
+        return this.getSettings().otpLength || 4;
     }
 
     hasHomeScreen() {

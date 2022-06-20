@@ -289,6 +289,9 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new QuestionGroup())}
                                 validationResults={this.props.validationResults}
                                 filteredFormElements={this.props.filteredFormElements}
+                                actions={this.props.actions}
+                                formElementsUserState={this.props.formElementsUserState}
+                                observationHolder={this.props.observationHolder}
                             />, idx, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectEncounterFormElement
@@ -316,6 +319,9 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new RepeatableQuestionGroup())}
                                 validationResults={this.props.validationResults}
                                 filteredFormElements={this.props.filteredFormElements}
+                                actions={this.props.actions}
+                                formElementsUserState={this.props.formElementsUserState}
+                                observationHolder={this.props.observationHolder}
                             />, idx, formElement.uuid === erroredUUID);
                         }
                     })

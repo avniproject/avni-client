@@ -43,6 +43,8 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             answerUUID: allAnswers[index],
+            parentFormElement: this.props.parentElement,
+            questionGroupIndex: this.props.questionGroupIndex,
         });
         this.setState(({mediaCount}) => ({mediaCount: _.max([1, mediaCount - 1])}))
     }
@@ -50,7 +52,9 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
     onUpdateObservations(fileName) {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
-            answerUUID: fileName
+            answerUUID: fileName,
+            parentFormElement: this.props.parentElement,
+            questionGroupIndex: this.props.questionGroupIndex,
         });
     }
 

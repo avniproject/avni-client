@@ -6,6 +6,7 @@ import DGS from "../../primitives/DynamicGlobalStyles";
 import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
+import ValidationErrorMessage from "../ValidationErrorMessage";
 
 class DurationFormElement extends AbstractFormElement {
     static propTypes = {
@@ -24,7 +25,9 @@ class DurationFormElement extends AbstractFormElement {
         return (value) =>
             this.dispatchAction(this.props.actionName, {
                 formElement: this.props.element,
-                compositeDuration: this.props.compositeDuration.changeValue(duration, value)
+                compositeDuration: this.props.compositeDuration.changeValue(duration, value),
+                parentFormElement: this.props.parentElement,
+                questionGroupIndex: this.props.questionGroupIndex
             });
     }
 
@@ -69,6 +72,7 @@ class DurationFormElement extends AbstractFormElement {
                         </View>
                     </View>
                 </View>
+                <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
         );
     }

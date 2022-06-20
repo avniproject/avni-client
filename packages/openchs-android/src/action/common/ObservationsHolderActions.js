@@ -164,23 +164,49 @@ class ObservationsHolderActions {
 
     static onGroupQuestionChange(state, action, context) {
         const newState = state.clone();
-        if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
+        const dataType = action.formElement.concept.datatype;
+        if (dataType === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value;
+        let value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
+        if (dataType === Concept.dataType.Duration) {
+            value = action.compositeDuration;
+        }
+        if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
+            if (_.isNil(action.duration)) {
+                value = action.value;
+            } else {
+                const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
+                value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
+                newState.formElementsUserState[`${action.formElement.uuid}-0`] = {durationUnit: action.duration.durationUnit};
+            }
+        }
         newState.observationsHolder.updateGroupQuestion(action.parentFormElement, action.formElement, value);
-        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value);
     }
 
     static onRepeatableGroupQuestionChange(state, action, context) {
         const newState = state.clone();
-        if (action.formElement.concept.datatype === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
+        const dataType = action.formElement.concept.datatype;
+        if (dataType === Concept.dataType.Numeric && !_.isEmpty(action.value) && _.isNaN(_.toNumber(action.value)))
             return newState;
-        const value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
+        let value = !_.isEmpty(action.value) && action.convertToNumber ? _.toNumber(action.value) : action.value || action.answerUUID;
+        if (dataType === Concept.dataType.Duration) {
+            value = action.compositeDuration;
+        }
+        if (dataType === Concept.dataType.Date && !_.isNil(action.formElement.durationOptions)) {
+            if (_.isNil(action.duration)) {
+                value = action.value;
+            } else {
+                const duration = new Duration(action.duration.durationValue, action.duration.durationUnit);
+                value = duration.dateInPastBasedOnToday(state.getEffectiveDataEntryDate());
+                newState.formElementsUserState[`${action.formElement.uuid}-${action.questionGroupIndex}`] = {durationUnit: action.duration.durationUnit};
+            }
+        }
         newState.observationsHolder.updateRepeatableGroupQuestion(action.questionGroupIndex, action.parentFormElement, action.formElement, value, action.action);
-        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action);
+        return ObservationsHolderActions.handleFormElementStatuses(newState, context, action, value);
     }
 
-    static handleFormElementStatuses(newState, context, action) {
+    static handleFormElementStatuses(newState, context, action, value) {
         let formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, action.formElement.formElementGroup.getFormElements())) {
             formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
@@ -189,13 +215,13 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        let validationResult = action.formElement.validate(action.value);
+        let validationResult = action.formElement.validate(value);
         validationResult.addQuestionGroupIndex(action.questionGroupIndex);
         if (action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }
-        if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
-            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.formElement, context);
+        if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
+            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         return newState;

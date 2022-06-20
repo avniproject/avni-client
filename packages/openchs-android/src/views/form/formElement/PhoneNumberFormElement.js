@@ -25,17 +25,17 @@ class PhoneNumberFormElement extends AbstractFormElement {
     }
 
     componentWillMount() {
-        this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: false});
+        this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: false, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex, formElement: this.props.element});
         return super.componentWillMount();
     }
 
     onInputChange(number) {
-        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: number});
+        this.dispatchAction(this.props.inputChangeActionName, {formElement: this.props.element, value: number, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex});
     }
 
     renderVerifyButton() {
-        const onSuccess = () => this.dispatchAction(this.props.successVerificationActionName, {observation: this.props.observation});
-        const onSkip = () => this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: true});
+        const onSuccess = () => this.dispatchAction(this.props.successVerificationActionName, {observation: this.props.observation, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex, formElement: this.props.element});
+        const onSkip = () => this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: true, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex, formElement: this.props.element});
         return (
             <View style={styles.skipButtonContainer}>
                 <Button primary

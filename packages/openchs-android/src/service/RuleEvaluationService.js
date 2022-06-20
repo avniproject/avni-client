@@ -419,7 +419,17 @@ class RuleEvaluationService extends BaseService {
 
     runFormElementGroupRule(formElementGroup, entity, entityName) {
         if (_.isNil(formElementGroup.rule) || _.isEmpty(_.trim(formElementGroup.rule))) {
-            return formElementGroup.getFormElements().map((formElement) => new FormElementStatus(formElement.uuid, true, undefined));
+            return formElementGroup.getFormElements().flatMap((formElement) => {
+                if (formElement.groupUuid) {
+                    const size = this.getRepeatableObservationSize(formElement, entity);
+                    return _.range(size).map(questionGroupIndex => {
+                        const formElementStatus = new FormElementStatus(formElement.uuid, true, undefined);
+                        formElementStatus.addQuestionGroupInformation(questionGroupIndex);
+                        return formElementStatus;
+                    })
+                }
+                return new FormElementStatus(formElement.uuid, true, undefined);
+            });
         }
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -435,19 +445,23 @@ class RuleEvaluationService extends BaseService {
     }
 
     getTheChildFormElementStatues(childFormElement, entity, entityName) {
-        const parentFormElement = childFormElement.getParentFormElement();
-        const questionGroupObservations = entity.findObservation(parentFormElement.concept.uuid);
-        const questionGroupObs = questionGroupObservations && questionGroupObservations.getValueWrapper();
-        const size = questionGroupObs ? questionGroupObs.size() : 1;
+        const size = this.getRepeatableObservationSize(childFormElement, entity);
         return _.range(size)
             .map(questionGroupIndex => {
                 const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex);
                 if (formElementStatus)
-                    formElementStatus.addQuestionGroupInformation(questionGroupIndex, childFormElement.groupUuid);
+                    formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                 return formElementStatus;
             })
             .filter(fs => !_.isNil(fs))
             .reduce((all, curr) => all.concat(curr), [])
+    }
+
+    getRepeatableObservationSize(formElement, entity) {
+        const parentFormElement = formElement.getParentFormElement();
+        const questionGroupObservations = entity.findObservation(parentFormElement.concept.uuid);
+        const questionGroupObs = questionGroupObservations && questionGroupObservations.getValueWrapper();
+        return questionGroupObs ? questionGroupObs.size() : 1;
     }
 
     getFormElementsStatuses(entity, entityName, formElementGroup) {
