@@ -165,6 +165,7 @@ export default class AutocompleteSearch extends AbstractComponent {
                     listKey={item => item[uniqueKey]}
                     renderItem={rowData => this._getRow(rowData.item)}
                     nestedScrollEnabled
+                    keyboardShouldPersistTaps="handled"
                 />
             );
         } else {
