@@ -73,9 +73,10 @@ export default class MediaFormElement extends AbstractFormElement {
             const directory = this.isVideo ? FileSystem.getVideosDir() :
                 (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
-
-            fileSystemAction(response.uri, `${directory}/${fileName}`)
-                .then(() => onUpdateObservations(fileName));
+            if (_.get(response, 'assets[0]')) {
+                fileSystemAction(response.assets[0].uri, `${directory}/${fileName}`)
+                    .then(() => onUpdateObservations(fileName));
+            }
         }
     }
 
