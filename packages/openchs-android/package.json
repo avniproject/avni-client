@@ -22,7 +22,7 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "npx jetify"
+    "postinstall": "npx jetify && patch-package"
   },
   "dependencies": {
     "@react-native-firebase/analytics": "^8.0.0",
@@ -38,6 +38,7 @@
     "moment": "2.19.3",
     "native-base": "2.15.2",
     "openchs-models": "1.16.0",
+    "patch-package": "^6.4.7",
     "prop-types": "15.7.2",
     "react": "16.8.3",
     "react-native": "0.59.5",
@@ -53,7 +54,7 @@
     "react-native-fs": "2.11.17",
     "react-native-geolocation-service": "1.1.0",
     "react-native-i18n": "0.1.1",
-    "react-native-image-picker": "3.8.1",
+    "react-native-image-picker": "4.8.4",
     "react-native-image-zoom-viewer": "2.2.24",
     "react-native-immediate-phone-call": "^2.0.0",
     "react-native-keep-awake": "^4.0.0",
