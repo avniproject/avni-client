@@ -39,9 +39,9 @@ class CompletedEncountersView extends AbstractComponent {
         const selectedEncounterTypesUuid = this.state.selectedEncounterTypes.map(e => e.uuid);
         const encountersInfo = _.isEmpty(this.state.selectedEncounterTypes) ? this.state.encountersInfo :
             _.filter(this.state.encountersInfo, e => _.includes(selectedEncounterTypesUuid, e.encounter.encounterType.uuid));
-        const encountersToDisplay = encountersInfo.slice(0, 50);
-        const chronologicalEncounters = _.orderBy(encountersToDisplay, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(chronologicalEncounters);
+        const chronologicalEncounters = _.orderBy(encountersInfo, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
+        const encountersToDisplay = chronologicalEncounters.slice(0, 50);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(encountersToDisplay);
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('completedEncounters')}/>
