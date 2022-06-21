@@ -85,3 +85,6 @@ open_app_bundle:
 	-mkdir ./temp
 	curl "http://localhost:8081/index.android.bundle?platform=android&dev=true&minify=false" -o ./temp/output.txt
 	vi ./temp/output.txt
+
+fill_text:
+	@adb shell input text $(text)
