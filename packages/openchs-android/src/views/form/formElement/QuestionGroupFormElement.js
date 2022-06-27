@@ -14,7 +14,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
         observationHolder: PropTypes.object,
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
-        actions: PropTypes.array
+        actions: PropTypes.object
     };
 
 

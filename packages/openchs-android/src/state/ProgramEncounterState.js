@@ -11,6 +11,7 @@ import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 import IndividualService from "../service/IndividualService";
 import EntityService from "../service/EntityService";
+import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed) {
@@ -27,10 +28,13 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ProgramEncounter.schema.name;
     }
 
-    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
+    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
+        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
+            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
+        }
         return state;
     }
 

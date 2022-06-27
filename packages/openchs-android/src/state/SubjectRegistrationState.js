@@ -7,6 +7,7 @@ import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
 import {ValidationResult} from "openchs-models";
 import EntityService from "../service/EntityService";
+import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists) {
@@ -24,7 +25,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState) {
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new SubjectRegistrationState(
             [],
@@ -41,6 +42,9 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         state.saveDrafts = isNewEntity && isSaveDraftOn;
         state.groupAffiliation = groupAffiliationState;
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
+        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
+            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
+        }
         return state;
     }
 

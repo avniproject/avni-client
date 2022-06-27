@@ -53,7 +53,7 @@ export class SubjectRegisterActions {
         context.get(GroupSubjectService).populateGroups(subject.uuid, form, groupAffiliationState);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState);
+        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context);
         const finalState = action.isDraftEntity ? SubjectRegisterActions.setTotalMemberForDraftSubject(newState, context) : newState;
         return QuickFormEditingActions.moveToPage(finalState, action, context, SubjectRegisterActions);
     }

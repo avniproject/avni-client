@@ -43,7 +43,7 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context);
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 

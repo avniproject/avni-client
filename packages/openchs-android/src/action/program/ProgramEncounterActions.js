@@ -53,7 +53,7 @@ class ProgramEncounterActions {
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists);
+        const newState = ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context);
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 

@@ -5,6 +5,7 @@ import Wizard from "./Wizard";
 import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
 import EntityService from "../service/EntityService";
+import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed) {
@@ -52,10 +53,13 @@ class EncounterActionState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed) {
+    static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
+        if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
+            ObservationHolderActions.updateFormElements(formElementGroup, state, context);
+        }
         return state;
     }
 

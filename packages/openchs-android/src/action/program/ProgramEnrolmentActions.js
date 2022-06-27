@@ -55,6 +55,9 @@ export class ProgramEnrolmentActions {
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
+            if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
+                ObservationsHolderActions.updateFormElements(formElementGroup, state, context);
+            }
             if (!isProgramEnrolment) {
                 programEnrolmentState.groupAffiliation.removeMemberFromGroup();
                 GroupAffiliationActions.injectGroupsToIndividual(programEnrolmentState.groupAffiliation, programEnrolmentState);

@@ -41,7 +41,7 @@ class QuestionGroup extends AbstractFormElement {
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
         questionGroupIndex: PropTypes.number,
-        actions: PropTypes.array
+        actions: PropTypes.object
     };
 
     static defaultProps = {

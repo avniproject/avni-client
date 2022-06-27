@@ -20,7 +20,7 @@ class RepeatableFormElement extends AbstractFormElement {
         formElementsUserState: PropTypes.object,
         observationHolder: PropTypes.object,
         filteredFormElements: PropTypes.array,
-        actions: PropTypes.array
+        actions: PropTypes.object
     };
 
     static defaultProps = {
