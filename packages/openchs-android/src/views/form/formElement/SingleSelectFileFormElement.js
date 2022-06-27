@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import Colors from "../../primitives/Colors";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import FileFormElement from "./FileFormElement";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class SingleSelectFileFormElement extends FileFormElement {
     static propTypes = {
@@ -47,7 +48,7 @@ class SingleSelectFileFormElement extends FileFormElement {
     render() {
         return (
             <SafeAreaView>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this)) :
                     this.showInputOptions(this.onUpdateObservations.bind(this))}
                 <View style={styles.lineStyle}/>

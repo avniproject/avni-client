@@ -27,6 +27,7 @@ class RadioGroup extends AbstractComponent {
         inPairs: false,
         multiSelect: false,
         disabled: false,
+        skipLabel: false
     };
 
     static propTypes = {
@@ -40,6 +41,7 @@ class RadioGroup extends AbstractComponent {
         mandatory: PropTypes.bool,
         inPairs: PropTypes.bool,
         multiSelect: PropTypes.bool,
+        skipLabel: PropTypes.bool,
     };
 
     constructor(props, context) {
@@ -97,7 +99,8 @@ class RadioGroup extends AbstractComponent {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         return (
             <View style={this.appendedStyle({})}>
-                <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>
+                {!this.props.skipLabel &&
+                <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>}
                 {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
                     <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.renderSingleValue()}

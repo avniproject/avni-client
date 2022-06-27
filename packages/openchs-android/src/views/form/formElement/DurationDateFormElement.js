@@ -10,6 +10,7 @@ import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
 import UserInfoService from "../../../service/UserInfoService";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -28,11 +29,10 @@ class DurationDateFormElement extends AbstractFormElement {
     }
 
     render() {
-        let labelText = this.label;
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1}}>
-                    <Text style={Styles.formLabel}>{labelText}</Text>
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
                 </View>
             <View style={{
                 borderWidth: 1,

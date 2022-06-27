@@ -17,6 +17,7 @@ import AudioRecorderPlayer, {
 } from 'react-native-audio-recorder-player';
 import {ValidationResult} from "openchs-models";
 import {AlertMessage} from "../../common/AlertMessage";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class AudioFormElement extends AbstractFormElement {
     static propTypes = {
@@ -161,7 +162,7 @@ class AudioFormElement extends AbstractFormElement {
     render() {
         return (
             <View style={{marginVertical: 16}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.showInputOptions()}
                 {this.showMedia()}
                 <View style={styles.lineStyle}/>

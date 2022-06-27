@@ -7,6 +7,7 @@ import Colors from '../../primitives/Colors';
 import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
 import ValidationErrorMessage from "../ValidationErrorMessage";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class DurationFormElement extends AbstractFormElement {
     static propTypes = {
@@ -50,13 +51,12 @@ class DurationFormElement extends AbstractFormElement {
     }
 
     render() {
-        let labelText = this.label;
         const compositeDuration = this.props.compositeDuration;
         const durationView = compositeDuration.durations.map((duration, idx) => this.renderDuration(duration, idx));
         return (
             <View>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1,}}>
-                    <Text style={Styles.formLabel}>{labelText}</Text>
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
                 </View>
                 <View style={{
                     borderWidth: 1,

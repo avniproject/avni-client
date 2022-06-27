@@ -3,6 +3,7 @@ import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {View} from "react-native";
 import QuestionGroup from "./QuestionGroup";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class QuestionGroupFormElement extends AbstractFormElement {
     static propTypes = {
@@ -20,7 +21,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
     render() {
         return (
             <View>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 <QuestionGroup
                     element={this.props.element}
                     actionName={this.props.actionName}

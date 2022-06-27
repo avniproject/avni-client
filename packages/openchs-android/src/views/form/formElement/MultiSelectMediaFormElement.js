@@ -7,6 +7,7 @@ import Colors from "../../primitives/Colors";
 import {Button, Icon, Text} from "native-base";
 import Fonts from "../../primitives/Fonts";
 import Styles from "../../primitives/Styles";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 export default class MultiSelectMediaFormElement extends MediaFormElement {
     static propTypes = {
@@ -78,7 +79,7 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
         const isDisabled = _.size(this.mediaUris) !== this.state.mediaCount;
         return (
             <View style={{marginVertical: 16}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {_.map(_.range(0, this.state.mediaCount), index => this.renderMedia(index))}
                 <Button disabled={isDisabled}
                         style={{

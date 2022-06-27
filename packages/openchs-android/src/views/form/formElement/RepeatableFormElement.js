@@ -6,6 +6,7 @@ import {Icon} from "native-base";
 import Colors from "../../primitives/Colors";
 import {RepeatableQuestionGroup, QuestionGroup as QuestionGroupModel} from 'avni-models';
 import QuestionGroup from "./QuestionGroup";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 
 class RepeatableFormElement extends AbstractFormElement {
@@ -85,7 +86,7 @@ class RepeatableFormElement extends AbstractFormElement {
         const isAddDisabled = this.props.value.nonEmptySize() !== this.props.value.size();
         return (
             <View style={{marginVertical: 16}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {_.map(_.range(0, _.max([1, this.props.value.size()])), index => this.renderQuestionGroup(index))}
                 {this.actionButton('add-circle', () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
             </View>

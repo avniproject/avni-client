@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import MediaFormElement from "./MediaFormElement";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 export default class SingleSelectMediaFormElement extends MediaFormElement {
     static propTypes = {
@@ -50,7 +51,7 @@ export default class SingleSelectMediaFormElement extends MediaFormElement {
         return (
             this.props.isShown &&
             <View style={{marginVertical: 16}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {this.mediaUri ? this.showMedia(this.mediaUri, this.clearAnswer.bind(this)) :
                     this.showInputOptions(this.onUpdateObservations.bind(this))}
                 <View

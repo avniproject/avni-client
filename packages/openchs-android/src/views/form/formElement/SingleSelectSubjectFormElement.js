@@ -5,6 +5,7 @@ import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Distances from "../../primitives/Distances";
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import SubjectFormElement from "./SubjectFormElement";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class SingleSelectSubjectFormElement extends SubjectFormElement {
 
@@ -30,7 +31,7 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
-                    {this.label}
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
                     {this.renderSearchIcon()}
                 </View>
                 <View style={{flexDirection: 'row'}}>

@@ -5,6 +5,7 @@ import Distances from "../../primitives/Distances";
 import RadioGroup from "../../primitives/RadioGroup";
 import {View} from "react-native";
 import EncounterSelectFormElement from "./EncounterSelectFormElement";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class SingleSelectEncounterFormElement extends EncounterSelectFormElement {
 
@@ -29,6 +30,7 @@ class SingleSelectEncounterFormElement extends EncounterSelectFormElement {
         const valueLabelPairs = this.getValueLabelPairs();
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 <RadioGroup
                     multiSelect={false}
                     inPairs={true}
@@ -37,7 +39,9 @@ class SingleSelectEncounterFormElement extends EncounterSelectFormElement {
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
+                    labelValuePairs={valueLabelPairs}
+                    skipLabel={true}
+                />
             </View>
         )
     }

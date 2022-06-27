@@ -9,6 +9,7 @@ import {Button, Text} from "native-base";
 import Colors from "../../primitives/Colors";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import CHSNavigator from "../../../utility/CHSNavigator";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class PhoneNumberFormElement extends AbstractFormElement {
     static propTypes = {
@@ -53,7 +54,7 @@ class PhoneNumberFormElement extends AbstractFormElement {
         const isUnverified = _.get(this.props.validationResult, 'success', true) && !isVerified && _.size(value.getValue()) === 10;
         return (<View>
             <View style={styles.container}>
-                <Text style={Styles.formLabel}>{this.label}</Text>
+                <FormElementLabelWithDocumentation element={this.props.element}/>
             </View>
             <View style={styles.textContainerStyle}>
                 <TextInput

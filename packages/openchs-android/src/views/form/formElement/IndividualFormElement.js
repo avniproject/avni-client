@@ -10,6 +10,7 @@ import TypedTransition from "../../../framework/routing/TypedTransition";
 import IndividualSearchView from "../../../views/individual/IndividualSearchView"
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import _ from 'lodash';
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 
 class IndividualFormElement extends AbstractFormElement {
@@ -71,7 +72,7 @@ class IndividualFormElement extends AbstractFormElement {
     render() {
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 <View style={{flexDirection: 'row'}}>
                     <Text style={[{
                         flex: _.isEmpty(this.props.individualNameValue) ? 0.5 : 1,

@@ -6,6 +6,7 @@ import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import IndividualService from "../../../service/IndividualService";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class GroupAffiliationFormElement extends AbstractFormElement {
 
@@ -48,6 +49,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
         const valueLabelPairs = this.groupsToShow().map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {!_.isEmpty(this.props.actionName) &&
                 <RadioGroup
                     multiSelect={false}
@@ -57,7 +59,9 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>}
+                    labelValuePairs={valueLabelPairs}
+                    skipLabel={true}
+                />}
             </View>);
     }
 

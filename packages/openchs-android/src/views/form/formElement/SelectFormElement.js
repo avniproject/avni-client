@@ -7,6 +7,7 @@ import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
 import PresetOptionItem from "../../primitives/PresetOptionItem";
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -45,6 +46,7 @@ class SelectFormElement extends AbstractFormElement {
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
+                <FormElementLabelWithDocumentation element={this.props.element} />
                 <RadioGroup
                     multiSelect={this.props.multiSelect}
                     inPairs={true}
@@ -55,6 +57,7 @@ class SelectFormElement extends AbstractFormElement {
                     validationError={this.props.validationResult}
                     labelValuePairs={valueLabelPairs}
                     disabled={disabled}
+                    skipLabel={true}
                 />
             </View>);
     }

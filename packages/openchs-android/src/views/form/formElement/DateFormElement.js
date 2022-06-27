@@ -9,6 +9,7 @@ import _ from "lodash";
 import Styles from "../../primitives/Styles";
 import {Concept} from "avni-models";
 import UserInfoService from "../../../service/UserInfoService";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class DateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -28,7 +29,7 @@ class DateFormElement extends AbstractFormElement {
         const concept = this.props.element.concept;
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {
                     this.props.element.editable === false ?
                          <Text  style={[{

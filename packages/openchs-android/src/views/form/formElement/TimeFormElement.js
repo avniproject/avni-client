@@ -8,6 +8,7 @@ import Distances from "../../primitives/Distances";
 import _ from "lodash";
 import Styles from "../../primitives/Styles";
 import UserInfoService from "../../../service/UserInfoService";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class TimeFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,7 +28,7 @@ class TimeFormElement extends AbstractFormElement {
         const concept = this.props.element.concept;
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {
                     this.props.element.editable === false ?
                          <Text  style={[{

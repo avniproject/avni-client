@@ -8,6 +8,7 @@ import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import ValueSelectFormElement from "./ValueSelectFormElement";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -66,14 +67,13 @@ class NumericFormElement extends AbstractFormElement {
     renderNormalView() {
         let rangeText = this.rangeText();
         let unitText = this.unitText();
-        let labelText = this.label;
         const containerStyle = _.get(this.props, 'containerStyle', {});
         const labelStyle = _.get(this.props, 'labelStyle', {});
         const inputStyle = _.get(this.props, 'inputStyle', {});
         return (
             <View style={containerStyle}>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1, ...labelStyle}}>
-                    <Text style={Styles.formLabel}>{labelText}{unitText}{rangeText}</Text>
+                    <FormElementLabelWithDocumentation element={this.props.element} moreTextForLabel={<Text style={Styles.formLabel}>{unitText}{rangeText}</Text>}/>
                 </View>
                 <View style={inputStyle}>
                     {this.props.element.editable === false ?

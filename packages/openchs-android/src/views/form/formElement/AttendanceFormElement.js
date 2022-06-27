@@ -8,6 +8,7 @@ import GroupSubjectService from "../../../service/GroupSubjectService";
 import _ from 'lodash';
 import Colors from "../../primitives/Colors";
 import {Concept} from 'openchs-models';
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
@@ -41,7 +42,7 @@ class AttendanceFormElement extends AbstractFormElement {
         const subjectUUIDs = _.get(this.props.value, 'answer');
         return (
             <Fragment>
-                <Text style={Styles.formLabel}>{this.label}</Text>
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 <FlatList
                     data={groupsSubjects}
                     renderItem={({item, index}) => this.renderSubject(item, subjectUUIDs, index)}

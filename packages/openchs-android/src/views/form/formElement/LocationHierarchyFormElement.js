@@ -8,6 +8,7 @@ import _ from "lodash";
 import AddressLevelService from "../../../service/AddressLevelService";
 import {Concept} from 'openchs-models'
 import LocationHierarchyService from "../../../service/LocationHierarchyService";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class LocationHierarchyFormElement extends AbstractFormElement {
     static propTypes = {
@@ -54,7 +55,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
 
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 <AddressLevels
                     selectedLowestLevel={lowestAddressLevel}
                     multiSelect={false}

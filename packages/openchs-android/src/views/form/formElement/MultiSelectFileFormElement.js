@@ -11,6 +11,7 @@ import FileFormElement from "./FileFormElement";
 import {Button, Text} from "native-base";
 import Fonts from "../../primitives/Fonts";
 import Styles from "../../primitives/Styles";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class MultiSelectFileFormElement extends FileFormElement {
     static propTypes = {
@@ -72,7 +73,7 @@ class MultiSelectFileFormElement extends FileFormElement {
         const isDisabled = _.size(this.mediaUris) !== this.state.mediaCount;
         return (
             <SafeAreaView style={{marginVertical: 16}}>
-                {this.label}
+                <FormElementLabelWithDocumentation element={this.props.element}/>
                 {_.map(_.range(0, this.state.mediaCount), index => this.renderMedia(index))}
                 <Button disabled={isDisabled}
                         style={{

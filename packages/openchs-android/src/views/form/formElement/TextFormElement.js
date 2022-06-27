@@ -9,6 +9,7 @@ import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import ValueSelectFormElement from "./ValueSelectFormElement";
 import {HelpText} from "../../common/HelpText";
+import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -35,7 +36,7 @@ class TextFormElement extends AbstractFormElement {
 
     renderReadOnly() {
         return (<View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
-            {this.label}
+            <FormElementLabelWithDocumentation element={this.props.element}/>
             <Text style={[{
                 flex: 1,
                 marginVertical: 0,
@@ -54,7 +55,7 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={containerStyle}>
                 <View style={labelStyle}>
-                    {this.label}
+                    <FormElementLabelWithDocumentation element={this.props.element}/>
                     <HelpText t={this.I18n.t} text={this.props.helpText}/>
                 </View>
                 <View style={inputStyle}>
