@@ -67,6 +67,8 @@ class Colors {
     static BadgeColor = '#C71585';
     static ReadCardColor = '#f3f3f3';
 
+    static DocumentationInfoColor = '#9c9fa0';
+
 }
 
 export default Colors;

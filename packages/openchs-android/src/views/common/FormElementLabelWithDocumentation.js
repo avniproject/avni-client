@@ -55,7 +55,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                             marginLeft: 5,
                             fontSize: 14,
                             lineHeight: 18,
-                            color: Styles.accentColor
+                            color: Colors.DocumentationInfoColor
                         }}
                         onPress={() => this.setState(state => ({...state, expand: true}))}
                     />}
@@ -69,9 +69,9 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                         originWhitelist={['*']}
                         source={{html: htmlToRender}}/>
                     <Icon
-                        name={'minuscircle'}
-                        type='AntDesign'
-                        style={{fontSize: 14, color: '#229688', marginBottom: 5}}
+                        name={'md-caret-up-circle'}
+                        type='Ionicons'
+                        style={{fontSize: 20, color: Colors.DocumentationInfoColor, marginBottom: 5}}
                         onPress={() => this.setState(state => ({...state, expand: false}))}
                     />
                 </Fragment>}
