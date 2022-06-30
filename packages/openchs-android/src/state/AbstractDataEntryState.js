@@ -14,8 +14,8 @@ import EntityService from "../service/EntityService";
 class AbstractDataEntryState {
     locationError;
 
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerSate) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists, timerSate);
     }
 
     clone(newState = new this.constructor()) {
@@ -29,6 +29,7 @@ class AbstractDataEntryState {
         newState.formElementsUserState = this.formElementsUserState;
         newState.locationError = this.locationError;
         newState.workListState = this.workListState;
+        newState.timerState = _.isNil(this.timerState) ? this.timerState : this.timerState.clone();
         return newState;
     }
 
@@ -68,11 +69,20 @@ class AbstractDataEntryState {
     moveNext() {
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
+        if (!_.isNil(this.timerState)) {
+            this.timerState.resetForNextPage(this.formElementGroup);
+        }
     }
 
     movePrevious() {
+        if (!_.get(this.timerState, 'displayPrevious', true)) {
+            return;
+        }
         this.wizard.movePrevious();
         this.formElementGroup = this.formElementGroup.previous();
+        if (!_.isNil(this.timerState)) {
+            this.timerState.resetForNextPage(this.formElementGroup);
+        }
     }
 
     get observationsHolder() {
@@ -275,7 +285,7 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState, workLists) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState, workLists, timerSate) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
@@ -283,6 +293,7 @@ class AbstractDataEntryState {
         this.filteredFormElements = filteredFormElements;
         this.formElementsUserState = formElementsUserState;
         this.workListState = new WorkListState(workLists, () => this.getWorkContext());
+        this.timerState = timerSate;
     }
 
     hasNoFormElements() {

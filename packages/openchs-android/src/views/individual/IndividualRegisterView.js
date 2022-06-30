@@ -1,4 +1,4 @@
-import {ToastAndroid, View} from "react-native";
+import {ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -30,6 +30,8 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
+import BackgroundTimer from "react-native-background-timer";
+import Timer from "../common/Timer";
 
 @Path('/individualRegister')
 class IndividualRegisterView extends AbstractComponent {
@@ -95,6 +97,22 @@ class IndividualRegisterView extends AbstractComponent {
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
+    onStartTimer() {
+        this.dispatchAction(Actions.ON_START_TIMER,
+            {
+                cb: () => BackgroundTimer.runBackgroundTimer(
+                    () => this.dispatchAction(Actions.ON_TIMED_FORM,
+                        {
+                            vibrate: (pattern) => Vibration.vibrate(pattern),
+                            nextParams: IndividualRegisterViewsMixin.getNextProps(this),
+                            //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
+                            stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
+                        }),
+                    1000
+                )
+            })
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
@@ -106,6 +124,8 @@ class IndividualRegisterView extends AbstractComponent {
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    {this.state.timerState &&
+                    <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,

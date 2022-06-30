@@ -39,6 +39,7 @@
 		A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */; };
 		8B6CE7F57B1C405EA2137E7A /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C7551BEC7D423FA8CFCD2F /* libRNZipArchive.a */; };
 		C35D921593614313BD9EBD24 /* libKCKeepAwake.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4B502999FC14DDC9E65806B /* libKCKeepAwake.a */; };
+		3B6C501B5065422489A2FD3C /* libRNBackgroundTimer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D53B9C517F124A5CBFCE19EB /* libRNBackgroundTimer.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -193,6 +194,8 @@
 		72C7551BEC7D423FA8CFCD2F /* libRNZipArchive.a */ = {isa = PBXFileReference; name = "libRNZipArchive.a"; path = "libRNZipArchive.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */ = {isa = PBXFileReference; name = "KCKeepAwake.xcodeproj"; path = "../node_modules/react-native-keep-awake/ios/KCKeepAwake.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		F4B502999FC14DDC9E65806B /* libKCKeepAwake.a */ = {isa = PBXFileReference; name = "libKCKeepAwake.a"; path = "libKCKeepAwake.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		0EBD0DB0F23B4878945A4E51 /* RNBackgroundTimer.xcodeproj */ = {isa = PBXFileReference; name = "RNBackgroundTimer.xcodeproj"; path = "../node_modules/react-native-background-timer/ios/RNBackgroundTimer.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		D53B9C517F124A5CBFCE19EB /* libRNBackgroundTimer.a */ = {isa = PBXFileReference; name = "libRNBackgroundTimer.a"; path = "libRNBackgroundTimer.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,6 +237,7 @@
 				A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */,
 				8B6CE7F57B1C405EA2137E7A /* libRNZipArchive.a in Frameworks */,
 				C35D921593614313BD9EBD24 /* libKCKeepAwake.a in Frameworks */,
+				3B6C501B5065422489A2FD3C /* libRNBackgroundTimer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,6 +385,7 @@
 				211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */,
 				B2D0AAFA51CA4E86ADD2CD50 /* RNZipArchive.xcodeproj */,
 				8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */,
+				0EBD0DB0F23B4878945A4E51 /* RNBackgroundTimer.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -743,6 +748,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -759,6 +765,7 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -801,6 +808,7 @@
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",
 					"$(SRCROOT)/../node_modules/react-native-keep-awake/ios",
+					"$(SRCROOT)/../node_modules/react-native-background-timer/ios",
 				);
 			};
 			name = Debug;
@@ -832,6 +840,7 @@
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",
 					"$(SRCROOT)/../node_modules/react-native-keep-awake/ios",
+					"$(SRCROOT)/../node_modules/react-native-background-timer/ios",
 				);
 			};
 			name = Release;

@@ -1,4 +1,4 @@
-import {ToastAndroid, View} from "react-native";
+import {ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -29,6 +29,8 @@ import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
+import BackgroundTimer from "react-native-background-timer";
+import Timer from "../common/Timer";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -84,7 +86,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, this.state.timerState);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -117,6 +119,22 @@ class ProgramEncounterView extends AbstractComponent {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
+    onStartTimer() {
+        this.dispatchAction(Actions.ON_START_TIMER,
+            {
+                cb: () => BackgroundTimer.runBackgroundTimer(
+                    () => this.dispatchAction(Actions.ON_TIMED_FORM,
+                        {
+                            vibrate: (pattern) => Vibration.vibrate(pattern),
+                            nextParams: this.getNextParams(false),
+                            //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
+                            stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
+                        }),
+                    1000
+                )
+            })
+    }
+
 
     render() {
         General.logDebug('ProgramEncounterView', 'render');
@@ -129,6 +147,8 @@ class ProgramEncounterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
+                    {this.state.timerState &&
+                    <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
@@ -151,7 +171,8 @@ class ProgramEncounterView extends AbstractComponent {
                         }
                         {!this.state.wizard.isFirstFormPage() &&
                         <SummaryButton onPress={() => this.onGoToSummary()}/>}
-                        <FormElementGroup
+                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                            <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}
@@ -161,14 +182,19 @@ class ProgramEncounterView extends AbstractComponent {
                             dataEntryDate={this.state.programEncounter.encounterDateTime}
                             onValidationError={(x, y) => this.scrollToPosition(x, y)}
                             subjectUUID={this.state.programEncounter.programEnrolment.individual.uuid}
+                        />}
+                        <WizardButtons
+                            previous={{
+                                func: () => this.previous(),
+                                visible: !this.state.wizard.isFirstPage() && _.get(this.state.timerState, 'displayPrevious', true),
+                                label: this.I18n.t('previous')
+                            }}
+                            next={{
+                                visible: _.get(this.state.timerState, 'displayNext', true),
+                                func: () => this.next(),
+                                label: this.I18n.t('next')
+                            }}
                         />
-                        <WizardButtons previous={{
-                            func: () => this.previous(),
-                            visible: !this.state.wizard.isFirstPage(),
-                            label: this.I18n.t('previous')
-                        }} next={{
-                            func: () => this.next(), label: this.I18n.t('next')
-                        }}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

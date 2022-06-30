@@ -1,4 +1,4 @@
-import {StyleSheet, View} from "react-native";
+import {StyleSheet, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -23,6 +23,8 @@ import _ from "lodash";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
+import BackgroundTimer from "react-native-background-timer";
+import Timer from "../common/Timer";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -46,7 +48,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus, state.timerState);
             },
                 popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -64,6 +66,22 @@ class ProgramFormComponent extends AbstractComponent {
         this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
     }
 
+    onStartTimer() {
+        this.dispatchAction(Actions.ON_START_TIMER,
+            {
+                cb: () => BackgroundTimer.runBackgroundTimer(
+                    () => this.dispatchAction(Actions.ON_TIMED_FORM,
+                        {
+                            vibrate: (pattern) => Vibration.vibrate(pattern),
+                            nextParams: this.getNextParams(false),
+                            //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
+                            stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
+                        }),
+                    1000
+                )
+            })
+    }
+
     render() {
         const enrol = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol;
         const validationKey = enrol
@@ -75,10 +93,13 @@ class ProgramFormComponent extends AbstractComponent {
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction} displayHomePressWarning={true}/>
-                {this.props.state.wizard.isFirstFormPage() ?
+                {this.props.state.wizard.isFirstFormPage() &&
+                <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                                   individual={this.props.state.enrolment.individual}/>}
+                {this.props.state.timerState &&
+                <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
+                    {this.props.state.wizard.isFirstFormPage() ?
                     <View>
-                        <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                                           individual={this.props.state.enrolment.individual}/>
                         <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
                         <SummaryButton onPress={() => this.onGoToSummary()} styles={{marginRight: Distances.ScaledContentDistanceFromEdge}}/>
                         <GeolocationFormElement
@@ -100,7 +121,8 @@ class ProgramFormComponent extends AbstractComponent {
                 <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     {!this.props.state.wizard.isFirstFormPage() &&
                     <SummaryButton onPress={() => this.onGoToSummary()}/>}
-                    <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
+                    {(this.props.state.timerState ? this.props.state.timerState.displayQuestions : true) &&
+                        <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
                                       observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}
                                       formElementsUserState={this.props.state.formElementsUserState}
@@ -109,13 +131,19 @@ class ProgramFormComponent extends AbstractComponent {
                                       onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                       groupAffiliation={this.props.state.groupAffiliation}
                                       subjectUUID={this.props.state.enrolment.individual.uuid}
+                    />}
+                    <WizardButtons
+                        previous={{
+                            visible: !this.props.state.wizard.isFirstPage() && _.get(this.props.state.timerState, 'displayPrevious', true),
+                            func: () => this.props.previous(),
+                            label: this.I18n.t('previous')
+                        }}
+                        next={{
+                            visible: _.get(this.props.state.timerState, 'displayNext', true),
+                            func: () => this.next(),
+                            label: this.I18n.t('next')
+                        }}
                     />
-                    <WizardButtons previous={{
-                        visible: !this.props.state.wizard.isFirstPage(),
-                        func: () => this.props.previous(),
-                        label: this.I18n.t('previous')
-                    }}
-                                   next={{func: () => this.next(), label: this.I18n.t('next')}}/>
                 </View>
             </CHSContent>
         </CHSContainer>);

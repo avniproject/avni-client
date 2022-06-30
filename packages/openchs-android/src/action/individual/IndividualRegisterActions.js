@@ -14,6 +14,7 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import GroupAffiliationState from "../../state/GroupAffiliationState";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerActions from "../common/TimerActions";
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -41,13 +42,13 @@ export class IndividualRegisterActions {
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const saveDrafts = isNewEntity && isSaveDraftOn;
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
-        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState);
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity);
         IndividualRegisterActions.setAgeState(newState);
         return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegisterActions);
     }
 
     static onFormLoad(state, action, context) {
-        return action.pageNumber ? IndividualRegisterActions.onLoad(state, action, context) : state.clone();
+        return IndividualRegisterActions.onLoad(state, action, context);
     }
 
     static enterRegistrationDate(state, action) {
@@ -238,6 +239,8 @@ const actions = {
     ON_SUCCESS_OTP_VERIFICATION: "IRA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "IRA.ON_SKIP_VERIFICATION",
     TOGGLE_GROUPS: "IRA.TOGGLE_GROUPS",
+    ON_TIMED_FORM: "IRA.ON_TIMED_FORM",
+    ON_START_TIMER: "IRA.ON_START_TIMER",
 };
 
 export default new Map([
@@ -271,6 +274,8 @@ export default new Map([
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
+    [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
+    [actions.ON_START_TIMER, TimerActions.onStartTimer],
 ]);
 
 export {actions as Actions};

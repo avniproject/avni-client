@@ -1,4 +1,4 @@
-import {Text, TextInput, ToastAndroid, View} from "react-native";
+import {Text, TextInput, ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -35,6 +35,8 @@ import {Button, Text as NBText} from "native-base";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
+import Timer from "../common/Timer";
+import BackgroundTimer from "react-native-background-timer";
 
 @Path('/SubjectRegisterView')
 class SubjectRegisterView extends AbstractComponent {
@@ -118,7 +120,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null, nextScheduledVisits, state.form, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus);
+                    null, nextScheduledVisits, state.form, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus, this.state.timerState);
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -151,6 +153,22 @@ class SubjectRegisterView extends AbstractComponent {
         }
     }
 
+    onStartTimer() {
+        this.dispatchAction(Actions.ON_START_TIMER,
+            {
+                cb: () => BackgroundTimer.runBackgroundTimer(
+                    () => this.dispatchAction(Actions.ON_TIMED_FORM,
+                        {
+                            vibrate: (pattern) => Vibration.vibrate(pattern),
+                            nextParams: this.getNextParams(false),
+                            //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
+                            stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
+                        }),
+                    1000
+                )
+            })
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         {this.displayMessage(this.props.message)}
@@ -164,6 +182,8 @@ class SubjectRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
+                    {this.state.timerState &&
+                    <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => this.onGoToSummary()}/>
@@ -223,7 +243,8 @@ class SubjectRegisterView extends AbstractComponent {
                             </View>
                         )
                         }
-                        <FormElementGroup
+                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                            <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.subject.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}
@@ -237,13 +258,15 @@ class SubjectRegisterView extends AbstractComponent {
                             syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
                             allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
                             allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
-                        />
+                        />}
                         <WizardButtons previous={{
                             func: () => this.previous(),
-                            visible: !this.state.wizard.isFirstPage(),
+                            visible: !this.state.wizard.isFirstPage() && _.get(this.state.timerState, 'displayPrevious', true),
                             label: this.I18n.t('previous')
                         }} next={{
-                            func: () => this.next(), label: this.I18n.t('next')
+                            visible: _.get(this.state.timerState, 'displayNext', true),
+                            func: () => this.next(),
+                            label: this.I18n.t('next')
                         }}/>
                     </View>
                 </CHSContent>

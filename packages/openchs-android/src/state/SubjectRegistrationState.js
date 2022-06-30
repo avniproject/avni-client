@@ -8,10 +8,11 @@ import IndividualService from "../service/IndividualService";
 import {ValidationResult} from "openchs-models";
 import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
+import TimerState from "./TimerState";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
+    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
         this.subject = subject;
         this.subjectType = subjectType;
         this.household = new HouseholdState(workLists);
@@ -27,6 +28,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
 
     static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
+        const timerState = form.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         let state = new SubjectRegistrationState(
             [],
             formElementGroup,
@@ -35,7 +37,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             isNewEntity,
             filteredFormElements,
             subject.subjectType,
-            workLists
+            workLists,
+            timerState
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;

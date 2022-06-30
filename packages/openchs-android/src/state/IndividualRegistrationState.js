@@ -8,10 +8,11 @@ import HouseholdState from "./HouseholdState";
 import IndividualService from "../service/IndividualService";
 import {ValidationResult} from "openchs-models";
 import EntityService from "../service/EntityService";
+import TimerState from "./TimerState";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists, timerState) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
@@ -28,9 +29,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState) {
+    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity) {
+        const timerState = _.get(form, 'timed', false) && isNewEntity ? new TimerState(0, 30) : null;
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))));
+        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, true, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))), timerState);
         individualRegistrationState.form = form;
         individualRegistrationState.minLevelTypeUUIDs = minLevelTypeUUIDs;
         individualRegistrationState.saveDrafts = saveDrafts;

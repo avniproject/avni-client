@@ -11,6 +11,7 @@ import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerActions from "../common/TimerActions";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -150,6 +151,8 @@ const ProgramEncounterActionsNames = {
     REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: "PEncA.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "PEncA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "PEncA.ON_SKIP_VERIFICATION",
+    ON_TIMED_FORM: "PEncA.ON_TIMED_FORM",
+    ON_START_TIMER: "PEncA.ON_START_TIMER",
 };
 
 const ProgramEncounterActionsMap = new Map([
@@ -173,6 +176,8 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
     [ProgramEncounterActionsNames.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [ProgramEncounterActionsNames.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [ProgramEncounterActionsNames.ON_TIMED_FORM, TimerActions.onTimedForm],
+    [ProgramEncounterActionsNames.ON_START_TIMER, TimerActions.onStartTimer],
 ]);
 
 export {

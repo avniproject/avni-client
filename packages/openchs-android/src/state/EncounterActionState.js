@@ -6,10 +6,11 @@ import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
 import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
+import TimerState from "./TimerState";
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
@@ -55,7 +56,8 @@ class EncounterActionState extends AbstractDataEntryState {
 
     static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
-        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed);
+        const timerState = form.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);

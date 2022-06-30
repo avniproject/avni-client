@@ -12,7 +12,7 @@
 
     <uses-permission tools:node="remove" android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
             android:name=".MainApplication"
             android:roundIcon="@mipmap/openchs_launcher_round"

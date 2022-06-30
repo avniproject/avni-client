@@ -14,6 +14,8 @@ import GroupAffiliationState from "../../state/GroupAffiliationState";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerState from "../../state/TimerState";
+import TimerActions from "../common/TimerActions";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -42,6 +44,7 @@ export class ProgramEnrolmentActions {
                 .get(RuleEvaluationService)
                 .getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
+            const timerState = form.timed && isNewEnrolment ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
             let programEnrolmentState = new ProgramEnrolmentState(
                 [],
                 formElementGroup,
@@ -51,7 +54,8 @@ export class ProgramEnrolmentActions {
                 isNewEnrolment,
                 filteredElements,
                 action.workLists,
-                groupAffiliationState
+                groupAffiliationState,
+                timerState
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
@@ -165,6 +169,8 @@ const actions = {
     ON_SUCCESS_OTP_VERIFICATION: "PEA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "PEA.ON_SKIP_VERIFICATION",
     TOGGLE_GROUPS: "PEA.TOGGLE_GROUPS",
+    ON_TIMED_FORM: "PEA.ON_TIMED_FORM",
+    ON_START_TIMER: "PEA.ON_START_TIMER",
 };
 
 export default new Map([
@@ -190,6 +196,8 @@ export default new Map([
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
+    [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
+    [actions.ON_START_TIMER, TimerActions.onStartTimer],
 ]);
 
 export {actions as Actions};

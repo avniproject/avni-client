@@ -9,6 +9,7 @@ import General from "../../utility/General";
 import EntityService from "../../service/EntityService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerActions from "../common/TimerActions";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -125,6 +126,8 @@ const individualEncounterViewActions = {
     REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: "EA.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE",
     ON_SUCCESS_OTP_VERIFICATION: "EA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "EA.ON_SKIP_VERIFICATION",
+    ON_TIMED_FORM: "EA.ON_TIMED_FORM",
+    ON_START_TIMER: "EA.ON_START_TIMER",
 };
 
 const individualEncounterViewActionsMap = new Map([
@@ -149,6 +152,8 @@ const individualEncounterViewActionsMap = new Map([
     [individualEncounterViewActions.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onRepeatableGroupQuestionChange],
     [individualEncounterViewActions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [individualEncounterViewActions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
+    [individualEncounterViewActions.ON_TIMED_FORM, TimerActions.onTimedForm],
+    [individualEncounterViewActions.ON_START_TIMER, TimerActions.onStartTimer],
 ]);
 
 export {

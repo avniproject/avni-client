@@ -88,6 +88,15 @@ Styles.menuTitle = {
     alignSelf: 'center',
 };
 
+Styles.timerStyle = {
+    fontSize: Styles.titleSize,
+    fontStyle: 'normal',
+    color: Styles.blackColor,
+    fontWeight: 'bold',
+    lineHeight: 24,
+    alignSelf: 'center',
+};
+
 Styles.textStyle = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',

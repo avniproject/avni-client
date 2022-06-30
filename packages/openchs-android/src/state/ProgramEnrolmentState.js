@@ -11,8 +11,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists);
+    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState, timerState) {
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists, timerState);
         this.usage = usage;
         this.enrolment = enrolment;
         if (!_.isNil(enrolment)) {

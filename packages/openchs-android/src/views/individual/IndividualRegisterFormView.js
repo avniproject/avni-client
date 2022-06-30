@@ -21,6 +21,7 @@ import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
+import Timer from "../common/Timer";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -35,13 +36,15 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_FORM_LOAD,
-            {
-                individualUUID: this.props.params.individualUUID,
-                workLists: this.props.params.workLists,
-                isDraftEntity: this.props.params.isDraftEntity,
-                pageNumber: this.props.params.pageNumber,
-            });
+        if(this.props.params.pageNumber) {
+            this.dispatchAction(Actions.ON_FORM_LOAD,
+                {
+                    individualUUID: this.props.params.individualUUID,
+                    workLists: this.props.params.workLists,
+                    isDraftEntity: this.props.params.isDraftEntity,
+                    pageNumber: this.props.params.pageNumber,
+                });
+        }
         super.componentWillMount();
     }
 
@@ -84,10 +87,13 @@ class IndividualRegisterFormView extends AbstractComponent {
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    {this.state.timerState &&
+                    <Timer timerState={this.state.timerState} onStartTimer={() => {}}/>}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
-                        <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
+                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                            <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions}
                                           filteredFormElements={this.state.filteredFormElements}
@@ -100,12 +106,19 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
                                           allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
                                           allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
+                        />}
+                        <WizardButtons
+                            previous={{
+                                visible: _.get(this.state.timerState, 'displayPrevious', true),
+                                func: () => this.previous(),
+                                label: this.I18n.t('previous')
+                            }}
+                            next={{
+                                visible: _.get(this.state.timerState, 'displayNext', true),
+                                func: () => IndividualRegisterViewsMixin.next(this),
+                                label: this.I18n.t('next')
+                            }}
                         />
-                        <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
-                                       next={{
-                                           func: () => IndividualRegisterViewsMixin.next(this),
-                                           label: this.I18n.t('next')
-                                       }}/>
                     </View>
                 </CHSContent>
             </CHSContainer>

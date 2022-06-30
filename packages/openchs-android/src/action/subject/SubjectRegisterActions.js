@@ -15,6 +15,7 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import GroupAffiliationState from "../../state/GroupAffiliationState";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerActions from "../common/TimerActions";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -193,6 +194,8 @@ const actions = {
     ON_SUCCESS_OTP_VERIFICATION: "SRA.ON_SUCCESS_OTP_VERIFICATION",
     ON_SKIP_VERIFICATION: "SRA.ON_SKIP_VERIFICATION",
     TOGGLE_GROUPS: "SRA.TOGGLE_GROUPS",
+    ON_TIMED_FORM: "SRA.ON_TIMED_FORM",
+    ON_START_TIMER: "SRA.ON_START_TIMER",
 };
 
 export default new Map([
@@ -220,6 +223,8 @@ export default new Map([
     [actions.ON_SUCCESS_OTP_VERIFICATION, PhoneNumberVerificationActions.onSuccessVerification],
     [actions.ON_SKIP_VERIFICATION, PhoneNumberVerificationActions.onSkipVerification],
     [actions.TOGGLE_GROUPS, GroupAffiliationActions.updateValue],
+    [actions.ON_TIMED_FORM, TimerActions.onTimedForm],
+    [actions.ON_START_TIMER, TimerActions.onStartTimer],
 ]);
 
 export {actions as Actions};

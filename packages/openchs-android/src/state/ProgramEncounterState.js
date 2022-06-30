@@ -12,10 +12,11 @@ import _ from 'lodash';
 import IndividualService from "../service/IndividualService";
 import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
+import TimerState from "./TimerState";
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed) {
-        super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists);
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState) {
+        super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
         this.programEncounter = programEncounter;
         this.messageDisplayed = messageDisplayed;
     }
@@ -30,7 +31,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
-        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed);
+        const timerState = form.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);
