@@ -2,46 +2,36 @@ export default class TimerActions {
 
     static onTimedForm(state, action, context) {
         const newState = state.clone();
-        const {timerState, formElementGroup, wizard} = newState;
+        const {timerState, wizard} = newState;
         const isLastPage = wizard.isLastPage();
-        const isFirstPage = wizard.isFirstFormPage();
-        const isFormPage = !wizard.isNonFormPage();
-        const {stayTime, startTime, time} = timerState;
-        TimerActions.handleWizardButtons(isFormPage, isLastPage, formElementGroup, timerState, isFirstPage);
+        const {startTime, time} = timerState;
         TimerActions.vibrateOnQuestionDisplay(startTime, time, action);
-        TimerActions.oveNextIfRequired(stayTime, isLastPage, action, newState, context, timerState);
+        TimerActions.moveNextIfRequired(isLastPage, action, newState, context, timerState);
         timerState.onEverySecond();
         return newState;
     }
 
-    static oveNextIfRequired(stayTime, isLastPage, action, newState, context, timerState) {
-        if (stayTime === 0) {
+    static moveNextIfRequired(isLastPage, action, newState, context, timerState) {
+        if (timerState.stayTime === 0) {
             if (isLastPage) {
-                action.stopTimer();
+                TimerActions.stopTimer(timerState, action);
             }
+            timerState.addVisited(newState.formElementGroup);
             newState.handleNext(action.nextParams, context);
-            timerState.hideWizardButtons();
+            if (!newState.formElementGroup.timed) {
+                TimerActions.stopTimer(timerState, action);
+            }
         }
+    }
+
+    static stopTimer(timerState, action) {
+        timerState.stop();
+        action.stopTimer();
     }
 
     static vibrateOnQuestionDisplay(startTime, time, action) {
         if (startTime === time) {
             action.vibrate(5 * 1000);
-        }
-    }
-
-    static handleWizardButtons(isFormPage, isLastPage, formElementGroup, timerState, isFirstPage) {
-        if (isFormPage && !isLastPage) {
-            const nextFormElementGroup = formElementGroup.next();
-            if (nextFormElementGroup.startTime === formElementGroup.startTime) {
-                timerState.displayNextButton();
-            }
-        }
-        if (isFormPage && !isFirstPage) {
-            const previousFormElementGroup = formElementGroup.previous();
-            if (previousFormElementGroup.startTime === formElementGroup.startTime) {
-                timerState.displayPreviousButton();
-            }
         }
     }
 

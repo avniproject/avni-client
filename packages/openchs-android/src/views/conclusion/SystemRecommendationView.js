@@ -53,7 +53,6 @@ class SystemRecommendationView extends AbstractComponent {
         workListState: PropTypes.object,
         isRejectedEntity: PropTypes.bool,
         entityApprovalStatus: PropTypes.object,
-        timerState: PropTypes.object,
     };
 
     static defaultProps = {
@@ -138,14 +137,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     previous() {
-        if (_.isNil(this.props.timerState)) {
             TypedTransition.from(this).goBack();
-        }
-    }
-
-    onHardwareBackPress() {
-        this.previous();
-        return true;
     }
 
     profile() {
@@ -210,8 +202,7 @@ class SystemRecommendationView extends AbstractComponent {
                             <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
-                            <WizardButtons previous={_.isNil(this.props.timerState) ?
-                                                    {func: () => this.previous(), label: this.I18n.t('previous')} : null}
+                            <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
                                            next={{
                                                func: () => this.save(() => this.props.onSaveCallback(this)),
                                                visible: this.props.validationErrors.length === 0,

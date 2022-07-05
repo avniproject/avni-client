@@ -48,7 +48,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus, state.timerState);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
             },
                 popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -87,7 +87,7 @@ class ProgramFormComponent extends AbstractComponent {
         const validationKey = enrol
             ? ProgramEnrolment.validationKeys.ENROLMENT_LOCATION
             : ProgramEnrolment.validationKeys.EXIT_LOCATION
-
+        const displayTimer = this.props.state.timerState && this.props.state.timerState.displayTimer(this.props.state.formElementGroup);
         return (<CHSContainer>
             <CHSContent ref="scroll">
                 <AppHeader
@@ -96,8 +96,8 @@ class ProgramFormComponent extends AbstractComponent {
                 {this.props.state.wizard.isFirstFormPage() &&
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.state.enrolment.individual}/>}
-                {this.props.state.timerState &&
-                <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
+                {displayTimer ?
+                    <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
                     {this.props.state.wizard.isFirstFormPage() ?
                     <View>
                         <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
@@ -121,7 +121,7 @@ class ProgramFormComponent extends AbstractComponent {
                 <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     {!this.props.state.wizard.isFirstFormPage() &&
                     <SummaryButton onPress={() => this.onGoToSummary()}/>}
-                    {(this.props.state.timerState ? this.props.state.timerState.displayQuestions : true) &&
+                    {_.get(this.props.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
                                       observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}
@@ -132,18 +132,18 @@ class ProgramFormComponent extends AbstractComponent {
                                       groupAffiliation={this.props.state.groupAffiliation}
                                       subjectUUID={this.props.state.enrolment.individual.uuid}
                     />}
+                    {!displayTimer &&
                     <WizardButtons
                         previous={{
-                            visible: !this.props.state.wizard.isFirstPage() && _.get(this.props.state.timerState, 'displayPrevious', true),
+                            visible: !this.props.state.wizard.isFirstPage(),
                             func: () => this.props.previous(),
                             label: this.I18n.t('previous')
                         }}
                         next={{
-                            visible: _.get(this.props.state.timerState, 'displayNext', true),
                             func: () => this.next(),
                             label: this.I18n.t('next')
                         }}
-                    />
+                    />}
                 </View>
             </CHSContent>
         </CHSContainer>);

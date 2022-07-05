@@ -87,8 +87,7 @@ class IndividualEncounterView extends AbstractComponent {
                     nextScheduledVisits,
                     popVerificationVew,
                     this.state.encounter.isRejectedEntity(),
-                    this.state.encounter.latestEntityApprovalStatus,
-                    this.state.timerState
+                    this.state.encounter.latestEntityApprovalStatus
                 );
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
@@ -141,14 +140,15 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     render() {
+        const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
-                    {this.state.timerState &&
-                    <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
+                    {displayTimer ?
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
                     {this.state.wizard.isFirstFormPage() ?
                         <View>
                             <RejectionMessage I18n={this.I18n}
@@ -176,7 +176,7 @@ class IndividualEncounterView extends AbstractComponent {
                     <View style={styles.container}>
                         {!this.state.wizard.isFirstFormPage() &&
                         <SummaryButton onPress={() => this.onGoToSummary()}/>}
-                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                        {_.get(this.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup group={this.state.formElementGroup}
                                           observationHolder={new ObservationsHolder(this.state.encounter.observations)}
                                           actions={Actions}
@@ -187,18 +187,18 @@ class IndividualEncounterView extends AbstractComponent {
                                           onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                           subjectUUID={this.state.encounter.individual.uuid}
                         />}
+                        {!displayTimer &&
                         <WizardButtons
                             previous={{
-                                visible: !this.state.wizard.isFirstPage() && _.get(this.state.timerState, 'displayPrevious', true),
+                                visible: !this.state.wizard.isFirstPage(),
                                 func: () => this.previous(),
                                 label: this.I18n.t('previous')
                             }}
                             next={{
-                                visible: _.get(this.state.timerState, 'displayNext', true),
                                 func: () => this.next(),
                                 label: this.I18n.t('next')
                             }}
-                        />
+                        />}
                     </View>
                 </CHSContent>
             </CHSContainer>

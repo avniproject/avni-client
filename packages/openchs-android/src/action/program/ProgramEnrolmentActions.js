@@ -44,7 +44,7 @@ export class ProgramEnrolmentActions {
                 .get(RuleEvaluationService)
                 .getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
-            const timerState = form.timed && isNewEnrolment ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+            const timerState = formElementGroup.timed && isNewEnrolment ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
             let programEnrolmentState = new ProgramEnrolmentState(
                 [],
                 formElementGroup,

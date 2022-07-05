@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -22,6 +22,7 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
+import BackgroundTimer from "react-native-background-timer";
 
 @Path('/IndividualRegisterFormView')
 class IndividualRegisterFormView extends AbstractComponent {
@@ -77,22 +78,39 @@ class IndividualRegisterFormView extends AbstractComponent {
         return !nextState.wizard.isNonFormPage();
     }
 
+    onStartTimer() {
+        this.dispatchAction(Actions.ON_START_TIMER,
+            {
+                cb: () => BackgroundTimer.runBackgroundTimer(
+                    () => this.dispatchAction(Actions.ON_TIMED_FORM,
+                        {
+                            vibrate: (pattern) => Vibration.vibrate(pattern),
+                            nextParams: IndividualRegisterViewsMixin.getNextProps(this),
+                            //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
+                            stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
+                        }),
+                    1000
+                )
+            })
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         const subjectType = this.state.individual.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
+        const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
                 <CHSContent ref='scroll'>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                    {this.state.timerState &&
-                    <Timer timerState={this.state.timerState} onStartTimer={() => {}}/>}
+                    {displayTimer ?
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
-                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                        {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions}
@@ -107,18 +125,17 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
                                           allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
                         />}
+                        {!displayTimer &&
                         <WizardButtons
                             previous={{
-                                visible: _.get(this.state.timerState, 'displayPrevious', true),
                                 func: () => this.previous(),
                                 label: this.I18n.t('previous')
                             }}
                             next={{
-                                visible: _.get(this.state.timerState, 'displayNext', true),
                                 func: () => IndividualRegisterViewsMixin.next(this),
                                 label: this.I18n.t('next')
                             }}
-                        />
+                        />}
                     </View>
                 </CHSContent>
             </CHSContainer>

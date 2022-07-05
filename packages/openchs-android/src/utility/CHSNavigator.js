@@ -202,7 +202,7 @@ class CHSNavigator {
         }).to(IndividualEncounterView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, timerState) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -228,12 +228,11 @@ class CHSNavigator {
             false,
             popVerificationVew,
             isRejectedEntity,
-            entityApprovalStatus,
-            timerState
+            entityApprovalStatus
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus, timerState) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -249,8 +248,7 @@ class CHSNavigator {
             workListState,
             isSaveDraftOn,
             isRejectedEntity,
-            entityApprovalStatus,
-            timerState
+            entityApprovalStatus
         }).to(SystemRecommendationView, true, popVerificationVew);
     }
 

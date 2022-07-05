@@ -1,14 +1,17 @@
 import moment from "moment";
 
 export default class TimerState {
-    constructor(startTime = 0, stayTime = 0) {
+    constructor(startTime, stayTime, displayQuestions = false) {
         this.startTime = startTime;
         this.stayTime = stayTime;
         this.time = 0;
         this.startTimer = false;
-        this.displayQuestions = false;
-        this.displayNext = false;
-        this.displayPrevious = false;
+        this.displayQuestions = displayQuestions;
+        this.visitedGroupUUIDs = [];
+    }
+
+    displayTimer(formElementGroup) {
+        return this.hasNotVisited(formElementGroup);
     }
 
     clone() {
@@ -18,8 +21,7 @@ export default class TimerState {
         newState.time = this.time;
         newState.startTimer = this.startTimer;
         newState.displayQuestions = this.displayQuestions;
-        newState.displayNext = this.displayNext;
-        newState.displayPrevious = this.displayPrevious;
+        newState.visitedGroupUUIDs = this.visitedGroupUUIDs;
         return newState;
     }
 
@@ -27,23 +29,25 @@ export default class TimerState {
         this.startTimer = true;
     }
 
-    displayNextButton() {
-        this.displayNext = true;
+    stop() {
+        this.startTimer = false;
+        this.time = 0;
     }
 
-    hideWizardButtons() {
-        this.displayNext = false;
-        this.displayPrevious = false;
+    addVisited(formElementGroup) {
+        if (this.hasNotVisited(formElementGroup)) {
+            this.visitedGroupUUIDs.push(_.get(formElementGroup, 'uuid'));
+        }
     }
 
-    displayPreviousButton() {
-        this.displayPrevious = true;
+    hasNotVisited(formElementGroup) {
+        return formElementGroup.timed ? !_.includes(this.visitedGroupUUIDs, _.get(formElementGroup, 'uuid')) : false;
     }
 
     onEverySecond() {
         this.time = this.time + 1;
         if (this.time >= this.startTime) {
-            this.stayTime = this.stayTime === 0 ? this.stayTime : this.stayTime - 1;
+            this.stayTime = this.stayTime === 0 || _.isNil(this.stayTime) ? this.stayTime : this.stayTime - 1;
             if (this.stayTime > 0) {
                 this.displayQuestions = true;
             }
@@ -53,9 +57,7 @@ export default class TimerState {
     resetForNextPage(formElementGroup) {
         this.stayTime = formElementGroup.stayTime;
         this.startTime = formElementGroup.startTime;
-        this.displayQuestions = false;
-        this.displayNext = false;
-        this.displayPrevious = false;
+        this.displayQuestions = !this.hasNotVisited(formElementGroup);
     }
 
     displayString() {

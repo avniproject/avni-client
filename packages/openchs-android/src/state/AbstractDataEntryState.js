@@ -10,6 +10,7 @@ import WorkListState from "./WorkListState";
 import moment from "moment/moment";
 import Config from '../framework/Config';
 import EntityService from "../service/EntityService";
+import TimerState from "./TimerState";
 
 class AbstractDataEntryState {
     locationError;
@@ -29,6 +30,7 @@ class AbstractDataEntryState {
         newState.formElementsUserState = this.formElementsUserState;
         newState.locationError = this.locationError;
         newState.workListState = this.workListState;
+        newState.isNewEntity = this.isNewEntity;
         newState.timerState = _.isNil(this.timerState) ? this.timerState : this.timerState.clone();
         return newState;
     }
@@ -69,20 +71,21 @@ class AbstractDataEntryState {
     moveNext() {
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
-        if (!_.isNil(this.timerState)) {
-            this.timerState.resetForNextPage(this.formElementGroup);
+        if (this.isNewEntity) {
+            if (_.isNil(this.timerState)) {
+                this.timerState = new TimerState(this.formElementGroup.startTime, this.formElementGroup.stayTime, !this.formElementGroup.timed);
+            } else {
+                this.timerState.resetForNextPage(this.formElementGroup);
+            }
         }
     }
 
     movePrevious() {
-        if (!_.get(this.timerState, 'displayPrevious', true)) {
+        if (this.isNewEntity && this.timerState && this.timerState.hasNotVisited(this.formElementGroup)) {
             return;
         }
         this.wizard.movePrevious();
         this.formElementGroup = this.formElementGroup.previous();
-        if (!_.isNil(this.timerState)) {
-            this.timerState.resetForNextPage(this.formElementGroup);
-        }
     }
 
     get observationsHolder() {

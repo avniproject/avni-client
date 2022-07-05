@@ -120,7 +120,7 @@ class SubjectRegisterView extends AbstractComponent {
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null, nextScheduledVisits, state.form, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus, this.state.timerState);
+                    null, nextScheduledVisits, state.form, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus);
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -176,14 +176,15 @@ class SubjectRegisterView extends AbstractComponent {
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         const subjectType = this.state.subject.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
+        const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
                 <CHSContent ref="scroll">
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
-                    {this.state.timerState &&
-                    <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/>}
+                    {displayTimer ?
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => this.onGoToSummary()}/>
@@ -243,7 +244,7 @@ class SubjectRegisterView extends AbstractComponent {
                             </View>
                         )
                         }
-                        {(this.state.timerState ? this.state.timerState.displayQuestions : true) &&
+                        {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.subject.observations)}
                             group={this.state.formElementGroup}
@@ -259,15 +260,15 @@ class SubjectRegisterView extends AbstractComponent {
                             allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
                             allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
                         />}
+                        {!displayTimer &&
                         <WizardButtons previous={{
                             func: () => this.previous(),
-                            visible: !this.state.wizard.isFirstPage() && _.get(this.state.timerState, 'displayPrevious', true),
+                            visible: !this.state.wizard.isFirstPage(),
                             label: this.I18n.t('previous')
                         }} next={{
-                            visible: _.get(this.state.timerState, 'displayNext', true),
                             func: () => this.next(),
                             label: this.I18n.t('next')
-                        }}/>
+                        }}/>}
                     </View>
                 </CHSContent>
             </CHSContainer>
