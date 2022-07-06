@@ -233,17 +233,16 @@ class Observations extends AbstractComponent {
         this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID));
     }
 
-    editTable(groupUUID, groupName, observations) {
+    editTable(groupUUID, groupName, observations, groupStyles) {
         return <View style={{flexDirection: 'column'}} key={groupUUID}>
             <View style={[{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: 4,
-                backgroundColor: 'rgba(0, 0, 0, 0.12)'
-            }, this.styles.observationRow, this.styles.observationColumn]}>
+                padding: 4
+            }, this.styles.observationRow, this.styles.observationColumn, groupStyles]}>
                 <View style={{flex: 0.9, flexWrap: 'wrap'}}>
-                    <Text style={{fontWeight: 'bold'}}>{this.I18n.t(groupName)}</Text>
+                    <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
                 </View>
                 {groupUUID &&
                 <View style={{flex: 0.1}}>
@@ -303,10 +302,10 @@ class Observations extends AbstractComponent {
             <Fragment key={observation.concept.uuid}>
                 <View style={[{flexDirection: "row"}, this.styles.observationRow]}>
                     <View style={{width: 5, backgroundColor: 'rgba(0, 0, 0, 0.12)'}}/>
-                    <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn]}>
+                    <Text style={[this.styles.conceptNameStyle, this.styles.observationColumn, observation.styles]}>
                         {this.I18n.t(observation.concept.name)}
                     </Text>
-                    <View style={this.styles.observationColumn}/>
+                    <View style={[this.styles.observationColumn, observation.styles]}/>
                 </View>
                 {isRepeatable ?
                     this.renderRepeatableQuestionGroup(observations) :
@@ -352,7 +351,7 @@ class Observations extends AbstractComponent {
             removeClippedSubviews={true}
             renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
             renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={({groupName, groupUUID, observations}) => this.editTable(groupUUID, groupName, observations)}
+            renderRow={({groupName, groupUUID, observations, groupStyles}) => this.editTable(groupUUID, groupName, observations, groupStyles)}
         />;
     }
 

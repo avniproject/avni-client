@@ -116,7 +116,7 @@ class FormElementGroup extends AbstractComponent {
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
         return (<View>
                 {formElements.length < 1 ? <View/> :
-                    <Text style={Styles.formGroupLabel}>{this.I18n.t(this.props.group.display)}</Text>}
+                    <Text style={[Styles.formGroupLabel, this.props.group.styles]}>{this.I18n.t(this.props.group.display)}</Text>}
                 {
                     formElements.filter(fm => !fm.isQuestionGroup()).map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);

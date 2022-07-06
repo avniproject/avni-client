@@ -22,7 +22,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     get label() {
         const mandatoryText = this.props.element.mandatory ?
             <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-        return <Text style={Styles.formLabel}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
+        return <Text style={[Styles.formLabel, this.props.element.styles]}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
     }
 
     onWebViewMessage(event) {
