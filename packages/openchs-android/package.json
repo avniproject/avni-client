@@ -35,7 +35,7 @@
     "immutable": "3.8.1",
     "invariant": "2.2.2",
     "lodash": "4.17.11",
-    "moment": "2.19.3",
+    "moment": "2.29.2",
     "native-base": "2.15.2",
     "openchs-models": "1.22.0",
     "prop-types": "15.7.2",
