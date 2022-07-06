@@ -239,7 +239,8 @@ class Observations extends AbstractComponent {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                padding: 4
+                padding: 4,
+                backgroundColor: 'rgba(0, 0, 0, 0.12)'
             }, this.styles.observationRow, this.styles.observationColumn, groupStyles]}>
                 <View style={{flex: 0.9, flexWrap: 'wrap'}}>
                     <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
