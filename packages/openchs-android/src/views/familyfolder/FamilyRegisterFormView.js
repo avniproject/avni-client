@@ -48,7 +48,7 @@ class FamilyRegisterFormView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
-                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                    <View style={{flexDirection: 'column'}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.family.observations)}
                                           group={this.state.formElementGroup}
                                           actions={Actions} validationResults={this.state.validationResults}

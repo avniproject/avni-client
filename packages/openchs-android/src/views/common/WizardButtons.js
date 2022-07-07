@@ -5,6 +5,7 @@ import {Button, Icon, Text} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
+import Distances from "../primitives/Distances";
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -31,7 +32,7 @@ class WizardButtons extends AbstractComponent {
         const previousButton = this.getButtonProps(this.props.previous);
         const nextButton = this.getButtonProps(this.props.next);
         const nextAndMore = this.getButtonProps(this.props.nextAndMore);
-        return (<View style={{marginVertical: 30, }}>
+        return (<View style={{marginVertical: 30, paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
             <View
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
                 {nextAndMore.visible ?

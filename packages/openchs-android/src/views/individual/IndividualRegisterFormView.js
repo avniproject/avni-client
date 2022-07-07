@@ -106,10 +106,12 @@ class IndividualRegisterFormView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
+                    </View>
+                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                           group={this.state.formElementGroup}

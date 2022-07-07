@@ -149,7 +149,7 @@ class ProgramEncounterView extends AbstractComponent {
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
                     {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         {this.state.wizard.isFirstFormPage() ?
@@ -172,6 +172,8 @@ class ProgramEncounterView extends AbstractComponent {
                         }
                         {!this.state.wizard.isFirstFormPage() &&
                         <SummaryButton onPress={() => this.onGoToSummary()}/>}
+                    </View>
+                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}

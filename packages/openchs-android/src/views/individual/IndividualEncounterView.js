@@ -148,7 +148,7 @@ class IndividualEncounterView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     {this.state.wizard.isFirstFormPage() ?
                         <View>
                             <RejectionMessage I18n={this.I18n}
@@ -176,6 +176,8 @@ class IndividualEncounterView extends AbstractComponent {
                     <View style={styles.container}>
                         {!this.state.wizard.isFirstFormPage() &&
                         <SummaryButton onPress={() => this.onGoToSummary()}/>}
+                    </View>
+                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup group={this.state.formElementGroup}
                                           observationHolder={new ObservationsHolder(this.state.encounter.observations)}

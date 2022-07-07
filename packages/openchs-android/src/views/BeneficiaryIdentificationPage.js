@@ -59,7 +59,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
         return <CHSContainer>
             <CHSContent ref="scroll">
                 <AppHeader title={'BeneficiaryIdentification'} hideBackButton={true} renderExitBeneficiaryMode/>
-                <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                <View style={{flexDirection: 'column'}}>
                     <FormElementGroup
                         observationHolder={new ObservationsHolder(this.state.observations)}
                         group={this.state.formElementGroup}

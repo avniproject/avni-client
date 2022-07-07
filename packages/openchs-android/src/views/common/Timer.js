@@ -1,17 +1,19 @@
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
-import {View, Text, Modal} from 'react-native';
+import {View, Text, Modal, StyleSheet} from 'react-native';
 import {Button, Icon} from "native-base";
 import _ from "lodash";
 import KeepAwake from "react-native-keep-awake";
 import Styles from "../primitives/Styles";
 import BackgroundTimer from "react-native-background-timer";
+import Colors from "../primitives/Colors";
 
 class Timer extends AbstractComponent {
     static propTypes = {
         timerState: PropTypes.object.isRequired,
         onStartTimer: PropTypes.func.isRequired,
+        group: PropTypes.object.isRequired,
     };
 
     constructor(props, context) {
@@ -48,20 +50,22 @@ class Timer extends AbstractComponent {
     }
 
     renderTimer() {
+        const {countUpTime, countDownTime} = this.props.timerState.displayObject();
+        const backgroundColor = this.props.group.backgroundColour || '#ffffff';
+        const color = this.props.group.textColour || Colors.InputNormal;
         return (
             <React.Fragment>
                 <KeepAwake/>
-                <View style={{alignItems: 'flex-end', justifyContent: 'flex-end'}}>
-                    <View style={{
-                        padding: 16,
-                        backgroundColor: 'grey',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        elevation: 2
-                    }}>
+                <View style={styles.container}>
+                    <View style={styles.timerStyle}>
                         <Icon style={{fontSize: 30, marginRight: 8}} name="av-timer" type="MaterialIcons"/>
-                        <Text style={Styles.timerStyle}>{this.props.timerState.displayString()}</Text>
+                        <Text style={Styles.timerStyle}>{countUpTime}</Text>
                     </View>
+                    {countDownTime ?
+                        <View style={[styles.timerStyle, {backgroundColor}]}>
+                            <Icon style={{fontSize: 30, marginRight: 8, color}} name="stopwatch" type="Entypo"/>
+                            <Text style={[Styles.timerStyle, {color}]}>{countDownTime}</Text>
+                        </View> : null}
                 </View>
             </React.Fragment>
         )
@@ -72,5 +76,21 @@ class Timer extends AbstractComponent {
         return _.get(timerState, 'startTimer', false) ? this.renderTimer() : this.renderStartButton();
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
+        marginBottom: 8,
+    },
+    timerStyle: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        backgroundColor: 'grey',
+        flexDirection: 'row',
+        alignItems: 'center'
+    }
+});
 
 export default Timer

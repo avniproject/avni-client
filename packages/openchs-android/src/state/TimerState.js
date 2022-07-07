@@ -60,9 +60,12 @@ export default class TimerState {
         this.displayQuestions = !this.hasNotVisited(formElementGroup);
     }
 
-    displayString() {
-        const countDownTime = this.time >= this.startTime ? this.stayTime : this.startTime - this.time;
-        const countUpTime = this.time;
-        return `${moment.utc(countUpTime * 1000).format('HH:mm:ss')}/${moment.utc(countDownTime * 1000).format('HH:mm:ss')}`
+    displayObject() {
+        const display = {countUpTime: moment.utc(this.time * 1000).format('HH:mm:ss'), countDownTime: null};
+        if (this.displayQuestions) {
+            const countDownTime = this.time >= this.startTime ? this.stayTime : this.startTime - this.time;
+            display.countDownTime = moment.utc(countDownTime * 1000).format('HH:mm:ss');
+        }
+        return display
     }
 }

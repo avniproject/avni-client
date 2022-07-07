@@ -184,7 +184,7 @@ class SubjectRegisterView extends AbstractComponent {
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
+                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                         <SummaryButton onPress={() => this.onGoToSummary()}/>
@@ -242,8 +242,9 @@ class SubjectRegisterView extends AbstractComponent {
                                 />
 
                             </View>
-                        )
-                        }
+                        )}
+                    </View>
+                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.subject.observations)}

@@ -97,7 +97,7 @@ class ProgramFormComponent extends AbstractComponent {
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.state.enrolment.individual}/>}
                 {displayTimer ?
-                    <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()}/> : null}
+                    <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.props.state.formElementGroup}/> : null}
                     {this.props.state.wizard.isFirstFormPage() ?
                     <View>
                         <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.state.enrolment.latestEntityApprovalStatus}/>
@@ -121,6 +121,8 @@ class ProgramFormComponent extends AbstractComponent {
                 <View style={{paddingHorizontal: Distances.ScaledContentDistanceFromEdge, flexDirection: 'column'}}>
                     {!this.props.state.wizard.isFirstFormPage() &&
                     <SummaryButton onPress={() => this.onGoToSummary()}/>}
+                </View>
+                <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                     {_.get(this.props.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
                                       observationHolder={this.props.state.applicableObservationsHolder}

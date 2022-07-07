@@ -64,7 +64,7 @@ class FormElementGroup extends AbstractComponent {
     }
 
     wrap(x, idx, shouldScroll) {
-        return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}} key={idx}
+        return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}} key={idx}
                      onLayout={(event) => shouldScroll && _.isFunction(this.props.onValidationError) ? this.props.onValidationError(event.nativeEvent.layout.x, event.nativeEvent.layout.y) : _.noop()}>{x}</View>;
     }
 
@@ -116,7 +116,11 @@ class FormElementGroup extends AbstractComponent {
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
         return (<View>
                 {formElements.length < 1 ? <View/> :
-                    <Text style={[Styles.formGroupLabel, this.props.group.styles]}>{this.I18n.t(this.props.group.display)}</Text>}
+                    <Text
+                        style={[Styles.formGroupLabel, this.props.group.styles, {paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
+                        {this.I18n.t(this.props.group.display)}
+                    </Text>
+                }
                 {
                     formElements.filter(fm => !fm.isQuestionGroup()).map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);

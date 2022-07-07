@@ -141,6 +141,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
                         }
                         {!this.state.wizard.isFirstFormPage() &&
                         <SummaryButton onPress={() => this.onGoToSummary()}/>}
+                    </View>
+                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
                             group={this.state.formElementGroup}
