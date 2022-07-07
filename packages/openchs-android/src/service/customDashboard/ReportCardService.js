@@ -29,7 +29,11 @@ class ReportCardService extends BaseService {
 
     getCountForApprovalCardsType(type) {
         const {result} = this.getResultForApprovalCardsType(type);
-        return _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0);
+        return {
+            primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
+            secondaryValue: null,
+            clickable: true
+        };
     }
 
     getResultForApprovalCardsType(type) {
@@ -37,7 +41,11 @@ class ReportCardService extends BaseService {
     }
 
     getCountForCommentCardType() {
-        return this.getResultForCommentCardType().length;
+        return {
+            primaryValue: this.getResultForCommentCardType().length,
+            secondaryValue: null,
+            clickable: true
+        };
     }
 
     getResultForCommentCardType() {
@@ -61,7 +69,11 @@ class ReportCardService extends BaseService {
     }
 
     getCountForDefaultCardsType(type) {
-        return this.getResultForDefaultCardsType(type).result.length;
+        return {
+            primaryValue: this.getResultForDefaultCardsType(type).result.length,
+            secondaryValue: null,
+            clickable: true
+        };
     }
 
     getReportCardCount(reportCard) {

@@ -138,6 +138,7 @@ class SyncComponent extends AbstractComponent {
 
     componentWillUnmount() {
         NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
+        super.componentWillUnmount();
     }
 
     sync() {

@@ -8,6 +8,7 @@ class LandingViewActions {
             search: false,
             register: false,
             menu: false,
+            dashboard: false,
             syncRequired: true,
         };
     }
@@ -18,7 +19,8 @@ class LandingViewActions {
             home: false,
             search: false,
             register: false,
-            menu: false
+            menu: false,
+            dashboard: false,
         }
     }
 
@@ -49,6 +51,14 @@ class LandingViewActions {
         }
     }
 
+    static onDashboardClick(state) {
+        const newState = LandingViewActions.reset(state);
+        return {
+            ...newState,
+            dashboard: true,
+        }
+    }
+
     static onRegisterClick(state) {
         const newState = LandingViewActions.reset(state);
         return {
@@ -70,6 +80,7 @@ const LandingViewActionsNames = {
     ON_LOAD: 'LVA.ON_LOAD',
     ON_HOME_CLICK: 'LVA.ON_HOME_CLICK',
     ON_SEARCH_CLICK: 'LVA.ON_SEARCH_CLICK',
+    ON_DASHBOARD_CLICK: 'LVA.ON_DASHBOARD_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
 };
@@ -80,6 +91,7 @@ const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_SEARCH_CLICK, LandingViewActions.onSearchClick],
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
+    [LandingViewActionsNames.ON_DASHBOARD_CLICK, LandingViewActions.onDashboardClick],
 ]);
 
 export {

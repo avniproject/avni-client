@@ -43,7 +43,6 @@ import DeviceInfo from "react-native-device-info";
 import {Schema} from 'avni-models';
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
-import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import NewsService from "../service/news/NewsService";
 import NewsListView from "./news/NewsListView";
@@ -53,7 +52,6 @@ import Reducers from "../reducer";
 import {MenuActionNames} from "../action/MenuActions";
 import MediaQueueService from "../service/MediaQueueService";
 import SyncService from "../service/SyncService";
-import SettingsService from "../service/SettingsService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -231,10 +229,6 @@ class MenuView extends AbstractComponent {
         return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
     }
 
-    onDashboard() {
-        TypedTransition.from(this).to(CustomDashboardView);
-    }
-
     onNews() {
         TypedTransition.from(this).to(NewsListView);
     }
@@ -311,8 +305,6 @@ class MenuView extends AbstractComponent {
             <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
             <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
                   onPress={() => this.entitySyncStatusView()}/>,
-            <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
-                  onPress={this.onDashboard.bind(this)}/>,
             <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
                   onPress={this.uploadCatchmentDatabase.bind(this)}/>,
             <Item icon={this.icon("backup-restore")} titleKey="uploadDatabase"

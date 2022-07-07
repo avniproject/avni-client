@@ -2,20 +2,28 @@ import {ActivityIndicator, StyleSheet, Text, TouchableNativeFeedback, View} from
 import React from 'react';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
+import {CountResult} from "./CountResult";
+import {get} from 'lodash';
 
 export const CardListView = ({reportCard, I18n, onCardPress}) => {
     const {name, colour, uuid} = reportCard;
 
     const renderNumber = () => {
-        const count = reportCard.count;
-        return (_.isNil(count) ?
+        const countResult = reportCard.countResult;
+        return (_.isNil(get(countResult, 'primaryValue')) ?
                 <ActivityIndicator size="large" color="#0000ff" style={{paddingVertical: 25}}/> :
-                <Text style={styles.countTextStyle}>{count}</Text>
+                <CountResult
+                    direction={'column'}
+                    primary={countResult.primaryValue}
+                    secondary={countResult.secondaryValue}
+                    primaryStyle={styles.primaryTextStyle}
+                    secondaryStyle={styles.secondaryTextStyle}
+                />
         )
     };
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(uuid)}>
+        <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(reportCard, 'countResult.clickable')}>
             <View key={uuid} style={styles.container}>
                 <View style={styles.rowContainer}>
                     <View style={styles.nameContainer}>
@@ -61,9 +69,12 @@ const styles = StyleSheet.create({
         width: '25%',
         paddingVertical: 1
     },
-    countTextStyle: {
-        paddingVertical: 25,
+    primaryTextStyle: {
         fontSize: 30,
         fontWeight: 'bold'
+    },
+    secondaryTextStyle: {
+        fontSize: 23,
+        fontStyle: 'normal',
     }
 });

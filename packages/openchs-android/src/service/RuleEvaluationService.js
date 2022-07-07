@@ -577,12 +577,24 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardCount(rule) {
         const queryResult = this.executeDashboardCardRule(rule);
-        return queryResult.length;
+        if (queryResult.constructor.name === 'Array') {
+            return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
+        } else {
+            return {
+                primaryValue: queryResult.primaryValue,
+                secondaryValue: queryResult.secondaryValue,
+                clickable: _.isFunction(queryResult.lineListFunction)
+            };
+        }
     }
 
     getDashboardCardQueryResult(rule) {
         const queryResult = this.executeDashboardCardRule(rule);
-        return queryResult;
+        if (queryResult.constructor.name === 'Array') {
+            return queryResult;
+        } else {
+            return _.isFunction(queryResult.lineListFunction) ? queryResult.lineListFunction() : null;
+        }
     }
 
     runOnAll(rulesToRun) {

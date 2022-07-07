@@ -1,5 +1,4 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Path from "../../framework/routing/Path";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import React from "react";
@@ -23,7 +22,6 @@ import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 
-@Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
 
     constructor(props, context) {
@@ -156,7 +154,8 @@ class CustomDashboardView extends AbstractComponent {
                            hideBackButton={this.props.hideBackButton}
                            startSync={this.props.startSync}
                            renderSync={this.props.renderSync}
-                           icon={this.props.icon}/>
+                           icon={this.props.icon}
+                           hideIcon={_.isNil(this.props.icon)}/>
                 {this.props.onlyPrimary && <YearReviewBanner t={this.I18n.t} from={this}/>}
                 {!this.props.onlyPrimary &&
                 <SafeAreaView style={{height: 50}}>
@@ -165,7 +164,7 @@ class CustomDashboardView extends AbstractComponent {
                         {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
                 </SafeAreaView>}
-                <View style={{marginBottom: 120}}>
+                <View style={{marginBottom: 140}}>
                     <CustomActivityIndicator loading={this.state.loading}/>
                     <ScrollView>
                         {this.renderCards()}

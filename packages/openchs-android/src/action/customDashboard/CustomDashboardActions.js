@@ -46,7 +46,9 @@ class CustomDashboardActions {
         const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);
         const standardReportCardType = reportCard.standardReportCardType;
         const viewName = CustomDashboardActions._getViewName(standardReportCardType);
-        action.cb(result, result.length, status, viewName);
+        if (!_.isNil(result)) {
+            action.cb(result, result.length, status, viewName);
+        }
         return newState;
     }
 
@@ -69,7 +71,7 @@ class CustomDashboardActions {
         newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
             const cardMappingsWithCount = {...rcm};
             const start = new Date();
-            cardMappingsWithCount.card.count = context.get(ReportCardService).getReportCardCount(rcm.card);
+            cardMappingsWithCount.card.countResult = context.get(ReportCardService).getReportCardCount(rcm.card);
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
             return cardMappingsWithCount;
         });
@@ -81,7 +83,7 @@ class CustomDashboardActions {
         const newState = {...state};
         newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
             const cardMappingsWithCount = {...rcm};
-            cardMappingsWithCount.card.count = null;
+            cardMappingsWithCount.card.countResult = null;
             return cardMappingsWithCount;
         });
         return newState;

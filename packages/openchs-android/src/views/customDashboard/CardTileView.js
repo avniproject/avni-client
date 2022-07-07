@@ -1,10 +1,12 @@
 import {ActivityIndicator, Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import React from 'react';
+import {CountResult} from "./CountResult";
+import {get} from "lodash";
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress}) => {
 
-    const {name, uuid, count} = reportCard;
+    const {name, uuid, countResult} = reportCard;
     const cardGap = 16;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const textColor = reportCard.textColor;
@@ -20,14 +22,20 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress}) => {
     };
 
     const renderNumber = () => {
-        return (_.isNil(count) ?
+        return (_.isNil(get(countResult, 'primaryValue')) ?
                 <ActivityIndicator size="small" color={textColor}/> :
-                <Text style={[styles.cardCountTextStyle, {color: textColor}]}>{count}</Text>
+                <CountResult
+                    direction={'row'}
+                    primary={countResult.primaryValue}
+                    secondary={countResult.secondaryValue}
+                    primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}]}
+                    secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}]}
+                />
         )
     };
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(uuid)}>
+        <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(countResult, 'clickable')}>
             <View key={uuid}
                   style={[styles.container, {
                       marginTop: cardGap,
@@ -67,8 +75,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontStyle: 'normal'
     },
-    cardCountTextStyle: {
+    cardPrimaryTextStyle: {
         fontSize: 19,
+        fontStyle: 'normal',
+    },
+    cardSecondaryTextStyle: {
+        fontSize: 16,
         fontStyle: 'normal',
     },
     iconContainer: {
