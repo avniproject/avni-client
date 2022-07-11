@@ -31,7 +31,7 @@ export default class TimerActions {
 
     static vibrateOnQuestionDisplay(startTime, time, action) {
         if (startTime === time) {
-            action.vibrate(5 * 1000);
+            action.vibrate(3 * 1000);
         }
     }
 

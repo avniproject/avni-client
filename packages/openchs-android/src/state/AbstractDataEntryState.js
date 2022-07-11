@@ -81,8 +81,9 @@ class AbstractDataEntryState {
     }
 
     movePrevious() {
-        if (this.isNewEntity && this.timerState && this.timerState.hasNotVisited(this.formElementGroup)) {
-            return;
+        if (this.isNewEntity && this.timerState) {
+            if (this.timerState.isPreviousNotAllowed(this.formElementGroup)) return;
+            else this.timerState.resetForPrevious();
         }
         this.wizard.movePrevious();
         this.formElementGroup = this.formElementGroup.previous();

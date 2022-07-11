@@ -1,4 +1,5 @@
 import moment from "moment";
+import _ from "lodash";
 
 export default class TimerState {
     constructor(startTime, stayTime, displayQuestions = false) {
@@ -44,6 +45,10 @@ export default class TimerState {
         return formElementGroup.timed ? !_.includes(this.visitedGroupUUIDs, _.get(formElementGroup, 'uuid')) : false;
     }
 
+    isPreviousNotAllowed(formElementGroup) {
+        return this.hasNotVisited(formElementGroup) && this.startTimer;
+    }
+
     onEverySecond() {
         this.time = this.time + 1;
         if (this.time >= this.startTime) {
@@ -58,6 +63,10 @@ export default class TimerState {
         this.stayTime = formElementGroup.stayTime;
         this.startTime = formElementGroup.startTime;
         this.displayQuestions = !this.hasNotVisited(formElementGroup);
+    }
+
+    resetForPrevious() {
+        this.displayQuestions = true;
     }
 
     displayObject() {

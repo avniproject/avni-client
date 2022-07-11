@@ -1,7 +1,7 @@
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
-import {View, Text, Modal, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {Button, Icon} from "native-base";
 import _ from "lodash";
 import KeepAwake from "react-native-keep-awake";
@@ -26,26 +26,20 @@ class Timer extends AbstractComponent {
     };
 
     renderStartButton() {
+        const {height} = Dimensions.get('window');
         return (
-            <Modal transparent={true}
-                   onRequestClose={_.noop}
-                   visible={!this.props.timerState.startTimer}
-                   style={{marginTop: 40}}>
-                <View style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    flexWrap: 'nowrap',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(68,68,68,0.25)'
-                }}>
-                    <View style={{flex: .5}}/>
-                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                        <Button onPress={() => this.props.onStartTimer()} style={{padding: 35, borderRadius: 20}}>
-                            <Text>{'Start'}</Text>
-                        </Button>
-                    </View>
+            <View style={{
+                flexDirection: 'column',
+                flexWrap: 'nowrap',
+                alignItems: 'center',
+                marginTop: height / 2.5
+            }}>
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                    <Button onPress={() => this.props.onStartTimer()} style={{padding: 35, borderRadius: 20}}>
+                        <Text>{'Start'}</Text>
+                    </Button>
                 </View>
-            </Modal>
+            </View>
         )
     }
 
@@ -79,15 +73,15 @@ class Timer extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        justifyContent: 'flex-end',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         marginBottom: 8,
     },
     timerStyle: {
         paddingHorizontal: 16,
         paddingVertical: 8,
-        backgroundColor: 'grey',
+        backgroundColor: Colors.DisabledButtonColor,
         flexDirection: 'row',
         alignItems: 'center'
     }
