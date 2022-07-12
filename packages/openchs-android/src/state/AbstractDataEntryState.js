@@ -15,8 +15,8 @@ import TimerState from "./TimerState";
 class AbstractDataEntryState {
     locationError;
 
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerSate) {
-        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists, timerSate);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow) {
+        this.setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, {}, workLists, timerState, isFirstFlow);
     }
 
     clone(newState = new this.constructor()) {
@@ -32,6 +32,7 @@ class AbstractDataEntryState {
         newState.workListState = this.workListState;
         newState.isNewEntity = this.isNewEntity;
         newState.timerState = _.isNil(this.timerState) ? this.timerState : this.timerState.clone();
+        newState.isFirstFlow = this.isFirstFlow;
         return newState;
     }
 
@@ -71,7 +72,7 @@ class AbstractDataEntryState {
     moveNext() {
         this.wizard.moveNext();
         this.formElementGroup = this.formElementGroup.next();
-        if (this.isNewEntity) {
+        if (this.isFirstFlow) {
             if (_.isNil(this.timerState)) {
                 this.timerState = new TimerState(this.formElementGroup.startTime, this.formElementGroup.stayTime, !this.formElementGroup.timed);
             } else {
@@ -81,7 +82,7 @@ class AbstractDataEntryState {
     }
 
     movePrevious() {
-        if (this.isNewEntity && this.timerState) {
+        if (this.isFirstFlow && this.timerState) {
             if (this.timerState.isPreviousNotAllowed(this.formElementGroup)) return;
             else this.timerState.resetForPrevious();
         }
@@ -289,7 +290,7 @@ class AbstractDataEntryState {
         return [];
     }
 
-    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState, workLists, timerSate) {
+    setState(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, formElementsUserState, workLists, timerSate, isFirstFlow) {
         this.validationResults = validationResults;
         this.formElementGroup = formElementGroup;
         this.wizard = wizard;
@@ -298,6 +299,7 @@ class AbstractDataEntryState {
         this.formElementsUserState = formElementsUserState;
         this.workListState = new WorkListState(workLists, () => this.getWorkContext());
         this.timerState = timerSate;
+        this.isFirstFlow = isFirstFlow;
     }
 
     hasNoFormElements() {

@@ -12,7 +12,7 @@ import TimerState from "./TimerState";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isNewEntity);
         this.subject = subject;
         this.subjectType = subjectType;
         this.household = new HouseholdState(workLists);

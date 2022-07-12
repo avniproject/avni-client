@@ -12,7 +12,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     };
 
     constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState, timerState) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists, timerState);
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists, timerState, isNewEnrolment);
         this.usage = usage;
         this.enrolment = enrolment;
         if (!_.isNil(enrolment)) {

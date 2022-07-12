@@ -9,8 +9,8 @@ import ObservationHolderActions from "../action/common/ObservationsHolderActions
 import TimerState from "./TimerState";
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow) {
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
@@ -54,10 +54,11 @@ class EncounterActionState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? [AbstractEncounter.fieldKeys.ENCOUNTER_DATE_TIME] : [];
     }
 
-    static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context) {
+    static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context, editing) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
-        const timerState = formElementGroup.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
-        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState);
+        const isFirstFlow = isNewEntity || !editing;
+        const timerState = formElementGroup.timed && isFirstFlow ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);

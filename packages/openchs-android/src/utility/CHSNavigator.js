@@ -455,6 +455,7 @@ class CHSNavigator {
                                 workLists: workListState.workLists,
                                 message: message,
                                 programEncounter,
+                                editing: false,
                                 tab: 2
                             }
                         }, true)
@@ -492,6 +493,7 @@ class CHSNavigator {
                             encounterType: nextWorkItem.parameters.encounterType,
                             workLists: workListState.workLists,
                             message: message,
+                            editing: false,
                             encounter,
                             tab: 2
                         }, true)

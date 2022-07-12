@@ -47,7 +47,7 @@ class ProgramEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber} = this.props.params;
+        const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
             this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber});
             return super.componentWillMount();
@@ -56,7 +56,7 @@ class ProgramEncounterView extends AbstractComponent {
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
-        this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType});
+        this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
         return super.componentWillMount();
     }
 

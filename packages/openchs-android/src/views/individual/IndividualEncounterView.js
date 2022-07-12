@@ -45,16 +45,16 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     componentWillMount() {
-        const {encounterType, individualUUID, encounter, workLists, pageNumber} = this.props;
+        const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
-            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber});
+            this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
             return super.componentWillMount();
         }
         const encounterByType = this.context.getService(EncounterService)
             .findDueEncounter({encounterTypeName: encounterType, individualUUID})
             .cloneForEdit();
         encounterByType.encounterDateTime = moment().toDate();
-        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType});
+        this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
         return super.componentWillMount();
     }
 

@@ -12,7 +12,7 @@ import TimerState from "./TimerState";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists, timerState) {
-        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState);
+        super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isNewEntity);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
