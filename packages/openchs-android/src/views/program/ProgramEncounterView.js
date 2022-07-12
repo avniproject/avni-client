@@ -49,7 +49,7 @@ class ProgramEncounterView extends AbstractComponent {
     componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
-            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber});
+            this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
             return super.componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
@@ -69,7 +69,7 @@ class ProgramEncounterView extends AbstractComponent {
         if (this.state.wizard.isFirstFormPage())
             TypedTransition.from(this).goBack();
         else
-            this.dispatchAction(Actions.PREVIOUS);
+            this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
     }
 
     getNextParams(popVerificationVew) {

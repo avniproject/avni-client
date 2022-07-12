@@ -97,6 +97,7 @@ class IndividualEncounterView extends AbstractComponent {
                 observation,
                 skipVerification: true
             })),
+            movedNext: this.scrollToTop
         }
     }
 
@@ -115,7 +116,7 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     previous() {
-        this.state.wizard.isFirstPage() ? this.goBack() : this.dispatchAction(Actions.PREVIOUS);
+        this.state.wizard.isFirstPage() ? this.goBack() : this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
     }
 
     onAppHeaderBack() {
@@ -145,7 +146,7 @@ class IndividualEncounterView extends AbstractComponent {
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
-                <CHSContent>
+                <CHSContent ref="scroll">
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}

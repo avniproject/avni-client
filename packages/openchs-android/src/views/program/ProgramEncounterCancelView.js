@@ -57,7 +57,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
         if (this.state.wizard.isFirstFormPage())
             TypedTransition.from(this).goBack();
         else
-            this.dispatchAction(Actions.PREVIOUS);
+            this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
     }
 
     getCancelEncounterForm() {

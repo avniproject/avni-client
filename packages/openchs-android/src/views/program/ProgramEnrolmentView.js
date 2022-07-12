@@ -73,7 +73,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     }
 
     previous() {
-        this.state.wizard.isFirstPage() ? this.onBack() : this.dispatchAction(Actions.PREVIOUS);
+        this.state.wizard.isFirstPage() ? this.onBack() : this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
 
     }
 
