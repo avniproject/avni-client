@@ -21,7 +21,9 @@ import EntityService from "../../service/EntityService";
 import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
+import Path from "../../framework/routing/Path";
 
+@Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
 
     constructor(props, context) {

@@ -126,16 +126,12 @@ class LandingView extends AbstractComponent {
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
-        const hideDashboard = this.getService(CustomDashboardService).getDashboardsBasedOnPrivilege().length === 0;
         const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, this.state.register), this.I18n.t("register"),
             subjectTypes[0] && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), this.state.register] : [];
         const searchMenuItem = !hideSearch ? [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"),
             () => this.dispatchAction(Actions.ON_SEARCH_CLICK), this.state.search] : [];
-        const dashboardItem = !hideDashboard ? [this.Icon("view-dashboard", LandingView.barIconStyle, this.state.dashboard), this.I18n.t("dashboards"),
-            () => this.dispatchAction(Actions.ON_DASHBOARD_CLICK), this.state.dashboard] : [];
         const bottomBarIcons = [
             [this.Icon("home", LandingView.barIconStyle, this.state.home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), this.state.home],
-            dashboardItem,
             registerMenuItem,
             searchMenuItem,
             [this.Icon("menu", LandingView.barIconStyle, this.state.menu, renderDot), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), this.state.menu]
