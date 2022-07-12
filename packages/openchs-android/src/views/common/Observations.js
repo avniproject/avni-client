@@ -233,7 +233,8 @@ class Observations extends AbstractComponent {
         this.props.onFormElementGroupEdit(this.props.form.getFormElementGroupOrder(groupUUID));
     }
 
-    editTable(groupUUID, groupName, observations, groupStyles) {
+    observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit) {
+        const initialFlex = quickFormEdit ? 1 : 0.9;
         return <View style={{flexDirection: 'column'}} key={groupUUID}>
             <View style={[{
                 flexDirection: 'row',
@@ -242,10 +243,10 @@ class Observations extends AbstractComponent {
                 padding: 4,
                 backgroundColor: 'rgba(0, 0, 0, 0.12)'
             }, this.styles.observationRow, this.styles.observationColumn, groupStyles]}>
-                <View style={{flex: 0.9, flexWrap: 'wrap'}}>
+                <View style={{flex: initialFlex, flexWrap: 'wrap'}}>
                     <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
                 </View>
-                {groupUUID &&
+                {groupUUID && quickFormEdit &&
                 <View style={{flex: 0.1}}>
                     <TouchableOpacity
                         onPress={() => this.onFEGEdit(groupUUID)}>
@@ -321,25 +322,7 @@ class Observations extends AbstractComponent {
             this.renderNormalView(observation, extraConceptStyle);
     }
 
-    renderNormalObservationTable() {
-        const orderedObservation = this.getOrderedObservation()
-            .map(observation => [observation]);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
-
-        return <ListView
-            enableEmptySections={true}
-            dataSource={dataSource}
-            style={this.styles.observationTable}
-            pageSize={20}
-            initialListSize={10}
-            removeClippedSubviews={true}
-            renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
-            renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={([observation]) => this.renderObservationValue(observation,{paddingLeft: 8})}
-        />;
-    }
-
-    renderFormEditTable() {
+    renderObservationTable(quickFormEdit) {
         const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sectionWiseObs);
 
@@ -352,7 +335,7 @@ class Observations extends AbstractComponent {
             removeClippedSubviews={true}
             renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
             renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
-            renderRow={({groupName, groupUUID, observations, groupStyles}) => this.editTable(groupUUID, groupName, observations, groupStyles)}
+            renderRow={({groupName, groupUUID, observations, groupStyles}) => this.observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit)}
         />;
     }
 
@@ -361,8 +344,7 @@ class Observations extends AbstractComponent {
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
                 {this.renderTitle()}
-                {this.props.quickFormEdit ?
-                    this.renderFormEditTable() : this.renderNormalObservationTable()}
+                {this.renderObservationTable(this.props.quickFormEdit)}
             </View>
         );
     }
