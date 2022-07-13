@@ -125,6 +125,7 @@ class FormElementGroup extends AbstractComponent {
                     formElements.filter(fm => !fm.isQuestionGroup()).map((formElement, idx) => {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
                         const allowedValues = this.allowedValues(formElement.concept);
+                        const uniqueKey = formElement.uuid;
                         if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                 element={formElement}
@@ -132,7 +133,7 @@ class FormElementGroup extends AbstractComponent {
                                 endEditingActionName={this.props.actions["PRIMITIVE_VALUE_END_EDITING"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
-                                allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
+                                allowedValues={allowedValues}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ((formElement.concept.datatype === Concept.dataType.Text || formElement.concept.datatype === Concept.dataType.Notes)) {
                             return this.wrap(<TextFormElement
                                 element={formElement}
@@ -141,106 +142,106 @@ class FormElementGroup extends AbstractComponent {
                                 validationResult={validationResult}
                                 multiline={formElement.concept.datatype !== Concept.dataType.Text}
                                 allowedValues={allowedValues}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isMultiSelect()) {
-                            return this.wrap(<MultiSelectFormElement key={idx}
+                            return this.wrap(<MultiSelectFormElement key={uniqueKey}
                                                                      element={formElement}
                                                                      multipleCodeValues={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                                                      actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                                                      validationResult={validationResult}
-                                                                     allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
+                                                                     allowedValues={allowedValues}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Coded && formElement.isSingleSelect()) {
-                            return this.wrap(<SingleSelectFormElement key={idx}
+                            return this.wrap(<SingleSelectFormElement key={uniqueKey}
                                                                       element={formElement}
                                                                       singleCodedValue={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                                                       actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                                                       validationResult={validationResult}
-                                                                      allowedValues={allowedValues}/>, idx, formElement.uuid === erroredUUID);
+                                                                      allowedValues={allowedValues}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Date && _.isNil(formElement.durationOptions)) {
-                            return this.wrap(<DateFormElement key={idx}
+                            return this.wrap(<DateFormElement key={uniqueKey}
                                                               element={formElement}
                                                               actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                               dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                              validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                                              validationResult={validationResult}/>, uniqueKey, formElement.uuid === erroredUUID);
 
                         } else if (formElement.concept.datatype === Concept.dataType.DateTime) {
-                            return this.wrap(<DateFormElement key={idx}
+                            return this.wrap(<DateFormElement key={uniqueKey}
                                                               element={formElement}
                                                               actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                               dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                              validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                                              validationResult={validationResult}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Date && !_.isNil(formElement.durationOptions)) {
-                            return this.wrap(<DurationDateFormElement key={idx} label={formElement.name}
+                            return this.wrap(<DurationDateFormElement key={uniqueKey} label={formElement.name}
                                                                       actionName={this.props.actions["DATE_DURATION_CHANGE"]}
                                                                       durationOptions={formElement.durationOptions}
                                                                       duration={this.getDuration(formElement.concept, this.props.formElementsUserState[formElement.uuid], formElement)}
                                                                       dateValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                                                       validationResult={validationResult}
-                                                                      element={formElement}/>, idx, formElement.uuid === erroredUUID);
+                                                                      element={formElement}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Time) {
-                            return this.wrap(<TimeFormElement key={idx}
+                            return this.wrap(<TimeFormElement key={uniqueKey}
                                                               element={formElement}
                                                               actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                                               timeValue={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
-                                                              validationResult={validationResult}/>, idx, formElement.uuid === erroredUUID);
+                                                              validationResult={validationResult}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Duration && !_.isNil(formElement.durationOptions)) {
-                            return this.wrap(<DurationFormElement key={idx} label={formElement.name}
+                            return this.wrap(<DurationFormElement key={uniqueKey} label={formElement.name}
                                                                   actionName={this.props.actions["DURATION_CHANGE"]}
                                                                   compositeDuration={this.getCompositeDuration(formElement.concept, formElement)}
                                                                   noDateMessageKey='chooseADate'
                                                                   validationResult={validationResult}
-                                                                  element={formElement}/>, idx, formElement.uuid === erroredUUID);
+                                                                  element={formElement}/>, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype) && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectMediaFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.Image, Concept.dataType.Video].includes(formElement.concept.datatype) && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectMediaFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Id) {
                             return this.wrap(<IdFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new Identifier())}
                                 validationResult={validationResult}
                                 multiline={false}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Location) {
                             return this.wrap(<LocationHierarchyFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectSubjectLandingFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                 subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectSubjectLandingFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.PhoneNumber) {
                             return this.wrap(<PhoneNumberFormElement
                                 element={formElement}
@@ -250,7 +251,7 @@ class FormElementGroup extends AbstractComponent {
                                 value={this.getSelectedAnswer(formElement.concept, new PhoneNumber())}
                                 observation={this.props.observationHolder.findObservation(formElement.concept)}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                         else if (formElement.concept.datatype === Concept.dataType.GroupAffiliation) {
                             return this.wrap(<GroupAffiliationFormElement
@@ -258,36 +259,36 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["TOGGLE_GROUPS"]}
                                 groupSubjectObservation={_.find(_.get(this.props.groupAffiliation, 'groupSubjectObservations'), ({concept, groupSubject}) => concept.uuid === formElement.concept.uuid && !groupSubject.voided)}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                         else if ([Concept.dataType.Audio].includes(formElement.concept.datatype)) {
                             return this.wrap(<AudioFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                         else if ([Concept.dataType.File].includes(formElement.concept.datatype) && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectFileFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.File].includes(formElement.concept.datatype) && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectFileFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup && !formElement.repeatable) {
                             return this.wrap(<QuestionGroupFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["GROUP_QUESTION_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new QuestionGroup())}
@@ -296,28 +297,28 @@ class FormElementGroup extends AbstractComponent {
                                 actions={this.props.actions}
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectEncounterFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new SingleCodedValue())}
                                 subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isMultiSelect()) {
                             return this.wrap(<MultiSelectEncounterFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 subjectUUID={this.props.subjectUUID}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 validationResult={validationResult}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.QuestionGroup && formElement.repeatable) {
                             return this.wrap(<RepeatableFormElement
-                                key={idx}
+                                key={uniqueKey}
                                 element={formElement}
                                 actionName={this.props.actions["REPEATABLE_GROUP_QUESTION_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new RepeatableQuestionGroup())}
@@ -326,7 +327,7 @@ class FormElementGroup extends AbstractComponent {
                                 actions={this.props.actions}
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
-                            />, idx, formElement.uuid === erroredUUID);
+                            />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                     })
                 }

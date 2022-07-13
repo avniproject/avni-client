@@ -20,7 +20,8 @@ class NumericFormElement extends AbstractFormElement {
         containerStyle: PropTypes.object,
         labelStyle: PropTypes.object,
         inputStyle: PropTypes.object,
-        allowedValues: PropTypes.array
+        allowedValues: PropTypes.array,
+        isTableView: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -73,7 +74,7 @@ class NumericFormElement extends AbstractFormElement {
         return (
             <View style={containerStyle}>
                 <View style={{backgroundColor: '#ffffff', borderStyle: 'dashed', borderRadius: 1, ...labelStyle}}>
-                    <FormElementLabelWithDocumentation element={this.props.element} moreTextForLabel={<Text style={Styles.formLabel}>{unitText}{rangeText}</Text>}/>
+                    <FormElementLabelWithDocumentation element={this.props.element} moreTextForLabel={<Text style={Styles.formLabel}>{unitText}{rangeText}</Text>} isTableView={this.props.isTableView}/>
                 </View>
                 <View style={inputStyle}>
                     {this.props.element.editable === false ?

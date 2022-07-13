@@ -1,22 +1,24 @@
 import React, {Fragment} from "react";
 import UserInfoService from "../../service/UserInfoService";
-import {WebView} from 'react-native-webview';
 import {Text, View} from 'react-native';
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
 import {Icon} from "native-base";
+import AutoHeightWebView from 'react-native-autoheight-webview'
+import { Dimensions } from 'react-native'
 
 class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {
         element: PropTypes.object.isRequired,
-        moreTextForLabel: PropTypes.object
+        moreTextForLabel: PropTypes.object,
+        isTableView: PropTypes.bool
     };
 
     constructor(props, context) {
         super(props, context);
-        this.state = {webViewHeight: 0, expand: false}
+        this.state = {expand: false}
     }
 
     get label() {
@@ -25,20 +27,22 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
         return <Text style={[Styles.formLabel, this.props.element.styles]}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
     }
 
-    onWebViewMessage(event) {
-        this.setState({webViewHeight: Number(event.nativeEvent.data)})
-    }
-
     renderHtml(contentHtml) {
+        //There are some hacks done to render the HTML properly.
+        //1. ContainerWidth changes to half for the questionGroup children if they are displayed in tabular way.
+        //2. There's margin-top and margin-bottom added to the body tag, this is done to make sure user don't have to
+        //   scroll to view the content. Somehow that extra margin gets added which will be removed from this.
+        const {width} = Dimensions.get('window');
+        const containerWidth = this.props.isTableView ? (width - 15) / 2.2 : width - 15;
         const moreTextForLabel = _.isNil(this.props.moreTextForLabel) ? '' : this.props.moreTextForLabel;
         const htmlToRender = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta http-equiv="content-type" content="text/html; charset=utf-8">
-            <meta name="viewport" content="width=320, user-scalable=no">
+            <meta name="viewport" content="width=device-width, user-scalable=no">
         </head>
-        <body style="margin: 0 !important;padding: 0 !important; background-color: #ffffff">
+        <body style="margin-top: -18px !important; margin-bottom: -18px !important;">
             ${contentHtml}
         </body>
         </html>
@@ -62,16 +66,14 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                 </View>
                 {this.state.expand &&
                 <Fragment>
-                    <WebView
-                        onMessage={this.onWebViewMessage.bind(this)}
-                        injectedJavaScript='window.ReactNativeWebView.postMessage(document.body.scrollHeight)'
-                        style={{height: this.state.webViewHeight}}
-                        originWhitelist={['*']}
-                        source={{html: htmlToRender}}/>
+                    <AutoHeightWebView
+                        style={{width: containerWidth}}
+                        source={{html: htmlToRender}}
+                    />
                     <Icon
                         name={'md-caret-up-circle'}
                         type='Ionicons'
-                        style={{fontSize: 20, color: Colors.DocumentationInfoColor, marginBottom: 5}}
+                        style={{alignSelf: 'flex-end', fontSize: 30, color: Colors.ActionButtonColor, marginBottom: 5}}
                         onPress={() => this.setState(state => ({...state, expand: false}))}
                     />
                 </Fragment>}

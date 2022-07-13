@@ -24,7 +24,8 @@ class TextFormElement extends AbstractFormElement {
         labelStyle: PropTypes.object,
         inputStyle: PropTypes.object,
         allowedValues: PropTypes.array,
-        helpText: PropTypes.string
+        helpText: PropTypes.string,
+        isTableView: PropTypes.bool
     };
     static defaultProps = {
         style: {}
@@ -36,7 +37,7 @@ class TextFormElement extends AbstractFormElement {
 
     renderReadOnly() {
         return (<View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <FormElementLabelWithDocumentation element={this.props.element}/>
+            <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}/>
             <Text style={[{
                 flex: 1,
                 marginVertical: 0,
@@ -55,7 +56,7 @@ class TextFormElement extends AbstractFormElement {
         return (
             <View style={containerStyle}>
                 <View style={labelStyle}>
-                    <FormElementLabelWithDocumentation element={this.props.element}/>
+                    <FormElementLabelWithDocumentation element={this.props.element} isTableView={this.props.isTableView}/>
                     <HelpText t={this.I18n.t} text={this.props.helpText}/>
                 </View>
                 <View style={inputStyle}>

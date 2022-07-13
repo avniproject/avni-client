@@ -108,6 +108,7 @@ class QuestionGroup extends AbstractFormElement {
             labelStyle={styles.groupLabelStyle}
             inputStyle={styles.groupInputStyle}
             questionGroupIndex={this.props.questionGroupIndex}
+            isTableView={true}
         />
     }
 
@@ -123,6 +124,7 @@ class QuestionGroup extends AbstractFormElement {
             labelStyle={styles.groupLabelStyle}
             inputStyle={styles.groupInputStyle}
             questionGroupIndex={this.props.questionGroupIndex}
+            isTableView={true}
         />
     }
 
