@@ -38,7 +38,6 @@ class Observations extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.createObservationsStyles(props.highlight);
-        this.getOrderedObservation = this.getOrderedObservation.bind(this);
         this.individualService = context.getService(IndividualService);
     }
 
@@ -124,11 +123,6 @@ class Observations extends AbstractComponent {
 
     renderTitle() {
         if (this.props.title) return (<Text style={Fonts.Title}>{this.props.title}</Text>);
-    }
-
-    getOrderedObservation() {
-        return _.isNil(this.props.form) ? this.props.observations :
-            this.props.form.orderObservations(this.props.observations);
     }
 
     makeCall(number) {
@@ -322,6 +316,24 @@ class Observations extends AbstractComponent {
             this.renderNormalView(observation, extraConceptStyle);
     }
 
+    renderNormalObservationTable() {
+        const observations = this.props.observations || [];
+        const orderedObservation = observations.map(observation => [observation]);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(orderedObservation);
+
+        return <ListView
+            enableEmptySections={true}
+            dataSource={dataSource}
+            style={this.styles.observationTable}
+            pageSize={20}
+            initialListSize={10}
+            removeClippedSubviews={true}
+            renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
+            renderHeader={() => (<Separator height={1} backgroundColor={'rgba(0, 0, 0, 0.12)'}/>)}
+            renderRow={([observation]) => this.renderObservationValue(observation,{paddingLeft: 8})}
+        />;
+    }
+
     renderObservationTable(quickFormEdit) {
         const sectionWiseObs = this.props.form.sectionWiseOrderedObservations(this.props.observations);
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(sectionWiseObs);
@@ -344,7 +356,9 @@ class Observations extends AbstractComponent {
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
                 {this.renderTitle()}
-                {this.renderObservationTable(this.props.quickFormEdit)}
+                {_.isNil(this.props.form) ?
+                    this.renderNormalObservationTable() :
+                    this.renderObservationTable(this.props.quickFormEdit)}
             </View>
         );
     }
