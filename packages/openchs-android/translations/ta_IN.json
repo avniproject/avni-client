@@ -54,6 +54,7 @@
     "name": "பெயர்",
     "firstName": "முதல் பெயர்",
     "lastName": "கடைசி பெயர்",
+    "middleName": "நடுத்தர பெயர்",
     "value": "மதிப்பு",
     "age": "வயது",
     "obsKeyword": "மற்ற தரவு",

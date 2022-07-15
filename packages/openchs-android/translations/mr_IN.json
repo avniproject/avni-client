@@ -28,6 +28,7 @@
     "obsKeyword": "इतर डेटा",
     "firstName": "पहिले नाव, दूसरे नाव (वडील/पती इत्यादि)",
     "lastName": "आडनाव",
+    "middleName": "मधले नाव",
     "lowestAddressLevel": "गाव",
     "save": "सेव्ह करा ",
     "enrolmentDateBeforeRegistrationDate": "इंरोलमेंट ची तारीख हि रजिसस्ट्रेशन तारखेच्या आधी येत नाही",

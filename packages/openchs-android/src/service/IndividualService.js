@@ -571,10 +571,10 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    getSubjectWithTheNameAndType({firstName, lastName, subjectType, uuid}) {
+    getSubjectWithTheNameAndType({firstName, middleName, lastName, subjectType, uuid}) {
         return this.getAllNonVoided()
-            .filtered(`uuid <> $0 and firstName = $1 and lastName = $2 and subjectType.uuid = $3`,
-                uuid, firstName, lastName, subjectType.uuid);
+            .filtered(`uuid <> $0 and firstName = $1 and lastName = $2 and subjectType.uuid = $3 and middleName = $4`,
+                uuid, firstName, lastName, subjectType.uuid, middleName);
     }
 
     getAllBySubjectTypeUUID(subjectTypeUUID) {

@@ -27,6 +27,7 @@
     "obsKeyword": "अन्य डेटा",
     "firstName": "पहला नाम",
     "lastName": "आखिरी नाम",
+    "middleName": "मध्य नाम",
     "lowestAddressLevel": "एरिया",
     "save": "सेव",
     "cancelVisit": "रद्द करें",

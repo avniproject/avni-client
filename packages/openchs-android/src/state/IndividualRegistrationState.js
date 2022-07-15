@@ -99,10 +99,10 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateName(context) {
-        const {firstName, lastName, subjectType, uuid} = this.individual;
+        const {firstName, middleName, lastName, subjectType, uuid} = this.individual;
         const nameValidationKey = Individual.validationKeys.NAME;
         if (subjectType.uniqueName) {
-            const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, lastName, subjectType, uuid});
+            const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, middleName, lastName, subjectType, uuid});
             return _.isEmpty(savedSubjectsWithSameName) ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
         }
         return ValidationResult.successful(nameValidationKey);

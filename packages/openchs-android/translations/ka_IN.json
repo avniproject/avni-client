@@ -54,6 +54,7 @@
         "name": "ಹೆಸರು",
         "firstName": "ಮೊದಲ ಹೆಸರು",
         "lastName": "ಕೊನೆಯ ಹೆಸರು",
+        "middleName": "ಮಧ್ಯದ ಹೆಸರು",
         "value": "ಮೌಲ್ಯ",
         "age": "ವಯಸ್ಸು",
         "obsKeyword": "ಇತರ ಡೇಟಾ",

@@ -65,6 +65,13 @@ export class IndividualRegisterActions {
         return newState;
     }
 
+    static enterMiddleName(state, action, context) {
+        const newState = state.clone();
+        newState.individual.setMiddleName(action.value);
+        newState.handleValidationResults([newState.validateName(context), newState.individual.validateMiddleName()], context);
+        return newState;
+    }
+
     static enterLastName(state, action, context) {
         const newState = state.clone();
         newState.individual.setLastName(action.value);
@@ -215,6 +222,7 @@ const actions = {
     PREVIOUS: "REGISTRATION_PREVIOUS",
     REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
     REGISTRATION_ENTER_FIRST_NAME: "REGISTRATION_ENTER_FIRST_NAME",
+    REGISTRATION_ENTER_MIDDLE_NAME: "REGISTRATION_ENTER_MIDDLE_NAME",
     REGISTRATION_ENTER_LAST_NAME: "REGISTRATION_ENTER_LAST_NAME",
     REGISTRATION_ENTER_DOB: "REGISTRATION_ENTER_DOB",
     REGISTRATION_ENTER_DOB_VERIFIED: "REGISTRATION_ENTER_DOB_VERIFIED",
@@ -251,6 +259,7 @@ export default new Map([
     [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
     [actions.REGISTRATION_ENTER_FIRST_NAME, IndividualRegisterActions.enterFirstName],
+    [actions.REGISTRATION_ENTER_MIDDLE_NAME, IndividualRegisterActions.enterMiddleName],
     [actions.REGISTRATION_ENTER_LAST_NAME, IndividualRegisterActions.enterLastName],
     [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
     [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],
