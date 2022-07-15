@@ -17,7 +17,8 @@ class CollapsibleEncounters extends AbstractComponent {
         renderTitleAndDetails: PropTypes.func.isRequired,
         encounterActions: PropTypes.func.isRequired,
         cancelVisitAction: PropTypes.func.isRequired,
-        style: PropTypes.object
+        style: PropTypes.object,
+        isEditAllowed: PropTypes.func.isRequired,
     };
 
     constructor(props, context) {
@@ -53,7 +54,7 @@ class CollapsibleEncounters extends AbstractComponent {
                         <Observations
                             form={formMappingService.findFormForEncounterType(encounterInfo.encounter.encounterType, formType, encounterInfo.encounter.subjectType)}
                             observations={encounterInfo.encounter.getObservations()}
-                            quickFormEdit={true}
+                            quickFormEdit={this.props.isEditAllowed()}
                             onFormElementGroupEdit={(pageNumber) => this.editEncounterByFEG(pageNumber)}
                         />
                     </View> : <View/>}

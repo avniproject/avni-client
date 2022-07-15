@@ -74,6 +74,7 @@ class CompletedEncountersView extends AbstractComponent {
                                                    renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
                                                    encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
                                                    cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
+                                                   isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
                                                    style={styles.textContainer}
                                                    formType={this.props.params.formType}
                                                    cancelFormType={this.props.params.cancelFormType}/>

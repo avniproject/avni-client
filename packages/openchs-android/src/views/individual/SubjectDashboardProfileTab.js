@@ -246,16 +246,12 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         this.voidUnVoidAlert('unVoidIndividualConfirmationTitle', 'unVoidIndividualConfirmationMessage', false)
     }
 
-    renderSelectionOptions() {
+    renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege) {
         const form = this.formMappingService.findRegistrationForm(this.state.individual.subjectType);
-        const editProfileCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedSubjectTypeUuidsForEdit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editProfileCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypeUuidsForVoid = this.privilegeService.allowedEntityTypeUUIDListForCriteria(voidProfileCriteria, 'subjectTypeUuid');
         const requiredActions = [];
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForVoid, this.state.individual.subjectType.uuid))
+        if (hasVoidPrivilege)
             requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForEdit, this.state.individual.subjectType.uuid))
+        if (hasEditPrivilege)
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
         return _.isEmpty(form) ? <View/> :
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
@@ -266,6 +262,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderProfile() {
         const formMappingService = this.context.getService(FormMappingService);
+        const editProfileCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const hasEditPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(editProfileCriteria, 'subjectTypeUuid');
+        const hasVoidPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(voidProfileCriteria, 'subjectTypeUuid');
         return <View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <View styel={{flexDirection: 'column'}}>
@@ -288,11 +288,11 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                         <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)}
                                       observations={this.state.individual.observations}
                                       style={{marginVertical: 3}}
-                                      quickFormEdit={true}
+                                      quickFormEdit={hasEditPrivilege}
                                       onFormElementGroupEdit={(pageNumber) => this.editSubjectByFEG(pageNumber)}
                         />
                     </View> : <View/>}
-                {this.renderSelectionOptions()}
+                {this.renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege)}
             </View>
         </View>
     }
