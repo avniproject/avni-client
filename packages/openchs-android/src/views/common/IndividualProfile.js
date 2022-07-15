@@ -267,14 +267,14 @@ class IndividualProfile extends AbstractComponent {
                     })}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
-                            <Text
-                                style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                         </View>
                         {
                             this.props.individual.subjectType.isPerson() ?
-                                <View style={{flexDirection: 'row'}}>
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                     <Text style={{fontSize: Fonts.Normal}}>
                                         {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
+                                    <Text
+                                        style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
                                 </View> : <View/>
                         }
                     </View>
