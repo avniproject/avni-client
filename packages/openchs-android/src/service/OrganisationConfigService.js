@@ -56,7 +56,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     getMaxAddressDisplayInlineCount() {
-        return this.getSettings().maxAddressDisplayInlineCount;
+        return this.getSettings().maxAddressDisplayInlineCount || 30;
     }
 
 }

@@ -110,8 +110,7 @@ class AddressLevels extends AbstractComponent {
     }
 
     getMaxInlineDisplayCount() {
-        const maxAddressDisplayInlineCount = this.getService(OrganisationConfigService).getMaxAddressDisplayInlineCount();
-        return _.isNil(maxAddressDisplayInlineCount) ? 30 : maxAddressDisplayInlineCount;
+        return this.getService(OrganisationConfigService).getMaxAddressDisplayInlineCount();
     }
 
     render() {
