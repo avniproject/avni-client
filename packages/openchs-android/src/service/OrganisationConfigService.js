@@ -55,6 +55,10 @@ class OrganisationConfigService extends BaseService {
         return _.sortBy(_.get(searchResultField, 'searchResultConcepts', []), 'displayOrder');
     }
 
+    getMaxAddressDisplayInlineCount() {
+        return this.getSettings().maxAddressDisplayInlineCount;
+    }
+
 }
 
 export default OrganisationConfigService;

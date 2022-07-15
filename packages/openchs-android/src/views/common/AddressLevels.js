@@ -14,6 +14,7 @@ import {Text} from "native-base";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
 import AutocompleteSearchWithLabel from "../AutoCompleteSearch/AutocompleteSearchWithLabel";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -108,13 +109,18 @@ class AddressLevels extends AbstractComponent {
         }
     }
 
+    getMaxInlineDisplayCount() {
+        const maxAddressDisplayInlineCount = this.getService(OrganisationConfigService).getMaxAddressDisplayInlineCount();
+        return _.isNil(maxAddressDisplayInlineCount) ? 30 : maxAddressDisplayInlineCount;
+    }
+
     render() {
         if (!this.props) return null;
 
         General.logDebug(this.viewName(), 'render');
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
-            _.size(levels) > 30 ?
+            _.size(levels) > this.getMaxInlineDisplayCount() ?
                 <AutocompleteSearchWithLabel
                     key={idx}
                     options={levels}
