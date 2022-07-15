@@ -60,8 +60,12 @@ class PreviousEncounters extends AbstractComponent {
         if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
+    isEditAllowed(encounter) {
+        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
+    }
+
     encounterActions(encounter) {
-        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
+        return this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
     scheduledEncounterActions(encounter, actionName, textColor) {
@@ -144,6 +148,7 @@ class PreviousEncounters extends AbstractComponent {
                 subjectInfo: this.props.subjectInfo,
                 formType: this.props.formType,
                 cancelFormType: this.props.cancelFormType,
+                isEditAllowed: (encounter) => this.isEditAllowed(encounter),
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -195,6 +200,7 @@ class PreviousEncounters extends AbstractComponent {
                                                cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
                                                formType={this.props.formType}
                                                cancelFormType={this.props.cancelFormType}
+                                               isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
                         />
                         : this.renderNormalView(encounter)}
                 </View>}

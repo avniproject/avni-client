@@ -17,6 +17,7 @@ import {
 } from 'avni-models';
 import FormMappingService from "./FormMappingService";
 import EntityService from "./EntityService";
+import _ from "lodash";
 
 @Service('PrivilegeService')
 class PrivilegeService extends BaseService {
@@ -208,6 +209,11 @@ class PrivilegeService extends BaseService {
         const groupFilterQuery = this.ownedGroups().map(({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
         const dataForSchema = _.find(schemaToPrivilegeMetadata, privilegeMetadata => privilegeMetadata.schema === schema);
         return {...dataForSchema, groupFilterQuery};
+    }
+
+    hasActionPrivilegeForCriteria(privilegeCriteria, privilegeParam) {
+        const allowedTypeUUIDs = this.allowedEntityTypeUUIDListForCriteria(privilegeCriteria, privilegeParam);
+        return !this.hasEverSyncedGroupPrivileges() || this.hasAllPrivileges() || !_.isEmpty(allowedTypeUUIDs);
     }
 }
 
