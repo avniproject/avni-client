@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import {StyleSheet, TouchableOpacity, View} from "react-native";
 import {Icon} from "native-base";
 import Colors from "../../primitives/Colors";
-import {RepeatableQuestionGroup, QuestionGroup as QuestionGroupModel} from 'avni-models';
+import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni-models';
 import QuestionGroup from "./QuestionGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
@@ -49,7 +49,7 @@ class RepeatableFormElement extends AbstractFormElement {
     }
 
     actionButton(iconName, onPress, isDisabled, primaryColor) {
-        return (
+        return this.props.element.recordValueByKey('disableManualActions') ? null :
             <TouchableOpacity activeOpacity={0.5}
                               disabled={isDisabled}
                               onPress={onPress}
@@ -57,8 +57,7 @@ class RepeatableFormElement extends AbstractFormElement {
                 <Icon name={iconName}
                       style={{fontSize: 25, color: isDisabled ? Colors.DisabledButtonColor : primaryColor}}
                 />
-            </TouchableOpacity>
-        )
+            </TouchableOpacity>;
     }
 
     renderQuestionGroup(questionGroupIndex) {
