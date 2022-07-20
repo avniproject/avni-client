@@ -22,6 +22,7 @@ import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 import Path from "../../framework/routing/Path";
+import TaskListView from "../task/TaskListView";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -109,6 +110,7 @@ class CustomDashboardView extends AbstractComponent {
             'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
             'IndividualListView': IndividualListView,
             'CommentListView': CommentListView,
+            'TaskListView': TaskListView,
         };
         return viewNameMap[viewName]
     }

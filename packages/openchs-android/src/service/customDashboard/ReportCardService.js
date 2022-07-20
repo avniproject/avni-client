@@ -6,6 +6,7 @@ import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
 import CommentService from "../comment/CommentService";
 import _ from "lodash";
+import TaskService from "../task/TaskService";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -52,6 +53,18 @@ class ReportCardService extends BaseService {
         return this.getService(CommentService).getAllOpenCommentThreads();
     }
 
+    getCountForTaskCardType() {
+        return {
+            primaryValue: this.getResultForTaskCardType().length,
+            secondaryValue: null,
+            clickable: true
+        };
+    }
+
+    getResultForTaskCardType() {
+        return this.getService(TaskService).getIncompleteTasks();
+    }
+
     getResultForDefaultCardsType(type) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
@@ -87,6 +100,8 @@ class ReportCardService extends BaseService {
                 return this.getCountForDefaultCardsType(standardReportCardType.name);
             case standardReportCardType.isCommentType() :
                 return this.getCountForCommentCardType();
+            case standardReportCardType.isTaskType() :
+                return this.getCountForTaskCardType();
         }
     }
 
@@ -102,8 +117,10 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name);
             case standardReportCardType.isCommentType() : {
-                const result = this.getResultForCommentCardType();
-                return {status: null, result}
+                return {status: null, result: this.getResultForCommentCardType()}
+            }
+            case standardReportCardType.isTaskType() : {
+                return {status: null, result: this.getResultForTaskCardType()}
             }
         }
     }

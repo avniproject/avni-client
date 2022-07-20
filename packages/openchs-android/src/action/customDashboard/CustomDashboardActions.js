@@ -61,7 +61,9 @@ class CustomDashboardActions {
             case standardReportCardType.isDefaultType() :
                 return 'IndividualListView';
             case standardReportCardType.isCommentType() :
-                return 'CommentListView'
+                return 'CommentListView';
+            case standardReportCardType.isTaskType() :
+                return 'TaskListView';
         }
     }
 
