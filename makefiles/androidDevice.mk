@@ -1,5 +1,5 @@
 define _start_app
-	adb shell am start -n ${app_android_package_name}/com.openchsclient.MainActivity
+	adb shell am start -n ${app_android_package_name}/org.lfeteach.openchsclient.MainActivity
 endef
 
 define _install_apk

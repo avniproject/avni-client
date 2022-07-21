@@ -1,4 +1,4 @@
-package com.openchsclient.module;
+package org.lfeteach.openchsclient.module;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;

@@ -9,7 +9,6 @@ import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import _ from "lodash";
-import codePush from "react-native-code-push";
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
@@ -117,6 +116,4 @@ class App extends Component {
     }
 }
 
-let codePushOptions = {checkFrequency: codePush.CheckFrequency.ON_APP_RESUME};
-
-export default codePush(App);
+export default App;

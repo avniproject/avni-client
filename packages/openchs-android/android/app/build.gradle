@@ -43,7 +43,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.openchsclient"
+        applicationId "org.lfeteach.openchsclient"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode System.getenv("versionCode") ? System.getenv("versionCode").toInteger() : 1
@@ -77,7 +77,7 @@ android {
 
         release {
 
-            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key.keystore")
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-avni-release-key.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("KEY_PASSWORD")

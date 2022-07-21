@@ -1,4 +1,4 @@
-package com.openchsclient;
+package org.lfeteach.openchsclient;
 
 import android.content.Intent;
 import android.content.res.Configuration;

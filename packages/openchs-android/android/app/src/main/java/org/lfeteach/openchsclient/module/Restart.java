@@ -1,4 +1,4 @@
-package com.openchsclient.module;
+package org.lfeteach.openchsclient.module;
 
 import android.app.Activity;
 import android.os.Handler;

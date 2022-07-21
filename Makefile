@@ -114,7 +114,7 @@ release_clean:
 	rm -rf packages/openchs-android/default.realm.*
 
 create_apk:
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx4096m -Xms1024m)" ./gradlew bundleRelease --stacktrace --w
 
 release: release_clean create_apk
 

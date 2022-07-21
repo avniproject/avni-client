@@ -1,4 +1,4 @@
-package com.openchsclient;
+package org.lfeteach.openchsclient;
 
 import android.app.Application;
 import com.brentvatne.react.ReactVideoPackage;
@@ -27,8 +27,8 @@ import com.facebook.soloader.SoLoader;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
 import com.i18n.reactnativei18n.ReactNativeI18n;
 import com.oblador.vectoricons.VectorIconsPackage;
-import com.openchsclient.module.RestartPackage;
-//import com.openchsclient.module.DeviceInfoPackage;
+import org.lfeteach.openchsclient.module.RestartPackage;
+//import org.lfeteach.openchsclient.module.DeviceInfoPackage;
 import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;

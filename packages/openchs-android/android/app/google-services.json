@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "554603098537",
-    "project_id": "avni-be4b7",
-    "storage_bucket": "avni-be4b7.appspot.com"
+    "project_number": "26847192477",
+    "project_id": "lfe-teach",
+    "storage_bucket": "lfe-teach.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:554603098537:android:c3a7fa04a7d97b6ea054b8",
+        "mobilesdk_app_id": "1:26847192477:android:cc8e0d3a01a383c2f73b74",
         "android_client_info": {
-          "package_name": "com.openchsclient"
+          "package_name": "org.lfeteach.openchsclient"
         }
       },
       "oauth_client": [
         {
-          "client_id": "554603098537-kqsctnbuaetlqlftsj3bo72rd98a7qmv.apps.googleusercontent.com",
+          "client_id": "26847192477-o32d9p3fto6cfsb98b5a3bs6d9f39j4l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAXSx_6DFmB1K_Mf1n8vADP3-kgETbG0cI"
+          "current_key": "AIzaSyAcDPJkNYh2qyrdYxQ1SmgRhK_e8HbzV3Y"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "554603098537-kqsctnbuaetlqlftsj3bo72rd98a7qmv.apps.googleusercontent.com",
+              "client_id": "26847192477-o32d9p3fto6cfsb98b5a3bs6d9f39j4l.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
