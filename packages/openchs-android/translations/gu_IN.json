@@ -299,6 +299,8 @@
     "searchByTyping": "લખીને શોધો...",
     "noItemsToDisplay": "કંઈ મળ્યું નથી",
     "start": "શરૂઆત",
-    "observationInProgress": "અવલોકન ચાલુ છે..."
+    "observationInProgress": "અવલોકન ચાલુ છે...",
+    "subjectsWithMobileNumber": "{{number}} મોબાઇલ નંબર વિષય",
+    "openTasks": "કાર્યો ખોલો"
   }
 }

@@ -450,6 +450,8 @@
     "searchByTyping": "Search by typing ...",
     "noItemsToDisplay": "No items to display.",
     "start": "Start",
-    "observationInProgress": "Observation in Progress ..."
+    "observationInProgress": "Observation in Progress ...",
+    "subjectsWithMobileNumber": "Subjects with mobile number {{number}}",
+    "openTasks": "Open tasks"
 }
 }

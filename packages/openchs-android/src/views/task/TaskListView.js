@@ -6,7 +6,10 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {FlatList, SafeAreaView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {FlatList, SafeAreaView} from "react-native";
+import TaskCard from "./TaskCard";
+import Reducers from "../../reducer";
+import _ from 'lodash';
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
@@ -17,7 +20,8 @@ class TaskListView extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context);
+        super(props, context, Reducers.reducerKeys.task);
+        this.state = {};
     }
 
     viewName() {
@@ -25,6 +29,7 @@ class TaskListView extends AbstractComponent {
     }
 
     componentWillMount() {
+        this.setState({results: this.props.results, backFunction: this.props.backFunction});
         super.componentWillMount();
     }
 
@@ -34,21 +39,17 @@ class TaskListView extends AbstractComponent {
         }
     }
 
-    onBackPress() {
-        this.props.backFunction();
+    didFocus() {
+        if (_.size(this.props.results) !== _.size(this.state.results)) {
+            this.setState(prevState => ({...prevState, results: this.props.results}))
+        }
+        super.didFocus();
     }
 
-    ItemView({item}) {
-        return (
-            <TouchableNativeFeedback key={item.uuid}
-                                     onPress={() => {}}
-                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={styles.cardContainer}>
-                    <Text>{item.name}</Text>
-                </View>
-            </TouchableNativeFeedback>
-        );
-    };
+    onBackPress() {
+        this.state.backFunction();
+    }
+
 
     render() {
         General.logDebug(this.viewName(), "render");
@@ -58,27 +59,15 @@ class TaskListView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
                 <SafeAreaView style={{flex: 1}}>
                     <FlatList
-                        data={this.props.results}
+                        data={this.state.results}
                         keyExtractor={(item) => item.uuid}
                         enableEmptySections={true}
-                        renderItem={item => this.ItemView(item)}
+                        renderItem={({item}) => <TaskCard task={item}/>}
                     />
                 </SafeAreaView>
             </CHSContainer>
         )
     }
 }
-
-const styles = StyleSheet.create({
-    cardContainer: {
-        marginHorizontal: 16,
-        elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 5,
-        paddingBottom: 5,
-        borderRadius: 5,
-        minHeight: 100
-    }
-});
 
 export default TaskListView;

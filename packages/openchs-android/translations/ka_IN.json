@@ -309,6 +309,8 @@
         "searchByTyping": "ಟೈಪ್ ಮಾಡುವ ಮೂಲಕ ಹುಡುಕಿ...",
         "noItemsToDisplay": "ಏನೂ ಕಂಡುಬಂದಿಲ್ಲ",
         "start": "ಪ್ರಾರಂಭಿಸಿ",
-        "observationInProgress": "ವೀಕ್ಷಣೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ..."
+        "observationInProgress": "ವೀಕ್ಷಣೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ...",
+        "subjectsWithMobileNumber": "{{number}} ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ವಿಷಯ",
+        "openTasks": "ಕಾರ್ಯಗಳನ್ನು ತೆರೆಯಿರಿ"
     }
 }

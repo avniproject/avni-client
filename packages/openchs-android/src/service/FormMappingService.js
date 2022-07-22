@@ -230,6 +230,11 @@ class FormMappingService extends BaseService {
     formMappingByCriteria(criteriaQuery) {
         return this.findAllByCriteria(criteriaQuery)
     }
+
+    getTaskFormMapping(taskType) {
+        let criteria = `voided = false AND form.formType = "${Form.formTypes.Task}" and taskType.uuid = "${taskType.uuid}"`;
+        return this.db.objects(FormMapping.schema.name).filtered(criteria)[0];
+    }
 }
 
 export default FormMappingService;

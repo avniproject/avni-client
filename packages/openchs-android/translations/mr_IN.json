@@ -351,6 +351,8 @@
     "searchByTyping": "टाइप करून शोधा...",
     "noItemsToDisplay": "काहीही सापडले नाही",
     "start": "प्रारंभ",
-    "observationInProgress": "निरीक्षण प्रगतीपथावर आहे..."
+    "observationInProgress": "निरीक्षण प्रगतीपथावर आहे...",
+    "subjectsWithMobileNumber": "{{number}} मोबाईल नंबर विषय",
+    "openTasks": "कार्ये उघडा"
   }
 }

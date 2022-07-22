@@ -1,6 +1,7 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Task} from 'avni-models';
+import {EntityQueue, ObservationsHolder, Task} from 'avni-models';
+import General from "../../utility/General";
 
 @Service("taskService")
 class TaskService extends BaseService {
@@ -13,7 +14,9 @@ class TaskService extends BaseService {
     }
 
     getIncompleteTasks() {
-        return this.getAllNonVoided().filtered('completedOn = null');
+        return this.getAllNonVoided()
+            .filtered('completedOn = null')
+            .sorted('scheduledOn', true);
     }
 
     deleteTask(taskUUID, db) {
@@ -21,6 +24,20 @@ class TaskService extends BaseService {
         if (task) {
             db.delete(task);
         }
+    }
+
+    saveOrUpdate(task) {
+        General.logDebug('TaskService', `Saving Task UUID: ${task.uuid}`);
+        const db = this.db;
+        ObservationsHolder.convertObsForSave(task.observations);
+        ObservationsHolder.convertObsForSave(task.metadata);
+        if (task.taskStatus.isTerminal) {
+            task.setCompletedOn(new Date());
+        }
+        this.db.write(() => {
+            db.create(Task.schema.name, task, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(task, Task.schema.name));
+        });
     }
 
 }

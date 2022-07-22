@@ -582,6 +582,11 @@ class IndividualService extends BaseService {
             .sorted('name');
     }
 
+    findAllWithMobileNumber(mobileNumber) {
+        return this.getAllNonVoided()
+            .filter(ind => ind.getMobileNumber() === mobileNumber);
+    }
+
 }
 
 export default IndividualService;
