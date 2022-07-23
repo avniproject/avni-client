@@ -70,9 +70,14 @@ class TaskActions {
         return newState;
     }
 
-    static toggleStatusSelector(state, action) {
+    static toggleStatusSelector(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
         newState.displayTaskStatusSelector = action.display;
+        const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
+        newState.taskStatusList = context.get(EntityService)
+            .findByCriteria(`taskType.uuid = '${taskTypeUUID}'`, TaskStatus.schema.name)
+            .map(_.identity)
+            .map(({name, uuid}) => ({label: name, value: uuid}));
         return newState;
     }
 }

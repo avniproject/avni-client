@@ -8,6 +8,7 @@ class TaskState extends AbstractDataEntryState {
         super(validationResults, formElementGroup, wizard, false, filteredFormElements);
         this.task = task;
         this.displayTaskStatusSelector = false;
+        this.taskStatusList = [];
     }
 
     get observationsHolder() {
@@ -45,6 +46,7 @@ class TaskState extends AbstractDataEntryState {
         const newState = new TaskState();
         newState.task = _.isNil(this.task) ? this.task : this.task.cloneForEdit();
         newState.displayTaskStatusSelector = this.displayTaskStatusSelector;
+        newState.taskStatusList = this.taskStatusList;
         super.clone(newState);
         return newState;
     }

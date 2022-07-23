@@ -4,7 +4,7 @@ import Reducers from "../../reducer";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import _ from "lodash";
-import {DatePickerAndroid, StyleSheet, Text, View} from "react-native";
+import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
 import {Icon} from "native-base";
 import Colors from "../primitives/Colors";
@@ -25,13 +25,17 @@ class TaskCard extends AbstractComponent {
     }
 
     onCallPress(mobileNumber) {
+        RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
+
         TypedTransition.from(this).with({
             headerTitle: this.I18n.t('subjectsWithMobileNumber', {number: _.toString(mobileNumber)}),
             results: this.getService(IndividualService).findAllWithMobileNumber(mobileNumber),
-            onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
+            onIndividualSelection: (source, subject) => this.goToSubjectDashboard(source, subject),
         }).to(IndividualSearchResultPaginatedView, true);
+    }
 
-        RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
+    goToSubjectDashboard(source, subject) {
+        return CHSNavigator.navigateToProgramEnrolmentDashboardView(source, subject.uuid)
     }
 
     async onReschedulePress(task) {
@@ -57,17 +61,37 @@ class TaskCard extends AbstractComponent {
         )
     }
 
+    renderSubjectDetails(task) {
+        return task.isOpenSubjectType() && !_.isNil(task.subject) ? (
+            <TouchableNativeFeedback
+                onPress={() => this.goToSubjectDashboard(this, task.subject)}
+                background={TouchableNativeFeedback.SelectableBackground()}
+            >
+                <View style={{backgroundColor: '#E7E7E7', padding: 16}}>
+                    <View style={[styles.cardContainer, {elevation: 2}]}>
+                        <Text style={Styles.textStyle}>{task.subject.nameString}</Text>
+                        <Text style={Styles.textStyle}>{this.I18n.t(task.subject.lowestAddressLevel.name)}</Text>
+                        <Icon name={'chevron-right'} type={'MaterialIcons'} style={styles.iconStyle}/>
+                    </View>
+                </View>
+            </TouchableNativeFeedback>
+        ) : null
+    }
+
 
     render() {
         const task = this.props.task;
         return (
-            <View style={styles.cardContainer} key={task.uuid}>
-                <Text style={Styles.textStyle}>{task.name}</Text>
-                {task.isCallType() ? this.renderPhoneNumber(task) : null}
-                <Icon style={styles.iconStyle} name='repeat' type='FontAwesome'
-                      onPress={() => this.onChangeStatusPress(task)}/>
-                <Icon style={styles.iconStyle} name='back-in-time' type='Entypo'
-                      onPress={() => this.onReschedulePress(task)}/>
+            <View style={styles.container} key={task.uuid}>
+                <View style={styles.cardContainer}>
+                    <Text style={Styles.textStyle}>{task.name}</Text>
+                    {task.isCallType() ? this.renderPhoneNumber(task) : null}
+                    <Icon style={styles.iconStyle} name='repeat' type='FontAwesome'
+                          onPress={() => this.onChangeStatusPress(task)}/>
+                    <Icon style={styles.iconStyle} name='back-in-time' type='Entypo'
+                          onPress={() => this.onReschedulePress(task)}/>
+                </View>
+                {this.renderSubjectDetails(task)}
                 {this.state.displayTaskStatusSelector && <TaskStatusPicker task={task}/>}
             </View>
         )
@@ -76,15 +100,18 @@ class TaskCard extends AbstractComponent {
 
 
 const styles = StyleSheet.create({
-    cardContainer: {
-        marginHorizontal: 16,
+    container: {
+        flexDirection: 'column',
         marginVertical: 5,
+        marginHorizontal: 16,
+        elevation: 2,
+    },
+    cardContainer: {
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         paddingVertical: 6,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        elevation: 2,
         backgroundColor: '#D9D9D9',
     },
     iconStyle: {
