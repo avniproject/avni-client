@@ -87,3 +87,4 @@ packages/utilities/t9n-candidates.json/
 tmp/
 packages/openchs-android/android/app/src/main/res/drawable-*
 packages/openchs-android/android/fastlane/README.md
+/packages/openchs-android/android/app/src/main/assets/index.android.bundle

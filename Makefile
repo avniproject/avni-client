@@ -114,6 +114,7 @@ release_clean:
 	rm -rf packages/openchs-android/default.realm.*
 
 create_apk:
+	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx4096m -Xms1024m)" ./gradlew bundleRelease --stacktrace --w
 
 release: release_clean create_apk
@@ -122,6 +123,8 @@ release_dev: setup_hosts as_dev release
 
 release_prod: renew_env as_prod release
 	$(call _upload_release_sourcemap)
+
+release_prod_wo_clean: as_prod release
 
 release_staging: renew_env as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
@@ -198,6 +201,9 @@ local_deploy_apk: ##
 
 openlocation_apk: ## Open location of built apk
 	open packages/openchs-android/android/app/build/outputs/apk
+
+openlocation_aab: ## Open location of built aab
+	open packages/openchs-android/android/app/build/outputs/bundle/release
 
 # <env>
 clean_packager_cache:
