@@ -1,4 +1,4 @@
 {
-  "SERVER_URL": "https://server.avniproject.org",
+  "SERVER_URL": "https://app.lfe.avniproject.org",
   "ENV": "prod"
 }

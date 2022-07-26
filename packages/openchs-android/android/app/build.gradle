@@ -59,7 +59,7 @@ android {
             }
         }
         manifestPlaceholders = [
-                bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"
+                bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"
         ]
         multiDexEnabled true
     }
