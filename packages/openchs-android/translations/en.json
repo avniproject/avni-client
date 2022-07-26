@@ -448,6 +448,10 @@
     "resetSyncTitle": "Sync reset required",
     "resetSyncDetails": "Due to some changes done by organisation admin reset of sync is required. This may take longer and will require good internet connection. Do you want to proceed now?",
     "searchByTyping": "Search by typing ...",
-    "noItemsToDisplay": "No items to display."
+    "noItemsToDisplay": "No items to display.",
+    "start": "Start",
+    "observationInProgress": "Observation in Progress ...",
+    "subjectsWithMobileNumber": "Subjects with mobile number {{number}}",
+    "openTasks": "Open tasks"
 }
 }

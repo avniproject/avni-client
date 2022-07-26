@@ -23,6 +23,7 @@ import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
 import ResetSyncService from "./ResetSyncService";
+import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -212,6 +213,7 @@ class SyncService extends BaseService {
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getService(SubjectMigrationService).migrateSubjects())
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getService(TaskUnAssignmentService).deleteNonMigratedTasks())
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())

@@ -39,7 +39,7 @@ import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
     static propTypes = {
-        individual: PropTypes.object.isRequired,
+        individual: PropTypes.object,
         saveActionName: PropTypes.string.isRequired,
         onSaveCallback: PropTypes.func.isRequired,
         decisions: PropTypes.any,
@@ -94,7 +94,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     save(cb) {
-        if (this.props.individual.voided) {
+        if (_.get(this.props, 'individual.voided')) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
                 this.I18n.t("voidedIndividualAlertMessage"));
         } else if (this.props.isRejectedEntity) {
@@ -175,7 +175,7 @@ class SystemRecommendationView extends AbstractComponent {
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
                     <View style={{flexDirection: 'column'}}>
-                        {this.profile()}
+                        {!_.isNil(this.props.individual) && this.profile()}
                         <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                             <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
                                 {
@@ -199,7 +199,8 @@ class SystemRecommendationView extends AbstractComponent {
                                                  title={this.I18n.t('visitsBeingScheduled')}/>
                             <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
                                                  title={this.I18n.t('visitsBeingScheduledForOthers')}/>
-                            <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>
+                            {!_.isNil(this.props.individual) &&
+                                <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>}
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
                             <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}

@@ -28,15 +28,10 @@ class Timer extends AbstractComponent {
     renderStartButton() {
         const {height} = Dimensions.get('window');
         return (
-            <View style={{
-                flexDirection: 'column',
-                flexWrap: 'nowrap',
-                alignItems: 'center',
-                marginTop: height / 2.5
-            }}>
+            <View style={[styles.buttonContainer, {marginTop: height / 2.5}]}>
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
                     <Button onPress={() => this.props.onStartTimer()} style={{padding: 35, borderRadius: 20}}>
-                        <Text>{'Start'}</Text>
+                        <Text>{this.I18n.t('start')}</Text>
                     </Button>
                 </View>
             </View>
@@ -44,7 +39,9 @@ class Timer extends AbstractComponent {
     }
 
     renderTimer() {
+        const {height} = Dimensions.get('window');
         const {countUpTime, countDownTime} = this.props.timerState.displayObject();
+        const displayMessage = !this.props.timerState.displayQuestions;
         const backgroundColor = this.props.group.backgroundColour || '#ffffff';
         const color = this.props.group.textColour || Colors.InputNormal;
         return (
@@ -61,6 +58,12 @@ class Timer extends AbstractComponent {
                             <Text style={[Styles.timerStyle, {color}]}>{countDownTime}</Text>
                         </View> : null}
                 </View>
+                {displayMessage &&
+                <View style={[styles.buttonContainer, {marginTop: height / 3}]}>
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={Styles.menuTitle}>{this.I18n.t('observationInProgress')}</Text>
+                    </View>
+                </View>}
             </React.Fragment>
         )
     }
@@ -84,6 +87,11 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.DisabledButtonColor,
         flexDirection: 'row',
         alignItems: 'center'
+    },
+    buttonContainer: {
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+        alignItems: 'center',
     }
 });
 

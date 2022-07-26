@@ -23,16 +23,19 @@ export default class TimerState {
         newState.startTimer = this.startTimer;
         newState.displayQuestions = this.displayQuestions;
         newState.visitedGroupUUIDs = this.visitedGroupUUIDs;
+        newState.startingSystemTime = this.startingSystemTime;
         return newState;
     }
 
     start() {
         this.startTimer = true;
+        this.startingSystemTime = moment();
     }
 
     stop() {
         this.startTimer = false;
         this.time = 0;
+        this.startingSystemTime = null;
     }
 
     addVisited(formElementGroup) {
@@ -50,7 +53,7 @@ export default class TimerState {
     }
 
     onEverySecond() {
-        this.time = this.time + 1;
+        this.time = moment.duration(moment().diff(this.startingSystemTime || moment())).asSeconds();
         if (this.time >= this.startTime) {
             this.stayTime = this.stayTime === 0 || _.isNil(this.stayTime) ? this.stayTime : this.stayTime - 1;
             if (this.stayTime > 0) {
