@@ -12,7 +12,7 @@ import General from '../../../src/utility/General';
 // The transpiled version of avni-models uses classes. This is probably the right approach,
 // since classes have been present for a while. However, Realm still uses the old style.
 // This might have gone away with the newer release of Realm. No time to look at this right now.
-xdescribe('IndividualServiceTest', () => {
+describe('IndividualServiceTest', () => {
     let individualService;
 
     beforeEach(() => {

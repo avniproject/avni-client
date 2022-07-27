@@ -134,7 +134,7 @@ dependencies {
     implementation project(':react-native-geolocation-service')
     implementation project(':react-native-charts-wrapper')
     implementation project(':react-native-vector-icons')
-    implementation project(':react-native-i18n')
+//    implementation project(':react-native-i18n')
 //    implementation project(':realm')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"

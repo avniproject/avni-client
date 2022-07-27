@@ -1,7 +1,7 @@
 import BaseService from './BaseService.js'
 import _ from 'lodash';
 import Service from '../framework/bean/Service';
-import I18n from 'react-native-i18n';
+import I18n from 'i18n-js';
 import {EntityMetaData, OrganisationConfig, PlatformTranslation, Translation} from 'avni-models';
 import UserInfoService from "./UserInfoService";
 import Messages_en from '../../config/beforeSyncMessages.en.json';

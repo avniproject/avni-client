@@ -25,7 +25,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
-import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
+//import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
@@ -73,7 +73,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new MPAndroidChartPackage(),
                     new RNAWSCognitoPackage(),
                     new VectorIconsPackage(),
-                    new RNI18nPackage(),
+//                    new RNI18nPackage(),
                     new RestartPackage(),
                     new RNFusedLocationPackage(),
                     new RNCWebViewPackage()
