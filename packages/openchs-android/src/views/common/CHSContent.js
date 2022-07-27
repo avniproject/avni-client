@@ -1,6 +1,5 @@
-import PropTypes from 'prop-types';
-import React from "react";
-import {Content} from "native-base";
+import React from 'react';
+import {Content} from 'native-base';
 
 
 class CHSContent extends Content {
