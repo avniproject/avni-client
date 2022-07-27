@@ -282,8 +282,6 @@ class LoginView extends AbstractComponent {
                                     fontStyle: 'normal',
                                     color: Styles.blackColor,
                                     marginVertical: 0,
-                                    borderColor: 'black',
-                                    borderWidth: 1,
                                 }}>{Config.ENV}</Text>
                             }
                         </View>
