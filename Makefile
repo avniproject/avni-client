@@ -222,7 +222,7 @@ build_env: ##
 	npm i -g react-native-cli
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
-	npm run bootstrap
+	npm run bootstrap --legacy-peer-deps
 
 build: build_env
 	cd packages/openchs-android/android && ./gradlew assembleDebug

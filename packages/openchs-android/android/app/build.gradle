@@ -124,23 +124,23 @@ dependencies {
     implementation project(':react-native-immediate-phone-call')
     implementation project(':react-native-code-push')
     implementation project(':amazon-cognito-identity-js')
-    compile project(':rn-fetch-blob')
-    compile project(':react-native-image-picker')
-    compile project(':react-native-fs')
-    compile(project(':react-native-video')) {
+    implementation project(':rn-fetch-blob')
+    implementation project(':react-native-image-picker')
+    implementation project(':react-native-fs')
+    implementation(project(':react-native-video')) {
         exclude group: 'com.squareup.okhttp3'
     }
-    compile project(':bugsnag-react-native')
-    compile project(':react-native-geolocation-service')
-    compile project(':react-native-charts-wrapper')
-    compile project(':react-native-vector-icons')
-    compile project(':react-native-i18n')
-    compile project(':realm')
+    implementation project(':bugsnag-react-native')
+    implementation project(':react-native-geolocation-service')
+    implementation project(':react-native-charts-wrapper')
+    implementation project(':react-native-vector-icons')
+    implementation project(':react-native-i18n')
+    implementation project(':realm')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
     implementation project(':react-native-device-info')
     implementation "com.facebook.react:react-native:+"
-    compile 'com.android.support:multidex:1.0.1'
+    implementation 'com.android.support:multidex:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha03'
 }
@@ -148,7 +148,6 @@ dependencies {
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {
-    from configurations.compile
+    from configurations.implementation
     into 'libs'
 }
-
