@@ -207,7 +207,7 @@ class LoginView extends AbstractComponent {
                                                  autoCompleteType={'username'}
                                                  keyboardType={'email-address'}
                                 />
-                                {Config.ENV === 'dev' ?
+                                {Config.ENV !== 'dev' ?
                                     <View>
                                         <TextFormElement element={new StaticFormElement('password')}
                                                          secureTextEntry={!this.state.showPassword}
@@ -276,7 +276,7 @@ class LoginView extends AbstractComponent {
                             paddingLeft: 16
                         }}>
                             <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
-                            {Config.ENV === 'prod' &&
+                            {Config.ENV !== 'prod' &&
                                 <Text style={{
                                     fontSize: Styles.normalTextSize,
                                     fontStyle: 'normal',
