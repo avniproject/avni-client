@@ -3,7 +3,7 @@ var RN = require('react-native');
 RN.NativeModules['RNI18n'] = {'locale': 'en_GB'};
 RN.NativeModules['RNFetchBlob'] = {'locale': 'en_GB'};
 
-const es6Modules = ['react-native-i18n', 'react-native-fetch-blob', 'native-base', 'react-native', 'victory-native'];
+const es6Modules = ['react-native-fetch-blob', 'native-base', 'react-native', 'victory-native'];
 
 require('babel-core/register')({
     ignore: function (filename) {
