@@ -67,7 +67,7 @@
     "react-native-video-player": "0.12.0",
     "react-native-webview": "11.23.0",
     "react-native-zip-archive": "6.0.8",
-    "realm": "10.19.5",
+    "realm": "^10.19.5",
     "redux": "4.2.0",
     "rn-fetch-blob": "0.13.0-beta-1",
     "rules-config": "git+https://github.com/avniproject/rules-config#2622898c242da48ad3fc5360995f22784b559610",
@@ -88,9 +88,9 @@
     "jest": "24.7.1",
     "jetifier": "^1.6.6",
     "metro-react-native-babel-preset": "0.53.1",
+    "openchs-idi": "git+https://github.com/avniproject/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6",
     "react-addons-test-utils": "15.4.1",
     "react-dom": "15.4.2",
-    "react-test-renderer": "16.8.3",
-    "openchs-idi": "git+https://github.com/avniproject/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6"
+    "react-test-renderer": "16.8.3"
   }
 }

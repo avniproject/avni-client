@@ -7,8 +7,8 @@ import com.facebook.react.ReactApplication;
 import com.ocetnik.timer.BackgroundTimerPackage;
 import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 import com.corbt.keepawake.KCKeepAwakePackage;
-import com.dooboolab.RNAudioRecorderPlayerPackage;
-import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
+import com.dooboolab.audiorecorderplayer.RNAudioRecorderPlayerPackage;
+import com.reactnativedocumentpicker.DocumentPickerPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
@@ -25,11 +25,10 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.github.wuxudong.rncharts.MPAndroidChartPackage;
-import com.i18n.reactnativei18n.ReactNativeI18n;
+import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.openchsclient.module.RestartPackage;
 //import com.openchsclient.module.DeviceInfoPackage;
-import io.realm.react.RealmReactPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 
@@ -74,8 +73,7 @@ public class MainApplication extends Application implements ReactApplication {
                     new MPAndroidChartPackage(),
                     new RNAWSCognitoPackage(),
                     new VectorIconsPackage(),
-                    new ReactNativeI18n(),
-                    new RealmReactPackage(),
+                    new RNI18nPackage(),
                     new RestartPackage(),
                     new RNFusedLocationPackage(),
                     new RNCWebViewPackage()

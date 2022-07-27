@@ -224,8 +224,10 @@ build_env: ##
 	export NODE_OPTIONS=--max_old_space_size=4096
 	npm run bootstrap --legacy-peer-deps
 
-build: build_env
+build_app:
 	cd packages/openchs-android/android && ./gradlew assembleDebug
+
+build: build_env build_app
 # </env>
 
 
