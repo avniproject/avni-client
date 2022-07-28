@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native-video/Video.js b/node_modules/react-native-video/Video.js
+index b492d48..3547b08 100644
+--- a/node_modules/react-native-video/Video.js
++++ b/node_modules/react-native-video/Video.js
+@@ -6,6 +6,7 @@ import TextTrackType from './TextTrackType';
+ import FilterType from './FilterType';
+ import DRMType from './DRMType';
+ import VideoResizeMode from './VideoResizeMode.js';
++const {ImagePropTypes} = require('deprecated-react-native-prop-types');
+ 
+ const styles = StyleSheet.create({
+   base: {
+@@ -415,7 +416,7 @@ Video.propTypes = {
+   maxBitRate: PropTypes.number,
+   resizeMode: PropTypes.string,
+   poster: PropTypes.string,
+-  posterResizeMode: Image.propTypes.resizeMode,
++  posterResizeMode: ImagePropTypes.resizeMode,
+   repeat: PropTypes.bool,
+   automaticallyWaitsToMinimizeStalling: PropTypes.bool,
+   allowsExternalPlayback: PropTypes.bool,

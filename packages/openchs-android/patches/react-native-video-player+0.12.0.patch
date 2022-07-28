@@ -1,0 +1,28 @@
+diff --git a/node_modules/react-native-video-player/index.js b/node_modules/react-native-video-player/index.js
+index 61c3f94..9a73b5d 100644
+--- a/node_modules/react-native-video-player/index.js
++++ b/node_modules/react-native-video-player/index.js
+@@ -592,10 +592,12 @@ export default class VideoPlayer extends Component {
+   }
+ }
+ 
++const {ImagePropTypes} = require('deprecated-react-native-prop-types');
++
+ VideoPlayer.propTypes = {
+   video: Video.propTypes.source,
+-  thumbnail: Image.propTypes.source,
+-  endThumbnail: Image.propTypes.source,
++  thumbnail: ImagePropTypes.source,
++  endThumbnail: ImagePropTypes.source,
+   videoWidth: PropTypes.number,
+   videoHeight: PropTypes.number,
+   duration: PropTypes.number,
+@@ -629,7 +631,7 @@ VideoPlayer.propTypes = {
+     seekBarKnob: ViewPropTypesVar.style,
+     seekBarKnobSeeking: ViewPropTypesVar.style,
+     seekBarBackground: ViewPropTypesVar.style,
+-    thumbnail: Image.propTypes.style,
++    thumbnail: ImagePropTypes.style,
+     playButton: ViewPropTypesVar.style,
+     playArrow: Icon.propTypes.style,
+     durationText: ViewPropTypesVar.style

@@ -47,7 +47,7 @@
     "react-native-svg": "12.4.3",
     "openchs-models": "1.23.2",
     "prop-types": "15.8.1",
-    "react": "17.0.2",
+    "react": "18.2.0",
     "react-native": "0.69.3",
     "deprecated-react-native-prop-types": "2.3.0",
     "react-native-audio-recorder-player": "3.5.1",
