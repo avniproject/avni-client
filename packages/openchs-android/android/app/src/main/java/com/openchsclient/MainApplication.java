@@ -1,5 +1,6 @@
 package com.openchsclient;
 
+import com.facebook.react.PackageList;
 import android.app.Application;
 import com.brentvatne.react.ReactVideoPackage;
 import com.bugsnag.BugsnagReactNative;
@@ -14,7 +15,7 @@ import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
-import com.microsoft.codepush.react.CodePush;
+//import com.microsoft.codepush.react.CodePush;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.amazonaws.RNAWSCognitoPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
@@ -38,12 +39,6 @@ import java.util.List;
 public class MainApplication extends Application implements ReactApplication {
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-
-        @Override
-        protected String getJSBundleFile() {
-        return CodePush.getJSBundleFile();
-        }
-
         @Override
         public boolean getUseDeveloperSupport() {
             return BuildConfig.DEBUG;
@@ -51,34 +46,37 @@ public class MainApplication extends Application implements ReactApplication {
 
         @Override
         protected List<ReactPackage> getPackages() {
-            return Arrays.<ReactPackage>asList(
-                    new MainReactPackage(),
-            new BackgroundTimerPackage(),
-            new RNFileViewerPackage(),
-            new KCKeepAwakePackage(),
-            new RNAudioRecorderPlayerPackage(),
-            new DocumentPickerPackage(),
-            new RNZipArchivePackage(),
-            new BackgroundJobPackage(),
-            new ReactNativeFirebaseAnalyticsPackage(),
-            new ReactNativeFirebaseAppPackage(),
-            new RNImmediatePhoneCallPackage(),
-            new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
-            new RNDeviceInfo(),
-                    new RNFetchBlobPackage(),
-                    new ImagePickerPackage(),
-                    new RNFSPackage(),
-                    new ReactVideoPackage(),
-                    BugsnagReactNative.getPackage(),
-                    new MPAndroidChartPackage(),
-                    new RNAWSCognitoPackage(),
-                    new VectorIconsPackage(),
-//                    new RNI18nPackage(),
-                    new RestartPackage(),
-                    new RNFusedLocationPackage(),
-                    new RNCWebViewPackage()
-//                    new DeviceInfoPackage()
-            );
+            List<ReactPackage> packages = new PackageList(this).getPackages();
+//            packages.add(new ReactNativeFirebaseAnalyticsPackage());
+//            packages.add(new ReactNativeFirebaseAppPackage());
+            return packages;
+//            return Arrays.<ReactPackage>asList(
+//                    new MainReactPackage(),
+//            new BackgroundTimerPackage(),
+//            new RNFileViewerPackage(),
+//            new KCKeepAwakePackage(),
+//            new RNAudioRecorderPlayerPackage(),
+//            new DocumentPickerPackage(),
+//            new RNZipArchivePackage(),
+//            new BackgroundJobPackage(),
+//            new ReactNativeFirebaseAppPackage(),
+//            new RNImmediatePhoneCallPackage(),
+//            new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
+//            new RNDeviceInfo(),
+//                    new RNFetchBlobPackage(),
+//                    new ImagePickerPackage(),
+//                    new RNFSPackage(),
+//                    new ReactVideoPackage(),
+//                    BugsnagReactNative.getPackage(),
+//                    new MPAndroidChartPackage(),
+//                    new RNAWSCognitoPackage(),
+//                    new VectorIconsPackage(),
+////                    new RNI18nPackage(),
+//                    new RestartPackage(),
+//                    new RNFusedLocationPackage(),
+//                    new RNCWebViewPackage()
+////                    new DeviceInfoPackage()
+//            );
         }
     };
 
