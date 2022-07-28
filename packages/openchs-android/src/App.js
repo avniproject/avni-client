@@ -1,10 +1,10 @@
-import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View, LogBox} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {EntityMetaData, EntityQueue, Schema} from 'avni-models';
+import {createRealmConfig, EntityMetaData, EntityQueue} from 'openchs-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
@@ -17,16 +17,19 @@ import GlobalContext from "./GlobalContext";
 
 const {Restart} = NativeModules;
 
+LogBox.ignoreAllLogs();
+
 let globalContext = new GlobalContext();
+const realmConfig = createRealmConfig();
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
-    globalContext.db = new Realm(Schema);
+    globalContext.db = new Realm(realmConfig);
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };
 
 const initialiseContext = function () {
-    globalContext.db = new Realm(Schema);
+    globalContext.db = new Realm(realmConfig);
     globalContext.beanRegistry = BeanRegistry;
     BeanRegistry.init(globalContext.db);
     globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beans);

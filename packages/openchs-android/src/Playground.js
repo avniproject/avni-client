@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {Schema, EntityMetaData} from 'avni-models';
+import {createRealmConfig, EntityMetaData} from 'openchs-models';
 import './views';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import themes from "./views/primitives/themes";
@@ -17,7 +17,7 @@ export default class App extends Component {
     constructor(props, context) {
         super(props, context);
         if (db === undefined) {
-            db = new Realm(Schema);
+            db = new Realm(createRealmConfig());
             beans = BeanRegistry.init(db);
             mockStore = createStore((state, action) => this.mockReducer(state, action), {});
             const entitySyncStatusService = beans.get(EntitySyncStatusService);

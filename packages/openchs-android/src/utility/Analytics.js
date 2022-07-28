@@ -1,18 +1,19 @@
-import {Schema, UserInfo} from 'avni-models';
+import {createRealmConfig, UserInfo} from 'openchs-models';
 import Realm from 'realm';
 import analytics from "@react-native-firebase/analytics";
 import {defaultTo, isEmpty, noop} from 'lodash';
 import Config from "../framework/Config";
 
-const db = new Realm(Schema);
+const db = new Realm(createRealmConfig());
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 
 const getUserInfo = () => {
     const defaultOrg = {organisationName: ''};
     try {
-        const userInfo = db.objects(UserInfo.schema.name);
-        return defaultTo(userInfo[0], defaultOrg);
+        // const userInfo = db.objects(UserInfo.schema.name);
+        // return defaultTo(userInfo[0], defaultOrg);
+        return null;
     } catch (e) {
         return defaultOrg;
     }
