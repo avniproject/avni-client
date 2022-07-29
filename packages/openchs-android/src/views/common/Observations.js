@@ -138,7 +138,7 @@ class Observations extends AbstractComponent {
         const renderType = observationModel.concept.datatype;
         const isAbnormal = observationModel.isAbnormal();
 
-        let addressLevelService = null;
+        let addressLevelService = this.context.getService(AddressLevelService);
         if (renderType === Concept.dataType.Location) {
             const isWithinCatchment = concept.recordValueByKey(Concept.keys.isWithinCatchment);
             addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);

@@ -2,8 +2,10 @@ import React from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import EncounterService from "../../../service/EncounterService";
 import {Concept} from "openchs-models";
-import General from "../../../utility/General";
 import {RadioLabelValue} from "../../primitives/RadioGroup";
+import ConceptService from "../../../service/ConceptService";
+import IndividualService from "../../../service/IndividualService";
+import AddressLevelService from "../../../service/AddressLevelService";
 
 
 class EncounterSelectFormElement extends AbstractFormElement {
@@ -11,6 +13,9 @@ class EncounterSelectFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         this.encounterService = context.getService(EncounterService);
+        this.conceptService = context.getService(ConceptService);
+        this.subjectService = context.getService(IndividualService);
+        this.addressLevelService = context.getService(AddressLevelService);
     }
 
     get encounterTypeUUID() {
@@ -37,8 +42,12 @@ class EncounterSelectFormElement extends AbstractFormElement {
     }
 
     getValueLabelPairs() {
-        return this.getEncounterOptions().map((encounter) =>
-            new RadioLabelValue(encounter.getEncounterLabel(this.encounterIdentifier), encounter.uuid, false));
+        return this.getEncounterOptions().map((encounter) => {
+            return new RadioLabelValue(encounter.getEncounterLabel(this.encounterIdentifier,
+                { conceptService:this.conceptService, subjectService:this.subjectService,
+                    addressLevelService:this.addressLevelService, i18n:this.I18n,
+                    encounterService:this.encounterService}), encounter.uuid, false);
+        });
     }
 
     toggleFormElementAnswerSelection(encounterUUID) {
