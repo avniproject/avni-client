@@ -29,6 +29,16 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
             style={[Styles.formLabel, this.props.element.styles]}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
     }
 
+    labelDisplay() {
+        const moreTextForLabel = _.isNil(this.props.moreTextForLabel) ? '' : this.props.moreTextForLabel;
+        return (
+            <Text style={[Styles.formLabel, {
+                flex: 8,
+                lineHeight: Styles.normalTextSize + 16
+            }]}>{this.label}{moreTextForLabel}</Text>
+        );
+    }
+
     renderHtml(contentHtml) {
         //There are some hacks done to render the HTML properly.
         //1. ContainerWidth changes to half for the questionGroup children if they are displayed in tabular way.
@@ -36,7 +46,6 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
         //   scroll to view the content. Somehow that extra margin gets added which will be removed from this.
         const {width} = Dimensions.get('window');
         const containerWidth = this.props.isTableView ? (width - 16) / 2.2 : width - 16;
-        const moreTextForLabel = _.isNil(this.props.moreTextForLabel) ? '' : this.props.moreTextForLabel;
         const htmlToRender = `
         <!DOCTYPE html>
         <html lang="en">
@@ -55,10 +64,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                 }}>
-                    <Text style={[Styles.formLabel, {
-                        flex: 8,
-                        lineHeight: Styles.normalTextSize + 16
-                    }]}>{this.label}{moreTextForLabel}</Text>
+                    {this.labelDisplay()}
                     <View style={{flex: 2, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-start'}}>
                         <TouchableNativeFeedback
                             background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
@@ -131,9 +137,10 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     render() {
         const {element} = this.props;
         if (_.isNil(element)) return null;
-        if (_.isNil(element.documentation)) return this.label;
+        if (_.isNil(element.documentation)) return this.labelDisplay();
         const contentHtml = this.getContentHtml(element);
-        return _.isEmpty(contentHtml) ? this.label : this.renderHtml(contentHtml)
+        console.log('contentHtml', contentHtml);
+        return _.isEmpty(contentHtml) ? this.labelDisplay() : this.renderHtml(contentHtml)
     }
 }
 
