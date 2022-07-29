@@ -9,6 +9,9 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
 import {Observation} from 'avni-models';
+import EncounterService from "../../service/EncounterService";
+import IndividualService from "../../service/IndividualService";
+import AddressLevelService from "../../service/AddressLevelService";
 
 class SubjectInfoCard extends AbstractComponent {
     static propTypes = {
@@ -18,6 +21,9 @@ class SubjectInfoCard extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.encounterService = context.getService(EncounterService);
+        this.subjectService = context.getService(IndividualService);
+        this.addressLevelService = context.getService(AddressLevelService);
     }
 
     renderProgram(program, index) {
@@ -54,7 +60,8 @@ class SubjectInfoCard extends AbstractComponent {
         return _.map(searchResultConcepts, ({name, uuid}) => {
             const observation = this.props.individual.findObservation(name);
             if (_.isNil(observation)) return null;
-            const displayable = Observation.valueForDisplay({observation, conceptService, i18n});
+            const displayable = Observation.valueForDisplay({observation, conceptService,
+                subjectService:this.subjectService, addressLevelService:this.addressLevelService, i18n, encounterService:this.encounterService});
             return <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{displayable.displayValue}</Text>
         })
     }
