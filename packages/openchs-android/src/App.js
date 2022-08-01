@@ -90,7 +90,9 @@ class App extends Component {
                 {
                     text: "Copy error and Restart",
                     onPress: () => {
-                        Clipboard.setString(`${this.state.error.message}\nStacktrace:\n${this.state.stacktrace}`);
+                        const clipboardString = `${this.state.error.message}\nStacktrace:\n${this.state.stacktrace}`;
+                        Clipboard.setString(clipboardString);
+                        console.log("App", clipboardString);
                         Restart.restart();
                     }
                 }

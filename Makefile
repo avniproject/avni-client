@@ -24,6 +24,7 @@ endif
 include makefiles/codepush.mk
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
+include makefiles/patches.mk
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -112,6 +113,8 @@ release_clean:
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
 	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
+	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
+	rm -rf packages/openchs-android/android/.gradle
 
 create_apk:
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w

@@ -1,16 +1,21 @@
 diff --git a/node_modules/react-native-smooth-pincode-input/src/index.js b/node_modules/react-native-smooth-pincode-input/src/index.js
-index 0a00f22..c16e898 100644
+index 0a00f22..05f5a17 100644
 --- a/node_modules/react-native-smooth-pincode-input/src/index.js
 +++ b/node_modules/react-native-smooth-pincode-input/src/index.js
-@@ -9,6 +9,7 @@ import {
-   ViewPropTypes,
+@@ -5,10 +5,10 @@ import {
+   Text,
+   TextInput,
+   StyleSheet,
+-  I18nManager,
+-  ViewPropTypes,
++  I18nManager
  } from 'react-native';
  import * as Animatable from 'react-native-animatable';
-+const {TextPropTypes} = require('deprecated-react-native-prop-types');
++const {ViewPropTypes, TextPropTypes} = require('deprecated-react-native-prop-types');
  
  const styles = StyleSheet.create({
    containerDefault: {},
-@@ -292,8 +293,8 @@ SmoothPinCodeInput.propTypes = {
+@@ -292,8 +292,8 @@ SmoothPinCodeInput.propTypes = {
    cellStyleFocused: ViewPropTypes.style,
    cellStyleFilled: ViewPropTypes.style,
  

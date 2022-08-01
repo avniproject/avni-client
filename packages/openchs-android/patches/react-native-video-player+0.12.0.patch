@@ -1,8 +1,19 @@
 diff --git a/node_modules/react-native-video-player/index.js b/node_modules/react-native-video-player/index.js
-index 61c3f94..9a73b5d 100644
+index 61c3f94..71ec0ad 100644
 --- a/node_modules/react-native-video-player/index.js
 +++ b/node_modules/react-native-video-player/index.js
-@@ -592,10 +592,12 @@ export default class VideoPlayer extends Component {
+@@ -1,8 +1,9 @@
+ import React, { Component } from 'react';
+ import PropTypes from 'prop-types';
+-import { Image, ImageBackground, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ViewPropTypes } from 'react-native';
++import { Image, ImageBackground, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+ import Icon from 'react-native-vector-icons/MaterialIcons';
+ import Video from 'react-native-video'; // eslint-disable-line
++import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+ 
+ const BackgroundImage = ImageBackground || Image; // fall back to Image if RN < 0.46
+ 
+@@ -592,10 +593,12 @@ export default class VideoPlayer extends Component {
    }
  }
  
@@ -17,7 +28,7 @@ index 61c3f94..9a73b5d 100644
    videoWidth: PropTypes.number,
    videoHeight: PropTypes.number,
    duration: PropTypes.number,
-@@ -629,7 +631,7 @@ VideoPlayer.propTypes = {
+@@ -629,7 +632,7 @@ VideoPlayer.propTypes = {
      seekBarKnob: ViewPropTypesVar.style,
      seekBarKnobSeeking: ViewPropTypesVar.style,
      seekBarBackground: ViewPropTypesVar.style,
