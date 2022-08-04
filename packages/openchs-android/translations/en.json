@@ -452,6 +452,11 @@
     "start": "Start",
     "observationInProgress": "Observation in Progress ...",
     "subjectsWithMobileNumber": "Subjects with mobile number {{number}}",
-    "openTasks": "Open tasks"
+    "openTasks": "Open tasks",
+    "phone": "Phone",
+    "call": "Call",
+    "mark": "Mark",
+    "reschedule": "Reschedule",
+    "taskName": "Task Name"
 }
 }

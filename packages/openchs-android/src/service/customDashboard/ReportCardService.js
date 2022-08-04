@@ -53,16 +53,16 @@ class ReportCardService extends BaseService {
         return this.getService(CommentService).getAllOpenCommentThreads();
     }
 
-    getCountForTaskCardType() {
+    getCountForTaskCardType(taskTypeType) {
         return {
-            primaryValue: this.getResultForTaskCardType().length,
+            primaryValue: this.getResultForTaskCardType(taskTypeType).length,
             secondaryValue: null,
             clickable: true
         };
     }
 
-    getResultForTaskCardType() {
-        return this.getService(TaskService).getIncompleteTasks();
+    getResultForTaskCardType(taskTypeType) {
+        return this.getService(TaskService).getIncompleteTasks(taskTypeType);
     }
 
     getResultForDefaultCardsType(type) {
@@ -101,7 +101,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isCommentType() :
                 return this.getCountForCommentCardType();
             case standardReportCardType.isTaskType() :
-                return this.getCountForTaskCardType();
+                return this.getCountForTaskCardType(standardReportCardType.getTaskTypeType());
         }
     }
 
@@ -120,7 +120,7 @@ class ReportCardService extends BaseService {
                 return {status: null, result: this.getResultForCommentCardType()}
             }
             case standardReportCardType.isTaskType() : {
-                return {status: null, result: this.getResultForTaskCardType()}
+                return {status: standardReportCardType.getTaskTypeType(), result: this.getResultForTaskCardType(standardReportCardType.getTaskTypeType())}
             }
         }
     }

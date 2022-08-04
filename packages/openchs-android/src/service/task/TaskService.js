@@ -13,9 +13,9 @@ class TaskService extends BaseService {
         return Task.schema.name;
     }
 
-    getIncompleteTasks() {
+    getIncompleteTasks(taskTypeName) {
         return this.getAllNonVoided()
-            .filtered('completedOn = null')
+            .filtered(`taskType.type = '${taskTypeName}' and completedOn = null`)
             .sorted('scheduledOn', true);
     }
 

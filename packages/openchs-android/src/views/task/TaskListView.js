@@ -6,7 +6,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {FlatList, SafeAreaView} from "react-native";
+import {FlatList, SafeAreaView, View, Text, StyleSheet, Dimensions} from "react-native";
 import TaskCard from "./TaskCard";
 import Reducers from "../../reducer";
 import _ from 'lodash';
@@ -16,7 +16,8 @@ class TaskListView extends AbstractComponent {
 
     static propTypes = {
         results: PropTypes.object.isRequired,
-        backFunction: PropTypes.func
+        backFunction: PropTypes.func,
+        listType: PropTypes.string.isRequired
     };
 
     constructor(props, context) {
@@ -50,6 +51,53 @@ class TaskListView extends AbstractComponent {
         this.state.backFunction();
     }
 
+    headerElement(name, width, isCenter = true) {
+        const style = isCenter ? {width, alignItems: 'center', justifyContent: 'center'} : {width};
+        return (
+            <View style={style}>
+                <Text style={styles.headerTextStyle}>{name}</Text>
+            </View>
+        )
+    }
+
+    renderCallHeader() {
+        const {width} = Dimensions.get('window');
+        const iconWidth = (width - 147) / 3;
+        return (
+            <View style={styles.container}>
+                <View style={styles.cardContainer}>
+                    {this.headerElement(this.I18n.t('phone'), 91, false)}
+                    <View style={styles.iconContainer}>
+                        {this.headerElement(this.I18n.t('call'), iconWidth)}
+                        {this.headerElement(this.I18n.t('mark'), iconWidth)}
+                        {this.headerElement(this.I18n.t('reschedule'), iconWidth)}
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    renderOpenSubjectHeader() {
+        const {width} = Dimensions.get('window');
+        const iconWidth = (width - 256) / 2;
+        return (
+            <View style={styles.container}>
+                <View style={styles.cardContainer}>
+                    {this.headerElement(this.I18n.t('taskName'), 200, false)}
+                    <View style={styles.iconContainer}>
+                        {this.headerElement(this.I18n.t('mark'), iconWidth)}
+                        {this.headerElement(this.I18n.t('reschedule'), iconWidth)}
+                    </View>
+                </View>
+            </View>
+        );
+    }
+
+    renderHeader() {
+        const taskType = this.props.listType;
+        return taskType === 'call' ? this.renderCallHeader() : this.renderOpenSubjectHeader();
+    }
+
 
     render() {
         General.logDebug(this.viewName(), "render");
@@ -63,11 +111,38 @@ class TaskListView extends AbstractComponent {
                         keyExtractor={(item) => item.uuid}
                         enableEmptySections={true}
                         renderItem={({item}) => <TaskCard task={item}/>}
+                        ListHeaderComponent={this.renderHeader()}
                     />
                 </SafeAreaView>
             </CHSContainer>
         )
     }
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: 'column',
+        marginTop: 16,
+        marginBottom: 6,
+        marginHorizontal: 16,
+    },
+    cardContainer: {
+        paddingHorizontal: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    iconContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    headerTextStyle: {
+        fontSize: 12,
+        fontStyle: 'normal',
+        fontFamily: 'Inter',
+        color: '#6C6C6C'
+    },
+});
 
 export default TaskListView;
