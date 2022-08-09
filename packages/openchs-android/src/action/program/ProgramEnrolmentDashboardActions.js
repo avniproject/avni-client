@@ -106,7 +106,11 @@ class ProgramEnrolmentDashboardActions {
         const enrolment = ProgramEnrolmentDashboardActions._getEnrolment(newState, context, individualUUID, enrolmentUUID);
         newState.completedEncounters = _.filter(enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
             .map(encounter => ({encounter, expand: false}));
-        return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
+        let onEnrolmentChange = ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
+
+        console.log('onEnrolmentChange', onEnrolmentChange.dashboardButtons);
+
+        return onEnrolmentChange;
     }
 
     static onLanding(state, action, context) {
