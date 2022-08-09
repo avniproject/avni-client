@@ -183,7 +183,7 @@ Styles.logoPlaceHolder = {
     fontWeight: 'bold',
     color: Styles.blackColor,
     alignSelf: 'center',
-    paddingBottom: Styles.titleSize + 72,
+    paddingBottom: Styles.titleSize,
 };
 
 Styles.programProfileProgramTitleUnselected2 = {
