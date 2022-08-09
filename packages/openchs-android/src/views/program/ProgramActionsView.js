@@ -33,7 +33,7 @@ class ProgramActionsView extends AbstractComponent {
         const enrolment = this.state.enrolment;
         return !_.isNil(enrolment) && (
             _.get(nextProps, 'enrolment.uuid') !== enrolment.uuid
-            || !_.equals(nextProps.programDashboardButtons,  this.props.programDashboardButtons));
+            || !_.isEqual(nextProps.programDashboardButtons,  this.props.programDashboardButtons));
     }
 
     componentDidUpdate() {
