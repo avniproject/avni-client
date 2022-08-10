@@ -10,7 +10,7 @@ import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import _ from "lodash";
 import codePush from "react-native-code-push";
-import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies} from "./AvniBackgroundJob";
+import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies, CancelAllBackgroundTasks} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
 import BackupRestoreRealmService from "./service/BackupRestoreRealm";
@@ -45,9 +45,10 @@ try {
         const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
 
-        SetBackgroundTaskDependencies(globalContext.db, globalContext.beanRegistry.beans);
+        // SetBackgroundTaskDependencies(globalContext.db, globalContext.beanRegistry.beans);
     }
-    RegisterAndScheduleJobs();
+    CancelAllBackgroundTasks();
+    // RegisterAndScheduleJobs();
 } catch (e) {
     console.log("App", e);
     error = e;
