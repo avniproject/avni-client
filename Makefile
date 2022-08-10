@@ -112,6 +112,7 @@ release_clean:
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
 	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
+	rm -rf packages/openchs-android/android/.gradle
 
 create_apk:
 	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
