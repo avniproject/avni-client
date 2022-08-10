@@ -112,6 +112,7 @@ release_clean:
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
 	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
+	rm -rf packages/openchs-android/android/.gradle
 
 create_apk:
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w
