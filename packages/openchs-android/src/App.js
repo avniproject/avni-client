@@ -9,7 +9,6 @@ import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
 import _ from "lodash";
-import codePush from "react-native-code-push";
 import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies, CancelAllBackgroundTasks} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
