@@ -60,6 +60,16 @@ export const RegisterAndScheduleJobs = function () {
         .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
 };
 
+export const CancelAllBackgroundTasks = function () {
+    try {
+        BackgroundJob.cancelAll()
+            .then(() => General.logInfo("AvniBackgroundJob-CancelAllBackgroundTasks", "Successfully cancelled"))
+            .catch((e) => General.logError("AvniBackgroundJob-CancelAllBackgroundTasks", e));
+    } catch (e) {
+        General.logError("AvniBackgroundJob-CancelAllBackgroundTasks-Catch", e);
+    }
+}
+
 export const SetBackgroundTaskDependencies = function (db, beans) {
     General.logInfo("AvniBackgroundJob", "Setting context dependencies for tasks");
     DeleteDrafts.setDependencies(db, beans);

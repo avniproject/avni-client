@@ -19,7 +19,6 @@ import {StartProgramActions as Actions} from "../../action/program/StartProgramA
 class ProgramActionsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.startProgramActions);
-        this.goToView = this.goToView.bind(this);
         this.privilegeService = context.getService(PrivilegeService);
     }
 
@@ -32,7 +31,9 @@ class ProgramActionsView extends AbstractComponent {
 
     shouldComponentUpdate(nextProps, state) {
         const enrolment = this.state.enrolment;
-        return !_.isNil(enrolment) && _.get(nextProps, 'enrolment.uuid') !== enrolment.uuid;
+        return !_.isNil(enrolment) && (
+            _.get(nextProps, 'enrolment.uuid') !== enrolment.uuid
+            || !_.isEqual(nextProps.programDashboardButtons,  this.props.programDashboardButtons));
     }
 
     componentDidUpdate() {
@@ -55,7 +56,7 @@ class ProgramActionsView extends AbstractComponent {
         CHSNavigator.navigateToChecklistView(this, this.props.enrolment.uuid);
     }
 
-    goToView(button) {
+    openGrowthChart(button) {
         TypedTransition.from(this).bookmark().with({
             data: _.get(button, ['openOnClick', 'data'])(this.props.enrolment),
             enrolment: this.props.enrolment
@@ -110,7 +111,7 @@ class ProgramActionsView extends AbstractComponent {
                         this.I18n.t('vaccinations'), Colors.TextOnPrimaryColor)
                     :
                     <View/>}
-                {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.goToView(button),
+                {_.map(this.props.programDashboardButtons, (button, index) => this.renderButton(() => this.openGrowthChart(button),
                     Styles.basicPrimaryButtonView, this.I18n.t(button.label), Colors.TextOnPrimaryColor, index))}
             </View>
         );

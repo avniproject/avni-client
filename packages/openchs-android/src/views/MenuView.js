@@ -53,6 +53,7 @@ import {MenuActionNames} from "../action/MenuActions";
 import MediaQueueService from "../service/MediaQueueService";
 import SyncService from "../service/SyncService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
+import moment from "moment";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -63,10 +64,6 @@ class MenuView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.menuView);
-    }
-
-    componentDidMount() {
-        this.dispatchAction(MenuActionNames.ON_LOAD);
     }
 
     static Item({I18n, icon, titleKey, onPress, visible = true}) {
@@ -80,11 +77,15 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(['logout', 'Delete Data', 'backup', 'feedback'].includes(titleKey)) ? <View/> :
-                        <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons' />}
+                    {(['logout', 'Delete Data', 'backup', 'feedback', 'myDawaPrapatra'].includes(titleKey)) ? <View/> :
+                        <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
                 </View>
             </TouchableNativeFeedback>)
             : <View/>
+    }
+
+    componentDidMount() {
+        this.dispatchAction(MenuActionNames.ON_LOAD);
     }
 
     icon(name, style = {}) {
@@ -301,6 +302,12 @@ class MenuView extends AbstractComponent {
             </TouchableNativeFeedback>);
     }
 
+    onMetabaseReportClick() {
+        const questionURL = "https://reporting.avniproject.org/public/question/11265388-5909-438e-9d9a-6faaa0c5863f";
+        const params = `?username=${encodeURIComponent(this.state.userInfo.username)}&name=${encodeURIComponent(this.state.userInfo.name)}&month=${moment().month() + 1}&year=${moment().year()}`;
+        Linking.openURL(`${questionURL}${params}`);
+    }
+
     render() {
         if (_.isNil(this.state.userInfo)) return null;
 
@@ -320,6 +327,11 @@ class MenuView extends AbstractComponent {
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
             otherItems.push(this.renderNewsBadge(unreadNews));
+        }
+        if (_.includes(_.toLower(this.state.userInfo.organisationName), 'sakhi')) {
+            const item = <Item icon={this.icon("note-text-outline")} titleKey="myDawaPrapatra"
+                               onPress={this.onMetabaseReportClick.bind(this)}/>;
+            otherItems.push(item);
         }
         const dataGroup = [
             {
@@ -362,7 +374,8 @@ class MenuView extends AbstractComponent {
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 {this.renderTitle()}
-                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100} message={this.I18n.t(this.state.backupProgressUserMessage)}
+                <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100}
+                                 message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
                 <CHSContent>
                     <ScrollView>

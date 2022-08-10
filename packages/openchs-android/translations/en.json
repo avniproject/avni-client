@@ -423,7 +423,7 @@
     "audioFileDescription": "Please select an audio file.",
     "recordingStartedMessage": "Recording started, use stop button to stop it.",
     "groupInformation": "Group information",
-    "groupAdditionMessage" : "{{memberName}} will be added to the {{groupSubjectTypeName}} {{groupSubjectName}}.",
+    "groupAdditionMessage": "{{memberName}} will be added to the {{groupSubjectTypeName}} {{groupSubjectName}}.",
     "groupRemovalMessage": "{{memberName}} will be removed from the {{groupSubjectTypeName}} {{groupSubjectName}}.",
     "visitDetailsSection": "Visit details",
     "recentStatisticsSection": "Last 24 hours statistics",
@@ -452,6 +452,7 @@
     "start": "Start",
     "observationInProgress": "Observation in Progress ...",
     "subjectsWithMobileNumber": "Subjects with mobile number {{number}}",
-    "openTasks": "Open tasks"
-}
+    "openTasks": "Open tasks",
+    "myDawaPrapatra": "My Dawa Prapatra"
+  }
 }

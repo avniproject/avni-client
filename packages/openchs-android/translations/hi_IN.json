@@ -306,7 +306,7 @@
     "restoreNoDump": "कोई डम्प मौजूद नहीं, फ़्रेश सिंक चालू",
     "performNormalSync": "स्लो सिंक करो",
     "groupInformation": "समूह की जानकारी",
-    "groupAdditionMessage" : "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
+    "groupAdditionMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
     "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |",
     "visitDetailsSection": "विजिट का विवरण",
     "recentStatisticsSection": "पिछले 24 घंटे के आंकड़े",
@@ -336,6 +336,7 @@
     "start": "प्रारंभ",
     "observationInProgress": "प्रेक्षण प्रगति पर है...",
     "subjectsWithMobileNumber": "{{number}} मोबाइल नंबर वाले सब्जेक्ट",
-    "openTasks": "खुले कार्य"
+    "openTasks": "खुले कार्य",
+    "myDawaPrapatra": "मेरा दावा प्रपत्र"
   }
 }
