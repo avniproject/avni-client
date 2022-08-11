@@ -11,6 +11,7 @@ class Colors {
     static TertiaryColor = 'lightgrey';
 
     static ValidationError = '#d0011b';
+    static WarningButtonColor = '#ffcc00';
     static AbnormalValueHighlight = '#d0011b';
     static NegativeActionButtonColor = '#d0011b';
     static InputNormal = 'rgba(0, 0, 0, 0.87)';

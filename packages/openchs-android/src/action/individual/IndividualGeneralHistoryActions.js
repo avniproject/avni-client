@@ -7,6 +7,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Encounter, Privilege} from "avni-models";
 import Colors from "../../views/primitives/Colors";
 import PrivilegeService from "../../service/PrivilegeService";
+import DraftEncounterService from '../../service/draft/DraftEncounterService';
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -14,6 +15,7 @@ export class IndividualGeneralHistoryActions {
             encounters: [],
             encounterTypes: [],
             displayActionSelector: false,
+            draftEncounters: []
         };
     }
 
@@ -30,6 +32,7 @@ export class IndividualGeneralHistoryActions {
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
         const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
+        newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());
         return {
             ...newState,
             programsAvailable: context.get(ProgramService).programsAvailable,
@@ -82,6 +85,15 @@ export class IndividualGeneralHistoryActions {
     static launchEncounterSelector(state) {
         return {...state, displayActionSelector: true}
     }
+
+    static deleteDraft(state, action, context) {
+        context.get(DraftEncounterService).deleteDraftByUUID(action.encounterUUID);
+        const draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(state.individual).map(draft => draft.constructEncounter())
+        return {
+            ...state,
+            draftEncounters
+        };
+    }
 }
 
 const actions = {
@@ -90,6 +102,7 @@ const actions = {
     ON_TOGGLE: "IGHA.ON_TOGGLE",
     HIDE_ENCOUNTER_SELECTOR: "IGHA.HIDE_ENCOUNTER_SELECTOR",
     LAUNCH_ENCOUNTER_SELECTOR: "IGHA.LAUNCH_ENCOUNTER_SELECTOR",
+    DELETE_DRAFT: "IGHA.DELETE_DRAFT",
 };
 
 export default new Map([
@@ -98,6 +111,7 @@ export default new Map([
     [actions.ON_TOGGLE, IndividualGeneralHistoryActions.onToggle],
     [actions.HIDE_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.hideEncounterSelector],
     [actions.LAUNCH_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.launchEncounterSelector],
+    [actions.DELETE_DRAFT, IndividualGeneralHistoryActions.deleteDraft],
 ]);
 
 export {actions as Actions};

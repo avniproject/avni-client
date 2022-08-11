@@ -1,15 +1,18 @@
-import EncounterService from "../../service/EncounterService";
-import EncounterActionState from "../../state/EncounterActionState";
-import ObservationsHolderActions from "../common/ObservationsHolderActions";
-import FormMappingService from "../../service/FormMappingService";
-import RuleEvaluationService from "../../service/RuleEvaluationService";
+import EncounterService from '../../service/EncounterService';
+import EncounterActionState from '../../state/EncounterActionState';
+import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import FormMappingService from '../../service/FormMappingService';
+import RuleEvaluationService from '../../service/RuleEvaluationService';
 import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
-import GeolocationActions from "../common/GeolocationActions";
-import General from "../../utility/General";
-import EntityService from "../../service/EntityService";
-import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
-import QuickFormEditingActions from "../common/QuickFormEditingActions";
-import TimerActions from "../common/TimerActions";
+import GeolocationActions from '../common/GeolocationActions';
+import General from '../../utility/General';
+import EntityService from '../../service/EntityService';
+import PhoneNumberVerificationActions from '../common/PhoneNumberVerificationActions';
+import QuickFormEditingActions from '../common/QuickFormEditingActions';
+import TimerActions from '../common/TimerActions';
+import DraftEncounterService from '../../service/draft/DraftEncounterService';
+import _ from 'lodash';
+import {DraftEncounter} from 'openchs-models';
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -27,10 +30,16 @@ export class EncounterActions {
         const form = formMapping && formMapping.form;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
-            return o.displayOrder
+            return o.displayOrder;
         }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
 
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.encounter.uuid, Encounter.schema.name));
+        let editableEncounter = action.encounter;
+        const draftEncounter = context.get(DraftEncounterService).findByUUID(action.encounter.uuid);
+        if (draftEncounter) {
+            editableEncounter = draftEncounter.constructEncounter();
+        }
+
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
             General.randomUUID(), WorkItem.type.ENCOUNTER, {
                 encounterType: action.encounter.encounterType.name,
@@ -39,18 +48,26 @@ export class EncounterActions {
         )]));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return EncounterActionState.createOnLoadStateForEmptyForm(action.encounter, form, isNewEntity, workLists)
+            return EncounterActionState.createOnLoadStateForEmptyForm(action.editableEncounter, form, isNewEntity, workLists);
         }
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(editableEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
+    }
+
+    static saveDraftEncounter(encounter, validationResults, context) {
+        if (_.isEmpty(validationResults)) {
+            const draftEncounter = DraftEncounter.create(encounter);
+            context.get(DraftEncounterService).saveDraft(draftEncounter);
+        }
     }
 
     static onNext(state, action, context) {
         const newState = state.clone();
         newState.handleNext(action, context);
+        EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
         return newState;
     }
 
@@ -59,7 +76,11 @@ export class EncounterActions {
     }
 
     static onPrevious(state, action, context) {
-        return state.clone().handlePrevious(action, context);
+        let newState = state.clone().handlePrevious(action, context);
+
+        EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
+
+        return newState;
     }
 
     static onEncounterDateTimeChange(state, action, context) {
@@ -90,7 +111,7 @@ export class EncounterActions {
         return newState;
     }
 
-    static onFocus(state){
+    static onFocus(state) {
         const newState = state.clone();
         newState.loadPullDownView = true;
         return newState;
@@ -98,7 +119,9 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        let encounter = newState.encounter;
+        context.get(EncounterService).saveOrUpdate(encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        context.get(DraftEncounterService).deleteDraftByUUID(encounter.uuid);
         action.cb();
         return state;
     }
@@ -111,23 +134,23 @@ const individualEncounterViewActions = {
     PREVIOUS: 'EA.PREVIOUS',
     NEXT: 'EA.NEXT',
     SUMMARY_PAGE: 'EA.SUMMARY_PAGE',
-    TOGGLE_MULTISELECT_ANSWER: "EA.TOGGLE_MULTISELECT_ANSWER",
-    TOGGLE_SINGLESELECT_ANSWER: "EA.TOGGLE_SINGLESELECT_ANSWER",
+    TOGGLE_MULTISELECT_ANSWER: 'EA.TOGGLE_MULTISELECT_ANSWER',
+    TOGGLE_SINGLESELECT_ANSWER: 'EA.TOGGLE_SINGLESELECT_ANSWER',
     PRIMITIVE_VALUE_CHANGE: 'EA.PRIMITIVE_VALUE_CHANGE',
     PRIMITIVE_VALUE_END_EDITING: 'EA.PRIMITIVE_VALUE_END_EDITING',
     DATE_DURATION_CHANGE: 'EA.DATE_DURATION_CHANGE',
     DURATION_CHANGE: 'EA.DURATION_CHANGE',
     TOGGLE_SHOWING_PREVIOUS_ENCOUNTER: 'EA.TOGGLE_SHOWING_PREVIOUS_ENCOUNTER',
     SAVE: 'EA.SAVE',
-    SET_ENCOUNTER_LOCATION: "EA.SET_ENCOUNTER_LOCATION",
-    SET_LOCATION_ERROR: "EA.SET_LOCATION_ERROR",
-    PHONE_NUMBER_CHANGE: "EA.PHONE_NUMBER_CHANGE",
-    GROUP_QUESTION_VALUE_CHANGE: "EA.GROUP_QUESTION_VALUE_CHANGE",
-    REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: "EA.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE",
-    ON_SUCCESS_OTP_VERIFICATION: "EA.ON_SUCCESS_OTP_VERIFICATION",
-    ON_SKIP_VERIFICATION: "EA.ON_SKIP_VERIFICATION",
-    ON_TIMED_FORM: "EA.ON_TIMED_FORM",
-    ON_START_TIMER: "EA.ON_START_TIMER",
+    SET_ENCOUNTER_LOCATION: 'EA.SET_ENCOUNTER_LOCATION',
+    SET_LOCATION_ERROR: 'EA.SET_LOCATION_ERROR',
+    PHONE_NUMBER_CHANGE: 'EA.PHONE_NUMBER_CHANGE',
+    GROUP_QUESTION_VALUE_CHANGE: 'EA.GROUP_QUESTION_VALUE_CHANGE',
+    REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: 'EA.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE',
+    ON_SUCCESS_OTP_VERIFICATION: 'EA.ON_SUCCESS_OTP_VERIFICATION',
+    ON_SKIP_VERIFICATION: 'EA.ON_SKIP_VERIFICATION',
+    ON_TIMED_FORM: 'EA.ON_TIMED_FORM',
+    ON_START_TIMER: 'EA.ON_START_TIMER',
 };
 
 const individualEncounterViewActionsMap = new Map([
