@@ -1,25 +1,25 @@
-import {ListView, StyleSheet, TouchableOpacity, View} from "react-native";
+import {ListView, StyleSheet, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
-import React from "react";
-import {Text} from "native-base";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import moment from "moment";
-import Observations from "../common/Observations";
-import CHSNavigator from "../../utility/CHSNavigator";
-import ContextAction from "../viewmodel/ContextAction";
-import Fonts from "../primitives/Fonts";
+import React from 'react';
+import {Text} from 'native-base';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import moment from 'moment';
+import Observations from '../common/Observations';
+import CHSNavigator from '../../utility/CHSNavigator';
+import ContextAction from '../viewmodel/ContextAction';
+import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
-import FormMappingService from "../../service/FormMappingService";
-import EncounterService from "../../service/EncounterService";
-import Styles from "../primitives/Styles";
-import Colors from "../primitives/Colors";
-import General from "../../utility/General";
-import Distances from "../primitives/Distances";
-import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import CompletedEncountersView from "../../encounter/CompletedEncountersView";
-import CollapsibleEncounters from "./CollapsibleEncounters";
-import PrivilegeService from "../../service/PrivilegeService";
+import FormMappingService from '../../service/FormMappingService';
+import EncounterService from '../../service/EncounterService';
+import Styles from '../primitives/Styles';
+import Colors from '../primitives/Colors';
+import General from '../../utility/General';
+import Distances from '../primitives/Distances';
+import ObservationsSectionOptions from '../common/ObservationsSectionOptions';
+import TypedTransition from '../../framework/routing/TypedTransition';
+import CompletedEncountersView from '../../encounter/CompletedEncountersView';
+import CollapsibleEncounters from './CollapsibleEncounters';
+import PrivilegeService from '../../service/PrivilegeService';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -72,21 +72,14 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     addScheduledEncounterActions(encounter, actionName, textColor, actions) {
-         if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
-             actions.push(new ContextAction(actionName, () => this.editEncounter(encounter), textColor));
-         }
-         return actions;
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
+            actions.push(new ContextAction(actionName, () => this.editEncounter(encounter), textColor));
+        }
+        return actions;
     }
 
     deleteDraft(encounter) {
         return this.props.deleteDraft(encounter.uuid);
-    }
-
-    addDeleteDraftAction(encounter, actionName, textColor, actions) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
-            actions.push(new ContextAction(actionName, () => this.deleteDraft(encounter), textColor));
-        }
-        return actions;
     }
 
     badge = (status, color) => <View style={{
@@ -110,11 +103,16 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     cancelledVisitBadge(encounter) {
-        return encounter.isCancelled() ? this.badge(this.I18n.t('cancelled'), Colors.CancelledVisitColor) : <View/>
+        return encounter.isCancelled() ? this.badge(this.I18n.t('cancelled'), Colors.CancelledVisitColor) : <View/>;
     }
 
     renderStatus(encounter) {
-        return encounter.isScheduled() ? this.scheduledVisitBadge(encounter) : this.cancelledVisitBadge(encounter)
+        return encounter.isScheduled() ? this.scheduledVisitBadge(encounter) : this.cancelledVisitBadge(encounter);
+    }
+
+    addDraftEncounterActions(encounter, actions) {
+        actions.push(new ContextAction(this.I18n.t('do'), () => this.editEncounter(encounter), Colors.ScheduledVisitColor));
+        actions.push(new ContextAction(this.I18n.t('delete'), () => this.deleteDraft(encounter), Colors.ValidationError));
     }
 
     renderNormalView(encounter) {
@@ -122,9 +120,10 @@ class PreviousEncounters extends AbstractComponent {
         const formMappingService = this.context.getService(FormMappingService);
         const actions = [];
         if (containsDrafts) {
-            this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
+            this.addDraftEncounterActions(encounter, actions);
+        } else {
+            this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions);
         }
-        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions);
         return <View>
             <TouchableOpacity
                 onPress={() => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
@@ -140,7 +139,7 @@ class PreviousEncounters extends AbstractComponent {
                         primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
                 </View>
             </TouchableOpacity>
-        </View>
+        </View>;
     }
 
     renderTitleAndDetails(encounter) {
@@ -180,7 +179,7 @@ class PreviousEncounters extends AbstractComponent {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={styles.viewAllText}>{this.I18n.t('viewAll')}</Text>
             </View>
-        </TouchableOpacity>
+        </TouchableOpacity>;
     }
 
     render() {
