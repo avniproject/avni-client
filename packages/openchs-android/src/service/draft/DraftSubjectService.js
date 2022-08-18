@@ -1,8 +1,7 @@
-import BaseService from "../BaseService";
-import Service from "../../framework/bean/Service";
-import {DraftSubject, ObservationsHolder} from "avni-models";
-import FormMappingService from "../FormMappingService";
-import IdentifierAssignmentService from "../IdentifierAssignmentService";
+import BaseService from '../BaseService';
+import Service from '../../framework/bean/Service';
+import {DraftSubject, ObservationsHolder} from 'avni-models';
+import FormMappingService from '../FormMappingService';
 
 @Service("draftSubjectService")
 class DraftSubjectService extends BaseService {
@@ -18,7 +17,6 @@ class DraftSubjectService extends BaseService {
     saveDraftSubject(subject) {
         const db = this.db;
         ObservationsHolder.convertObsForSave(subject.observations);
-        const registrationForm = this.getService(FormMappingService).findRegistrationForm(subject.subjectType);
         this.db.write(() => {
             const saved = db.create(DraftSubject.schema.name, subject, true);
         });

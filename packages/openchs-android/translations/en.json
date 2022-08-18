@@ -453,6 +453,7 @@
     "observationInProgress": "Observation in Progress ...",
     "subjectsWithMobileNumber": "Subjects with mobile number {{number}}",
     "openTasks": "Open tasks",
-    "myDawaPrapatra": "My Dawa Prapatra"
+    "myDawaPrapatra": "My Dawa Prapatra",
+    "delete": "Delete"
   }
 }

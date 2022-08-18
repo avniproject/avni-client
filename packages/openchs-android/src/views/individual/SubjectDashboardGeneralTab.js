@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {View} from 'react-native';
+import {Text, View} from 'react-native';
 import {Actions} from "../../action/individual/IndividualGeneralHistoryActions";
 import Reducers from "../../reducer";
 import PreviousEncounters from "../common/PreviousEncounters";
@@ -37,6 +37,28 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
 
     shouldComponentUpdate(nextProps, state) {
         return !_.isNil(state.individual);
+    }
+
+    deleteDraft(encounterUUID) {
+        this.dispatchAction(Actions.DELETE_DRAFT, {encounterUUID});
+    }
+
+    renderDraftVisits() {
+        const drafts = this.state.draftEncounters;
+        return (<PreviousEncounters encounters={drafts}
+                                    allowedEncounterTypeUuidsForCancelVisit={[]}
+                                    allowedEncounterTypeUuidsForPerformVisit={[]}
+                                    formType={Form.formTypes.Encounter}
+                                    style={{marginBottom: 21}}
+                                    showPartial={false}
+                                    showCount={this.state.showCount}
+                                    title={this.I18n.t('drafts')}
+                                    emptyTitle={this.I18n.t('noDrafts')}
+                                    expandCollapseView={false}
+                                    containsDrafts={true}
+                                    deleteDraft={(encounterUUID) => this.deleteDraft(encounterUUID)}
+                                    hideIfEmpty={true}
+                                    subjectInfo={this.state.individual.name}/>);
     }
 
     renderPlannedVisits() {
@@ -89,6 +111,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                 />
                 <View style={{marginHorizontal: 10}}>
                     <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab}/>
+                    {this.renderDraftVisits()}
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
                 </View>

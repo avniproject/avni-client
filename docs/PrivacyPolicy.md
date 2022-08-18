@@ -1,10 +1,10 @@
-***Avni - Privacy Policy***
+***TEACH AP - Privacy Policy***
 
 This privacy policy has been compiled to better serve those who are concerned with how their 'Personally Identifiable Information' (PII) is being used online. PII, as described in US privacy law and information security, is information that can be used on its own or with other information to identify, contact, or locate a single person, or to identify an individual in context. Please read our privacy policy carefully to get a clear understanding of how we collect, use, protect or otherwise handle your Personally Identifiable Information in accordance with our website.
 
 **What personal information do we collect from the people that use our app?**
 
-Avni is a work application that you will use to service your community members or customers (customers from there on). We do not collect any personal information about you. We get and keep the information that you manually provide to us about whom you service. We only store the fact that you provided that information. We get and keep location information if you or your employer has enabled that configuration.
+TEACH AP is a work application that you will use to service your community members or customers (customers from there on). We do not collect any personal information about you. We get and keep the information that you manually provide to us about whom you service. We only store the fact that you provided that information. We get and keep location information if you or your employer has enabled that configuration.
 
 **When do we collect information?**
 
@@ -12,7 +12,7 @@ When you synchronise the data with the server manually.
 
 **How do we use your information?**
 
-The information provided to us by you about your customers is used for research purpose by the organisation for whom you work for. Avni doesn't use this information.   
+The information provided to us by you about your customers is used for research purpose by the organisation for whom you work for. TEACH AP doesn't use this information.   
 The information collected about you is used by your organisation members to understand your work load. 
 
 **How do we protect your information?**
