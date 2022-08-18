@@ -57,6 +57,13 @@ class AbstractComponent extends Component {
         return this.context.getStore().dispatch({type, ...params});
     }
 
+    async dispatchAsyncAction(action, params) {
+        const type = action instanceof Function ? action.Id : action;
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
+        return await this.context.getStore().dispatch({type, ...params});
+    }
+
     dispatchFn(fn) {
         return this.context.getStore().dispatch(fn);
     }

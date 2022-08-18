@@ -38,6 +38,7 @@ import EntityService from "./EntityService";
 import * as rulesConfig from "rules-config";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
+import ProgramService from "./program/ProgramService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -292,6 +293,35 @@ class RuleEvaluationService extends BaseService {
           }
       }
       return [];
+    }
+
+    validatedStatuses(subjectProgramEligibilityStatuses) {
+        const individualService = this.getService(IndividualService);
+        const programService = this.getService(ProgramService);
+        return _.filter(subjectProgramEligibilityStatuses, ({subjectUUID, programUUID}) =>
+            individualService.existsByUuid(subjectUUID) && programService.existsByUuid(programUUID));
+    }
+
+    async getSubjectProgramEligibilityStatuses(individual, programs, authToken) {
+        const subjectType = individual.subjectType;
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(subjectType.programEligibilityCheckRule);
+            const subjectProgramEligibilityStatuses = await ruleFunc({
+                params: {individual, programs, authToken, services: this.services},
+                imports: {rulesConfig, common, lodash, moment}
+            });
+            const validStatuses = this.validatedStatuses(subjectProgramEligibilityStatuses);
+            if (_.size(validStatuses) !== _.size(subjectProgramEligibilityStatuses)) {
+                General.logDebug("RuleEvaluationService", `Skipped some statuses as valid program or subject cannot be found in the system`);
+            }
+            return validStatuses;
+        } catch (e) {
+            General.logDebug("Rule-Failure",
+                `Subject Program Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
+            this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, 'Individual'));
+            return [];
+        }
     }
 
     _getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context) {

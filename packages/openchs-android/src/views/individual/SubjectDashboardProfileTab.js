@@ -33,6 +33,8 @@ import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
 import NewFormButton from "../common/NewFormButton";
+import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -322,6 +324,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
                     <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
+                    <CustomActivityIndicator loading={this.state.displayIndicator}/>
+                    <SubjectProgramEligibilityWidget
+                        subject={this.state.individual}
+                        subjectProgramEligibilityStatuses={this.state.subjectProgramEligibilityStatuses}
+                        onSubjectProgramEligibilityPress={(subjectProgramEligibilityStatuses) => this.dispatchAsyncAction(Actions.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK, {subjectProgramEligibilityStatuses})}
+                        onManualProgramEligibilityPress={_.noop}
+                        onDisplayIndicatorToggle={(display) => this.dispatchAction(Actions.ON_DISPLAY_INDICATOR_TOGGLE, {display})}
+                    />
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}

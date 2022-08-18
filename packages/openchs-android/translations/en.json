@@ -458,6 +458,12 @@
     "mark": "Mark",
     "reschedule": "Reschedule",
     "taskName": "Task Name",
-    "myDawaPrapatra": "My Dawa Prapatra"
+    "myDawaPrapatra": "My Dawa Prapatra",
+    "eligibilityReport": "Eligibility Report",
+    "checkEligibility": "Check Eligibility",
+    "check": "Check",
+    "Enrol": "Enrol",
+    "program": "Program",
+    "eligibility": "Eligibility"
 }
 }
