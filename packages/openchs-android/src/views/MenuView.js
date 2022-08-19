@@ -54,6 +54,7 @@ import MediaQueueService from "../service/MediaQueueService";
 import SyncService from "../service/SyncService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import moment from "moment";
+import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -86,6 +87,7 @@ class MenuView extends AbstractComponent {
 
     componentDidMount() {
         this.dispatchAction(MenuActionNames.ON_LOAD);
+        this.bindMenuActions();
     }
 
     icon(name, style = {}) {
@@ -308,22 +310,46 @@ class MenuView extends AbstractComponent {
         Linking.openURL(`${questionURL}${params}`);
     }
 
+    createMenuDataGroup() {
+        return [
+            StaticMenuItemFactory.getSyncMenus(),
+            StaticMenuItemFactory.getUserMenus(),
+            StaticMenuItemFactory.getSupportMenus(),
+            StaticMenuItemFactory.getDevMenus()
+        ];
+    }
+
+    bindMenuActions() {
+        const map = new Map();
+        map.set("videoList", () => this.videoListView());
+        map.set("entitySyncStatus", () => this.entitySyncStatusView());
+        map.set("dashboard", () => this.onDashboard());
+        map.set("uploadCatchmentDatabase", () => this.uploadCatchmentDatabase());
+        map.set("uploadDatabase", () => this.uploadDatabase());
+        map.set("beneficiaryMode", () => this.beneficiaryModeView());
+        map.set("changePassword", () => this.changePasswordView());
+        map.set("logout", () => this.logout());
+        map.set("feedback", () => this.onFeedback());
+        map.set("deleteData", () => this.onDelete());
+        map.set("familyFolder", () => this.familyFolder());
+        map.set("devSettings", () => this.devSettingsView());
+        this.menuActions = map;
+    }
+
+    getMenuItems(staticMenuItems, allConfiguredMenuItems, groupName) {
+        const menuItems = staticMenuItems.map((x) => <Item icon={this.icon(x.icon)} titleKey={x.displayKey} onPress={this.menuActions.get(x.uniqueName)}/>);
+        const groupConfiguredItems = _.filter(allConfiguredMenuItems, (x) => x.group === groupName);
+        const list = groupConfiguredItems.map((x) => <Item icon={this.icon(x.icon)} titleKey={x.displayKey} onPress={() => {}}/>);
+        menuItems.push(...list);
+        return menuItems;
+    }
+
     render() {
         if (_.isNil(this.state.userInfo)) return null;
 
         General.logDebug("MenuView", "render");
         const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
-        const otherItems = [
-            <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
-            <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
-                  onPress={() => this.entitySyncStatusView()}/>,
-            <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
-                  onPress={this.onDashboard.bind(this)}/>,
-            <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
-                  onPress={this.uploadCatchmentDatabase.bind(this)}/>,
-            <Item icon={this.icon("backup-restore")} titleKey="uploadDatabase"
-                  onPress={this.uploadDatabase.bind(this)}/>
-        ];
+        const functionalityItems = this.getMenuItems(StaticMenuItemFactory.getFunctionalityMenus(this.beneficiaryModeStatus()), [], MenuItem.FunctionalityGroupName);
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
             otherItems.push(this.renderNewsBadge(unreadNews));
@@ -335,7 +361,7 @@ class MenuView extends AbstractComponent {
         }
         const dataGroup = [
             {
-                title: 'otherItems', data: otherItems
+                title: 'functionality', data: otherItems
             },
             {
                 title: 'beneficiaryMode', data: [
