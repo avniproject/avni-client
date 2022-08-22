@@ -8,7 +8,6 @@ import _ from 'lodash';
 import SubjectProgramEligibilityState from "../../state/SubjectProgramEligibilityState";
 import TaskService from "../../service/task/TaskService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
-import subjectProgramEligibility from "openchs-models/src/program/SubjectProgramEligibility";
 
 class ManualProgramEligibilityActions {
 
