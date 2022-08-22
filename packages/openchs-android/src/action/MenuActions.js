@@ -5,6 +5,8 @@ import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
 import MenuItemService from "../service/application/MenuItemService";
+import {MenuItem} from "openchs-models";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 class MenuActions {
     static getInitialState() {
@@ -16,7 +18,8 @@ class MenuActions {
             percentDone: 0,
             oneSyncCompleted: false,
             unsyncedTxData: false,
-            configuredMenuItems: []
+            configuredMenuItems: [],
+            configuredMenuItemRuleOutput: new Map()
         }
     }
 
@@ -32,6 +35,15 @@ class MenuActions {
         newState.unsyncedTxData = totalPending !== 0;
 
         newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
+
+        newState.configuredMenuItemRuleOutput = new Map();
+        const ruleEvaluationService = context.get(RuleEvaluationService);
+        newState.configuredMenuItems.forEach((menuItem) => {
+            if (menuItem.isLinkType()) {
+                const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo);
+                newState.configuredMenuItemRuleOutput.set(menuItem.uuid, evaluatedLink);
+            }
+        });
 
         return newState;
     }

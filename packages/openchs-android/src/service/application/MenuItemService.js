@@ -14,7 +14,7 @@ class MenuItemService extends BaseService {
     }
 
     getAllMenuItems() {
-        return this.getAllNonVoided().map(_.identity);
+        return this.getAllNonVoided().map(MenuItem.fromDb);
     }
 }
 

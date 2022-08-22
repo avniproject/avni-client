@@ -691,6 +691,22 @@ class RuleEvaluationService extends BaseService {
             });
         });
     }
+
+    evaluateLinkFunction(linkFunction, menuItem, user) {
+        try {
+            const ruleFunc = eval(linkFunction);
+            return ruleFunc({
+                params: {user: user, moment: moment}
+            });
+        } catch (e) {
+            General.logDebug("Rule-Failure", e);
+            General.logDebug("Rule-Failure",
+                `Link function failed for: ${menuItem.toString()} Menu Item`);
+            // this.saveFailedRules(e, menuItem.uuid, user.uuid);
+            return null;
+
+        }
+    }
 }
 
 export default RuleEvaluationService;

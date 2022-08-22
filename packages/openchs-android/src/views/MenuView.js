@@ -303,21 +303,15 @@ class MenuView extends AbstractComponent {
         if (_.isNil(groupName)) return menuItems;
 
         const groupsConfiguredItems = _.filter(allConfiguredMenuItems, (x) => x.group === groupName);
-        for (let configuredMenuItem in groupsConfiguredItems) {
-            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName) {
-                try {
-                    const ruleFunc = eval(x.linkFunction);
-                    const link = ruleFunc({
-                        params: { user: this.user, moment: moment }
-                    });
-                    // menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey} onPress={() => Linking.openURL(link)}/>);
-                } catch (e) {
-                    General.logError("MenuItem", "Function call failed for: " + configuredMenuItem.toString());
-                    General.logError("MenuItem", e);
+        groupsConfiguredItems.forEach(configuredMenuItem => {
+            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName && !_.isNil(this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid)))
+                {
+                    const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
+                    General.logDebug("MenuView.getMenuItems", url);
+                    menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
+                                                             onPress={() => Linking.openURL(url)}/>);
                 }
-            }
-        }
-
+        });
         return menuItems;
     }
 
