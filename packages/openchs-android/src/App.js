@@ -117,6 +117,4 @@ class App extends Component {
     }
 }
 
-let codePushOptions = {checkFrequency: codePush.CheckFrequency.ON_APP_RESUME};
-
-export default codePush(App);
+export default App;
