@@ -71,7 +71,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         const eligibilityStatus = _.get(subjectProgramEligibility, 'eligibilityString', 'unavailable');
         return (
             <View style={styles.itemContainer}>
-                <View style={[styles.headerContainer,{flex: 0.5}]}>
+                <View style={[styles.headerContainer,{flex: 0.4}]}>
                     <Text style={styles.contentTextStyle}>{this.I18n.t(program.displayName)}</Text>
                 </View>
                 <View style={[styles.headerContainer, {flex:0.2}]}>
@@ -98,7 +98,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
                 <View style={{flexDirection: 'column', marginVertical: 4}}>
                     <Text>{subject.nameString}</Text>
                     <View style={{flexDirection: 'row', flex: 1, marginTop: 4}}>
-                        <View style={{flex: 0.5}}>
+                        <View style={{flex: 0.4}}>
                             <Text style={styles.headerTextStyle}>{this.I18n.t('program')}</Text>
                         </View>
                         <View style={{flex: 0.2}}>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     programActionsContainer: {
-        flex: 0.3,
+        flex: 0.4,
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'flex-end',

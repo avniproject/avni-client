@@ -2,8 +2,6 @@ import AbstractDataEntryState from "./AbstractDataEntryState";
 import _ from "lodash";
 import Wizard from "./Wizard";
 import {StaticFormElementGroup, ObservationsHolder, SubjectProgramEligibility} from 'avni-models';
-import RuleEvaluationService from "../service/RuleEvaluationService";
-import subjectProgramEligibility from "openchs-models/src/program/SubjectProgramEligibility";
 
 class SubjectProgramEligibilityState extends AbstractDataEntryState {
     constructor(subjectProgramEligibility, validationResults, formElementGroup, wizard, filteredFormElements) {
@@ -54,11 +52,7 @@ class SubjectProgramEligibilityState extends AbstractDataEntryState {
     }
 
     isEligible(subject, program, ruleEvaluationService) {
-        console.log("subjectProgramEligibility," , subjectProgramEligibility )
-        const eligible = ruleEvaluationService.isManuallyEligibleForProgram(subject, program, this.subjectProgramEligibility);
-
-        console.log("eligible::::::::::", eligible);
-        return eligible;
+        return ruleEvaluationService.isManuallyEligibleForProgram(subject, program, this.subjectProgramEligibility);
     }
 }
 
