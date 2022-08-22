@@ -575,6 +575,7 @@ class RuleEvaluationService extends BaseService {
 
     isEligibleForProgram(individual, program) {
         const rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
+        // TODO: Move the rules in the bundle to actual entities.
         if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -593,6 +594,26 @@ class RuleEvaluationService extends BaseService {
         else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
+        return true;
+    }
+
+    isManuallyEligibleForProgram(subject, program, subjectProgramEligibility) {
+        if (!_.isNil(program.manualEnrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.manualEnrolmentEligibilityCheckRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
+                return ruleFunc({
+                    params: {entity: subjectProgramEligibility, subject, program, services: this.services},
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+            }
+            catch (e) {
+                General.logDebug("Rule-Failure", e);
+                General.logDebug("Rule-Failure", `Manual enrolment eligibility failed for: ${program.name} program name`);
+                this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
+            }
+        }
+
         return true;
     }
 

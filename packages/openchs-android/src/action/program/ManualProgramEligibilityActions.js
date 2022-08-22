@@ -8,6 +8,7 @@ import _ from 'lodash';
 import SubjectProgramEligibilityState from "../../state/SubjectProgramEligibilityState";
 import TaskService from "../../service/task/TaskService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
+import subjectProgramEligibility from "openchs-models/src/program/SubjectProgramEligibility";
 
 class ManualProgramEligibilityActions {
 
@@ -55,8 +56,11 @@ class ManualProgramEligibilityActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
-        //TODO: add hook to run and save the eligibility
-        context.get(SubjectProgramEligibilityService).saveOrUpdate(newState.subjectProgramEligibility);
+        const subjectProgramEligibility = newState.subjectProgramEligibility;
+        const ruleEvaluationService = context.get(RuleEvaluationService);
+        subjectProgramEligibility.eligible = newState.isEligible(subjectProgramEligibility.subject, subjectProgramEligibility.program, ruleEvaluationService);
+
+        context.get(SubjectProgramEligibilityService).saveOrUpdate(subjectProgramEligibility);
         action.cb();
         return newState;
     }
