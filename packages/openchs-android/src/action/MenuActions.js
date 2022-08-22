@@ -4,6 +4,7 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
+import MenuItemService from "../service/application/MenuItemService";
 
 class MenuActions {
     static getInitialState() {
@@ -14,7 +15,8 @@ class MenuActions {
             backupProgressUserMessage: '',
             percentDone: 0,
             oneSyncCompleted: false,
-            unsyncedTxData: false
+            unsyncedTxData: false,
+            configuredMenuItems: []
         }
     }
 
@@ -28,6 +30,8 @@ class MenuActions {
         const entitySyncStatusService = context.get(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
         newState.unsyncedTxData = totalPending !== 0;
+
+        newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
 
         return newState;
     }
