@@ -21,15 +21,14 @@ class ManualProgramEligibilityActions {
         const {subject, program} = action;
         const form = context.get(FormMappingService).getManualEnrolmentEligibilityForm(subject.subjectType, program);
         let subjectProgramEligibility = context.get(SubjectProgramEligibilityService).findBySubjectAndProgram(subject, program);
-
-        const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
-            return o.displayOrder
-        }]), (formElementGroup) => ManualProgramEligibilityActions.filterFormElements(formElementGroup, context, subjectProgramEligibility).length !== 0);
-
         const isNewEntity = _.isNil(subjectProgramEligibility);
         if(isNewEntity) {
             subjectProgramEligibility = SubjectProgramEligibility.createEmptyInstance(program, subject);
         }
+
+        const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+            return o.displayOrder
+        }]), (formElementGroup) => ManualProgramEligibilityActions.filterFormElements(formElementGroup, context, subjectProgramEligibility).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             return SubjectProgramEligibilityState.createOnLoadStateForEmptyForm(subjectProgramEligibility, form)

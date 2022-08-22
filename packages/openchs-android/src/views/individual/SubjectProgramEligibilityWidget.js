@@ -147,7 +147,6 @@ const styles = StyleSheet.create({
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
     },
     programActionsContainer: {
         flex: 0.4,
