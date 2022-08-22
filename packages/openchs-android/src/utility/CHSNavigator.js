@@ -42,6 +42,7 @@ import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 import moment from "moment";
+import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
 
 
 class CHSNavigator {
@@ -70,7 +71,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message, tab = 2) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView, ChecklistView, ChecklistItemView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView, ChecklistView, ChecklistItemView, ManualProgramEligibilityView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
                 TypedTransition.createRoute(GenericDashboardView, {
