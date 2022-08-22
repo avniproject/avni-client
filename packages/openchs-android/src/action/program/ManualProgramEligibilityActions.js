@@ -1,12 +1,9 @@
 import SubjectProgramEligibilityService from "../../service/program/SubjectProgramEligibilityService";
 import FormMappingService from "../../service/FormMappingService";
-import EntityService from "../../service/EntityService";
-import General from "../../utility/General";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {SubjectProgramEligibility} from 'avni-models';
 import _ from 'lodash';
 import SubjectProgramEligibilityState from "../../state/SubjectProgramEligibilityState";
-import TaskService from "../../service/task/TaskService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 
 class ManualProgramEligibilityActions {
@@ -17,26 +14,23 @@ class ManualProgramEligibilityActions {
 
     static filterFormElements(formElementGroup, context, subjectProgramEligibility) {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subjectProgramEligibility, SubjectProgramEligibility.schema.name, formElementGroup);
-        console.log("formElementStatuses =>>", formElementStatuses)
-        console.log("formElementGroup.filterElements(formElementStatuses) =>>", formElementGroup.filterElements(formElementStatuses))
         return formElementGroup.filterElements(formElementStatuses);
     };
 
     static onLoad(state, action, context) {
         const {subject, program} = action;
         const form = context.get(FormMappingService).getManualEnrolmentEligibilityForm(subject.subjectType, program);
-        console.log("form ->>", form)
         let subjectProgramEligibility = context.get(SubjectProgramEligibilityService).findBySubjectAndProgram(subject, program);
-        //TODO: FIX this
-        // const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
-        //     return o.displayOrder
-        // }]), (formElementGroup) => ManualProgramEligibilityActions.filterFormElements(formElementGroup, context, subjectProgramEligibility).length !== 0);
-        const firstGroupWithAtLeastOneVisibleElement = _.head(form.nonVoidedFormElementGroups());
+
+        const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+            return o.displayOrder
+        }]), (formElementGroup) => ManualProgramEligibilityActions.filterFormElements(formElementGroup, context, subjectProgramEligibility).length !== 0);
+
         const isNewEntity = _.isNil(subjectProgramEligibility);
         if(isNewEntity) {
             subjectProgramEligibility = SubjectProgramEligibility.createEmptyInstance(program, subject);
         }
-        console.log("firstGroupWithAtLeastOneVisibleElement =>>", firstGroupWithAtLeastOneVisibleElement)
+
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             return SubjectProgramEligibilityState.createOnLoadStateForEmptyForm(subjectProgramEligibility, form)
         }
