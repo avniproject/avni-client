@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EntityQueue, SubjectProgramEligibility} from 'avni-models';
+import {EntityQueue, SubjectProgramEligibility, ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
 
 @Service("SubjectProgramEligibilityService")
@@ -24,6 +24,7 @@ class SubjectProgramEligibilityService extends BaseService {
 
     saveOrUpdate(subjectProgramEligibility) {
         General.logDebug('SubjectProgramEligibilityService', `Saving Subject Program Eligibility UUID: ${subjectProgramEligibility.uuid}`);
+        ObservationsHolder.convertObsForSave(subjectProgramEligibility.observations);
         const db = this.db;
         this.db.write(() => {
             const savedSubjectProgramEligibility = db.create(this.getSchema(), subjectProgramEligibility, true);

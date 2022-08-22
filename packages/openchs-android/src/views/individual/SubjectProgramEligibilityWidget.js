@@ -13,6 +13,8 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import Separator from "../primitives/Separator";
 import ProgramService from "../../service/program/ProgramService";
 import AuthService from "../../service/AuthService";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import ManualProgramEligibilityView from "../program/ManualProgramEligibilityView";
 
 class SubjectProgramEligibilityWidget extends AbstractComponent {
 
@@ -61,6 +63,10 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         ])));
     }
 
+    onManualEligibilityCheck(subject, program) {
+        TypedTransition.from(this).with({subject, program}).to(ManualProgramEligibilityView, true)
+    }
+
     renderItem({program, subjectProgramEligibility, isEnrolmentEligible}) {
         const eligibilityStatus = _.get(subjectProgramEligibility, 'eligibilityString', 'unavailable');
         return (
@@ -73,7 +79,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
                 </View>
                 <View style={styles.programActionsContainer}>
                     {program.manualEligibilityCheckRequired ?
-                    <Button small onPress={_.noop}>
+                    <Button small onPress={() => this.onManualEligibilityCheck(this.props.subject, program)}>
                         <Text>{this.I18n.t('check')}</Text>
                     </Button> : null}
                     {isEnrolmentEligible ?

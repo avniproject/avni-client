@@ -42,6 +42,7 @@ import {NewsActionMap, NewsActions} from "../action/news/NewsActions";
 import {CommentActionMap, CommentActions} from "../action/comment/CommentActions";
 import {MenuActionMap, MenuActions} from "../action/MenuActions";
 import {TaskActionMap, TaskActions} from "../action/task/TaskActions";
+import {ManualProgramEligibilityActionMap, ManualProgramEligibilityActions} from "../action/program/ManualProgramEligibilityActions";
 
 export default class Reducers {
     static reducerKeys = {
@@ -89,6 +90,7 @@ export default class Reducers {
         comment: "comment",
         menuView: "menuView",
         task: "Task",
+        manualProgramEligibility: "manualProgramEligibility",
     };
 
     static createReducers(beanStore) {
@@ -136,6 +138,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.comment] = Reducers._add(CommentActionMap, CommentActions, beanStore);
         reducerMap[Reducers.reducerKeys.menuView] = Reducers._add(MenuActionMap, MenuActions, beanStore);
         reducerMap[Reducers.reducerKeys.task] = Reducers._add(TaskActionMap, TaskActions, beanStore);
+        reducerMap[Reducers.reducerKeys.manualProgramEligibility] = Reducers._add(ManualProgramEligibilityActionMap, ManualProgramEligibilityActions, beanStore);
         return reducerMap;
     };
 
