@@ -320,7 +320,7 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("Rule-Failure",
                 `Subject Program Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
             this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, 'Individual'));
-            return [];
+            throw Error(e.message);
         }
     }
 

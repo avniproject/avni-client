@@ -464,6 +464,7 @@
     "check": "Check",
     "Enrol": "Enrol",
     "program": "Program",
-    "eligibility": "Eligibility"
+    "eligibility": "Eligibility",
+    "eligibilityFailedTitle": "Eligibility Check Execution Failed"
 }
 }

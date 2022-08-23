@@ -15,6 +15,7 @@ import ProgramService from "../../service/program/ProgramService";
 import AuthService from "../../service/AuthService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ManualProgramEligibilityView from "../program/ManualProgramEligibilityView";
+import {AlertMessage} from "../common/AlertMessage";
 
 class SubjectProgramEligibilityWidget extends AbstractComponent {
 
@@ -34,7 +35,14 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         const programs = this.getService(ProgramService).getAllNonVoided();
         const authToken = await this.getService(AuthService).getAuthToken();
         await this.props.onDisplayIndicatorToggle(true);
-        const subjectProgramEligibilityStatuses = await this.getService(RuleEvaluationService).getSubjectProgramEligibilityStatuses(this.props.subject, programs, authToken);
+        let subjectProgramEligibilityStatuses = [];
+        try {
+            subjectProgramEligibilityStatuses = await this.getService(RuleEvaluationService).getSubjectProgramEligibilityStatuses(this.props.subject, programs, authToken);
+
+        }
+        catch(e) {
+            AlertMessage(this.I18n.t("eligibilityFailedTitle"), this.I18n.t(e.message));
+        }
         await this.props.onSubjectProgramEligibilityPress(subjectProgramEligibilityStatuses)
     }
 
