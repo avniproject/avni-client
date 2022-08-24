@@ -21,11 +21,11 @@ import GenericDashboardView from "../program/GenericDashboardView";
 import Menu from "../menu";
 import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import {MessageIcon} from "./MessageIcon";
 import CommentView from "../comment/CommentView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import SubjectProfilePicture from "./SubjectProfilePicture";
+import PhoneCall from "../../model/PhoneCall";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -71,7 +71,7 @@ class IndividualProfile extends AbstractComponent {
     }
 
     makeCall(number) {
-        RNImmediatePhoneCall.immediatePhoneCall(number);
+        PhoneCall.makeCall(number, this);
     }
 
     componentWillMount() {
