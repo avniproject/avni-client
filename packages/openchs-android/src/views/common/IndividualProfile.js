@@ -26,6 +26,7 @@ import CommentView from "../comment/CommentView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import SubjectProfilePicture from "./SubjectProfilePicture";
 import PhoneCall from "../../model/PhoneCall";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -71,7 +72,8 @@ class IndividualProfile extends AbstractComponent {
     }
 
     makeCall(number) {
-        PhoneCall.makeCall(number, this);
+        PhoneCall.makeCall(number, this,
+            (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
     componentWillMount() {
@@ -207,6 +209,7 @@ class IndividualProfile extends AbstractComponent {
         General.logDebug('IndividualProfile', 'render');
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
         return <View style={{backgroundColor: backgroundColor}}>
+            <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
             {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
                 (
                     <View style={{

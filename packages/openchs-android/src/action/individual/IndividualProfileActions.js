@@ -9,6 +9,7 @@ export class IndividualProfileActions {
             eligiblePrograms: [],
             displayActionSelector: false,
             commentsCount: 0,
+            displayProgressIndicator: false
         };
     }
 
@@ -17,7 +18,8 @@ export class IndividualProfileActions {
             eligiblePrograms: state.eligiblePrograms.slice(),
             displayActionSelector: state.displayActionSelector,
             commentsCount: state.commentsCount,
-            programActions: state.programActions
+            programActions: state.programActions,
+            displayProgressIndicator: state.displayProgressIndicator
         }
     }
 
@@ -57,6 +59,12 @@ export class IndividualProfileActions {
         newState.commentsCount = context.get(CommentService).getThreadWiseFirstCommentForSubject(action.individualUUID).length;
         return newState;
     }
+
+    static toggleProgressIndicator(state, action) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.displayProgressIndicator = action.displayProgressIndicator
+        return newState;
+    }
 }
 
 const actions = {
@@ -64,6 +72,7 @@ const actions = {
     LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
     HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
     REFRESH_MESSAGE_COUNTS: "IPA.REFRESH_MESSAGE_COUNTS",
+    TOGGLE_PROGRESS_INDICATOR: "IPA.TOGGLE_PROGRESS_INDICATOR"
 };
 
 export default new Map([
@@ -71,6 +80,7 @@ export default new Map([
     [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
     [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
     [actions.REFRESH_MESSAGE_COUNTS, IndividualProfileActions.refreshMessageCounts],
+    [actions.TOGGLE_PROGRESS_INDICATOR, IndividualProfileActions.toggleProgressIndicator]
 ]);
 
 export {actions as Actions};
