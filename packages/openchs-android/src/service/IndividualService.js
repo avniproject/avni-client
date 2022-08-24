@@ -584,7 +584,7 @@ class IndividualService extends BaseService {
 
     findAllWithMobileNumber(mobileNumber) {
         return this.getAllNonVoided()
-            .filter(ind => ind.getMobileNumber() === mobileNumber);
+            .filter(ind => _.toString(ind.getMobileNumber()).slice(-10) === _.toString(mobileNumber).slice(-10));
     }
 
 }
