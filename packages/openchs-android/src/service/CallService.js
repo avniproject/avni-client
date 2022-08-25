@@ -40,7 +40,10 @@ class CallService extends BaseService {
                     maskedCallResponseCb(`Cannot perform masked call at this time. ${message}`);
                 }
             })
-            .catch(error => maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
+            .catch(error => {
+                displayIndicatorCb(false);
+                maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
+            }
     );
     }
 }
