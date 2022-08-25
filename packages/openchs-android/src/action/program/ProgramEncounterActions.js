@@ -40,7 +40,7 @@ class ProgramEncounterActions {
 
         const encounterType = action.programEncounter.encounterType;
         const getPreviousEncounter = () => {
-            const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, ['HCL TechBee Encounter']);
+            const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             return previousEncounter ? previousEncounter.cloneForEdit() : action.programEncounter;
         };
 

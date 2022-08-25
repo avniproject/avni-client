@@ -10,6 +10,8 @@ import EntityService from "../../service/EntityService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import UserInfoService from "../../service/UserInfoService";
+import _ from "lodash";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -26,25 +28,36 @@ export class EncounterActions {
 
         const form = formMapping && formMapping.form;
 
+        const encounterType = action.encounter.encounterType;
+        const getPreviousEncounter = () => {
+            const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
+            return previousEncounter ? previousEncounter.cloneForEdit() : action.encounter;
+        };
+
+        const organisationName = context.get(UserInfoService).getUserInfo().organisationName;
+        const isPowerOrg = _.includes(_.toLower(organisationName), 'power');
+        const isHCLTEchBeeEncounter = encounterType.name === 'HCL TechBee Encounter';
+        const encounterToPass = isPowerOrg || isHCLTEchBeeEncounter ? getPreviousEncounter() : action.encounter;
+
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
-        }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
+        }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
-        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.encounter.uuid, Encounter.schema.name));
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
             General.randomUUID(), WorkItem.type.ENCOUNTER, {
-                encounterType: action.encounter.encounterType.name,
-                subjectUUID: action.encounter.individual.uuid
+                encounterType: encounterToPass.encounterType.name,
+                subjectUUID: encounterToPass.individual.uuid
             }
         )]));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return EncounterActionState.createOnLoadStateForEmptyForm(action.encounter, form, isNewEntity, workLists)
+            return EncounterActionState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists)
         }
 
-        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 
