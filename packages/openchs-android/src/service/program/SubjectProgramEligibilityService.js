@@ -2,6 +2,7 @@ import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
 import {EntityQueue, SubjectProgramEligibility, ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
+import _ from "lodash";
 
 @Service("SubjectProgramEligibilityService")
 class SubjectProgramEligibilityService extends BaseService {
@@ -24,6 +25,7 @@ class SubjectProgramEligibilityService extends BaseService {
 
     saveOrUpdate(subjectProgramEligibility) {
         General.logDebug('SubjectProgramEligibilityService', `Saving Subject Program Eligibility UUID: ${subjectProgramEligibility.uuid}`);
+        if(!_.isNil(subjectProgramEligibility.observations))
         ObservationsHolder.convertObsForSave(subjectProgramEligibility.observations);
         const db = this.db;
         this.db.write(() => {

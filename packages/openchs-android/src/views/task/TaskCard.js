@@ -14,6 +14,8 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
 import IndividualService from "../../service/IndividualService";
 import {IconContainer} from "./IconContainer";
+import PhoneCall from "../../model/PhoneCall";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 class TaskCard extends AbstractComponent {
     static propTypes = {
@@ -25,7 +27,9 @@ class TaskCard extends AbstractComponent {
     }
 
     onCallPress(mobileNumber) {
-        RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
+        // RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
+        PhoneCall.makeCall(mobileNumber, this,
+            (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
 
         TypedTransition.from(this).with({
             headerTitle: this.I18n.t('subjectsWithMobileNumber', {number: _.toString(mobileNumber)}),
@@ -124,6 +128,7 @@ class TaskCard extends AbstractComponent {
         const task = this.props.task;
         return (
             <View style={styles.container} key={task.uuid}>
+                <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {task.isCallType() ? this.renderCallType(task) : this.renderOpenSubjectType(task)}
                 {this.renderSubjectDetails(task)}
                 {this.state.displayTaskStatusSelector && <TaskStatusPicker task={task}/>}

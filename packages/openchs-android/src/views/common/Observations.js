@@ -18,6 +18,9 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import EncounterService from "../../service/EncounterService";
+import CustomActivityIndicator from "../CustomActivityIndicator";
+import PhoneCall from "../../model/PhoneCall";
+import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 
 const renderTypes = {
     Image: "Image",
@@ -39,6 +42,7 @@ class Observations extends AbstractComponent {
         super(props, context);
         this.createObservationsStyles(props.highlight);
         this.individualService = context.getService(IndividualService);
+        this.state = {displayProgressIndicator: false}
     }
 
     createObservationsStyles(highlight) {
@@ -126,7 +130,7 @@ class Observations extends AbstractComponent {
     }
 
     makeCall(number) {
-        RNImmediatePhoneCall.immediatePhoneCall(number);
+        PhoneCall.makeCall(number, this, (displayProgressIndicator) => this.setState({displayProgressIndicator}));
     }
 
     renderValue(observationModel) {
@@ -355,6 +359,7 @@ class Observations extends AbstractComponent {
         if (this.props.observations.length === 0) return <View/>;
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
+                <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {this.renderTitle()}
                 {_.isNil(this.props.form) ?
                     this.renderNormalObservationTable() :

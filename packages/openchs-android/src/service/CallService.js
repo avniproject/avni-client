@@ -31,13 +31,13 @@ class CallService extends BaseService {
 
         post(`${serverURL}/maskedCall?to=${number}`, null, true)
             .then(res => res.json())
-            .then(({success}) => {
+            .then(({success, message}) => {
                 displayIndicatorCb(false);
-                if (!success) {
-                    maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)");
+                if (success) {
+                    maskedCallResponseCb("Requested for masked call. Expect a call on your number.");
                 }
                 else {
-                    maskedCallResponseCb("Requested for masked call. Expect a call on your number.");
+                    maskedCallResponseCb(`Cannot perform masked call at this time. ${message}`);
                 }
             })
             .catch(error => maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
