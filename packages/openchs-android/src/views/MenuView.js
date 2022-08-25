@@ -71,9 +71,13 @@ class MenuView extends AbstractComponent {
             : <View/>
     }
 
+    componentWillMount() {
+        super.componentWillMount();
+        this.bindMenuActions();
+    }
+
     componentDidMount() {
         this.dispatchAction(MenuActionNames.ON_LOAD);
-        this.bindMenuActions();
     }
 
     icon(name, style = {}) {
@@ -343,7 +347,7 @@ class MenuView extends AbstractComponent {
                 title: 'user', data: this.getMenuItems(StaticMenuItemFactory.getUserMenus(), configuredMenuItems, MenuItem.UserGroupName)
             },
             {
-                title: 'support', data: this.getMenuItems(StaticMenuItemFactory.getSupportMenus(), configuredMenuItems, MenuItem.SupportMenuItems)
+                title: 'support', data: this.getMenuItems(StaticMenuItemFactory.getSupportMenus(), configuredMenuItems, MenuItem.SupportGroupName)
             },
             {
                 title: 'dev', data: this.getMenuItems(StaticMenuItemFactory.getDevMenus(), configuredMenuItems, null)
