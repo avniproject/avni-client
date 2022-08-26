@@ -99,6 +99,12 @@ class ProgramEncounterState extends AbstractDataEntryState {
         }
         this.programEncounter.programEnrolment = enrolment;
 
+        const individual = this.programEncounter.programEnrolment.individual.cloneForEdit();
+        if (!_.isEmpty(decisions.registrationDecisions)) {
+            context.get(ConceptService).addDecisions(individual.observations, decisions.registrationDecisions);
+        }
+        this.programEncounter.programEnrolment.individual = individual;
+
         return decisions;
     }
 

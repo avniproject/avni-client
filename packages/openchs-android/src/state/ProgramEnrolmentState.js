@@ -108,6 +108,11 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         } else {
             context.get(ConceptService).addDecisions(this.enrolment.programExitObservations, decisions.enrolmentDecisions);
         }
+        const individual = this.enrolment.individual.cloneForEdit();
+        if (!_.isEmpty(decisions.registrationDecisions)) {
+            context.get(ConceptService).addDecisions(individual.observations, decisions.registrationDecisions);
+        }
+        this.enrolment.individual = individual;
 
         return decisions;
     }

@@ -81,6 +81,18 @@ class IndividualService extends BaseService {
         });
     }
 
+    updateObservations(individual) {
+        const db = this.db;
+        this.db.write(() => {
+            ObservationsHolder.convertObsForSave(individual.observations);
+            db.create(Individual.schema.name, {
+                uuid: individual.uuid,
+                observations: individual.observations
+            }, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+        });
+    }
+
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         const programs = this.getService(FormMappingService).findActiveProgramsForSubjectType(individual.subjectType);

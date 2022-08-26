@@ -12,6 +12,7 @@ import General from "../../utility/General";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -88,6 +89,7 @@ class ProgramEncounterActions {
         const newState = state.clone();
         const workflowInfo = {workflow: 'Program encounter', programEncounterUuid: newState.programEncounter.uuid};
         context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, workflowInfo);
+        context.get(IndividualService).updateObservations(newState.programEncounter.programEnrolment.individual);
         const service = context.get(ProgramEncounterService);
 
         const scheduledVisits = [];

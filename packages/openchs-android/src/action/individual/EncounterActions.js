@@ -10,6 +10,7 @@ import EntityService from "../../service/EntityService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -98,6 +99,7 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(IndividualService).updateObservations(newState.encounter.individual);
         context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         action.cb();
         return state;

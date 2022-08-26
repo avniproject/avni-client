@@ -79,6 +79,12 @@ class EncounterActionState extends AbstractDataEntryState {
         let decisions = ruleService.getDecisions(this.encounter, 'Encounter');
         context.get(ConceptService).addDecisions(this.encounter.observations, decisions.encounterDecisions);
 
+        const individual = this.encounter.individual.cloneForEdit();
+        if (!_.isEmpty(decisions.registrationDecisions)) {
+            context.get(ConceptService).addDecisions(individual.observations, decisions.registrationDecisions);
+        }
+        this.encounter.individual = individual;
+
         return decisions;
     }
 

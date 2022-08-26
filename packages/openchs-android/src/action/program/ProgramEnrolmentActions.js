@@ -16,6 +16,7 @@ import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerState from "../../state/TimerState";
 import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -129,6 +130,7 @@ export class ProgramEnrolmentActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(IndividualService).updateObservations(newState.enrolment.individual);
         const service = context.get(ProgramEnrolmentService);
         if (newState.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             context
