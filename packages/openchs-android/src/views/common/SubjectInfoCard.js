@@ -38,7 +38,8 @@ class SubjectInfoCard extends AbstractComponent {
                       marginVertical: 1,
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
-                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
+                  }, Styles.userProfileProgramTitle]}
+                  numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(program.displayName)}</Text>
         );
     }
 
