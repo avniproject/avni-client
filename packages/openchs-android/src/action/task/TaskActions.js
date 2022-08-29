@@ -81,7 +81,8 @@ class TaskActions {
         newState.displayTaskStatusSelector = action.display;
         const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
         newState.taskStatusList = context.get(EntityService)
-            .findByCriteria(`taskType.uuid = '${taskTypeUUID}'`, TaskStatus.schema.name)
+            .getAllNonVoided(TaskStatus.schema.name)
+            .filtered(`taskType.uuid = '${taskTypeUUID}'`)
             .map(_.identity)
             .map(({name, uuid}) => ({label: name, value: uuid}));
         return newState;
