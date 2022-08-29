@@ -465,6 +465,7 @@
     "Enrol": "Enrol",
     "program": "Program",
     "eligibility": "Eligibility",
-    "eligibilityFailedTitle": "Eligibility Check Execution Failed"
+    "eligibilityFailedTitle": "Eligibility Check Execution Failed",
+    "nothingToSelect": "Nothing to Select"
 }
 }
