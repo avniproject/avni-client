@@ -61,8 +61,7 @@ class RadioGroup extends AbstractComponent {
                                       onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
                                       style={{
-                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems
                                       }}
                                       disabled={this.props.disabled}/>
                 )}
