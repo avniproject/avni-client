@@ -152,7 +152,7 @@ class PreviousEncounters extends AbstractComponent {
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.viewAllText}>{this.I18n.t('viewAll')}</Text>
+                <Text style={styles.viewAllText}>{`${this.I18n.t('viewAll')} (${this.props.encounters.length})`}</Text>
             </View>
         </TouchableOpacity>
     }
