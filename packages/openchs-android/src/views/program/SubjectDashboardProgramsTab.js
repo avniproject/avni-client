@@ -98,7 +98,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     getExitHeaderMessage(enrolment) {
-        return `${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")} ${this.I18n.t(_.get(enrolment, 'program.displayName'))}`;
+        return `${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`;
     }
 
     getForm() {
