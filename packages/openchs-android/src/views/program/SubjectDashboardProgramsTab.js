@@ -86,12 +86,19 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.dispatchAction(Actions.ON_ENROLMENT_CHANGE, {enrolmentUUID: enrolmentUUID});
     }
 
-    getEnrolmentHeaderMessage(enrolment) {
-        return `${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`;
+    getHeaderMessage(enrolment) {
+        return (
+            <View>
+                <Text>{`${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`}</Text>
+                {!_.isNil(this.state.enrolment.programExitDateTime) &&
+                <Text>{`${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`}</Text>}
+                <Text>{`${this.I18n.t("programName")} ${this.I18n.t(_.get(enrolment, 'program.displayName'))}`}</Text>
+            </View>
+        )
     }
 
     getExitHeaderMessage(enrolment) {
-        return `${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`;
+        return `${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")} ${this.I18n.t(_.get(enrolment, 'program.displayName'))}`;
     }
 
     getForm() {
@@ -204,9 +211,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         }}>
             <View>
                 <Text style={Styles.cardTitle}>{this.I18n.t('summary')}</Text>
-                <Text>{this.getEnrolmentHeaderMessage(this.state.enrolment)}</Text>
-                {!_.isNil(this.state.enrolment.programExitDateTime) ?
-                    < Text>{this.getExitHeaderMessage(this.state.enrolment)}</Text> : <View/>}
+                {this.getHeaderMessage(this.state.enrolment)}
             </View>
             <Observations observations={_.defaultTo(this.state.enrolmentSummary, [])}
                           style={{marginVertical: DGS.resizeHeight(8)}}/>

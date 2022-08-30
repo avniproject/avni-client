@@ -301,6 +301,7 @@
     "start": "શરૂઆત",
     "observationInProgress": "અવલોકન ચાલુ છે...",
     "subjectsWithMobileNumber": "{{number}} મોબાઇલ નંબર વિષય",
-    "openTasks": "કાર્યો ખોલો"
+    "openTasks": "કાર્યો ખોલો",
+    "programName": "પ્રોગ્રામનું નામ:"
   }
 }

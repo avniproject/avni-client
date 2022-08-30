@@ -311,6 +311,7 @@
         "start": "ಪ್ರಾರಂಭಿಸಿ",
         "observationInProgress": "ವೀಕ್ಷಣೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ...",
         "subjectsWithMobileNumber": "{{number}} ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ವಿಷಯ",
-        "openTasks": "ಕಾರ್ಯಗಳನ್ನು ತೆರೆಯಿರಿ"
+        "openTasks": "ಕಾರ್ಯಗಳನ್ನು ತೆರೆಯಿರಿ",
+        "programName": "ಕಾರ್ಯಕ್ರಮದ ಹೆಸರು:"
     }
 }
