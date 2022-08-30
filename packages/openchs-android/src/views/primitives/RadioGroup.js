@@ -85,7 +85,7 @@ class RadioGroup extends AbstractComponent {
     }
 
     renderEmptyMessage() {
-        return <Text>{this.I18n.t("nothingToSelect")}</Text>
+        return <Text style={{fontStyle: 'italic'}}>{this.I18n.t("noOptionsAvailable")}</Text>
     }
 
     renderSingleValue() {

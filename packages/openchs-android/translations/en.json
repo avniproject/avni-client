@@ -466,7 +466,7 @@
     "program": "Program",
     "eligibility": "Eligibility",
     "eligibilityFailedTitle": "Eligibility Check Execution Failed",
-    "nothingToSelect": "Nothing to Select",
+    "noOptionsAvailable": "No Options Available",
     "programName": "Program name:"
 }
 }
