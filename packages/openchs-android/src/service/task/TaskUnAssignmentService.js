@@ -14,17 +14,14 @@ class TaskUnAssignmentService extends BaseService {
         return TaskUnAssignment.schema.name;
     }
 
-    deleteNonMigratedTasks() {
+    deleteUnassignedTasks(taskUnAssignments) {
         const db = this.db;
-        this.findAll()
-            .filtered('hasMigrated = false')
-            .map(_.identity)
-            .forEach(unAssignment => {
-                this.db.write(() => {
-                    this.getService(TaskService).deleteTask(unAssignment.taskUUID, db);
-                    db.create(this.getSchema(), unAssignment.updatedHasMigrated(), true);
-                });
-            })
+        _.forEach(taskUnAssignments, (taskUnAssignment) => {
+            this.db.write(() => {
+                this.getService(TaskService).deleteTask(taskUnAssignment.taskUUID, db);
+                taskUnAssignment.hasMigrated = true;
+            });
+        });
     }
 
 }

@@ -213,7 +213,6 @@ class SyncService extends BaseService {
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getService(SubjectMigrationService).migrateSubjects())
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getService(TaskUnAssignmentService).deleteNonMigratedTasks())
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
@@ -311,6 +310,11 @@ class SyncService extends BaseService {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
             }
         }
+
+        if (entityMetaData.entityName === "TaskUnAssignment") {
+            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
+        }
+
         if (entityMetaData.entityName === 'EntityApprovalStatus') {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
