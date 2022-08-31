@@ -24,6 +24,7 @@ import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
+import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -320,6 +321,10 @@ class SyncService extends BaseService {
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
             });
+        }
+
+        if(entityMetaData.entityName === 'UserSubjectAssignment') {
+            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
         }
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);

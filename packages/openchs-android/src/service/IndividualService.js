@@ -599,6 +599,10 @@ class IndividualService extends BaseService {
             .filter(ind => _.toString(ind.getMobileNumber()).slice(-10) === _.toString(mobileNumber).slice(-10));
     }
 
+    getAllBySubjectType(subjectType) {
+        return this.getAll().filtered('subjectType = $0', subjectType);
+    }
+
 }
 
 export default IndividualService;
