@@ -84,10 +84,6 @@ class RadioGroup extends AbstractComponent {
                               />)
     }
 
-    renderEmptyMessage() {
-        return <Text style={{fontStyle: 'italic'}}>{this.I18n.t("noOptionsAvailable")}</Text>
-    }
-
     renderSingleValue() {
         const radioLabelValue = _.head(this.props.labelValuePairs);
         if (!this.props.selectionFn(radioLabelValue.value)) {
@@ -110,8 +106,7 @@ class RadioGroup extends AbstractComponent {
                     </View> :
                     <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                    </View> :
-                    this.renderEmptyMessage()}
+                    </View> : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>
