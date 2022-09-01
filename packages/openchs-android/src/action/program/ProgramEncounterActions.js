@@ -13,6 +13,7 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
+import UserInfoService from "../../service/UserInfoService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -38,24 +39,36 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType.name}`);
         }
 
+        const encounterType = action.programEncounter.encounterType;
+        const getPreviousEncounter = () => {
+            const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
+            return previousEncounter ? previousEncounter.cloneForEdit() : action.programEncounter;
+        };
+
+        const organisationName = context.get(UserInfoService).getUserInfo().organisationName;
+        const isPowerOrg = _.includes(_.toLower(organisationName), 'power');
+        const isHCLTEchBeeEncounter = encounterType.name === 'HCL TechBee Encounter';
+        const encounterToPass = isPowerOrg || isHCLTEchBeeEncounter ? getPreviousEncounter() : action.programEncounter;
+
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
-        }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length !== 0);
+        }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
-        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, ProgramEncounter.schema.name));
+
         const workLists = action.workLists || new WorkLists(new WorkList('Enrolment').withEncounter({
-            encounterType: action.programEncounter.encounterType.name,
-            subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
-            programName: action.programEncounter.programEnrolment.program.name,
+            encounterType: encounterToPass.encounterType.name,
+            subjectUUID: encounterToPass.programEnrolment.individual.uuid,
+            programName: encounterToPass.programEnrolment.program.name,
         }));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return ProgramEncounterState.createOnLoadStateForEmptyForm(action.programEncounter, form, isNewEntity, workLists);
+            return ProgramEncounterState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists);
         }
 
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = ProgramEncounterState.createOnLoad(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 
