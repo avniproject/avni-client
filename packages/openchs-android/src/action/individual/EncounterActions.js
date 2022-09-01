@@ -32,13 +32,12 @@ export class EncounterActions {
         const encounterType = action.encounter.encounterType;
         const getPreviousEncounter = () => {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
-            return previousEncounter ? previousEncounter.cloneForEdit() : action.encounter;
+            if (previousEncounter) {
+                action.encounter.observations = previousEncounter.cloneForEdit().observations;
+            }
+            return action.encounter;
         };
-
-        const organisationName = context.get(UserInfoService).getUserInfo().organisationName;
-        const isPowerOrg = _.includes(_.toLower(organisationName), 'power');
-        const isHCLTEchBeeEncounter = encounterType.name === 'HCL TechBee Encounter';
-        const encounterToPass = isPowerOrg || isHCLTEchBeeEncounter ? getPreviousEncounter() : action.encounter;
+        const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.encounter;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
@@ -104,7 +103,7 @@ export class EncounterActions {
         return newState;
     }
 
-    static onFocus(state){
+    static onFocus(state) {
         const newState = state.clone();
         newState.loadPullDownView = true;
         return newState;

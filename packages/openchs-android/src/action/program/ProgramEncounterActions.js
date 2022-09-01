@@ -13,7 +13,6 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
-import UserInfoService from "../../service/UserInfoService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -42,13 +41,12 @@ class ProgramEncounterActions {
         const encounterType = action.programEncounter.encounterType;
         const getPreviousEncounter = () => {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
-            return previousEncounter ? previousEncounter.cloneForEdit() : action.programEncounter;
+            if (previousEncounter) {
+                action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
+            }
+            return action.programEncounter;
         };
-
-        const organisationName = context.get(UserInfoService).getUserInfo().organisationName;
-        const isPowerOrg = _.includes(_.toLower(organisationName), 'power');
-        const isHCLTEchBeeEncounter = encounterType.name === 'HCL TechBee Encounter';
-        const encounterToPass = isPowerOrg || isHCLTEchBeeEncounter ? getPreviousEncounter() : action.programEncounter;
+        const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.programEncounter;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder

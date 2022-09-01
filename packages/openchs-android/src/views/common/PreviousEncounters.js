@@ -60,8 +60,12 @@ class PreviousEncounters extends AbstractComponent {
         if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
-    isEditAllowed(encounter) {
+    hasEditPrivilege(encounter) {
         return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
+    }
+
+    isEditAllowed(encounter) {
+        return this.hasEditPrivilege(encounter) && !encounter.encounterType.immutable;
     }
 
     encounterActions(encounter) {
