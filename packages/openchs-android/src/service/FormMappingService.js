@@ -239,6 +239,11 @@ class FormMappingService extends BaseService {
     getManualEnrolmentEligibilityForm(subjectType, program) {
         return this._findProgramRelatedForm(program, Form.formTypes.ManualProgramEnrolmentEligibility, subjectType);
     }
+
+    getFormMappingsForSubjectType(subjectType) {
+        return this.findAll()
+            .filtered('subjectType = $0', subjectType);
+    }
 }
 
 export default FormMappingService;

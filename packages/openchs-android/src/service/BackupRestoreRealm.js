@@ -15,6 +15,7 @@ import EntitySyncStatusService from "./EntitySyncStatusService";
 import SubjectTypeService from "./SubjectTypeService";
 import IndividualService from "./IndividualService";
 import SubjectMigrationService from "./SubjectMigrationService";
+import FormMappingService from "./FormMappingService";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -188,6 +189,27 @@ export default class BackupRestoreRealmService extends BaseService {
         const allDirectlyAssignableSubjectTypes = this.getService(SubjectTypeService).getAllDirectlyAssignable();
         _.forEach(allDirectlyAssignableSubjectTypes, subjectType => {
             this.deleteTxDataForSubjectType(subjectType);
+            this.resetSyncForSubjectType(subjectType, db);
+        });
+    }
+
+    resetSyncForSubjectType(subjectType, db) {
+        const formMappingsForSubjectType = this.getService(FormMappingService).getFormMappingsForSubjectType(subjectType).map(_.identity);
+        _.forEach(formMappingsForSubjectType, (formMapping) => {
+            const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
+            this.resetSync(entityName, entityTypeUuid, db);
+        })
+    }
+
+    resetSync(entityName, entityTypeUUID, db) {
+        this.db.write(() => {
+            db.objects(EntitySyncStatus.schema.name)
+                .filtered(`entityName = $0 and entityTypeUuid = $1`, entityName, entityTypeUUID)
+                .map(u => _.assign({}, u))
+                .forEach(({uuid, entityName, entityTypeUuid}) => {
+                    const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
+                    db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+                })
         });
     }
 
