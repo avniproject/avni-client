@@ -1,7 +1,6 @@
 /* @flow */
-import {AppRegistry} from 'react-native';
-import Avni from "./src/Avni";
+import {AppRegistry, LogBox} from 'react-native';
+import Avni from "./src/App";
 
-console.ignoredYellowBox = ['Warning: You are manually calling'];
+LogBox.ignoreAllLogs();
 AppRegistry.registerComponent('Avni', () => Avni);
-console.disableYellowBox = true;

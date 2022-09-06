@@ -1,6 +1,7 @@
 // @flow
 import _ from "lodash";
 import General from "../utility/General";
+import {EntityUtil} from "openchs-models";
 
 class BaseService {
     constructor(db, context) {
@@ -168,6 +169,11 @@ class BaseService {
     findUniqBy(fn: Function) {
         const result = this.filterBy(fn);
         if(result.length === 1) return result[0];
+    }
+
+    getObjects(entityClass) {
+        const objects = this.db.objects(entityClass.schema.name);
+        return EntityUtil.toModelCollection(objects, entityClass);
     }
 }
 

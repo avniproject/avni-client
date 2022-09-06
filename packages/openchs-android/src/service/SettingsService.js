@@ -55,7 +55,7 @@ class SettingsService extends BaseService {
     }
 
     getSettings() {
-        const settings = this.db.objects(Settings);
+        const settings = this.getObjects(Settings);
         if (settings === undefined || settings.length === 0) return undefined;
         return settings[0];
     }

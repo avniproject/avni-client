@@ -2,10 +2,12 @@ import React, {Component} from 'react';
 import Realm from 'realm';
 import CHSContainer from "./views/common/CHSContainer";
 import CHSContent from "./views/common/CHSContent";
-import {Text} from "react-native";
+import {Text, LogBox} from "react-native";
 import InitialSettings from "../config/initialSettings.json";
 import Config from "./framework/Config";
-import {Settings, LocaleMapping} from "openchs-models";
+import {Settings, LocaleMapping, Documentation, DocumentationItem} from "openchs-models";
+import RealmExamples from "./codeExamples/RealmExamples";
+import _ from 'lodash';
 
 let db = undefined;
 
@@ -54,9 +56,8 @@ let db = undefined;
 
 export const createRealmConfig = function () {
     return {
-        //order is important, should be arranged according to the dependency
-        schema: [Settings, LocaleMapping],
-        schemaVersion: 1,
+        schema: [Settings.schema, LocaleMapping.schema, Documentation.schema, DocumentationItem.schema],
+        schemaVersion: 2,
         migration: () => {}
     }
 };
@@ -65,29 +66,36 @@ export default class App extends Component {
     constructor(props, context) {
         super(props, context);
         if (db === undefined) {
+            console.log("Creating realm config");
             db = new Realm(createRealmConfig());
+            console.log("Created realm config");
         }
     }
 
     createIfNotExists() {
-        if (db.objects(Settings).length < 1) {
+        RealmExamples.parentChildWithCyclicRelationshipSaveTogether(db);
+
+        console.log("Creating settings");
+        if (db.objects(Settings.schema.name).length < 1) {
             db.write(() => {
                 const settings = new Settings();
                 settings.uuid = Settings.UUID;
-                settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
                 settings.pageSize = InitialSettings.pageSize;
                 settings.serverURL = Config.SERVER_URL;
-                settings.poolId = "";
+                settings.poolId = "testPool";
                 settings.clientId = Config.CLIENT_ID || "";
-                db.create('Settings', settings, true);
+                db.create(Settings.schema.name, settings, true);
             });
         }
     }
 
     render() {
         this.createIfNotExists();
-        const objects = db.objects(Settings);
+        const documentations = RealmExamples.loadParentChild(db);
+        documentations[0].documentationItems.forEach((x) => console.log(x.content));
+        const objects = db.objects(Settings.schema.name);
+
 
         return (<CHSContainer>
             <CHSContent>
@@ -100,6 +108,7 @@ export default class App extends Component {
 
                 <Text>setting.uuid</Text>
                 <Text>{objects[0].uuid}</Text>
+                <Text>{objects[0].poolId}</Text>
             </CHSContent>
         </CHSContainer>)
     }

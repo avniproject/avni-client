@@ -1,10 +1,10 @@
-import {createRealmConfig, UserInfo} from 'openchs-models';
+import {Schema, UserInfo} from 'openchs-models';
 import Realm from 'realm';
 import analytics from "@react-native-firebase/analytics";
 import {defaultTo, isEmpty, noop} from 'lodash';
 import Config from "../framework/Config";
 
-const db = new Realm(createRealmConfig());
+const db = new Realm(Schema);
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 

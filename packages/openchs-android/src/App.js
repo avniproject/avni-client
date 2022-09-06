@@ -1,10 +1,10 @@
-import {Alert, Clipboard, NativeModules, Text, View, LogBox} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {createRealmConfig, EntityMetaData, EntityQueue} from 'openchs-models';
+import {EntityMetaData, EntityQueue, Schema} from 'openchs-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
@@ -14,25 +14,25 @@ import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
 import BackupRestoreRealmService from "./service/BackupRestoreRealm";
 import GlobalContext from "./GlobalContext";
+import AppConfig from "./framework/AppConfig";
 
 const {Restart} = NativeModules;
 
-LogBox.ignoreAllLogs();
-
 let globalContext = new GlobalContext();
-const realmConfig = createRealmConfig();
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
-    globalContext.db = new Realm(realmConfig);
+    globalContext.db = new Realm(Schema);
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };
 
 const initialiseContext = function () {
-    globalContext.db = new Realm(realmConfig);
+    globalContext.db = new Realm(Schema);
     globalContext.beanRegistry = BeanRegistry;
     BeanRegistry.init(globalContext.db);
+    console.log("App", "BeanRegistry.init");
     globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beans);
+    console.log("App", "AppStore.create");
     globalContext.beanRegistry.setReduxStore(globalContext.reduxStore);
 
     let restoreRealmService = globalContext.beanRegistry.getService(BackupRestoreRealmService);
@@ -85,20 +85,23 @@ class App extends Component {
     });
 
     renderError() {
-        Alert.alert("App will restart now", this.state.error.message,
-            [
-                {
-                    text: "Copy error and Restart",
-                    onPress: () => {
-                        const clipboardString = `${this.state.error.message}\nStacktrace:\n${this.state.stacktrace}`;
-                        Clipboard.setString(clipboardString);
-                        console.log("App", clipboardString);
-                        Restart.restart();
+        const clipboardString = `${this.state.error.message}\nStacktrace:${this.state.stacktrace}`;
+        console.log("App", "renderError", clipboardString);
+
+        if (AppConfig.inNonDevMode()) {
+            Alert.alert("App will restart now", this.state.error.message,
+                [
+                    {
+                        text: "Copy error and Restart",
+                        onPress: () => {
+                            Clipboard.setString(clipboardString);
+                            Restart.restart();
+                        }
                     }
-                }
-            ],
-            {cancelable: false}
-        );
+                ],
+                {cancelable: false}
+            );
+        }
         return <View/>;
     }
 
