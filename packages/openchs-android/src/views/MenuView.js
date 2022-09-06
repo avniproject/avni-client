@@ -392,7 +392,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{Schema.schemaVersion}</Text></Text>
+                                    }}>{Schema().schemaVersion}</Text></Text>
                                 <Text style={Styles.textList}>BuildVersion: <Text
                                     style={{
                                         color: 'black',

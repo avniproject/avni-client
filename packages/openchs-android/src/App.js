@@ -22,12 +22,12 @@ let globalContext = new GlobalContext();
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
-    globalContext.db = new Realm(Schema);
+    globalContext.db = new Realm(Schema());
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };
 
 const initialiseContext = function () {
-    globalContext.db = new Realm(Schema);
+    globalContext.db = new Realm(Schema());
     globalContext.beanRegistry = BeanRegistry;
     BeanRegistry.init(globalContext.db);
     console.log("App", "BeanRegistry.init");

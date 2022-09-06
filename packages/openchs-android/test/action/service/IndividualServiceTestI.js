@@ -2,7 +2,7 @@ import {assert} from "chai";
 import IndividualService from "../../../src/service/IndividualService";
 import TestContext from '../views/testframework/TestContext'
 
-import Realm from 'realm';
+// import Realm from 'realm';
 import {Schema, Individual, Gender} from 'openchs-models';
 import EntityFactory from "../../EntityFactory";
 import IndividualSearchCriteria from "../../../src/service/query/IndividualSearchCriteria";
@@ -16,7 +16,7 @@ describe('IndividualServiceTest', () => {
     let individualService;
 
     beforeEach(() => {
-        const realmConfig = Schema;
+        const realmConfig = Schema();
         realmConfig.inMemory = true;
         individualService = new IndividualService(new Realm(realmConfig), new TestContext());
     });
