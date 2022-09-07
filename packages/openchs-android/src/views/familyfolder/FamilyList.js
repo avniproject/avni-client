@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableNativeFeedback} from 'react-native';
+import {Text, View, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import _ from 'lodash';
 import {Header} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";

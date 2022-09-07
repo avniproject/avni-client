@@ -1,4 +1,5 @@
-import {ListView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";

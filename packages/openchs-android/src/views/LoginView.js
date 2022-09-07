@@ -22,7 +22,7 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
-import {Checkbox as CheckBox, Spinner} from "native-base";
+import {Checkbox as CheckBox, ScrollView, Spinner} from "native-base";
 import General from "../utility/General";
 import AuthService from "../service/AuthService";
 import {ConfirmDialog} from 'react-native-simple-dialogs';
@@ -153,13 +153,13 @@ class LoginView extends AbstractComponent {
     restoreFailureAlert(errorMessage, source) {
         const isCatchmentError = ErrorCodes[errorMessage] === ErrorCodes.NoCatchmentFound;
         isCatchmentError ? this.noCatchmentAlert(this.I18n.t(ErrorCodes[errorMessage])) :
-        Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
-                text: this.I18n.t('tryAgain'),
-                onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {...this.dumpRestoreAction.call(this), source})
-            },
-                {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(source), style: 'cancel'}
-            ]
-        );
+            Alert.alert(this.I18n.t("restoreFailedTitle"), errorMessage, [{
+                    text: this.I18n.t('tryAgain'),
+                    onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {...this.dumpRestoreAction.call(this), source})
+                },
+                    {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(source), style: 'cancel'}
+                ]
+            );
     }
 
     noCatchmentAlert(errorMessage) {
@@ -175,107 +175,109 @@ class LoginView extends AbstractComponent {
         General.logDebug("LoginView", 'render');
         return (
             <CHSContainer>
-                <DBRestoreProgress/>
-                <CHSContent>
-                    {this.renderMultiUserLoginFailure()}
-                    <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
-                    <View style={{
-                        padding: 72,
-                        paddingTop: 144,
-                        flexDirection: 'column',
-                        justifyContent: 'flex-start'
-                    }}>
-                        <Text style={Styles.logoPlaceHolder}>{DeviceInfo.getApplicationName()}</Text>
+                <ScrollView>
+                    <DBRestoreProgress/>
+                    <CHSContent>
+                        {this.renderMultiUserLoginFailure()}
+                        <StatusBar backgroundColor={Styles.blackColor} barStyle="light-content"/>
+                        <View style={{
+                            padding: 72,
+                            paddingTop: 144,
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start'
+                        }}>
+                            <Text style={Styles.logoPlaceHolder}>{DeviceInfo.getApplicationName()}</Text>
 
-                        <Text style={{
-                            color: Colors.ValidationError,
-                            justifyContent: 'center'
-                        }}>{this.errorMessage()}</Text>
-                        <View>
-                            <TextFormElement element={new StaticFormElement('userId')}
-                                             actionName={Actions.ON_USER_ID_CHANGE}
-                                             validationResult={this.state.validationResult}
-                                             value={new PrimitiveValue(this.state.userId)}
-                                             style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                             multiline={false}
-                                             autoCapitalize={"none"}
-                                             autoCompleteType={"username"}
-                                             keyboardType={'email-address'}
-                            />
-                            {Config.ENV !== 'dev' ?
-                                <View>
-                                    <TextFormElement element={new StaticFormElement('password')}
-                                                     secureTextEntry={!this.state.showPassword}
-                                                     actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
-                                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                                     value={new PrimitiveValue(this.state.password)}
-                                                     multiline={false}
-                                    />
-                                    <View style={{
-                                        flexDirection: 'column',
-                                        justifyContent: 'space-between',
-                                        paddingBottom: 16,
-                                        alignItems: 'flex-start',
-                                        paddingTop: 8
-                                    }}>
-                                        <TouchableNativeFeedback
-                                            onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
-                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <CheckBox
-                                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
-                                                    checked={this.state.showPassword}/>
-                                                <Text
-                                                    style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
-                                            </View>
-                                        </TouchableNativeFeedback>
-                                        <TouchableNativeFeedback onPress={() => {
-                                            this.forgotPassword()
-                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                            <View style={{paddingLeft: 10, paddingTop: 10}}>
-                                                <Text style={{
-                                                    color: Styles.accentColor,
-                                                    fontSize: 16
-                                                }}>{this.I18n.t('Forgot Password')}</Text>
-                                            </View>
-                                        </TouchableNativeFeedback>
+                            <Text style={{
+                                color: Colors.ValidationError,
+                                justifyContent: 'center'
+                            }}>{this.errorMessage()}</Text>
+                            <View>
+                                <TextFormElement element={new StaticFormElement('userId')}
+                                                 actionName={Actions.ON_USER_ID_CHANGE}
+                                                 validationResult={this.state.validationResult}
+                                                 value={new PrimitiveValue(this.state.userId)}
+                                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                                 multiline={false}
+                                                 autoCapitalize={"none"}
+                                                 autoCompleteType={"username"}
+                                                 keyboardType={'email-address'}
+                                />
+                                {Config.ENV !== 'dev' ?
+                                    <View>
+                                        <TextFormElement element={new StaticFormElement('password')}
+                                                         secureTextEntry={!this.state.showPassword}
+                                                         actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
+                                                         style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                                         value={new PrimitiveValue(this.state.password)}
+                                                         multiline={false}
+                                        />
+                                        <View style={{
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between',
+                                            paddingBottom: 16,
+                                            alignItems: 'flex-start',
+                                            paddingTop: 8
+                                        }}>
+                                            <TouchableNativeFeedback
+                                                onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
+                                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                    <CheckBox
+                                                        onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                        checked={this.state.showPassword}/>
+                                                    <Text
+                                                        style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
+                                                </View>
+                                            </TouchableNativeFeedback>
+                                            <TouchableNativeFeedback onPress={() => {
+                                                this.forgotPassword()
+                                            }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                <View style={{paddingLeft: 10, paddingTop: 10}}>
+                                                    <Text style={{
+                                                        color: Styles.accentColor,
+                                                        fontSize: 16
+                                                    }}>{this.I18n.t('Forgot Password')}</Text>
+                                                </View>
+                                            </TouchableNativeFeedback>
+                                        </View>
+                                        {this.spinner()}
                                     </View>
-                                    {this.spinner()}
-                                </View>
-                                : null}
-                        </View>
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                            {_.get(this, 'props.params.allowSkipLogin') ?
-                                <TouchableNativeFeedback onPress={() => {
-                                    this.cancelLogin()
-                                }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                    <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                        <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                    : null}
+                            </View>
+                            <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
+                                {_.get(this, 'props.params.allowSkipLogin') ?
+                                    <TouchableNativeFeedback onPress={() => {
+                                        this.cancelLogin()
+                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                        <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
+                                            <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>
+                                    :
+                                    <View/>
+                                }
+                                <TouchableNativeFeedback onPress={this.safeLogin}
+                                                         background={TouchableNativeFeedback.SelectableBackground()}>
+                                    <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
+                                        <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
                                     </View>
                                 </TouchableNativeFeedback>
-                                :
-                                <View/>
-                            }
-                            <TouchableNativeFeedback onPress={this.safeLogin}
-                                                     background={TouchableNativeFeedback.SelectableBackground()}>
-                                <View style={[Styles.basicPrimaryButtonView, {marginLeft: 16, minWidth: 144}]}>
-                                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('LOGIN')}</Text>
-                                </View>
-                            </TouchableNativeFeedback>
+                            </View>
                         </View>
-                    </View>
-                    <View style={{
-                        alignSelf: 'center',
-                        marginTop: 28
-                    }}>
-                        <Text style={{
-                            fontSize: Styles.normalTextSize,
-                            fontStyle: 'normal',
-                            color: Styles.blackColor,
+                        <View style={{
                             alignSelf: 'center',
-                        }}>{Config.ENV !== 'prod' ? Config.ENV : ''}</Text>
-                        <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
-                    </View>
-                </CHSContent>
+                            marginTop: 28
+                        }}>
+                            <Text style={{
+                                fontSize: Styles.normalTextSize,
+                                fontStyle: 'normal',
+                                color: Styles.blackColor,
+                                alignSelf: 'center',
+                            }}>{Config.ENV !== 'prod' ? Config.ENV : ''}</Text>
+                            <Text style={Styles.textList}>Version: {DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text>
+                        </View>
+                    </CHSContent>
+                </ScrollView>
             </CHSContainer>
         );
     }

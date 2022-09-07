@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, {Component} from "react";
-import {Box} from "native-base";
+import {Container, Box} from "native-base";
 
 
 class CHSContent extends Component {
@@ -13,9 +13,9 @@ class CHSContent extends Component {
     }
 
     render() {
-        return <Box>
+        return <>
             {this.props.children}
-        </Box>;
+        </>;
     }
 }
 

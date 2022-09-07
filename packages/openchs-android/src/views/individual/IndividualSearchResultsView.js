@@ -1,5 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {ListView, Text, TouchableNativeFeedback, View} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from "react";
 import Path from "../../framework/routing/Path";

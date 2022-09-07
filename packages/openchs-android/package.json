@@ -80,7 +80,8 @@
     "rn-fetch-blob": "0.13.0-beta-1",
     "rules-config": "git+https://github.com/avniproject/rules-config#2622898c242da48ad3fc5360995f22784b559610",
     "stacktrace-js": "2.0.2",
-    "transducers-js": "0.4.174"
+    "transducers-js": "0.4.174",
+    "deprecated-react-native-listview": "^0.0.8"
   },
   "devDependencies": {
     "patch-package": "6.4.7",

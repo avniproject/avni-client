@@ -1,6 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
-import {ListView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import Separator from "../primitives/Separator";
 import React from "react";
 import Fonts from "../primitives/Fonts";

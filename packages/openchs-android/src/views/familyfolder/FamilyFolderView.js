@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {View, StyleSheet, ListView, Text, TouchableOpacity, Image} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";

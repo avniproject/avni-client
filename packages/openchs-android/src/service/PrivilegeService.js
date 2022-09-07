@@ -38,7 +38,8 @@ class PrivilegeService extends BaseService {
         return this.findAll()
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered('privilege.name = $0 && privilege.entityType = $1 && allow = $2', privilegeName, privilegeEntity, allow)
-            .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam}) && ${privilegeParam} <> null`)
+            .filtered(`${privilegeParam} <> null`)
+            .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam})`)
             .map(privilege => privilege[privilegeParam])
     }
 
@@ -55,7 +56,8 @@ class PrivilegeService extends BaseService {
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered(_.isEmpty(criteria) ? 'uuid = null' : criteria)
             .filtered('allow = true')
-            .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam}) && ${privilegeParam} <> null`)
+            .filtered(`${privilegeParam} <> null`)
+            .filtered(`TRUEPREDICATE DISTINCT(${privilegeParam})`)
             .map(privilege => privilege[privilegeParam])
     }
 

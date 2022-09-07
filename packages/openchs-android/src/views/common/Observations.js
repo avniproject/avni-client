@@ -1,4 +1,5 @@
-import {ListView, Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React, {Fragment} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
