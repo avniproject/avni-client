@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import {StyleSheet, View, FlatList, TouchableOpacity} from "react-native";
-import {CheckBox, Text} from "native-base";
+import {Checkbox as CheckBox, Text} from "native-base";
 import Styles from "../../primitives/Styles";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import GroupSubjectService from "../../../service/GroupSubjectService";

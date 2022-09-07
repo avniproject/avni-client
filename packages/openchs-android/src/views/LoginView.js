@@ -22,7 +22,7 @@ import CHSContent from "./common/CHSContent";
 import Styles from "./primitives/Styles";
 import Colors from "./primitives/Colors";
 import _ from "lodash";
-import {CheckBox, Spinner} from "native-base";
+import {Checkbox as CheckBox, Spinner} from "native-base";
 import General from "../utility/General";
 import AuthService from "../service/AuthService";
 import {ConfirmDialog} from 'react-native-simple-dialogs';

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from "react";
 import { View, TouchableOpacity } from "react-native";
-import { Text, CheckBox } from 'native-base';
+import { Text, Checkbox as CheckBox } from 'native-base';
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import themes from "../../primitives/themes";
@@ -31,10 +31,10 @@ class CheckBoxFormElement extends Component {
 
                                 checked={checked}
                                 onPress={onPress} />
-                            <Text style={[Styles.formBodyText, { 
+                            <Text style={[Styles.formBodyText, {
                                 marginLeft: 16,
-                                flex: .95, 
-                                color: Colors.InputNormal 
+                                flex: .95,
+                                color: Colors.InputNormal
                             }]}>
                                 {checkBoxText}
                             </Text>

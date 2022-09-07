@@ -2,7 +2,7 @@ import {Text, TouchableOpacity, View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {CheckBox, Radio} from "native-base";
+import {Checkbox as CheckBox, Radio} from "native-base";
 import Colors from '../primitives/Colors';
 import _ from 'lodash';
 import Styles from "./Styles";

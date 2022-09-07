@@ -155,6 +155,9 @@ release-offline: ##
 log:  ## Log android
 	adb logcat *:S ReactNative:V ReactNativeJS:V BackgroundTask:V
 
+log_error_only:  ## Log android
+	adb logcat *:S ReactNative:E ReactNativeJS:E BackgroundTask:E
+
 log_background_job:
 	adb logcat | grep -e ReactNativeEventStarter -e BackgroundJob
 

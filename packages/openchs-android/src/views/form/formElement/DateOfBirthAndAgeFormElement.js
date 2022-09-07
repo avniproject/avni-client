@@ -8,7 +8,7 @@ import DGS from "../../primitives/DynamicGlobalStyles";
 import {  Individual  } from 'avni-models';
 import Colors from "../../primitives/Colors";
 import Fonts from "../../primitives/Fonts";
-import {CheckBox, Radio} from "native-base";
+import {Checkbox as CheckBox, Radio} from "native-base";
 import _ from "lodash";
 import General from "../../../utility/General";
 import {Actions} from "../../../action/individual/IndividualRegisterActions";
