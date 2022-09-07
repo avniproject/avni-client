@@ -31,6 +31,7 @@
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
+    "create-react-class": "15.6.3",
     "@react-native-firebase/analytics": "15.2.0",
     "@react-native-firebase/app": "15.2.0",
     "amazon-cognito-identity-js": "3.0.11",
@@ -55,7 +56,7 @@
     "react-native-background-job": "^2.3.1",
     "react-native-background-timer": "^2.4.1",
     "react-native-charts-wrapper": "0.5.9",
-    "react-native-deprecated-custom-components": "0.1.2",
+    "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-device-info": "10.0.2",
     "react-native-document-picker": "8.1.1",
     "react-native-dropdown-picker": "5.4.2",
