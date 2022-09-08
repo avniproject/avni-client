@@ -39,6 +39,8 @@ import * as rulesConfig from "rules-config";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
+import individualServiceFacade from "./facade/IndividualServiceFacade";
+import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -71,7 +73,8 @@ class RuleEvaluationService extends BaseService {
         this.conceptService = this.getService(ConceptService);
         this.groupSubjectService = this.getService(GroupSubjectService);
         this.services = {
-            individualService : this.getService(IndividualService),
+            individualService : individualServiceFacade,
+            addressLevelService : addressLevelServiceFacade,
         }
     }
 
