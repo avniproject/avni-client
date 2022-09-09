@@ -2,6 +2,27 @@ import {Documentation, DocumentationItem} from "openchs-models";
 import General from "../utility/General";
 
 class RealmExamples {
+    //yes
+    static doesSaveCascadesForDisconnectedGraph(db) {
+        this.parentChildWithCyclicRelationshipSaveTogether(db);
+        const documentation = db.objects(Documentation.schema.name)[0];
+
+        const disconnectedDocumentation = new Documentation();
+        disconnectedDocumentation.uuid = documentation.uuid;
+        disconnectedDocumentation.name = "doesSaveCascades";
+
+        const disconnectedDocumentationItem = new DocumentationItem();
+        disconnectedDocumentationItem.uuid = documentation.documentationItems[0].uuid;
+        disconnectedDocumentationItem.content = "doesSaveCascades-I";
+        disconnectedDocumentationItem.documentation = disconnectedDocumentation;
+        disconnectedDocumentation.documentationItems = [disconnectedDocumentationItem];
+
+        db.write(() => db.create(Documentation.schema.name, disconnectedDocumentation, true));
+
+        const documentationItems = db.objects(DocumentationItem.schema.name);
+        documentationItems.forEach((x) => console.log("doesSaveCascades", x.content));
+    }
+
     static parentChildSaveTogether_RangeErrorWith11ButCrashesWith10(db) {
         if (db.objects(Documentation.schema.name).length === 1) return;
 

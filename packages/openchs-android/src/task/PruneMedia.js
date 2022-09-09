@@ -1,4 +1,4 @@
-import {Concept, Observation, Schema} from 'avni-models';
+import {Concept, Observation, RealmConfig} from 'avni-models';
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";

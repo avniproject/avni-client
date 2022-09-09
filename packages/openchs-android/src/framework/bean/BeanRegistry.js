@@ -6,13 +6,14 @@ class BeanRegistry extends Registry {
         this.getBean = this.getEntity;
     }
 
-    init(db) {
+    init(db, entityMappingConfig) {
         this.entities = Array.from(this.entities).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
             map.set(beanClass, beanInstance);
             map.set(name, beanInstance);
             return map;
         }, new Map());
+        this.setEntityMappingConfig(entityMappingConfig);
         new Set(this.entities.values()).forEach(bean => bean.init());
         return this.entities;
     }
@@ -27,6 +28,13 @@ class BeanRegistry extends Registry {
 
     setReduxStore(reduxStore) {
         this.entities.forEach(bean => bean.setReduxStore(reduxStore));
+    }
+
+    /*
+    This should be changed to constructor based injection
+     */
+    setEntityMappingConfig(entityMappingConfig) {
+        this.entities.forEach(bean => bean.setEntityMappingConfig(entityMappingConfig));
     }
 
     getService(service) {

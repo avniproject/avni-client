@@ -13,7 +13,8 @@ import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, NetInfo, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Dimensions, Text, TouchableNativeFeedback, View} from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
 import {EntityMetaData, SyncError} from "avni-models";
@@ -28,6 +29,7 @@ import AsyncAlert from "./common/AsyncAlert";
 const {width, height} = Dimensions.get('window');
 
 class SyncComponent extends AbstractComponent {
+    unsubscribe;
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
@@ -126,18 +128,18 @@ class SyncComponent extends AbstractComponent {
         if (this.props.startSync) {
             this.sync();
         }
-        NetInfo.isConnected.addEventListener('connectionChange', this._handleConnectivityChange);
-        NetInfo.isConnected.fetch().done((isConnected) => {
+        this.unsubscribe = NetInfo.addEventListener(this._handleConnectivityChange);
+        NetInfo.fetch().done((isConnected) => {
             this.onConnectionChange(isConnected)
         });
     }
 
-    _handleConnectivityChange = (isConnected) => {
-        this.onConnectionChange(isConnected)
+    _handleConnectivityChange = (state) => {
+        this.onConnectionChange(state.isConnected);
     };
 
     componentWillUnmount() {
-        NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
+        this.unsubscribe && this.unsubscribe();
         super.componentWillUnmount();
     }
 
@@ -156,7 +158,8 @@ class SyncComponent extends AbstractComponent {
             const onError = this._onError.bind(this);
             this._preSync();
             //sending connection info like this because this returns promise and not possible in the action
-            const connectionInfo = await NetInfo.getConnectionInfo();
+            let connectionInfo;
+            await NetInfo.fetch().then((x) => connectionInfo = x);
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),

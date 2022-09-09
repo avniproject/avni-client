@@ -4,7 +4,7 @@ import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {EntityMetaData, EntityQueue, Schema} from 'openchs-models';
+import {EntityMetaData, EntityQueue, EntityMappingConfig} from 'openchs-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
@@ -22,19 +22,18 @@ let globalContext = new GlobalContext();
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
-    globalContext.db = new Realm(Schema());
+    globalContext.db = new Realm(EntityMappingConfig.getInstance().getRealmConfig());
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };
 
 const initialiseContext = function () {
-    globalContext.db = new Realm(Schema());
+    globalContext.db = new Realm(EntityMappingConfig.getInstance().getRealmConfig());
     globalContext.beanRegistry = BeanRegistry;
-    BeanRegistry.init(globalContext.db);
+    BeanRegistry.init(globalContext.db, EntityMappingConfig.getInstance());
     console.log("App", "BeanRegistry.init");
     globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beans);
     console.log("App", "AppStore.create");
     globalContext.beanRegistry.setReduxStore(globalContext.reduxStore);
-
     let restoreRealmService = globalContext.beanRegistry.getService(BackupRestoreRealmService);
     restoreRealmService.subscribeOnRestore(() => updateDatabase(globalContext));
 };

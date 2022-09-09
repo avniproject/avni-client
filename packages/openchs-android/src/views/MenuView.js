@@ -40,7 +40,7 @@ import DevSettingsView from "./settings/DevSettingsView";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
-import {Schema} from 'avni-models';
+import {EntityMappingConfig} from 'openchs-models';
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
@@ -392,7 +392,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{Schema().schemaVersion}</Text></Text>
+                                    }}>{EntityMappingConfig.getInstance().getRealmConfig().schemaVersion}</Text></Text>
                                 <Text style={Styles.textList}>BuildVersion: <Text
                                     style={{
                                         color: 'black',

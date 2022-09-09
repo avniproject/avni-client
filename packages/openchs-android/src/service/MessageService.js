@@ -22,8 +22,8 @@ class MessageService extends BaseService {
     init() {
         this.setTranslationKeys();
         this.I18n.inDefaultLocale = (key) => _.findKey(this.I18n.translations[this.I18n.locale], (t) => t === key);
-        const platformTranslations = this.findAll(PlatformTranslation.schema.name);
-        const implTranslations = this.findAll(Translation.schema.name);
+        const platformTranslations = this.getEntities(PlatformTranslation);
+        const implTranslations = this.getEntities(Translation);
         this.setLocale(this.getService(UserInfoService).getUserSettings().locale);
         this.addEnglishNameTranslations();
         //let impl override platform translations
