@@ -41,6 +41,7 @@ import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
+import AuthService from "./AuthService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -696,10 +697,11 @@ class RuleEvaluationService extends BaseService {
     }
 
     evaluateLinkFunction(linkFunction, menuItem, user) {
+        const authService = this.getService(AuthService);
         try {
             const ruleFunc = eval(linkFunction);
             return ruleFunc({
-                params: {user: user, moment: moment}
+                params: {user: user, moment: moment, getAuthToken: () => authService.getAuthToken()}
             });
         } catch (e) {
             General.logDebug("Rule-Failure", e);
