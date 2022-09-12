@@ -482,7 +482,7 @@ class RuleEvaluationService extends BaseService {
         const size = this.getRepeatableObservationSize(childFormElement, entity);
         return _.range(size)
             .map(questionGroupIndex => {
-                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex, entityContext);
+                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, entityContext, questionGroupIndex);
                 if (formElementStatus)
                     formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                 return formElementStatus;
@@ -514,7 +514,7 @@ class RuleEvaluationService extends BaseService {
                     if (formElement.groupUuid) {
                         return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext);
                     }
-                    return this.runFormElementStatusRule(formElement, entity, entityName, null, entityContext);
+                    return this.runFormElementStatusRule(formElement, entity, entityName, entityContext);
                 })
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
@@ -530,7 +530,7 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    runFormElementStatusRule(formElement, entity, entityName, questionGroupIndex, entityContext) {
+    runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex) {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
