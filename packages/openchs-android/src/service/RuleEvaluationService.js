@@ -451,7 +451,7 @@ class RuleEvaluationService extends BaseService {
         return defaultChecklists;
     }
 
-    runFormElementGroupRule(formElementGroup, entity, entityName) {
+    runFormElementGroupRule(formElementGroup, entity, entityName, entityContext) {
         if (_.isNil(formElementGroup.rule) || _.isEmpty(_.trim(formElementGroup.rule))) {
             return formElementGroup.getFormElements().flatMap((formElement) => {
                 if (formElement.groupUuid) {
@@ -469,7 +469,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
-                params: {formElementGroup, entity, services: this.services},
+                params: {formElementGroup, entity, services: this.services, entityContext},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {
@@ -478,11 +478,11 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getTheChildFormElementStatues(childFormElement, entity, entityName) {
+    getTheChildFormElementStatues(childFormElement, entity, entityName, entityContext) {
         const size = this.getRepeatableObservationSize(childFormElement, entity);
         return _.range(size)
             .map(questionGroupIndex => {
-                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex);
+                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex, entityContext);
                 if (formElementStatus)
                     formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                 return formElementStatus;
@@ -498,13 +498,13 @@ class RuleEvaluationService extends BaseService {
         return questionGroupObs ? questionGroupObs.size() : 1;
     }
 
-    getFormElementsStatuses(entity, entityName, formElementGroup) {
+    getFormElementsStatuses(entity, entityName, formElementGroup, entityContext={}) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const formElementsWithRules = formElementGroup
             .getFormElements()
             .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
-        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName);
+        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName, entityContext);
         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
         const applicableFormElements = formElementsWithRules
             .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
@@ -512,9 +512,9 @@ class RuleEvaluationService extends BaseService {
             let formElementStatuses = applicableFormElements
                 .map(formElement => {
                     if (formElement.groupUuid) {
-                        return this.getTheChildFormElementStatues(formElement, entity, entityName);
+                        return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext);
                     }
-                    return this.runFormElementStatusRule(formElement, entity, entityName);
+                    return this.runFormElementStatusRule(formElement, entity, entityName, entityContext);
                 })
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
@@ -530,12 +530,12 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    runFormElementStatusRule(formElement, entity, entityName, questionGroupIndex) {
+    runFormElementStatusRule(formElement, entity, entityName, questionGroupIndex, entityContext) {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
             return ruleFunc({
-                params: {formElement, entity, questionGroupIndex, services: this.services},
+                params: {formElement, entity, questionGroupIndex, services: this.services, entityContext},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {

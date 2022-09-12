@@ -4,7 +4,7 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {Actions} from "../../action/individual/IndividualAddRelativeActions";
+import {Actions} from "../../action/individual/PersonAddRelativeActions";
 import General from "../../utility/General";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";

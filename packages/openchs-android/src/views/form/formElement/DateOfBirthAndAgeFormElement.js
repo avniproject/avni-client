@@ -11,7 +11,7 @@ import Fonts from "../../primitives/Fonts";
 import {CheckBox, Radio} from "native-base";
 import _ from "lodash";
 import General from "../../../utility/General";
-import {Actions} from "../../../action/individual/IndividualRegisterActions";
+import {Actions} from "../../../action/individual/PersonRegisterActions";
 import UserInfoService from "../../../service/UserInfoService";
 
 class DateOfBirthAndAgeFormElement extends AbstractComponent {

@@ -30,6 +30,12 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
+    getEntityContext() {
+        return {
+            group: this.group
+        }
+    }
+
     static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
         const individualRegistrationState = new IndividualRegistrationState([],

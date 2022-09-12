@@ -22,7 +22,7 @@ import DraftSubjectService from "../service/draft/DraftSubjectService";
 import IndividualDetailsCard from "./common/IndividualDetailsCard";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SubjectRegisterView from "./subject/SubjectRegisterView";
-import IndividualRegisterView from "./individual/IndividualRegisterView";
+import PersonRegisterView from "./individual/PersonRegisterView";
 import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
 
@@ -122,7 +122,7 @@ class RegisterView extends AbstractComponent {
                 individualUUID: subject.uuid,
                 isDraftEntity: true,
                 workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
-            }).to(subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView)}>
+            }).to(subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView)}>
                 <View>
                     <IndividualDetailsCard individual={subject} renderDraftString/>
                 </View>

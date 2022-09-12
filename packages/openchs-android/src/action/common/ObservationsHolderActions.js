@@ -5,7 +5,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        let formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup);
+        let formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }

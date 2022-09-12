@@ -16,7 +16,7 @@ import GroupAffiliationState from "../../state/GroupAffiliationState";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 
-export class IndividualRegisterActions {
+export class PersonRegisterActions {
     static getInitialState(context) {
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
@@ -27,8 +27,8 @@ export class IndividualRegisterActions {
     static onLoad(state, action, context) {
         let isNewEntity = action.isDraftEntity || _.isNil(action.individualUUID);
         const individual = action.isDraftEntity ?
-            IndividualRegisterActions.getDraftIndividual(action, context) :
-            IndividualRegisterActions.getOrCreateIndividual(isNewEntity, action, context);
+            PersonRegisterActions.getDraftIndividual(action, context) :
+            PersonRegisterActions.getOrCreateIndividual(isNewEntity, action, context);
         const subjectType = individual.subjectType;
         const form = context.get(FormMappingService).findRegistrationForm(subjectType);
 
@@ -42,15 +42,14 @@ export class IndividualRegisterActions {
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const saveDrafts = isNewEntity && isSaveDraftOn;
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
-        const groupSubject = context.get(GroupSubjectService).findByUUID(action.groupSubjectUUID);
-        const group = groupSubject.groupSubject;
+        const group = context.get(IndividualService).findByUUID(action.groupSubjectUUID);
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
-        IndividualRegisterActions.setAgeState(newState);
-        return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegisterActions);
+        PersonRegisterActions.setAgeState(newState);
+        return QuickFormEditingActions.moveToPage(newState, action, context, PersonRegisterActions);
     }
 
     static onFormLoad(state, action, context) {
-        return IndividualRegisterActions.onLoad(state, action, context);
+        return PersonRegisterActions.onLoad(state, action, context);
     }
 
     static enterRegistrationDate(state, action) {
@@ -105,7 +104,7 @@ export class IndividualRegisterActions {
     static enterIndividualDOB(state, action) {
         const newState = state.clone();
         newState.individual.setDateOfBirth(action.value);
-        IndividualRegisterActions.setAgeState(newState);
+        PersonRegisterActions.setAgeState(newState);
         newState.handleValidationResult(newState.household.validateRelativeAge(newState.individual));
         newState.handleValidationResult(newState.individual.validateDateOfBirth());
         return newState;
@@ -254,30 +253,30 @@ const actions = {
 };
 
 export default new Map([
-    [actions.ON_LOAD, IndividualRegisterActions.onLoad],
-    [actions.ON_FORM_LOAD, IndividualRegisterActions.onFormLoad],
-    [actions.NEXT, IndividualRegisterActions.onNext],
-    [actions.SUMMARY_PAGE, IndividualRegisterActions.onSummaryPage],
-    [actions.PREVIOUS, IndividualRegisterActions.onPrevious],
-    [actions.REGISTRATION_ENTER_REGISTRATION_DATE, IndividualRegisterActions.enterRegistrationDate],
-    [actions.REGISTRATION_ENTER_FIRST_NAME, IndividualRegisterActions.enterFirstName],
-    [actions.REGISTRATION_ENTER_MIDDLE_NAME, IndividualRegisterActions.enterMiddleName],
-    [actions.REGISTRATION_ENTER_LAST_NAME, IndividualRegisterActions.enterLastName],
-    [actions.REGISTRATION_ENTER_DOB, IndividualRegisterActions.enterIndividualDOB],
-    [actions.REGISTRATION_ENTER_DOB_VERIFIED, IndividualRegisterActions.enterIndividualDOBVerified],
-    [actions.REGISTRATION_ENTER_AGE, IndividualRegisterActions.enterIndividualAge],
-    [actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, IndividualRegisterActions.enterIndividualAgeProvidedInYears],
-    [actions.REGISTRATION_ENTER_GENDER, IndividualRegisterActions.enterIndividualGender],
-    [actions.REGISTRATION_ENTER_ADDRESS_LEVEL, IndividualRegisterActions.enterIndividualAddressLevel],
+    [actions.ON_LOAD, PersonRegisterActions.onLoad],
+    [actions.ON_FORM_LOAD, PersonRegisterActions.onFormLoad],
+    [actions.NEXT, PersonRegisterActions.onNext],
+    [actions.SUMMARY_PAGE, PersonRegisterActions.onSummaryPage],
+    [actions.PREVIOUS, PersonRegisterActions.onPrevious],
+    [actions.REGISTRATION_ENTER_REGISTRATION_DATE, PersonRegisterActions.enterRegistrationDate],
+    [actions.REGISTRATION_ENTER_FIRST_NAME, PersonRegisterActions.enterFirstName],
+    [actions.REGISTRATION_ENTER_MIDDLE_NAME, PersonRegisterActions.enterMiddleName],
+    [actions.REGISTRATION_ENTER_LAST_NAME, PersonRegisterActions.enterLastName],
+    [actions.REGISTRATION_ENTER_DOB, PersonRegisterActions.enterIndividualDOB],
+    [actions.REGISTRATION_ENTER_DOB_VERIFIED, PersonRegisterActions.enterIndividualDOBVerified],
+    [actions.REGISTRATION_ENTER_AGE, PersonRegisterActions.enterIndividualAge],
+    [actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, PersonRegisterActions.enterIndividualAgeProvidedInYears],
+    [actions.REGISTRATION_ENTER_GENDER, PersonRegisterActions.enterIndividualGender],
+    [actions.REGISTRATION_ENTER_ADDRESS_LEVEL, PersonRegisterActions.enterIndividualAddressLevel],
     [actions.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [actions.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [actions.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.PRIMITIVE_VALUE_END_EDITING, ObservationsHolderActions.onPrimitiveObsUpdateValue],
     [actions.DATE_DURATION_CHANGE, ObservationsHolderActions.onDateDurationChange],
     [actions.DURATION_CHANGE, ObservationsHolderActions.onDurationChange],
-    [actions.SAVE, IndividualRegisterActions.onSave],
-    [actions.REGISTRATION_SET_PROFILE_PICTURE, IndividualRegisterActions.setProfilePicture],
-    [actions.REGISTRATION_SET_LOCATION, IndividualRegisterActions.setLocation],
+    [actions.SAVE, PersonRegisterActions.onSave],
+    [actions.REGISTRATION_SET_PROFILE_PICTURE, PersonRegisterActions.setProfilePicture],
+    [actions.REGISTRATION_SET_LOCATION, PersonRegisterActions.setLocation],
     [actions.SET_LOCATION_ERROR, GeolocationActions.setLocationError],
     [actions.PHONE_NUMBER_CHANGE, ObservationsHolderActions.onPhoneNumberChange],
     [actions.GROUP_QUESTION_VALUE_CHANGE, ObservationsHolderActions.onGroupQuestionChange],

@@ -13,7 +13,7 @@ import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
-import IndividualRegisterView from "../views/individual/IndividualRegisterView";
+import PersonRegisterView from "../views/individual/PersonRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
@@ -31,7 +31,7 @@ import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
-import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
+import PersonRegisterFormView from "../views/individual/PersonRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
 import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
@@ -189,14 +189,14 @@ class CHSNavigator {
             workLists,
         };
         if (subjectType.isPerson()) {
-            if (IndividualRegisterView.canLoad({uuid, subjectTypeName}, source)) {
+            if (PersonRegisterView.canLoad({uuid, subjectTypeName}, source)) {
                 if (pageNumber > 0 && canMoveToNextView) {
                     TypedTransition.from(source).resetStack([], [
-                        TypedTransition.createRoute(IndividualRegisterView, params),
-                        TypedTransition.createRoute(IndividualRegisterFormView, {...params, pageNumber: pageNumber + 1})
+                        TypedTransition.createRoute(PersonRegisterView, params),
+                        TypedTransition.createRoute(PersonRegisterFormView, {...params, pageNumber: pageNumber + 1})
                     ]);
                 } else {
-                    TypedTransition.from(source).with({...params}).to(IndividualRegisterView)
+                    TypedTransition.from(source).with({...params}).to(PersonRegisterView)
                 }
             }
         } else if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
@@ -318,7 +318,7 @@ class CHSNavigator {
     }
 
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID, message) {
-        const toBeRemoved = [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView, AddNewMemberView];
+        const toBeRemoved = [SystemRecommendationView, PersonRegisterFormView, PersonRegisterView, SubjectRegisterView, AddNewMemberView];
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
@@ -356,8 +356,8 @@ class CHSNavigator {
 
         const toBePoped = [
             SystemRecommendationView,
-            IndividualRegisterFormView,
-            IndividualRegisterView,
+            PersonRegisterFormView,
+            PersonRegisterView,
             SubjectRegisterView,
             ProgramEncounterView,
             ProgramEnrolmentView,
@@ -368,7 +368,7 @@ class CHSNavigator {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
                 const subjectType = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
-                const target = subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView;
+                const target = subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
                         TypedTransition.createRoute(target, {

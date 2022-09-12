@@ -1,4 +1,4 @@
-import IndividualRegisterActionMap, {IndividualRegisterActions} from "../action/individual/IndividualRegisterActions";
+import PersonRegisterActionMap, {PersonRegisterActions} from "../action/individual/PersonRegisterActions";
 import Reducer from "./Reducer";
 import IndividualProfileActionMap, {IndividualProfileActions} from "../action/individual/IndividualProfileActions";
 import ProgramEnrolmentActionMap, {ProgramEnrolmentActions} from '../action/program/ProgramEnrolmentActions';
@@ -22,7 +22,7 @@ import {StartProgramActions, StartProgramActionsMap} from "../action/program/Sta
 import {LoginActions, LoginActionsMap} from "../action/LoginActions";
 import {ProgramEncounterCancelActions, ProgramEncounterCancelActionsMap} from "../action/program/ProgramEncounterCancelActions";
 import FamilyRegisterActionMap, {FamilyRegisterActions} from "../action/familyFolder/FamilyRegisterActions";
-import IndividualAddRelativeActionsMap, {IndividualAddRelativeActions} from '../action/individual/IndividualAddRelativeActions';
+import IndividualAddRelativeActionsMap, {PersonAddRelativeActions} from '../action/individual/PersonAddRelativeActions';
 import {ChecklistItemActionMap, ChecklistItemActions} from '../action/program/ChecklistItemActions';
 import VideoListActions from '../action/VideoListViewActions';
 import EntitySyncStatusActions from "../action/common/EntitySyncStatusActions";
@@ -51,7 +51,7 @@ export default class Reducers {
         programEnrolment: "programEnrolment",
         individualGeneralHistory: "individualGeneralHistory",
         encounter: "encounter",
-        individualRegister: "individualRegister",
+        personRegister: "personRegister",
         individualProfile: 'individualProfile',
         familyProfile: 'familyProfile',
         programEnrolments: 'programEnrolments',
@@ -97,7 +97,7 @@ export default class Reducers {
         const reducerMap = {};
         reducerMap[Reducers.reducerKeys.checklist] = Reducers._add(ChecklistActionsMap, ChecklistActions, beanStore);
         reducerMap[Reducers.reducerKeys.individualSearch] = Reducers._add(IndividualSearchActionsMap, IndividualSearchActions, beanStore, 'ISA');
-        reducerMap[Reducers.reducerKeys.individualRegister] = Reducers._add(IndividualRegisterActionMap, IndividualRegisterActions, beanStore, 'IRA');
+        reducerMap[Reducers.reducerKeys.personRegister] = Reducers._add(PersonRegisterActionMap, PersonRegisterActions, beanStore, 'IRA');
         reducerMap[Reducers.reducerKeys.individualProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyProfile] = Reducers._add(IndividualProfileActionMap, IndividualProfileActions, beanStore);
         reducerMap[Reducers.reducerKeys.programEnrolment] = Reducers._add(ProgramEnrolmentActionMap, ProgramEnrolmentActions, beanStore);
@@ -118,7 +118,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore, 'FRA');
-        reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, IndividualAddRelativeActions, beanStore);
+        reducerMap[Reducers.reducerKeys.individualAddRelative] = Reducers._add(IndividualAddRelativeActionsMap, PersonAddRelativeActions, beanStore);
         reducerMap[Reducers.reducerKeys.checklistItem] = Reducers._add(ChecklistItemActionMap, ChecklistItemActions, beanStore);
         reducerMap[Reducers.reducerKeys.videoList] = Reducers._add(VideoListActions.Map, VideoListActions, beanStore);
         reducerMap[Reducers.reducerKeys.entitySyncStatusList] = Reducers._add(EntitySyncStatusActions.Map, EntitySyncStatusActions, beanStore);

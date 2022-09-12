@@ -20,8 +20,8 @@ import CHSContent from "../common/CHSContent";
 import {Individual} from 'avni-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualRegisterView from "../individual/IndividualRegisterView";
-import IndividualRegisterFormView from "../individual/IndividualRegisterFormView";
+import PersonRegisterView from "../individual/PersonRegisterView";
+import PersonRegisterFormView from "../individual/PersonRegisterFormView";
 import ProgramEncounterView from "../program/ProgramEncounterView";
 import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
 import ProgramExitView from "../program/ProgramExitView";
@@ -159,7 +159,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     onAppHeaderBack(isSaveDraftOn) {
-        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
+        const wizardViews = [PersonRegisterView, PersonRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, ChecklistItemView, SubjectRegisterView];
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);

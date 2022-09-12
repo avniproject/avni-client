@@ -48,6 +48,10 @@ class AbstractDataEntryState {
         throw new Error("getEntityType should be overridden");
     }
 
+    getEntityContext() {
+        return {};
+    }
+
     handleValidationResult(validationResult) {
         _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formIdentifier === validationResult.formIdentifier
             && existingValidationResult.questionGroupIndex === validationResult.questionGroupIndex);
