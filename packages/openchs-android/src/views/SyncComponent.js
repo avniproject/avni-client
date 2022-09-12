@@ -129,7 +129,7 @@ class SyncComponent extends AbstractComponent {
             this.sync();
         }
         this.unsubscribe = NetInfo.addEventListener(this._handleConnectivityChange);
-        NetInfo.fetch().done((isConnected) => {
+        NetInfo.fetch().then((isConnected) => {
             this.onConnectionChange(isConnected)
         });
     }

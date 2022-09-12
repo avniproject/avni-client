@@ -34,7 +34,7 @@ export default class BackupRestoreRealmService extends BaseService {
         let entityService = this.getService(EntityService);
         let entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle = Concept;
         let anEntity = entityService.findOnly(entityTypeWhichWouldHaveAtLeastOneEntityInAllImplementationsAndIsQuiteEarlyInSyncCycle.schema.name);
-        return _.isEmpty(anEntity);
+        return _.isNil(anEntity);
     }
 
     backup(dumpType, cb) {

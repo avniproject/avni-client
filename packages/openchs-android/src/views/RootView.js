@@ -44,7 +44,10 @@ class RootView extends AbstractComponent {
             return CHSNavigator.navigateToBeneficiaryIdentificationPage(this);
         }
 
-        if (decisionParameters.userExists && this.isDatabaseSynced()) {
+        let userExists = false;
+        await decisionParameters.userExists().then((x) => userExists = x);
+        const databaseSynced = this.isDatabaseSynced();
+        if (userExists && databaseSynced) {
             return CHSNavigator.navigateToLandingView(this, true);
         }
 
@@ -52,9 +55,10 @@ class RootView extends AbstractComponent {
     }
 
     async nextScreenDecisionParameters() {
+        const authService = this.context.getService(AuthService);
         return {
             beneficiaryModeOn: this.beneficiaryModeOn(),
-            userExists: await this.context.getService(AuthService).userExists,
+            userExists: authService.userExists.bind(authService),
             databaseSynced: this.isDatabaseSynced()
         }
     }

@@ -73,7 +73,7 @@ class BaseService {
 
     findOnly(schema) {
         const all = this.findAll(schema);
-        return _.isEmpty(all) ? all : all[0];
+        return all.length === 0 ? null : all[0];
     }
 
     findOnlyEntity(schema) {

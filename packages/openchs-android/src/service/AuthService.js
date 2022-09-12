@@ -103,7 +103,7 @@ class AuthService extends BaseService {
 
             if (this._authIsStubbed(settings)) {
                 General.logDebug("AuthService", "User is stubbed");
-                resolve(this.getStubbedUser());
+                resolve(true);
                 return;
             }
 

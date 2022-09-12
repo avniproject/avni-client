@@ -71,7 +71,7 @@ class FamilyFolderView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('familyFolder')}/>
                 <CHSContent>
                     <View style={FamilyFolderView.styles.container}>
-                        <ListView dataSource={dataSource}
+                        <ListView enableEmptySections={true} dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}

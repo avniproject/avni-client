@@ -134,7 +134,8 @@ class MyDashboardView extends AbstractComponent {
                     <CustomActivityIndicator
                         loading={this.state.loading}/>
                     <ScrollView>
-                        <ListView style={{marginBottom: 190}}
+                        <ListView enableEmptySections={true}
+                                style={{marginBottom: 190}}
                                   dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
