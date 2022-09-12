@@ -114,25 +114,29 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     editProfile() {
         logEvent(firebaseEvents.EDIT_SUBJECT);
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList(`${this.state.individual.subjectType.name} `,
-                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                    {
-                        uuid: this.state.individual.uuid,
-                        subjectTypeName: this.state.individual.subjectType.name
-                    })])));
+        CHSNavigator.navigateToRegisterView(this, {
+            workLists: new WorkLists(
+                new WorkList(`${this.state.individual.subjectType.name} `,
+                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                        {
+                            uuid: this.state.individual.uuid,
+                            subjectTypeName: this.state.individual.subjectType.name
+                        })]))
+        });
     }
 
     editSubjectByFEG(pageNumber) {
         logEvent(firebaseEvents.EDIT_SUBJECT);
         const canMoveToNextView = _.get(this.state.individual.validateRegistrationDate(), "success");
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList(`${this.state.individual.subjectType.name} `,
-                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                    {
-                        uuid: this.state.individual.uuid,
-                        subjectTypeName: this.state.individual.subjectType.name,
-                    })])), pageNumber, canMoveToNextView);
+        CHSNavigator.navigateToRegisterView(this, {
+            workLists: new WorkLists(
+                new WorkList(`${this.state.individual.subjectType.name} `,
+                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                        {
+                            uuid: this.state.individual.uuid,
+                            subjectTypeName: this.state.individual.subjectType.name,
+                        })]))
+        }, pageNumber, canMoveToNextView);
     }
 
     onSubjectSelection(individualUUID) {

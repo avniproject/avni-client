@@ -43,7 +43,7 @@ class RegisterView extends AbstractComponent {
         }
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))),
+                {workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))}),
             label: this.I18n.t(`${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }
@@ -58,10 +58,12 @@ class RegisterView extends AbstractComponent {
         };
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`))
-                    .withRegistration(subjectType.name)
-                    .withHouseholdRegistration(householdParams)
-                )),
+                {
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`))
+                        .withRegistration(subjectType.name)
+                        .withHouseholdRegistration(householdParams)
+                    )
+                }),
             label: this.I18n.t(`${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }
@@ -70,10 +72,12 @@ class RegisterView extends AbstractComponent {
     _addProgramAction(subjectType, program) {
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
-                    .withRegistration(subjectType.name)
-                    .withEnrolment(program.name)
-                )),
+                {
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
+                        .withRegistration(subjectType.name)
+                        .withEnrolment(program.name)
+                    )
+                }),
             label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
             backgroundColor: program.colour,
         }

@@ -164,7 +164,7 @@ class CHSNavigator {
         }).to(GenericDashboardView);
     }
 
-    static navigateToRegisterView(source, workLists, pageNumber, canMoveToNextView) {
+    static navigateToRegisterView(source, {workLists, groupSubjectUUID}, pageNumber, canMoveToNextView) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
@@ -172,6 +172,7 @@ class CHSNavigator {
         const params = {
             subjectUUID: uuid,
             individualUUID: uuid,
+            groupSubjectUUID,
             editing: !_.isNil(uuid),
             workLists,
         };

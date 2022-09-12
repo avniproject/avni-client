@@ -113,10 +113,12 @@ class ApprovalDetailsView extends AbstractComponent {
 
     getNavigateToRegisterView(clonedEntity) {
         CHSNavigator.navigateToRegisterView(this,
-            new WorkLists(new WorkList(`${clonedEntity.subjectType.name} `,
-                [new WorkItem(General.randomUUID(),
-                    WorkItem.type.REGISTRATION,
-                    {uuid: clonedEntity.uuid, subjectTypeName: clonedEntity.subjectType.name})])));
+            {
+                workLists: new WorkLists(new WorkList(`${clonedEntity.subjectType.name} `,
+                    [new WorkItem(General.randomUUID(),
+                        WorkItem.type.REGISTRATION,
+                        {uuid: clonedEntity.uuid, subjectTypeName: clonedEntity.subjectType.name})]))
+            });
     }
 
     renderApproveAndRejectButtons(entity, I18n) {

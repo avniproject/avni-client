@@ -42,7 +42,9 @@ export class IndividualRegisterActions {
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const saveDrafts = isNewEntity && isSaveDraftOn;
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
-        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity);
+        const groupSubject = context.get(GroupSubjectService).findByUUID(action.groupSubjectUUID);
+        const group = groupSubject.groupSubject;
+        const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
         IndividualRegisterActions.setAgeState(newState);
         return QuickFormEditingActions.moveToPage(newState, action, context, IndividualRegisterActions);
     }
