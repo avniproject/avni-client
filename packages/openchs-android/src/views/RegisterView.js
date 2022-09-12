@@ -93,18 +93,21 @@ class RegisterView extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => {
                     onPress()
                 }}>
-                    <View style={{marginRight: Distances.ScaledContentDistanceFromEdge, marginLeft: Distances.ScaledContentDistanceFromEdge}}>
-                    <View style={[styles.container]}>
-                        <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
-                        <View style={[styles.textContainer]}>
-                            <Text
-                                style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
+                    <View style={{
+                        marginRight: Distances.ScaledContentDistanceFromEdge,
+                        marginLeft: Distances.ScaledContentDistanceFromEdge
+                    }}>
+                        <View style={[styles.container]}>
+                            <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
+                            <View style={[styles.textContainer]}>
+                                <Text
+                                    style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
+                            </View>
+                            <Icon style={styles.iconStyle} name='chevron-right'/>
                         </View>
-                        <Icon style={styles.iconStyle} name='chevron-right'/>
-                    </View>
-                    {index + 1 !== totalActions &&
-                    <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal:32}}/>
-                    }
+                        {index + 1 !== totalActions &&
+                            <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal: 32}}/>
+                        }
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -134,7 +137,7 @@ class RegisterView extends AbstractComponent {
                 <View style={styles.draftContainerStyle}>
                     <Text style={styles.draftHeaderStyle}>{this.I18n.t('drafts')}</Text>
                     <View style={styles.draftMessageContainer}>
-                    <Text style={styles.draftMessageStyle}>{this.I18n.t('draftDeleteMessage')}</Text>
+                        <Text style={styles.draftMessageStyle}>{this.I18n.t('draftDeleteMessage')}</Text>
                     </View>
                     {_.map(draftSubjects, draftSubject => this.renderDraft(draftSubject.constructIndividual()))}
                 </View>
@@ -162,9 +165,12 @@ class RegisterView extends AbstractComponent {
             const enrolCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${subjectType.uuid}'`;
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
             const programs = formMappingService.findActiveProgramsForSubjectType(subjectType)
-                                .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
+                .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             if (this.userSettings.registerEnrol) {
-                actions = actions.concat(this._addProgramActions(subjectType, programs).map(action => ({action, subjectType})));
+                actions = actions.concat(this._addProgramActions(subjectType, programs).map(action => ({
+                    action,
+                    subjectType
+                })));
             }
         });
 

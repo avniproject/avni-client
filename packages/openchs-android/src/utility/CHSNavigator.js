@@ -1,5 +1,13 @@
 // @flow
-import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem, Individual} from 'avni-models';
+import {
+    Encounter,
+    EncounterType,
+    ProgramEncounter,
+    ProgramEnrolment,
+    SubjectType,
+    WorkItem,
+    Individual
+} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -96,7 +104,7 @@ class CHSNavigator {
             source: source,
             next: next,
             onSuccessVerification: onSuccess,
-            onSkipVerification : onSkip,
+            onSkipVerification: onSkip,
             phoneNumber: observation.getValue()
         }).to(PhoneNumberVerificationView, true)
     }
@@ -153,7 +161,11 @@ class CHSNavigator {
     }
 
     static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing, pageNumber}).to(ProgramEncounterCancelView);
+        TypedTransition.from(source).with({
+            programEncounter: programEncounter,
+            editing,
+            pageNumber
+        }).to(ProgramEncounterCancelView);
     }
 
     static navigateToIndividualRegistrationDetails(source, individualUUID, backFunction) {
@@ -389,7 +401,7 @@ class CHSNavigator {
                 const groupSubject = context.getService(GroupSubjectService).findByUUID(nextWorkItem.parameters.groupSubjectUUID);
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(RemoveMemberView, {groupSubject, goToMemberDashboard:true})
+                        TypedTransition.createRoute(RemoveMemberView, {groupSubject, goToMemberDashboard: true})
                     ]);
                 break;
             }

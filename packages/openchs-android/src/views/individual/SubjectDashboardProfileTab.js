@@ -4,7 +4,9 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
-import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action/individual/IndividualRegistrationDetailsActions";
+import {
+    IndividualRegistrationDetailsActionsNames as Actions
+} from "../../action/individual/IndividualRegistrationDetailsActions";
 import {Actions as GeneralEncounterActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
@@ -55,7 +57,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             });
         };
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
-        this.dispatchAction(GeneralEncounterActions.ON_LOAD, {individualUUID: this.props.params.individualUUID, newEncounterCallback});
+        this.dispatchAction(GeneralEncounterActions.ON_LOAD, {
+            individualUUID: this.props.params.individualUUID,
+            newEncounterCallback
+        });
         return super.componentWillMount();
     }
 
@@ -168,8 +173,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const removeMemberCriteria = `privilege.name = '${Privilege.privilegeName.removeMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypesForEditMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editMemberCriteria, 'subjectTypeUuid');
         const allowedSubjectTypesForRemoveMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(removeMemberCriteria, 'subjectTypeUuid');
-        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, {label:'edit', fn: (groupSubject) => this.onMemberEdit(groupSubject)});
-        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {label:'remove', fn: (groupSubject) => this.onMemberRemove(groupSubject)});
+        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, {
+            label: 'edit',
+            fn: (groupSubject) => this.onMemberEdit(groupSubject)
+        });
+        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {
+            label: 'remove',
+            fn: (groupSubject) => this.onMemberRemove(groupSubject)
+        });
         return (
             <View style={styles.container}>
                 <TouchableOpacity

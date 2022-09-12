@@ -47,7 +47,7 @@ class ApprovalDetailsView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD,{entity: this.props.entity, schema: this.props.schema});
+        this.dispatchAction(Actions.ON_LOAD, {entity: this.props.entity, schema: this.props.schema});
         super.componentWillMount();
     }
 
@@ -75,7 +75,8 @@ class ApprovalDetailsView extends AbstractComponent {
             [ChecklistItem.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'completionDate'}
         };
         const {label, dateProperty} = schemaToDatePropertyMap[schema];
-        return <Text style={styles.entityDateStyle}>{`${I18n.t(label)}${General.toDisplayDate(entity[dateProperty])}`}</Text>
+        return <Text
+            style={styles.entityDateStyle}>{`${I18n.t(label)}${General.toDisplayDate(entity[dateProperty])}`}</Text>
     }
 
     renderEditButton(entity, schema) {
