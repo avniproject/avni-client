@@ -124,7 +124,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.individual, 'Individual');
+        let decisions = ruleService.getDecisions(this.individual, 'Individual', {}, this.getEntityContext());
         context.get(ConceptService).addDecisions(this.individual.observations, decisions.registrationDecisions);
 
         return decisions;
@@ -135,7 +135,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, [], this.getEntityContext());
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.individual, nextScheduledVisits);
     }
 

@@ -96,7 +96,7 @@ class RuleEvaluationService extends BaseService {
         }
     };
 
-    getEntityDecision(form, entity, context, entityName) {
+    getEntityDecision(form, entity, context, entityName, entityContext) {
         const defaultDecisions = {
             "enrolmentDecisions": [],
             "encounterDecisions": [],
@@ -119,7 +119,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: { decisions: defaultDecisions, entity, services: this.services },
+                    params: { decisions: defaultDecisions, entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
@@ -179,10 +179,10 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getDecisions(entity, entityName, context) {
+    getDecisions(entity, entityName, context, entityContext= {}) {
         const formMapKey = _.get(context, 'usage') === 'Exit' ? 'ProgramExit' : entityName;
         const form = this.entityFormMap.get(formMapKey)(entity);
-        return this.getEntityDecision(form, entity, context, entityName);
+        return this.getEntityDecision(form, entity, context, entityName, entityContext);
     }
 
     updateWorkLists(workLists, context, entityName) {
@@ -395,7 +395,7 @@ class RuleEvaluationService extends BaseService {
         return defaultValidationErrors;
     }
 
-    getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
+    getNextScheduledVisits(entity, entityName, visitScheduleConfig, entityContext = {}) {
         const defaultVisitSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
@@ -406,7 +406,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
-                    params: { visitSchedule: scheduledVisits, entity, services: this.services },
+                    params: { visitSchedule: scheduledVisits, entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 return nextVisits;
