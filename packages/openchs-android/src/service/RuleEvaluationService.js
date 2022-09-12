@@ -514,7 +514,7 @@ class RuleEvaluationService extends BaseService {
                     if (formElement.groupUuid) {
                         return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext);
                     }
-                    return this.runFormElementStatusRule(formElement, entity, entityName, entityContext);
+                    return this.runFormElementStatusRule(formElement, entity, entityName, null, entityContext);
                 })
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
