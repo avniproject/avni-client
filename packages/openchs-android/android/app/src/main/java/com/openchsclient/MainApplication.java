@@ -36,6 +36,11 @@ import com.reactnativecommunity.webview.RNCWebViewPackage;
 import java.util.Arrays;
 import java.util.List;
 
+import android.content.Context;
+import com.facebook.react.ReactInstanceManager;
+
+import java.lang.reflect.InvocationTargetException;
+
 public class MainApplication extends Application implements ReactApplication {
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
@@ -84,10 +89,35 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
+        initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     }
 
     @Override
     public ReactNativeHost getReactNativeHost() {
         return mReactNativeHost;
+    }
+
+    private static void initializeFlipper(
+            Context context, ReactInstanceManager reactInstanceManager) {
+        if (BuildConfig.DEBUG) {
+            try {
+        /*
+         We use reflection here to pick up the class that initializes
+         Flipper, since Flipper library is not available in release mode
+        */
+                Class<?> aClass = Class.forName("com.openchsclient.tools.ReactNativeFlipper");
+                aClass
+                        .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
+                        .invoke(null, context, reactInstanceManager);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
