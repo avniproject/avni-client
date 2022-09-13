@@ -366,7 +366,7 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    validateAgainstRule(entity, form, entityName) {
+    validateAgainstRule(entity, form, entityName, entityContext = {}) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
@@ -375,7 +375,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.validationRule);
                 return ruleFunc({
-                    params: { entity, services: this.services },
+                    params: { entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             } catch (e) {
