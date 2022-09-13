@@ -168,9 +168,9 @@ class SubjectMigrationService extends BaseService {
     async migrateSubjectIfRequired(subjectMigration) {
         const addressLevelService = this.getService(AddressLevelService);
         const userInfoService = this.getService(UserInfoService);
-        const userSyncSettings = userInfoService.getUserSyncSettings();
-        const syncConcept1Values = _.get(userSyncSettings, 'syncConcept1Values', []);
-        const syncConcept2Values = _.get(userSyncSettings, 'syncConcept2Values', []);
+        const subjectType = this.getService(SubjectTypeService).findByUUID(subjectMigration.subjectTypeUUID);
+        const syncConcept1Values = userInfoService.getSyncConcept1Values(subjectType);
+        const syncConcept2Values = userInfoService.getSyncConcept2Values(subjectType);
         const oldAddressExists = addressLevelService.existsByUuid(subjectMigration.oldAddressLevelUUID);
         const newAddressExists = addressLevelService.existsByUuid(subjectMigration.newAddressLevelUUID);
         const oldSyncConcept1ValueExists = _.includes(syncConcept1Values, subjectMigration.oldSyncConcept1Value);
