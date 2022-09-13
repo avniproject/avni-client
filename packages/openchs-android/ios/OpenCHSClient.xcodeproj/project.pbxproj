@@ -33,7 +33,6 @@
 		FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7838E9E6BAB54701A918FA0E /* libRNImagePicker.a */; };
 		FA0A68B4292945EA9872F7F5 /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A904ED10297E49F98BAA6EB5 /* libRNFetchBlob.a */; };
 		19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F6402978875342EC987316EF /* libRNDeviceInfo.a */; };
-		2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B2A833E80D084DFE91FEAE8A /* libCodePush.a */; };
 		7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */; };
 		D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4EC43C92D0E4189844EFAB5 /* libRNCWebView.a */; };
 		A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */; };
@@ -182,8 +181,6 @@
 		A904ED10297E49F98BAA6EB5 /* libRNFetchBlob.a */ = {isa = PBXFileReference; name = "libRNFetchBlob.a"; path = "libRNFetchBlob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; name = "RNDeviceInfo.xcodeproj"; path = "../node_modules/react-native-device-info/ios/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		F6402978875342EC987316EF /* libRNDeviceInfo.a */ = {isa = PBXFileReference; name = "libRNDeviceInfo.a"; path = "libRNDeviceInfo.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */ = {isa = PBXFileReference; name = "CodePush.xcodeproj"; path = "../node_modules/react-native-code-push/ios/CodePush.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		B2A833E80D084DFE91FEAE8A /* libCodePush.a */ = {isa = PBXFileReference; name = "libCodePush.a"; path = "libCodePush.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */ = {isa = PBXFileReference; name = "RNImmediatePhoneCall.xcodeproj"; path = "../node_modules/react-native-immediate-phone-call/ios/RNImmediatePhoneCall.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */ = {isa = PBXFileReference; name = "libRNImmediatePhoneCall.a"; path = "libRNImmediatePhoneCall.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; name = "RNCWebView.xcodeproj"; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
@@ -231,7 +228,6 @@
 				FA57F0706485444C85249CBD /* libRNImagePicker.a in Frameworks */,
 				FA0A68B4292945EA9872F7F5 /* libRNFetchBlob.a in Frameworks */,
 				19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */,
-				2E601BFE6FA4474DA441D64D /* libCodePush.a in Frameworks */,
 				7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */,
 				D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */,
 				A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */,
@@ -379,7 +375,6 @@
 				E199E16A33AA44858C0EE0BE /* RNImagePicker.xcodeproj */,
 				132D1913DDDA45B683345F9A /* RNFetchBlob.xcodeproj */,
 				48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */,
-				7570135693C746B1A3F23DB6 /* CodePush.xcodeproj */,
 				68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */,
 				3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */,
 				211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */,
@@ -738,17 +733,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Debug;
@@ -765,17 +749,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OpenCHSClient.app/OpenCHSClient";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
-					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 			};
 			name = Release;
@@ -803,7 +776,6 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
-					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",
@@ -835,7 +807,6 @@
 					"$(SRCROOT)/../node_modules/react-native-image-picker/ios",
 					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
-					"$(SRCROOT)/../node_modules/react-native-code-push/ios/CodePush/**",
 					"$(SRCROOT)/../node_modules/react-native-webview/apple/**",
 					"$(SRCROOT)/../node_modules/react-native-background-job/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios",

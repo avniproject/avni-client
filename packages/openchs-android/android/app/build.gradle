@@ -12,7 +12,6 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
-apply from: "../../node_modules/react-native-code-push/android/codepush.gradle"
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
 /**
@@ -122,7 +121,6 @@ dependencies {
     implementation project(':@react-native-firebase_app')
     implementation project(':@react-native-firebase_analytics')
     implementation project(':react-native-immediate-phone-call')
-    implementation project(':react-native-code-push')
     implementation project(':amazon-cognito-identity-js')
     compile project(':rn-fetch-blob')
     compile project(':react-native-image-picker')

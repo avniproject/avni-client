@@ -14,7 +14,6 @@ import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
-import com.microsoft.codepush.react.CodePush;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.amazonaws.RNAWSCognitoPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
@@ -41,11 +40,6 @@ public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
 
         @Override
-        protected String getJSBundleFile() {
-        return CodePush.getJSBundleFile();
-        }
-
-        @Override
         public boolean getUseDeveloperSupport() {
             return BuildConfig.DEBUG;
         }
@@ -64,7 +58,6 @@ public class MainApplication extends Application implements ReactApplication {
             new ReactNativeFirebaseAnalyticsPackage(),
             new ReactNativeFirebaseAppPackage(),
             new RNImmediatePhoneCallPackage(),
-            new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
             new RNDeviceInfo(),
                     new RNFetchBlobPackage(),
                     new ImagePickerPackage(),

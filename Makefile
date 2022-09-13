@@ -21,7 +21,6 @@ ifneq ($(shell node -v),$(shell cat .nvmrc))
 endif
 	@echo "node => $(shell node -v)"
 
-include makefiles/codepush.mk
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 
