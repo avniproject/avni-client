@@ -25,12 +25,19 @@ class UserInfoService extends BaseService {
         return this.getUserInfo().getSyncSettings();
     }
 
-    getSyncConcept1Values() {
-        return _.get(this.getUserSyncSettings(), 'syncConcept1Values', []);
+    getSyncConcept1Values(subjectType) {
+        const subjectTypeSyncSettings = this.getSubjectTypeSyncSettings(subjectType);
+        return _.get(subjectTypeSyncSettings, 'syncConcept1Values', []);
     }
 
-    getSyncConcept2Values() {
-        return _.get(this.getUserSyncSettings(), 'syncConcept2Values', []);
+    getSubjectTypeSyncSettings(subjectType) {
+        const subjectTypeSyncSettings = _.get(this.getUserSyncSettings(), 'subjectTypeSyncSettings', []);
+        return _.find(subjectTypeSyncSettings, ({subjectTypeUUID}) => subjectTypeUUID === subjectType.uuid);
+    }
+
+    getSyncConcept2Values(subjectType) {
+        const subjectTypeSyncSettings = this.getSubjectTypeSyncSettings(subjectType);
+        return _.get(subjectTypeSyncSettings, 'syncConcept2Values', []);
     }
 
     saveOrUpdate(entity) {

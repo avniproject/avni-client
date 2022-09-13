@@ -258,8 +258,8 @@ class SubjectRegisterView extends AbstractComponent {
                             groupAffiliation={this.state.groupAffiliation}
                             syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
                             syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
-                            allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
-                            allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
+                            allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
+                            allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
                         />}
                         {!displayTimer &&
                         <WizardButtons previous={{
