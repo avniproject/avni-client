@@ -13,6 +13,7 @@ import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
 import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
+import {ObservationsHolder} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -34,10 +35,15 @@ export class EncounterActions {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
             if (previousEncounter) {
                 action.encounter.observations = previousEncounter.cloneForEdit().observations;
+                let observationsHolder = new ObservationsHolder(action.encounter.observations);
+                action.pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
+                // console.log("action.pageNumber", action.pageNumber);
             }
             return action.encounter;
         };
         const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.encounter;
+
+        // console.log("action.pageNumber", action.pageNumber);
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
