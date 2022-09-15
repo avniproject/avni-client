@@ -13,6 +13,7 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
+import {ObservationsHolder} from "openchs-models";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -43,10 +44,18 @@ class ProgramEncounterActions {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             if (previousEncounter) {
                 action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
+                let observationsHolder = new ObservationsHolder(action.programEncounter.observations);
+                let pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
+                if(_.isUndefined(pageNumber))
+                    state.allElementsFilledForImmutableEncounter = true;
+                else
+                    action.pageNumber = pageNumber;
             }
             return action.programEncounter;
         };
         const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.programEncounter;
+        if(state.allElementsFilledForImmutableEncounter)
+            return state;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder

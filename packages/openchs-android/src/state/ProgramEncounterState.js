@@ -19,6 +19,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow);
         this.programEncounter = programEncounter;
         this.messageDisplayed = messageDisplayed;
+        this.allElementsFilledForImmutableEncounter = false;
     }
 
     getEntity() {
