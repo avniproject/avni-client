@@ -44,9 +44,9 @@ class ProgramEncounterActions {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             if (previousEncounter) {
                 action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
-                let observationsHolder = new ObservationsHolder(action.programEncounter.observations);
-                let pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
-                if(_.isUndefined(pageNumber))
+                const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
+                const pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
+                if (_.isUndefined(pageNumber))
                     state.allElementsFilledForImmutableEncounter = true;
                 else
                     action.pageNumber = pageNumber;
@@ -54,7 +54,7 @@ class ProgramEncounterActions {
             return action.programEncounter;
         };
         const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.programEncounter;
-        if(state.allElementsFilledForImmutableEncounter)
+        if (state.allElementsFilledForImmutableEncounter)
             return state;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {

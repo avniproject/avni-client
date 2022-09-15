@@ -35,9 +35,9 @@ export class EncounterActions {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
             if (previousEncounter) {
                 action.encounter.observations = previousEncounter.cloneForEdit().observations;
-                let observationsHolder = new ObservationsHolder(action.encounter.observations);
-                let pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
-                if(_.isUndefined(pageNumber))
+                const observationsHolder = new ObservationsHolder(action.encounter.observations);
+                const pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
+                if (_.isUndefined(pageNumber))
                     state.allElementsFilledForImmutableEncounter = true;
                 else
                     action.pageNumber = pageNumber;
@@ -45,7 +45,7 @@ export class EncounterActions {
             return action.encounter;
         };
         const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.encounter;
-        if(state.allElementsFilledForImmutableEncounter)
+        if (state.allElementsFilledForImmutableEncounter)
             return state;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {

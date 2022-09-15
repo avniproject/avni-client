@@ -137,8 +137,10 @@ class ProgramEncounterView extends AbstractComponent {
 
 
     render() {
-        if(this.state.allElementsFilledForImmutableEncounter) { this.onGoToSummary() }
         General.logDebug('ProgramEncounterView', 'render');
+        if (this.state.allElementsFilledForImmutableEncounter) {
+            this.onGoToSummary()
+        }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;
         this.displayMessage(this.props.params.message);

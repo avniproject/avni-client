@@ -141,9 +141,11 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     render() {
-        if(this.state.allElementsFilledForImmutableEncounter) { this.onGoToSummary() }
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
+        if (this.state.allElementsFilledForImmutableEncounter) {
+            this.onGoToSummary()
+        }
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
