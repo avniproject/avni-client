@@ -36,14 +36,17 @@ export class EncounterActions {
             if (previousEncounter) {
                 action.encounter.observations = previousEncounter.cloneForEdit().observations;
                 let observationsHolder = new ObservationsHolder(action.encounter.observations);
-                action.pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
-                // console.log("action.pageNumber", action.pageNumber);
+                let pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
+                if(_.isUndefined(pageNumber))
+                    state.allElementsFilledForImmutableEncounter = true;
+                else
+                    action.pageNumber = pageNumber;
             }
             return action.encounter;
         };
         const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.encounter;
-
-        // console.log("action.pageNumber", action.pageNumber);
+        if(state.allElementsFilledForImmutableEncounter)
+            return state;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder

@@ -15,6 +15,7 @@ class EncounterActionState extends AbstractDataEntryState {
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
         this.loadPullDownView = false;
+        this.allElementsFilledForImmutableEncounter = false;
     }
 
     getEntity() {
