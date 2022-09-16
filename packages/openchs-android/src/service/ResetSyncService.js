@@ -27,7 +27,7 @@ class ResetSyncService extends BaseService {
     }
 
     getNotMigratedResetSyncs() {
-        return this._mapRealmObjects(this.getAllNonVoided().filtered('hasMigrated = false'), this.getSchema());
+        return this.getAllNonVoided().filtered('hasMigrated = false').map(_.identity);
     }
 
     isResetSyncRequired() {

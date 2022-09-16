@@ -1,44 +1,35 @@
 import Registry from '../Registry';
 
 class BeanRegistry extends Registry {
-    constructor() {
-        super();
-        this.getBean = this.getEntity;
-    }
-
-    init(db, entityMappingConfig) {
-        this.entities = Array.from(this.entities).reduce((map, [name, beanClass]) => {
+    init(db) {
+        console.log("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes`);
+        this._beans = [];
+        this._beansMap = Array.from(this._beanClasses).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
             map.set(beanClass, beanInstance);
             map.set(name, beanInstance);
+            this._beans.push(beanInstance);
             return map;
         }, new Map());
-        this.setEntityMappingConfig(entityMappingConfig);
-        new Set(this.entities.values()).forEach(bean => bean.init());
-        return this.entities;
-    }
-
-    get beans() {
-        return this.entities;
+        console.log("BeanRegistry", `Beans map created with ${this._beansMap.size} entries for ${this._beans.length} beans`);
+        this._beans.forEach(bean => bean.init());
+        console.log("BeanRegistry", `Initialisation completed ${this._beansMap.size} entries`);
     }
 
     updateDatabase(db) {
-        new Set(this.entities.values()).forEach(bean => bean.updateDatabase(db));
+        this._beans.forEach(bean => bean.updateDatabase(db));
     }
 
     setReduxStore(reduxStore) {
-        this.entities.forEach(bean => bean.setReduxStore(reduxStore));
-    }
-
-    /*
-    This should be changed to constructor based injection
-     */
-    setEntityMappingConfig(entityMappingConfig) {
-        this.entities.forEach(bean => bean.setEntityMappingConfig(entityMappingConfig));
+        this._beans.forEach(bean => bean.setReduxStore(reduxStore));
     }
 
     getService(service) {
-        return this.entities.get(service);
+        return this._beansMap.get(service);
+    }
+
+    get beansMap() {
+        return this._beansMap;
     }
 }
 

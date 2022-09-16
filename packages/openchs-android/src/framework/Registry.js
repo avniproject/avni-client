@@ -1,14 +1,14 @@
 class Registry {
     constructor() {
-        this.entities = new Set();
+        this._beanClasses = new Set();
     }
 
-    register(name, entity) {
-        this.entities.add([name, entity]);
+    register(name, beanClass) {
+        this._beanClasses.add([name, beanClass]);
     }
 
-    getEntity(name) {
-        return this.entities.get(name);
+    getBeanClass(name) {
+        return this._beanClasses.get(name);
     }
 }
 

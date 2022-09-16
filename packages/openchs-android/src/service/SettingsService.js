@@ -17,9 +17,10 @@ class SettingsService extends BaseService {
 
     init() {
         const dbInScope = this.db;
+        console.log("SettingsService", "Config.ENV", Config.ENV);
         this.db.write(() => {
-            console.log("SettingsService", "Config.ENV", Config.ENV);
             let settings = this.getSettings();
+            console.log("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
             if (_.isNil(settings) || Config.ENV === 'dev') {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
@@ -55,7 +56,7 @@ class SettingsService extends BaseService {
     }
 
     getSettings() {
-        const settings = this.getEntities(Settings);
+        const settings = this.findAll(Settings.schema.name);
         if (settings === undefined || settings.length === 0) return undefined;
         return settings[0];
     }

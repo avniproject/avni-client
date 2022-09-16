@@ -122,7 +122,7 @@ class LandingView extends AbstractComponent {
         General.logDebug("LandingView", "render");
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
-        const subjectTypes = this.context.getService(EntityService).getEntities(SubjectType);
+        const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();

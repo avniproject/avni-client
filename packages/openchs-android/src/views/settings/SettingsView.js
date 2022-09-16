@@ -11,7 +11,6 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import I18n from 'i18n-js';
-import {EntityMappingConfig} from 'openchs-models';
 import DeviceInfo from 'react-native-device-info';
 import Colors from "../primitives/Colors";
 import EntityQueueService from "../../service/EntityQueueService";

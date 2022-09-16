@@ -41,7 +41,7 @@ class MenuListView extends AbstractComponent {
 
     render() {
         General.logDebug("MenuListView", "render");
-        const subjectTypes = this.context.getService(EntityService).getEntities(SubjectType);
+        const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         const registerMenuItem = !this.props.params.hideRegister ? [[this.props.params.icon(registerIcon), this.I18n.t("register"), subjectTypes[0] && this.props.params.register]] : [];
         let otherMenuItems = [

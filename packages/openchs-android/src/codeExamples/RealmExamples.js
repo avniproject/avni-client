@@ -1,7 +1,29 @@
 import {Documentation, DocumentationItem} from "openchs-models";
 import General from "../utility/General";
 
+export const Cat = {
+    name: "Cat",
+    properties: {
+        age: "int",
+    },
+
+    getAge: function () {
+        return this.age;
+    }
+}
+
 class RealmExamples {
+    static writeCat(cat, db) {
+        db.write(() => db.create("Cat", cat, true));
+    }
+
+    static printCatsAge(db) {
+        return db.objects("Cat").forEach((x) => {
+            //following gives function not defined
+            // console.log(x.getAge());
+        });
+    }
+
     //yes
     static doesSaveCascadesForDisconnectedGraph(db) {
         this.parentChildWithCyclicRelationshipSaveTogether(db);

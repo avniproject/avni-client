@@ -15,7 +15,7 @@ class DashboardCacheService extends BaseService {
     }
 
     cachedData() {
-        const cache = this.findAllEntities();
+        const cache = this.findAll();
         if (cache === undefined || cache.length === 0) return DashboardCache.createEmptyInstance();
         return cache[0];
     }

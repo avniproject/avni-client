@@ -12,7 +12,7 @@ class UserInfoService extends BaseService {
     }
 
     getUserInfo() {
-        const userInfo = this.getEntities(UserInfo);
+        const userInfo = this.findAll(UserInfo.schema.name);
         if (userInfo === undefined || userInfo.length === 0) return UserInfo.createEmptyInstance();
         return userInfo[0];
     }

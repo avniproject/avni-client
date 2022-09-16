@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
-import Realm from 'realm';
-import {EntityMetaData, EntityQueue, EntityMappingConfig} from 'openchs-models';
+import {EntityMetaData} from 'openchs-models';
 import './views';
 import AppStore from './store/AppStore';
 import EntitySyncStatusService from "./service/EntitySyncStatusService";
@@ -15,6 +14,7 @@ import FileSystem from "./model/FileSystem";
 import BackupRestoreRealmService from "./service/BackupRestoreRealm";
 import GlobalContext from "./GlobalContext";
 import AppConfig from "./framework/AppConfig";
+import RealmFactory from "./framework/db/RealmFactory";
 
 const {Restart} = NativeModules;
 
@@ -22,16 +22,15 @@ let globalContext = new GlobalContext();
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
-    globalContext.db = new Realm(EntityMappingConfig.getInstance().getRealmConfig());
+    globalContext.db = RealmFactory.createRealm();
     globalContext.beanRegistry.updateDatabase(globalContext.db);
 };
 
 const initialiseContext = function () {
-    globalContext.db = new Realm(EntityMappingConfig.getInstance().getRealmConfig());
+    globalContext.db = RealmFactory.createRealm();
     globalContext.beanRegistry = BeanRegistry;
-    BeanRegistry.init(globalContext.db, EntityMappingConfig.getInstance());
-    console.log("App", "BeanRegistry.init");
-    globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beans);
+    BeanRegistry.init(globalContext.db);
+    globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beansMap);
     console.log("App", "AppStore.create");
     globalContext.beanRegistry.setReduxStore(globalContext.reduxStore);
     let restoreRealmService = globalContext.beanRegistry.getService(BackupRestoreRealmService);

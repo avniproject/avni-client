@@ -392,7 +392,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{EntityMappingConfig.getInstance().getRealmConfig().schemaVersion}</Text></Text>
+                                    }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
                                 <Text style={Styles.textList}>BuildVersion: <Text
                                     style={{
                                         color: 'black',

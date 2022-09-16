@@ -1,19 +1,18 @@
-import {EntityMappingConfig, UserInfo} from 'openchs-models';
-import Realm from 'realm';
+import {UserInfo} from 'openchs-models';
 import analytics from "@react-native-firebase/analytics";
 import {defaultTo, isEmpty, noop} from 'lodash';
 import Config from "../framework/Config";
+import RealmFactory from "../framework/db/RealmFactory";
 
-const db = new Realm(EntityMappingConfig.getInstance().getRealmConfig());
+const db = RealmFactory.createRealm();;
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 
 const getUserInfo = () => {
     const defaultOrg = {organisationName: ''};
     try {
-        // const userInfo = db.objects(UserInfo.schema.name);
-        // return defaultTo(userInfo[0], defaultOrg);
-        return null;
+        const userInfo = db.objects(UserInfo.schema.name);
+        return defaultTo(userInfo[0], defaultOrg);
     } catch (e) {
         return defaultOrg;
     }
