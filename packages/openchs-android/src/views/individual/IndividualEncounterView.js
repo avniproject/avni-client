@@ -67,10 +67,10 @@ class IndividualEncounterView extends AbstractComponent {
         return !_.isNil(state.encounter);
     }
 
-    getNextParams(popVerificationVew) {
+    getNextParams(popVerificationVew, fromSDV) {
         const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
-            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
+            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits, context, fromSDV) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);
@@ -87,7 +87,8 @@ class IndividualEncounterView extends AbstractComponent {
                     nextScheduledVisits,
                     popVerificationVew,
                     this.state.encounter.isRejectedEntity(),
-                    this.state.encounter.latestEntityApprovalStatus
+                    this.state.encounter.latestEntityApprovalStatus,
+                    fromSDV
                 );
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
@@ -97,7 +98,8 @@ class IndividualEncounterView extends AbstractComponent {
                 observation,
                 skipVerification: true
             })),
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            fromSDV
         }
     }
 
@@ -105,8 +107,8 @@ class IndividualEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
     }
 
-    onGoToSummary() {
-        const params = this.getNextParams(false);
+    onGoToSummary(fromSDV = false) {
+        const params = this.getNextParams(false, fromSDV);
         this.dispatchAction(Actions.SUMMARY_PAGE, params)
     }
 
@@ -144,7 +146,7 @@ class IndividualEncounterView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         General.logDebug(this.viewName(), `render with IndividualUUID=${this.props.individualUUID} and EncounterTypeUUID=${this.props.encounter.encounterType.uuid}`);
         if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary()
+            this.onGoToSummary(true);
         }
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (

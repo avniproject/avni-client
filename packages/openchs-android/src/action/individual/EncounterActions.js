@@ -38,15 +38,14 @@ export class EncounterActions {
                 const observationsHolder = new ObservationsHolder(action.encounter.observations);
                 const pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
                 if (_.isUndefined(pageNumber))
-                    state.allElementsFilledForImmutableEncounter = true;
+                    action.allElementsFilledForImmutableEncounter = true;
                 else
                     action.pageNumber = pageNumber;
             }
             return action.encounter;
         };
-        const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.encounter;
-        if (state.allElementsFilledForImmutableEncounter)
-            return state;
+
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.encounter;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
@@ -67,6 +66,12 @@ export class EncounterActions {
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+
+        if(action.allElementsFilledForImmutableEncounter) {
+            newState.allElementsFilledForImmutableEncounter = true;
+            return newState;
+        }
+
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 

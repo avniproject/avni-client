@@ -32,6 +32,7 @@ class EncounterActionState extends AbstractDataEntryState {
         newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
         newState.loadPullDownView = this.loadPullDownView;
         newState.messageDisplayed = this.messageDisplayed;
+        newState.allElementsFilledForImmutableEncounter = this.allElementsFilledForImmutableEncounter;
         if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;
         }

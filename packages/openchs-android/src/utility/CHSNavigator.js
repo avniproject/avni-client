@@ -51,6 +51,7 @@ import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 import moment from "moment";
 import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
+import FormMappingService from "../service/FormMappingService";
 
 
 class CHSNavigator {
@@ -216,7 +217,7 @@ class CHSNavigator {
         }).to(IndividualEncounterView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -226,6 +227,20 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
+
+        let onPreviousCallback = undefined;
+        if (fromSDV) {
+            onPreviousCallback = (source) => {
+                const pageNumber = source.context.getService(FormMappingService).findFormForEncounterType(encounter.encounterType, "Encounter", encounter.subjectType).numberOfPages;
+                TypedTransition.from(source).with({
+                    encounter,
+                    individualUUID: encounter.individual.uuid,
+                    editing: true,
+                    pageNumber
+                }).to(IndividualEncounterView, true);
+            }
+        }
+
         CHSNavigator.navigateToSystemsRecommendationView(source,
             decisions,
             ruleValidationErrors,
@@ -242,11 +257,12 @@ class CHSNavigator {
             false,
             popVerificationVew,
             isRejectedEntity,
-            entityApprovalStatus
+            entityApprovalStatus,
+            onPreviousCallback
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus, onPreviousCallback) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -262,7 +278,8 @@ class CHSNavigator {
             workListState,
             isSaveDraftOn,
             isRejectedEntity,
-            entityApprovalStatus
+            entityApprovalStatus,
+            onPreviousCallback
         }).to(SystemRecommendationView, true, popVerificationVew);
     }
 
