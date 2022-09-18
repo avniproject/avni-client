@@ -43,19 +43,24 @@ class ProgramEncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             if (previousEncounter) {
-                action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
+                action.programEncounter = previousEncounter.cloneForEdit();
                 const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
-                const pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
-                if (_.isUndefined(pageNumber))
-                    state.allElementsFilledForImmutableEncounter = true;
+                let groupNo = 0;
+                const firstGroupWithAtLeastOneVisibleEmptyElement = _.find(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        groupNo = groupNo + 1;
+                        let filteredFormElements = ProgramEncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        return formElementGroup.hasEmptyFormElement(filteredFormElements, observationsHolder);
+                    });
+
+                if (_.isUndefined(firstGroupWithAtLeastOneVisibleEmptyElement))
+                    action.allElementsFilledForImmutableEncounter = true;
                 else
-                    action.pageNumber = pageNumber;
+                    action.pageNumber = groupNo;
             }
             return action.programEncounter;
         };
-        const encounterToPass = encounterType.immutable ? getPreviousEncounter() : action.programEncounter;
-        if (state.allElementsFilledForImmutableEncounter)
-            return state;
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.programEncounter;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
@@ -76,6 +81,12 @@ class ProgramEncounterActions {
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
         const newState = ProgramEncounterState.createOnLoad(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+
+        if(action.allElementsFilledForImmutableEncounter) {
+            newState.allElementsFilledForImmutableEncounter = true;
+            newState.wizard.currentPage = form.numberOfPages;
+            return newState;
+        }
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 

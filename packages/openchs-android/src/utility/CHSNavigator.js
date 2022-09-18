@@ -52,6 +52,8 @@ import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 import moment from "moment";
 import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
 import FormMappingService from "../service/FormMappingService";
+import {EncounterActions} from "../action/individual/EncounterActions";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 
 class CHSNavigator {
@@ -230,8 +232,17 @@ class CHSNavigator {
 
         let onPreviousCallback = undefined;
         if (fromSDV) {
-            onPreviousCallback = (source) => {
-                const pageNumber = source.context.getService(FormMappingService).findFormForEncounterType(encounter.encounterType, "Encounter", encounter.subjectType).numberOfPages;
+            onPreviousCallback = (context) => {
+                const form = context.getService(FormMappingService).findFormForEncounterType(encounter.encounterType, Encounter.schema.name, encounter.subjectType);
+                let pageNumber = form.numberOfPages + 1;
+                const lastGroupWithAtLeastOneVisibleElement = _.findLast(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        pageNumber = pageNumber - 1;
+                        let formElementStatuses = context.getService(RuleEvaluationService).getFormElementsStatuses(encounter, Encounter.schema.name, formElementGroup);
+                        let elements = formElementGroup.filterElements(formElementStatuses);
+                        return !_.isEmpty(elements);
+                    });
+
                 TypedTransition.from(source).with({
                     encounter,
                     individualUUID: encounter.individual.uuid,

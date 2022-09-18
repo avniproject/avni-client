@@ -31,6 +31,7 @@ import SummaryButton from "../common/SummaryButton";
 import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -72,13 +73,43 @@ class ProgramEncounterView extends AbstractComponent {
             this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
     }
 
-    getNextParams(popVerificationVew) {
+    getNextParams(popVerificationVew, fromSDV) {
         const phoneNumberObservation = _.find(this.state.programEncounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
-            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
+            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, fromSDV) => {
                 const {programEncounter} = state;
                 const {programEnrolment} = programEncounter;
                 const encounterName = programEncounter.name || programEncounter.encounterType.name;
+
+                let onPreviousCallback = undefined;
+                if (fromSDV) {
+                    onPreviousCallback = (context) => {
+                        const form = context.getService(FormMappingService).findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.subjectType);
+                        let pageNumber = form.numberOfPages + 1;
+                        const lastGroupWithAtLeastOneVisibleElement = _.findLast(form.getFormElementGroups(),
+                            (formElementGroup) => {
+                                pageNumber = pageNumber - 1;
+                                let formElementStatuses = context.getService(RuleEvaluationService).getFormElementsStatuses(programEncounter, ProgramEncounter.schema.name, formElementGroup);
+                                let elements = formElementGroup.filterElements(formElementStatuses);
+                                return !_.isEmpty(elements);
+                            });
+
+                        TypedTransition.from(this).with({
+                            params: {
+                                programEncounter,
+                                encounterType: encounterName,
+                                individualUUID: programEncounter.individual.uuid,
+                                enrolmentUUID: programEnrolment.uuid,
+                                editing: true,
+                                pageNumber,
+                                onSaveCallback: this.props.params.onSaveCallback,
+                                backFunction: this.props.params.backFunction,
+                                message: null
+                            }
+                        }).to(ProgramEncounterView, true);
+                    }
+                }
+
                 const onSaveCallback = this.props.params.onSaveCallback || (source => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, programEnrolment.individual.uuid, programEnrolment.uuid, true,
                         this.props.params.backFunction, this.I18n.t('encounterSavedMsg', {encounterName}));
@@ -86,13 +117,14 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, onPreviousCallback);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
             popVerificationVew,
             verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(this, this.next.bind(this), observation, () => this.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => this.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
-            movedNext: this.scrollToTop
+            movedNext: this.scrollToTop,
+            fromSDV
         }
     }
 
@@ -100,8 +132,8 @@ class ProgramEncounterView extends AbstractComponent {
         this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
     }
 
-    onGoToSummary() {
-        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false))
+    onGoToSummary(fromSDV = false) {
+        this.dispatchAction(Actions.SUMMARY_PAGE, this.getNextParams(false, fromSDV))
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -139,7 +171,7 @@ class ProgramEncounterView extends AbstractComponent {
     render() {
         General.logDebug('ProgramEncounterView', 'render');
         if (this.state.allElementsFilledForImmutableEncounter) {
-            this.onGoToSummary()
+            this.onGoToSummary(true)
         }
         const programEncounterName = !_.isEmpty(this.state.programEncounter.name) ? this.I18n.t(this.state.programEncounter.name) : this.I18n.t(this.state.programEncounter.encounterType.operationalEncounterTypeName);
         const title = `${this.state.programEncounter.programEnrolment.individual.nameString} - ${programEncounterName}`;

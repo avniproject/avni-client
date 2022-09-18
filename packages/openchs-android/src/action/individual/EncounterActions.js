@@ -34,13 +34,20 @@ export class EncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
             if (previousEncounter) {
-                action.encounter.observations = previousEncounter.cloneForEdit().observations;
+                action.encounter = previousEncounter.cloneForEdit();
                 const observationsHolder = new ObservationsHolder(action.encounter.observations);
-                const pageNumber = form.getFormElementGroupNoWithEmptyObservation(observationsHolder);
-                if (_.isUndefined(pageNumber))
+                let groupNo = 0;
+                const firstGroupWithAtLeastOneVisibleEmptyElement = _.find(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        groupNo = groupNo + 1;
+                        let filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        return formElementGroup.hasEmptyFormElement(filteredFormElements, observationsHolder);
+                    });
+
+                if (_.isUndefined(firstGroupWithAtLeastOneVisibleEmptyElement))
                     action.allElementsFilledForImmutableEncounter = true;
                 else
-                    action.pageNumber = pageNumber;
+                    action.pageNumber = groupNo;
             }
             return action.encounter;
         };
@@ -69,6 +76,7 @@ export class EncounterActions {
 
         if(action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
+            newState.wizard.currentPage = form.numberOfPages;
             return newState;
         }
 

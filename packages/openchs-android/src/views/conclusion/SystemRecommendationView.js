@@ -205,7 +205,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>}
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
-                            <WizardButtons previous={{func: () => !_.isUndefined(this.props.onPreviousCallback)? this.props.onPreviousCallback(this) : this.previous(), label: this.I18n.t('previous')}}
+                            <WizardButtons previous={{func: () => !_.isUndefined(this.props.onPreviousCallback)? this.props.onPreviousCallback(this.context) : this.previous(), label: this.I18n.t('previous')}}
                                            next={{
                                                func: () => this.save(() => this.props.onSaveCallback(this)),
                                                visible: this.props.validationErrors.length === 0,
