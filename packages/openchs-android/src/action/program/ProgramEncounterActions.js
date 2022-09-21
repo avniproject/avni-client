@@ -46,14 +46,14 @@ class ProgramEncounterActions {
                 action.programEncounter = previousEncounter.cloneForEdit();
                 const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
                 let groupNo = 0;
-                const firstGroupWithAtLeastOneVisibleEmptyElement = _.find(form.getFormElementGroups(),
+                const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
                     (formElementGroup) => {
                         groupNo = groupNo + 1;
                         let filteredFormElements = ProgramEncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
-                        return formElementGroup.hasEmptyFormElement(filteredFormElements, observationsHolder);
+                        return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
                     });
 
-                if (_.isUndefined(firstGroupWithAtLeastOneVisibleEmptyElement))
+                if (_.isUndefined(firstGroupWithAllVisibleElementsEmpty))
                     action.allElementsFilledForImmutableEncounter = true;
                 else
                     action.pageNumber = groupNo;
