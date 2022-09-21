@@ -34,7 +34,7 @@ export class EncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
             if (previousEncounter) {
-                action.encounter = previousEncounter.cloneForEdit();
+                action.encounter.observations = previousEncounter.observations;
                 const observationsHolder = new ObservationsHolder(action.encounter.observations);
                 let groupNo = 0;
                 const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),

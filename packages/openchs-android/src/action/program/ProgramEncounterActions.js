@@ -43,7 +43,7 @@ class ProgramEncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             if (previousEncounter) {
-                action.programEncounter = previousEncounter.cloneForEdit();
+                action.programEncounter.observations = previousEncounter.observations;
                 const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
                 let groupNo = 0;
                 const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
