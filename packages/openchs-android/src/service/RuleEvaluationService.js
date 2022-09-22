@@ -696,12 +696,12 @@ class RuleEvaluationService extends BaseService {
         });
     }
 
-    evaluateLinkFunction(linkFunction, menuItem, user) {
+    evaluateLinkFunction(linkFunction, menuItem, user, authToken) {
         const authService = this.getService(AuthService);
         try {
             const ruleFunc = eval(linkFunction);
             return ruleFunc({
-                params: {user: user, moment: moment, getAuthToken: () => authService.getAuthToken()}
+                params: {user: user, moment: moment, token: authToken}
             });
         } catch (e) {
             General.logDebug("Rule-Failure", e);

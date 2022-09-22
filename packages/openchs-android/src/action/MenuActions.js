@@ -40,7 +40,7 @@ class MenuActions {
         const ruleEvaluationService = context.get(RuleEvaluationService);
         newState.configuredMenuItems.forEach((menuItem) => {
             if (menuItem.isLinkType()) {
-                const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo);
+                const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo, action.authToken);
                 newState.configuredMenuItemRuleOutput.set(menuItem.uuid, evaluatedLink);
             }
         });

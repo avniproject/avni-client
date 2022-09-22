@@ -77,8 +77,9 @@ class MenuView extends AbstractComponent {
     }
 
     componentDidMount() {
-        this.dispatchAction(MenuActionNames.ON_LOAD);
-    }
+        const authService = this.context.getService(AuthService);
+        authService.getAuthToken().then((authToken) => this.dispatchAction(MenuActionNames.ON_LOAD, {authToken}));
+}
 
     icon(name, style = {}) {
         return this.props.menuIcon(name, [MenuView.iconStyle, style]);
