@@ -64,7 +64,7 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(['logout', 'Delete Data', 'backup', 'feedback', 'myDawaPrapatra'].includes(titleKey)) ? <View/> :
+                    {(['logout', 'Delete Data', 'backup', 'feedback'].includes(titleKey)) ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
                 </View>
             </TouchableNativeFeedback>)
@@ -332,11 +332,7 @@ class MenuView extends AbstractComponent {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
             functionalityItems.push(this.renderNewsBadge(unreadNews));
         }
-        if (_.includes(_.toLower(userInfo.organisationName), 'sakhi')) {
-            const item = <Item icon={this.icon("note-text-outline")} titleKey="myDawaPrapatra"
-                               onPress={this.onMetabaseReportClick.bind(this)}/>;
-            functionalityItems.push(item);
-        }
+        
         const dataGroup = [
             {
                 title: 'functionality', data: functionalityItems
