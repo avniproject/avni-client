@@ -122,6 +122,7 @@ const style = StyleSheet.create({
         borderRadius: 1,
         borderStyle: 'dashed',
         borderColor: Colors.InputBorderNormal,
+        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
         paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
     }
 })
