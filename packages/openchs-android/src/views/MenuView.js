@@ -41,6 +41,7 @@ import moment from "moment";
 import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 import {MenuItem} from 'openchs-models';
 import StaticMenuItem from "./menu/StaticMenuItem";
+import WebView from "react-native-webview";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -314,10 +315,29 @@ class MenuView extends AbstractComponent {
                     const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
                     General.logDebug("MenuView.getMenuItems", url);
                     menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
-                                                             onPress={() => Linking.openURL(url)}/>);
+                                                             onPress={() => this.setState({showWebView: true, showUrl: url})}/>);
                 }
         });
         return menuItems;
+    }
+
+    renderDawaPrapatraContent() {
+        return (
+            <WebView
+                ignoreSslError={true}
+                style={{ flex: 1 }}
+                originWhitelist={['*']}
+                source={{
+                    uri: this.state.showUrl,
+                    headers: {
+                        "AUTH-TOKEN": this.state.authToken,
+                    }
+                }}
+                javaScriptEnabledAndroid={true}
+                startInLoadingState={true}
+                scalesPageToFit={true}
+            />
+        );
     }
 
     render() {
@@ -357,6 +377,8 @@ class MenuView extends AbstractComponent {
                 <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100}
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
+                { this.state.showWebView && this.renderDawaPrapatraContent() }
+                {!this.state.showWebView &&
                 <CHSContent>
                     <ScrollView>
                         <SectionList
@@ -395,7 +417,7 @@ class MenuView extends AbstractComponent {
                         </View>
                     </ScrollView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
+                </CHSContent>}
             </CHSContainer>
         );
     }
