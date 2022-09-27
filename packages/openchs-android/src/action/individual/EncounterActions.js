@@ -34,13 +34,14 @@ export class EncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
             if (previousEncounter) {
-                action.encounter.observations = previousEncounter.observations;
+                action.encounter.observations = previousEncounter.cloneForEdit().observations;
                 const observationsHolder = new ObservationsHolder(action.encounter.observations);
                 let groupNo = 0;
                 const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
                     (formElementGroup) => {
                         groupNo = groupNo + 1;
                         let filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        if (filteredFormElements.length === 0) return false;
                         return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
                     });
 

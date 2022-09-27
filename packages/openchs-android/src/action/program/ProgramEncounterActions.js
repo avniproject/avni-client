@@ -43,13 +43,14 @@ class ProgramEncounterActions {
         const getPreviousEncounter = () => {
             const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
             if (previousEncounter) {
-                action.programEncounter.observations = previousEncounter.observations;
+                action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
                 const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
                 let groupNo = 0;
                 const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
                     (formElementGroup) => {
                         groupNo = groupNo + 1;
                         let filteredFormElements = ProgramEncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        if (filteredFormElements.length === 0) return false;
                         return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
                     });
 
