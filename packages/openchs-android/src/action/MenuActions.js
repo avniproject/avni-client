@@ -26,8 +26,6 @@ class MenuActions {
     static onLoad(state, action, context) {
         const settings = context.get(SettingsService).getSettings();
         let newState = MenuActions.clone(state);
-        newState.showWebView= false;
-        newState.showUrl = "";
         newState.userInfo = context.get(UserInfoService).getUserInfo();
         newState.serverURL = settings.serverURL;
 
@@ -43,7 +41,6 @@ class MenuActions {
         newState.configuredMenuItems.forEach((menuItem) => {
             if (menuItem.isLinkType()) {
                 const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo, action.authToken);
-                newState.authToken = action.authToken;
                 newState.configuredMenuItemRuleOutput.set(menuItem.uuid, evaluatedLink);
             }
         });
