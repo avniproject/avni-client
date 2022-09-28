@@ -54,7 +54,7 @@ class ProgramEncounterActions {
                         return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
                     });
 
-                if (_.isUndefined(firstGroupWithAllVisibleElementsEmpty))
+                if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
                     action.allElementsFilledForImmutableEncounter = true;
                 else
                     action.pageNumber = groupNo;
