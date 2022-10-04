@@ -78,7 +78,7 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults.asArray());
         const title = this.props.headerTitle || "searchResults";
 
         return (

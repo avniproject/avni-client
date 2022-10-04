@@ -73,20 +73,17 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                         underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.props.state, Individual.validationKeys.DOB) ? Colors.ValidationError : Colors.InputBorderNormal}
                         value={_.isNil(this.props.state.age) ? "" : this.props.state.age}
                         onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
-                    <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
-                        <Radio selected={this.props.state.ageProvidedInYears} color={Colors.AccentColor}
-                               onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: true})}/>
-                    </View>
-                    <View style={{flexDirection: 'column-reverse'}}>
+                    <Radio.Group style={{flexDirection: 'column', marginLeft: DGS.resizeWidth(20)}}
+                                 value={this.props.state.ageProvidedInYears ? "years" : "months"}
+                                 onChange={(value) => {
+                                     this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: value === "years"});
+                                 }}>
+                        <Radio color={Colors.AccentColor} value={"years"}/>
                         <Text style={DGS.formRadioText}>{this.I18n.t("years")}</Text>
-                    </View>
-                    <View style={{flexDirection: 'column-reverse', marginLeft: DGS.resizeWidth(20)}}>
-                        <Radio selected={!this.props.state.ageProvidedInYears} color={Colors.AccentColor}
+                        <Radio color={Colors.AccentColor} value={"months"}
                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
-                    </View>
-                    <View style={{flexDirection: 'column-reverse'}}>
                         <Text style={DGS.formRadioText}>{this.I18n.t("months")}</Text>
-                    </View>
+                    </Radio.Group>
                 </View>
             </View>
         );

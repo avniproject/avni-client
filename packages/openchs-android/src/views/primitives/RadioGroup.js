@@ -64,7 +64,8 @@ class RadioGroup extends AbstractComponent {
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                           paddingRight: Distances.HorizontalSpacingBetweenOptionItems
                                       }}
-                                      disabled={this.props.disabled}/>
+                                      disabled={this.props.disabled}
+                                      value={rlv.value}/>
                 )}
             </View>);
     }
@@ -82,7 +83,8 @@ class RadioGroup extends AbstractComponent {
                                   paddingRight: Distances.HorizontalSpacingBetweenOptionItems
                               }}
                               disabled={this.props.disabled}
-                              />)
+                              value={radioLabelValue.value}
+            />)
     }
 
     renderSingleValue() {
@@ -97,6 +99,7 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const selectedValue = _.find(this.props.labelValuePairs, (x) => this.props.selectionFn(x.value));
         return (
             <View style={this.appendedStyle({})}>
                 {!this.props.skipLabel &&
@@ -105,9 +108,10 @@ class RadioGroup extends AbstractComponent {
                     <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.renderSingleValue()}
                     </View> :
-                    <View style={[style.radioStyle, this.props.borderStyle]}>
+                    <Radio.Group accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
+                                 value={selectedValue && selectedValue.value} onChange={newValue => this.props.onPress(newValue)}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                    </View> : <View/>}
+                    </Radio.Group> : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>

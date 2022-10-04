@@ -1,4 +1,4 @@
-import {ToastAndroid, Vibration, View} from "react-native";
+import {ToastAndroid, Vibration, View, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -107,7 +107,7 @@ class IndividualRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
-                    <View style={{
+                    <ScrollView style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
@@ -140,7 +140,7 @@ class IndividualRegisterView extends AbstractComponent {
                         />
                         <WizardButtons
                             next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

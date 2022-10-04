@@ -25,7 +25,8 @@ class PresetOptionItem extends AbstractComponent {
         validationResult: PropTypes.object,
         abnormal: PropTypes.bool,
         style: PropTypes.object,
-        chunked: PropTypes.bool
+        chunked: PropTypes.bool,
+        value: PropTypes.any
     };
 
     static styles = StyleSheet.create({
@@ -51,8 +52,8 @@ class PresetOptionItem extends AbstractComponent {
             return (<CheckBox disabled={disabled} checked={this.props.checked}
                               onPress={() => this.onPress()} selectedColor={color}/>);
         else
-            return (<Radio disabled={disabled} selected={this.props.checked}
-                           onPress={() => this.onPress()} selectedColor={color}/>);
+            return (<Radio disabled={disabled} value={this.props.value}
+                           selectedColor={color}/>);
     }
 
     shouldComponentUpdate(nextProps) {

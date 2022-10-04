@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Concept, Observation} from 'avni-models';
+import {Concept, Observation, ah} from 'avni-models';
 import _ from 'lodash';
 import General from "../utility/General";
 
@@ -58,7 +58,7 @@ class ConceptService extends BaseService {
             if (this._hasValue(value)) {
                 this.updateObs(existingObs, concept, value, decision);
             } else {
-                _.remove(observations, (obs) => obs.concept.name === decision.name);
+                ah.remove(observations, (obs) => obs.concept.name === decision.name);
             }
         }
     }

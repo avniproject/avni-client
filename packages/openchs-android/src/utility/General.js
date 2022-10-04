@@ -156,17 +156,6 @@ class General {
         return dest;
     }
 
-    static pick(from, attributes, listAttributes) {
-        const picked = _.pick(from, attributes);
-        if (!_.isNil(listAttributes)) {
-            listAttributes.forEach((listAttribute) => {
-                picked[listAttribute] = [];
-                from[listAttribute].forEach((item) => picked[listAttribute].push(item));
-            });
-        }
-        return picked;
-    }
-
     //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     static randomUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {

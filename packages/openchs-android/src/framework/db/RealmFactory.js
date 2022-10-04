@@ -7,6 +7,12 @@ class RealmFactory {
         const realmConfig = entityMappingConfig.getRealmConfig();
         return new RealmProxy(new Realm(realmConfig), entityMappingConfig);
     }
+
+    static createRealmWithoutProxy() {
+        const entityMappingConfig = EntityMappingConfig.getInstance();
+        const realmConfig = entityMappingConfig.getRealmConfig();
+        return new Realm(realmConfig);
+    }
 }
 
 export default RealmFactory;

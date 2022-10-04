@@ -18,7 +18,7 @@ import RealmFactory from "./framework/db/RealmFactory";
 
 const {Restart} = NativeModules;
 
-let globalContext = new GlobalContext();
+let globalContext;
 
 const updateDatabase = function (globalContext) {
     globalContext.db.close();
@@ -39,7 +39,8 @@ const initialiseContext = function () {
 
 let error;
 try {
-    if (globalContext.db === undefined) {
+    if (globalContext === undefined) {
+        globalContext = new GlobalContext();
         initialiseContext();
         globalContext.routes = PathRegistry.routes();
         const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);

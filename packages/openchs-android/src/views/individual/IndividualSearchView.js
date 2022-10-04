@@ -60,9 +60,9 @@ class IndividualSearchView extends AbstractComponent {
     applySearch() {
         return this.dispatchAction(Actions.SEARCH_INDIVIDUALS, {
             cb: (individualSearchResults, count) => TypedTransition.from(this).with({
-                searchResults: individualSearchResults,
-                totalSearchResultsCount: count,
-                onIndividualSelection: this.props.onIndividualSelection
+                    searchResults: individualSearchResults,
+                    totalSearchResultsCount: count,
+                    onIndividualSelection: this.props.onIndividualSelection
             }).to(IndividualSearchResultsView, true)
         });
     }
