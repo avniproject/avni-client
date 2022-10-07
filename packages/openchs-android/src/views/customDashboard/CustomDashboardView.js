@@ -43,7 +43,7 @@ class CustomDashboardView extends AbstractComponent {
 
     refreshCounts() {
         this.dispatchAction(Actions.REMOVE_OLDER_COUNTS);
-        this.dispatchAction(Actions.REFRESH_COUNT);
+        setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 500);
     }
 
     onDashboardNamePress(uuid) {

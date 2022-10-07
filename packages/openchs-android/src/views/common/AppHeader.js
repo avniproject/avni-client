@@ -59,7 +59,7 @@ class AppHeader extends AbstractComponent {
 
     refreshCustomDashboardsCounts() {
         this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
-        this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
+        setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
     }
 
     background() {
