@@ -302,6 +302,8 @@
     "observationInProgress": "અવલોકન ચાલુ છે...",
     "subjectsWithMobileNumber": "{{number}} મોબાઇલ નંબર વિષય",
     "openTasks": "કાર્યો ખોલો",
-    "programName": "પ્રોગ્રામનું નામ:"
+    "programName": "પ્રોગ્રામનું નામ:",
+    "rolesNotConfigured": "ભૂમિકાઓ ગોઠવેલ નથી",
+    "rolesNotConfiguredDescription": "સભ્ય ઉમેરવા માટે ભૂમિકાઓ ગોઠવો."
   }
 }

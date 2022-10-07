@@ -344,6 +344,8 @@
     "proceedRegistration": "Register new {{member}}",
     "searchExisting": "Search existing {{member}}",
     "addMemberRole": "Add {{role}}",
+    "rolesNotConfigured": "Roles not configured",
+    "rolesNotConfiguredDescription": "Configure roles to add member.",
     "headOfHousehold": "Head of household",
     "unavailable": "Unavailable",
     "headOfHouseholdReg": "Head of household ",

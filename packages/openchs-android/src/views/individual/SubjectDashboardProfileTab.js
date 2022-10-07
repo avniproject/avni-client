@@ -37,6 +37,7 @@ import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
 import NewFormButton from "../common/NewFormButton";
 import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import GroupSubjectService from "../../service/GroupSubjectService";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -84,7 +85,13 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const allowedSubjectTypesForAddMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(addMemberCriteria, 'subjectTypeUuid');
         if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
             return [new ContextAction(this.I18n.t('addMember'), () => {
-                CHSNavigator.navigateToAddMemberView(this, this.state.individual)
+                const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
+                if(_.isEmpty(groupRoles))
+                    Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
+                        {text: this.I18n.t('okay'), onPress: _.noop}
+                    ]);
+                else
+                 CHSNavigator.navigateToAddMemberView(this, this.state.individual)
             })];
         } else return []
     }

@@ -312,6 +312,8 @@
     "observationInProgress": "கண்காணிப்பு நடந்து கொண்டிருக்கிறது...",
     "subjectsWithMobileNumber": "{{number}} மொபைல் எண் பொருள்",
     "openTasks": "பணிகளைத் திறக்கவும்",
-    "programName": "திட்டத்தின் பெயர்:"
+    "programName": "திட்டத்தின் பெயர்:",
+    "rolesNotConfigured": "பாத்திரங்கள் கட்டமைக்கப்படவில்லை",
+    "rolesNotConfiguredDescription": "உறுப்பினரைச் சேர்க்க பாத்திரங்களை உள்ளமைக்கவும்."
   }
 }

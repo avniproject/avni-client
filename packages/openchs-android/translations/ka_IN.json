@@ -312,6 +312,8 @@
         "observationInProgress": "ವೀಕ್ಷಣೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ...",
         "subjectsWithMobileNumber": "{{number}} ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ವಿಷಯ",
         "openTasks": "ಕಾರ್ಯಗಳನ್ನು ತೆರೆಯಿರಿ",
-        "programName": "ಕಾರ್ಯಕ್ರಮದ ಹೆಸರು:"
+        "programName": "ಕಾರ್ಯಕ್ರಮದ ಹೆಸರು:",
+        "rolesNotConfigured": "ಪಾತ್ರಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ",
+        "rolesNotConfiguredDescription": "ಸದಸ್ಯರನ್ನು ಸೇರಿಸಲು ಪಾತ್ರಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ."
     }
 }
