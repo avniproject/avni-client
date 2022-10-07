@@ -23,6 +23,7 @@ endif
 
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
+include makefiles/common.mk
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
