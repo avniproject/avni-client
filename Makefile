@@ -47,7 +47,7 @@ clean: clean_env ##
 # </clean>
 renew_env: clean_all deps
 # <deps>
-deps: build_env ##
+deps: build_env apply_patch ##
 deps_ci: build_env_ci ##
 
 ignore_deps_changes:
