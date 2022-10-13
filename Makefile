@@ -58,6 +58,7 @@ ignore_deps_changes:
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 #for default Andoird Emulator
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
+ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short=4 HEAD)
 
 setup_hosts:
@@ -225,7 +226,6 @@ setup_env: ##
 	npm install -g jest-cli@20.0.1
 
 build_env: ##
-	npm i -g react-native-cli
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
 	npm run bootstrap --legacy-peer-deps
