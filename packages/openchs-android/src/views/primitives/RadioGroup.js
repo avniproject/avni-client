@@ -99,7 +99,7 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-        const selectedValue = _.find(this.props.labelValuePairs, (x) => this.props.selectionFn(x.value));
+        const selectLVPair = _.find(this.props.labelValuePairs, (x) => this.props.selectionFn(x.value));
         return (
             <View style={this.appendedStyle({})}>
                 {!this.props.skipLabel &&
@@ -109,7 +109,7 @@ class RadioGroup extends AbstractComponent {
                         {this.renderSingleValue()}
                     </View> :
                     <Radio.Group accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                 value={selectedValue && selectedValue.value} onChange={newValue => this.props.onPress(newValue)}>
+                                 value={selectLVPair && selectLVPair.value} onChange={newValue => this.props.onPress({value: newValue})}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                     </Radio.Group> : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
