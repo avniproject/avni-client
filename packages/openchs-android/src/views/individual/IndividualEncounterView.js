@@ -1,4 +1,4 @@
-import {StyleSheet, View, Vibration} from "react-native";
+import {StyleSheet, View, Vibration, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -38,6 +38,7 @@ class IndividualEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.encounter);
+        this.scrollRef = React.createRef()
     }
 
     viewName() {
@@ -146,7 +147,8 @@ class IndividualEncounterView extends AbstractComponent {
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent >
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
@@ -203,6 +205,7 @@ class IndividualEncounterView extends AbstractComponent {
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

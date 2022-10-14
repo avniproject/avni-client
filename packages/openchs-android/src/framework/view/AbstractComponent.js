@@ -93,13 +93,13 @@ class AbstractComponent extends Component {
     }
 
     scrollToTop() {
-        this.refs.scroll._root.scrollToPosition(0, 10, true);
-        this.refs.scroll._root.scrollToPosition(0, 1, true);
+        this.scrollRef.current?.scrollTo({ x: 0, y: 10, animated: true });
+        this.scrollRef.current?.scrollTo({ x: 0, y: 1, animated: true });
     }
 
     scrollToPosition(x, y) {
-        if (this.refs.scroll) {
-            this.refs.scroll._root.scrollToPosition(x, y, true);
+        if (this.scrollRef) {
+            this.scrollRef.current?.scrollTo({x, y, animated: true});
         }
     }
 

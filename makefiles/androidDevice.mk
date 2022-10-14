@@ -10,7 +10,7 @@ uninstall_apk: ##
 	-adb uninstall ${app_android_package_name}
 
 clear_app_data:
-	adb shell pm clear ${app_android_package_name}
+	-adb shell pm clear ${app_android_package_name}
 
 install_universal_apk: ##
 	$(call _install_apk,app-release.apk)
