@@ -68,7 +68,7 @@ class TimePicker extends AbstractComponent {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
+            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayDateAsTime(this.props.timeValue);
     }
 
     showTimePicker(options) {
@@ -78,7 +78,7 @@ class TimePicker extends AbstractComponent {
 
     onTimeChange(event, date) {
         if (event.type !== "dismissed") {
-            this.props.actionObject.value = General.isoFormat(date);
+            this.props.actionObject.value = date;
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }

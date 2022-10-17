@@ -1,4 +1,5 @@
-import {DatePickerAndroid, TimePickerAndroid, View} from "react-native";
+import {Text, View} from "react-native";
+import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -7,7 +8,6 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import Colors from "./Colors";
 import General from "../../utility/General";
 import {Button, Icon} from "native-base";
-import {Text} from "react-native";
 import Fonts from '../primitives/Fonts';
 
 class DatePicker extends AbstractComponent {
@@ -25,7 +25,6 @@ class DatePicker extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.showTimePicker = this.showTimePicker.bind(this);
     }
 
 
@@ -38,22 +37,28 @@ class DatePicker extends AbstractComponent {
                 : General.formatDate(date);
     }
 
-    async showDatePicker(datePickerOptions, timePickerOptions) {
+    showDatePicker(datePickerOptions) {
         this.dismissKeyboard();
-        const {action, year, month, day} = await DatePickerAndroid.open(datePickerOptions);
-        if (action !== DatePickerAndroid.dismissedAction) {
-            this.props.actionObject.value = new Date(year, month, day);
-            if (this.props.pickTime) {
-                this.showTimePicker(this.props.actionObject.value, timePickerOptions);
-            }
+        DateTimePickerAndroid.open(datePickerOptions);
+    }
+
+    onDateChange(event, date, timePickerOptions) {
+        if (event.type !== "dismissed") {
+            this.props.actionObject.value = General.isoFormat(date);
             this.dispatchAction(this.props.actionName, this.props.actionObject);
+            this.showTimePicker(timePickerOptions, date);
         }
     }
 
-    async showTimePicker(date, timePickerOptions) {
-        const {action, hour, minute} = await TimePickerAndroid.open(timePickerOptions);
-        if (action !== TimePickerAndroid.dismissedAction) {
-            this.props.actionObject.value = new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute, 0, 0);
+    showTimePicker(timePickerOptions, date) {
+        this.dismissKeyboard();
+        timePickerOptions.date = date;
+        DateTimePickerAndroid.open(timePickerOptions);
+    }
+
+    onTimeChange(event, date) {
+        if (event.type !== "dismissed") {
+            this.props.actionObject.value = General.formatDateTime(date);
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }
@@ -81,10 +86,26 @@ class DatePicker extends AbstractComponent {
                 'default' : this.props.timePickerMode
             : datePickerMode === 'calendar' ? 'clock' : datePickerMode;
 
+        const timePickerOptions = {
+            mode: "time",
+            display: timePickerMode,
+            is24Hour: true,
+            onChange: (event, date) => this.onTimeChange(event, date),
+            value: date
+        };
+
+        const dateOptions = {
+            mode: "date",
+            display: datePickerMode,
+            is24Hour: true,
+            onChange: (event, date) => this.onDateChange(event, date, timePickerOptions),
+            value: date
+        };
+
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
-                    <Text onPress={this.showDatePicker.bind(this, {date: date, mode : datePickerMode}, {mode: timePickerMode})}
+                    <Text onPress={this.showDatePicker.bind(this, dateOptions, {mode: timePickerMode})}
                           style={[{
                               fontSize: Fonts.Large,
                               color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError

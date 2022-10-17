@@ -86,6 +86,10 @@ class General {
         return moment(time).format("LT");
     }
 
+    static toDisplayDateAsTime(date) {
+        return moment(date).format("HH:mm")
+    }
+
     static toTimeObject(isoFormatTime) {
         const timeArray = _.split(isoFormatTime, ':');
         return {hour: _.toInteger(timeArray[0]), minute: _.toInteger(timeArray[1])};

@@ -130,6 +130,10 @@ release_prod: renew_env as_prod release
 release_staging: renew_env as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
+release_staging_playstore_without_clean: as_staging release
+
+release_staging_playstore: renew_env as_staging release
+
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
