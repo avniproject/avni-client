@@ -3,3 +3,6 @@ define _get_abi_version # $1 = Avni Abi Number
 endef
 
 app_android_package_name := com.openchsclient
+
+set_default_node_version:
+	. ${NVM_DIR}/nvm.sh && nvm alias default 8

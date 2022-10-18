@@ -40,21 +40,21 @@ open_playstore_openchs:
 
 
 # Run application from the code
-_set_default_node:
-	nvm alias default 8
-_run_app: ; cd packages/openchs-android && react-native run-android
-_run_app_release: ; cd packages/openchs-android && react-native run-android --variant=release
+_run_app: set_default_node_version
+	cd packages/openchs-android && react-native run-android
+_run_app_release: set_default_node_version
+	cd packages/openchs-android && react-native run-android --variant=release
 
-run_app: _set_default_node setup_hosts as_dev _run_app
+run_app: setup_hosts as_dev _run_app
 
 run_app_release: as_dev _run_app_release
 
-run_app_staging: _set_default_node as_staging _run_app
-run_app_staging_dev: _set_default_node as_staging_dev _run_app
-run_app_uat: _set_default_node as_uat _run_app
-run_app_prerelease: _set_default_node as_prerelease _run_app
-run_app_prod: _set_default_node as_prod _run_app
-run_app_prod_dev: _set_default_node as_prod_dev _run_app
+run_app_staging: as_staging _run_app
+run_app_staging_dev: as_staging_dev _run_app
+run_app_uat: as_uat _run_app
+run_app_prerelease: as_prerelease _run_app
+run_app_prod: as_prod _run_app
+run_app_prod_dev: as_prod_dev _run_app
 
 stop_app:
 	adb shell am force-stop ${app_android_package_name}
