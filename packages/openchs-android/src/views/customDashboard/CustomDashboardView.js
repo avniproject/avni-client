@@ -117,7 +117,14 @@ class CustomDashboardView extends AbstractComponent {
 
     onBackPress() {
         this.goBack();
-        this.refreshCounts();
+    }
+
+    didFocus() {
+        if(this.state.mountCompleted) {
+            this.refreshCounts();
+        } else {
+            this.dispatchAction(Actions.ON_FIRST_DID_FOCUS);
+        }
     }
 
     onCardPress(reportCardUUID) {

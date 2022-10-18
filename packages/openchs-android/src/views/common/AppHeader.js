@@ -15,7 +15,6 @@ import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardAction
 import UserInfoService from "../../service/UserInfoService";
 import {AvniAlert} from "./AvniAlert";
 import CommentResolveButton from "../comment/CommentResolveButton";
-import {CustomDashboardActionNames} from "../../action/customDashboard/CustomDashboardActions";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
@@ -53,13 +52,7 @@ class AppHeader extends AbstractComponent {
     goToHome() {
         CHSNavigator.goHome(this);
         this.dispatchAction(LandingViewActionsNames.ON_HOME_CLICK);
-        this.refreshCustomDashboardsCounts();
         this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: !this.getService(UserInfoService).getUserSettings().disableAutoRefresh});
-    }
-
-    refreshCustomDashboardsCounts() {
-        this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
-        setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
     }
 
     background() {

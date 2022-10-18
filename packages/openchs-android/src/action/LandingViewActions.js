@@ -3,6 +3,7 @@ import _ from 'lodash'
 class LandingViewActions {
     static getInitialState() {
         return {
+            mountCompleted: false,
             dummy: false,
             home: false,
             search: false,
@@ -74,6 +75,13 @@ class LandingViewActions {
             menu: true,
         }
     }
+
+    static onFirstDidFocus(state) {
+        return {
+            ...state,
+            mountCompleted: true,
+        }
+    }
 }
 
 const LandingViewActionsNames = {
@@ -83,6 +91,7 @@ const LandingViewActionsNames = {
     ON_DASHBOARD_CLICK: 'LVA.ON_DASHBOARD_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
+    ON_FIRST_DID_FOCUS: 'LVA.ON_FIRST_DID_FOCUS',
 };
 
 const LandingViewActionsMap = new Map([
@@ -92,6 +101,7 @@ const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
     [LandingViewActionsNames.ON_DASHBOARD_CLICK, LandingViewActions.onDashboardClick],
+    [LandingViewActionsNames.ON_FIRST_DID_FOCUS, LandingViewActions.onFirstDidFocus],
 ]);
 
 export {
