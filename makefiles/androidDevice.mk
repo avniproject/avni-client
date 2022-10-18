@@ -42,7 +42,7 @@ open_playstore_openchs:
 # Run application from the code
 _run_app: set_default_node_version
 	cd packages/openchs-android && npx react-native run-android
-_run_app_release:
+_run_app_release: set_default_node_version
 	cd packages/openchs-android && npx react-native run-android --variant=release
 
 run_app: setup_hosts as_dev _run_app

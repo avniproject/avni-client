@@ -18,5 +18,6 @@
 
 #https://github.com/realm/realm-js/issues/2391#issuecomment-506573272
 -keep class io.realm.react.**
+-keep public class com.horcrux.svg.** {*;}
 #-keep class com.facebook.hermes.unicode.** { *; }
 #-keep class com.facebook.jni.** { *; }
