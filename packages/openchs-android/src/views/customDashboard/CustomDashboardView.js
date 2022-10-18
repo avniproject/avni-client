@@ -37,6 +37,7 @@ class CustomDashboardView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
+        this.refreshCounts();
         super.componentWillMount();
     }
 
