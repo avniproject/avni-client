@@ -37,7 +37,6 @@ class CustomDashboardView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        this.refreshCounts();
         super.componentWillMount();
     }
 
@@ -120,11 +119,7 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     didFocus() {
-        if(this.state.mountCompleted) {
-            this.refreshCounts();
-        } else {
-            this.dispatchAction(Actions.ON_FIRST_DID_FOCUS);
-        }
+        this.refreshCounts();
     }
 
     onCardPress(reportCardUUID) {

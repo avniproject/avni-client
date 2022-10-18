@@ -55,11 +55,7 @@ class LandingView extends AbstractComponent {
     }
 
     didFocus() {
-        if(this.state.mountCompleted) {
-            this.refreshCustomDashboardsCounts();
-        } else {
-            this.dispatchAction(Actions.ON_FIRST_DID_FOCUS);
-        }
+        this.refreshCustomDashboardsCounts();
     }
 
     refreshCustomDashboardsCounts() {

@@ -11,8 +11,7 @@ class CustomDashboardActions {
     static getInitialState(context) {
         return {
             loading: false,
-            reportCardSectionMappings: [],
-            mountCompleted: false,
+            reportCardSectionMappings: []
         };
     }
 
@@ -97,14 +96,6 @@ class CustomDashboardActions {
         newState.loading = action.loading;
         return newState;
     }
-
-
-    static onFirstDidFocus(state) {
-        return {
-            ...state,
-            mountCompleted: true,
-        }
-    }
 }
 
 
@@ -117,7 +108,6 @@ const CustomDashboardActionNames = {
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
     REMOVE_OLDER_COUNTS: `${ActionPrefix}.REMOVE_OLDER_COUNTS`,
-    ON_FIRST_DID_FOCUS: `${ActionPrefix}.ON_FIRST_DID_FOCUS`,
 };
 
 const CustomDashboardActionMap = new Map([
@@ -127,7 +117,6 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
     [CustomDashboardActionNames.REMOVE_OLDER_COUNTS, CustomDashboardActions.removeOlderCounts],
-    [CustomDashboardActionNames.ON_FIRST_DID_FOCUS, CustomDashboardActions.onFirstDidFocus],
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}
