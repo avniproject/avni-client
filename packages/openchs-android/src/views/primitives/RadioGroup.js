@@ -49,7 +49,7 @@ class RadioGroup extends AbstractComponent {
             (x) => this.props.selectionFn(x.value))
             .map((lvPair) => lvPair.value);
         this.state = {
-            groupValue: valuesArray || []
+            groupValue: this.getAppropriateInitializedValue(valuesArray),
         };
     }
 
@@ -123,13 +123,22 @@ class RadioGroup extends AbstractComponent {
         );
     }
 
-    invokeOnPressForChangedValues(newValues) {
-        let values = newValues || [];
-        _.xor(values, this.state.groupValue).forEach(value => {
-                this.props.onPress({value: value});
-            }
-        );
-        this.setState({groupValue: values});
+    invokeOnPressForChangedValues(newValue) {
+        let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
+        if(_.isString(safeInitNewValue)) {
+            this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
+            this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
+        } else {
+            _.xor(safeInitNewValue, this.state.groupValue).forEach(value => {
+                    this.props.onPress({value: value}); //Invoke toggle for all changed values
+                }
+            );
+        }
+        this.setState({groupValue: safeInitNewValue});
+    }
+
+    getAppropriateInitializedValue(value) {
+        return value || (this.props.multiSelect ? [] : "");
     }
 }
 
