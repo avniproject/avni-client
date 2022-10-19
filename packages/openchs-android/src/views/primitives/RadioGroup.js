@@ -1,9 +1,8 @@
-import {View, StyleSheet} from "react-native";
+import {StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import DGS from "./DynamicGlobalStyles";
-import {Text, Grid, Row, Radio} from "native-base";
+import {Checkbox, Radio, Text} from "native-base";
 import Colors from '../primitives/Colors';
 import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
@@ -46,6 +45,12 @@ class RadioGroup extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        const valuesArray = _.filter(this.props.labelValuePairs,
+            (x) => this.props.selectionFn(x.value))
+            .map((lvPair) => lvPair.value);
+        this.state = {
+            groupValue: valuesArray || []
+        };
     }
 
     renderPairedOptions() {
@@ -58,7 +63,6 @@ class RadioGroup extends AbstractComponent {
                                       multiSelect={this.props.multiSelect}
                                       chunked={true}
                                       validationResult={this.props.validationError}
-                                      onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
                                       style={{
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
@@ -76,7 +80,6 @@ class RadioGroup extends AbstractComponent {
                               checked={this.props.selectionFn(radioLabelValue.value)}
                               multiSelect={this.props.multiSelect}
                               validationResult={this.props.validationError}
-                              onPress={() => this.props.onPress(radioLabelValue)}
                               key={radioLabelValue.label}
                               style={{
                                   paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
@@ -99,24 +102,34 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-        const selectLVPair = _.find(this.props.labelValuePairs, (x) => this.props.selectionFn(x.value));
+        const GroupComponent = this.props.multiSelect ? Checkbox.Group : Radio.Group;
         return (
             <View style={this.appendedStyle({})}>
                 {!this.props.skipLabel &&
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>}
                 {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
-                    <View style={[style.radioStyle, this.props.borderStyle]}>
-                        {this.renderSingleValue()}
-                    </View> :
-                    <Radio.Group accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                 value={selectLVPair && selectLVPair.value} onChange={newValue => this.props.onPress({value: newValue})}>
-                        {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                    </Radio.Group> : <View/>}
+                        <View style={[style.radioStyle, this.props.borderStyle]}>
+                            {this.renderSingleValue()}
+                        </View> :
+                        <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
+                                     value={this.state.groupValue} onChange={newValues => this.invokeOnPressForChangedValues(newValues)}>
+                            {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
+                        </GroupComponent>
+                    : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>
             </View>
         );
+    }
+
+    invokeOnPressForChangedValues(newValues) {
+        let values = newValues || [];
+        _.xor(values, this.state.groupValue).forEach(value => {
+                this.props.onPress({value: value});
+            }
+        );
+        this.setState({groupValue: values});
     }
 }
 

@@ -1,14 +1,9 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import Colors from "../primitives/Colors";
-import Reducers from "../../reducer";
-import Fonts from "../primitives/Fonts";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
-import Distances from "../primitives/Distances";
 
 class AddressLevel extends AbstractComponent {
     static propTypes = {
@@ -41,7 +36,7 @@ class AddressLevel extends AbstractComponent {
                     borderWidth: 0
                 }}
                 inPairs={true}
-                onPress={(value) => this.props.onToggle(value)}
+                onPress={(selectedLevel) => this.props.onToggle(selectedLevel.value)}
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}
                 mandatory={this.props.mandatory}
