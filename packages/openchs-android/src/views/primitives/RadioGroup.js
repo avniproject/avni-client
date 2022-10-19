@@ -45,11 +45,8 @@ class RadioGroup extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        const valuesArray = _.filter(this.props.labelValuePairs,
-            (x) => this.props.selectionFn(x.value))
-            .map((lvPair) => lvPair.value);
         this.state = {
-            groupValue: this.getAppropriateInitializedValue(valuesArray),
+            groupValue: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
         };
     }
 
@@ -135,6 +132,17 @@ class RadioGroup extends AbstractComponent {
             );
         }
         this.setState({groupValue: safeInitNewValue});
+    }
+
+    initializeSelectedValue() {
+        const valuesArray = _.filter(this.props.labelValuePairs,
+            (x) => this.props.selectionFn(x.value))
+            .map((lvPair) => lvPair.value);
+        let initValue = valuesArray;
+        if (valuesArray && _.isArrayLikeObject(valuesArray) && valuesArray.length > 0 && !this.props.multiSelect) {
+            initValue = valuesArray[0];
+        }
+        return initValue;
     }
 
     getAppropriateInitializedValue(value) {
