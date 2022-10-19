@@ -49,6 +49,7 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
           - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           - v1-dependencies-
+      - run: sudo apt install openjdk-8-jdk
       - run: sudo apt install make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: make deps_ci release_staging_without_clean
