@@ -18,7 +18,7 @@ class EntityService extends BaseService {
         this.db.write(() => {
             const entity = this.findByKey("uuid", uuid, schema);
             if (!_.isNil(entity) && !_.isEmpty(entity)) {
-                db.delete(entity.getValueFor(objectKey));
+                db.delete(entity[objectKey]);
             }
         });
     }
