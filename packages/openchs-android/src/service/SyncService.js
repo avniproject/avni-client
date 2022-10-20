@@ -324,7 +324,7 @@ class SyncService extends BaseService {
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
+        entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
 
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
