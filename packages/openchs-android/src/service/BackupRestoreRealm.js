@@ -127,8 +127,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
                             cb(97, "restoringDb");
                         })
-                        .then(() => this._deleteUserInfoAndIdAssignment())
-                        .then(() => this._deleteUserGroups())
+                        .then(() => this._deleteUserSpecificEntities())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
@@ -151,36 +150,19 @@ export default class BackupRestoreRealmService extends BaseService {
             });
     }
 
-    _deleteUserInfoAndIdAssignment() {
+    _deleteUserSpecificEntities() {
         const db = this.db;
-
-        const entitySyncStatus = db.objects(EntitySyncStatus.schema.name)
-            .filtered(`entityName = 'IdentifierAssignment' or entityName = 'UserInfo'`)
-            .map(u => _.assign({}, u));
-
         this.db.write(() => {
+            const entitySyncStatus = db.objects(EntitySyncStatus.schema.name)
+              .filtered(`entityName = 'IdentifierAssignment' or entityName = 'UserInfo' or entityName = 'MyGroups'`);
             const objects = db.objects(UserInfo.schema.name);
             const assignmentObjects = db.objects(IdentifierAssignment.schema.name);
             db.delete(objects);
             db.delete(assignmentObjects);
-            entitySyncStatus.forEach(({uuid, entityName, entityTypeUuid}) => {
-                const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
-                db.create(EntitySyncStatus.schema.name, updatedEntity, true);
-            })
-        });
-    }
-
-    _deleteUserGroups() {
-        const db = this.db;
-        const myGroups = db.objects(EntitySyncStatus.schema.name)
-            .filtered(`entityName = 'MyGroups'`)
-            .map(u => _.assign({}, u));
-        this.db.write(() => {
             db.delete(db.objects(MyGroups.schema.name));
-            myGroups.forEach(({uuid, entityName, entityTypeUuid}) => {
-                const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
-                db.create(EntitySyncStatus.schema.name, updatedEntity, true);
-            })
+            entitySyncStatus.forEach((ess) => {
+                ess.loadedSince = EntitySyncStatus.REALLY_OLD_DATE;
+            });
         });
     }
 }
