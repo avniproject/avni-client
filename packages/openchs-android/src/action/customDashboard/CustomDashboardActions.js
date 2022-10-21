@@ -11,7 +11,9 @@ class CustomDashboardActions {
     static getInitialState(context) {
         return {
             loading: false,
-            reportCardSectionMappings: []
+            reportCardSectionMappings: [],
+            cardToCountResultMap: {},
+            countUpdateTime: null
         };
     }
 
@@ -70,12 +72,11 @@ class CustomDashboardActions {
     static refreshCount(state, action, context) {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
-        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
-            const cardMappingsWithCount = {...rcm};
+        newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
+        reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            cardMappingsWithCount.card.countResult = context.get(ReportCardService).getReportCardCount(rcm.card);
+            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card);
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
-            return cardMappingsWithCount;
         });
         return newState;
     }
@@ -83,10 +84,9 @@ class CustomDashboardActions {
     static removeOlderCounts(state) {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
-        newState.reportCardSectionMappings = reportCardSectionMappings.map(rcm => {
-            const cardMappingsWithCount = {...rcm};
-            cardMappingsWithCount.card.countResult = null;
-            return cardMappingsWithCount;
+        newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
+        reportCardSectionMappings.forEach(rcm => {
+            newState.cardToCountResultMap[rcm.card.uuid]= null;
         });
         return newState;
     }

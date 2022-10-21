@@ -95,6 +95,8 @@ class CustomDashboardView extends AbstractComponent {
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
                                     viewType={viewType}
+                                    countResult={this.state.cardToCountResultMap[card.uuid]}
+                                    countUpdateTime={this.state.countUpdateTime}
                                 />
                             ))}
                         </View>

@@ -139,8 +139,12 @@ class RadioGroup extends AbstractComponent {
             (x) => this.props.selectionFn(x.value))
             .map((lvPair) => lvPair.value);
         let initValue = valuesArray;
-        if (valuesArray && _.isArrayLikeObject(valuesArray) && valuesArray.length > 0 && !this.props.multiSelect) {
-            initValue = valuesArray[0];
+        if (valuesArray && _.isArrayLikeObject(valuesArray)) {
+            if(valuesArray.length > 0 && !this.props.multiSelect) {
+                initValue = valuesArray[0];
+            } else if(valuesArray.length == 0) {
+                initValue = undefined;
+            }
         }
         return initValue;
     }
