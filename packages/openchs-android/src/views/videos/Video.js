@@ -7,6 +7,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
+import ListViewHelper from "../../utility/ListViewHelper";
+import {Video} from 'openchs-models';
 
 export class VideoList extends AbstractComponent {
 
@@ -62,7 +64,7 @@ export class VideoList extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.videos);
+        const dataSource = ListViewHelper.getDataSource(this.props.videos);
         return (
             <View>
                 <ListView
@@ -72,7 +74,7 @@ export class VideoList extends AbstractComponent {
                     pageSize={20}
                     initialListSize={10}
                     removeClippedSubviews={true}
-                    renderRow={(rowData) => this.renderLineItem(rowData)}/>
+                    renderRow={(rowData) => this.renderLineItem(new Video(rowData))}/>
             </View>
         );
     }

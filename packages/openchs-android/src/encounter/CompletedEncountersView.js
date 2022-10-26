@@ -18,6 +18,7 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import CollapsibleEncounters from "../views/common/CollapsibleEncounters";
 import DGS from "../views/primitives/DynamicGlobalStyles";
 import Separator from "../views/primitives/Separator";
+import ListViewHelper from "../utility/ListViewHelper";
 
 @Path('/CompletedEncountersView')
 class CompletedEncountersView extends AbstractComponent {

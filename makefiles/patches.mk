@@ -7,3 +7,6 @@ patch:
 
 apply_patch:
 	cd packages/openchs-android && npx patch-package
+
+pull_models_from_local:
+	cd ../avni-models && make deploy-to-avni-client-only local=../avni-client

@@ -7,6 +7,7 @@ import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent} from "../../utility/Analytics";
+import moment from "moment";
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -52,9 +53,14 @@ class AbstractComponent extends Component {
 
     dispatchAction(action, params) {
         const type = action instanceof Function ? action.Id : action;
-        if (General.canLog(General.LogLevel.Debug))
-            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
-        return this.context.getStore().dispatch({type, ...params});
+        if (General.canLog(General.LogLevel.Debug)) {
+            General.logDebug('AbstractComponent', `[${moment().format("h:mm:ss")}] Dispatching action: ${JSON.stringify(type)}`);
+        }
+        const dispatchResult = this.context.getStore().dispatch({type, ...params});
+        if (General.canLog(General.LogLevel.Debug)) {
+            General.logDebug('AbstractComponent', `[${moment().format("h:mm:ss")}] Dispatched action: ${JSON.stringify(type)}`);
+        }
+        return dispatchResult;
     }
 
     dispatchFn(fn) {

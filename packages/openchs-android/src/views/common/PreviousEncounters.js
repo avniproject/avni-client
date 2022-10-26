@@ -21,6 +21,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import CompletedEncountersView from "../../encounter/CompletedEncountersView";
 import CollapsibleEncounters from "./CollapsibleEncounters";
 import PrivilegeService from "../../service/PrivilegeService";
+import ListViewHelper from "../../utility/ListViewHelper";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -168,7 +169,7 @@ class PreviousEncounters extends AbstractComponent {
         } else {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
         }
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
+        const dataSource = ListViewHelper.getDataSource(toDisplayEncounters);
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 {this.props.title && (

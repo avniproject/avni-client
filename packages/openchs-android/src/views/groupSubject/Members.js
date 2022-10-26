@@ -15,6 +15,8 @@ import Actions from "./Actions";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import EncounterService from "../../service/EncounterService";
 import SubjectProfilePicture from "../common/SubjectProfilePicture";
+import ListViewHelper from "../../utility/ListViewHelper";
+import {GroupSubject} from "openchs-models";
 
 class Members extends AbstractComponent {
     static propTypes = {
@@ -102,7 +104,7 @@ class Members extends AbstractComponent {
     }
 
     render() {
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.groupSubjects);
+        const dataSource = ListViewHelper.getDataSource(this.props.groupSubjects);
         return (
             <ListView
                 enableEmptySections={true}
@@ -110,7 +112,7 @@ class Members extends AbstractComponent {
                 removeClippedSubviews={true}
                 renderSeparator={(ig, idx) => (<Separator key={idx} height={1}/>)}
                 renderHeader={() => this.renderHeader()}
-                renderRow={(groupSubject, index) => this.renderRow(groupSubject, index)}
+                renderRow={(groupSubjectRealmObject, index) => this.renderRow(new GroupSubject(groupSubjectRealmObject), index)}
             />
         );
     }
