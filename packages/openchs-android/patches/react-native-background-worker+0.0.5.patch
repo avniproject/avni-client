@@ -104,18 +104,6 @@ index ab9b663..2344aea 100644
 -        }
 -    }
 -}
-diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
-index 823b495..9760efe 100644
---- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
-+++ b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
-@@ -27,6 +27,7 @@ import com.facebook.react.bridge.ReactMethod;
- import com.facebook.react.bridge.ReadableMap;
- import com.facebook.react.modules.core.DeviceEventManagerModule;
- import com.google.common.util.concurrent.ListenableFuture;
-+import org.xml.sax.Parser;
- 
- import java.util.HashMap;
- import java.util.UUID;
 diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java
 index 0158ef3..10f80bc 100644
 --- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java
