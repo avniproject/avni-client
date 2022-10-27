@@ -122,7 +122,6 @@ dependencies {
     implementation project(':react-native-audio-recorder-player')
     implementation project(':react-native-document-picker')
     implementation project(':react-native-zip-archive')
-    implementation project(':react-native-background-job')
     implementation project(':react-native-webview')
     implementation project(':@react-native-firebase_app')
     implementation project(':@react-native-firebase_analytics')
@@ -147,6 +146,9 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha03'
+
+    // required to avoid crash on Android 12 API 31
+    implementation 'androidx.work:work-runtime:2.7.1'
 
     implementation jscFlavor
 

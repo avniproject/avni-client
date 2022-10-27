@@ -53,7 +53,7 @@
     "deprecated-react-native-prop-types": "2.3.0",
     "react-native-audio-recorder-player": "3.5.1",
     "react-native-autoheight-webview": "1.6.3",
-    "react-native-background-job": "^2.3.1",
+    "react-native-background-worker": "0.0.5",
     "react-native-background-timer": "^2.4.1",
     "react-native-charts-wrapper": "0.5.9",
     "react-native-deprecated-custom-components": "^0.1.2",
