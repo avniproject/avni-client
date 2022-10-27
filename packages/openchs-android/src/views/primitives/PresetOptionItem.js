@@ -11,7 +11,6 @@ import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
 
 class PresetOptionItem extends AbstractComponent {
-
     static defaultProps = {
         chunked: false,
         disabled: false,
@@ -20,7 +19,6 @@ class PresetOptionItem extends AbstractComponent {
     static propTypes = {
         multiSelect: PropTypes.bool.isRequired,
         checked: PropTypes.bool.isRequired,
-        onPress: PropTypes.func,
         displayText: PropTypes.string.isRequired,
         validationResult: PropTypes.object,
         abnormal: PropTypes.bool,
@@ -43,18 +41,12 @@ class PresetOptionItem extends AbstractComponent {
     getSelectComponent(defaultColor, extraLineHeight) {
         const disabled = this.props.disabled;
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
-        if (this.props.multiSelect)
-            return (<Checkbox disabled={disabled} value={this.props.value} color={color}>
-                <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]}>
-                    {this.props.displayText}
-                </Text>
-            </Checkbox>);
-        else
-            return (<Radio disabled={disabled} value={this.props.value} color={color}>
-                <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]}>
-                    {this.props.displayText}
-                </Text>
-            </Radio>);
+        const SelectComponent = this.props.multiSelect ? Checkbox : Radio;
+        return <SelectComponent disabled={disabled} value={this.props.value} color={color}>
+            <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]}>
+                {this.props.displayText}
+            </Text>
+        </SelectComponent>;
     }
 
     shouldComponentUpdate(nextProps) {
@@ -66,9 +58,6 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const marginLeft = this.props.multiSelect ? 16 : 8;
-        const inputTextStyle = {marginLeft: marginLeft, color: Colors.InputNormal, flex: 1};
-        General.logDebug("PresetOptionItem", "render");
         const color = _.isNil(this.props.validationResult)
             ? this.props.checked && this.props.abnormal
                 ? Colors.AbnormalValueHighlight

@@ -84,7 +84,7 @@ class RadioGroup extends AbstractComponent {
                               }}
                               disabled={this.props.disabled}
                               value={radioLabelValue.value}
-            />)
+            />);
     }
 
     renderSingleValue() {
@@ -105,13 +105,13 @@ class RadioGroup extends AbstractComponent {
                 {!this.props.skipLabel &&
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>}
                 {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
-                        <View style={[style.radioStyle, this.props.borderStyle]}>
-                            {this.renderSingleValue()}
-                        </View> :
-                        <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                     value={this.state.groupValue} onChange={newValues => this.invokeOnPressForChangedValues(newValues)}>
-                            {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                        </GroupComponent>
+                    <View style={[style.radioStyle, this.props.borderStyle]}>
+                        {this.renderSingleValue()}
+                    </View> :
+                    <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
+                                    value={this.state.groupValue} onChange={newValues => this.onValueChanged(newValues)}>
+                        {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
+                    </GroupComponent>
                     : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
@@ -120,9 +120,9 @@ class RadioGroup extends AbstractComponent {
         );
     }
 
-    invokeOnPressForChangedValues(newValue) {
+    onValueChanged(newValue) {
         let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
-        if(_.isString(safeInitNewValue)) {
+        if (_.isString(safeInitNewValue) || _.isNumber(safeInitNewValue)) {
             this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
             this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
         } else {
@@ -135,22 +135,22 @@ class RadioGroup extends AbstractComponent {
     }
 
     initializeSelectedValue() {
-        const valuesArray = _.filter(this.props.labelValuePairs,
+        const values = _.filter(this.props.labelValuePairs,
             (x) => this.props.selectionFn(x.value))
             .map((lvPair) => lvPair.value);
-        let initValue = valuesArray;
-        if (valuesArray && _.isArrayLikeObject(valuesArray)) {
-            if(valuesArray.length > 0 && !this.props.multiSelect) {
-                initValue = valuesArray[0];
-            } else if(valuesArray.length == 0) {
-                initValue = undefined;
-            }
+
+        let initValue = values;
+        if (!this.props.multiSelect) {
+            initValue = values.length === 0 ? undefined : values[0];
         }
         return initValue;
     }
 
     getAppropriateInitializedValue(value) {
-        return value || (this.props.multiSelect ? [] : "");
+        if (this.props.multiSelect) {
+            return _.isNil(value) ? [] : value;
+        }
+        return value;
     }
 }
 
