@@ -7,6 +7,9 @@ import _ from "lodash";
 import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
 import {Icon} from "native-base";
+import Repeat from "react-native-vector-icons/FontAwesome";
+import Phone from "react-native-vector-icons/FontAwesome";
+import BackInTime from "react-native-vector-icons/Entypo";
 import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
 import TaskStatusPicker from "./TaskStatusPicker";
@@ -55,7 +58,7 @@ class TaskCard extends AbstractComponent {
         return _.isNil(phoneNumberObs) ? null : (
             <Fragment>
                 <Text style={Styles.textStyle}>{phoneNumberObs.getReadableValue()}</Text>
-                <Icon name='call' style={styles.iconStyle}
+                <Icon style={styles.iconStyle} as={Phone} name='phone'
                       onPress={() => this.onCallPress(phoneNumberObs.getReadableValue())}/>
             </Fragment>
         )
@@ -86,9 +89,9 @@ class TaskCard extends AbstractComponent {
                 <View style={styles.cardContainer}>
                     <Text style={Styles.textStyle}>{task.name}</Text>
                     {task.isCallType() ? this.renderPhoneNumber(task) : null}
-                    <Icon style={styles.iconStyle} name='repeat' type='FontAwesome'
+                    <Icon style={styles.iconStyle} as={Repeat}  name='repeat'
                           onPress={() => this.onChangeStatusPress(task)}/>
-                    <Icon style={styles.iconStyle} name='back-in-time' type='Entypo'
+                    <Icon style={styles.iconStyle} as={BackInTime} name='back-in-time'
                           onPress={() => this.onReschedulePress(task)}/>
                 </View>
                 {this.renderSubjectDetails(task)}
@@ -118,7 +121,7 @@ const styles = StyleSheet.create({
         color: Colors.AccentColor,
         opacity: 0.8,
         alignSelf: 'center',
-        fontSize: 30
+        fontSize: 15
     }
 });
 
