@@ -123,11 +123,11 @@ class RadioGroup extends AbstractComponent {
     onValueChanged(newValue) {
         let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
         if (_.isString(safeInitNewValue) || _.isNumber(safeInitNewValue)) {
-            this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
+            this.state.groupValue && this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
             this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
         } else {
             _.xor(safeInitNewValue, this.state.groupValue).forEach(value => {
-                    this.props.onPress({value: value}); //Invoke toggle for all changed values
+                    value && this.props.onPress({value: value}); //Invoke toggle for all changed values
                 }
             );
         }
