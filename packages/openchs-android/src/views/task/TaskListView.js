@@ -21,7 +21,6 @@ class TaskListView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.task);
-        this.state = {};
     }
 
     viewName() {
@@ -29,7 +28,6 @@ class TaskListView extends AbstractComponent {
     }
 
     componentWillMount() {
-        this.setState({results: this.props.results, backFunction: this.props.backFunction});
         super.componentWillMount();
     }
 
@@ -40,14 +38,11 @@ class TaskListView extends AbstractComponent {
     }
 
     didFocus() {
-        if (_.size(this.props.results) !== _.size(this.state.results)) {
-            this.setState(prevState => ({...prevState, results: this.props.results}))
-        }
         super.didFocus();
     }
 
     onBackPress() {
-        this.state.backFunction();
+        this.props.backFunction();
     }
 
 
@@ -59,7 +54,7 @@ class TaskListView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
                 <SafeAreaView style={{flex: 1}}>
                     <FlatList
-                        data={this.state.results}
+                        data={this.props.results}
                         keyExtractor={(item) => item.uuid}
                         enableEmptySections={true}
                         renderItem={({item}) => <TaskCard task={item}/>}

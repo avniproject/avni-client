@@ -49,7 +49,7 @@ class CustomDashboardActions {
         const standardReportCardType = reportCard.standardReportCardType;
         const viewName = CustomDashboardActions._getViewName(standardReportCardType);
         if (!_.isNil(result)) {
-            action.cb(result, result.length, status, viewName);
+            setTimeout(() => action.cb(result, result.length, status, viewName), 0);
         }
         return newState;
     }
