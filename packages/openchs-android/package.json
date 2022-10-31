@@ -90,6 +90,7 @@
     "react-addons-test-utils": "15.4.1",
     "react-dom": "15.4.2",
     "react-test-renderer": "16.8.3",
-    "openchs-idi": "git+https://github.com/avniproject/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6"
+    "openchs-idi": "git+https://github.com/avniproject/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6",
+    "patch-package": "6.5.0"
   }
 }
