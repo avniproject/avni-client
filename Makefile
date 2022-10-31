@@ -24,6 +24,7 @@ endif
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 include makefiles/common.mk
+include makefiles/patches.mk
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -46,8 +47,8 @@ clean: clean_env ##
 # </clean>
 renew_env: clean_all deps
 # <deps>
-deps: build_env ##
-deps_ci: build_env_ci ##
+deps: build_env apply_patch ##
+deps_ci: build_env_ci apply_patch ##
 
 ignore_deps_changes:
 	git checkout package-lock.json
