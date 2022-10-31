@@ -14,13 +14,6 @@ help:
 
 default: ; @echo 'no target provided'
 
-check-node-v:
-ifneq ($(shell node -v),$(shell cat .nvmrc))
-	@echo -e '\nPlease run `nvm install $(shell cat .nvmrc) && nvm use $(shell cat .nvmrc)`\n'
-	@exit 1
-endif
-	@echo "node => $(shell node -v)"
-
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 include makefiles/common.mk
@@ -294,8 +287,6 @@ endef
 #orgname needs to be provided
 inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
-
-#$(MAKECMDGOALS): check-node-v ;
 
 #Translations
 port:= $(if $(port),$(port),8021)
