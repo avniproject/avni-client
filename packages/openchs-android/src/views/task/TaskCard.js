@@ -7,8 +7,8 @@ import _ from "lodash";
 import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
 import {Icon} from "native-base";
-import Repeat from "react-native-vector-icons/FontAwesome";
-import Phone from "react-native-vector-icons/FontAwesome";
+import ClipboardList from "react-native-vector-icons/FontAwesome5";
+import Call from "react-native-vector-icons/MaterialIcons";
 import BackInTime from "react-native-vector-icons/Entypo";
 import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
@@ -57,8 +57,8 @@ class TaskCard extends AbstractComponent {
         const phoneNumberObs = _.find(task.metadata, ({concept}) => concept.isMobileNo());
         return _.isNil(phoneNumberObs) ? null : (
             <Fragment>
-                <Text style={Styles.textStyle}>{phoneNumberObs.getReadableValue()}</Text>
-                <Icon style={styles.iconStyle} as={Phone} name='phone'
+                <Text style={styles.textStyle}>{phoneNumberObs.getReadableValue()}</Text>
+                <Icon style={styles.iconStyle} as={Call} name='call'
                       onPress={() => this.onCallPress(phoneNumberObs.getReadableValue())}/>
             </Fragment>
         )
@@ -71,9 +71,9 @@ class TaskCard extends AbstractComponent {
                 background={TouchableNativeFeedback.SelectableBackground()}
             >
                 <View style={{backgroundColor: '#E7E7E7', padding: 16}}>
-                    <View style={[styles.cardContainer, {elevation: 2}]}>
-                        <Text style={Styles.textStyle}>{task.subject.nameString}</Text>
-                        <Text style={Styles.textStyle}>{this.I18n.t(task.subject.lowestAddressLevel.name)}</Text>
+                    <View style={[styles.cardContainer]}>
+                        <Text style={styles.textStyle}>{task.subject.nameString}</Text>
+                        <Text style={styles.textStyle}>{this.I18n.t(task.subject.lowestAddressLevel.name)}</Text>
                         <Icon name={'chevron-right'} type={'MaterialIcons'} style={styles.iconStyle}/>
                     </View>
                 </View>
@@ -87,9 +87,8 @@ class TaskCard extends AbstractComponent {
         return (
             <View style={styles.container} key={task.uuid}>
                 <View style={styles.cardContainer}>
-                    <Text style={Styles.textStyle}>{task.name}</Text>
                     {task.isCallType() ? this.renderPhoneNumber(task) : null}
-                    <Icon style={styles.iconStyle} as={Repeat}  name='repeat'
+                    <Icon style={styles.iconStyle} as={ClipboardList}  name='clipboard-list'
                           onPress={() => this.onChangeStatusPress(task)}/>
                     <Icon style={styles.iconStyle} as={BackInTime} name='back-in-time'
                           onPress={() => this.onReschedulePress(task)}/>
@@ -107,21 +106,31 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         marginVertical: 5,
         marginHorizontal: 16,
-        elevation: 2,
     },
     cardContainer: {
-        paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
-        paddingVertical: 6,
+        borderRadius: 4,
+        padding: 12,
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: '#D9D9D9',
+        alignItems: 'center',
+        backgroundColor: '#DBDBDB',
+    },
+    iconContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    },
+    textStyle: {
+        fontSize: Styles.smallTextSize,
+        fontStyle: 'normal',
+        fontFamily: 'Inter',
+        color: '#070707',
+        lineHeight: 16
     },
     iconStyle: {
-        color: Colors.AccentColor,
-        opacity: 0.8,
+        color: '#29869A',
         alignSelf: 'center',
-        fontSize: 15
+        fontSize: 16
     }
 });
 
