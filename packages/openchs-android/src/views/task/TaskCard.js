@@ -4,19 +4,19 @@ import Reducers from "../../reducer";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import _ from "lodash";
-import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
 import {Icon} from "native-base";
 import ClipboardList from "react-native-vector-icons/FontAwesome5";
 import Call from "react-native-vector-icons/MaterialIcons";
 import BackInTime from "react-native-vector-icons/Entypo";
-import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
 import TaskStatusPicker from "./TaskStatusPicker";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
 import IndividualService from "../../service/IndividualService";
+import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 
 class TaskCard extends AbstractComponent {
     static propTypes = {
@@ -42,9 +42,18 @@ class TaskCard extends AbstractComponent {
     }
 
     async onReschedulePress(task) {
-        const {action, year, month, day} = await DatePickerAndroid.open({date: task.scheduledOn, mode: 'calendar'});
-        if (action !== DatePickerAndroid.dismissedAction) {
-            const date = new Date(year, month, day);
+        const dateOptions = {
+            mode: 'date', //To only enable date selection
+            display: 'calendar', //Type of DatePicker
+            is24Hour: true,
+            onChange: (event, date) => this.onDateChange(event, date, task),
+            value: task.scheduledOn
+        };
+        DateTimePickerAndroid.open(dateOptions);
+    }
+
+    onDateChange(event, date, task) {
+        if (event.type !== "dismissed") {
             this.dispatchAction(Actions.ON_RE_SCHEDULED, {task, date});
         }
     }
