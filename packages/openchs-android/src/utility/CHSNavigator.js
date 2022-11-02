@@ -54,6 +54,7 @@ import ManualProgramEligibilityView from "../views/program/ManualProgramEligibil
 import FormMappingService from "../service/FormMappingService";
 import {EncounterActions} from "../action/individual/EncounterActions";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import SubjectRegisterFromTaskView from "../views/individual/SubjectRegisterFromTaskView";
 
 
 class CHSNavigator {

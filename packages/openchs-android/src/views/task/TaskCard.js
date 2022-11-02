@@ -1,8 +1,7 @@
-import React, {Fragment} from 'react';
+import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
-import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import _ from "lodash";
 import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
@@ -16,6 +15,7 @@ import IndividualService from "../../service/IndividualService";
 import {IconContainer} from "./IconContainer";
 import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
+import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
 
 class TaskCard extends AbstractComponent {
     static propTypes = {
@@ -80,6 +80,11 @@ class TaskCard extends AbstractComponent {
                     <Text style={styles.textStyle}>{phoneNumber}</Text>
                 </View>
                 <View style={styles.iconContainer}>
+                    <IconContainer
+                        name='account-plus'
+                        type={'MaterialCommunityIcons'}
+                        onPress={() => TypedTransition.from(this).to(SubjectRegisterFromTaskView)}
+                    />
                     <IconContainer
                         name='call'
                         type={'MaterialIcons'}

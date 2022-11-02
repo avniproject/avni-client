@@ -68,6 +68,7 @@ class TaskListView extends AbstractComponent {
                 <View style={styles.cardContainer}>
                     {this.headerElement(this.I18n.t('phone'), 91, false)}
                     <View style={styles.iconContainer}>
+                        {this.headerElement(this.I18n.t('register'), iconWidth)}
                         {this.headerElement(this.I18n.t('call'), iconWidth)}
                         {this.headerElement(this.I18n.t('mark'), iconWidth)}
                         {this.headerElement(this.I18n.t('reschedule'), iconWidth)}

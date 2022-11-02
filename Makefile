@@ -323,6 +323,10 @@ deploy_translations: deploy_platform_translations
 deploy_platform_translations: auth dev_deploy_platform_translations
 
 dev_deploy_platform_translations:
+ifndef password
+	@echo "Please provide password"
+	exit 1
+else
 	$(call upload,platformTranslation,@packages/openchs-android/translations/en.json)
 	@echo
 	$(call upload,platformTranslation,@packages/openchs-android/translations/gu_IN.json)
@@ -336,10 +340,6 @@ dev_deploy_platform_translations:
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
 
 deploy_platform_translations_staging:
-ifndef password
-	@echo "Please provide password"
-	exit 1
-else
 	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.avniproject.org port=443 username=admin password=$(password)
 endif
 

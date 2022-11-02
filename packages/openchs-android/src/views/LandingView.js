@@ -153,7 +153,7 @@ class LandingView extends AbstractComponent {
                     onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
                     buttonElevated={true}
                     hideBackButton={true}/>}
-                {this.state.register && <RegisterView/>}
+                {this.state.register && <RegisterView hideBackButton={true}/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
                 {this.state.dashboard && <CustomDashboardView hideBackButton={true}/>}
 

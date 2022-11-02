@@ -25,8 +25,12 @@ import SubjectRegisterView from "./subject/SubjectRegisterView";
 import PersonRegisterView from "./individual/PersonRegisterView";
 import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
+import PropTypes from "prop-types";
 
 class RegisterView extends AbstractComponent {
+    static propTypes = {
+        hideBackButton: PropTypes.bool.isRequired
+    }
 
     constructor(props, context) {
         super(props, context);
@@ -178,7 +182,7 @@ class RegisterView extends AbstractComponent {
 
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t("register")} hideBackButton={true} hideIcon={true}/>
+                <AppHeader title={this.I18n.t("register")} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
                 <CHSContent>
                     <ScrollView style={{marginBottom: 110}}>
                         {_.map(actions, ({action, subjectType}, key) =>
