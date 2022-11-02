@@ -1,6 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
-import {Button, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Button, ScrollView, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import AppHeader from "./AppHeader";
@@ -34,6 +34,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
         this.phoneNumber = this.props.phoneNumber;
         this.phoneVerificationService = this.getService(PhoneVerificationService);
         this.serverURL = this.getService(SettingsService).getSettings().serverURL;
+        this.scrollRef = React.createRef();
     }
 
     verifyOTP() {
@@ -118,7 +119,8 @@ class PhoneNumberVerificationView extends AbstractComponent {
         const renderSkipOption = this.state.attempt >= 2 || !this.state.isConnected;
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={this.I18n.t("OTPVerification")} func={() => this.goBack()} hideIcon={true}/>
                     <View style={{flex: 1, flexDirection: 'column', paddingVertical: 100, paddingHorizontal: 20}}>
                         <Text style={Styles.menuTitle}>{this.I18n.t("OTPVerification")}</Text>
@@ -160,6 +162,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
                         {this.renderTimer()}
                         {this.renderToast()}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         )

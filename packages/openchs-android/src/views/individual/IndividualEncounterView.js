@@ -38,7 +38,7 @@ class IndividualEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.encounter);
-        this.scrollRef = React.createRef()
+        this.scrollRef = React.createRef();
     }
 
     viewName() {

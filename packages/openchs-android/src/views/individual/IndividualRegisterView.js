@@ -44,6 +44,7 @@ class IndividualRegisterView extends AbstractComponent {
         let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
         const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
         this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -103,11 +104,11 @@ class IndividualRegisterView extends AbstractComponent {
         {this.displayMessage(this.props.params.message)}
         return (
             <CHSContainer>
-                <CHSContent ref='scroll'>
+                <CHSContent>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
-                    <ScrollView style={{
+                    <ScrollView ref={this.scrollRef} style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge

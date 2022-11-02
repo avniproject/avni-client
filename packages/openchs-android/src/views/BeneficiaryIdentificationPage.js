@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import {Alert, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import AbstractComponent from "../../src/framework/view/AbstractComponent";
 import Path from "../../src/framework/routing/Path";
 import Reducers from '../../src/reducer';
@@ -22,6 +22,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.beneficiaryIdentification);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -57,7 +58,8 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         return <CHSContainer>
-            <CHSContent ref="scroll">
+            <CHSContent>
+                <ScrollView ref={this.scrollRef}>
                 <AppHeader title={'BeneficiaryIdentification'} hideBackButton={true} renderExitBeneficiaryMode/>
                 <View style={{flexDirection: 'column'}}>
                     <FormElementGroup
@@ -74,6 +76,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
                         func: () => this.submit(), label: this.I18n.t('View')
                     }}/>
                 </View>
+                </ScrollView>
             </CHSContent>
         </CHSContainer>;
     }

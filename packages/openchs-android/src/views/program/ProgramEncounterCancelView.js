@@ -1,4 +1,4 @@
-import {Text, View} from "react-native";
+import {ScrollView, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -34,6 +34,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounterCancel);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -115,7 +116,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
         General.logDebug('ProgramEncounterCancelView', 'render');
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
@@ -162,6 +164,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                             func: () => this.next(), label: this.I18n.t('next')
                         }}/>
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

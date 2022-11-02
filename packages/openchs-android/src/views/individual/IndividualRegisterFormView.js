@@ -1,4 +1,4 @@
-import {Vibration, View} from "react-native";
+import {ScrollView, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -34,6 +34,7 @@ class IndividualRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.individualRegister);
+        this.scrollRef = React.createRef();
     }
 
     componentWillMount() {
@@ -102,7 +103,8 @@ class IndividualRegisterFormView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
-                <CHSContent ref='scroll'>
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
@@ -139,6 +141,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
