@@ -18,11 +18,12 @@ class TaskFilterView extends AbstractComponent {
 
     componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
+        super.componentWillMount();
     }
 
     render() {
         return <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
-            <AppHeader title={this.I18n.t('filter')} func={this.props.onBack} />
+            <AppHeader title={this.I18n.t('filter')}/>
             <CHSContent>
                 <View style={{backgroundColor: Styles.whiteColor}}>
                 </View>
