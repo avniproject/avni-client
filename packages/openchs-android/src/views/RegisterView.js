@@ -29,7 +29,9 @@ import PropTypes from "prop-types";
 
 class RegisterView extends AbstractComponent {
     static propTypes = {
-        hideBackButton: PropTypes.bool.isRequired
+        hideBackButton: PropTypes.bool.isRequired,
+        defaultObservations: PropTypes.any,
+        taskUuid: PropTypes.string
     }
 
     constructor(props, context) {
@@ -47,7 +49,8 @@ class RegisterView extends AbstractComponent {
         }
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                {workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))}),
+                {taskUuid: this.props.taskUuid,
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))}),
             label: this.I18n.t(`${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }
@@ -65,6 +68,7 @@ class RegisterView extends AbstractComponent {
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
                 {
+                    taskUuid: this.props.taskUuid,
                     workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`))
                         .withRegistration(subjectType.name)
                         .withHouseholdRegistration(householdParams)

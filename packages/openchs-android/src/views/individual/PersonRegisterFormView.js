@@ -37,13 +37,15 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     componentWillMount() {
-        if(this.props.params.pageNumber) {
+        const params = this.props.params;
+        if(params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
                 {
-                    individualUUID: this.props.params.individualUUID,
-                    workLists: this.props.params.workLists,
-                    isDraftEntity: this.props.params.isDraftEntity,
-                    pageNumber: this.props.params.pageNumber,
+                    individualUUID: params.individualUUID,
+                    workLists: params.workLists,
+                    isDraftEntity: params.isDraftEntity,
+                    pageNumber: params.pageNumber,
+                    taskUuid: params.taskUuid
                 });
         }
         super.componentWillMount();

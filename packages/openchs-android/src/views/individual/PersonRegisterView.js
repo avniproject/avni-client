@@ -65,13 +65,15 @@ class PersonRegisterView extends AbstractComponent {
     }
 
     componentWillMount() {
+        const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD,
             {
-                individualUUID: this.props.params.individualUUID,
-                groupSubjectUUID: this.props.params.groupSubjectUUID,
-                workLists: this.props.params.workLists,
-                isDraftEntity: this.props.params.isDraftEntity,
-                pageNumber: this.props.params.pageNumber,
+                individualUUID: params.individualUUID,
+                groupSubjectUUID: params.groupSubjectUUID,
+                workLists: params.workLists,
+                isDraftEntity: params.isDraftEntity,
+                pageNumber: params.pageNumber,
+                taskUuid: params.taskUuid
             });
         super.componentWillMount();
     }

@@ -1,7 +1,7 @@
 import {
     FormElementGroup, Form, FormElement, Concept, Program, ModelGeneral as General, ChecklistItem, Observation,
     PrimitiveValue, ProgramEncounter, ProgramEnrolment, Individual, ConceptAnswer, EncounterType
-} from 'avni-models';
+} from 'openchs-models';
 import _ from "lodash";
 
 class EntityFactory {

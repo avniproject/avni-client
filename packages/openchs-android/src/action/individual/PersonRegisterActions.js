@@ -15,6 +15,7 @@ import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import GroupAffiliationState from "../../state/GroupAffiliationState";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import TaskService from "../../service/task/TaskService";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -48,8 +49,14 @@ export class PersonRegisterActions {
            group = context.get(IndividualService).findByUUID(action.groupSubjectUUID);
         }
 
+        if (!_.isNil(action.taskUuid)) {
+            const observations = context.get(TaskService).getObservationsForSubject(action.taskUuid, form);
+            individual.observations.push(...observations);
+        }
+
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
         PersonRegisterActions.setAgeState(newState);
+
         return QuickFormEditingActions.moveToPage(newState, action, context, PersonRegisterActions);
     }
 

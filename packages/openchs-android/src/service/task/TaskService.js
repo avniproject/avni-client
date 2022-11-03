@@ -2,6 +2,7 @@ import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
 import {EntityQueue, ObservationsHolder, Task} from 'avni-models';
 import General from "../../utility/General";
+import _ from 'lodash';
 
 @Service("taskService")
 class TaskService extends BaseService {
@@ -40,6 +41,11 @@ class TaskService extends BaseService {
         });
     }
 
+    getObservationsForSubject(taskUuid, form) {
+        const concepts = form.getAllFormElementConcepts();
+        const task = this.findByUUID(taskUuid);
+        return task.metadata.filter((o) => _.some(concepts, (x) => x.uuid === o.concept.uuid)).map((x) => x.shallowClone());
+    }
 }
 
 

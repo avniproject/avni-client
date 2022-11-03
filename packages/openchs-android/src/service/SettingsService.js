@@ -20,7 +20,7 @@ class SettingsService extends BaseService {
         this.db.write(() => {
             console.log("SettingsService", "Config.ENV", Config.ENV);
             let settings = this.getSettings();
-            if (_.isNil(settings) || Config.ENV === 'dev') {
+            if (_.isNil(settings) || Config.ENV === 'dev' || Config.ENV === 'ext-dev') {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
                 settings.password = "";

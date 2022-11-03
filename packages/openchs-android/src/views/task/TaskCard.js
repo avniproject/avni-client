@@ -83,7 +83,7 @@ class TaskCard extends AbstractComponent {
                     <IconContainer
                         name='account-plus'
                         type={'MaterialCommunityIcons'}
-                        onPress={() => TypedTransition.from(this).to(SubjectRegisterFromTaskView)}
+                        onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView)}
                     />
                     <IconContainer
                         name='call'

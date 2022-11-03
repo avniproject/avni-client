@@ -1,13 +1,5 @@
 // @flow
-import {
-    Encounter,
-    EncounterType,
-    ProgramEncounter,
-    ProgramEnrolment,
-    SubjectType,
-    WorkItem,
-    Individual
-} from 'avni-models';
+import {Encounter, EncounterType, Individual, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -52,9 +44,7 @@ import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 import moment from "moment";
 import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
 import FormMappingService from "../service/FormMappingService";
-import {EncounterActions} from "../action/individual/EncounterActions";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import SubjectRegisterFromTaskView from "../views/individual/SubjectRegisterFromTaskView";
 
 
 class CHSNavigator {
@@ -180,7 +170,7 @@ class CHSNavigator {
         }).to(GenericDashboardView);
     }
 
-    static navigateToRegisterView(source, {workLists, groupSubjectUUID}, pageNumber, canMoveToNextView) {
+    static navigateToRegisterView(source, {workLists, groupSubjectUUID, taskUuid}, pageNumber, canMoveToNextView) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
@@ -189,6 +179,7 @@ class CHSNavigator {
             subjectUUID: uuid,
             individualUUID: uuid,
             groupSubjectUUID,
+            taskUuid,
             editing: !_.isNil(uuid),
             workLists,
         };
