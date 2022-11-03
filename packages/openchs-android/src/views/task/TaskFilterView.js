@@ -9,6 +9,8 @@ import {Text, TouchableOpacity, View} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import React from "react";
 import Reducers from "../../reducer";
+import SingleSelectFilter from "../filter/SingleSelectFilter";
+import {FilterActionNames} from "../../action/mydashboard/FiltersActions";
 
 @Path('/taskFilterView')
 class TaskFilterView extends AbstractComponent {
@@ -26,6 +28,9 @@ class TaskFilterView extends AbstractComponent {
             <AppHeader title={this.I18n.t('filter')}/>
             <CHSContent>
                 <View style={{backgroundColor: Styles.whiteColor}}>
+                    <SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
+                        this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
+                    }}/>
                 </View>
             </CHSContent>
         </CHSContainer>;
