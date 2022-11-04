@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {UserInfo} from 'avni-models';
+import UserSettings from "../model/UserSettings";
 
 @Service("userInfoService")
 class UserInfoService extends BaseService {
@@ -17,8 +18,15 @@ class UserInfoService extends BaseService {
         return userInfo[0];
     }
 
+    /*
+    Deprecated. Use getUserSettingsObject.
+     */
     getUserSettings() {
         return this.getUserInfo().getSettings();
+    }
+
+    getUserSettingsObject() {
+        return new UserSettings(this.getUserSettings());
     }
 
     getUserSyncSettings() {

@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {EntityQueue, ObservationsHolder, Task} from 'avni-models';
+import {EntityQueue, ObservationsHolder, Task} from 'openchs-models';
 import General from "../../utility/General";
 import _ from 'lodash';
 

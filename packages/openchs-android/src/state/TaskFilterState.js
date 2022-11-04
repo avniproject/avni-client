@@ -4,13 +4,21 @@ class TaskFilterState {
     allTaskTypes;
     selectedTaskType;
     allTaskStatuses;
-    selectedTaskStatus;
+    selectedTaskStatuses;
     taskCreatedDate;
     taskCompletedDate;
     taskMetadataFields;
 
     static clone(other) {
-        return Object.assign({}, other);
+        return {
+            allTaskTypes: other.allTaskTypes,
+            selectedTaskType: other.selectedTaskType,
+            allTaskStatuses: [...other.allTaskStatuses],
+            selectedTaskStatuses: [...other.selectedTaskStatuses],
+            taskCreatedDate: other.taskCreatedDate,
+            taskCompletedDate: other.taskCompletedDate,
+            taskMetadataFields: [...other.taskMetadataFields]
+        };
     }
 }
 

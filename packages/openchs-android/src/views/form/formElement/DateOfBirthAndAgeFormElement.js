@@ -21,7 +21,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.userSettings = context.getService(UserInfoService).getUserSettings();
+        this.userSettings = context.getService(UserInfoService).getUserSettingsObject();
     }
 
     dateDisplay(date) {
@@ -36,7 +36,6 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
     }
 
     render() {
-        const datePickerMode = _.isNil(this.userSettings.datePickerMode) ? 'calendar' : this.userSettings.datePickerMode;
         return (
             <View style={[this.formRow, {flexDirection: 'column'}]}>
                 <View>
@@ -45,7 +44,8 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                 </View>
                 <View style={{flexDirection: 'row'}}>
                     <Text
-                        onPress={this.showPicker.bind(this, 'simple', {date: this.props.state.individual.dateOfBirth, mode: datePickerMode})}
+                        onPress={this.showPicker.bind(this, 'simple', {date: this.props.state.individual.dateOfBirth,
+                            mode: this.userSettings.datePickerMode})}
                         style={[DGS.formElementTextInput,
                             {
                                 marginRight: DGS.resizeWidth(50), fontSize: Fonts.Large,
