@@ -115,7 +115,7 @@ class SyncService extends BaseService {
             progressBarStatus.onComplete(entityType, numOfPages);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = (isSyncResetRequired, isBackgroundSync) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation, isBackgroundSync);
+        const firstDataServerSync = (isSyncResetRequired, isOnlyUploadRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
 
@@ -132,13 +132,13 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
         console.log('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isBackgroundSync = syncSource === SyncService.syncSources.BACKGROUND_JOB;
+        const isOnlyUploadRequired = syncSource === SyncService.syncSources.BACKGROUND_JOB;
         return mediaUploadRequired ?
-            firstDataServerSync(false, isBackgroundSync)
+            firstDataServerSync(false, isOnlyUploadRequired)
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isBackgroundSync))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired))
                 .then(syncCompleted)
-            : firstDataServerSync(isManualSync, isBackgroundSync).then(syncCompleted);
+            : firstDataServerSync(isManualSync, isOnlyUploadRequired).then(syncCompleted);
     }
 
     logSyncCompleteEvent(syncStartTime) {
@@ -185,15 +185,15 @@ class SyncService extends BaseService {
     }
 
     /*
-     * If isBackgroundSync = true, then only perform upload of data to Backend server
+     * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isBackgroundSync) {
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
           .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
           .then(() => onAfterMediaPush("After_Media", 0));
-        if(isBackgroundSync) {
+        if(isOnlyUploadRequired) {
             return uploadData;
         }
         await uploadData
