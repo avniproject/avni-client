@@ -119,7 +119,9 @@ class IndividualRegisterView extends AbstractComponent {
                             location={this.state.individual.registrationLocation}
                             editing={editing}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
-                        <RegistrationDateFormElement state={this.state}/>
+                        <RegistrationDateFormElement date={this.state.individual.registrationDate}
+                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}
+                        />
                         <IndividualNameFormElement state={this.state}/>
                         <SingleSelectMediaFormElement
                             element={{...profilePicFormElement}}
