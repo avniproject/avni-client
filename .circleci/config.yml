@@ -2,7 +2,7 @@ version: 2
 jobs:
   install_deps:
     docker:
-      - image: circleci/node:8.5.0
+      - image: cimg/node:16.18.0
     working_directory: ~/openchs-client
     steps:
       - checkout
