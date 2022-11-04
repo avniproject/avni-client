@@ -33,6 +33,7 @@ class SyncService extends BaseService {
     }
 
     static syncSources = {
+        ONLY_UPLOAD_BACKGROUND_JOB: 'automatic-upload-only',
         BACKGROUND_JOB: 'automatic',
         SYNC_BUTTON: 'manual'
     };
@@ -130,9 +131,10 @@ class SyncService extends BaseService {
 
         // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
+
         console.log('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isOnlyUploadRequired = syncSource === SyncService.syncSources.BACKGROUND_JOB;
+        const isOnlyUploadRequired = syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         return mediaUploadRequired ?
             firstDataServerSync(false, isOnlyUploadRequired)
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))

@@ -3,6 +3,8 @@ import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
 import moment from "moment";
+import SyncTelemetryService from "../service/SyncTelemetryService";
+import SyncService from "../service/SyncService";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -14,7 +16,7 @@ class SyncTelemetryActions {
         return {syncTelemetry};
     }
 
-    static onSyncStart(state, action) {
+    static onSyncStart(state, action, context) {
         const newState = SyncTelemetryActions.getInitialState();
         const syncTelemetry = newState.syncTelemetry;
         const deviceInfo = SyncTelemetryActions.getDeviceInfo();
@@ -22,8 +24,23 @@ class SyncTelemetryActions {
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
-        syncTelemetry.syncSource = action.syncSource;
+        this.getUpdatedSyncSource(syncTelemetry, action, context);
         return newState;
+    }
+
+    /*
+     * Return SyncService.syncSources.BACKGROUND_JOB in place of SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB,
+     * if the last Completed Full Sync happened more than twelve hours ago
+     */
+    static getUpdatedSyncSource(syncTelemetry, action, context) {
+        syncTelemetry.syncSource = (action.syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
+          && SyncTelemetryActions.wasLastCompletedFullSyncDoneMoreThan12HoursAgo(context))
+          ? action.syncSource : SyncService.syncSources.BACKGROUND_JOB;
+    }
+
+    static wasLastCompletedFullSyncDoneMoreThan12HoursAgo(context) {
+        let lastSynced = context.get(SyncTelemetryService).getLastCompletedFullSync();
+        return !_.isEmpty(lastSynced) && moment(lastSynced[0].syncEndTime).add(12, 'hours').isBefore(moment());
     }
 
     static getDeviceInfo() {
