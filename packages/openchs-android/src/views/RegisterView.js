@@ -125,7 +125,7 @@ class RegisterView extends AbstractComponent {
 
     renderDrafts() {
         const draftSubjects = this.context.getService(DraftSubjectService).findAll().sorted('updatedOn', true);
-        if (!_.isEmpty(draftSubjects)) {
+        if (draftSubjects.length > 0) {
             return (
                 <View style={styles.draftContainerStyle}>
                     <Text style={styles.draftHeaderStyle}>{this.I18n.t('drafts')}</Text>

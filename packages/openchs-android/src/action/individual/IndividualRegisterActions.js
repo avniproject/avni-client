@@ -1,20 +1,20 @@
-import IndividualService from "../../service/IndividualService";
-import ObservationsHolderActions from "../common/ObservationsHolderActions";
-import EntityService from "../../service/EntityService";
-import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
-import IndividualRegistrationState from "../../state/IndividualRegistrationState";
+import IndividualService from '../../service/IndividualService';
+import ObservationsHolderActions from '../common/ObservationsHolderActions';
+import EntityService from '../../service/EntityService';
+import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from 'avni-models';
+import IndividualRegistrationState from '../../state/IndividualRegistrationState';
 import _ from 'lodash';
-import GeolocationActions from "../common/GeolocationActions";
-import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
-import FormMappingService from "../../service/FormMappingService";
-import GroupSubjectService from "../../service/GroupSubjectService";
-import OrganisationConfigService from "../../service/OrganisationConfigService";
-import DraftSubjectService from "../../service/draft/DraftSubjectService";
-import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
-import GroupAffiliationActions from "../common/GroupAffiliationActions";
-import GroupAffiliationState from "../../state/GroupAffiliationState";
-import QuickFormEditingActions from "../common/QuickFormEditingActions";
-import TimerActions from "../common/TimerActions";
+import GeolocationActions from '../common/GeolocationActions';
+import IdentifierAssignmentService from '../../service/IdentifierAssignmentService';
+import FormMappingService from '../../service/FormMappingService';
+import GroupSubjectService from '../../service/GroupSubjectService';
+import OrganisationConfigService from '../../service/OrganisationConfigService';
+import DraftSubjectService from '../../service/draft/DraftSubjectService';
+import PhoneNumberVerificationActions from '../common/PhoneNumberVerificationActions';
+import GroupAffiliationActions from '../common/GroupAffiliationActions';
+import GroupAffiliationState from '../../state/GroupAffiliationState';
+import QuickFormEditingActions from '../common/QuickFormEditingActions';
+import TimerActions from '../common/TimerActions';
 
 export class IndividualRegisterActions {
     static getInitialState(context) {
@@ -53,7 +53,7 @@ export class IndividualRegisterActions {
 
     static enterRegistrationDate(state, action) {
         const newState = state.clone();
-        newState.individual.registrationDate = action.value;
+        newState.individual.registrationDate = new Date(action.value);
         newState.handleValidationResult(newState.individual.validateRegistrationDate());
         return newState;
     }
