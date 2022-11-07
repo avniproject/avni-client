@@ -61,6 +61,8 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                             }]}>{this.dateDisplay(this.props.state.individual.dateOfBirth)}</Text>
                     <View style={{flexDirection: 'column-reverse', justifyContent: 'center', marginRight: 4}}>
                         <CheckBox checked={this.props.state.individual.dateOfBirthVerified}
+                                  accessible={true}
+                                  accessibilityLabel={"Is date of birth verified?"}
                                   onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_DOB_VERIFIED, {value: !this.props.state.individual.dateOfBirthVerified})}/>
                     </View>
                     <View style={{marginRight: DGS.resizeWidth(15)}}/>
@@ -82,13 +84,20 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
                         value={_.isNil(this.props.state.age) ? '' : this.props.state.age}
                         onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE, {value: text})}/>
                     <Radio.Group style={{flexDirection: 'column', marginLeft: DGS.resizeWidth(20)}}
+                                 accessible={true}
+                                 accessibilityLabel={"Choose type of age"}
                                  value={this.props.state.ageProvidedInYears ? 'years' : 'months'}
                                  onChange={(value) => {
                                      this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: value === 'years'});
                                  }}>
-                        <Radio color={Colors.AccentColor} value={'years'}/>
+                        <Radio color={Colors.AccentColor} value={'years'}
+                               accessible={true}
+                               accessibilityLabel={"Choose years"}
+                        />
                         <Text style={DGS.formRadioText}>{this.I18n.t('years')}</Text>
                         <Radio color={Colors.AccentColor} value={'months'}
+                               accessible={true}
+                               accessibilityLabel={"Choose months"}
                                onPress={() => this.dispatchAction(Actions.REGISTRATION_ENTER_AGE_PROVIDED_IN_YEARS, {value: false})}/>
                         <Text style={DGS.formRadioText}>{this.I18n.t('months')}</Text>
                     </Radio.Group>
