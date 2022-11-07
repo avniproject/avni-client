@@ -35,8 +35,8 @@ class MyDashboardView extends AbstractComponent {
         return "MyDashboard";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

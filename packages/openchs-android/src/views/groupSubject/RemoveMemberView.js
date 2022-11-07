@@ -33,9 +33,9 @@ class RemoveMemberView extends AbstractComponent {
         return 'RemoveMemberView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     previous() {

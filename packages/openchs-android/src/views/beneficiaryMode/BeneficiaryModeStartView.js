@@ -19,8 +19,8 @@ class BeneficiaryModeStartView extends AbstractComponent {
         return 'BeneficiaryModeView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     onPinEnter(pin) {

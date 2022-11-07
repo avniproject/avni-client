@@ -14,8 +14,8 @@ export default class CustomDashboardCard extends AbstractComponent {
         return "CustomDashboardCard";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

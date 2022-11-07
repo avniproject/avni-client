@@ -37,8 +37,8 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         return 'IndividualSearchResultPaginatedView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

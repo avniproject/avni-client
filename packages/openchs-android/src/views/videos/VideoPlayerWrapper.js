@@ -26,7 +26,7 @@ class VideoPlayerWrapper extends React.Component {
         return 'VideoPlayerWrapper';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState({layout:{}});
     }
 

@@ -32,10 +32,10 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
         return _.flatten([answer]);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const initialCount = _.max([1, _.size(this.mediaUris)]);
         this.setState({mediaCount: initialCount});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     clearAnswer(index) {

@@ -44,14 +44,14 @@ class LandingView extends AbstractComponent {
         return "LandingView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
         const authService = this.context.getService(AuthService);
         authService.getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {

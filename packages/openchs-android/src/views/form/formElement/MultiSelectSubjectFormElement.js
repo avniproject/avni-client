@@ -13,8 +13,8 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
         super(props, context);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

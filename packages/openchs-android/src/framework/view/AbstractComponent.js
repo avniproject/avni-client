@@ -82,7 +82,7 @@ class AbstractComponent extends Component {
         );
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
             if (_.isNil(this.topLevelStateVariable)) return;
             this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
             this.refreshState();

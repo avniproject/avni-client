@@ -65,7 +65,7 @@ class IndividualRegisterView extends AbstractComponent {
         return this.getTitleForGroupSubject() || regName + ' ' || 'REG_DISPLAY-Individual';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD,
             {
                 individualUUID: this.props.params.individualUUID,
@@ -73,7 +73,7 @@ class IndividualRegisterView extends AbstractComponent {
                 isDraftEntity: this.props.params.isDraftEntity,
                 pageNumber: this.props.params.pageNumber,
             });
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {

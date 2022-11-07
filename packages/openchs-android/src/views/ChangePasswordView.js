@@ -26,7 +26,7 @@ class ChangePasswordView extends AbstractComponent {
         CHSNavigator.navigateToForgotPasswordView(this);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             return {showPassword: false, showSpinner: false, password: '', newPassword: '', userId: ''}
         });

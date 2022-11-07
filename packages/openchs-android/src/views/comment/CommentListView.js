@@ -28,8 +28,8 @@ class CommentListView extends AbstractComponent {
         return 'CommentListView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

@@ -38,9 +38,9 @@ class ChecklistItemView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {checklistItem: this.props.params.checklistItem});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     previous() {

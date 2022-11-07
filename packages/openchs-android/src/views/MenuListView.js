@@ -19,8 +19,8 @@ class MenuListView extends AbstractComponent {
         return "MenuListView";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     renderMenuItem = (maxLength) => (icon, menuMessageKey, pressHandler, idx) => {

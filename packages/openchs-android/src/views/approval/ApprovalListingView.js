@@ -35,8 +35,8 @@ class ApprovalListingView extends AbstractComponent {
         return 'ApprovalListingView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

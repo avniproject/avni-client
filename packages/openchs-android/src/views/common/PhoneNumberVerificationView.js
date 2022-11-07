@@ -54,12 +54,12 @@ class PhoneNumberVerificationView extends AbstractComponent {
         return 'PhoneNumberVerificationView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.phoneVerificationService.sendOTP(this.phoneNumber, this.optLength, this.serverURL);
         let timer = this.getInterval();
         this.setState({timer});
         this.checkInternetConnection();
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     checkInternetConnection() {

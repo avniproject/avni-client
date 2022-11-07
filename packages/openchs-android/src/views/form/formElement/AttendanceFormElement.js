@@ -15,8 +15,8 @@ class AttendanceFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     renderSubject({memberSubject}, subjectUUIDs, index) {

@@ -34,9 +34,9 @@ class TaskFormView extends AbstractComponent {
         return 'TaskFormView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_FORM_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     next() {

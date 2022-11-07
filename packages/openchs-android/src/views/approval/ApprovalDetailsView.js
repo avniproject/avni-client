@@ -46,9 +46,9 @@ class ApprovalDetailsView extends AbstractComponent {
         return 'ApprovalDetailsView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD,{entity: this.props.entity, schema: this.props.schema});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     renderDetails(entity) {

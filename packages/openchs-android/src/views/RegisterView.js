@@ -33,8 +33,8 @@ class RegisterView extends AbstractComponent {
         this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     _addRegistrationAction(subjectType) {

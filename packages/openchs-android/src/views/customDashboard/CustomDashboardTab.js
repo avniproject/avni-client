@@ -15,8 +15,8 @@ export default class CustomDashboardTab extends AbstractComponent {
         return "CustomDashboardTab";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

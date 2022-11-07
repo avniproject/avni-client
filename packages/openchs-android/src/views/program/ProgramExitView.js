@@ -29,14 +29,14 @@ class ProgramExitView extends AbstractComponent {
         dateValidationKey: ProgramEnrolment.validationKeys.EXIT_DATE
     };
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {
             enrolment: this.props.params.enrolment,
             usage: ProgramExitView.context.usage,
             workLists: this.props.params.workLists,
             pageNumber: this.props.params.pageNumber,
         });
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     viewName() {

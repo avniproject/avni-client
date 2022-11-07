@@ -55,9 +55,9 @@ class AddNewMemberView extends AbstractComponent {
         return 'AddNewMemberView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {

@@ -35,10 +35,10 @@ class CustomDashboardView extends AbstractComponent {
         return 'CustomDashboardView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         this.refreshCounts();
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     refreshCounts() {

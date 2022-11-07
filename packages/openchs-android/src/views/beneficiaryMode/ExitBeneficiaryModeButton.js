@@ -18,7 +18,7 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
         return "ExitBeneficiaryModeButton";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.resetState();
     }
 
