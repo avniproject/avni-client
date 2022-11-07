@@ -13,7 +13,7 @@ import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Text, TouchableNativeFeedback, View} from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
@@ -26,8 +26,6 @@ import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
 import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
-
-const {width, height} = Dimensions.get('window');
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
