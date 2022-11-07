@@ -70,6 +70,10 @@ const Schedule = ({
     timeout,
     foregroundBehaviour: 'headlessTask', //Since this could take long time to run
     workflow,
+    constraints: {
+      network: "connected",
+      battery: "notLow",
+    },
     repeatInterval: period
   });
 }
