@@ -223,6 +223,8 @@ class LoginView extends AbstractComponent {
                                                 onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
                                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                                     <CheckBox
+                                                        accessible={true}
+                                                        accessibilityLabel={"Show password"}
                                                         onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
                                                         checked={this.state.showPassword}/>
                                                     <Text
