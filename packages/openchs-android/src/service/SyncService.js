@@ -24,6 +24,7 @@ import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
+import moment from "moment";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -119,9 +120,8 @@ class SyncService extends BaseService {
         const firstDataServerSync = (isSyncResetRequired, isOnlyUploadRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
-
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource});
-
+        const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, updatedSyncSource});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
@@ -133,14 +133,29 @@ class SyncService extends BaseService {
         // Don't do it twice if no image sync required
 
         console.log('mediaUploadRequired', mediaUploadRequired);
-        const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isOnlyUploadRequired = syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
+        const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
+        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         return mediaUploadRequired ?
             firstDataServerSync(false, isOnlyUploadRequired)
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
                 .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired))
                 .then(syncCompleted)
             : firstDataServerSync(isManualSync, isOnlyUploadRequired).then(syncCompleted);
+    }
+
+    /*
+     * Return SyncService.syncSources.BACKGROUND_JOB in place of SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB,
+     * if the last Completed Full Sync happened more than twelve hours ago
+     */
+    getUpdatedSyncSource(syncSource) {
+        return (syncSource === SyncService.ONLY_UPLOAD_BACKGROUND_JOB
+          && this.wasLastCompletedFullSyncDoneMoreThan12HoursAgo())
+          ?  SyncService.syncSources.BACKGROUND_JOB : syncSource;
+    }
+
+    wasLastCompletedFullSyncDoneMoreThan12HoursAgo() {
+        let lastSynced = this.getService("syncTelemetryService").getAllCompletedFullSyncsSortedByDescSyncEndTime();
+        return !_.isEmpty(lastSynced) && moment(lastSynced[0].syncEndTime).add(12, 'hours').isBefore(moment());
     }
 
     logSyncCompleteEvent(syncStartTime) {
