@@ -25,6 +25,7 @@ import Reducers from "../reducer";
 import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
 import AsyncAlert from "./common/AsyncAlert";
+import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 
 const {width, height} = Dimensions.get('window');
 
@@ -152,6 +153,20 @@ class SyncComponent extends AbstractComponent {
         });
     }
 
+    /**
+     * As part of manual sync,
+     * we'll first replace the "background-sync" job with a "dummy sync" job,
+     * perform manual-sync and then,
+     * replace the "dummy sync" job again with "background-sync" job.
+     *
+     * In react-native-background-worker, when we schedule a job with same jobKey(Name) as an existing job,
+     * it replaces the old one with new one. Therefore, above specified steps are supposed to fulfill our need to NOT run
+     * background-sync in parallel with manual-sync.
+     *
+     * This is done, as we do not have a way to cancel jobs by name directly in react-native-background-worker.
+     * We could only cancel by id, but we do not want to store job id in db.
+     * @returns {Promise<void>}
+     */
     async startSync() {
         if (this.state.isConnected) {
             const syncService = this.context.getService(SyncService);
@@ -160,6 +175,7 @@ class SyncComponent extends AbstractComponent {
             //sending connection info like this because this returns promise and not possible in the action
             let connectionInfo;
             await NetInfo.fetch().then((x) => connectionInfo = x);
+            await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
@@ -169,6 +185,7 @@ class SyncComponent extends AbstractComponent {
                 SyncService.syncSources.SYNC_BUTTON,
                 () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
             ).catch(onError)
+              .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
