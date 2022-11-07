@@ -22,7 +22,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
         super(props, context);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             return {showPassword: false, showSpinner: false, verificationCode: ''}
         });

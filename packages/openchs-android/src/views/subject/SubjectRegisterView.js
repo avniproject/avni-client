@@ -88,14 +88,14 @@ class SubjectRegisterView extends AbstractComponent {
         return 'SubjectRegisterView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {
             subjectUUID: this.props.params.subjectUUID,
             workLists: this.props.params.workLists,
             isDraftEntity: this.props.params.isDraftEntity,
             pageNumber: this.props.params.pageNumber,
         });
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     previous() {

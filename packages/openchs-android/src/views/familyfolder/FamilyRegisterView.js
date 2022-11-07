@@ -38,9 +38,9 @@ class FamilyRegisterView extends AbstractComponent {
         return 'FamilyRegisterView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {familyUUID: this.props.params.familyUUID});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {

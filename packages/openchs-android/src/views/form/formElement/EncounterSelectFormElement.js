@@ -25,8 +25,8 @@ class EncounterSelectFormElement extends AbstractFormElement {
         return this.props.element.concept.recordValueByKey(Concept.keys.encounterIdentifier);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     getEncounterOptions() {

@@ -37,7 +37,7 @@ class IndividualRegisterFormView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if(this.props.params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
                 {
@@ -47,7 +47,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                     pageNumber: this.props.params.pageNumber,
                 });
         }
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     get registrationType() {

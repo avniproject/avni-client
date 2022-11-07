@@ -28,11 +28,11 @@ class ChecklistView extends AbstractComponent {
         super(props, context, ReducerKeys.reducerKeys.checklist);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         this.backFunction = () => this.goBack();
         BackHandler.addEventListener('backPress', this.backFunction);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     showToast() {

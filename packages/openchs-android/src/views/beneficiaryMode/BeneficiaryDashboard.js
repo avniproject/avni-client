@@ -35,9 +35,9 @@ export default class BeneficiaryDashboard extends AbstractComponent {
         return "BeneficiaryDashboard";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.onLoad, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     renderCompletedVisits() {

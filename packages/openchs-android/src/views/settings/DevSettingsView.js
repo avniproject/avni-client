@@ -36,8 +36,8 @@ class DevSettingsView extends AbstractComponent {
         return 'DevSettingsView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     renderLogLevels() {

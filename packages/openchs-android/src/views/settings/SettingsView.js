@@ -27,8 +27,8 @@ class SettingsView extends AbstractComponent {
         return 'SettingsView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     renderUserPropertyToggleButton(label, propertyName, actionName) {

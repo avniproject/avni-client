@@ -114,8 +114,8 @@ class SyncComponent extends AbstractComponent {
         );
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     onConnectionChange(isConnected) {

@@ -47,18 +47,18 @@ class ProgramEncounterView extends AbstractComponent {
         this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
             this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
-            return super.componentWillMount();
+            return super.UNSAFE_componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     onHardwareBackPress() {

@@ -46,10 +46,10 @@ class FamilyList extends AbstractComponent {
         }
     });
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         General.logDebug("FamilyList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     componentWillUnmount() {

@@ -31,9 +31,9 @@ class CompletedEncountersView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.completedEncounters);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props.params);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

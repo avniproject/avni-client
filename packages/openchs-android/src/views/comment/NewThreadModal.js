@@ -14,8 +14,8 @@ class NewThreadModal extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.comment);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

@@ -32,9 +32,9 @@ class SubjectDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.subjectDashboardView);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     displayMessage(message) {

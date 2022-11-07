@@ -19,7 +19,7 @@ class ForgotPasswordView extends AbstractComponent {
         super(props, context);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {return { userId: '', showSpinner: false }});
     }
 

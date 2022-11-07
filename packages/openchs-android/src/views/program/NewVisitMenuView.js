@@ -29,9 +29,9 @@ class NewVisitMenuView extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.onLoad, this.props);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     static Header = ({section: {title, data}}) => {

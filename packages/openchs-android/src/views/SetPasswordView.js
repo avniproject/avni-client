@@ -26,7 +26,7 @@ class SetPasswordView extends AbstractComponent {
         return "SetPasswordView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             return {showPassword: false, showSpinner: false}
         });

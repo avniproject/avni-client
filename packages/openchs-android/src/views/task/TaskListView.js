@@ -27,8 +27,8 @@ class TaskListView extends AbstractComponent {
         return 'TaskListView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

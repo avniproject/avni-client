@@ -37,9 +37,9 @@ class IndividualSearchResultsView extends AbstractComponent {
         return 'IndividualSearchResultsView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         setTimeout(() => this.dispatchAction(Actions.LOAD_INDICATOR, {status: false}), 0);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     renderZeroResultsMessageIfNeeded() {

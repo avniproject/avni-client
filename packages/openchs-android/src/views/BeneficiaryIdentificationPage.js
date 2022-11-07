@@ -29,9 +29,9 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
         return "BeneficiaryIdentificationPage";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.onLoad);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     submit() {

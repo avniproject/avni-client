@@ -55,9 +55,9 @@ class FamilyFolderView extends AbstractComponent {
             }
     });
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     _onPressButton() {

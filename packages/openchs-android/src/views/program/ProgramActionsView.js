@@ -23,11 +23,11 @@ class ProgramActionsView extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const allowedEncounterTypeUuids = this.props.allowedEncounterTypeUuids;
         const enrolment = this.props.enrolment;
         this.dispatchAction(Actions.onLoad, {enrolmentUUID: enrolment.uuid, allowedEncounterTypeUuids});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, state) {

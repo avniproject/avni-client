@@ -74,8 +74,8 @@ class IndividualProfile extends AbstractComponent {
         RNImmediatePhoneCall.immediatePhoneCall(number);
     }
 
-    componentWillMount() {
-        return super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        return super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

@@ -68,7 +68,7 @@ class FilterView extends AbstractComponent {
         return "FilterView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const subjectTypes = this.entityService.findAllByCriteria('voided = false', SubjectType.schema.name);
         const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
@@ -92,7 +92,7 @@ class FilterView extends AbstractComponent {
             subjectTypes,
             selectedSubjectType
         });
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     onSelect(filter, idx) {

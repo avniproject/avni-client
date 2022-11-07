@@ -26,9 +26,9 @@ class CompletedVisitsFilterView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.completedVisitsFilterAction);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props.params);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     onApply() {

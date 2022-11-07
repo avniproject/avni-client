@@ -84,7 +84,8 @@
     "transducers-js": "0.4.174",
     "deprecated-react-native-listview": "^0.0.8",
     "@react-native-community/netinfo": "9.3.0",
-    "@react-native-community/datetimepicker": "^6.5.0"
+    "@react-native-community/datetimepicker": "^6.5.0",
+    "@react-native-community/progress-bar-android": "^1.0.5"
   },
   "devDependencies": {
     "patch-package": "6.4.7",

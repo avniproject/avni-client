@@ -21,7 +21,7 @@ class RootView extends AbstractComponent {
         this.state = {};
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
         await this.showSplashScreen();
         await this.openApp();
     }
