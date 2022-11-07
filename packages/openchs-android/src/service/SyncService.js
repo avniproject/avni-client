@@ -148,7 +148,7 @@ class SyncService extends BaseService {
      * if the last Completed Full Sync happened more than twelve hours ago
      */
     getUpdatedSyncSource(syncSource) {
-        return (syncSource === SyncService.ONLY_UPLOAD_BACKGROUND_JOB
+        return (syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
           && this.wasLastCompletedFullSyncDoneMoreThan12HoursAgo())
           ?  SyncService.syncSources.BACKGROUND_JOB : syncSource;
     }
