@@ -26,7 +26,16 @@ buildscript {
     }
 }
 
+def REACT_NATIVE_VERSION = "0.59.5"
+
 allprojects {
+    configurations.all {
+        resolutionStrategy {
+            // Remove this override in 0.65+, as a proper fix is included in react-native itself.
+            force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
+        }
+    }
+
     repositories {
         mavenLocal()
         google()
