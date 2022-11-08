@@ -57,6 +57,11 @@ class ActionSelector extends AbstractComponent {
         title: PropTypes.string.isRequired
     };
 
+    static defaultProps = {
+        actions: [],
+        visible: false
+    };
+
     constructor(props, context) {
         super(props, context);
     }
