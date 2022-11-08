@@ -21,6 +21,7 @@ class TaskFilterState {
     taskCreatedDate;
     taskCompletedDate;
     taskMetadataFields;
+    taskMetadataValues;
 
     static clone(other) {
         return {

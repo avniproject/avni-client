@@ -1,25 +1,26 @@
-import ReportCardService from "../../service/customDashboard/ReportCardService";
+import TaskService from "../../service/task/TaskService";
 
 class TaskListActions {
     static getInitialState(context) {
-        return {results: null};
+        return {results: [], filter: null};
     }
 
-    static onLoad(state, action, context) {
-        const reportCardService = context.get(ReportCardService);
-        const results = reportCardService.getResultForTaskCardType(action.taskTypeType);
-        return {results: results};
+    static onFilterApply(state, action, context) {
+        const taskService = context.get(TaskService);
+        const results = taskService.getFilteredTasks(action.filter);
+        //remember filter
+        return {results: results, filter: action.filter};
     }
 }
 
 const ActionPrefix = 'TaskList';
 
 const TaskListActionNames = {
-    ON_LOAD: `${ActionPrefix}.ON_LOAD`
+    ON_FILTER_APPLY: `${ActionPrefix}.ON_FILTER_APPLY`
 };
 
 const TaskListActionMap = new Map([
-    [TaskListActionNames.ON_LOAD, TaskListActions.onLoad]
+    [TaskListActionNames.ON_FILTER_APPLY, TaskListActions.onFilterApply]
 ]);
 
 export {TaskListActions, TaskListActionNames as Actions, TaskListActionMap}

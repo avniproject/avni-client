@@ -13,6 +13,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFilterView from "./TaskFilterView";
 import FloatingButton from "../primitives/FloatingButton";
 import {Actions} from "../../action/task/TaskListActions";
+import TaskFilter from "../../model/TaskFilter";
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
@@ -35,21 +36,21 @@ class TaskListView extends AbstractComponent {
         return 'TaskListView';
     }
 
-    dispatchLoad() {
+    dispatchLoad(filter) {
         setTimeout(() => {
-            this.dispatchAction(Actions.ON_LOAD, {taskTypeType: this.props.params.taskTypeType});
+            this.dispatchAction(Actions.ON_FILTER_APPLY, {filter: filter});
             this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
         }, 0);
     }
 
     componentWillMount() {
-        this.dispatchLoad();
+        this.dispatchLoad(TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType));
         super.componentWillMount();
     }
 
     didFocus() {
         super.didFocus();
-        this.dispatchLoad();
+        this.dispatchLoad(this.state.filter);
     }
 
     onBackPress() {

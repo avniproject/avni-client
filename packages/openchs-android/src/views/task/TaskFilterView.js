@@ -1,6 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import {Actions} from "../../action/task/TaskFilterActions";
+import {Actions as TaskListActions} from "../../action/task/TaskListActions";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import {SafeAreaView, Text, TextInput, View} from "react-native";
@@ -14,6 +15,7 @@ import _ from "lodash";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import FloatingButton from "../primitives/FloatingButton";
+import TaskFilter from "../../model/TaskFilter";
 
 const numericFieldStyle = [{
     marginVertical: 0,
@@ -111,7 +113,8 @@ class TaskFilterView extends AbstractComponent {
                                         taskMetadataValues={taskMetadataValues}
                                         dispatch={(actionName, action) => this.dispatchAction(actionName, action)} I18n={this.I18n}/>
                 </View>
-                <FloatingButton buttonTextKey={"apply"} onClick={() => this.dispatchAction(Actions.ON_TASK_FILTERED)}/>
+                <FloatingButton buttonTextKey={"apply"}
+                                onClick={() => this.dispatchAction(TaskListActions.ON_FILTER_APPLY, {filter: TaskFilter.fromTaskFilterState(this.state)})}/>
             </SafeAreaView>
         </CHSContainer>;
     }

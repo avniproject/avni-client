@@ -3,6 +3,12 @@ import Service from "../../framework/bean/Service";
 import {EntityQueue, ObservationsHolder, Task} from 'openchs-models';
 import General from "../../utility/General";
 import _ from 'lodash';
+import TaskFilter from "../../model/TaskFilter";
+
+const getIncompleteTasks = function(taskService, taskTypeName) {
+    return taskService.getAllNonVoided()
+        .filtered(`taskType.type = '${taskTypeName}' and completedOn = null`);
+}
 
 @Service("taskService")
 class TaskService extends BaseService {
@@ -15,9 +21,24 @@ class TaskService extends BaseService {
     }
 
     getIncompleteTasks(taskTypeName) {
-        return this.getAllNonVoided()
-            .filtered(`taskType.type = '${taskTypeName}' and completedOn = null`)
-            .sorted('scheduledOn', true);
+        return getIncompleteTasks(this, taskTypeName).sorted('scheduledOn', true);
+    }
+
+    getFilteredTasks(taskFilter: TaskFilter) {
+        let tasks = getIncompleteTasks(this, taskFilter.taskType.type);
+        if (taskFilter.taskStatuses.length > 0)
+            tasks = tasks.filtered(this.orFilterCriteria(taskFilter.taskStatuses, "taskStatus.uuid"));
+        if (!_.isNil(taskFilter.taskCreatedDate))
+            tasks = tasks.filtered("taskCreatedDate = $0", taskFilter.taskCreatedDate);
+        if (!_.isNil(taskFilter.taskCompletedDate))
+            tasks = tasks.filtered("taskCompletedDate = $0", taskFilter.taskCompletedDate);
+        Object.keys(taskFilter.taskMetadataValues).forEach((x) => {
+            const metadataConcept = taskFilter.taskType.getMetadataConcept(x);
+            const queryValue = metadataConcept.isCodedConcept() ? taskFilter.taskMetadataValues[x].uuid : taskFilter.taskMetadataValues[x];
+            tasks = tasks.filtered("observations.concept.uuid = $0 and observations.valueJSON contains[c] $1",
+                            metadataConcept.uuid, queryValue);
+        });
+        return tasks.map(_.identity);
     }
 
     deleteTask(taskUUID, db) {
@@ -28,7 +49,6 @@ class TaskService extends BaseService {
     }
 
     saveOrUpdate(task) {
-        General.logDebug('TaskService', `Saving Task UUID: ${task.uuid}`);
         const db = this.db;
         ObservationsHolder.convertObsForSave(task.observations);
         ObservationsHolder.convertObsForSave(task.metadata);
