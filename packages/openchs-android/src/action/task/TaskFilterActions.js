@@ -1,10 +1,9 @@
 import EntityService from "../../service/EntityService";
-import {TaskStatus, TaskType} from 'openchs-models';
+import {TaskType} from 'openchs-models';
 import TaskFilterState from "../../state/TaskFilterState";
 import TaskStatusService from "../../service/task/TaskStatusService";
 import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
-import {Concept} from 'openchs-models';
 
 class TaskFilterActions {
     static getInitialState(context) {
@@ -40,13 +39,13 @@ class TaskFilterActions {
 
     static onTaskCreatedDateChange(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        newState.taskCreatedDate = action;
+        newState.taskCreatedDate = action.value;
         return newState;
     }
 
     static onTaskCompletedDateChange(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        newState.taskCompletedDate = action;
+        newState.taskCompletedDate = action.value;
         return newState;
     }
 

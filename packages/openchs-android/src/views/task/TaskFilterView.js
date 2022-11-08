@@ -4,15 +4,17 @@ import {Actions} from "../../action/task/TaskFilterActions";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
 import CHSContent from "../common/CHSContent";
-import {Text, TextInput, View} from "react-native";
+import {SafeAreaView, Text, TextInput, View} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import React from "react";
 import Reducers from "../../reducer";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import DatePicker from "../primitives/DatePicker";
-import {Concept} from 'openchs-models';
+import {Concept, BaseEntity} from 'openchs-models';
 import _ from "lodash";
 import Colors from "../primitives/Colors";
+import General from "../../utility/General";
+import FloatingButton from "../primitives/FloatingButton";
 
 const numericFieldStyle = [{
     marginVertical: 0,
@@ -38,10 +40,11 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
                 </View>;
             case Concept.dataType.Coded:
                 const answers = c.getAnswers();
-                return <RadioGroup onPress={(rlv) => dispatch(Actions.ON_METADATA_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
-                                   selectionFn={(selectedVal) => _.isEqual(selectedVal, taskMetadataFields[c.uuid])}
+                return <RadioGroup onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
+                                   inPairs={true}
+                                   selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(taskMetadataValues[c.uuid], selectedVal)}
                                    labelValuePairs={answers.map((a) => new RadioLabelValue(a.name, a, false))}
-                                   labelKey={c.name} multiSelect={false}/>;
+                                   labelKey={c.name} multiSelect={true}/>;
             default:
                 return null;
         }
@@ -60,52 +63,60 @@ class TaskFilterView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug("TaskFilterView", "render");
         const {
             allTaskTypes, selectedTaskType, allTaskStatuses, selectedTaskStatuses, datePickerMode,
             taskMetadataFields, taskCreatedDate, taskCompletedDate, taskMetadataValues
         } = this.state;
+
+        console.log("TaskFilterView", taskMetadataValues);
+
         const taskTypeLVPairs = allTaskTypes.map((x) => new RadioLabelValue(x.name, x, false));
         const taskStatusLVPairs = allTaskStatuses.map((x) => new RadioLabelValue(x.name, x, false));
         return <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
             <AppHeader title={this.I18n.t('filter')}/>
-            <CHSContent>
-                <View style={{backgroundColor: Styles.whiteColor, padding: 20}}>
-                    <RadioGroup labelKey="taskType"
-                                labelValuePairs={taskTypeLVPairs}
-                                inPairs={true}
-                                multiSelect={false}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, rlv.value)}
-                                selectionFn={(selectedVal) => selectedVal.equals(selectedTaskType)}
-                                mandatory={false}/>
-                    <RadioGroup labelKey="taskStatus"
-                                labelValuePairs={taskStatusLVPairs}
-                                inPairs={true}
-                                multiSelect={true}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, rlv.value)}
-                                selectionFn={(selectedVal) => selectedTaskStatuses.includes(selectedVal)}
-                                mandatory={false}/>
-                    <View style={{flexDirection: "row", marginTop: 20}}>
-                        <View>
-                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCreatedOn")}</Text>
-                            <DatePicker dateValue={taskCreatedDate}
-                                        datePickerMode={datePickerMode}
-                                        actionObject={{}}
-                                        actionName={Actions.ON_TASK_CREATED_DATE_CHANGE}/>
-                        </View>
-                        <View style={{marginLeft: 50}}>
-                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCompletedOn")}</Text>
-                            <DatePicker dateValue={taskCompletedDate}
-                                        datePickerMode={datePickerMode}
-                                        actionObject={{}}
-                                        actionName={Actions.ON_TASK_COMPLETED_DATE_CHANGE}/>
-                        </View>
+            <SafeAreaView style={{flex: 1, padding: 20}}>
+                <RadioGroup labelKey="taskType"
+                            labelValuePairs={taskTypeLVPairs}
+                            inPairs={true}
+                            multiSelect={false}
+                            onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, rlv.value)}
+                            selectionFn={(selectedVal) => selectedTaskType.uuid === selectedVal.uuid}
+                            mandatory={false}/>
+                <RadioGroup labelKey="taskStatus"
+                            style={{marginTop: 20}}
+                            labelValuePairs={taskStatusLVPairs}
+                            inPairs={true}
+                            multiSelect={true}
+                            onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, rlv.value)}
+                            selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(selectedTaskStatuses, selectedVal)}
+                            mandatory={false}/>
+                <View style={{flexDirection: "row", marginTop: 20}}>
+                    <View>
+                        <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCreatedOn")}</Text>
+                        <DatePicker dateValue={taskCreatedDate}
+                                    datePickerMode={datePickerMode}
+                                    actionObject={{}}
+                                    pickTime={false}
+                                    actionName={Actions.ON_TASK_CREATED_DATE_CHANGE}/>
                     </View>
-                    <TaskMetadataFilter taskMetadataFields={taskMetadataFields}
-                                        taskMetadataValues={taskMetadataValues} dispatch={this.dispatchAction} I18n={this.I18n}/>
+                    <View style={{marginLeft: 50}}>
+                        <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCompletedOn")}</Text>
+                        <DatePicker dateValue={taskCompletedDate}
+                                    datePickerMode={datePickerMode}
+                                    actionObject={{}}
+                                    pickTime={false}
+                                    actionName={Actions.ON_TASK_COMPLETED_DATE_CHANGE}/>
+                    </View>
                 </View>
-            </CHSContent>
-        </CHSContainer>
-            ;
+                <View style={{marginTop: 20}}>
+                    <TaskMetadataFilter taskMetadataFields={taskMetadataFields}
+                                        taskMetadataValues={taskMetadataValues}
+                                        dispatch={(actionName, action) => this.dispatchAction(actionName, action)} I18n={this.I18n}/>
+                </View>
+                <FloatingButton buttonTextKey={"apply"} onClick={() => this.dispatchAction()}/>
+            </SafeAreaView>
+        </CHSContainer>;
     }
 }
 

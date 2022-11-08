@@ -6,7 +6,7 @@ import PropTypes from "prop-types";
 
 @Path('/subjectRegisterFromTaskView')
 class SubjectRegisterFromTaskView extends AbstractComponent {
-    static props = {
+    static propTypes = {
         params: PropTypes.object.isRequired
     }
 

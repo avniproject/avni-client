@@ -6,38 +6,16 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {FlatList, SafeAreaView, View, Text, StyleSheet, Dimensions, TouchableOpacity} from "react-native";
+import {Dimensions, FlatList, SafeAreaView, StyleSheet, Text, View} from "react-native";
 import TaskCard from "./TaskCard";
 import Reducers from "../../reducer";
 import _ from 'lodash';
-import Styles from "../primitives/Styles";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFilterView from "./TaskFilterView";
-
-const FilterButton = function({buttonText, onClick}) {
-    return <View style={{height: 60, position: 'absolute', bottom: 0, right: 35}}>
-        <TouchableOpacity activeOpacity={0.5}
-                          onPress={onClick}
-                          style={{
-                              height: 40,
-                              width: 80,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: Colors.AccentColor,
-                              elevation: 2,
-                          }}>
-            <Text style={{
-                color: 'white',
-                alignSelf: 'center',
-                fontSize: Styles.normalTextSize
-            }}>{buttonText}</Text>
-        </TouchableOpacity>
-    </View>;
-}
+import FloatingButton from "../primitives/FloatingButton";
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
-
     static propTypes = {
         results: PropTypes.object.isRequired,
         backFunction: PropTypes.func,
@@ -139,7 +117,7 @@ class TaskListView extends AbstractComponent {
                         ListHeaderComponent={this.renderHeader()}
                     />
                 </SafeAreaView>
-                <FilterButton buttonText={this.I18n.t('filter')} onClick={() => TypedTransition.from(this).to(TaskFilterView)}/>
+                <FloatingButton buttonTextKey="filter" onClick={() => TypedTransition.from(this).to(TaskFilterView)}/>
             </CHSContainer>
         )
     }
