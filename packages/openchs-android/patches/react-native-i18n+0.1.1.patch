@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java b/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java
+index 2a1b608..374a967 100644
+--- a/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java
++++ b/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java
+@@ -20,7 +20,6 @@ public class ReactNativeI18n implements ReactPackage {
+         return modules;
+     }
+ 
+-    @Override
+     public List<Class<? extends JavaScriptModule>> createJSModules() {
+         return Collections.emptyList();
+     }
