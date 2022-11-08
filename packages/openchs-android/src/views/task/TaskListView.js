@@ -9,21 +9,25 @@ import AppHeader from "../common/AppHeader";
 import {Dimensions, FlatList, SafeAreaView, StyleSheet, Text, View} from "react-native";
 import TaskCard from "./TaskCard";
 import Reducers from "../../reducer";
-import _ from 'lodash';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFilterView from "./TaskFilterView";
 import FloatingButton from "../primitives/FloatingButton";
+import {Actions} from "../../action/task/TaskListActions";
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
     static propTypes = {
-        results: PropTypes.object.isRequired,
+        params: PropTypes.object.isRequired
+    }
+
+    static paramTypes = {
         backFunction: PropTypes.func,
-        listType: PropTypes.string.isRequired
+        taskTypeType: PropTypes.string.isRequired,
+        indicatorActionName: PropTypes.string
     };
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.task);
+        super(props, context, Reducers.reducerKeys.taskList);
         this.state = {};
     }
 
@@ -31,26 +35,25 @@ class TaskListView extends AbstractComponent {
         return 'TaskListView';
     }
 
+    dispatchLoad() {
+        setTimeout(() => {
+            this.dispatchAction(Actions.ON_LOAD, {taskTypeType: this.props.params.taskTypeType});
+            this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
+        }, 0);
+    }
+
     componentWillMount() {
-        this.setState({results: this.props.results, backFunction: this.props.backFunction});
+        this.dispatchLoad();
         super.componentWillMount();
     }
 
-    componentDidMount() {
-        if (this.props.indicatorActionName) {
-            setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
-        }
-    }
-
     didFocus() {
-        if (_.size(this.props.results) !== _.size(this.state.results)) {
-            this.setState(prevState => ({...prevState, results: this.props.results}))
-        }
         super.didFocus();
+        this.dispatchLoad();
     }
 
     onBackPress() {
-        this.state.backFunction();
+        this.props.params.backFunction();
     }
 
     headerElement(name, width, isCenter = true) {
@@ -97,8 +100,7 @@ class TaskListView extends AbstractComponent {
     }
 
     renderHeader() {
-        const taskType = this.props.listType;
-        return taskType === 'call' ? this.renderCallHeader() : this.renderOpenSubjectHeader();
+        return this.props.params.taskTypeType === 'call' ? this.renderCallHeader() : this.renderOpenSubjectHeader();
     }
 
 

@@ -3,7 +3,6 @@ import Path from "../../framework/routing/Path";
 import {Actions} from "../../action/task/TaskFilterActions";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
-import CHSContent from "../common/CHSContent";
 import {SafeAreaView, Text, TextInput, View} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import React from "react";
@@ -69,8 +68,6 @@ class TaskFilterView extends AbstractComponent {
             taskMetadataFields, taskCreatedDate, taskCompletedDate, taskMetadataValues
         } = this.state;
 
-        console.log("TaskFilterView", taskMetadataValues);
-
         const taskTypeLVPairs = allTaskTypes.map((x) => new RadioLabelValue(x.name, x, false));
         const taskStatusLVPairs = allTaskStatuses.map((x) => new RadioLabelValue(x.name, x, false));
         return <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
@@ -114,7 +111,7 @@ class TaskFilterView extends AbstractComponent {
                                         taskMetadataValues={taskMetadataValues}
                                         dispatch={(actionName, action) => this.dispatchAction(actionName, action)} I18n={this.I18n}/>
                 </View>
-                <FloatingButton buttonTextKey={"apply"} onClick={() => this.dispatchAction()}/>
+                <FloatingButton buttonTextKey={"apply"} onClick={() => this.dispatchAction(Actions.ON_TASK_FILTERED)}/>
             </SafeAreaView>
         </CHSContainer>;
     }

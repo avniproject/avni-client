@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import Reducers from './index';
 import General from "../utility/General";
 
 export default class Reducer {

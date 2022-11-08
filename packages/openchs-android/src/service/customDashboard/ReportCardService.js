@@ -119,9 +119,6 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isCommentType() : {
                 return {status: null, result: this.getResultForCommentCardType()}
             }
-            case standardReportCardType.isTaskType() : {
-                return {status: standardReportCardType.getTaskTypeType(), result: this.getResultForTaskCardType(standardReportCardType.getTaskTypeType())}
-            }
         }
     }
 

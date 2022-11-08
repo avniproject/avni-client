@@ -80,7 +80,7 @@ const TaskFilterActionMap = new Map([
     [TaskFilterActionNames.ON_TASK_CREATED_DATE_CHANGE, TaskFilterActions.onTaskCreatedDateChange],
     [TaskFilterActionNames.ON_TASK_COMPLETED_DATE_CHANGE, TaskFilterActions.onTaskCompletedDateChange],
     [TaskFilterActionNames.ON_METADATA_VALUE_CHANGE, TaskFilterActions.onMetadataValueChange],
-    [TaskFilterActionNames.ON_METADATA_CODED_VALUE_CHANGE, TaskFilterActions.onMetadataCodedValueChange],
+    [TaskFilterActionNames.ON_METADATA_CODED_VALUE_CHANGE, TaskFilterActions.onMetadataCodedValueChange]
 ]);
 
 export {TaskFilterActions, TaskFilterActionNames as Actions, TaskFilterActionMap}
