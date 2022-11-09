@@ -139,7 +139,6 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
         if (_.isNil(element)) return null;
         if (_.isNil(element.documentation)) return this.labelDisplay();
         const contentHtml = this.getContentHtml(element);
-        console.log('contentHtml', contentHtml);
         return _.isEmpty(contentHtml) ? this.labelDisplay() : this.renderHtml(contentHtml)
     }
 }

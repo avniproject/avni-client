@@ -170,7 +170,7 @@ class BaseService {
         if(result.length === 1) return result[0];
     }
 
-    orFilterCriteria(entities, path) {
+    static orFilterCriteria(entities, path) {
         return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
 }

@@ -15,8 +15,27 @@ import FloatingButton from "../primitives/FloatingButton";
 import {Actions} from "../../action/task/TaskListActions";
 import TaskFilter from "../../model/TaskFilter";
 import Separator from "../primitives/Separator";
-import Styles from "../primitives/Styles";
 import CHSContent from "../common/CHSContent";
+import {Badge, Button, Icon} from 'native-base';
+import Fonts from "../primitives/Fonts";
+
+const FilterSummaryItem = function ({text}) {
+    if (_.isNil(text) || text.length === 0)
+        return null;
+    return <Badge info style={{marginLeft: 10}}><Text>{text}</Text></Badge>;
+}
+
+const TaskFilterSummary = function ({taskFilter, I18n, onClearFilter}) {
+    return <View style={{padding: 20, flexDirection: "row", flexWrap: 'wrap', backgroundColor: Colors.GreyBackground}}>
+        <Text style={Fonts.typography("paperFontButton")}>{I18n.t("filtersApplied")}</Text>
+        {taskFilter.taskType && <FilterSummaryItem text={I18n.t(taskFilter.taskType.name)}/>}
+        <FilterSummaryItem text={taskFilter.taskStatuses.map((x) => I18n.t(x.name)).join(",")}/>
+        <FilterSummaryItem text={I18n.t(TaskFilter.getTaskMetadataDisplayValues(taskFilter, I18n))}/>
+        {taskFilter.taskCreatedDate && <FilterSummaryItem text={`${I18n.t("createdDate")}: ${General.formatDate(taskFilter.taskCreatedDate)}`}/>}
+        {taskFilter.taskCompletedDate && <FilterSummaryItem text={`${I18n.t("createdDate")}: ${General.formatDate(taskFilter.taskCompletedDate)}`}/>}
+        <Button secondary onPress={() => onClearFilter()} style={{marginLeft: 10}}><Text>{I18n.t('clearFilter')}</Text></Button>
+    </View>;
+}
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
@@ -109,14 +128,18 @@ class TaskListView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), "render");
+        const {results, filter} = this.state;
+
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
                 <CHSContent>
+                    <TaskFilterSummary I18n={this.I18n} taskFilter={filter}
+                                       onClearFilter={() => this.dispatchAction(Actions.ON_FILTER_CLEAR)}/>
                     <SafeAreaView style={{flex: 1}}>
                         <FlatList
-                            data={this.state.results}
+                            data={results}
                             keyExtractor={(item) => item.uuid}
                             enableEmptySections={true}
                             renderItem={({item}) => <TaskCard task={item}/>}

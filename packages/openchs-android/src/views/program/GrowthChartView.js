@@ -322,9 +322,6 @@ class GrowthChartView extends AbstractComponent {
 
                         xAxis={{position: 'BOTTOM', labelCount: 5}}
 
-                        // onSelect={this.handleSelect.bind(this)}
-                        // onChange={(event) => console.log(event.nativeEvent)}
-
                         ref="chart"
                     />
                 </View>

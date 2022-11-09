@@ -5,6 +5,7 @@ import {
     Modal,
     ActivityIndicator
 } from 'react-native';
+import Config from "../framework/Config";
 
 const CustomActivityIndicator = props => {
     const {
@@ -12,15 +13,13 @@ const CustomActivityIndicator = props => {
         ...attributes
     } = props;
 
+    // The App level activity indicator doesn't go away on reload screen, which means app has to be restarted
+    const doNotShow = Config.ENV === 'dev' || Config.ENV === 'ext-dev';
     return (
-        <Modal
-            transparent={true}
-            animationType={'none'}
-            visible={loading}>
+        <Modal transparent={true} animationType={'none'} visible={loading}>
             <View style={styles.modalBackground}>
                 <View style={styles.activityIndicatorWrapper}>
-                    <ActivityIndicator
-                        animating={loading}/>
+                    {!doNotShow && <ActivityIndicator animating={loading}/>}
                 </View>
             </View>
         </Modal>

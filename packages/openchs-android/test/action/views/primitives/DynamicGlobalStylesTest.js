@@ -4,7 +4,7 @@ import DynamicGlobalStyles from "../../../../src/views/primitives/DynamicGlobalS
 
 describe('DynamicGlobalStylesTest', () => {
     it('numberOfRows', () => {
-        console.log(Dimensions.get('window').width);
-        console.log(DynamicGlobalStyles.numberOfRows(10));
+        Dimensions.get('window').width;
+        DynamicGlobalStyles.numberOfRows(10);
     });
 });

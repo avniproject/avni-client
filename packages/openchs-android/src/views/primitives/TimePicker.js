@@ -26,26 +26,23 @@ class TimePicker extends AbstractComponent {
     }
 
 
-render() {
-    console.log(`TimePicker: props timePickerMode: ${this.props.timePickerMode}`);
-    const timePickerMode = _.isNil(this.props.timePickerMode) ?
+    render() {
+        const timePickerMode = _.isNil(this.props.timePickerMode) ?
             'default' : this.props.timePickerMode;
-        console.log(`TimePicker: final timePickerMode: ${timePickerMode}`);
-        const options = _.isNil(this.props.timeValue) ?  {mode: timePickerMode} : _.merge(General.toTimeObject(this.props.timeValue), {mode: timePickerMode});
-    console.log(`TimePicker: options: ${JSON.stringify(options)}`);
+        const options = _.isNil(this.props.timeValue) ? {mode: timePickerMode} : _.merge(General.toTimeObject(this.props.timeValue), {mode: timePickerMode});
 
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
                     <Text onPress={this.showTimePicker.bind(this, options)}
-                        style={[{fontSize: Fonts.Large, color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>
+                          style={[{fontSize: Fonts.Large, color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>
                         {this.timeDisplay()}
                     </Text>
-                    { _.isNil(this.props.timeValue) ?
+                    {_.isNil(this.props.timeValue) ?
                         <View/>
                         :
-                        <Button transparent onPress={() => this.removeTime()} style={{height:20, alignSelf: 'center'}}>
-                            <Icon name='backspace' style={{fontSize: 20, color:'#229688'}}/>
+                        <Button transparent onPress={() => this.removeTime()} style={{height: 20, alignSelf: 'center'}}>
+                            <Icon name='backspace' style={{fontSize: 20, color: '#229688'}}/>
                         </Button>
                     }
                 </View>
@@ -58,7 +55,7 @@ render() {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-        ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
+            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
     }
 
     async showTimePicker(options) {

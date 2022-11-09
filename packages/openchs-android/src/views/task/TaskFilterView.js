@@ -25,17 +25,17 @@ const numericFieldStyle = [{
 }, Styles.formBodyText];
 
 const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, dispatch, I18n}) {
-    return taskMetadataFields.map((c) => {
+    return taskMetadataFields.map((c, index) => {
         switch (c.datatype) {
             case Concept.dataType.Numeric:
-                return <View style={{marginTop: 20}}>
+                return <View style={{marginTop: 20}} key={index}>
                     <Text style={{fontSize: 15, color: Styles.greyText}}>{I18n.t(c.name)}</Text>
                     <TextInput style={numericFieldStyle} underlineColorAndroid={Colors.InputBorderNormal} keyboardType='numeric'
                                value={_.toString(taskMetadataValues[c.uuid])}
                                onChangeText={(text) => dispatch(Actions.ON_METADATA_VALUE_CHANGE, {concept: c, value: text})}/>
                 </View>;
             case Concept.dataType.Text:
-                return <View style={{marginTop: 20}}>
+                return <View style={{marginTop: 20}} key={index}>
                     <Text style={{fontSize: 15, color: Styles.greyText}}>{I18n.t(c.name)}</Text>
                     <TextInput style={numericFieldStyle} underlineColorAndroid={Colors.InputBorderNormal}
                                value={taskMetadataValues[c.uuid]}
@@ -43,7 +43,8 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
                 </View>;
             case Concept.dataType.Coded:
                 const answers = c.getAnswers();
-                return <RadioGroup onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
+                return <RadioGroup key={index}
+                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
                                    inPairs={true}
                                    selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(taskMetadataValues[c.uuid], selectedVal)}
                                    labelValuePairs={answers.map((a) => new RadioLabelValue(a.name, a, false))}

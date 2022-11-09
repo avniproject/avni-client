@@ -73,7 +73,6 @@ class ProgramEncounterState extends AbstractDataEntryState {
             ProgramEncounter.validationKeys.ENCOUNTER_LOCATION,
             context
         );
-        console.log(`PE error ${this.locationError} ${JSON.stringify(this.programEncounter.encounterLocation)} ${JSON.stringify(locationValidation)}`)
         validationResults.push(locationValidation);
         return validationResults;
     }
