@@ -28,15 +28,20 @@ class TaskService extends BaseService {
         let tasks = getIncompleteTasks(this, taskFilter.taskType.type);
         if (taskFilter.taskStatuses.length > 0)
             tasks = tasks.filtered(this.orFilterCriteria(taskFilter.taskStatuses, "taskStatus.uuid"));
+
         if (!_.isNil(taskFilter.taskCreatedDate))
             tasks = tasks.filtered("taskCreatedDate = $0", taskFilter.taskCreatedDate);
         if (!_.isNil(taskFilter.taskCompletedDate))
             tasks = tasks.filtered("taskCompletedDate = $0", taskFilter.taskCompletedDate);
+
         Object.keys(taskFilter.taskMetadataValues).forEach((x) => {
             const metadataConcept = taskFilter.taskType.getMetadataConcept(x);
-            const queryValue = metadataConcept.isCodedConcept() ? taskFilter.taskMetadataValues[x].uuid : taskFilter.taskMetadataValues[x];
-            tasks = tasks.filtered("observations.concept.uuid = $0 and observations.valueJSON contains[c] $1",
-                            metadataConcept.uuid, queryValue);
+            const taskMetadataValue = taskFilter.taskMetadataValues[x];
+            if (!_.isEmpty(taskMetadataValue)) {
+                const queryValue = metadataConcept.isCodedConcept() ? taskMetadataValue.uuid : taskMetadataValue;
+                tasks = tasks.filtered("observations.concept.uuid = $0 and observations.valueJSON contains[c] $1",
+                    metadataConcept.uuid, queryValue);
+            }
         });
         return tasks.map(_.identity);
     }

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import {Concept} from "openchs-models";
 
-const initialiseTaskType = function(state, selectedTaskType, taskStatuses) {
+const initialiseForTaskType = function(state, selectedTaskType, taskStatuses) {
     state.selectedTaskType = selectedTaskType;
     state.allTaskStatuses = taskStatuses;
     state.selectedTaskStatuses = [];
@@ -40,8 +40,11 @@ class TaskFilterState {
         state.allTaskTypes = allTaskTypes;
         state.datePickerMode = datePickerMode;
 
-        initialiseTaskType(state, selectedTaskType, taskStatuses);
-        return state;
+        return initialiseForTaskType(state, selectedTaskType, taskStatuses);
+    }
+
+    static isInitialised(state) {
+        return state.allTaskTypes.length > 0;
     }
 
     static createEmptyState() {
@@ -65,7 +68,7 @@ class TaskFilterState {
     }
 
     static changeTaskType(state, taskType, taskStatuses) {
-        return initialiseTaskType(state, taskType, taskStatuses);
+        return initialiseForTaskType(state, taskType, taskStatuses);
     }
 
     static toggleTaskStatus(state, taskStatus) {

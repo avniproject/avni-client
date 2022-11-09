@@ -11,6 +11,11 @@ class TaskFilterActions {
     }
 
     static onLoad(state, action, context) {
+        const newState = TaskFilterState.clone(state);
+        if (TaskFilterState.isInitialised(state)) {
+            return newState;
+        }
+
         const entityService = context.get(EntityService);
         const taskStatusService = context.get(TaskStatusService);
         const userInfoService = context.get(UserInfoService);
@@ -19,8 +24,6 @@ class TaskFilterActions {
         const allTaskTypes = entityService.getAllNonVoided(TaskType.schema.name).map(_.identity);
         const selectedTaskType = allTaskTypes[0];
         const taskStatuses = taskStatusService.getAllForTaskType(selectedTaskType);
-
-        const newState = TaskFilterState.clone(state);
         return TaskFilterState.initialise(newState, allTaskTypes, selectedTaskType, taskStatuses, userSettings.datePickerMode);
     }
 

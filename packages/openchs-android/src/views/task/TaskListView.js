@@ -14,6 +14,9 @@ import TaskFilterView from "./TaskFilterView";
 import FloatingButton from "../primitives/FloatingButton";
 import {Actions} from "../../action/task/TaskListActions";
 import TaskFilter from "../../model/TaskFilter";
+import Separator from "../primitives/Separator";
+import Styles from "../primitives/Styles";
+import CHSContent from "../common/CHSContent";
 
 @Path('/taskListView')
 class TaskListView extends AbstractComponent {
@@ -36,21 +39,20 @@ class TaskListView extends AbstractComponent {
         return 'TaskListView';
     }
 
-    dispatchLoad(filter) {
+    componentWillMount() {
         setTimeout(() => {
-            this.dispatchAction(Actions.ON_FILTER_APPLY, {filter: filter});
+            this.dispatchAction(Actions.ON_LOAD, {filter: TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType)});
             this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
         }, 0);
-    }
-
-    componentWillMount() {
-        this.dispatchLoad(TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType));
         super.componentWillMount();
     }
 
     didFocus() {
         super.didFocus();
-        this.dispatchLoad(this.state.filter);
+        setTimeout(() => {
+            this.dispatchAction(Actions.ON_REFRESH);
+            this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
+        }, 0);
     }
 
     onBackPress() {
@@ -111,15 +113,18 @@ class TaskListView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
                           style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
-                <SafeAreaView style={{flex: 1}}>
-                    <FlatList
-                        data={this.state.results}
-                        keyExtractor={(item) => item.uuid}
-                        enableEmptySections={true}
-                        renderItem={({item}) => <TaskCard task={item}/>}
-                        ListHeaderComponent={this.renderHeader()}
-                    />
-                </SafeAreaView>
+                <CHSContent>
+                    <SafeAreaView style={{flex: 1}}>
+                        <FlatList
+                            data={this.state.results}
+                            keyExtractor={(item) => item.uuid}
+                            enableEmptySections={true}
+                            renderItem={({item}) => <TaskCard task={item}/>}
+                            ListHeaderComponent={this.renderHeader()}
+                        />
+                    </SafeAreaView>
+                    <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
+                </CHSContent>
                 <FloatingButton buttonTextKey="filter" onClick={() => TypedTransition.from(this).to(TaskFilterView)}/>
             </CHSContainer>
         )

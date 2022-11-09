@@ -171,7 +171,7 @@ class BaseService {
     }
 
     orFilterCriteria(entities, path) {
-        return entities.map((x) => `(${path} = ${x.uuid})`).join(" OR ");
+        return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
 }
 

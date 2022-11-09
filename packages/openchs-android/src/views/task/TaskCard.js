@@ -75,32 +75,38 @@ class TaskCard extends AbstractComponent {
         const phoneNumberObs = _.find(task.metadata, ({concept}) => concept.isMobileNo());
         const phoneNumber = _.isNil(phoneNumberObs) ? '' : phoneNumberObs.getReadableValue();
         return (
-            <View style={styles.cardContainer}>
-                <View style={{width: 91}}>
-                    <Text style={styles.textStyle}>{phoneNumber}</Text>
+            <View style={{borderRadius: 4}}>
+                <View style={styles.cardContainer}>
+                    <View style={{width: 91}}>
+                        <Text style={styles.textStyle}>{phoneNumber}</Text>
+                    </View>
+                    <View style={styles.iconContainer}>
+                        <IconContainer
+                            name='account-plus'
+                            type={'MaterialCommunityIcons'}
+                            onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView)}
+                        />
+                        <IconContainer
+                            name='call'
+                            type={'MaterialIcons'}
+                            onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
+                                this.onCallPress(phoneNumberObs.getReadableValue())}
+                        />
+                        <Icon
+                            style={styles.iconStyle}
+                            name='clipboard-list'
+                            type='FontAwesome5'
+                            onPress={() => this.onChangeStatusPress(task)}/>
+                        <IconContainer
+                            onPress={() => this.onReschedulePress(task)}
+                            name='back-in-time'
+                            type='Entypo'
+                        />
+                    </View>
                 </View>
-                <View style={styles.iconContainer}>
-                    <IconContainer
-                        name='account-plus'
-                        type={'MaterialCommunityIcons'}
-                        onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView)}
-                    />
-                    <IconContainer
-                        name='call'
-                        type={'MaterialIcons'}
-                        onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
-                            this.onCallPress(phoneNumberObs.getReadableValue())}
-                    />
-                    <Icon
-                        style={styles.iconStyle}
-                        name='clipboard-list'
-                        type='FontAwesome5'
-                        onPress={() => this.onChangeStatusPress(task)}/>
-                    <IconContainer
-                        onPress={() => this.onReschedulePress(task)}
-                        name='back-in-time'
-                        type='Entypo'
-                    />
+                <View style={styles.cardContainer}>
+                    <Text style={styles.textStyle}>{this.I18n.t(task.taskStatus.name)}</Text>
+                    <Text style={styles.textStyle}>{task.getNonMobileNumberMetadataObservationValues()}</Text>
                 </View>
             </View>
         )
@@ -150,7 +156,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     cardContainer: {
-        borderRadius: 4,
         padding: 12,
         flexDirection: 'row',
         justifyContent: 'space-between',
