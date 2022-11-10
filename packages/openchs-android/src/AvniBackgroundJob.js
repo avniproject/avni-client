@@ -28,7 +28,7 @@ const DummySyncJobSchedule = {
 const DeleteDraftsJobSchedule = {
   jobKey: "deleteDraftsJob",
   timeout: 10,
-  period: 1 * 24 * 60, //TODO revert this and delete below line before code push
+  period: 1 * 24 * 60,
   persist: true,
   exact: true,
   job: () => DeleteDrafts.execute()
