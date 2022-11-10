@@ -44,7 +44,7 @@ class CustomDashboardActions {
     static onCardPress(state, action, context) {
         const newState = {...state};
         const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
-        if (reportCard.standardReportCardType.isTaskType()) {
+        if (reportCard.isStandardTaskType()) {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType());
         } else {
             const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);

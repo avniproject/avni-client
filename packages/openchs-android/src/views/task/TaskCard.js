@@ -75,7 +75,7 @@ class TaskCard extends AbstractComponent {
         const phoneNumberObs = _.find(task.metadata, ({concept}) => concept.isMobileNo());
         const phoneNumber = _.isNil(phoneNumberObs) ? '' : phoneNumberObs.getReadableValue();
         return (
-            <View style={{borderRadius: 4}}>
+            <View style={{borderRadius: 4, padding: 12, backgroundColor: '#DBDBDB'}}>
                 <View style={styles.cardContainer}>
                     <View style={{width: 91}}>
                         <Text style={styles.textStyle}>{phoneNumber}</Text>
@@ -156,7 +156,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     cardContainer: {
-        padding: 12,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',

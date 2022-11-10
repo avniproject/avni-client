@@ -18,22 +18,29 @@ import Separator from "../primitives/Separator";
 import CHSContent from "../common/CHSContent";
 import {Badge, Button, Icon} from 'native-base';
 import Fonts from "../primitives/Fonts";
+import ZeroResults from "../common/ZeroResults";
 
 const FilterSummaryItem = function ({text}) {
     if (_.isNil(text) || text.length === 0)
         return null;
-    return <Badge info style={{marginLeft: 10}}><Text>{text}</Text></Badge>;
+    return <Badge info style={styles.filterItem}><Text>{text}</Text></Badge>;
 }
 
 const TaskFilterSummary = function ({taskFilter, I18n, onClearFilter}) {
-    return <View style={{padding: 20, flexDirection: "row", flexWrap: 'wrap', backgroundColor: Colors.GreyBackground}}>
-        <Text style={Fonts.typography("paperFontButton")}>{I18n.t("filtersApplied")}</Text>
-        {taskFilter.taskType && <FilterSummaryItem text={I18n.t(taskFilter.taskType.name)}/>}
-        <FilterSummaryItem text={taskFilter.taskStatuses.map((x) => I18n.t(x.name)).join(",")}/>
-        <FilterSummaryItem text={I18n.t(TaskFilter.getTaskMetadataDisplayValues(taskFilter, I18n))}/>
-        {taskFilter.taskCreatedDate && <FilterSummaryItem text={`${I18n.t("createdDate")}: ${General.formatDate(taskFilter.taskCreatedDate)}`}/>}
-        {taskFilter.taskCompletedDate && <FilterSummaryItem text={`${I18n.t("createdDate")}: ${General.formatDate(taskFilter.taskCompletedDate)}`}/>}
-        <Button secondary onPress={() => onClearFilter()} style={{marginLeft: 10}}><Text>{I18n.t('clearFilter')}</Text></Button>
+    return <View style={styles.filterSummaryContainer}>
+        <View style={styles.filterSummary}>
+            <Text style={[Fonts.typography("paperFontButton"), {color: Colors.TextOnPrimaryColor, marginTop: 5}]}>{I18n.t("filters")}</Text>
+            {taskFilter.taskType && <FilterSummaryItem text={I18n.t(taskFilter.taskType.name)}/>}
+            <FilterSummaryItem text={taskFilter.taskStatuses.map((x) => I18n.t(x.name)).join(",")}/>
+            <FilterSummaryItem text={I18n.t(TaskFilter.getTaskMetadataDisplayValues(taskFilter, I18n))}/>
+            {taskFilter.taskCreatedDate && <FilterSummaryItem text={`${I18n.t("created")}: ${General.formatDate(taskFilter.taskCreatedDate)}`}/>}
+            {taskFilter.taskCompletedDate && <FilterSummaryItem text={`${I18n.t("completedOn")}: ${General.formatDate(taskFilter.taskCompletedDate)}`}/>}
+        </View>
+        <Button transparent onPress={() => onClearFilter()} style={{paddingBottom: 22, marginTop: 5, flex: 0.2}}>
+            <Icon style={{
+                color: Colors.SecondaryActionButtonColor,
+                fontSize: 30
+            }} name='clear' type='MaterialIcons'/></Button>
     </View>;
 }
 
@@ -145,6 +152,7 @@ class TaskListView extends AbstractComponent {
                             renderItem={({item}) => <TaskCard task={item}/>}
                             ListHeaderComponent={this.renderHeader()}
                         />
+                        <ZeroResults count={results.length}/>
                     </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
@@ -178,6 +186,26 @@ const styles = StyleSheet.create({
         fontFamily: 'Inter',
         color: '#6C6C6C'
     },
+    filterSummaryContainer: {
+        paddingTop: 10, flex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        backgroundColor: Colors.DarkPrimaryColor,
+        paddingBottom: 10
+    },
+    filterSummary: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        paddingHorizontal: 20,
+        flexWrap: "wrap", flex: 0.8
+    },
+    filterItem: {
+        marginLeft: 10,
+        marginTop: 5,
+        borderRadius: 3,
+        flexDirection: "row",
+        alignItems: "center"
+    }
 });
 
 export default TaskListView;

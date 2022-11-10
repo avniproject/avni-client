@@ -63,7 +63,7 @@ class General {
     }
 
     static formatDate(date) {
-        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
+        return _.isNil(date) ? "null" : `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
     }
 
     static formatDateTime(date) {

@@ -85,14 +85,14 @@ class TaskFilterView extends AbstractComponent {
             <AppHeader title={this.I18n.t('filter')}/>
             <CHSContent>
                 <SafeAreaView style={{flex: 1, padding: 20}}>
-                    <RadioGroup labelKey="taskType"
+                    <RadioGroup labelKey="type"
                                 labelValuePairs={taskTypeLVPairs}
                                 inPairs={true}
                                 multiSelect={false}
                                 onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, rlv.value)}
                                 selectionFn={(selectedVal) => selectedTaskType.uuid === selectedVal.uuid}
                                 mandatory={false}/>
-                    <RadioGroup labelKey="taskStatus"
+                    <RadioGroup labelKey="status"
                                 style={{marginTop: 20}}
                                 labelValuePairs={taskStatusLVPairs}
                                 inPairs={true}
@@ -102,7 +102,7 @@ class TaskFilterView extends AbstractComponent {
                                 mandatory={false}/>
                     <View style={{flexDirection: "row", marginTop: 20}}>
                         <View>
-                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCreatedOn")}</Text>
+                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("created")}</Text>
                             <DatePicker dateValue={taskCreatedDate}
                                         datePickerMode={datePickerMode}
                                         actionObject={{}}
@@ -110,7 +110,7 @@ class TaskFilterView extends AbstractComponent {
                                         actionName={Actions.ON_TASK_CREATED_DATE_CHANGE}/>
                         </View>
                         <View style={{marginLeft: 50}}>
-                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("taskCompletedOn")}</Text>
+                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("completedOn")}</Text>
                             <DatePicker dateValue={taskCompletedDate}
                                         datePickerMode={datePickerMode}
                                         actionObject={{}}

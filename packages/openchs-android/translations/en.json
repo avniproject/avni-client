@@ -468,6 +468,11 @@
     "program": "Program",
     "eligibility": "Eligibility",
     "eligibilityFailedTitle": "Eligibility Check Execution Failed",
-    "programName": "Program name:"
+    "programName": "Program name:",
+    "created": "Created",
+    "completedOn": "Completed",
+    "status": "Status",
+    "type": "Type",
+    "filters": "Filters"
   }
 }

@@ -19,6 +19,7 @@ import CHSContent from "../common/CHSContent";
 import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
 import GlobalStyles from "../primitives/GlobalStyles";
+import ZeroResults from "../common/ZeroResults";
 
 @Path('/individualSearchResultPaginatedView')
 class IndividualSearchResultPaginatedView extends AbstractComponent {
@@ -83,6 +84,10 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
         setLoading(false);
     };
 
+    const renderZeroResultsMessageIfNeeded = () => {
+        return<ZeroResults count={totalCount}/>;
+    };
+
     const ItemView = ({item}) => {
         return (
             <TouchableNativeFeedback key={item.uuid}
@@ -93,18 +98,6 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
                 </View>
             </TouchableNativeFeedback>
         );
-    };
-
-    const renderZeroResultsMessageIfNeeded = () => {
-        if (totalCount === 0)
-            return (
-                <View>
-                    <Text
-                        style={GlobalStyles.emptyListPlaceholderText}>{I18n.t('zeroNumberOfResults')}</Text>
-                </View>
-            );
-        else
-            return (<View/>);
     };
 
     const renderFooter = () => {

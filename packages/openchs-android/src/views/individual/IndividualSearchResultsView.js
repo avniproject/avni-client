@@ -12,6 +12,7 @@ import Styles from "../primitives/Styles";
 import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
 import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
+import ZeroResults from "../common/ZeroResults";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
@@ -37,18 +38,6 @@ class IndividualSearchResultsView extends AbstractComponent {
     componentWillMount() {
         setTimeout(() => this.dispatchAction(Actions.LOAD_INDICATOR, {status: false}), 0);
         super.componentWillMount();
-    }
-
-    renderZeroResultsMessageIfNeeded() {
-        if (this.props.searchResults.length === 0)
-            return (
-                <View>
-                    <Text
-                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('zeroNumberOfResults')}</Text>
-                </View>
-            );
-        else
-            return (<View/>);
     }
 
     renderProgram(program, index) {
