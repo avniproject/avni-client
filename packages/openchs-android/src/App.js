@@ -15,8 +15,7 @@ import BackupRestoreRealmService from "./service/BackupRestoreRealm";
 import GlobalContext from "./GlobalContext";
 import AppConfig from "./framework/AppConfig";
 import RealmFactory from "./framework/db/RealmFactory";
-
-const {Restart} = NativeModules;
+import RNRestart from 'react-native-restart';
 
 let globalContext;
 
@@ -94,7 +93,7 @@ class App extends Component {
                         text: "Copy error and Restart",
                         onPress: () => {
                             Clipboard.setString(clipboardString);
-                            Restart.restart();
+                            RNRestart.Restart();
                         }
                     }
                 ],

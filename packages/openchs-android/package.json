@@ -69,6 +69,7 @@
     "react-native-immediate-phone-call": "^2.0.0",
     "react-native-keep-awake": "^4.0.0",
     "react-native-mime-types": "2.3.0",
+    "react-native-restart": "0.0.24",
     "react-native-simple-dialogs": "1.5.0",
     "react-native-smooth-pincode-input": "1.0.9",
     "react-native-vector-icons": "9.2.0",
