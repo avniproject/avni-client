@@ -9,7 +9,7 @@ import DateFormElement from './DateFormElement';
 class RegistrationDateFormElement extends AbstractComponent {
     static propTypes = {
         date: PropTypes.object.isRequired,
-        validationResult: PropTypes.object.isRequired
+        validationResult: PropTypes.object
     };
 
     constructor(props, context) {
