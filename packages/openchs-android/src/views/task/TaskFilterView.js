@@ -89,7 +89,7 @@ class TaskFilterView extends AbstractComponent {
                                 labelValuePairs={taskTypeLVPairs}
                                 inPairs={true}
                                 multiSelect={false}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, rlv.value)}
+                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, {taskType: rlv.value})}
                                 selectionFn={(selectedVal) => selectedTaskType.uuid === selectedVal.uuid}
                                 mandatory={false}/>
                     <RadioGroup labelKey="status"

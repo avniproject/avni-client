@@ -28,11 +28,12 @@ class TaskFilterActions {
     }
 
     static onTaskTypeChange(state, action, context) {
+        const {taskType} = action;
         const taskStatusService = context.get(TaskStatusService);
 
         const newState = TaskFilterState.clone(state);
-        const taskStatuses = taskStatusService.getAllForTaskType(newState, action);
-        return TaskFilterState.changeTaskType(newState, action, taskStatuses);
+        const taskStatuses = taskStatusService.getAllForTaskType(newState, taskType);
+        return TaskFilterState.changeTaskType(newState, taskType, taskStatuses);
     }
 
     static onTaskStatusChange(state, action, context) {
