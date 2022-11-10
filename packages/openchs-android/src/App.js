@@ -30,7 +30,6 @@ const initialiseContext = function () {
     globalContext.beanRegistry = BeanRegistry;
     BeanRegistry.init(globalContext.db);
     globalContext.reduxStore = AppStore.create(globalContext.beanRegistry.beansMap);
-    console.log("App", "AppStore.create");
     globalContext.beanRegistry.setReduxStore(globalContext.reduxStore);
     let restoreRealmService = globalContext.beanRegistry.getService(BackupRestoreRealmService);
     restoreRealmService.subscribeOnRestore(() => updateDatabase(globalContext));

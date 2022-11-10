@@ -28,10 +28,8 @@ class TimePicker extends AbstractComponent {
 
 
     render() {
-        console.log(`TimePicker: props timePickerDisplay: ${this.props.timePickerDisplay}`);
         const timePickerDisplay = _.isNil(this.props.timePickerDisplay) ?
             'default' : this.props.timePickerDisplay;
-        console.log(`TimePicker: final timePickerDisplay: ${timePickerDisplay}`);
         const options = {
             mode: "time",
             display: timePickerDisplay,
@@ -39,7 +37,6 @@ class TimePicker extends AbstractComponent {
             onChange: (event, date) => this.onTimeChange(event, date),
             value: _.isNil(this.props.timeValue) ? new Date() : this.props.timeValue
         };
-        console.log(`TimePicker: options: ${JSON.stringify(options)}`);
 
         return (
             <View>

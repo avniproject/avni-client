@@ -17,7 +17,6 @@ class RegistrationDateFormElement extends AbstractComponent {
     }
 
     render() {
-        console.log('date is', this.props.registrationDate);
         return (
             <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
                              element={new StaticFormElement('registrationDate', true)}

@@ -60,7 +60,6 @@ class AppHeader extends AbstractComponent {
     }
 
     renderHomeIcon() {
-        console.log(_.isNil(this.props.icon) ? (this.props.hideIcon ? 'a': 'b'): 'c');
         return <TouchableNativeFeedback
             onPress={() => (_.isNil(this.props.iconFunc) ? this.onHome() : this.props.iconFunc())}
             background={this.background()}>
