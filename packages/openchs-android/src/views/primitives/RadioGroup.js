@@ -110,7 +110,7 @@ class RadioGroup extends AbstractComponent {
                         {this.renderSingleValue()}
                     </View> :
                     <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                    value={this.groupValue()} onChange={newValues => this.onValueChanged(newValues)}>
+                                    value={this.groupValue() || ''} onChange={newValues => this.onValueChanged(newValues)}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                     </GroupComponent>
                     : <View/>}
