@@ -40,7 +40,7 @@ class PruneMedia extends BaseTask {
     execute() {
         try {
             General.logInfo("PruneMedia", "PruneMedia job started");
-
+            this.initDependencies();
             const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
             const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
 

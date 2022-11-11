@@ -68,13 +68,6 @@ export const ScheduleSyncJob = function () {
     .catch(err => General.logError("AvniBackgroundJob-SyncJobSchedule", err));
 };
 
-export const SetBackgroundTaskDependencies = function (db, beans) {
-  General.logInfo("AvniBackgroundJob", "Setting context dependencies for tasks");
-  DeleteDrafts.setDependencies(db, beans);
-  PruneMedia.setDependencies(db, beans);
-  Sync.setDependencies(db, beans);
-};
-
 const Schedule = ({
                     jobKey,
                     timeout = 2000,

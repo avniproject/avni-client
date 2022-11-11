@@ -7,6 +7,7 @@ import ErrorHandler from "../utility/ErrorHandler";
 class DeleteDrafts extends BaseTask {
     execute() {
         try {
+            this.initDependencies();
             this.assertDbPresent();
 
             General.logInfo("DeleteDrafts", "Starting DeleteDrafts");

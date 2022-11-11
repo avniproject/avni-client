@@ -43,8 +43,6 @@ try {
         globalContext.routes = PathRegistry.routes();
         const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
-
-        SetBackgroundTaskDependencies(globalContext.db, globalContext.beanRegistry.beans);
     }
     RegisterAndScheduleJobs();
 } catch (e) {

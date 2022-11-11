@@ -9,9 +9,11 @@ import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
 class Sync extends BaseTask {
     async execute() {
         try {
+            this.initDependencies();
+            General.logInfo("Sync", "Starting SyncService");
             this.assertBeansPresent();
             General.logInfo("Sync", "Getting SyncService");
-            let syncService = this.beans.get(SyncService);
+            let syncService = this.beans.getService(SyncService);
             General.logInfo("Sync", "Getting connection info");
             let connectionInfo;
             await NetInfo.fetch().then((state) => connectionInfo = state);
