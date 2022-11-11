@@ -13,13 +13,9 @@ class TaskListActions {
         const taskTypeService = context.get(TaskTypeService);
 
         const newState = {};
-        const notInitialised = _.isEmpty(state.filter.taskStatuses);
-        if (notInitialised) {
-            newState.filter = action.filter;
-            const taskTypes = taskTypeService.findAllByTaskType(action.filter.taskType.type);
-            newState.filter.taskType = taskTypes[0];
-        } else
-            newState.filter = state.filter;
+        newState.filter = action.filter;
+        const taskTypes = taskTypeService.findAllByTaskType(action.filter.taskType.type);
+        newState.filter.taskType = taskTypes[0];
 
         newState.results = taskService.getFilteredTasks(newState.filter);
         return newState;
@@ -39,11 +35,8 @@ class TaskListActions {
 
     static onFilterClear(state, action, context) {
         const taskService = context.get(TaskService);
-        const taskTypeService = context.get(TaskTypeService);
-        const taskTypes = taskTypeService.getAllNonVoided().map(_.identity);
-
         const taskFilter = TaskFilter.createEmpty();
-        taskFilter.taskType = taskTypes[0];
+        taskFilter.taskType = action.taskType;
         const results = taskService.getFilteredTasks(taskFilter);
         return {results: results, filter: taskFilter};
     }

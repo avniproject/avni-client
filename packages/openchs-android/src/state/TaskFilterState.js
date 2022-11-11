@@ -5,8 +5,8 @@ const initialiseForTaskType = function(state, selectedTaskType, taskStatuses) {
     state.selectedTaskType = selectedTaskType;
     state.allTaskStatuses = taskStatuses;
     state.selectedTaskStatuses = [];
-    state.taskMetadataValues = {};
     state.taskMetadataFields = selectedTaskType.metadataSearchFields;
+    state.taskMetadataValues = {};
     state.taskMetadataFields.forEach((x) => {
         state.taskMetadataValues[x.uuid] = (x.datatype === Concept.dataType.Coded) ? [] : null;
     });
@@ -75,6 +75,10 @@ class TaskFilterState {
         if (_.remove(state.selectedTaskStatuses, (x) => x.uuid === taskStatus.uuid).length === 0)
             state.selectedTaskStatuses.push(taskStatus);
         return state;
+    }
+
+    static clear(state) {
+        return initialiseForTaskType(state, state.selectedTaskType, state.allTaskStatuses);
     }
 }
 

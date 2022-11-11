@@ -18,6 +18,7 @@ import FloatingButton from "../primitives/FloatingButton";
 import TaskFilter from "../../model/TaskFilter";
 import CHSContent from "../common/CHSContent";
 import Separator from "../primitives/Separator";
+import PropTypes from "prop-types";
 
 const numericFieldStyle = [{
     marginVertical: 0,
@@ -42,12 +43,12 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
                                onChangeText={(text) => dispatch(Actions.ON_METADATA_VALUE_CHANGE, {concept: c, value: text})}/>
                 </View>;
             case Concept.dataType.Coded:
-                const answers = c.getAnswers();
+                const conceptAnswers = c.getAnswers();
                 return <RadioGroup key={index}
                                    onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
                                    inPairs={true}
                                    selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(taskMetadataValues[c.uuid], selectedVal)}
-                                   labelValuePairs={answers.map((a) => new RadioLabelValue(a.name, a, false))}
+                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept, false))}
                                    labelKey={c.name} multiSelect={true}/>;
             default:
                 return null;
@@ -61,8 +62,12 @@ class TaskFilterView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.taskFilter);
     }
 
+    static propTypes = {
+        params: PropTypes.object.isRequired
+    }
+
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        this.dispatchAction(Actions.ON_LOAD, {taskType: this.props.params.taskType});
         super.componentWillMount();
     }
 

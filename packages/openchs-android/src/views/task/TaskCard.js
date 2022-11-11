@@ -17,6 +17,13 @@ import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
 
+const CardSecondRow = function ({task, I18n}) {
+    return <View style={styles.cardSecondRowContainer}>
+        <Text style={styles.textStyle}>{I18n.t(task.taskStatus.name)}</Text>
+        <Text style={[styles.textStyle, {marginLeft: 15}]}>{task.getNonMobileNumberMetadataObservationValues().join(",")}</Text>
+    </View>
+}
+
 class TaskCard extends AbstractComponent {
     static propTypes = {
         task: PropTypes.object.isRequired,
@@ -75,8 +82,8 @@ class TaskCard extends AbstractComponent {
         const phoneNumberObs = _.find(task.metadata, ({concept}) => concept.isMobileNo());
         const phoneNumber = _.isNil(phoneNumberObs) ? '' : phoneNumberObs.getReadableValue();
         return (
-            <View style={{borderRadius: 4, padding: 12, backgroundColor: '#DBDBDB'}}>
-                <View style={styles.cardContainer}>
+            <View style={styles.cardContainer}>
+                <View style={styles.cardRowContainer}>
                     <View style={{width: 91}}>
                         <Text style={styles.textStyle}>{phoneNumber}</Text>
                     </View>
@@ -104,10 +111,7 @@ class TaskCard extends AbstractComponent {
                         />
                     </View>
                 </View>
-                <View style={styles.cardContainer}>
-                    <Text style={styles.textStyle}>{this.I18n.t(task.taskStatus.name)}</Text>
-                    <Text style={styles.textStyle}>{task.getNonMobileNumberMetadataObservationValues()}</Text>
-                </View>
+                <CardSecondRow task={task} I18n={this.I18n}/>
             </View>
         )
     }
@@ -115,22 +119,25 @@ class TaskCard extends AbstractComponent {
     renderOpenSubjectType(task) {
         return (
             <View style={styles.cardContainer}>
-                <View style={{width: 200}}>
-                    <Text style={styles.textStyle}>{task.name}</Text>
+                <View style={styles.cardRowContainer}>
+                    <View style={{width: 200}}>
+                        <Text style={styles.textStyle}>{task.name}</Text>
+                    </View>
+                    <View style={styles.iconContainer}>
+                        <Icon
+                            style={styles.iconStyle}
+                            name='clipboard-list'
+                            type='FontAwesome5'
+                            onPress={() => this.onChangeStatusPress(task)}
+                        />
+                        <IconContainer
+                            name='back-in-time'
+                            type='Entypo'
+                            onPress={() => this.onReschedulePress(task)}
+                        />
+                    </View>
                 </View>
-                <View style={styles.iconContainer}>
-                    <Icon
-                        style={styles.iconStyle}
-                        name='clipboard-list'
-                        type='FontAwesome5'
-                        onPress={() => this.onChangeStatusPress(task)}
-                    />
-                    <IconContainer
-                        name='back-in-time'
-                        type='Entypo'
-                        onPress={() => this.onReschedulePress(task)}
-                    />
-                </View>
+                <CardSecondRow task={task} I18n={this.I18n}/>
             </View>
         )
     }
@@ -156,8 +163,18 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
     },
     cardContainer: {
+        borderRadius: 4,
+        padding: 12,
+        backgroundColor: '#DBDBDB'
+    },
+    cardRowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        backgroundColor: '#DBDBDB',
+    },
+    cardSecondRowContainer: {
+        flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#DBDBDB',
     },

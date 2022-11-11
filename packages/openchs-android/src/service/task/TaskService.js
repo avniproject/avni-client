@@ -40,10 +40,10 @@ class TaskService extends BaseService {
             if (!_.isEmpty(taskMetadataValue)) {
                 if (metadataConcept.isCodedConcept()) {
                     const orClause = taskMetadataValue.map((x) =>
-                        `(observations.concept.uuid = "${metadataConcept.uuid}" and observations.valueJSON contains[c] "${x.uuid}")`).join(" OR ");
+                        `(metadata.concept.uuid == "${metadataConcept.uuid}" AND metadata.valueJSON contains "${x.uuid}")`).join(" OR ");
                     tasks = tasks.filtered(orClause);
                 } else {
-                    tasks = tasks.filtered("observations.concept.uuid = $0 and observations.valueJSON contains[c] $1",
+                    tasks = tasks.filtered("metadata.concept.uuid = $0 AND metadata.valueJSON contains[c] $1",
                         metadataConcept.uuid, taskMetadataValue);
                 }
             }

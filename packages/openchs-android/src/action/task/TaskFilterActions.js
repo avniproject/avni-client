@@ -12,7 +12,8 @@ class TaskFilterActions {
 
     static onLoad(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        if (TaskFilterState.isInitialised(state)) {
+
+        if (!_.isNil(newState.selectedTaskType) && newState.selectedTaskType.uuid === action.taskType.uuid) {
             return newState;
         }
 
@@ -22,9 +23,8 @@ class TaskFilterActions {
         const userSettings = userInfoService.getUserSettingsObject();
 
         const allTaskTypes = entityService.getAllNonVoided(TaskType.schema.name).map(_.identity);
-        const selectedTaskType = allTaskTypes[0];
-        const taskStatuses = taskStatusService.getAllForTaskType(selectedTaskType);
-        return TaskFilterState.initialise(newState, allTaskTypes, selectedTaskType, taskStatuses, userSettings.datePickerMode);
+        const taskStatuses = taskStatusService.getAllForTaskType(action.taskType);
+        return TaskFilterState.initialise(newState, allTaskTypes, action.taskType, taskStatuses, userSettings.datePickerMode);
     }
 
     static onTaskTypeChange(state, action, context) {
@@ -32,7 +32,7 @@ class TaskFilterActions {
         const taskStatusService = context.get(TaskStatusService);
 
         const newState = TaskFilterState.clone(state);
-        const taskStatuses = taskStatusService.getAllForTaskType(newState, taskType);
+        const taskStatuses = taskStatusService.getAllForTaskType(taskType);
         return TaskFilterState.changeTaskType(newState, taskType, taskStatuses);
     }
 
@@ -63,6 +63,12 @@ class TaskFilterActions {
         const newState = TaskFilterState.clone(state);
         return TaskFilterState.changeMetadataCodedAnswer(newState, action.concept, action.chosenAnswerConcept);
     }
+
+    static onClear(state, action, context) {
+        const newState = TaskFilterState.clone(state);
+        newState.selectedTaskType = action.taskType;
+        return TaskFilterState.clear(newState);
+    }
 }
 
 const ActionPrefix = 'TaskFilter';
@@ -74,7 +80,8 @@ const TaskFilterActionNames = {
     ON_TASK_CREATED_DATE_CHANGE: `${ActionPrefix}.ON_TASK_CREATED_DATE_CHANGE`,
     ON_TASK_COMPLETED_DATE_CHANGE: `${ActionPrefix}.ON_TASK_COMPLETED_DATE_CHANGE`,
     ON_METADATA_VALUE_CHANGE: `${ActionPrefix}.ON_METADATA_VALUE_CHANGE`,
-    ON_METADATA_CODED_VALUE_CHANGE: `${ActionPrefix}.ON_METADATA_CODED_VALUE_CHANGE`
+    ON_METADATA_CODED_VALUE_CHANGE: `${ActionPrefix}.ON_METADATA_CODED_VALUE_CHANGE`,
+    ON_CLEAR: `${ActionPrefix}.ON_FILTER_CLEAR`
 };
 
 const TaskFilterActionMap = new Map([
@@ -84,7 +91,8 @@ const TaskFilterActionMap = new Map([
     [TaskFilterActionNames.ON_TASK_CREATED_DATE_CHANGE, TaskFilterActions.onTaskCreatedDateChange],
     [TaskFilterActionNames.ON_TASK_COMPLETED_DATE_CHANGE, TaskFilterActions.onTaskCompletedDateChange],
     [TaskFilterActionNames.ON_METADATA_VALUE_CHANGE, TaskFilterActions.onMetadataValueChange],
-    [TaskFilterActionNames.ON_METADATA_CODED_VALUE_CHANGE, TaskFilterActions.onMetadataCodedValueChange]
+    [TaskFilterActionNames.ON_METADATA_CODED_VALUE_CHANGE, TaskFilterActions.onMetadataCodedValueChange],
+    [TaskFilterActionNames.ON_CLEAR, TaskFilterActions.onClear]
 ]);
 
 export {TaskFilterActions, TaskFilterActionNames as Actions, TaskFilterActionMap}

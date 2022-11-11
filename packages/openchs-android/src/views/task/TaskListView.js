@@ -13,6 +13,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFilterView from "./TaskFilterView";
 import FloatingButton from "../primitives/FloatingButton";
 import {Actions} from "../../action/task/TaskListActions";
+import {Actions as TaskFilterActions} from "../../action/task/TaskFilterActions";
 import TaskFilter from "../../model/TaskFilter";
 import Separator from "../primitives/Separator";
 import CHSContent from "../common/CHSContent";
@@ -132,6 +133,11 @@ class TaskListView extends AbstractComponent {
         return this.props.params.taskTypeType === 'call' ? this.renderCallHeader() : this.renderOpenSubjectHeader();
     }
 
+    onClearFilter() {
+        const action = {taskType: this.state.filter.taskType};
+        this.dispatchAction(TaskFilterActions.ON_CLEAR, action);
+        this.dispatchAction(Actions.ON_FILTER_CLEAR, action);
+    }
 
     render() {
         General.logDebug(this.viewName(), "render");
@@ -143,7 +149,7 @@ class TaskListView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
                 <CHSContent>
                     <TaskFilterSummary I18n={this.I18n} taskFilter={filter}
-                                       onClearFilter={() => this.dispatchAction(Actions.ON_FILTER_CLEAR)}/>
+                                       onClearFilter={() => this.onClearFilter()}/>
                     <SafeAreaView style={{flex: 1}}>
                         <FlatList
                             data={results}
@@ -156,7 +162,7 @@ class TaskListView extends AbstractComponent {
                     </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
-                <FloatingButton buttonTextKey="filter" onClick={() => TypedTransition.from(this).to(TaskFilterView)}/>
+                <FloatingButton buttonTextKey="filter" onClick={() => TypedTransition.from(this).with({taskType: filter.taskType}).to(TaskFilterView)}/>
             </CHSContainer>
         )
     }
