@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 import TaskStatusPicker from "./TaskStatusPicker";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualSearchResultPaginatedView from "../individual/IndividualSearchSeasultPaginatedView";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
 import IndividualService from "../../service/IndividualService";
 import {IconContainer} from "./IconContainer";
 import PhoneCall from "../../model/PhoneCall";
@@ -33,7 +33,7 @@ class TaskCard extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.task);
     }
 
-    onCallPress(mobileNumber) {
+    onCallPress(mobileNumber, task) {
         // RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
         PhoneCall.makeCall(mobileNumber, this,
             (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
@@ -42,6 +42,7 @@ class TaskCard extends AbstractComponent {
             headerTitle: this.I18n.t('subjectsWithMobileNumber', {number: _.toString(mobileNumber)}),
             results: this.getService(IndividualService).findAllWithMobileNumber(mobileNumber),
             onIndividualSelection: (source, subject) => this.goToSubjectDashboard(source, subject),
+            taskUuid: task.uuid
         }).to(IndividualSearchResultPaginatedView, true);
     }
 
@@ -91,13 +92,13 @@ class TaskCard extends AbstractComponent {
                         <IconContainer
                             name='account-plus'
                             type={'MaterialCommunityIcons'}
-                            onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView)}
+                            onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView, true)}
                         />
                         <IconContainer
                             name='call'
                             type={'MaterialIcons'}
                             onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
-                                this.onCallPress(phoneNumberObs.getReadableValue())}
+                                this.onCallPress(phoneNumberObs.getReadableValue(), task)}
                         />
                         <Icon
                             style={styles.iconStyle}

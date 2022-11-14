@@ -14,7 +14,7 @@ import Colors from "../primitives/Colors";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
-import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
 import IndividualListView from "../individuallist/IndividualListView";
 import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";

@@ -63,11 +63,11 @@ class TaskFilterView extends AbstractComponent {
     }
 
     static propTypes = {
-        params: PropTypes.object.isRequired
+        taskType: PropTypes.object.isRequired
     }
 
     componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, {taskType: this.props.params.taskType});
+        this.dispatchAction(Actions.ON_LOAD, {taskType: this.props.taskType});
         super.componentWillMount();
     }
 

@@ -163,7 +163,8 @@ class TaskListView extends AbstractComponent {
                     </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
-                <FloatingButton buttonTextKey="filter" onClick={() => TypedTransition.from(this).with({taskType: filter.taskType}).to(TaskFilterView)}/>
+                <FloatingButton buttonTextKey="filter"
+                                onClick={() => TypedTransition.from(this).with({taskType: filter.taskType}).to(TaskFilterView, true)}/>
             </CHSContainer>
         )
     }

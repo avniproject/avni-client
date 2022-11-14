@@ -78,7 +78,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                               dataSource={dataSource}
                               style={{marginBottom: 16}}
                               renderRow={(item) => this.renderRow(item, this.onResultRowPress.bind(this))}/>
-                    {this.renderZeroResultsMessageIfNeeded()}
+                    <ZeroResults count={this.props.searchResults.length}/>
             </CHSContainer>
         );
     }

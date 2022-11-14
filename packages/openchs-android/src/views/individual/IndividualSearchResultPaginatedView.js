@@ -20,6 +20,9 @@ import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ZeroResults from "../common/ZeroResults";
+import FloatingButton from "../primitives/FloatingButton";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import SubjectRegisterFromTaskView from "./SubjectRegisterFromTaskView";
 
 @Path('/individualSearchResultPaginatedView')
 class IndividualSearchResultPaginatedView extends AbstractComponent {
@@ -28,6 +31,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         onIndividualSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string,
         backFunction: PropTypes.func,
+        taskUuid: PropTypes.string
     };
 
     constructor(props, context) {
@@ -48,24 +52,30 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         }
     }
 
+    onRegisterClick() {
+        TypedTransition.from(this).with({taskUuid: this.props.taskUuid}).to(SubjectRegisterFromTaskView, true);
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
-        const title = this.props.headerTitle || "searchResults";
+        const {headerTitle, results, onIndividualSelection, backFunction, taskUuid} = this.props;
+        const title = headerTitle || "searchResults";
         return (
             <PaginatedView
-                results={this.props.results}
-                onIndividualSelection={this.props.onIndividualSelection}
+                results={results}
+                onIndividualSelection={onIndividualSelection}
                 title={title}
                 currentPage={this}
                 I18n={this.I18n}
-                backFunction={this.props.backFunction}
+                backFunction={backFunction}
+                taskUuid={taskUuid}
+                onRegisterClick={() => this.onRegisterClick()}
             />
         );
     }
-
 }
 
-export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n, backFunction}) => {
+export const PaginatedView = ({results, onIndividualSelection, currentPage, title, I18n, backFunction, taskUuid, onRegisterClick}) => {
 
     const CHUNK_SIZE = 20;
     const totalCount = results.length;
@@ -82,10 +92,6 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
         setDataSource([...dataSource, ...results.slice(start, end > totalCount ? totalCount : end)]);
         setOffset(offset + CHUNK_SIZE);
         setLoading(false);
-    };
-
-    const renderZeroResultsMessageIfNeeded = () => {
-        return<ZeroResults count={totalCount}/>;
     };
 
     const ItemView = ({item}) => {
@@ -149,8 +155,9 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
                         ListFooterComponent={renderFooter}
                     />
                 </SafeAreaView>
-                {renderZeroResultsMessageIfNeeded()}
+                <ZeroResults count={totalCount}/>
             </CHSContent>
+            {!_.isNil(taskUuid) && <FloatingButton buttonTextKey="register" onClick={onRegisterClick}/>}
         </CHSContainer>
     );
 };

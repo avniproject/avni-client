@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 @Path('/subjectRegisterFromTaskView')
 class SubjectRegisterFromTaskView extends AbstractComponent {
     static propTypes = {
-        params: PropTypes.object.isRequired
+        taskUuid: PropTypes.string.isRequired
     }
 
     constructor(props, context) {
@@ -15,7 +15,7 @@ class SubjectRegisterFromTaskView extends AbstractComponent {
     }
 
     render() {
-        return <RegisterView hideBackButton={false} taskUuid={this.props.params.taskUuid}/>;
+        return <RegisterView hideBackButton={false} taskUuid={this.props.taskUuid}/>;
     }
 }
 
