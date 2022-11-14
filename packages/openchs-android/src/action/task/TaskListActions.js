@@ -3,6 +3,10 @@ import TaskFilter from "../../model/TaskFilter";
 import TaskTypeService from "../../service/task/TaskTypeService";
 import _ from 'lodash';
 
+const createNewState = function (results, filter) {
+    return {results: results, filter: filter};
+}
+
 class TaskListActions {
     static getInitialState(context) {
         return {results: [], filter: TaskFilter.createEmpty()};
@@ -24,13 +28,13 @@ class TaskListActions {
     static onFilterApply(state, action, context) {
         const taskService = context.get(TaskService);
         const results = taskService.getFilteredTasks(action.filter);
-        return {results: results, filter: action.filter};
+        return createNewState(results, action.filter);
     }
 
     static onRefresh(state, action, context) {
         const taskService = context.get(TaskService);
         const results = taskService.getFilteredTasks(state.filter);
-        return {results: results, filter: state.filter};
+        return createNewState(results, state.filter);
     }
 
     static onFilterClear(state, action, context) {
@@ -38,7 +42,7 @@ class TaskListActions {
         const taskFilter = TaskFilter.createEmpty();
         taskFilter.taskType = action.taskType;
         const results = taskService.getFilteredTasks(taskFilter);
-        return {results: results, filter: taskFilter};
+        return createNewState(results, taskFilter);
     }
 }
 

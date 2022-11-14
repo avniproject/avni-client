@@ -20,6 +20,7 @@ import CHSContent from "../common/CHSContent";
 import {Badge, Button, Icon} from 'native-base';
 import Fonts from "../primitives/Fonts";
 import ZeroResults from "../common/ZeroResults";
+import {TaskType} from 'openchs-models';
 
 const FilterSummaryItem = function ({text}) {
     if (_.isNil(text) || text.length === 0)
@@ -101,7 +102,7 @@ class TaskListView extends AbstractComponent {
         return (
             <View style={styles.container}>
                 <View style={styles.cardContainer}>
-                    {this.headerElement(this.I18n.t('phone'), 91, false)}
+                    {this.headerElement("", 91, false)}
                     <View style={styles.iconContainer}>
                         {this.headerElement(this.I18n.t('register'), iconWidth)}
                         {this.headerElement(this.I18n.t('call'), iconWidth)}
@@ -119,7 +120,7 @@ class TaskListView extends AbstractComponent {
         return (
             <View style={styles.container}>
                 <View style={styles.cardContainer}>
-                    {this.headerElement(this.I18n.t('taskName'), 200, false)}
+                    {this.headerElement("", 200, false)}
                     <View style={styles.iconContainer}>
                         {this.headerElement(this.I18n.t('mark'), iconWidth)}
                         {this.headerElement(this.I18n.t('reschedule'), iconWidth)}
@@ -130,7 +131,7 @@ class TaskListView extends AbstractComponent {
     }
 
     renderHeader() {
-        return this.props.params.taskTypeType === 'call' ? this.renderCallHeader() : this.renderOpenSubjectHeader();
+        return this.props.params.taskTypeType === TaskType.TaskTypeName.Call ? this.renderCallHeader() : this.renderOpenSubjectHeader();
     }
 
     onClearFilter() {
