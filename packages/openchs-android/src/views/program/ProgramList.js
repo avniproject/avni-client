@@ -23,7 +23,7 @@ class ProgramList extends AbstractComponent {
     static style = {
         programButton: {
             self: {
-                height: 28,
+                height: 40,
                 marginRight: DGS.resizeWidth(8),
                 borderRadius: 2,
                 marginTop: DGS.resizeHeight(8),
