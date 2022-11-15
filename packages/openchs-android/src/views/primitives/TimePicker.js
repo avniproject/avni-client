@@ -1,4 +1,4 @@
-import {Text, View} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import PropTypes from 'prop-types';
 import React from "react";
@@ -7,12 +7,12 @@ import _ from "lodash";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import Colors from "./Colors";
 import General from "../../utility/General";
-import {Button, Icon} from "native-base";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Fonts from '../primitives/Fonts';
 
 class TimePicker extends AbstractComponent {
     static propTypes = {
-        timeValue: PropTypes.string,
+        timeValue: PropTypes.object,
         validationResult: PropTypes.object,
         actionName: PropTypes.string.isRequired,
         actionObject: PropTypes.object.isRequired,
@@ -51,9 +51,9 @@ class TimePicker extends AbstractComponent {
                     {_.isNil(this.props.timeValue) ?
                         <View/>
                         :
-                        <Button transparent onPress={() => this.removeTime()} style={{height: 20, alignSelf: 'center'}}>
-                            <Icon name='backspace' style={{fontSize: 20, color: '#229688'}}/>
-                        </Button>
+                        <TouchableNativeFeedback transparent onPress={() => this.removeTime()} style={{height: 20, alignSelf: 'center'}}>
+                            <Icon name='backspace' style={{marginLeft: 8, alignSelf: 'center', fontSize: 20, color: Colors.AccentColor}}/>
+                        </TouchableNativeFeedback>
                     }
                 </View>
                 <View>
