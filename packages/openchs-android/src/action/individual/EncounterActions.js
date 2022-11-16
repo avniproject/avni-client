@@ -10,6 +10,10 @@ import EntityService from "../../service/EntityService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
+import UserInfoService from "../../service/UserInfoService";
+import _ from "lodash";
+import {ObservationsHolder} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -26,25 +30,57 @@ export class EncounterActions {
 
         const form = formMapping && formMapping.form;
 
+        const encounterType = action.encounter.encounterType;
+        const getPreviousEncounter = () => {
+            const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
+            if (previousEncounter) {
+                action.encounter.observations = previousEncounter.cloneForEdit().observations;
+                const observationsHolder = new ObservationsHolder(action.encounter.observations);
+                let groupNo = 0;
+                const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        groupNo = groupNo + 1;
+                        let filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        if (filteredFormElements.length === 0) return false;
+                        return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
+                    });
+
+                if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
+                    action.allElementsFilledForImmutableEncounter = true;
+                else
+                    action.pageNumber = groupNo;
+            }
+            return action.encounter;
+        };
+
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.encounter;
+
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
-        }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
+        }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
-        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.encounter.uuid, Encounter.schema.name));
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
             General.randomUUID(), WorkItem.type.ENCOUNTER, {
-                encounterType: action.encounter.encounterType.name,
-                subjectUUID: action.encounter.individual.uuid
+                encounterType: encounterToPass.encounterType.name,
+                subjectUUID: encounterToPass.individual.uuid
             }
         )]));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return EncounterActionState.createOnLoadStateForEmptyForm(action.encounter, form, isNewEntity, workLists)
+            return EncounterActionState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists)
         }
 
-        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(action.encounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+
+        if(action.allElementsFilledForImmutableEncounter) {
+            newState.allElementsFilledForImmutableEncounter = true;
+            newState.wizard.currentPage = form.numberOfPages;
+            return newState;
+        }
+
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 
@@ -90,7 +126,7 @@ export class EncounterActions {
         return newState;
     }
 
-    static onFocus(state){
+    static onFocus(state) {
         const newState = state.clone();
         newState.loadPullDownView = true;
         return newState;
@@ -98,6 +134,7 @@ export class EncounterActions {
 
     static onSave(state, action, context) {
         const newState = state.clone();
+        context.get(IndividualService).updateObservations(newState.encounter.individual);
         context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         action.cb();
         return state;

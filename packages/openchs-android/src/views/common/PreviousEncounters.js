@@ -62,8 +62,12 @@ class PreviousEncounters extends AbstractComponent {
         if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
-    isEditAllowed(encounter) {
+    hasEditPrivilege(encounter) {
         return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
+    }
+
+    isEditAllowed(encounter) {
+        return this.hasEditPrivilege(encounter) && !encounter.encounterType.immutable;
     }
 
     encounterActions(encounter) {
@@ -154,7 +158,7 @@ class PreviousEncounters extends AbstractComponent {
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.viewAllText}>{this.I18n.t('viewAll')}</Text>
+                <Text style={styles.viewAllText}>{`${this.I18n.t('viewAll')} (${this.props.encounters.length})`}</Text>
             </View>
         </TouchableOpacity>
     }

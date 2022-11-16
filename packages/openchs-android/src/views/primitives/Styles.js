@@ -20,6 +20,12 @@ Styles.normalTextSize = 16;
 Styles.smallTextSize = 14;
 Styles.smallerTextSize = 12;
 
+const computeLineHeight = (fontSize) => fontSize * 2;
+Styles.titleSizeLineHeight = computeLineHeight(Styles.titleSize) ;
+Styles.normalTextSizeLineHeight = computeLineHeight(Styles.normalTextSize);
+Styles.smallTextSizeLineHeight = computeLineHeight(Styles.smallTextSize);
+Styles.smallerTextSizeLineHeight = computeLineHeight(Styles.smallTextSize);
+
 Styles.ContentDistanceFromEdge = 24;
 Styles.ContainerHorizontalDistanceFromEdge = 14;
 Styles.ContentDistanceWithinContainer = 10;
@@ -29,9 +35,9 @@ Styles.VerticalSpacingDisplaySections = 16;
 Styles.VerticalSpacingBetweenOptionItems = 20;
 
 Styles.programProfileHeading = {
-    fontSize: 16,
+    fontSize: Styles.normalTextSize,
     color: Styles.whiteColor,
-    lineHeight: 24
+    lineHeight: Styles.normalTextSizeLineHeight
 };
 
 Styles.container = {
@@ -39,9 +45,9 @@ Styles.container = {
 };
 
 Styles.programProfileSubheading = {
-    fontSize: 14,
+    fontSize: Styles.smallTextSize,
     color: Styles.whiteColor,
-    lineHeight: 24
+    lineHeight: Styles.smallTextSizeLineHeight
 };
 
 Styles.navbarHelpText = {
@@ -52,31 +58,31 @@ Styles.navbarHelpText = {
 };
 
 Styles.navBarTitleInactive = {
-    fontSize: 20,
+    fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.whiteColor,
-    lineHeight: 28,
+    lineHeight: Styles.titleSizeLineHeight,
 };
 
 Styles.navbarTitleSelected = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.whiteColor,
-    lineHeight: 28,
+    lineHeight: Styles.titleSizeLineHeight,
 };
 
 Styles.dialogTitle = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 28,
+    lineHeight: Styles.titleSizeLineHeight,
 };
 
 Styles.settingsTitle = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 28,
+    lineHeight: Styles.titleSizeLineHeight,
     marginVertical: 16
 };
 
@@ -84,7 +90,7 @@ Styles.menuTitle = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 28,
+    lineHeight: Styles.titleSizeLineHeight,
     alignSelf: 'center',
 };
 
@@ -93,7 +99,7 @@ Styles.timerStyle = {
     fontStyle: 'normal',
     color: Styles.blackColor,
     fontWeight: 'bold',
-    lineHeight: 24,
+    lineHeight: Styles.titleSizeLineHeight,
     alignSelf: 'center',
 };
 
@@ -101,21 +107,21 @@ Styles.textStyle = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 24
+    lineHeight: Styles.normalTextSizeLineHeight
 };
 
 Styles.dialogMessage = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 21
+    lineHeight: Styles.normalTextSizeLineHeight
 };
 
 Styles.textStyle2 = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: 24
+    lineHeight: Styles.normalTextSizeLineHeight
 };
 
 Styles.formBodyText = {
@@ -139,7 +145,7 @@ Styles.programProfileBodySubtext = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: '#4a4a4a',
-    lineHeight: 24
+    lineHeight: Styles.normalTextSizeLineHeight
 };
 
 Styles.formInputHelpText = {
@@ -183,7 +189,7 @@ Styles.logoPlaceHolder = {
     fontWeight: 'bold',
     color: Styles.blackColor,
     alignSelf: 'center',
-    paddingBottom: Styles.titleSize + 72,
+    paddingBottom: Styles.titleSize,
 };
 
 Styles.programProfileProgramTitleUnselected2 = {
@@ -208,7 +214,7 @@ Styles.patientProfileBodySubtext2 = {
     fontSize: Styles.smallTextSize,
     fontStyle: 'normal',
     color: '##4a4a4a',
-    lineHeight: Styles.smallTextSize + 4,
+    lineHeight: Styles.smallTextSizeLineHeight,
 };
 
 Styles.userProfileProgramTitle = {
@@ -221,7 +227,7 @@ Styles.expandCollapse = {
     fontSize: Styles.smallerTextSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: Styles.smallerTextSize + 12,
+    lineHeight: Styles.smallerTextSizeLineHeight,
 };
 
 Styles.userProfileSubtext = {
@@ -242,7 +248,7 @@ Styles.formLabel = {
     fontSize: Styles.normalTextSize,
     fontStyle: 'normal',
     color: Styles.greyText,
-    lineHeight: Styles.normalTextSize + 8,
+    lineHeight: Styles.normalTextSizeLineHeight,
 };
 
 Styles.helpText = {
@@ -256,7 +262,7 @@ Styles.formGroupLabel = {
     fontSize: Styles.titleSize,
     fontStyle: 'normal',
     color: Styles.blackColor,
-    lineHeight: Styles.titleSize + 16
+    lineHeight: Styles.titleSizeLineHeight
 };
 
 Styles.basicPrimaryButtonView = {
@@ -301,16 +307,9 @@ Styles.textList = {
     fontStyle: 'normal',
     fontWeight: 'normal',
     color: Styles.greyText,
-    lineHeight: Styles.normalTextSize + 8,
+    lineHeight: Styles.smallTextSizeLineHeight,
     marginVertical: 8
 }
-
-// Styles.textListHead = {
-//     fontSize: Styles.normalTextSize,
-//     fontWeight: 'bold',
-//     color: Styles.greyText,
-//     lineHeight: Styles.normalTextSize + 8,
-// }
 
 Styles.cardTitle = {
     fontSize: 17,

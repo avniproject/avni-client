@@ -51,7 +51,7 @@ export default class FileSystem {
     }
 
     static mkdir(path, hint) {
-        return fs.mkdir(path).catch(err => {
+        return fs.mkdir(path).then(() => General.logInfo("FileSystem", `Created ${hint} directory`)).catch(err => {
             General.logError("FileSystem", `Could not create ${hint} directory`);
             throw err;
         });
@@ -100,6 +100,11 @@ export default class FileSystem {
     static async migrateOldData(source, destination) {
         General.logDebug("FileSystem", `Copying from ${source} -> ${destination}`);
         try {
+            if (!await fs.exists(source)) {
+                General.logDebug("FileSystem", `Old data at  ${source} doesn't exist. Nothing to migrate.`);
+                return;
+            }
+
             const olderItems = await fs.readDir(source);
             await olderItems.forEach(async (item) => {
                 if (item.isFile()) {

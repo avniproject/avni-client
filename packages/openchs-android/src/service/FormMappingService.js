@@ -235,6 +235,15 @@ class FormMappingService extends BaseService {
         let criteria = `voided = false AND form.formType = "${Form.formTypes.Task}" and taskType.uuid = "${taskType.uuid}"`;
         return this.db.objects(FormMapping.schema.name).filtered(criteria)[0];
     }
+
+    getManualEnrolmentEligibilityForm(subjectType, program) {
+        return this._findProgramRelatedForm(program, Form.formTypes.ManualProgramEnrolmentEligibility, subjectType);
+    }
+
+    getFormMappingsForSubjectType(subjectType) {
+        return this.findAll()
+            .filtered('subjectType = $0', subjectType);
+    }
 }
 
 export default FormMappingService;

@@ -20,8 +20,8 @@ import CHSContent from "../common/CHSContent";
 import {Individual} from 'avni-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualRegisterView from "../individual/IndividualRegisterView";
-import IndividualRegisterFormView from "../individual/IndividualRegisterFormView";
+import PersonRegisterView from "../individual/PersonRegisterView";
+import PersonRegisterFormView from "../individual/PersonRegisterFormView";
 import ProgramEncounterView from "../program/ProgramEncounterView";
 import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
 import ProgramExitView from "../program/ProgramExitView";
@@ -35,6 +35,7 @@ import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsFo
 import {ApprovalDialog} from "../approval/ApprovalDialog";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
+import _ from 'lodash'
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -42,6 +43,7 @@ class SystemRecommendationView extends AbstractComponent {
         individual: PropTypes.object,
         saveActionName: PropTypes.string.isRequired,
         onSaveCallback: PropTypes.func.isRequired,
+        onPreviousCallback: PropTypes.func,
         decisions: PropTypes.any,
         observations: PropTypes.array.isRequired,
         validationErrors: PropTypes.array.isRequired,
@@ -159,7 +161,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     onAppHeaderBack(isSaveDraftOn) {
-        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
+        const wizardViews = [PersonRegisterView, PersonRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, ChecklistItemView, SubjectRegisterView];
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
@@ -203,7 +205,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>}
                             <Observations observations={this.props.observations} form={this.props.form}
                                           title={this.I18n.t('observations')}/>
-                            <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
+                            <WizardButtons previous={{func: () => !_.isUndefined(this.props.onPreviousCallback)? this.props.onPreviousCallback(this.context) : this.previous(), label: this.I18n.t('previous')}}
                                            next={{
                                                func: () => this.save(() => this.props.onSaveCallback(this)),
                                                visible: this.props.validationErrors.length === 0,

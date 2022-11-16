@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {CustomFilter, Filter, Privilege, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'avni-models';
+import {CustomFilter, Filter, Privilege, SubjectType} from 'avni-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -26,6 +26,7 @@ import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "./GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
+import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {

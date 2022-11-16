@@ -24,6 +24,7 @@ import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
+import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 
 @Service("syncService")
@@ -131,7 +132,6 @@ class SyncService extends BaseService {
 
         // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
-
         console.log('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
         const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
@@ -238,7 +238,6 @@ class SyncService extends BaseService {
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getService(SubjectMigrationService).migrateSubjects())
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
-            .then(() => this.getService(TaskUnAssignmentService).deleteNonMigratedTasks())
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
@@ -336,11 +335,20 @@ class SyncService extends BaseService {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
             }
         }
+
+        if (entityMetaData.entityName === "TaskUnAssignment") {
+            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
+        }
+
         if (entityMetaData.entityName === 'EntityApprovalStatus') {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
             });
+        }
+
+        if(entityMetaData.entityName === 'UserSubjectAssignment') {
+            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
         }
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);

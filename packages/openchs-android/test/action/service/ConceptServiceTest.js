@@ -19,7 +19,7 @@ describe('ConceptServiceTest', () => {
             "a3": EntityFactory.createConcept("a3", Concept.dataType.NA, '21472f5f-28a6-4051-9228-a0b0cf3a8d19'),
             "a4": EntityFactory.createConcept("a4", Concept.dataType.Numeric, 'ae157302-b4f7-4a55-994a-e543c64eb33e'),
         };
-        const testConceptService = new TestConceptService(null, null, concepts);
+        const testConceptService = new TestConceptService(concepts);
         const observations = [EntityFactory.createObservation(concepts['c1'])];
 
         testConceptService.addDecisions(observations, [EntityFactory.createDecision('c2', 'foo')]);
@@ -77,8 +77,8 @@ describe('ConceptServiceTest', () => {
 });
 
 class TestConceptService extends ConceptService {
-    constructor(db, beanStore, concepts) {
-        super(db, beanStore);
+    constructor(concepts) {
+        super(null, null);
         this.concepts = concepts;
     }
 

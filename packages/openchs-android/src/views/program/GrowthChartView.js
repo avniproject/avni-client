@@ -1,15 +1,15 @@
-import Path from "../../framework/routing/Path";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import * as React from "react";
-import {LineChart} from "react-native-charts-wrapper";
-import {Button, Text} from "native-base";
-import PropTypes from "prop-types";
+import Path from '../../framework/routing/Path';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import * as React from 'react';
+import {LineChart} from 'react-native-charts-wrapper';
+import {Button, Text} from 'native-base';
+import PropTypes from 'prop-types';
 
-import {processColor, StyleSheet, View} from "react-native";
-import moment from "moment";
+import {processColor, StyleSheet, View} from 'react-native';
+import moment from 'moment';
 
-import _ from "lodash";
-import Styles from "../primitives/Styles";
+import _ from 'lodash';
+import Styles from '../primitives/Styles';
 
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
@@ -140,13 +140,18 @@ class GrowthChartView extends AbstractComponent {
         }, this.addConfig(array, line));
     }
 
+    getObservationValue(entity, conceptName) {
+        let observationValue = entity.getObservationValue(conceptName);
+        return observationValue? _.toNumber(observationValue): null;
+    }
+
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
         const enrolment = this.props.params.enrolment;
         const observations = _.map(enrolment.nonVoidedEncounters(), encounter => {
             const x = xAxisConceptName
-                ? encounter.getObservationValue(xAxisConceptName)
+                ? this.getObservationValue(encounter, xAxisConceptName)
                 : moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
-            const y = encounter.getObservationValue(yAxisConceptName);
+            const y = this.getObservationValue(encounter, yAxisConceptName);
             const marker = `${y} ${suffix}`;
             return (_.isNil(x) || _.isNil(y))
                 ? null
@@ -154,9 +159,9 @@ class GrowthChartView extends AbstractComponent {
         });
 
         const xInEnrolment = xAxisConceptName
-            ? enrolment.getObservationValue(xAxisConceptName)
+            ? this.getObservationValue(enrolment, xAxisConceptName)
             : moment(enrolment.enrolmentDateTime).diff(enrolment.individual.dateOfBirth, 'months');
-        const yInEnrolment = enrolment.getObservationValue(yAxisConceptName);
+        const yInEnrolment = this.getObservationValue(enrolment, yAxisConceptName);
         const marker = `${yInEnrolment} ${suffix}`;
 
         const point = (_.isNil(xInEnrolment) || _.isNil(yInEnrolment))
@@ -176,10 +181,11 @@ class GrowthChartView extends AbstractComponent {
     }
 
     addBirthWeightIfRequired(yAxisConcept, data, suffix) {
-        if (yAxisConcept == 'Weight') {
+        if (yAxisConcept === 'Weight') {
             const birthWt = this.props.params.enrolment.findLatestObservationInEntireEnrolment('Birth Weight');
             if (birthWt) {
-                data.values.unshift({x: 0, y: birthWt.getValue(), marker: `${birthWt.getValue()} ${suffix}`});
+                const birthWeight = _.toNumber(birthWt.getValue());
+                data.values.unshift({x: 0, y: birthWeight, marker: `${birthWt.getValue()} ${suffix}`});
             }
         }
     }
@@ -315,9 +321,6 @@ class GrowthChartView extends AbstractComponent {
                         keepPositionOnRotation={false}
 
                         xAxis={{position: 'BOTTOM', labelCount: 5}}
-
-                        // onSelect={this.handleSelect.bind(this)}
-                        // onChange={(event) => console.log(event.nativeEvent)}
 
                         ref="chart"
                     />

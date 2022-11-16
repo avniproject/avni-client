@@ -63,8 +63,7 @@ class RadioGroup extends AbstractComponent {
                                       validationResult={this.props.validationError}
                                       key={rlv.label}
                                       style={{
-                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems
                                       }}
                                       disabled={this.props.disabled}
                                       value={rlv.value}/>
@@ -161,7 +160,6 @@ const style = StyleSheet.create({
         borderRadius: 1,
         borderStyle: 'dashed',
         borderColor: Colors.InputBorderNormal,
-        paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
         paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
     }
 })

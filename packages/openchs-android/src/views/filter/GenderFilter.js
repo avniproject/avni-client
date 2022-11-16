@@ -2,10 +2,10 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import {GenderFilterNames as Actions} from "../../action/mydashboard/GenderFilterActions";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
 import _ from "lodash";
 import {View} from "react-native";
 import React from "react";
+import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 
 
 class GenderFilter extends AbstractComponent {

@@ -11,12 +11,13 @@ import EntityService from "../service/EntityService";
 import TimerState from "./TimerState";
 
 class IndividualRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, isNewEntity, filteredFormElements, individualSubjectType, workLists, timerState) {
+    constructor(validationResults, formElementGroup, wizard, genders, age, ageProvidedInYears, individual, group, isNewEntity, filteredFormElements, individualSubjectType, workLists, timerState) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isNewEntity);
         this.genders = genders;
         this.age = age;
         this.ageProvidedInYears = ageProvidedInYears;
         this.individual = individual;
+        this.group = group;
         this.individualSubjectType = individualSubjectType;
         this.household = new HouseholdState(workLists);
     }
@@ -29,9 +30,18 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity) {
+    getEntityContext() {
+        return {
+            group: this.group
+        }
+    }
+
+    static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group) {
         const wizard = new Wizard(_.isNil(form) ? 1 : form.numberOfPages + 1, 2);
-        const individualRegistrationState = new IndividualRegistrationState([], new StaticFormElementGroup(form), wizard, genders, "", true, individual, isNewEntity, [], individual.subjectType, workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))), null);
+        const individualRegistrationState = new IndividualRegistrationState([],
+            new StaticFormElementGroup(form), wizard, genders, "", true, individual, group, isNewEntity,
+            [], individual.subjectType,
+            workLists || new WorkLists(new WorkList(new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION))), null);
         individualRegistrationState.form = form;
         individualRegistrationState.minLevelTypeUUIDs = minLevelTypeUUIDs;
         individualRegistrationState.saveDrafts = saveDrafts;
@@ -42,6 +52,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     clone() {
         const newState = new IndividualRegistrationState();
         newState.individual = this.individual.cloneForEdit();
+        newState.group = this.group;
         newState.genders = this.genders;
         newState.age = this.age;
         newState.ageProvidedInYears = this.ageProvidedInYears;
@@ -109,11 +120,11 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual');
+        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual', this.getEntityContext());
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.individual, 'Individual');
+        let decisions = ruleService.getDecisions(this.individual, 'Individual', {}, this.getEntityContext());
         context.get(ConceptService).addDecisions(this.individual.observations, decisions.registrationDecisions);
 
         return decisions;
@@ -124,7 +135,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, []);
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, [], this.getEntityContext());
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.individual, nextScheduledVisits);
     }
 

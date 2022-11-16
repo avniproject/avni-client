@@ -12,7 +12,7 @@ import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
 import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
-import {PrimitiveValue, SingleSelectFilter as SingleSelectFilterModel, CustomFilter, Privilege} from 'avni-models';
+import {PrimitiveValue, CustomFilter, Privilege} from 'avni-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -27,6 +27,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
 import _ from "lodash";
 import {ScrollView} from "react-native";
+import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {

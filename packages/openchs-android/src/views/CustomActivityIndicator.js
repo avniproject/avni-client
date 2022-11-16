@@ -5,6 +5,8 @@ import {
     Modal,
     ActivityIndicator
 } from 'react-native';
+import Config from "../framework/Config";
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 const CustomActivityIndicator = props => {
     const {
@@ -12,15 +14,16 @@ const CustomActivityIndicator = props => {
         ...attributes
     } = props;
 
+    // The full screen level modal indicator doesn't go away on reload screen, from previous ,load, which means app has to be restarted
+    if (EnvironmentConfig.isDevMode()) {
+        return null;
+    }
+
     return (
-        <Modal
-            transparent={true}
-            animationType={'none'}
-            visible={loading}>
+        <Modal transparent={true} animationType={'none'} visible={loading}>
             <View style={styles.modalBackground}>
                 <View style={styles.activityIndicatorWrapper}>
-                    <ActivityIndicator
-                        animating={loading}/>
+                    <ActivityIndicator animating={loading}/>
                 </View>
             </View>
         </Modal>

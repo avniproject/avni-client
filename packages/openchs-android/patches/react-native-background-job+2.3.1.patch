@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-background-job/android/build.gradle b/node_modules/react-native-background-job/android/build.gradle
+index ce16973..3953d08 100644
+--- a/node_modules/react-native-background-job/android/build.gradle
++++ b/node_modules/react-native-background-job/android/build.gradle
+@@ -34,7 +34,7 @@ android {
+ }
+ 
+ repositories {
+-  jcenter()
++    mavenCentral()
+   maven {
+     // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+     url "$rootDir/../node_modules/react-native/android"

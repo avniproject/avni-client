@@ -63,6 +63,13 @@ class AbstractComponent extends Component {
         return dispatchResult;
     }
 
+    async dispatchAsyncAction(action, params) {
+        const type = action instanceof Function ? action.Id : action;
+        if (General.canLog(General.LogLevel.Debug))
+            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
+        return await this.context.getStore().dispatch({type, ...params});
+    }
+
     dispatchFn(fn) {
         return this.context.getStore().dispatch(fn);
     }
@@ -99,8 +106,10 @@ class AbstractComponent extends Component {
     }
 
     scrollToTop() {
-        this.scrollRef.current?.scrollTo({ x: 0, y: 10, animated: true });
-        this.scrollRef.current?.scrollTo({ x: 0, y: 1, animated: true });
+        if (this.scrollRef.current) {
+            this.scrollRef.current?.scrollTo({ x: 0, y: 10, animated: true });
+            this.scrollRef.current?.scrollTo({ x: 0, y: 1, animated: true });
+        }
     }
 
     scrollToPosition(x, y) {

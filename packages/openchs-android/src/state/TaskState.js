@@ -9,6 +9,7 @@ class TaskState extends AbstractDataEntryState {
         this.task = task;
         this.displayTaskStatusSelector = false;
         this.taskStatusList = [];
+        this.displayProgressIndicator = false;
     }
 
     get observationsHolder() {
@@ -34,6 +35,10 @@ class TaskState extends AbstractDataEntryState {
         return new TaskState(task.cloneForEdit());
     }
 
+    static createEmptyState() {
+        return new TaskState();
+    }
+
     getEntity() {
         return this.task;
     }
@@ -47,6 +52,7 @@ class TaskState extends AbstractDataEntryState {
         newState.task = _.isNil(this.task) ? this.task : this.task.cloneForEdit();
         newState.displayTaskStatusSelector = this.displayTaskStatusSelector;
         newState.taskStatusList = this.taskStatusList;
+        newState.displayProgressIndicator = this.displayProgressIndicator;
         super.clone(newState);
         return newState;
     }

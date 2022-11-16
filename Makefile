@@ -14,17 +14,10 @@ help:
 
 default: ; @echo 'no target provided'
 
-check-node-v:
-ifneq ($(shell node -v),$(shell cat .nvmrc))
-	@echo -e '\nPlease run `nvm install $(shell cat .nvmrc) && nvm use $(shell cat .nvmrc)`\n'
-	@exit 1
-endif
-	@echo "node => $(shell node -v)"
-
-include makefiles/codepush.mk
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 include makefiles/patches.mk
+include makefiles/common.mk
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -48,7 +41,7 @@ clean: clean_env ##
 renew_env: clean_all deps
 # <deps>
 deps: build_env apply_patch ##
-deps_ci: build_env_ci ##
+deps_ci: build_env_ci apply_patch ##
 
 ignore_deps_changes:
 	git checkout package-lock.json
@@ -309,8 +302,6 @@ endef
 inpremise_upload_prod_apk:
 	$(if $(orgname),$(call _inpremise_upload_prod_apk),@echo "\nNeeded: orgname=")
 
-#$(MAKECMDGOALS): check-node-v ;
-
 #Translations
 port:= $(if $(port),$(port),8021)
 server:= $(if $(server),$(server),http://localhost)
@@ -345,6 +336,10 @@ deploy_translations: deploy_platform_translations
 deploy_platform_translations: auth dev_deploy_platform_translations
 
 dev_deploy_platform_translations:
+ifndef password
+	@echo "Please provide password"
+	exit 1
+else
 	$(call upload,platformTranslation,@packages/openchs-android/translations/en.json)
 	@echo
 	$(call upload,platformTranslation,@packages/openchs-android/translations/gu_IN.json)
@@ -356,14 +351,10 @@ dev_deploy_platform_translations:
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ta_IN.json)
 	@echo
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
+endif
 
 deploy_platform_translations_staging:
-ifndef password
-	@echo "Please provide password"
-	exit 1
-else
 	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.avniproject.org port=443 username=admin password=$(password)
-endif
 
 deploy_platform_translations_uat:
 	make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.avniproject.org port=443 username=admin password=$(password)

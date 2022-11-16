@@ -1,4 +1,4 @@
-import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups} from 'avni-models';
+import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups, UserSubjectAssignment} from 'avni-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
@@ -12,6 +12,10 @@ import MediaService from "./MediaService";
 import _ from 'lodash';
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
+import SubjectTypeService from "./SubjectTypeService";
+import IndividualService from "./IndividualService";
+import SubjectMigrationService from "./SubjectMigrationService";
+import FormMappingService from "./FormMappingService";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -127,7 +131,10 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
                             cb(97, "restoringDb");
                         })
-                        .then(() => this._deleteUserSpecificEntities())
+                        .then(() => this._deleteUserInfoAndIdAssignment())
+                        .then(() => this._deleteUserGroups())
+                        .then(() => this._deleteUserSubjectAssignments())
+                        .then(() => this._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
@@ -150,21 +157,74 @@ export default class BackupRestoreRealmService extends BaseService {
             });
     }
 
-    _deleteUserSpecificEntities() {
+    _deleteUserInfoAndIdAssignment() {
+        this._deleteAndResetSync(UserInfo.schema.name);
+        this._deleteAndResetSync(IdentifierAssignment.schema.name);
+    }
+
+    _deleteUserGroups() {
+        this._deleteAndResetSync(MyGroups.schema.name);
+    }
+
+    _deleteUserSubjectAssignments() {
+        this._deleteAndResetSync(UserSubjectAssignment.schema.name);
+    }
+
+    _deleteAndResetSync(schemaName) {
         const db = this.db;
+        const syncStatuses = db.objects(EntitySyncStatus.schema.name)
+            .filtered(`entityName = '${schemaName}'`)
+            .map(u => _.assign({}, u));
         this.db.write(() => {
-            const entitySyncStatus = db.objects(EntitySyncStatus.schema.name)
-              .filtered(`entityName = 'IdentifierAssignment' or entityName = 'UserInfo' or entityName = 'MyGroups'`);
-            const objects = db.objects(UserInfo.schema.name);
-            const assignmentObjects = db.objects(IdentifierAssignment.schema.name);
-            db.delete(objects);
-            db.delete(assignmentObjects);
-            db.delete(db.objects(MyGroups.schema.name));
-            entitySyncStatus.forEach((ess) => {
-                ess.loadedSince = EntitySyncStatus.REALLY_OLD_DATE;
-            });
+            db.delete(db.objects(schemaName));
+            syncStatuses.forEach(({uuid, entityName, entityTypeUuid}) => {
+                const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
+                db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+            })
         });
     }
+
+    _deleteIndividualAndDependentForDirectlyAssignableSubjectTypes() {
+        const db = this.db;
+        const allDirectlyAssignableSubjectTypes = this.getService(SubjectTypeService).getAllDirectlyAssignable();
+        _.forEach(allDirectlyAssignableSubjectTypes, subjectType => {
+            this.deleteTxDataForSubjectType(subjectType);
+            this.resetSyncForSubjectType(subjectType, db);
+        });
+    }
+
+    resetSyncForSubjectType(subjectType, db) {
+        const formMappingsForSubjectType = this.getService(FormMappingService).getFormMappingsForSubjectType(subjectType).map(_.identity);
+        _.forEach(formMappingsForSubjectType, (formMapping) => {
+            const {entityName, entityTypeUuid} = formMapping.getEntityNameAndEntityTypeUUID();
+            this.resetSync(entityName, entityTypeUuid, db);
+        })
+    }
+
+    resetSync(entityName, entityTypeUUID, db) {
+        this.db.write(() => {
+            db.objects(EntitySyncStatus.schema.name)
+                .filtered(`entityName = $0 and entityTypeUuid = $1`, entityName, entityTypeUUID)
+                .map(u => _.assign({}, u))
+                .forEach(({uuid, entityName, entityTypeUuid}) => {
+                    const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
+                    db.create(EntitySyncStatus.schema.name, updatedEntity, true);
+                })
+        });
+    }
+
+    deleteTxDataForSubjectType(subjectType) {
+        this.getService(IndividualService)
+            .getAllBySubjectType(subjectType)
+            .map(_.identity)
+            .forEach(individual => {
+                const subjectUUID = _.get(individual, 'uuid');
+                if (!_.isEmpty(subjectUUID)) {
+                    this.getService(SubjectMigrationService).removeEntitiesFor({subjectUUID})
+                }
+            })
+    }
+
 }
 
 export const removeBackupFile = async (backupFilePath) => {

@@ -14,7 +14,7 @@ import Colors from "../primitives/Colors";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
-import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
 import IndividualListView from "../individuallist/IndividualListView";
 import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";
@@ -111,14 +111,16 @@ class CustomDashboardView extends AbstractComponent {
             'ApprovalListingView': ApprovalListingView,
             'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
             'IndividualListView': IndividualListView,
-            'CommentListView': CommentListView,
-            'TaskListView': TaskListView,
+            'CommentListView': CommentListView
         };
         return viewNameMap[viewName]
     }
 
     onBackPress() {
         this.goBack();
+    }
+
+    didFocus() {
         this.refreshCounts();
     }
 
@@ -126,6 +128,13 @@ class CustomDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
+            goToTaskLists: (taskTypeType) => {
+                TypedTransition.from(this).with({
+                    taskTypeType: taskTypeType,
+                    backFunction: this.onBackPress.bind(this),
+                    indicatorActionName: Actions.LOAD_INDICATOR
+                }).to(TaskListView);
+            },
             cb: (results, count, status, viewName) => TypedTransition.from(this).with({
                 indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: status || 'subjectsList',

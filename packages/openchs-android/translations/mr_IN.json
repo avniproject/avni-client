@@ -353,6 +353,10 @@
     "start": "प्रारंभ",
     "observationInProgress": "निरीक्षण प्रगतीपथावर आहे...",
     "subjectsWithMobileNumber": "{{number}} मोबाईल नंबर विषय",
-    "openTasks": "कार्ये उघडा"
+    "openTasks": "कार्ये उघडा",
+    "myDawaPrapatra": "माझा दावा फॉर्म",
+    "programName": "कार्यक्रमाचे नाव:",
+    "rolesNotConfigured": "भूमिका कॉन्फिगर केल्या नाहीत",
+    "rolesNotConfiguredDescription": "सदस्य जोडण्यासाठी भूमिका कॉन्फिगर करा."
   }
 }

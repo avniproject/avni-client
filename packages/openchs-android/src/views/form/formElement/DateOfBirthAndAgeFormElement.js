@@ -22,7 +22,7 @@ class DateOfBirthAndAgeFormElement extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.userSettings = context.getService(UserInfoService).getUserSettings();
+        this.userSettings = context.getService(UserInfoService).getUserSettingsObject();
     }
 
     dateDisplay(date) {

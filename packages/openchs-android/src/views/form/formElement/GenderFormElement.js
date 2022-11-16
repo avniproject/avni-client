@@ -5,7 +5,7 @@ import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import Distances from "../../primitives/Distances";
 import {  Individual  } from 'avni-models';
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
-import {Actions} from "../../../action/individual/IndividualRegisterActions";
+import {Actions} from "../../../action/individual/PersonRegisterActions";
 
 class GenderFormElement extends AbstractComponent {
     static propTypes = {

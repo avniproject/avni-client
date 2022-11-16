@@ -172,6 +172,10 @@ class BaseService {
         const result = this.filterBy(fn);
         if (result.length === 1) return result[0];
     }
+
+    static orFilterCriteria(entities, path) {
+        return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
+    }
 }
 
 export default BaseService;

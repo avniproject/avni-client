@@ -4,14 +4,14 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import AddressLevels from "../common/AddressLevels";
-import {Actions} from "../../action/individual/IndividualRegisterActions";
+import {Actions} from "../../action/individual/PersonRegisterActions";
 import _ from "lodash";
 import AppHeader from "../common/AppHeader";
 import Reducers from "../../reducer";
 import WizardButtons from "../common/WizardButtons";
 import {Individual, WorkItem, SingleCodedValue, SubjectType} from 'avni-models';
 import General from "../../utility/General";
-import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
+import PersonRegisterViewsMixin from "./PersonRegisterViewsMixin";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
@@ -31,14 +31,14 @@ import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaF
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import EntityService from "../../service/EntityService";
 
-@Path('/individualRegister')
-class IndividualRegisterView extends AbstractComponent {
+@Path('/personRegister')
+class PersonRegisterView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired
     };
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.individualRegister);
+        super(props, context, Reducers.reducerKeys.personRegister);
         this.formRow = {marginTop: Distances.ScaledVerticalSpacingBetweenFormElements};
         let currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
         let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
@@ -48,7 +48,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     viewName() {
-        return 'IndividualRegisterView';
+        return 'PersonRegisterView';
     }
 
     getTitleForGroupSubject(){
@@ -66,12 +66,15 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
+        const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD,
             {
-                individualUUID: this.props.params.individualUUID,
-                workLists: this.props.params.workLists,
-                isDraftEntity: this.props.params.isDraftEntity,
-                pageNumber: this.props.params.pageNumber,
+                individualUUID: params.individualUUID,
+                groupSubjectUUID: params.groupSubjectUUID,
+                workLists: params.workLists,
+                isDraftEntity: params.isDraftEntity,
+                pageNumber: params.pageNumber,
+                taskUuid: params.taskUuid
             });
         super.UNSAFE_componentWillMount();
     }
@@ -92,7 +95,7 @@ class IndividualRegisterView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView]);
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView]);
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
@@ -142,7 +145,7 @@ class IndividualRegisterView extends AbstractComponent {
                             minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
                         />
                         <WizardButtons
-                            next={{func: () => IndividualRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
+                            next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
                     </ScrollView>
                 </CHSContent>
             </CHSContainer>
@@ -150,4 +153,4 @@ class IndividualRegisterView extends AbstractComponent {
     }
 }
 
-export default IndividualRegisterView;
+export default PersonRegisterView;

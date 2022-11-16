@@ -4,7 +4,9 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import Observations from "../common/Observations";
-import {IndividualRegistrationDetailsActionsNames as Actions} from "../../action/individual/IndividualRegistrationDetailsActions";
+import {
+    IndividualRegistrationDetailsActionsNames as Actions
+} from "../../action/individual/IndividualRegistrationDetailsActions";
 import {Actions as GeneralEncounterActions} from "../../action/individual/IndividualGeneralHistoryActions";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
@@ -33,6 +35,9 @@ import _ from "lodash";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import SubjectDashboardGeneralTab from "./SubjectDashboardGeneralTab";
 import NewFormButton from "../common/NewFormButton";
+import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
+import CustomActivityIndicator from "../CustomActivityIndicator";
+import GroupSubjectService from "../../service/GroupSubjectService";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -53,7 +58,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             });
         };
         this.dispatchAction(Actions.ON_LOAD, {individualUUID: this.props.params.individualUUID});
-        this.dispatchAction(GeneralEncounterActions.ON_LOAD, {individualUUID: this.props.params.individualUUID, newEncounterCallback});
+        this.dispatchAction(GeneralEncounterActions.ON_LOAD, {
+            individualUUID: this.props.params.individualUUID,
+            newEncounterCallback
+        });
         return super.UNSAFE_componentWillMount();
     }
 
@@ -77,7 +85,13 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const allowedSubjectTypesForAddMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(addMemberCriteria, 'subjectTypeUuid');
         if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
             return [new ContextAction(this.I18n.t('addMember'), () => {
-                CHSNavigator.navigateToAddMemberView(this, this.state.individual)
+                const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
+                if(_.isEmpty(groupRoles))
+                    Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
+                        {text: this.I18n.t('okay'), onPress: _.noop}
+                    ]);
+                else
+                 CHSNavigator.navigateToAddMemberView(this, this.state.individual)
             })];
         } else return []
     }
@@ -112,25 +126,29 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     editProfile() {
         logEvent(firebaseEvents.EDIT_SUBJECT);
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList(`${this.state.individual.subjectType.name} `,
-                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                    {
-                        uuid: this.state.individual.uuid,
-                        subjectTypeName: this.state.individual.subjectType.name
-                    })])));
+        CHSNavigator.navigateToRegisterView(this, {
+            workLists: new WorkLists(
+                new WorkList(`${this.state.individual.subjectType.name} `,
+                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                        {
+                            uuid: this.state.individual.uuid,
+                            subjectTypeName: this.state.individual.subjectType.name
+                        })]))
+        });
     }
 
     editSubjectByFEG(pageNumber) {
         logEvent(firebaseEvents.EDIT_SUBJECT);
         const canMoveToNextView = _.get(this.state.individual.validateRegistrationDate(), "success");
-        CHSNavigator.navigateToRegisterView(this, new WorkLists(
-            new WorkList(`${this.state.individual.subjectType.name} `,
-                [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                    {
-                        uuid: this.state.individual.uuid,
-                        subjectTypeName: this.state.individual.subjectType.name,
-                    })])), pageNumber, canMoveToNextView);
+        CHSNavigator.navigateToRegisterView(this, {
+            workLists: new WorkLists(
+                new WorkList(`${this.state.individual.subjectType.name} `,
+                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                        {
+                            uuid: this.state.individual.uuid,
+                            subjectTypeName: this.state.individual.subjectType.name,
+                        })]))
+        }, pageNumber, canMoveToNextView);
     }
 
     onSubjectSelection(individualUUID) {
@@ -162,8 +180,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const removeMemberCriteria = `privilege.name = '${Privilege.privilegeName.removeMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypesForEditMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(editMemberCriteria, 'subjectTypeUuid');
         const allowedSubjectTypesForRemoveMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(removeMemberCriteria, 'subjectTypeUuid');
-        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, {label:'edit', fn: (groupSubject) => this.onMemberEdit(groupSubject)});
-        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {label:'remove', fn: (groupSubject) => this.onMemberRemove(groupSubject)});
+        const editAllowed = this.checkPrivilege(allowedSubjectTypesForEditMember, applicableActions, {
+            label: 'edit',
+            fn: (groupSubject) => this.onMemberEdit(groupSubject)
+        });
+        const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {
+            label: 'remove',
+            fn: (groupSubject) => this.onMemberRemove(groupSubject)
+        });
         return (
             <View style={styles.container}>
                 <TouchableOpacity
@@ -322,6 +346,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
                     <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
+                    <CustomActivityIndicator loading={this.state.displayIndicator}/>
+                    <SubjectProgramEligibilityWidget
+                        subject={this.state.individual}
+                        subjectProgramEligibilityStatuses={this.state.subjectProgramEligibilityStatuses}
+                        onSubjectProgramEligibilityPress={(subjectProgramEligibilityStatuses) => this.dispatchAsyncAction(Actions.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK, {subjectProgramEligibilityStatuses})}
+                        onManualProgramEligibilityPress={_.noop}
+                        onDisplayIndicatorToggle={(display) => this.dispatchAction(Actions.ON_DISPLAY_INDICATOR_TOGGLE, {display})}
+                    />
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
                         {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}

@@ -34,7 +34,8 @@ class RootView extends AbstractComponent {
             General.logDebug("RootView", "Cannot show custom home screen. Showing default screen instead");
             General.logDebug("RootView", e);
         }
-        await General.delay(this.TIME_TO_SHOW_SPLASH_SCREEN);
+        if (!__DEV__)
+            await General.delay(this.TIME_TO_SHOW_SPLASH_SCREEN);
     }
 
     async openApp() {

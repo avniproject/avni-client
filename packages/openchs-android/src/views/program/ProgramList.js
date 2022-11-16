@@ -27,7 +27,8 @@ class ProgramList extends AbstractComponent {
                 marginRight: DGS.resizeWidth(8),
                 borderRadius: 2,
                 marginTop: DGS.resizeHeight(8),
-                paddingHorizontal: DGS.resizeWidth(4)
+                paddingHorizontal: DGS.resizeWidth(4),
+                width: '90%'
             }
         },
         selectedProgramButton: (colour) => { return {
@@ -70,7 +71,7 @@ class ProgramList extends AbstractComponent {
                             const buttonStyle = this.getButtonStyle(enrolment);
                             return <Button key={enrolment.uuid}
                                            style={[ProgramList.style.programButton.self, buttonStyle.self]}
-                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text style={buttonStyle.text}>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
+                                           onPress={() => this.props.onProgramSelect(enrolment)}><Text style={buttonStyle.text} numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(enrolment.program.displayName)}</Text></Button>
                         })}
                 </View>
             </View>
