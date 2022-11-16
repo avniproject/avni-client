@@ -85,7 +85,7 @@
     "realm": "11.0.0-rc.1",
     "redux": "4.2.0",
     "rn-fetch-blob": "0.13.0-beta-1",
-    "rules-config": "git+https://github.com/avniproject/rules-config#2622898c242da48ad3fc5360995f22784b559610",
+    "rules-config": "github:openchs/rules-config#a35ade353300f8dde3a20af4234b49036e2fda16",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174"
   },
@@ -103,7 +103,7 @@
     "jest": "28.1.3",
     "jetifier": "^1.6.6",
     "metro-react-native-babel-preset": "0.71.3",
-    "openchs-idi": "git+https://github.com/avniproject/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6",
+    "openchs-idi": "github:openchs/openchs-idi#6ba6e02088078b1286f3b5384e5a79c6f9cae2a6",
     "patch-package": "6.5.0",
     "react-addons-test-utils": "15.6.2",
     "react-dom": "18.2.0",

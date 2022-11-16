@@ -4,5 +4,5 @@ endef
 
 app_android_package_name := com.openchsclient
 
-set_default_node_version:
-	. ${NVM_DIR}/nvm.sh && nvm alias default current
+set_node_version:
+	. ${NVM_DIR}/nvm.sh && nvm use && nvm alias default current

@@ -58,10 +58,7 @@ setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
 
 # <test>
-test-health-modules: setup_hosts as_dev
-	$(call test,health-modules)
-
-test-android: setup_hosts as_dev
+test-android: set_node_version setup_hosts as_dev
 	$(call test,android)
 
 test: test-android  ##
@@ -216,6 +213,9 @@ clean_env: release_clean ##
 	rm -rf packages/unminifiy/node_modules
 	rm -rf packages/utilities/node_modules
 
+remove_package_locks:
+	rm package-lock.json packages/openchs-android/package-lock.json
+
 clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
 
@@ -223,15 +223,15 @@ setup_env: ##
 	npm install -g jest@20.0.1
 	npm install -g jest-cli@20.0.1
 
-build_env: ##
+build_env: set_node_version ##
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
-	npm run bootstrap --legacy-peer-deps
+	cd packages/openchs-android && npm install
 
 clean_app:
 	cd packages/openchs-android/android && ./gradlew clean
 
-build_app:
+build_app: set_node_version
 	cd packages/openchs-android/android && ./gradlew assembleDebug
 
 build: build_env build_app
@@ -241,7 +241,7 @@ build: build_env build_app
 build_env_ci: ##
 	npm install
 	export NODE_OPTIONS=--max_old_space_size=2048
-	npm run bootstrap-ci
+	cd packages/openchs-android && npm install
 
 # <packager>
 run_packager: ##
@@ -251,7 +251,7 @@ run_packager: ##
 
 
 # sometimes there are errors for which we need to run the following to get the exact problem
-run_app_debug: setup_hosts
+run_app_debug: setup_hosts set_node_version
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 # </app>
 

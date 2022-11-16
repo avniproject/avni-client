@@ -15,8 +15,11 @@ patch:
 apply_patch:
 	cd packages/openchs-android && npx patch-package
 
-pull_models_from_local:
+pull_models_from_local-only:
 	cd ../avni-models && make deploy-to-avni-client-only local=../avni-client
+
+pull_models_from_local:
+	cd ../avni-models && make deploy-to-avni-client local=../avni-client
 
 patch-i18n:
 	cd packages/openchs-android && npx patch-package react-native-i18n
