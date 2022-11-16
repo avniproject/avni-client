@@ -29,7 +29,6 @@ class DatePicker extends AbstractComponent {
 
 
     dateDisplay(date) {
-        console.log('date', date);
         const noDateMessageKey = this.props.noDateMessageKey || (this.props.pickTime ? 'chooseDateAndTime' : 'chooseADate');
         return _.isNil(date)
             ? this.I18n.t(noDateMessageKey)
