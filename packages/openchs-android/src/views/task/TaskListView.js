@@ -6,7 +6,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {Dimensions, FlatList, SafeAreaView, StyleSheet, Text, View} from "react-native";
+import {Dimensions, ListView, SafeAreaView, StyleSheet, Text, View} from "react-native";
 import TaskCard from "./TaskCard";
 import Reducers from "../../reducer";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -143,6 +143,7 @@ class TaskListView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), "render");
         const {results, filter} = this.state;
+        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(results);
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
@@ -152,12 +153,14 @@ class TaskListView extends AbstractComponent {
                     <TaskFilterSummary I18n={this.I18n} taskFilter={filter}
                                        onClearFilter={() => this.onClearFilter()}/>
                     <SafeAreaView style={{flex: 1}}>
-                        <FlatList
-                            data={results}
-                            keyExtractor={(item) => item.uuid}
+                        <ListView
                             enableEmptySections={true}
-                            renderItem={({item}) => <TaskCard task={item}/>}
-                            ListHeaderComponent={this.renderHeader()}
+                            dataSource={dataSource}
+                            pageSize={1}
+                            initialListSize={1}
+                            removeClippedSubviews={true}
+                            renderRow={(task) => <TaskCard task={task}/>}
+                            renderHeader={() => this.renderHeader()}
                         />
                         <ZeroResults count={results.length}/>
                     </SafeAreaView>

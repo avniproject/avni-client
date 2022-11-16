@@ -48,7 +48,7 @@ class TaskService extends BaseService {
                 }
             }
         });
-        return tasks.map(_.identity);
+        return tasks;
     }
 
     deleteTask(taskUUID, db) {
