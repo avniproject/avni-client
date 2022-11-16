@@ -24,7 +24,6 @@ const CardSecondRow = function ({task, I18n}) {
         <Text style={[styles.textStyle, {marginLeft: 15}]}>{task.getNonMobileNumberMetadataObservationValues().join(",")}</Text>
     </View>
 }
-import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 
 class TaskCard extends AbstractComponent {
     static propTypes = {

@@ -29,6 +29,7 @@ class DatePicker extends AbstractComponent {
 
 
     dateDisplay(date) {
+        console.log('date', date);
         const noDateMessageKey = this.props.noDateMessageKey || (this.props.pickTime ? 'chooseDateAndTime' : 'chooseADate');
         return _.isNil(date)
             ? this.I18n.t(noDateMessageKey)
@@ -55,7 +56,7 @@ class DatePicker extends AbstractComponent {
             return;
         }
 
-        this.props.actionObject.value = General.isoFormat(date);
+        this.props.actionObject.value = date;
         this.dispatchAction(this.props.actionName, this.props.actionObject);
         if (this.props.pickTime) {
             this.showTimePicker(date);
@@ -87,7 +88,7 @@ class DatePicker extends AbstractComponent {
             return;
         }
 
-        this.props.actionObject.value = General.formatDateTime(date);
+        this.props.actionObject.value = date;
         this.dispatchAction(this.props.actionName, this.props.actionObject);
     }
 

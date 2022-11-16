@@ -3,7 +3,7 @@ import React from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import StaticFormElement from '../../viewmodel/StaticFormElement';
 import {PrimitiveValue} from 'avni-models';
-import {Actions} from '../../../action/individual/IndividualRegisterActions';
+import {Actions} from '../../../action/individual/PersonRegisterActions';
 import DateFormElement from './DateFormElement';
 
 class RegistrationDateFormElement extends AbstractComponent {
