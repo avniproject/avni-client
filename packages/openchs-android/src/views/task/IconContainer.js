@@ -1,13 +1,13 @@
 import React from 'react';
 import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
-import {Icon} from "native-base";
+import IconFactory from "../common/IconFactory";
 
 export const IconContainer = ({onPress, name, type}) => {
-
+    const Icon = IconFactory.getIcon(type);
     return (
         <TouchableNativeFeedback onPress={() => onPress()} background={TouchableNativeFeedback.SelectableBackground()}>
             <View style={styles.container}>
-                <Icon style={styles.iconStyle} name={name} type={type}/>
+                <Icon style={styles.iconStyle} name={name}/>
             </View>
         </TouchableNativeFeedback>
     )

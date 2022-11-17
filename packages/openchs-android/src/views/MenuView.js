@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -72,8 +72,8 @@ class MenuView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
         this.bindMenuActions();
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {
@@ -358,7 +358,7 @@ class MenuView extends AbstractComponent {
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
                 <CHSContent>
-                    <ScrollView>
+                    <SafeAreaView>
                         <SectionList
                             contentContainerStyle={{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
@@ -393,7 +393,7 @@ class MenuView extends AbstractComponent {
                                     }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
                             </View>
                         </View>
-                    </ScrollView>
+                    </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>

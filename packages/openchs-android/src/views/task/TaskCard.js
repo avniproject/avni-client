@@ -1,3 +1,4 @@
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
@@ -110,8 +111,7 @@ class TaskCard extends AbstractComponent {
                             onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
                                 this.onCallPress(phoneNumberObs.getReadableValue(), task)}
                         />
-                        <Icon
-                            style={styles.iconStyle}
+                        <IconContainer
                             name='clipboard-list'
                             type='FontAwesome5'
                             onPress={() => this.onChangeStatusPress(task)}/>
