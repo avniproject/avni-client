@@ -72,7 +72,7 @@ class MenuView extends AbstractComponent {
     }
 
     componentWillMount() {
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
         this.bindMenuActions();
     }
 
