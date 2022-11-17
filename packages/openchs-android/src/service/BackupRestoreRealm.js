@@ -131,10 +131,22 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
                             cb(97, "restoringDb");
                         })
-                        .then(() => this._deleteUserInfoAndIdAssignment())
-                        .then(() => this._deleteUserGroups())
-                        .then(() => this._deleteUserSubjectAssignments())
-                        .then(() => this._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes())
+                        .then(() => {
+                            this._deleteUserInfoAndIdAssignment();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user info and id assignment");
+                        })
+                        .then(() => {
+                            this._deleteUserGroups();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user groups");
+                        })
+                        .then(() => {
+                            this._deleteUserSubjectAssignments();
+                            General.logDebug("BackupRestoreRealmService", "Deleted user subject assignments");
+                        })
+                        .then(() => {
+                            this._deleteIndividualAndDependentForDirectlyAssignableSubjectTypes();
+                            General.logDebug("BackupRestoreRealmService", "Deleted individual and dependent forDirectlyAssignableSubjectTypes");
+                        })
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");

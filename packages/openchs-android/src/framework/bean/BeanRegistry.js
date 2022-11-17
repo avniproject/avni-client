@@ -1,8 +1,9 @@
 import Registry from '../Registry';
+import _ from 'lodash';
 
 class BeanRegistry extends Registry {
     init(db) {
-        console.log("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes`);
+        console.log("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes. ${_.isNil(this._beans)}`);
         this._beans = [];
         this._beansMap = Array.from(this._beanClasses).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
@@ -33,4 +34,4 @@ class BeanRegistry extends Registry {
     }
 }
 
-export default new BeanRegistry();
+export default BeanRegistry;

@@ -22,21 +22,18 @@ class SettingsService extends BaseService {
         this.db.write(() => {
             let settings = this.getSettings();
             console.log("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
-            if (_.isNil(settings) || EnvironmentConfig.isDevMode()) {
+            if (_.isNil(settings)) {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
                 settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
                 settings.pageSize = InitialSettings.pageSize;
                 settings.serverURL = Config.SERVER_URL;
-                if (!EnvironmentConfig.isDevModeWithExternalServer()) {
-                    settings.poolId = "";
-                    settings.clientId = Config.CLIENT_ID || "";
-                }
-                dbInScope.create('Settings', settings, true);
+                settings.poolId = "";
+                settings.clientId = Config.CLIENT_ID || "";
             }
 
-            if (Config.ENV === 'dev') {
+            if (EnvironmentConfig.isDevMode()) {
                 settings.logLevel = General.LogLevel.Debug;
                 settings.pageSize = InitialSettings.dev.pageSize;
                 settings.devSkipValidation = InitialSettings.dev.skipValidation;
@@ -46,11 +43,9 @@ class SettingsService extends BaseService {
                 settings.locale = this.findByKey('locale', InitialSettings.locale, LocaleMapping.schema.name);
                 dbInScope.create('Settings', settings, true);
             }
+            dbInScope.create('Settings', settings, true);
         });
         let level = this.getSettings().logLevel;
-        if (Config.ENV === 'ext-dev') {
-            level = InitialSettings.logLevel;
-        }
         console.log("SettingsService", "Log level", level);
         General.setCurrentLogLevel(level);
         General.logDebug("SettingsService", "General - Test log debug message");

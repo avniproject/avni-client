@@ -4,6 +4,7 @@ import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
+import GlobalContext from "../GlobalContext";
 
 const imageObservationDoesNotExist = (db) => (image) => {
     return db.objects(Observation.schema.name).filtered(
@@ -41,8 +42,9 @@ class PruneMedia extends BaseTask {
         try {
             General.logInfo("PruneMedia", "PruneMedia job started");
             this.initDependencies();
-            const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
-            const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
+            const globalContext = GlobalContext.getInstance();
+            const pruneImageDir = pruneMedia(globalContext.db, FileSystem.getImagesDir());
+            const pruneVideoDir = pruneMedia(globalContext.db, FileSystem.getVideosDir());
 
             return Promise.all(pruneImageDir, pruneVideoDir).catch((e) => {
                 ErrorHandler.postScheduledJobError(e);

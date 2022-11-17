@@ -27,6 +27,7 @@ class BaseService {
     }
 
     updateDatabase(db) {
+        General.logDebug("BaseService", `Updating db instance in service: ${this.constructor.name}. ${db === this.db}`);
         this.db = db;
     }
 

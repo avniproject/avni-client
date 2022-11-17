@@ -1,11 +1,11 @@
-import BeanRegistry from "../../framework/bean/BeanRegistry";
 import AddressLevelService from "../AddressLevelService";
+import GlobalContext from "../../GlobalContext";
 
 class AddressLevelServiceFacade {
     constructor() {}
 
     findAddressLevelByUUID(uuid) {
-        return BeanRegistry.getService(AddressLevelService)
+        return GlobalContext.getInstance().beanRegistry.getService(AddressLevelService)
             .findByUUID(uuid);
     }
 

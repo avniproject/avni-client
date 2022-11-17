@@ -5,15 +5,16 @@ import NetInfo from "@react-native-community/netinfo";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
 import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
+import GlobalContext from "../GlobalContext";
 
 class Sync extends BaseTask {
     async execute() {
         try {
             this.initDependencies();
             General.logInfo("Sync", "Starting SyncService");
-            this.assertBeansPresent();
             General.logInfo("Sync", "Getting SyncService");
-            let syncService = this.beans.getService(SyncService);
+            const globalContext = GlobalContext.getInstance();
+            const syncService = globalContext.beanRegistry.getService("syncService");
             General.logInfo("Sync", "Getting connection info");
             let connectionInfo;
             await NetInfo.fetch().then((state) => connectionInfo = state);
