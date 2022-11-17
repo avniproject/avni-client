@@ -15,10 +15,6 @@ class AttendanceFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     renderSubject({memberSubject}, subjectUUIDs, index) {
         const onPress = () => this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: memberSubject.uuid});
         return (

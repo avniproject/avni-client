@@ -66,9 +66,9 @@ class TaskFilterView extends AbstractComponent {
         taskType: PropTypes.object.isRequired
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
         this.dispatchAction(Actions.ON_LOAD, {taskType: this.props.taskType});
-        super.componentWillMount();
     }
 
     onApplyFilter() {

@@ -42,10 +42,6 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         return 'IndividualSearchResultPaginatedView';
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     componentDidMount() {
         if (this.props.indicatorActionName) {
             setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);

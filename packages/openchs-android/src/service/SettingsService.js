@@ -6,6 +6,7 @@ import General from "../utility/General";
 import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'openchs-models';
 import Config from '../framework/Config';
 import _ from 'lodash';
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
@@ -21,15 +22,17 @@ class SettingsService extends BaseService {
         this.db.write(() => {
             let settings = this.getSettings();
             console.log("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
-            if (_.isNil(settings) || Config.ENV === 'dev' || Config.ENV === 'ext-dev') {
+            if (_.isNil(settings) || EnvironmentConfig.isDevMode()) {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
                 settings.password = "";
                 settings.logLevel = InitialSettings.logLevel;
                 settings.pageSize = InitialSettings.pageSize;
                 settings.serverURL = Config.SERVER_URL;
-                settings.poolId = "";
-                settings.clientId = Config.CLIENT_ID || "";
+                if (!EnvironmentConfig.isDevModeWithExternalServer()) {
+                    settings.poolId = "";
+                    settings.clientId = Config.CLIENT_ID || "";
+                }
                 dbInScope.create('Settings', settings, true);
             }
 

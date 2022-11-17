@@ -76,10 +76,6 @@ class IndividualProfile extends AbstractComponent {
             (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
-    UNSAFE_componentWillMount() {
-        return super.UNSAFE_componentWillMount();
-    }
-
     componentDidMount() {
         const individual = this.props.individual;
         const programEnrolmentCallback = (program) => {

@@ -15,10 +15,6 @@ export default class CustomDashboardTab extends AbstractComponent {
         return "CustomDashboardTab";
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     render() {
         const {uuid, name} = this.props.dashboard;
         const isSelected = uuid === this.props.activeDashboardUUID;

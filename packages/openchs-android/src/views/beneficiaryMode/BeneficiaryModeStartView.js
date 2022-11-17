@@ -19,10 +19,6 @@ class BeneficiaryModeStartView extends AbstractComponent {
         return 'BeneficiaryModeView';
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     onPinEnter(pin) {
         this.getService(BeneficiaryModePinService).setPin(pin);
         CHSNavigator.navigateToBeneficiaryIdentificationPage(this);

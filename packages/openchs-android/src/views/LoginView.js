@@ -4,7 +4,6 @@ import AbstractComponent from '../framework/view/AbstractComponent';
 import Path from '../framework/routing/Path';
 import {
     Alert,
-    StatusBar,
     Text,
     TouchableNativeFeedback,
     View,
@@ -13,7 +12,6 @@ import {
 import TextFormElement from './form/formElement/TextFormElement';
 import StaticFormElement from './viewmodel/StaticFormElement';
 import {LoginActionsNames as Actions} from '../action/LoginActions';
-import Distances from './primitives/Distances';
 import {PrimitiveValue, ErrorCodes} from 'avni-models';
 import Reducers from '../reducer';
 import CHSNavigator from '../utility/CHSNavigator';
@@ -179,7 +177,7 @@ class LoginView extends AbstractComponent {
         const {width, height} = Dimensions.get('window');
         return (
             <CHSContainer>
-                <ScrollView>
+                <ScrollView keyboardShouldPersistTaps="handled">
                     <DBRestoreProgress/>
                     <CHSContent>
                         <View style={{
@@ -223,7 +221,7 @@ class LoginView extends AbstractComponent {
                                             }}>
                                                 <TouchableNativeFeedback
                                                     onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
-                                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
                                                         <CheckBox
                                                           accessible={true}
                                                           accessibilityLabel={"Show password"}
@@ -236,7 +234,7 @@ class LoginView extends AbstractComponent {
                                                 <TouchableNativeFeedback onPress={() => {
                                                     this.forgotPassword();
                                                 }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                    <View style={{paddingLeft: 10, paddingTop: 10}}>
+                                                    <View style={{paddingTop: 7}}>
                                                         <Text style={{
                                                             color: Styles.accentColor,
                                                             fontSize: 16
@@ -262,7 +260,8 @@ class LoginView extends AbstractComponent {
                                     }
                                     <TouchableNativeFeedback onPress={this.safeLogin}
                                                              background={TouchableNativeFeedback.SelectableBackground()}>
-                                        <View style={[Styles.basicPrimaryButtonView, {minWidth: 144, width: '100%', flex: 1}]}>
+                                        <View style={[Styles.basicPrimaryButtonView,
+                                            {minWidth: 144, width: '100%', flex: 1, flexDirection: "row", justifyContent: "center"}]}>
                                             <Text style={{
                                                 color: Styles.whiteColor,
                                                 fontSize: 16

@@ -14,10 +14,6 @@ export default class CustomDashboardCard extends AbstractComponent {
         return "CustomDashboardCard";
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     render() {
         const {reportCard, index, viewType, onCardPress, countResult, countUpdateTime } = this.props;
         return viewType === 'Tile' ?

@@ -12,12 +12,12 @@ import Reducers from "../../reducer";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFilterView from "./TaskFilterView";
 import FloatingButton from "../primitives/FloatingButton";
-import {Actions} from "../../action/task/TaskListActions";
+import {Actions, TaskListActions} from "../../action/task/TaskListActions";
 import {Actions as TaskFilterActions} from "../../action/task/TaskFilterActions";
 import TaskFilter from "../../model/TaskFilter";
 import Separator from "../primitives/Separator";
 import CHSContent from "../common/CHSContent";
-import {Badge, Button, Icon} from 'native-base';
+import {Badge, Button, Icon, IconButton, CloseIcon} from 'native-base';
 import Fonts from "../primitives/Fonts";
 import ZeroResults from "../common/ZeroResults";
 import {TaskType} from 'openchs-models';
@@ -38,11 +38,10 @@ const TaskFilterSummary = function ({taskFilter, I18n, onClearFilter}) {
             {taskFilter.taskCreatedDate && <FilterSummaryItem text={`${I18n.t("created")}: ${General.formatDate(taskFilter.taskCreatedDate)}`}/>}
             {taskFilter.taskCompletedDate && <FilterSummaryItem text={`${I18n.t("completedOn")}: ${General.formatDate(taskFilter.taskCompletedDate)}`}/>}
         </View>
-        <Button transparent onPress={() => onClearFilter()} style={{paddingBottom: 22, marginTop: 5, flex: 0.2}}>
-            <Icon style={{
-                color: Colors.SecondaryActionButtonColor,
-                fontSize: 30
-            }} name='clear' type='MaterialIcons'/></Button>
+        <IconButton transparent onPress={() => onClearFilter()} style={{paddingBottom: 22, marginTop: 10, flex: 0.10, marginRight: 10, height: 20}}>
+            <CloseIcon style={{
+                color: Colors.SecondaryActionButtonColor
+            }}/></IconButton>
     </View>;
 }
 
@@ -61,7 +60,7 @@ class TaskListView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.taskList);
-        this.state = {};
+        this.state = TaskListActions.getInitialState(context);
     }
 
     viewName() {
@@ -70,10 +69,10 @@ class TaskListView extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         setTimeout(() => {
+            super.UNSAFE_componentWillMount();
             this.dispatchAction(Actions.ON_LOAD, {filter: TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType)});
             this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
         }, 0);
-        super.UNSAFE_componentWillMount();
     }
 
     didFocus() {
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
         color: '#6C6C6C'
     },
     filterSummaryContainer: {
-        paddingTop: 10, flex: 1,
+        paddingTop: 10,
         flexDirection: "row",
         justifyContent: "space-between",
         backgroundColor: Colors.DarkPrimaryColor,

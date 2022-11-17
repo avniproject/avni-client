@@ -8,13 +8,8 @@ import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 
 class MultiSelectSubjectFormElement extends SubjectFormElement {
-
     constructor(props, context) {
         super(props, context);
-    }
-
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
     }
 
     render() {

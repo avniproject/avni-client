@@ -90,10 +90,10 @@ class AbstractComponent extends Component {
     }
 
     UNSAFE_componentWillMount() {
-            if (_.isNil(this.topLevelStateVariable)) return;
-            this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
-            this.refreshState();
-            logScreenEvent(this.viewName())
+        if (_.isNil(this.topLevelStateVariable)) return;
+        this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
+        this.refreshState();
+        logScreenEvent(this.viewName())
     }
 
     refreshState() {
@@ -107,8 +107,8 @@ class AbstractComponent extends Component {
 
     scrollToTop() {
         if (this.scrollRef.current) {
-            this.scrollRef.current?.scrollTo({ x: 0, y: 10, animated: true });
-            this.scrollRef.current?.scrollTo({ x: 0, y: 1, animated: true });
+            this.scrollRef.current?.scrollTo({x: 0, y: 10, animated: true});
+            this.scrollRef.current?.scrollTo({x: 0, y: 1, animated: true});
         }
     }
 

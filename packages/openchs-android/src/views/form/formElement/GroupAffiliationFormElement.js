@@ -26,10 +26,6 @@ class GroupAffiliationFormElement extends AbstractFormElement {
         this.individualService = context.getService(IndividualService);
     }
 
-    UNSAFE_componentWillMount() {
-        super.UNSAFE_componentWillMount();
-    }
-
     onPress(groupSubjectUUID) {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,

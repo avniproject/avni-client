@@ -71,7 +71,7 @@ class MenuView extends AbstractComponent {
             : <View/>
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         super.UNSAFE_componentWillMount();
         this.bindMenuActions();
     }
@@ -79,7 +79,7 @@ class MenuView extends AbstractComponent {
     componentDidMount() {
         const authService = this.context.getService(AuthService);
         authService.getAuthToken().then((authToken) => this.dispatchAction(MenuActionNames.ON_LOAD, {authToken}));
-}
+    }
 
     icon(name, style = {}) {
         return this.props.menuIcon(name, [MenuView.iconStyle, style]);
@@ -332,7 +332,7 @@ class MenuView extends AbstractComponent {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
             functionalityItems.push(this.renderNewsBadge(unreadNews));
         }
-        
+
         const dataGroup = [
             {
                 title: 'functionality', data: functionalityItems
