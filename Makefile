@@ -224,7 +224,6 @@ setup_env: ##
 	npm install -g jest-cli@20.0.1
 
 build_env: set_node_version ##
-	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
 	cd packages/openchs-android && npm install
 
@@ -239,7 +238,6 @@ build: build_env build_app
 
 
 build_env_ci: ##
-	npm install
 	export NODE_OPTIONS=--max_old_space_size=2048
 	cd packages/openchs-android && npm install
 
