@@ -186,7 +186,7 @@ export default class BackupRestoreRealmService extends BaseService {
         const db = this.db;
         const syncStatuses = db.objects(EntitySyncStatus.schema.name)
             .filtered(`entityName = '${schemaName}'`)
-            .map(u => _.assign({}, u));
+            .map(_.identity);
         this.db.write(() => {
             db.delete(db.objects(schemaName));
             syncStatuses.forEach(({uuid, entityName, entityTypeUuid}) => {
