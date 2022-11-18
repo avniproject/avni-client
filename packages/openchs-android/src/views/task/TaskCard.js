@@ -1,28 +1,37 @@
 import React from 'react';
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import Reducers from "../../reducer";
-import {TaskActionNames as Actions} from "../../action/task/TaskActions";
-import _ from "lodash";
-import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
-import Styles from "../primitives/Styles";
-import {Icon} from "native-base";
-import PropTypes from "prop-types";
-import TaskStatusPicker from "./TaskStatusPicker";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
-import IndividualService from "../../service/IndividualService";
-import {IconContainer} from "./IconContainer";
-import PhoneCall from "../../model/PhoneCall";
-import CustomActivityIndicator from "../CustomActivityIndicator";
-import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import Reducers from '../../reducer';
+import {TaskActionNames as Actions} from '../../action/task/TaskActions';
+import _ from 'lodash';
+import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import Styles from '../primitives/Styles';
+import {Icon} from 'native-base';
+import PropTypes from 'prop-types';
+import TaskStatusPicker from './TaskStatusPicker';
+import TypedTransition from '../../framework/routing/TypedTransition';
+import CHSNavigator from '../../utility/CHSNavigator';
+import IndividualSearchResultPaginatedView from '../individual/IndividualSearchResultPaginatedView';
+import IndividualService from '../../service/IndividualService';
+import {IconContainer} from './IconContainer';
+import PhoneCall from '../../model/PhoneCall';
+import CustomActivityIndicator from '../CustomActivityIndicator';
+import SubjectRegisterFromTaskView from '../individual/SubjectRegisterFromTaskView';
+import General from '../../utility/General';
 
 const CardSecondRow = function ({task, I18n}) {
-    return <View style={styles.cardSecondRowContainer}>
-        <Text style={styles.textStyle}>{I18n.t(task.taskStatus.name)}</Text>
-        <Text style={[styles.textStyle, {marginLeft: 15}]}>{task.getNonMobileNumberMetadataObservationValues().join(",")}</Text>
-    </View>
-}
+    return (
+        <View >
+            <View style={styles.cardSecondRowContainer}>
+                <Text style={styles.subTextStyle}>{I18n.t(task.taskStatus.name)}</Text>
+            </View>
+            <View style={styles.cardSecondRowContainer}>
+                <Text style={styles.subTextStyle}>{General.formatDate(task.scheduledOn)}</Text>
+            </View>
+            <View style={styles.cardSecondRowContainer}>
+                <Text style={[styles.subTextStyle]}>{task.getNonMobileNumberMetadataObservationValues().join(', ')}</Text>
+            </View>
+        </View>);
+};
 
 class TaskCard extends AbstractComponent {
     static propTypes = {
@@ -47,7 +56,7 @@ class TaskCard extends AbstractComponent {
     }
 
     goToSubjectDashboard(source, subject) {
-        return CHSNavigator.navigateToProgramEnrolmentDashboardView(source, subject.uuid)
+        return CHSNavigator.navigateToProgramEnrolmentDashboardView(source, subject.uuid);
     }
 
     async onReschedulePress(task) {
@@ -76,7 +85,7 @@ class TaskCard extends AbstractComponent {
                     </View>
                 </View>
             </TouchableNativeFeedback>
-        ) : null
+        ) : null;
     }
 
     renderCallType(task) {
@@ -90,31 +99,31 @@ class TaskCard extends AbstractComponent {
                     </View>
                     <View style={styles.iconContainer}>
                         <IconContainer
-                            name='account-plus'
+                            name="account-plus"
                             type={'MaterialCommunityIcons'}
                             onPress={() => TypedTransition.from(this).with({taskUuid: task.uuid}).to(SubjectRegisterFromTaskView, true)}
                         />
                         <IconContainer
-                            name='call'
+                            name="call"
                             type={'MaterialIcons'}
                             onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
                                 this.onCallPress(phoneNumberObs.getReadableValue(), task)}
                         />
                         <Icon
                             style={styles.iconStyle}
-                            name='clipboard-list'
-                            type='FontAwesome5'
+                            name="clipboard-list"
+                            type="FontAwesome5"
                             onPress={() => this.onChangeStatusPress(task)}/>
                         <IconContainer
                             onPress={() => this.onReschedulePress(task)}
-                            name='back-in-time'
-                            type='Entypo'
+                            name="back-in-time"
+                            type="Entypo"
                         />
                     </View>
                 </View>
                 <CardSecondRow task={task} I18n={this.I18n}/>
             </View>
-        )
+        );
     }
 
     renderOpenSubjectType(task) {
@@ -127,20 +136,20 @@ class TaskCard extends AbstractComponent {
                     <View style={styles.iconContainer}>
                         <Icon
                             style={styles.iconStyle}
-                            name='clipboard-list'
-                            type='FontAwesome5'
+                            name="clipboard-list"
+                            type="FontAwesome5"
                             onPress={() => this.onChangeStatusPress(task)}
                         />
                         <IconContainer
-                            name='back-in-time'
-                            type='Entypo'
+                            name="back-in-time"
+                            type="Entypo"
                             onPress={() => this.onReschedulePress(task)}
                         />
                     </View>
                 </View>
                 <CardSecondRow task={task} I18n={this.I18n}/>
             </View>
-        )
+        );
     }
 
     render() {
@@ -152,7 +161,7 @@ class TaskCard extends AbstractComponent {
                 {this.renderSubjectDetails(task)}
                 {this.state.displayTaskStatusSelector && <TaskStatusPicker task={task}/>}
             </View>
-        )
+        );
     }
 }
 
@@ -189,6 +198,13 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
         fontFamily: 'Inter',
         color: '#070707',
+        lineHeight: 16
+    },
+    subTextStyle: {
+        fontSize: Styles.smallTextSize,
+        fontStyle: 'normal',
+        fontFamily: 'Inter',
+        color: '#07070799',
         lineHeight: 16
     },
     iconStyle: {
