@@ -41,9 +41,9 @@ class TaskFilterActions {
         return TaskFilterState.toggleTaskStatus(newState, action);
     }
 
-    static onTaskCreatedDateChange(state, action, context) {
+    static onTaskScheduledDateChange(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        newState.taskCreatedDate = action.value;
+        newState.taskScheduledDate = action.value;
         return newState;
     }
 
@@ -77,7 +77,7 @@ const TaskFilterActionNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_TASK_TYPE_CHANGE: `${ActionPrefix}.ON_TASK_TYPE_CHANGE`,
     ON_TASK_STATUS_CHANGE: `${ActionPrefix}.ON_TASK_STATUS_CHANGE`,
-    ON_TASK_CREATED_DATE_CHANGE: `${ActionPrefix}.ON_TASK_CREATED_DATE_CHANGE`,
+    ON_TASK_SCHEDULED_DATE_CHANGE: `${ActionPrefix}.ON_TASK_SCHEDULED_DATE_CHANGE`,
     ON_TASK_COMPLETED_DATE_CHANGE: `${ActionPrefix}.ON_TASK_COMPLETED_DATE_CHANGE`,
     ON_METADATA_VALUE_CHANGE: `${ActionPrefix}.ON_METADATA_VALUE_CHANGE`,
     ON_METADATA_CODED_VALUE_CHANGE: `${ActionPrefix}.ON_METADATA_CODED_VALUE_CHANGE`,
@@ -88,7 +88,7 @@ const TaskFilterActionMap = new Map([
     [TaskFilterActionNames.ON_LOAD, TaskFilterActions.onLoad],
     [TaskFilterActionNames.ON_TASK_TYPE_CHANGE, TaskFilterActions.onTaskTypeChange],
     [TaskFilterActionNames.ON_TASK_STATUS_CHANGE, TaskFilterActions.onTaskStatusChange],
-    [TaskFilterActionNames.ON_TASK_CREATED_DATE_CHANGE, TaskFilterActions.onTaskCreatedDateChange],
+    [TaskFilterActionNames.ON_TASK_SCHEDULED_DATE_CHANGE, TaskFilterActions.onTaskScheduledDateChange],
     [TaskFilterActionNames.ON_TASK_COMPLETED_DATE_CHANGE, TaskFilterActions.onTaskCompletedDateChange],
     [TaskFilterActionNames.ON_METADATA_VALUE_CHANGE, TaskFilterActions.onMetadataValueChange],
     [TaskFilterActionNames.ON_METADATA_CODED_VALUE_CHANGE, TaskFilterActions.onMetadataCodedValueChange],

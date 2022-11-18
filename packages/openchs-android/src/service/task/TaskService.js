@@ -29,8 +29,8 @@ class TaskService extends BaseService {
         if (taskFilter.taskStatuses.length > 0)
             tasks = tasks.filtered(BaseService.orFilterCriteria(taskFilter.taskStatuses, "taskStatus.uuid"));
 
-        if (!_.isNil(taskFilter.taskCreatedDate))
-            tasks = tasks.filtered("scheduledOn = $0", taskFilter.taskCreatedDate);
+        if (!_.isNil(taskFilter.taskScheduledDate))
+            tasks = tasks.filtered("scheduledOn = $0", taskFilter.taskScheduledDate);
         if (!_.isNil(taskFilter.taskCompletedDate))
             tasks = tasks.filtered("completedOn = $0", taskFilter.taskCompletedDate);
 

@@ -35,7 +35,7 @@ const TaskFilterSummary = function ({taskFilter, I18n, onClearFilter}) {
             {taskFilter.taskType && <FilterSummaryItem text={I18n.t(taskFilter.taskType.name)}/>}
             <FilterSummaryItem text={taskFilter.taskStatuses.map((x) => I18n.t(x.name)).join(",")}/>
             <FilterSummaryItem text={I18n.t(TaskFilter.getTaskMetadataDisplayValues(taskFilter, I18n))}/>
-            {taskFilter.taskCreatedDate && <FilterSummaryItem text={`${I18n.t("created")}: ${General.formatDate(taskFilter.taskCreatedDate)}`}/>}
+            {taskFilter.taskScheduledDate && <FilterSummaryItem text={`${I18n.t("scheduled")}: ${General.formatDate(taskFilter.taskScheduledDate)}`}/>}
             {taskFilter.taskCompletedDate && <FilterSummaryItem text={`${I18n.t("completedOn")}: ${General.formatDate(taskFilter.taskCompletedDate)}`}/>}
         </View>
         <Button transparent onPress={() => onClearFilter()} style={{paddingBottom: 22, marginTop: 5, flex: 0.2}}>

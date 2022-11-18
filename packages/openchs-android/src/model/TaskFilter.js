@@ -5,7 +5,7 @@ class TaskFilter {
     taskType;
     taskStatuses;
     taskMetadataValues;
-    taskCreatedDate;
+    taskScheduledDate;
     taskCompletedDate;
 
     static createEmpty() {
@@ -26,7 +26,7 @@ class TaskFilter {
         taskFilter.taskType = taskFilterState.selectedTaskType;
         taskFilter.taskStatuses = taskFilterState.selectedTaskStatuses;
         taskFilter.taskMetadataValues = taskFilterState.taskMetadataValues;
-        taskFilter.taskCreatedDate = taskFilterState.taskCreatedDate;
+        taskFilter.taskScheduledDate = taskFilterState.taskScheduledDate;
         taskFilter.taskCompletedDate = taskFilterState.taskCompletedDate;
         return taskFilter;
     }

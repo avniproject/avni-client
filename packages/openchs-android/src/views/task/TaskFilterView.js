@@ -81,7 +81,7 @@ class TaskFilterView extends AbstractComponent {
         General.logDebug("TaskFilterView", "render");
         const {
             allTaskTypes, selectedTaskType, allTaskStatuses, selectedTaskStatuses, datePickerMode,
-            taskMetadataFields, taskCreatedDate, taskCompletedDate, taskMetadataValues
+            taskMetadataFields, taskScheduledDate, taskCompletedDate, taskMetadataValues
         } = this.state;
 
         const taskTypeLVPairs = allTaskTypes.map((x) => new RadioLabelValue(x.name, x, false));
@@ -107,12 +107,12 @@ class TaskFilterView extends AbstractComponent {
                                 mandatory={false}/>
                     <View style={{flexDirection: "row", marginTop: 20}}>
                         <View>
-                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("created")}</Text>
-                            <DatePicker dateValue={taskCreatedDate}
+                            <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("scheduled")}</Text>
+                            <DatePicker dateValue={taskScheduledDate}
                                         datePickerMode={datePickerMode}
                                         actionObject={{}}
                                         pickTime={false}
-                                        actionName={Actions.ON_TASK_CREATED_DATE_CHANGE}/>
+                                        actionName={Actions.ON_TASK_SCHEDULED_DATE_CHANGE}/>
                         </View>
                         <View style={{marginLeft: 50}}>
                             <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("completedOn")}</Text>

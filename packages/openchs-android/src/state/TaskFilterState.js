@@ -18,7 +18,7 @@ class TaskFilterState {
     selectedTaskType;
     allTaskStatuses;
     selectedTaskStatuses;
-    taskCreatedDate;
+    taskScheduledDate;
     taskCompletedDate;
     taskMetadataFields;
     taskMetadataValues;
@@ -29,7 +29,7 @@ class TaskFilterState {
             selectedTaskType: other.selectedTaskType,
             allTaskStatuses: [...other.allTaskStatuses],
             selectedTaskStatuses: [...other.selectedTaskStatuses],
-            taskCreatedDate: other.taskCreatedDate,
+            taskScheduledDate: other.taskScheduledDate,
             taskCompletedDate: other.taskCompletedDate,
             taskMetadataFields: [...other.taskMetadataFields],
             taskMetadataValues: Object.assign({}, other.taskMetadataValues)
@@ -53,7 +53,7 @@ class TaskFilterState {
             selectedTaskType: null,
             allTaskStatuses: [],
             selectedTaskStatuses: [],
-            taskCreatedDate: null,
+            taskScheduledDate: null,
             taskCompletedDate: null,
             taskMetadataFields: [],
             taskMetadataValues: {}
