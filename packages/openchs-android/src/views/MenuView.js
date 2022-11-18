@@ -64,7 +64,7 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(['logout', 'Delete Data', 'backup', 'feedback'].includes(titleKey)) ? <View/> :
+                    {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
                 </View>
             </TouchableNativeFeedback>)
@@ -214,11 +214,6 @@ class MenuView extends AbstractComponent {
             TouchableNativeFeedback.SelectableBackground();
     }
 
-    onFeedback() {
-        const url = 'https://docs.google.com/forms/d/e/1FAIpQLSdevhSf89u0rW_xJUazsT-ImyWIiNz-XNmElR17XCAiUrlRtg/viewform';
-        Linking.openURL(url);
-    }
-
     renderNewsBadge(unreadCount) {
         const newsText = <Text
             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{this.I18n.t('news')}</Text>;
@@ -292,7 +287,6 @@ class MenuView extends AbstractComponent {
         map.set("uploadDatabase", () => this.uploadDatabase());
         map.set("changePassword", () => this.changePasswordView());
         map.set("logout", () => this.logout());
-        map.set("feedback", () => this.onFeedback());
         map.set("deleteData", () => this.onDelete());
         this.menuActions = map;
     }
@@ -332,7 +326,7 @@ class MenuView extends AbstractComponent {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
             functionalityItems.push(this.renderNewsBadge(unreadNews));
         }
-        
+
         const dataGroup = [
             {
                 title: 'functionality', data: functionalityItems

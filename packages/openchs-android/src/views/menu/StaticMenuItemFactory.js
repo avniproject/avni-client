@@ -20,7 +20,6 @@ const UserMenus = [
     new StaticMenuItem("logout", "logout", "logout", StaticMenuItem.CustomActionMenuType)
 ];
 const SupportMenus = [
-    new StaticMenuItem("feedback", "comment-text-outline", "feedback", StaticMenuItem.CustomActionMenuType),
     new StaticMenuItem("uploadDatabase", "backup-restore", "uploadDatabase", StaticMenuItem.CustomActionMenuType)
 ];
 const DevMenus = [
