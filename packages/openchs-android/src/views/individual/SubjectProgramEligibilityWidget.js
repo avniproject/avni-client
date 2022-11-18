@@ -38,12 +38,16 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         let subjectProgramEligibilityStatuses = [];
         try {
             subjectProgramEligibilityStatuses = await this.getService(RuleEvaluationService).getSubjectProgramEligibilityStatuses(this.props.subject, programs, authToken);
-
         }
         catch(e) {
             AlertMessage(this.I18n.t("eligibilityFailedTitle"), this.I18n.t(e.message));
         }
         await this.props.onSubjectProgramEligibilityPress(subjectProgramEligibilityStatuses)
+    }
+
+    isSubjectProgramEligibilityStatusAvailable() {
+        return _.find(this.props.subjectProgramEligibilityStatuses[0].data,
+            (statusData) => statusData.subjectProgramEligibility != null)
     }
 
     renderHeader() {
@@ -76,6 +80,8 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
     }
 
     renderItem({program, subjectProgramEligibility, isEnrolmentEligible}) {
+        if(_.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
+
         const eligibilityStatus = _.get(subjectProgramEligibility, 'eligibilityString', 'unavailable');
         return (
             <View style={styles.itemContainer}>
@@ -100,6 +106,8 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
     }
 
     renderSection(subject) {
+        if(_.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
+
         return (
             <Fragment>
                 <Separator backgroundColor={Colors.InputBorderNormal}/>
