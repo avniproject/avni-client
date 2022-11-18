@@ -7,13 +7,9 @@
     "url": "https://github.com/OpenCHS/openchs-client.git"
   },
   "scripts": {
-    "link": "lerna link",
-    "bootstrap": "lerna bootstrap",
-    "bootstrap-ci": "lerna bootstrap --concurrency=2"
   },
   "license": "AGPL-3.0",
   "devDependencies": {
-    "lerna": "2.1.1",
     "prettier": "1.15.3"
   },
   "dependencies": {

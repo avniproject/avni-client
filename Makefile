@@ -18,6 +18,7 @@ include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 include makefiles/common.mk
 include makefiles/patches.mk
+include makefiles/util.mk
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -201,6 +202,9 @@ clean_packager_cache:
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
 
+remove_package_locks:
+	rm package-lock.json packages/openchs-android/package-lock.json
+
 clean_env:  ##
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-org/node_modules
@@ -215,10 +219,8 @@ setup_env: ##
 	npm install -g jest-cli@20.0.1
 
 build_env: ##
-	npm i -g react-native-cli
-	npm install
 	export NODE_OPTIONS=--max_old_space_size=4096
-	npm run bootstrap
+	cd packages/openchs-android && npm install
 
 build: build_env
 	cd packages/openchs-android/android && ./gradlew assembleDebug
@@ -226,9 +228,8 @@ build: build_env
 
 
 build_env_ci: ##
-	npm install
 	export NODE_OPTIONS=--max_old_space_size=2048
-	npm run bootstrap-ci
+	cd packages/openchs-android && npm install
 
 # <packager>
 run_packager: ##
