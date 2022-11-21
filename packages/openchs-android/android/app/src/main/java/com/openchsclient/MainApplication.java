@@ -8,8 +8,6 @@ import com.facebook.react.ReactApplication;
 import com.ocetnik.timer.BackgroundTimerPackage;
 import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 import com.corbt.keepawake.KCKeepAwakePackage;
-import com.dooboolab.RNAudioRecorderPlayerPackage;
-import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
