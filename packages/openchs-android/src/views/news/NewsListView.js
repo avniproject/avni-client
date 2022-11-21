@@ -21,9 +21,9 @@ class NewsListView extends AbstractComponent {
         return 'NewsListView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

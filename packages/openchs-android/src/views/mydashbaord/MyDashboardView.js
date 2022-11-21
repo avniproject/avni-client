@@ -1,5 +1,6 @@
 import React from "react";
-import {ListView, Text, TouchableNativeFeedback, View, ScrollView} from 'react-native';
+import {Text, TouchableNativeFeedback, View, ScrollView} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -34,8 +35,8 @@ class MyDashboardView extends AbstractComponent {
         return "MyDashboard";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {
@@ -133,7 +134,8 @@ class MyDashboardView extends AbstractComponent {
                     <CustomActivityIndicator
                         loading={this.state.loading}/>
                     <ScrollView>
-                        <ListView style={{marginBottom: 190}}
+                        <ListView enableEmptySections={true}
+                                style={{marginBottom: 190}}
                                   dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}

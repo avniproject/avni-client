@@ -13,9 +13,9 @@ class GenderFilter extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.genderFilterActions);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     _invokeCallbacks() {

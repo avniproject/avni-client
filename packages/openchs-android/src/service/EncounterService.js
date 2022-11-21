@@ -25,7 +25,7 @@ class EncounterService extends BaseService {
     }
 
     isEncounterTypeCancellable(encounter) {
-        if (!_.isNil(encounter['programEnrolment']) || !_.isNil(encounter['individual'])) {
+        if (!_.isNil(encounter.programEnrolment) || !_.isNil(encounter.individual)) {
             let formMappingService = this.getService(FormMappingService);
             const program = encounter.programEnrolment && encounter.programEnrolment.program || null;
             let form = formMappingService.findFormForCancellingEncounterType(

@@ -28,8 +28,8 @@ class VideoListView extends AbstractComponent {
         return 'VideoListView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

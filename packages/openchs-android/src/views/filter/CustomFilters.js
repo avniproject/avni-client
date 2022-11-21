@@ -32,9 +32,9 @@ class CustomFilters extends AbstractComponent {
         this.individualService = context.getService(IndividualService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(CustomFilterNames.ON_LOAD, {props: this.props});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     wrap(x, idx) {

@@ -34,9 +34,9 @@ class IndividualAddRelativeView extends AbstractComponent {
         return 'IndividualAddRelativeView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     previous() {

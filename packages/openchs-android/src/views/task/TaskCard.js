@@ -1,22 +1,24 @@
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import React from 'react';
-import AbstractComponent from '../../framework/view/AbstractComponent';
-import Reducers from '../../reducer';
-import {TaskActionNames as Actions} from '../../action/task/TaskActions';
-import _ from 'lodash';
-import {DatePickerAndroid, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
-import Styles from '../primitives/Styles';
-import {Icon} from 'native-base';
-import PropTypes from 'prop-types';
-import TaskStatusPicker from './TaskStatusPicker';
-import TypedTransition from '../../framework/routing/TypedTransition';
-import CHSNavigator from '../../utility/CHSNavigator';
-import IndividualSearchResultPaginatedView from '../individual/IndividualSearchResultPaginatedView';
-import IndividualService from '../../service/IndividualService';
-import {IconContainer} from './IconContainer';
-import PhoneCall from '../../model/PhoneCall';
-import CustomActivityIndicator from '../CustomActivityIndicator';
-import SubjectRegisterFromTaskView from '../individual/SubjectRegisterFromTaskView';
-import General from '../../utility/General';
+import AbstractComponent from "../../framework/view/AbstractComponent";
+import Reducers from "../../reducer";
+import {TaskActionNames as Actions} from "../../action/task/TaskActions";
+import _ from "lodash";
+import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import Styles from "../primitives/Styles";
+import {Icon} from "native-base";
+import PropTypes from "prop-types";
+import TaskStatusPicker from "./TaskStatusPicker";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import CHSNavigator from "../../utility/CHSNavigator";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
+import IndividualService from "../../service/IndividualService";
+import {IconContainer} from "./IconContainer";
+import PhoneCall from "../../model/PhoneCall";
+import CustomActivityIndicator from "../CustomActivityIndicator";
+import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
+import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
+import AvniIcon from "../common/AvniIcon";
 
 const CardSecondRow = function ({task, I18n}) {
     return (
@@ -60,9 +62,18 @@ class TaskCard extends AbstractComponent {
     }
 
     async onReschedulePress(task) {
-        const {action, year, month, day} = await DatePickerAndroid.open({date: task.scheduledOn, mode: 'calendar'});
-        if (action !== DatePickerAndroid.dismissedAction) {
-            const date = new Date(year, month, day);
+        const dateOptions = {
+            mode: 'date', //To only enable date selection
+            display: 'calendar', //Type of DatePicker
+            is24Hour: true,
+            onChange: (event, date) => this.onDateChange(event, date, task),
+            value: task.scheduledOn
+        };
+        DateTimePickerAndroid.open(dateOptions);
+    }
+
+    onDateChange(event, date, task) {
+        if (event.type !== "dismissed") {
             this.dispatchAction(Actions.ON_RE_SCHEDULED, {task, date});
         }
     }
@@ -109,7 +120,7 @@ class TaskCard extends AbstractComponent {
                             onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
                                 this.onCallPress(phoneNumberObs.getReadableValue(), task)}
                         />
-                        <Icon
+                        <AvniIcon
                             style={styles.iconStyle}
                             name="clipboard-list"
                             type="FontAwesome5"

@@ -13,10 +13,6 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
         super(props, context);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
-    }
-
     render() {
         const subject = _.get(this.props.value, 'answer') ? this.individualService.findByUUID(this.props.value.answer) : null;
         const subjectOptions = this.getSubjectOptions();

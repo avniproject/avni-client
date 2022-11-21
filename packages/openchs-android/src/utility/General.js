@@ -86,6 +86,10 @@ class General {
         return moment(time).format("LT");
     }
 
+    static toDisplayDateAsTime(date) {
+        return moment(date).format("HH:mm")
+    }
+
     static toTimeObject(isoFormatTime) {
         const timeArray = _.split(isoFormatTime, ':');
         return {hour: _.toInteger(timeArray[0]), minute: _.toInteger(timeArray[1])};
@@ -154,17 +158,6 @@ class General {
         }
 
         return dest;
-    }
-
-    static pick(from, attributes, listAttributes) {
-        const picked = _.pick(from, attributes);
-        if (!_.isNil(listAttributes)) {
-            listAttributes.forEach((listAttribute) => {
-                picked[listAttribute] = [];
-                from[listAttribute].forEach((item) => picked[listAttribute].push(item));
-            });
-        }
-        return picked;
     }
 
     //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript

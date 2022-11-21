@@ -1,4 +1,4 @@
-import {SyncTelemetry, Individual, ProgramEnrolment, ProgramEncounter, Encounter} from 'avni-models';
+import {Encounter, EntityMetaData, Individual, ProgramEncounter, ProgramEnrolment, SyncTelemetry} from 'openchs-models';
 import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
@@ -6,7 +6,7 @@ import moment from "moment";
 
 class SyncTelemetryActions {
     static getInitialState() {
-        const syncTelemetry = SyncTelemetry.newInstance();
+        const syncTelemetry = SyncTelemetry.newInstance(EntityMetaData.model());
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
@@ -14,7 +14,7 @@ class SyncTelemetryActions {
         return {syncTelemetry};
     }
 
-    static onSyncStart(state, action) {
+    static onSyncStart(state, action, context) {
         const newState = SyncTelemetryActions.getInitialState();
         const syncTelemetry = newState.syncTelemetry;
         const deviceInfo = SyncTelemetryActions.getDeviceInfo();
@@ -22,7 +22,6 @@ class SyncTelemetryActions {
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
-        syncTelemetry.syncSource = action.syncSource;
         return newState;
     }
 

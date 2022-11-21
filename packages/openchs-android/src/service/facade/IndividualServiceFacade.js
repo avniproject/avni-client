@@ -1,11 +1,11 @@
 import IndividualService from "../IndividualService";
-import BeanRegistry from "../../framework/bean/BeanRegistry";
+import GlobalContext from "../../GlobalContext";
 
 class IndividualServiceFacade {
     constructor() {}
 
     getSubjectsInLocation(addressLevel, subjectTypeName) {
-        return BeanRegistry.getService(IndividualService)
+        return GlobalContext.getInstance().beanRegistry.getService(IndividualService)
             .getSubjectsInLocation(addressLevel, subjectTypeName);
     }
 }

@@ -2,8 +2,8 @@ import {assert} from "chai";
 import IndividualService from "../../../src/service/IndividualService";
 import TestContext from '../views/testframework/TestContext'
 
-import Realm from 'realm';
-import {Schema, Individual, Gender} from 'avni-models';
+// import Realm from 'realm';
+import {EntityMappingConfig, Individual, Gender} from 'openchs-models';
 import EntityFactory from "../../EntityFactory";
 import IndividualSearchCriteria from "../../../src/service/query/IndividualSearchCriteria";
 import General from '../../../src/utility/General';
@@ -12,11 +12,11 @@ import General from '../../../src/utility/General';
 // The transpiled version of avni-models uses classes. This is probably the right approach,
 // since classes have been present for a while. However, Realm still uses the old style.
 // This might have gone away with the newer release of Realm. No time to look at this right now.
-xdescribe('IndividualServiceTest', () => {
+describe('IndividualServiceTest', () => {
     let individualService;
 
     beforeEach(() => {
-        const realmConfig = Schema;
+        const realmConfig = EntityMappingConfig.getInstance().getRealmConfig();
         realmConfig.inMemory = true;
         individualService = new IndividualService(new Realm(realmConfig), new TestContext());
     });

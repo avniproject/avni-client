@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {ScrollView, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -27,6 +27,7 @@ class FamilyRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.familyRegister);
+        this.scrollRef = React.createRef();
     }
 
     previous() {
@@ -47,6 +48,7 @@ class FamilyRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column'}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.family.observations)}
@@ -61,6 +63,7 @@ class FamilyRegisterFormView extends AbstractComponent {
                                            label: this.I18n.t('next')
                                        }}/>
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

@@ -35,7 +35,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        let validationResult = action.formElement.validate(action.value);
+        let validationResult = action.formElement.validate(value);
         if (action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }

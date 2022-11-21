@@ -29,9 +29,9 @@ class ProgramEnrolmentsView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.programEnrolments);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {programUUID: this.props.params.programUUID});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     static displayItemsForProgramEnrolment(programEnrolment) {

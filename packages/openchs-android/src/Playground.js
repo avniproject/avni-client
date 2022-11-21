@@ -1,73 +1,28 @@
-import PropTypes from 'prop-types';
 import React, {Component} from 'react';
-import BeanRegistry from './framework/bean/BeanRegistry';
-import Realm from 'realm';
-import {Schema, EntityMetaData} from 'avni-models';
-import './views';
-import EntitySyncStatusService from "./service/EntitySyncStatusService";
-import themes from "./views/primitives/themes";
-import CHSContainer from "./views/common/CHSContainer";
-import CHSContent from "./views/common/CHSContent";
 import {Text} from "react-native";
-import {createStore} from "redux";
+import RealmFactory from "./framework/db/RealmFactory";
+import {Individual} from 'openchs-models';
+import _ from 'lodash';
 
-let beans, mockStore, db = undefined;
+const db = RealmFactory.createRealm();
 
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
-        if (db === undefined) {
-            db = new Realm(Schema);
-            beans = BeanRegistry.init(db);
-            mockStore = createStore((state, action) => this.mockReducer(state, action), {});
-            const entitySyncStatusService = beans.get(EntitySyncStatusService);
-            entitySyncStatusService.setup(EntityMetaData.model());
-        }
-        this.getBean = this.getBean.bind(this);
     }
 
-    //This mock reducer can be used to perform any specific state changes you need to test out a component
-    mockReducer(state, action) {
-        switch (action.type) {
-            case 'AN_ACTION_NAME': {
-                this.setState({value: action.value});
-            }
-        }
-    }
-
-    static childContextTypes = {
-        getService: PropTypes.func.isRequired,
-        getDB: PropTypes.func.isRequired,
-        getStore: PropTypes.func.isRequired,
-        navigator: PropTypes.func.isRequired,
-    };
-
-    handleError(error, stacktrace) {
-        this.setState({error, stacktrace});
-    }
-
-    //Note that the store and navigator are mocked in this implementation
-    getChildContext = () => ({
-        getDB: () => db,
-        getService: (serviceName) => {
-            return beans.get(serviceName)
-        },
-        getStore: () => mockStore,
-        navigator: () => null
-    });
-
-    getBean(name) {
-        return beans.get(name);
+    test() {
+        const encounters = db.objects("Encounter").filtered("uuid = $0", "0d84bf5d-29c7-4ada-b957-6992064033e1").map(_.identity);
+        console.log("Playground-1", encounters[0].observations);
     }
 
     render() {
-        return (<CHSContainer>
-            <CHSContent>
-                <Text>
-                    This is your playground to try out new components.
-                    You can go to the default app by adding playground=false in your .env file.
-                </Text>
-            </CHSContent>
-        </CHSContainer>)
+        this.test();
+        return (
+            <Text>
+                This is your playground to try out new components.
+                You can go to the default app by adding PLAYGROUND=false in your .env file.
+            </Text>
+        );
     }
 }

@@ -1,4 +1,4 @@
-import {ToastAndroid, Vibration, View} from "react-native";
+import {ToastAndroid, Vibration, View, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -44,6 +44,7 @@ class PersonRegisterView extends AbstractComponent {
         let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
         const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
         this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -64,7 +65,7 @@ class PersonRegisterView extends AbstractComponent {
         return this.getTitleForGroupSubject() || regName + ' ' || 'REG_DISPLAY-Individual';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD,
             {
@@ -75,7 +76,7 @@ class PersonRegisterView extends AbstractComponent {
                 pageNumber: params.pageNumber,
                 taskUuid: params.taskUuid
             });
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -106,11 +107,11 @@ class PersonRegisterView extends AbstractComponent {
         {this.displayMessage(this.props.params.message)}
         return (
             <CHSContainer>
-                <CHSContent ref='scroll'>
+                <CHSContent>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
-                    <View style={{
+                    <ScrollView ref={this.scrollRef} style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge
@@ -121,7 +122,9 @@ class PersonRegisterView extends AbstractComponent {
                             location={this.state.individual.registrationLocation}
                             editing={editing}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
-                        <RegistrationDateFormElement state={this.state}/>
+                        <RegistrationDateFormElement date={this.state.individual.registrationDate}
+                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}
+                        />
                         <IndividualNameFormElement state={this.state}/>
                         <SingleSelectMediaFormElement
                             element={{...profilePicFormElement}}
@@ -143,7 +146,7 @@ class PersonRegisterView extends AbstractComponent {
                         />
                         <WizardButtons
                             next={{func: () => PersonRegisterViewsMixin.next(this), label: this.I18n.t('next')}}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

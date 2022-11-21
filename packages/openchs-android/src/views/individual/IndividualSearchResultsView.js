@@ -1,5 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {ListView, Text, TouchableNativeFeedback, View} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from "react";
 import Path from "../../framework/routing/Path";
@@ -12,12 +13,14 @@ import Styles from "../primitives/Styles";
 import SearchResultsHeader from "./SearchResultsHeader";
 import IndividualDetailsCard from "../common/IndividualDetailsCard";
 import {IndividualSearchActionNames as Actions} from "../../action/individual/IndividualSearchActions";
+import {Individual} from "openchs-models";
+import ListViewHelper from "../../utility/ListViewHelper";
 import ZeroResults from "../common/ZeroResults";
 
 @Path('/individualSearchResults')
 class IndividualSearchResultsView extends AbstractComponent {
     static propTypes = {
-        searchResults: PropTypes.array.isRequired,
+        searchResults: PropTypes.any.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
         onIndividualSelection: PropTypes.func.isRequired,
         headerTitle: PropTypes.string,
@@ -35,9 +38,9 @@ class IndividualSearchResultsView extends AbstractComponent {
         return 'IndividualSearchResultsView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         setTimeout(() => this.dispatchAction(Actions.LOAD_INDICATOR, {status: false}), 0);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     renderProgram(program, index) {
@@ -59,14 +62,14 @@ class IndividualSearchResultsView extends AbstractComponent {
         return <TouchableNativeFeedback onPress={() => onResultRowPress(item)}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
             <View>
-                <IndividualDetailsCard individual={item}/>
+                <IndividualDetailsCard individual={new Individual(item)}/>
             </View>
         </TouchableNativeFeedback>
     }
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(this.props.searchResults);
+        const dataSource = ListViewHelper.getDataSource(this.props.searchResults);
         const title = this.props.headerTitle || "searchResults";
 
         return (

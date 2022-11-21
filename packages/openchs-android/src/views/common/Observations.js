@@ -1,4 +1,5 @@
-import {ListView, Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React, {Fragment} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -21,11 +22,6 @@ import EncounterService from "../../service/EncounterService";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PhoneCall from "../../model/PhoneCall";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
-
-const renderTypes = {
-    Image: "Image",
-    Text: "Text",
-};
 
 class Observations extends AbstractComponent {
     static propTypes = {

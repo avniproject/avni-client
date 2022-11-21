@@ -8,7 +8,7 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
-import {View} from "react-native";
+import {ScrollView, View} from "react-native";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -27,15 +27,16 @@ class TaskFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.task);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
         return 'TaskFormView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_FORM_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     next() {
@@ -66,7 +67,8 @@ class TaskFormView extends AbstractComponent {
         const title = `${this.I18n.t(this.state.task.name)}`;
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup group={this.state.formElementGroup}
@@ -90,6 +92,7 @@ class TaskFormView extends AbstractComponent {
                             }}
                         />
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

@@ -50,7 +50,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const newEncounterCallback = (encounter) => {
             CHSNavigator.navigateToEncounterView(this, {
                 individualUUID: this.props.params.individualUUID,
@@ -62,7 +62,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             individualUUID: this.props.params.individualUUID,
             newEncounterCallback
         });
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     getRelativeActions() {

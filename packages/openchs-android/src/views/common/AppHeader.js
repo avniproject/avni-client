@@ -56,9 +56,7 @@ class AppHeader extends AbstractComponent {
     }
 
     background() {
-        return Platform['Version'] >= 21 ?
-            TouchableNativeFeedback.SelectableBackgroundBorderless() :
-            TouchableNativeFeedback.SelectableBackground();
+        return TouchableNativeFeedback.SelectableBackgroundBorderless();
     }
 
     renderHomeIcon() {
@@ -74,7 +72,7 @@ class AppHeader extends AbstractComponent {
                 paddingHorizontal: 16,
             }}>
                 {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
-                    <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
+                    <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
                     <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>}
             </View>
         </TouchableNativeFeedback>;
@@ -111,7 +109,7 @@ class AppHeader extends AbstractComponent {
                             width: 72,
                             paddingHorizontal: 16
                         }}>
-                            <Icon style={{fontSize: 35, color: Colors.headerIconColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
+                            <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor}} name='arrow-left'/>
                         </View>
                     </TouchableNativeFeedback>}
 

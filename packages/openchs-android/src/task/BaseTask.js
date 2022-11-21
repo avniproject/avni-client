@@ -1,21 +1,12 @@
-import _ from "lodash";
+import GlobalContext from "../GlobalContext";
+import AppStore from "../store/AppStore";
+import RealmFactory from "../framework/db/RealmFactory";
 
 export default class BaseTask {
-    setDependencies(db, beans) {
-        this.db = db;
-        this.beans = beans;
-    }
-
-    assertDbPresent() {
-        if (_.isNil(this.db)) {
-            throw new Error("By now the set dependencies must have called. Something wrong.");
-        }
-    }
-
-    assertBeansPresent() {
-        if (_.isNil(this.beans)) {
-            throw new Error("By now the set dependencies must have called. Something wrong.");
-        }
+    initDependencies() {
+        const globalContext = GlobalContext.getInstance();
+        if (!globalContext.isInitialised())
+            globalContext.initialiseGlobalContext(AppStore, RealmFactory);
     }
 
     execute() {

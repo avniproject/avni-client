@@ -26,9 +26,9 @@ class FamilyDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.familyDashboard);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchOnLoad();
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     dispatchOnLoad() {

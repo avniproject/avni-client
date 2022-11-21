@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import UserInfoService from '../../service/UserInfoService';
-import {Text, TouchableNativeFeedback, View, StyleSheet} from 'react-native';
+import {Text, TouchableNativeFeedback, View} from 'react-native';
 import Styles from '../primitives/Styles';
 import Colors from '../primitives/Colors';
 import AbstractComponent from '../../framework/view/AbstractComponent';
@@ -23,10 +23,11 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     }
 
     get label() {
+        const moreTextForLabel = _.isNil(this.props.moreTextForLabel) ? '' : this.props.moreTextForLabel;
         const mandatoryText = this.props.element.mandatory ?
             <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         return <Text
-            style={[Styles.formLabel, this.props.element.styles]}>{this.I18n.t(this.props.element.name)}{mandatoryText}</Text>;
+            style={[Styles.formLabel, this.props.element.styles]}>{this.I18n.t(this.props.element.name)}{mandatoryText}{moreTextForLabel}</Text>;
     }
 
     labelDisplay() {

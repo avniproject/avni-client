@@ -1,4 +1,4 @@
-import {Vibration, View} from "react-native";
+import {ScrollView, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -34,9 +34,10 @@ class PersonRegisterFormView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.personRegister);
+        this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const params = this.props.params;
         if(params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
@@ -48,7 +49,7 @@ class PersonRegisterFormView extends AbstractComponent {
                     taskUuid: params.taskUuid
                 });
         }
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     get registrationType() {
@@ -104,7 +105,8 @@ class PersonRegisterFormView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
-                <CHSContent ref='scroll'>
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
@@ -141,6 +143,7 @@ class PersonRegisterFormView extends AbstractComponent {
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

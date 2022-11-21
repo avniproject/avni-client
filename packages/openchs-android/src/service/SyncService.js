@@ -25,6 +25,7 @@ import SubjectMigrationService from "./SubjectMigrationService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
+import moment from "moment";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -34,6 +35,7 @@ class SyncService extends BaseService {
     }
 
     static syncSources = {
+        ONLY_UPLOAD_BACKGROUND_JOB: 'automatic-upload-only',
         BACKGROUND_JOB: 'automatic',
         SYNC_BUTTON: 'manual'
     };
@@ -116,12 +118,11 @@ class SyncService extends BaseService {
             progressBarStatus.onComplete(entityType, numOfPages);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = (isSyncResetRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation);
+        const firstDataServerSync = (isSyncResetRequired, isOnlyUploadRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
-
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource});
-
+        const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, updatedSyncSource});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
@@ -129,16 +130,32 @@ class SyncService extends BaseService {
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages());
 
-        //Even blank dataServerSync with no data in or out takes quite a while.
+        // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
         console.log('mediaUploadRequired', mediaUploadRequired);
-        const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
+        const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
+        const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         return mediaUploadRequired ?
-            firstDataServerSync(false)
+            firstDataServerSync(false, isOnlyUploadRequired)
                 .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation))
+                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired))
                 .then(syncCompleted)
-            : firstDataServerSync(isManualSync).then(syncCompleted);
+            : firstDataServerSync(isManualSync, isOnlyUploadRequired).then(syncCompleted);
+    }
+
+    /*
+     * Return SyncService.syncSources.BACKGROUND_JOB in place of SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB,
+     * if the last Completed Full Sync happened more than twelve hours ago
+     */
+    getUpdatedSyncSource(syncSource) {
+        return (syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
+          && this.wasLastCompletedFullSyncDoneMoreThan12HoursAgo())
+          ?  SyncService.syncSources.BACKGROUND_JOB : syncSource;
+    }
+
+    wasLastCompletedFullSyncDoneMoreThan12HoursAgo() {
+        let lastSynced = this.getService("syncTelemetryService").getAllCompletedFullSyncsSortedByDescSyncEndTime();
+        return !_.isEmpty(lastSynced) && moment(lastSynced[0].syncEndTime).add(12, 'hours').isBefore(moment());
     }
 
     logSyncCompleteEvent(syncStartTime) {
@@ -184,17 +201,24 @@ class SyncService extends BaseService {
         }
     }
 
-    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation) {
+    /*
+     * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
+     */
+    async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
-        await Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
-            .then(() => onAfterMediaPush("After_Media", 0))
-            .then(() => statusMessageCallBack("FetchingChangedResource"))
+        const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
+          .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
+          .then(() => onAfterMediaPush("After_Media", 0));
+        if(isOnlyUploadRequired) {
+            return uploadData;
+        }
+        await uploadData
+            .then(() =>statusMessageCallBack("FetchingChangedResource"))
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
-                const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
-                return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
+              const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
+              return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
             });
 
         const {syncDetails, endDateTime, now} = await this.getSyncDetails();
@@ -333,7 +357,7 @@ class SyncService extends BaseService {
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(_.last(entityResources)["lastModifiedDateTime"]);
+        entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
 
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {

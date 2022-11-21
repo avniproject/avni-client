@@ -22,12 +22,12 @@ class DevSettingsView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.settings);
         this.entityMap = {
-            "Individual decisions": ["Individual", Rule.types.Decision],
-            "Enrolment decisions": ["ProgramEnrolment", Rule.types.Decision],
-            "Encounter decisions": ["Encounter", Rule.types.Decision],
-            "Program encounter decisions": ["ProgramEncounter", Rule.types.Decision],
-            "Enrolment Visit Schedule": ["ProgramEnrolment", Rule.types.VisitSchedule],
-            "Encounter Visit Schedule": ["ProgramEncounter", Rule.types.VisitSchedule]
+            "Individual decisions": {name: "Individual", rule: Rule.types.Decision},
+            "Enrolment decisions": {name: "ProgramEnrolment", rule: Rule.types.Decision},
+            "Encounter decisions": {name: "Encounter", rule: Rule.types.Decision},
+            "Program encounter decisions": {name: "ProgramEncounter", rule: Rule.types.Decision},
+            "Enrolment Visit Schedule": {name: "ProgramEnrolment", rule: Rule.types.VisitSchedule},
+            "Encounter Visit Schedule": {name: "ProgramEncounter", rule: Rule.types.VisitSchedule}
         };
         this.state = {};
     }
@@ -36,8 +36,8 @@ class DevSettingsView extends AbstractComponent {
         return 'DevSettingsView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     renderLogLevels() {
@@ -53,17 +53,17 @@ class DevSettingsView extends AbstractComponent {
     }
 
     runRules() {
-        this.context.getService(RuleEvaluationService).runOnAll(this.state.rulesToRun);
+        this.context.getService(RuleEvaluationService).runOnAll(this.state.rulesToRun.map((r) => [r.name, r.rule]));
     }
 
     renderDevOptions() {
         if (__DEV__) {
-            const ruleLevel = Object.entries(this.entityMap)
+            const labelValues = Object.entries(this.entityMap)
                 .map(([displayName, value]) => new RadioLabelValue(displayName, value));
             return (<View>
                 <RadioGroup
                     onPress={({value}) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
-                    labelValuePairs={ruleLevel}
+                    labelValuePairs={labelValues}
                     labelKey='Rules to run'
                     selectionFn={(ruleToRun) => this.state.rulesToRun.indexOf(ruleToRun) > -1}
                     validationError={null}

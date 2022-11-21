@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, ScrollView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -25,7 +25,7 @@ import Separator from "./primitives/Separator";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
-import {Schema} from 'avni-models';
+import {EntityMappingConfig} from 'openchs-models';
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
@@ -71,15 +71,15 @@ class MenuView extends AbstractComponent {
             : <View/>
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
         this.bindMenuActions();
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {
         const authService = this.context.getService(AuthService);
         authService.getAuthToken().then((authToken) => this.dispatchAction(MenuActionNames.ON_LOAD, {authToken}));
-}
+    }
 
     icon(name, style = {}) {
         return this.props.menuIcon(name, [MenuView.iconStyle, style]);
@@ -352,7 +352,7 @@ class MenuView extends AbstractComponent {
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
                 <CHSContent>
-                    <ScrollView>
+                    <SafeAreaView>
                         <SectionList
                             contentContainerStyle={{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
@@ -379,7 +379,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{Schema.schemaVersion}</Text></Text>
+                                    }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
                                 <Text style={Styles.textList}>BuildVersion: <Text
                                     style={{
                                         color: 'black',
@@ -387,7 +387,7 @@ class MenuView extends AbstractComponent {
                                     }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
                             </View>
                         </View>
-                    </ScrollView>
+                    </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>

@@ -4,7 +4,6 @@ import AbstractComponent from '../framework/view/AbstractComponent';
 import Path from '../framework/routing/Path';
 import {
     Alert,
-    StatusBar,
     Text,
     TouchableNativeFeedback,
     View,
@@ -13,7 +12,6 @@ import {
 import TextFormElement from './form/formElement/TextFormElement';
 import StaticFormElement from './viewmodel/StaticFormElement';
 import {LoginActionsNames as Actions} from '../action/LoginActions';
-import Distances from './primitives/Distances';
 import {PrimitiveValue, ErrorCodes} from 'avni-models';
 import Reducers from '../reducer';
 import CHSNavigator from '../utility/CHSNavigator';
@@ -22,7 +20,7 @@ import CHSContent from './common/CHSContent';
 import Styles from './primitives/Styles';
 import Colors from './primitives/Colors';
 import _ from 'lodash';
-import {CheckBox, Spinner} from 'native-base';
+import {Checkbox as CheckBox, ScrollView, Spinner} from "native-base";
 import General from '../utility/General';
 import AuthService from '../service/AuthService';
 import {ConfirmDialog} from 'react-native-simple-dialogs';
@@ -179,114 +177,119 @@ class LoginView extends AbstractComponent {
         const {width, height} = Dimensions.get('window');
         return (
             <CHSContainer>
-                <DBRestoreProgress/>
-                <CHSContent>
-                    <View style={{
-                        minHeight: height,
-                    }}>
+                <ScrollView keyboardShouldPersistTaps="handled">
+                    <DBRestoreProgress/>
+                    <CHSContent>
                         <View style={{
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            minHeight: height*0.8,
-                            paddingHorizontal: 48
+                            minHeight: height,
                         }}>
-                            <Image source={{uri: `asset:/avni-logo.png`}}
-                                   style={{height: 120, width: 120, alignSelf: 'center', }} resizeMode={'center'}/>
-                            {this.renderMultiUserLoginFailure()}
-                            <Text style={{
-                                color: Colors.ValidationError,
-                                justifyContent: 'center'
-                            }}>{this.errorMessage()}</Text>
-                            <View>
-                                <TextFormElement element={new StaticFormElement('userId')}
-                                                 actionName={Actions.ON_USER_ID_CHANGE}
-                                                 validationResult={this.state.validationResult}
-                                                 value={new PrimitiveValue(this.state.userId)}
-                                                 multiline={false}
-                                                 autoCapitalize={'none'}
-                                                 autoCompleteType={'username'}
-                                                 keyboardType={'email-address'}
-                                />
-                                {Config.ENV !== 'dev' ?
-                                    <View>
-                                        <TextFormElement element={new StaticFormElement('password')}
-                                                         secureTextEntry={!this.state.showPassword}
-                                                         actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
-                                                         value={new PrimitiveValue(this.state.password)}
-                                                         multiline={false}
-                                        />
-                                        <View style={{
-                                            flexDirection: 'column',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'flex-start',
-                                        }}>
-                                            <TouchableNativeFeedback
-                                                onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
-                                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                    <CheckBox
-                                                        onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
-                                                        checked={this.state.showPassword}/>
-                                                    <Text
-                                                        style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
-                                                </View>
-                                            </TouchableNativeFeedback>
-                                            <TouchableNativeFeedback onPress={() => {
-                                                this.forgotPassword();
-                                            }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                <View style={{paddingLeft: 10, paddingTop: 10}}>
-                                                    <Text style={{
-                                                        color: Styles.accentColor,
-                                                        fontSize: 16
-                                                    }}>{this.I18n.t('Forgot Password')}</Text>
-                                                </View>
-                                            </TouchableNativeFeedback>
+                            <View style={{
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                minHeight: height*0.8,
+                                paddingHorizontal: 48
+                            }}>
+                                <Image source={{uri: `asset:/avni-logo.png`}}
+                                       style={{height: 120, width: 120, alignSelf: 'center', }} resizeMode={'center'}/>
+                                {this.renderMultiUserLoginFailure()}
+                                <Text style={{
+                                    color: Colors.ValidationError,
+                                    justifyContent: 'center'
+                                }}>{this.errorMessage()}</Text>
+                                <View>
+                                    <TextFormElement element={new StaticFormElement('userId')}
+                                                     actionName={Actions.ON_USER_ID_CHANGE}
+                                                     validationResult={this.state.validationResult}
+                                                     value={new PrimitiveValue(this.state.userId)}
+                                                     multiline={false}
+                                                     autoCapitalize={'none'}
+                                                     autoCompleteType={'username'}
+                                                     keyboardType={'email-address'}
+                                    />
+                                    {Config.ENV !== 'dev' ?
+                                        <View>
+                                            <TextFormElement element={new StaticFormElement('password')}
+                                                             secureTextEntry={!this.state.showPassword}
+                                                             actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
+                                                             value={new PrimitiveValue(this.state.password)}
+                                                             multiline={false}
+                                            />
+                                            <View style={{
+                                                flexDirection: 'column',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'flex-start',
+                                            }}>
+                                                <TouchableNativeFeedback
+                                                    onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
+                                                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                                                        <CheckBox
+                                                          accessible={true}
+                                                          accessibilityLabel={"Show password"}
+                                                          onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                            checked={this.state.showPassword}/>
+                                                        <Text
+                                                            style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
+                                                    </View>
+                                                </TouchableNativeFeedback>
+                                                <TouchableNativeFeedback onPress={() => {
+                                                    this.forgotPassword();
+                                                }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                    <View style={{paddingTop: 7}}>
+                                                        <Text style={{
+                                                            color: Styles.accentColor,
+                                                            fontSize: 16
+                                                        }}>{this.I18n.t('Forgot Password')}</Text>
+                                                    </View>
+                                                </TouchableNativeFeedback>
+                                            </View>
+                                            {this.spinner()}
                                         </View>
-                                        {this.spinner()}
-                                    </View>
-                                    : null}
-                            </View>
-                            <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                                {_.get(this, 'props.params.allowSkipLogin') ?
-                                    <TouchableNativeFeedback onPress={() => {
-                                        this.cancelLogin();
-                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                        <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                            <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                        : null}
+                                </View>
+                                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
+                                    {_.get(this, 'props.params.allowSkipLogin') ?
+                                        <TouchableNativeFeedback onPress={() => {
+                                            this.cancelLogin();
+                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                            <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
+                                                <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>
+                                        :
+                                        <View/>
+                                    }
+                                    <TouchableNativeFeedback onPress={this.safeLogin}
+                                                             background={TouchableNativeFeedback.SelectableBackground()}>
+                                        <View style={[Styles.basicPrimaryButtonView,
+                                            {minWidth: 144, width: '100%', flex: 1, flexDirection: "row", justifyContent: "center"}]}>
+                                            <Text style={{
+                                                color: Styles.whiteColor,
+                                                fontSize: 16
+                                            }}>{this.I18n.t('LOGIN')}</Text>
                                         </View>
                                     </TouchableNativeFeedback>
-                                    :
-                                    <View/>
+                                </View>
+                            </View>
+                            <View style={{
+                                flexDirection: 'column',
+                                justifyContent: 'flex-end',
+                                alignItems: 'center',
+                                minHeight: height*0.15,
+                                paddingLeft: 16
+                            }}>
+                                <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
+                                {Config.ENV !== 'prod' &&
+                                    <Text style={{
+                                        fontSize: Styles.normalTextSize,
+                                        fontStyle: 'normal',
+                                        color: Styles.blackColor,
+                                        marginVertical: 0,
+                                    }}>{Config.ENV}</Text>
                                 }
-                                <TouchableNativeFeedback onPress={this.safeLogin}
-                                                         background={TouchableNativeFeedback.SelectableBackground()}>
-                                    <View style={[Styles.basicPrimaryButtonView, {minWidth: 144, width: '100%', flex: 1}]}>
-                                        <Text style={{
-                                            color: Styles.whiteColor,
-                                            fontSize: 16
-                                        }}>{this.I18n.t('LOGIN')}</Text>
-                                    </View>
-                                </TouchableNativeFeedback>
                             </View>
                         </View>
-                        <View style={{
-                            flexDirection: 'column',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            minHeight: height*0.15,
-                            paddingLeft: 16
-                        }}>
-                            <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
-                            {Config.ENV !== 'prod' &&
-                                <Text style={{
-                                    fontSize: Styles.normalTextSize,
-                                    fontStyle: 'normal',
-                                    color: Styles.blackColor,
-                                    marginVertical: 0,
-                                }}>{Config.ENV}</Text>
-                            }
-                        </View>
-                    </View>
-                </CHSContent>
+                    </CHSContent>
+                </ScrollView>
             </CHSContainer>
         );
     }

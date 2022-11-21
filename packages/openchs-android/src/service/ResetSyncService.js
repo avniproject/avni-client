@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {EntityMetaData, ResetSync, Schema, Settings, UserInfo} from "avni-models";
+import {EntityMetaData, ResetSync, EntityMappingConfig, Settings, UserInfo} from "openchs-models";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import _ from 'lodash';
 import SubjectMigrationService from "./SubjectMigrationService";
@@ -46,7 +46,7 @@ class ResetSyncService extends BaseService {
         const isAllDataDeleteRequired = _.some(notMigratedSyncReset, resetSnc => _.isNil(resetSnc.subjectTypeUUID));
         if (isAllDataDeleteRequired) {
             General.logDebug('ResetSyncService', `Deleting all data and resetting the sync`);
-            const allEntities = _.filter(Schema.schema, entity => !_.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
+            const allEntities = _.filter(EntityMappingConfig.getInstance().getEntities(), entity => !_.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
             this.clearDataIn(allEntities);
             this.entitySyncStatusService.setup(EntityMetaData.model());
             _.forEach(notMigratedSyncReset, resetSync => this._updateHasMigrated(resetSync));

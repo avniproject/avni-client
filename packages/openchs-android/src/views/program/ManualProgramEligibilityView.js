@@ -31,10 +31,10 @@ class ManualProgramEligibilityView extends AbstractComponent {
         return 'ManualProgramEligibilityView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {subject, program} = this.props;
         this.dispatchAction(Actions.ON_LOAD, {subject, program});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     next() {

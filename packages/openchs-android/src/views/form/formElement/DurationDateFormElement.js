@@ -72,7 +72,7 @@ class DurationDateFormElement extends AbstractFormElement {
                                        questionGroupIndex: this.props.questionGroupIndex
                                    })}/>
                     {this.props.durationOptions.map((durationOption, index) => {
-                        return <View key={index} style={{flexDirection: 'row'}}>
+                        return <Radio.Group key={index} style={{flexDirection: 'row'}}>
                             <Radio style={{marginLeft:DGS.resizeWidth(20)}} selected={durationOption === this.props.duration.durationUnit}
                                    onPress={() => this.dispatchAction(this.props.actionName, {
                                        formElement: this.props.element,
@@ -81,7 +81,7 @@ class DurationDateFormElement extends AbstractFormElement {
                                        questionGroupIndex: this.props.questionGroupIndex
                                    })} color={Colors.AccentColor}/>
                             <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
-                        </View>
+                        </Radio.Group>
                     })}
 
                 </View>

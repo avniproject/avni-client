@@ -34,6 +34,7 @@ class Colors {
         return color[colorName];
     }
 
+    static buttonIconColor = '#FFFFFF';
     static headerIconColor = '#FFFFFF';
     static headerTextColor = '#FFFFFF';
     static headerBackgroundColor = '#212121';

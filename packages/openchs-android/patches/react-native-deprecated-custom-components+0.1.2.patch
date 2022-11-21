@@ -1,0 +1,44 @@
+diff --git a/node_modules/react-native-deprecated-custom-components/src/Navigator.js b/node_modules/react-native-deprecated-custom-components/src/Navigator.js
+index 08f51df..6c9197f 100644
+--- a/node_modules/react-native-deprecated-custom-components/src/Navigator.js
++++ b/node_modules/react-native-deprecated-custom-components/src/Navigator.js
+@@ -35,8 +35,8 @@ import {
+   StyleSheet,
+   TVEventHandler,
+   View,
+-  ViewPropTypes,
+ } from 'react-native';
++import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+ 
+ var AnimationsDebugModule = NativeModules.AnimationsDebugModule;
+ var InteractionMixin = require('./InteractionMixin');
+diff --git a/node_modules/react-native-deprecated-custom-components/src/NavigatorBreadcrumbNavigationBar.js b/node_modules/react-native-deprecated-custom-components/src/NavigatorBreadcrumbNavigationBar.js
+index 09efbbe..d123d9f 100644
+--- a/node_modules/react-native-deprecated-custom-components/src/NavigatorBreadcrumbNavigationBar.js
++++ b/node_modules/react-native-deprecated-custom-components/src/NavigatorBreadcrumbNavigationBar.js
+@@ -29,9 +29,9 @@ import {
+   Platform,
+   StyleSheet,
+   View,
+-  ViewPropTypes,
+ } from 'react-native';
+ import React from 'react';
++import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+ 
+ const NavigatorBreadcrumbNavigationBarStyles = require('./NavigatorBreadcrumbNavigationBarStyles');
+ const NavigatorNavigationBarStylesAndroid = require('./NavigatorNavigationBarStylesAndroid');
+diff --git a/node_modules/react-native-deprecated-custom-components/src/NavigatorNavigationBar.js b/node_modules/react-native-deprecated-custom-components/src/NavigatorNavigationBar.js
+index 61d50e9..59a47f0 100644
+--- a/node_modules/react-native-deprecated-custom-components/src/NavigatorNavigationBar.js
++++ b/node_modules/react-native-deprecated-custom-components/src/NavigatorNavigationBar.js
+@@ -32,9 +32,9 @@ import {
+   Platform,
+   StyleSheet,
+   View,
+-  ViewPropTypes,
+ } from 'react-native';
+ var PropTypes = require('prop-types');
++import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+ 
+ var guid = require('./guid');
+ 

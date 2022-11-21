@@ -1,3 +1,23 @@
+diff --git a/node_modules/react-native-i18n/android/build.gradle b/node_modules/react-native-i18n/android/build.gradle
+index 1f9f4e0..9a10686 100755
+--- a/node_modules/react-native-i18n/android/build.gradle
++++ b/node_modules/react-native-i18n/android/build.gradle
+@@ -1,6 +1,6 @@
+ buildscript {
+     repositories {
+-        jcenter()
++        mavenCentral()
+     }
+ 
+     dependencies {
+@@ -30,5 +30,5 @@ repositories {
+ }
+ 
+ dependencies {
+-    compile 'com.facebook.react:react-native:0.12.+'
++    implementation 'com.facebook.react:react-native:0.20.1'
+ }
+\ No newline at end of file
 diff --git a/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java b/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java
 index 2a1b608..374a967 100644
 --- a/node_modules/react-native-i18n/android/src/main/java/com/i18n/reactnativei18n/ReactNativeI18n.java

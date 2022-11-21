@@ -35,8 +35,8 @@ class IndividualListView extends AbstractComponent {
         return "IndividualListView";
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

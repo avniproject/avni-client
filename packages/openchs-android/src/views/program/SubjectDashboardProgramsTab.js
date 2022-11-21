@@ -40,9 +40,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.privilegeService = context.getService(PrivilegeService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LANDING, this.props);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     componentDidMount() {

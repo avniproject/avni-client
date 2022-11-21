@@ -29,8 +29,8 @@ class NewsDetailView extends AbstractComponent {
         return 'NewsDetailView';
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

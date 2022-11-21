@@ -16,9 +16,12 @@ default: ; @echo 'no target provided'
 
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
-include makefiles/common.mk
 include makefiles/patches.mk
+<<<<<<< HEAD
 include makefiles/util.mk
+=======
+include makefiles/common.mk
+>>>>>>> rnu6x
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -52,16 +55,13 @@ ignore_deps_changes:
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 #for default Andoird Emulator
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
+ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short=4 HEAD)
-
 
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
 
 # <test>
-test-health-modules: setup_hosts as_dev
-	$(call test,health-modules)
-
 test-android: setup_hosts as_dev
 	$(call test,android)
 
@@ -108,9 +108,11 @@ release_clean:
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
 	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
+	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
 	rm -rf packages/openchs-android/android/.gradle
 
 create_apk:
+	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w
 
 release: release_clean create_apk
@@ -122,6 +124,10 @@ release_prod: renew_env as_prod release
 
 release_staging: renew_env as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
+
+release_staging_playstore_without_clean: as_staging release
+
+release_staging_playstore: renew_env as_staging release
 
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
@@ -148,6 +154,9 @@ release-offline: ##
 # <log>
 log:  ## Log android
 	adb logcat *:S ReactNative:V ReactNativeJS:V BackgroundTask:V
+
+log_error_only:  ## Log android
+	adb logcat *:S ReactNative:E ReactNativeJS:E BackgroundTask:E
 
 log_background_job:
 	adb logcat | grep -e ReactNativeEventStarter -e BackgroundJob
@@ -202,14 +211,21 @@ clean_packager_cache:
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
 
+<<<<<<< HEAD
 remove_package_locks:
 	rm package-lock.json packages/openchs-android/package-lock.json
 
 clean_env:  ##
+=======
+clean_env: release_clean ##
+>>>>>>> rnu6x
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
 	rm -rf packages/utilities/node_modules
+
+remove_package_locks:
+	rm package-lock.json packages/openchs-android/package-lock.json
 
 clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
@@ -220,16 +236,29 @@ setup_env: ##
 
 build_env: ##
 	export NODE_OPTIONS=--max_old_space_size=4096
+<<<<<<< HEAD
 	cd packages/openchs-android && npm install
+=======
+	cd packages/openchs-android && npm install --legacy-peer-deps
+>>>>>>> rnu6x
 
-build: build_env
+clean_app:
+	cd packages/openchs-android/android && ./gradlew clean
+
+build_app:
 	cd packages/openchs-android/android && ./gradlew assembleDebug
+
+build: build_env build_app
 # </env>
 
 
 build_env_ci: ##
 	export NODE_OPTIONS=--max_old_space_size=2048
+<<<<<<< HEAD
 	cd packages/openchs-android && npm install
+=======
+	cd packages/openchs-android && npm install --legacy-peer-deps
+>>>>>>> rnu6x
 
 # <packager>
 run_packager: ##

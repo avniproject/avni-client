@@ -1,4 +1,5 @@
-import {ProgressBarAndroid, Text, View, Button, Modal, Dimensions} from "react-native";
+import {Text, View, Button, Modal, Dimensions} from "react-native";
+import {ProgressBar}  from "@react-native-community/progress-bar-android";
 import Fonts from "./primitives/Fonts";
 import PropTypes from 'prop-types';
 import React from "react";
@@ -75,7 +76,7 @@ class ProgressBarView extends AbstractComponent {
                                         <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
                                             {this.I18n.t(_.isNil(this.props.message) ? "doingNothing" : this.props.message)}
                                         </Text>
-                                        <ProgressBarAndroid styleAttr="Horizontal" progress={this.props.progress}
+                                        <ProgressBar styleAttr="Horizontal" progress={this.props.progress}
                                                             indeterminate={false} color="white"/>
                                         <Text
                                             style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>

@@ -26,6 +26,7 @@ import GenderFilter from "../filter/GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
 import _ from "lodash";
+import {ScrollView} from "react-native";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 
 @Path('/individualSearch')
@@ -45,9 +46,9 @@ class IndividualSearchView extends AbstractComponent {
         return 'IndividualSearchView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
 
@@ -86,68 +87,70 @@ class IndividualSearchView extends AbstractComponent {
                 <CHSContent>
                     <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
                                hideIcon={true}/>
-                    <View style={{
-                        marginTop: Styles.ContentDistanceFromEdge,
-                        paddingHorizontal: Styles.ContentDistanceFromEdge,
-                        flexDirection: 'column'
-                    }}>
-                        <CustomActivityIndicator
-                            loading={this.state.loading}/>
-                        {allowedSubjectTypes.length > 1 &&
-                        <SingleSelectFilter filter={subjectTypeSelectFilter}
-                                            onSelect={(subjectType) =>
-                                                this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
-                        }
-                        <Separator height={25} backgroundColor={Styles.whiteColor}/>
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, subjectTypeUUID) ?
-                            <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
-                                             element={new StaticFormElement('name')}
-                                             style={Styles.simpleTextFormElement}
-                                             value={new PrimitiveValue(this.state.searchCriteria.name)}
-                                             multiline={false}/> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, subjectTypeUUID) ?
-                            <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
-                                             element={new StaticFormElement('age')}
-                                             style={Styles.simpleTextFormElement}
-                                             value={new PrimitiveValue(this.state.searchCriteria.age)}
-                                             multiline={false}/> : null}
-                        {(_.isEmpty(this.customFilterService.getSearchFilterBySubjectType(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
-                            <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
-                                             element={new StaticFormElement('searchAll')}
-                                             style={Styles.simpleTextFormElement}
-                                             value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
-                                             multiline={false}/> : null}
-                        {!_.isEmpty(topLevelFilters) ?
-                            <CustomFilters filters={topLevelFilters}
-                                           selectedCustomFilters={this.state.selectedCustomFilters}
-                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                            /> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) ?
-                            <GenderFilter
-                                selectedGenders={this.state.selectedGenders}
-                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
-                            /> : null}
-                        {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) ?
-                            <AddressLevels
-                                key={this.state.key}
-                                onSelect={(addressLevelState) =>
-                                    this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
-                                }
-                                multiSelect={true}/> : null}
-                        <CheckBoxFormElement
-                            label={this.I18n.t("includeVoided")}
-                            checkBoxText={this.I18n.t("yes")}
-                            checked={this.state.searchCriteria.includeVoided}
-                            onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
-                                {value: !this.state.searchCriteria.includeVoided})}/>
-                        {!_.isEmpty(bottomLevelFilters) ?
-                            <CustomFilters filters={bottomLevelFilters}
-                                           selectedCustomFilters={this.state.selectedCustomFilters}
-                                           onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                           addressLevelState={this.state.addressLevelState}
-                            /> : null}
-                    </View>
-                    <Separator height={170} backgroundColor={Styles.whiteColor}/>
+                    <ScrollView>
+                        <View style={{
+                            marginTop: Styles.ContentDistanceFromEdge,
+                            paddingHorizontal: Styles.ContentDistanceFromEdge,
+                            flexDirection: 'column'
+                        }}>
+                            <CustomActivityIndicator
+                                loading={this.state.loading}/>
+                            {allowedSubjectTypes.length > 1 &&
+                            <SingleSelectFilter filter={subjectTypeSelectFilter}
+                                                onSelect={(subjectType) =>
+                                                    this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
+                            }
+                            <Separator height={25} backgroundColor={Styles.whiteColor}/>
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Name, subjectTypeUUID) ?
+                                <TextFormElement actionName={Actions.ENTER_NAME_CRITERIA}
+                                                 element={new StaticFormElement('name')}
+                                                 style={Styles.simpleTextFormElement}
+                                                 value={new PrimitiveValue(this.state.searchCriteria.name)}
+                                                 multiline={false}/> : null}
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Age, subjectTypeUUID) ?
+                                <TextFormElement actionName={Actions.ENTER_AGE_CRITERIA}
+                                                 element={new StaticFormElement('age')}
+                                                 style={Styles.simpleTextFormElement}
+                                                 value={new PrimitiveValue(this.state.searchCriteria.age)}
+                                                 multiline={false}/> : null}
+                            {(_.isEmpty(this.customFilterService.getSearchFilterBySubjectType(subjectTypeUUID)) || this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.SearchAll, this.state.searchCriteria.subjectType.uuid)) ?
+                                <TextFormElement actionName={Actions.ENTER_OBS_CRITERIA}
+                                                 element={new StaticFormElement('searchAll')}
+                                                 style={Styles.simpleTextFormElement}
+                                                 value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
+                                                 multiline={false}/> : null}
+                            {!_.isEmpty(topLevelFilters) ?
+                                <CustomFilters filters={topLevelFilters}
+                                               selectedCustomFilters={this.state.selectedCustomFilters}
+                                               onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                /> : null}
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) ?
+                                <GenderFilter
+                                    selectedGenders={this.state.selectedGenders}
+                                    onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                                /> : null}
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) ?
+                                <AddressLevels
+                                    key={this.state.key}
+                                    onSelect={(addressLevelState) =>
+                                        this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
+                                    }
+                                    multiSelect={true}/> : null}
+                            <CheckBoxFormElement
+                                label={this.I18n.t("includeVoided")}
+                                checkBoxText={this.I18n.t("yes")}
+                                checked={this.state.searchCriteria.includeVoided}
+                                onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
+                                    {value: !this.state.searchCriteria.includeVoided})}/>
+                            {!_.isEmpty(bottomLevelFilters) ?
+                                <CustomFilters filters={bottomLevelFilters}
+                                               selectedCustomFilters={this.state.selectedCustomFilters}
+                                               onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                               addressLevelState={this.state.addressLevelState}
+                                /> : null}
+                        </View>
+                        <Separator height={1000} backgroundColor={Styles.whiteColor}/>
+                    </ScrollView>
                 </CHSContent>
 
                 <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
@@ -168,7 +171,6 @@ class IndividualSearchView extends AbstractComponent {
                         }}>{this.I18n.t('submit')}</Text>
                     </TouchableOpacity>
                 </View>
-
             </CHSContainer>
         );
     }

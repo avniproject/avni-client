@@ -30,10 +30,6 @@ class EncounterSelectFormElement extends AbstractFormElement {
         return this.props.element.concept.recordValueByKey(Concept.keys.encounterIdentifier);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
-    }
-
     getEncounterOptions() {
         if (this.encounterScope === Concept.encounterScopes.withinSubject) {
             return this.encounterService.getAllBySubjectUUIDAndTypeUUID(this.props.subjectUUID, this.encounterTypeUUID)

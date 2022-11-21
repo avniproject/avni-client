@@ -274,7 +274,7 @@ Styles.basicPrimaryButtonView = {
     backgroundColor: Styles.accentColor,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
     paddingVertical: 4,
 };
 

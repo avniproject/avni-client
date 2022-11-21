@@ -32,9 +32,9 @@ class CommentView extends AbstractComponent {
         return 'CommentView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     onBackPress() {

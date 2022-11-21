@@ -30,9 +30,9 @@ class CommentDiscussionView extends AbstractComponent {
         return 'CommentDiscussionView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_THREAD_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     renderItem(item, index) {

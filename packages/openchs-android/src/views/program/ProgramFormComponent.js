@@ -1,4 +1,4 @@
-import {StyleSheet, Vibration, View} from "react-native";
+import {ScrollView, StyleSheet, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -34,6 +34,10 @@ class ProgramFormComponent extends AbstractComponent {
         editing: PropTypes.bool.isRequired
     };
 
+    constructor(props, context) {
+        super(props, context);
+        this.scrollRef = React.createRef();
+    }
 
     getNextParams(popVerificationVew) {
         const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.props.state.enrolment.observations : this.props.state.enrolment.programExitObservations;
@@ -89,7 +93,8 @@ class ProgramFormComponent extends AbstractComponent {
             : ProgramEnrolment.validationKeys.EXIT_LOCATION
         const displayTimer = this.props.state.timerState && this.props.state.timerState.displayTimer(this.props.state.formElementGroup);
         return (<CHSContainer>
-            <CHSContent ref="scroll">
+            <CHSContent>
+                <ScrollView ref={this.scrollRef}>
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction} displayHomePressWarning={true}/>
@@ -147,6 +152,7 @@ class ProgramFormComponent extends AbstractComponent {
                         }}
                     />}
                 </View>
+                </ScrollView>
             </CHSContent>
         </CHSContainer>);
     }

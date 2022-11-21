@@ -1,7 +1,7 @@
-import BeanRegistry from "./BeanRegistry.js";
+import GlobalContext from "../../GlobalContext";
 
 export default function Service(name) {
     return (service) => {
-        BeanRegistry.register(name, service);
+        GlobalContext.getInstance().beanRegistry.register(name, service);
     };
 }

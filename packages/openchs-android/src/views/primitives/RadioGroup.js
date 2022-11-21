@@ -1,9 +1,8 @@
-import {View, StyleSheet} from "react-native";
+import {StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
-import React, {Component} from "react";
+import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import DGS from "./DynamicGlobalStyles";
-import {Text, Grid, Row, Radio} from "native-base";
+import {Checkbox, Radio, Text} from "native-base";
 import Colors from '../primitives/Colors';
 import PresetOptionItem from "./PresetOptionItem";
 import Distances from "./Distances";
@@ -48,6 +47,10 @@ class RadioGroup extends AbstractComponent {
         super(props, context);
     }
 
+    groupValue() {
+        return this.getAppropriateInitializedValue(this.initializeSelectedValue());
+    }
+
     renderPairedOptions() {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
@@ -58,12 +61,12 @@ class RadioGroup extends AbstractComponent {
                                       multiSelect={this.props.multiSelect}
                                       chunked={true}
                                       validationResult={this.props.validationError}
-                                      onPress={() => this.props.onPress(rlv)}
                                       key={rlv.label}
                                       style={{
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems
                                       }}
-                                      disabled={this.props.disabled}/>
+                                      disabled={this.props.disabled}
+                                      value={rlv.value}/>
                 )}
             </View>);
     }
@@ -74,14 +77,14 @@ class RadioGroup extends AbstractComponent {
                               checked={this.props.selectionFn(radioLabelValue.value)}
                               multiSelect={this.props.multiSelect}
                               validationResult={this.props.validationError}
-                              onPress={() => this.props.onPress(radioLabelValue)}
                               key={radioLabelValue.label}
                               style={{
                                   paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                   paddingRight: Distances.HorizontalSpacingBetweenOptionItems
                               }}
                               disabled={this.props.disabled}
-                              />)
+                              value={radioLabelValue.value}
+            />);
     }
 
     renderSingleValue() {
@@ -96,6 +99,7 @@ class RadioGroup extends AbstractComponent {
 
     render() {
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const GroupComponent = this.props.multiSelect ? Checkbox.Group : Radio.Group;
         return (
             <View style={this.appendedStyle({})}>
                 {!this.props.skipLabel &&
@@ -104,14 +108,48 @@ class RadioGroup extends AbstractComponent {
                     <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.renderSingleValue()}
                     </View> :
-                    <View style={[style.radioStyle, this.props.borderStyle]}>
+                    <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
+                                    value={this.groupValue() || ''} onChange={newValues => this.onValueChanged(newValues)}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
-                    </View> : <View/>}
+                    </GroupComponent>
+                    : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
                     <ValidationErrorMessage validationResult={this.props.validationError}/>
                 </View>
             </View>
         );
+    }
+
+    onValueChanged(newValue) {
+        let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
+        if (_.isString(safeInitNewValue) || _.isNumber(safeInitNewValue) || !_.isArray(safeInitNewValue)) {
+            this.groupValue() && this.props.onPress({value: this.groupValue()}); //Invoke toggle to unset for oldValue
+            this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
+        } else {
+            _.xor(safeInitNewValue, this.groupValue()).forEach(value => {
+                    value && this.props.onPress({value: value}); //Invoke toggle for all changed values
+                }
+            );
+        }
+    }
+
+    initializeSelectedValue() {
+        const values = _.filter(this.props.labelValuePairs,
+            (x) => this.props.selectionFn(x.value))
+            .map((lvPair) => lvPair.value);
+
+        let initValue = values;
+        if (!this.props.multiSelect) {
+            initValue = values.length === 0 ? undefined : values[0];
+        }
+        return initValue;
+    }
+
+    getAppropriateInitializedValue(value) {
+        if (this.props.multiSelect) {
+            return _.isNil(value) ? [] : value;
+        }
+        return value;
     }
 }
 

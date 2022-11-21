@@ -1,4 +1,4 @@
-import {ToastAndroid, Vibration, View} from "react-native";
+import {ScrollView, ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -45,20 +45,21 @@ class ProgramEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.programEncounter);
+        this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {encounterType, enrolmentUUID, programEncounter, workLists, pageNumber, editing} = this.props.params;
         if (programEncounter) {
             this.dispatchAction(Actions.ON_LOAD, {programEncounter, workLists, pageNumber, editing});
-            return super.componentWillMount();
+            return super.UNSAFE_componentWillMount();
         }
         const programEncounterByType = this.context.getService(ProgramEncounterService)
             .findDueEncounter({encounterTypeName: encounterType, enrolmentUUID})
             .cloneForEdit();
         programEncounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_LOAD, {programEncounter: programEncounterByType, editing});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     onHardwareBackPress() {
@@ -179,7 +180,8 @@ class ProgramEncounterView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>
@@ -234,6 +236,7 @@ class ProgramEncounterView extends AbstractComponent {
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

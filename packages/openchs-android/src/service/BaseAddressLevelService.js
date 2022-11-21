@@ -33,16 +33,16 @@ class BaseAddressLevelService extends BaseService {
     }
 
     getAllWithTypeUUID(typeUUID) {
-        return [...this.findAllByCriteria(`typeUuid = '${typeUUID}' AND voided = false`, this.getSchema()).map(_.identity)];
+        return [...this.findAllByCriteria(`typeUuid = '${typeUUID}' AND voided = false`, this.getSchema())];
     }
 
     getAllAtLevel(levelQuery) {
-        return [...this.findAllByCriteria(`${levelQuery} AND voided = false`, this.getSchema()).sorted('level', true).map(_.identity)];
+        return [...this.findAllByCriteria(`${levelQuery} AND voided = false`, this.getSchema()).sorted('level', true)];
     }
 
     getAllAtLevelWithParent(level, parentUUID) {
         return [...this.findAllByCriteria(`level = ${level} AND parentUuid = '${parentUUID}' AND voided = false`,
-            this.getSchema()).map(_.identity)];
+            this.getSchema())];
     }
 
     highestLevel(minLevelTypeUUIDs) {
@@ -89,8 +89,7 @@ class BaseAddressLevelService extends BaseService {
 
     getChildrenParent(parentUUID) {
         if (_.isNil(parentUUID)) return [];
-        return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())
-            .map(_.identity)];
+        return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())];
     }
 
     isLeaf(child) {

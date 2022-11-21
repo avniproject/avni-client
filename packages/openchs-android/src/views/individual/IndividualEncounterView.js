@@ -1,4 +1,4 @@
-import {StyleSheet, View, Vibration} from "react-native";
+import {StyleSheet, View, Vibration, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -38,24 +38,25 @@ class IndividualEncounterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.encounter);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
         return 'IndividualEncounterView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const {encounterType, individualUUID, encounter, workLists, pageNumber, editing} = this.props;
         if (encounter) {
             this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter, workLists, pageNumber, editing});
-            return super.componentWillMount();
+            return super.UNSAFE_componentWillMount();
         }
         const encounterByType = this.context.getService(EncounterService)
             .findDueEncounter({encounterTypeName: encounterType, individualUUID})
             .cloneForEdit();
         encounterByType.encounterDateTime = moment().toDate();
         this.dispatchAction(Actions.ON_ENCOUNTER_LANDING_LOAD, {encounter: encounterByType, editing});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     didFocus() {
@@ -151,7 +152,8 @@ class IndividualEncounterView extends AbstractComponent {
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent >
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
@@ -208,6 +210,7 @@ class IndividualEncounterView extends AbstractComponent {
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

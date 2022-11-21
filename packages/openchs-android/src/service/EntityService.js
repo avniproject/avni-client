@@ -16,9 +16,9 @@ class EntityService extends BaseService {
     deleteObjects(uuid, schema, objectKey) {
         const db = this.db;
         this.db.write(() => {
-            const savedFormElement = this.findByKey("uuid", uuid, schema);
-            if (!_.isNil(savedFormElement)) {
-                db.delete(savedFormElement[objectKey]);
+            const entity = this.findByKey("uuid", uuid, schema);
+            if (!_.isNil(entity) && !_.isEmpty(entity)) {
+                db.delete(entity[objectKey]);
             }
         });
     }

@@ -66,7 +66,7 @@ export class PersonRegisterActions {
 
     static enterRegistrationDate(state, action) {
         const newState = state.clone();
-        newState.individual.registrationDate = action.value;
+        newState.individual.registrationDate = new Date(action.value);
         newState.handleValidationResult(newState.individual.validateRegistrationDate());
         return newState;
     }
