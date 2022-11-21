@@ -10,7 +10,6 @@ import com.corbt.keepawake.KCKeepAwakePackage;
 import com.dooboolab.RNAudioRecorderPlayerPackage;
 import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
 import com.rnziparchive.RNZipArchivePackage;
-import com.pilloxa.backgroundjob.BackgroundJobPackage;
 import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
@@ -54,7 +53,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNAudioRecorderPlayerPackage(),
             new DocumentPickerPackage(),
             new RNZipArchivePackage(),
-            new BackgroundJobPackage(),
             new ReactNativeFirebaseAnalyticsPackage(),
             new ReactNativeFirebaseAppPackage(),
             new RNImmediatePhoneCallPackage(),

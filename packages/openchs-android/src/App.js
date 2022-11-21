@@ -1,19 +1,18 @@
-import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import BeanRegistry from './framework/bean/BeanRegistry';
 import Realm from 'realm';
-import {EntityMetaData, EntityQueue, Schema} from 'avni-models';
+import {EntityMetaData, Schema} from 'avni-models';
 import './views';
 import AppStore from './store/AppStore';
-import EntitySyncStatusService from "./service/EntitySyncStatusService";
-import _ from "lodash";
-import {RegisterAndScheduleJobs, SetBackgroundTaskDependencies, CancelAllBackgroundTasks} from "./AvniBackgroundJob";
-import ErrorHandler from "./utility/ErrorHandler";
-import FileSystem from "./model/FileSystem";
-import BackupRestoreRealmService from "./service/BackupRestoreRealm";
-import GlobalContext from "./GlobalContext";
+import EntitySyncStatusService from './service/EntitySyncStatusService';
+import _ from 'lodash';
+import ErrorHandler from './utility/ErrorHandler';
+import FileSystem from './model/FileSystem';
+import BackupRestoreRealmService from './service/BackupRestoreRealm';
+import GlobalContext from './GlobalContext';
 
 const {Restart} = NativeModules;
 
@@ -43,11 +42,7 @@ try {
         globalContext.routes = PathRegistry.routes();
         const entitySyncStatusService = globalContext.beanRegistry.getService(EntitySyncStatusService);
         entitySyncStatusService.setup(EntityMetaData.model());
-
-        // SetBackgroundTaskDependencies(globalContext.db, globalContext.beanRegistry.beans);
     }
-    CancelAllBackgroundTasks();
-    // RegisterAndScheduleJobs();
 } catch (e) {
     console.log("App", e);
     error = e;

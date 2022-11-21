@@ -185,8 +185,6 @@
 		1C8F30967AF44B7A86D1C8A2 /* libRNImmediatePhoneCall.a */ = {isa = PBXFileReference; name = "libRNImmediatePhoneCall.a"; path = "libRNImmediatePhoneCall.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; name = "RNCWebView.xcodeproj"; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		A4EC43C92D0E4189844EFAB5 /* libRNCWebView.a */ = {isa = PBXFileReference; name = "libRNCWebView.a"; path = "libRNCWebView.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */ = {isa = PBXFileReference; name = "RNBackgroundJob.xcodeproj"; path = "../node_modules/react-native-background-job/ios/RNBackgroundJob.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		FC6F3AF3FD56482ABB7F93F3 /* libRNBackgroundJob.a */ = {isa = PBXFileReference; name = "libRNBackgroundJob.a"; path = "libRNBackgroundJob.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		B2D0AAFA51CA4E86ADD2CD50 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; name = "RNZipArchive.xcodeproj"; path = "../node_modules/react-native-zip-archive/ios/RNZipArchive.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		72C7551BEC7D423FA8CFCD2F /* libRNZipArchive.a */ = {isa = PBXFileReference; name = "libRNZipArchive.a"; path = "libRNZipArchive.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */ = {isa = PBXFileReference; name = "KCKeepAwake.xcodeproj"; path = "../node_modules/react-native-keep-awake/ios/KCKeepAwake.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
@@ -230,7 +228,6 @@
 				19AD308F4FA84392A2945609 /* libRNDeviceInfo.a in Frameworks */,
 				7542E2A44CE641F285F651EE /* libRNImmediatePhoneCall.a in Frameworks */,
 				D28091357DEE4B7B8580FB0D /* libRNCWebView.a in Frameworks */,
-				A24E4F88F4BB43A2B2966754 /* libRNBackgroundJob.a in Frameworks */,
 				8B6CE7F57B1C405EA2137E7A /* libRNZipArchive.a in Frameworks */,
 				C35D921593614313BD9EBD24 /* libKCKeepAwake.a in Frameworks */,
 				3B6C501B5065422489A2FD3C /* libRNBackgroundTimer.a in Frameworks */,
@@ -377,7 +374,6 @@
 				48B4C72F2A5843C1B201F88C /* RNDeviceInfo.xcodeproj */,
 				68D23E64288C44B181ED9A9E /* RNImmediatePhoneCall.xcodeproj */,
 				3C8C3038884B48DCAEBC76A6 /* RNCWebView.xcodeproj */,
-				211AE42E4B4D4E4BADD99E1F /* RNBackgroundJob.xcodeproj */,
 				B2D0AAFA51CA4E86ADD2CD50 /* RNZipArchive.xcodeproj */,
 				8309DBE576754ACBAD45D9C1 /* KCKeepAwake.xcodeproj */,
 				0EBD0DB0F23B4878945A4E51 /* RNBackgroundTimer.xcodeproj */,
