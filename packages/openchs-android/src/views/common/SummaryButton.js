@@ -6,6 +6,7 @@ import {View} from 'react-native';
 import Colors from "../primitives/Colors";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import AvniIcon from "./AvniIcon";
 
 class SummaryButton extends AbstractComponent {
     static propTypes = {
@@ -23,21 +24,21 @@ class SummaryButton extends AbstractComponent {
         return (
             showButton ? <View style={[{
                 flex: 1,
+                flexDirection: "column",
                 marginTop: 5,
                 justifyContent: 'flex-end',
                 alignItems: 'flex-end'
             }, this.props.styles]}>
                 <Button primary
                         style={{
-                            flex: 1,
-                            paddingHorizontal: 8,
+                            flexDirection: "row",
+                            paddingHorizontal: 0,
                             alignSelf: 'flex-end',
                             backgroundColor: Colors.SecondaryActionButtonColor
                         }}
                         onPress={() => this.onSummaryPress()}
-                        iconRight={true}>
+                        rightIcon={<AvniIcon style={{color: '#212121'}} name='fastforward' type='AntDesign' />}>
                     <Text style={{color: '#212121'}}>{this.I18n.t('goToSummary')}</Text>
-                    <Icon style={{color: '#212121'}} name='fastforward' type='AntDesign' />
                 </Button>
             </View> : null
         )

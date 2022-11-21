@@ -157,7 +157,6 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     renderRelatives() {
-        const individualToComeBackTo = this.state.individual;
         return (
             <View style={{marginTop: 20}}>
                 <View style={{paddingLeft: 10}}>

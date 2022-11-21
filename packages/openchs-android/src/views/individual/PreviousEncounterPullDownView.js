@@ -13,6 +13,7 @@ import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
 import Styles from "../primitives/Styles";
 import General from "../../utility/General";
 import {Form} from 'avni-models';
+import AvniIcon from "../common/AvniIcon";
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
@@ -47,18 +48,15 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                       onPress={this.toggleExpandCollapse}/>
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <View style={{width: 81}}>
-                        <Button iconRight
+                        <Button rightIcon={<AvniIcon style={{color: Styles.greyText}} name='arrow-downward' type='MaterialIcons'/>}
                                 style={{
                                     position: 'absolute',
                                     height: 22,
                                     backgroundColor: Colors.SecondaryActionButtonColor,
                                     bottom: -11
                                 }}
-                                onPress={this.toggleExpandCollapse}
-                                textStyle={{color: '#212121'}}>
-                            <Text style={{fontSize: Fonts.Normal, color: Styles.greyText}}
-                                  onPress={this.toggleExpandCollapse}>Expand</Text>
-                            <Icon style={{color: '#212121', color: Styles.greyText}} name='arrow-downward' type='MaterialIcons'/>
+                                onPress={this.toggleExpandCollapse}>
+                            <Text style={{fontSize: Fonts.Normal, color: Styles.greyText}}>Expand</Text>
                         </Button>
                     </View>
                 </View>
@@ -85,11 +83,10 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                         backgroundColor: Colors.GreyContentBackground,
                                         paddingBottom: DynamicGlobalStyles.resizeHeight(25)
                                     }} onShowMore={() => {}} showPartial={false}/>
-                <Text style={{height: 11, backgroundColor: Colors.GreyContentBackground}}
-                      onPress={this.toggleExpandCollapse}/>
+
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <View style={{width: 90}}>
-                        <Button iconRight light
+                        <Button rightIcon={<AvniIcon style={{color: '#212121'}} name='arrow-upward'/>}
                                 style={{
                                     position: 'absolute',
                                     height: 22,
@@ -99,7 +96,6 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                 onPress={this.toggleExpandCollapse}
                                 textStyle={{color: '#212121'}}>
                             <Text style={{fontSize: Fonts.Normal}} onPress={this.toggleExpandCollapse}>Collapse</Text>
-                            <Icon style={{color: '#212121'}} name='arrow-upward'/>
                         </Button>
                     </View>
                 </View>

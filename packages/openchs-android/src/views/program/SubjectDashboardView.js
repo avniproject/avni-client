@@ -97,16 +97,19 @@ class SubjectDashboardView extends AbstractComponent {
                                            hideEnrol={this.state.hideEnrol}
                         />
                     </View>
-                    {this.state.individualProfile && (
-                        <SubjectDashboardProfileTab params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
-                    )}
-                    {this.state.program && (
-                        <SubjectDashboardProgramsTab
-                            enrolmentUUID={enrolmentUUID} individualUUID={individualUUID} backFunction={backFunction}/>
-                    )}
-                    {this.state.history && (
-                        <SubjectDashboardGeneralTab params={{individualUUID: individualUUID}}/>
-                    )}
+                    <ScrollView>
+                        {this.state.individualProfile && (
+                            <SubjectDashboardProfileTab
+                                params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
+                        )}
+                        {this.state.program && (
+                            <SubjectDashboardProgramsTab
+                                enrolmentUUID={enrolmentUUID} individualUUID={individualUUID} backFunction={backFunction}/>
+                        )}
+                        {this.state.history && (
+                            <SubjectDashboardGeneralTab params={{individualUUID: individualUUID}}/>
+                        )}
+                    </ScrollView>
                 </CHSContent>
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>
