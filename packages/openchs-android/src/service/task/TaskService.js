@@ -4,6 +4,7 @@ import {EntityQueue, ObservationsHolder, Task} from 'openchs-models';
 import General from "../../utility/General";
 import _ from 'lodash';
 import TaskFilter from "../../model/TaskFilter";
+import moment from 'moment';
 
 const getIncompleteTasks = function(taskService, taskTypeName) {
     return taskService.getAllNonVoided()
@@ -30,9 +31,9 @@ class TaskService extends BaseService {
             tasks = tasks.filtered(BaseService.orFilterCriteria(taskFilter.taskStatuses, "taskStatus.uuid"));
 
         if (!_.isNil(taskFilter.taskScheduledDate))
-            tasks = tasks.filtered("scheduledOn = $0", taskFilter.taskScheduledDate);
+            tasks = tasks.filtered("scheduledOn > $0 && scheduledOn < $1", taskFilter.taskScheduledDate, moment(taskFilter.taskScheduledDate).add(1, 'days').toDate());
         if (!_.isNil(taskFilter.taskCompletedDate))
-            tasks = tasks.filtered("completedOn = $0", taskFilter.taskCompletedDate);
+            tasks = tasks.filtered("completedOn > $0 && completedOn < $1", taskFilter.taskCompletedDate, moment(taskFilter.taskCompletedDate).add(1, 'days').toDate());
 
         Object.keys(taskFilter.taskMetadataValues).forEach((x) => {
             const metadataConcept = taskFilter.taskType.getMetadataConcept(x);
