@@ -6,6 +6,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import _ from 'lodash';
 import Colors from '../primitives/Colors';
 import Distances from "../primitives/Distances";
+import AvniIcon from "./AvniIcon";
 
 class WizardButtons extends AbstractComponent {
     constructor(props, context) {
@@ -49,22 +50,21 @@ class WizardButtons extends AbstractComponent {
                     <Button primary
                             style={{
                                 flex: 0.5,
+                                flexDirection: "row",
                                 backgroundColor: Colors.SecondaryActionButtonColor,
-                                justifyContent: "center"
+                                justifyContent: "center",
+                                color: "#000"
                             }}
-                            onPress={() => previousButton.func()}
-                            iconLeft={true}>
-                        <Icon style={{color: '#212121'}} name='stepbackward' type='AntDesign' />
-                        <Text style={{color: '#212121'}}>{previousButton.label}</Text>
-                    </Button> :
+                            _text={{color: "#212121"}}
+                            leftIcon={<AvniIcon color={'#212121'} name='stepbackward' type='AntDesign' />}
+                            onPress={() => previousButton.func()}>
+                        {previousButton.label}</Button> :
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, marginLeft: 8, justifyContent: "center"}}
+                            style={{flex: 0.5, flexDirection: "row", marginLeft: 8, justifyContent: "center"}}
                             onPress={() => nextButton.func()}
-                            iconRight={true}>
-                        <Text>{nextButton.label}</Text>
-                        <Icon name='stepforward' type='AntDesign' />
+                            rightIcon={<AvniIcon color={Colors.buttonIconColor} name='stepforward' type='AntDesign'/>}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}
             </View>
         </View>);

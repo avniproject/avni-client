@@ -41,7 +41,8 @@ class IndividualProfile extends AbstractComponent {
         Program: 'Program',
         General: 'General',
         Wizard: 'Wizard',
-        Individual: 'Individual'
+        Individual: 'Individual',
+        SystemRecommendations: 'SystemRecommendations'
     };
 
     constructor(props, context) {
@@ -49,9 +50,8 @@ class IndividualProfile extends AbstractComponent {
     }
 
     getMobileNoFromObservation() {
-        var i;
+        let i;
         for (i = 0; i < this.props.individual.observations.length; i++) {
-            const observation = this.props.individual.observations[i];
             return this.props.individual.getMobileNo();
         }
     }
@@ -204,9 +204,11 @@ class IndividualProfile extends AbstractComponent {
     render() {
         General.logDebug('IndividualProfile', 'render');
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
+        const textColor = (this.props.viewContext === IndividualProfile.viewContext.SystemRecommendations
+            || this.props.viewContext === IndividualProfile.viewContext.Wizard) ? Styles.blackColor : Styles.whiteColor;
         return <View style={{backgroundColor: backgroundColor}}>
             <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
-            {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
+            {(this.props.viewContext !== IndividualProfile.viewContext.Wizard && this.props.viewContext !== IndividualProfile.viewContext.SystemRecommendations) ?
                 (
                     <View style={{
                         marginVertical: 10,
@@ -262,19 +264,20 @@ class IndividualProfile extends AbstractComponent {
                     <View style={this.appendedStyle({
                         flexDirection: 'column',
                         backgroundColor: backgroundColor,
-                        paddingHorizontal: Distances.ContentDistanceFromEdge
+                        paddingHorizontal: Distances.ContentDistanceFromEdge,
+                        paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
+                            <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
                         </View>
                         {
-                            this.props.individual.subjectType.isPerson() ?
+                            this.props.individual.subjectType.isPerson() &&
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <Text style={{fontSize: Fonts.Normal}}>
+                                    <Text style={{fontSize: Fonts.Normal, color: textColor}}>
                                         {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
                                     <Text
-                                        style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
-                                </View> : <View/>
+                                        style={[Fonts.LargeRegular, {color: textColor}]}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                                </View>
                         }
                     </View>
                 )}

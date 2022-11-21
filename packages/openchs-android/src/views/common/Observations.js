@@ -23,11 +23,6 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import PhoneCall from "../../model/PhoneCall";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 
-const renderTypes = {
-    Image: "Image",
-    Text: "Text",
-};
-
 class Observations extends AbstractComponent {
     static propTypes = {
         observations: PropTypes.any.isRequired,

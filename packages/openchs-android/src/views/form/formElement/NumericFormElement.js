@@ -23,10 +23,15 @@ class NumericFormElement extends AbstractFormElement {
         allowedValues: PropTypes.array,
         isTableView: PropTypes.bool
     };
-    state = {value: ''};
 
     constructor(props, context) {
         super(props, context);
+        this.state = {
+            value: ""
+        };
+        if (props.value.getValue() !== _.toNumber(props.value.getValue())) {
+            this.state.value = _.toString(props.value.getValue());
+        }
     }
 
     rangeText() {
@@ -47,14 +52,6 @@ class NumericFormElement extends AbstractFormElement {
         this.setState(() => ({
             value: _.toString(this.props.value.getValue())
         }));
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (props.value.getValue() !== _.toNumber(state.value)) {
-            return {
-                value: _.toString(props.value.getValue())
-            }
-        }
     }
 
     unitText() {
