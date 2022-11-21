@@ -17,11 +17,8 @@ default: ; @echo 'no target provided'
 include makefiles/fastlane.mk
 include makefiles/androidDevice.mk
 include makefiles/patches.mk
-<<<<<<< HEAD
 include makefiles/util.mk
-=======
 include makefiles/common.mk
->>>>>>> rnu6x
 
 define _open_resource
 	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
@@ -211,14 +208,7 @@ clean_packager_cache:
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
 
-<<<<<<< HEAD
-remove_package_locks:
-	rm package-lock.json packages/openchs-android/package-lock.json
-
-clean_env:  ##
-=======
 clean_env: release_clean ##
->>>>>>> rnu6x
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
@@ -236,11 +226,7 @@ setup_env: ##
 
 build_env: ##
 	export NODE_OPTIONS=--max_old_space_size=4096
-<<<<<<< HEAD
-	cd packages/openchs-android && npm install
-=======
 	cd packages/openchs-android && npm install --legacy-peer-deps
->>>>>>> rnu6x
 
 clean_app:
 	cd packages/openchs-android/android && ./gradlew clean
@@ -254,11 +240,7 @@ build: build_env build_app
 
 build_env_ci: ##
 	export NODE_OPTIONS=--max_old_space_size=2048
-<<<<<<< HEAD
-	cd packages/openchs-android && npm install
-=======
 	cd packages/openchs-android && npm install --legacy-peer-deps
->>>>>>> rnu6x
 
 # <packager>
 run_packager: ##
