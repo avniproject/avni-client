@@ -46,9 +46,16 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
     }
 
     isSubjectProgramEligibilityStatusAvailable() {
-        return _.find(this.props.subjectProgramEligibilityStatuses[0].data,
-            (statusData) => statusData.subjectProgramEligibility != null)
-    }
+        let programWithEligibilityStatus = undefined;
+        _.forEach(this.props.subjectProgramEligibilityStatuses, (eligibilityStatusesOfMember) => {
+            programWithEligibilityStatus = _.find(eligibilityStatusesOfMember.data,
+                (programStatusData) => programStatusData.subjectProgramEligibility != null)
+
+            if (!_.isNil(programWithEligibilityStatus)) return false;
+        })
+
+        return programWithEligibilityStatus;
+    };
 
     renderHeader() {
         const programEligibilityCheckRule = _.get(this.props, 'subject.subjectType.programEligibilityCheckRule');
