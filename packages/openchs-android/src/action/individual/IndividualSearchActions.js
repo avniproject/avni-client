@@ -156,7 +156,7 @@ export class IndividualSearchActions {
 
 const ActionPrefix = 'IndSearch';
 const individualSearchActions = {
-    ON_LOAD: "dc7cdc96-c4d9-41d5-be1d-1c4c1d588801",
+    ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ENTER_NAME_CRITERIA: "ENTER_NAME_CRITERIA",
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",

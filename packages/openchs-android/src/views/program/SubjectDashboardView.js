@@ -90,9 +90,8 @@ class SubjectDashboardView extends AbstractComponent {
                 <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                     <View style={{backgroundColor: Styles.defaultBackground}}>
                         <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
-                        <IndividualProfile style={{marginHorizontal: 16}}
-                                           individual={this.state.individual}
-                                           viewContext={IndividualProfile.viewContext.Program}
+                        <IndividualProfile individual={this.state.individual}
+                                           viewContext={IndividualProfile.viewContext.NonWizard}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}
                         />

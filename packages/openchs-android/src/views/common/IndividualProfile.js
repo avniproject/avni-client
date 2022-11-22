@@ -35,14 +35,11 @@ class IndividualProfile extends AbstractComponent {
         viewContext: PropTypes.string,
         programsAvailable: PropTypes.bool,
         hideEnrol: PropTypes.bool,
-        style: PropTypes.object
+        textColor: PropTypes.string
     };
     static viewContext = {
-        Program: 'Program',
-        General: 'General',
         Wizard: 'Wizard',
-        Individual: 'Individual',
-        SystemRecommendations: 'SystemRecommendations'
+        NonWizard: 'NonWizard'
     };
 
     constructor(props, context) {
@@ -204,11 +201,10 @@ class IndividualProfile extends AbstractComponent {
     render() {
         General.logDebug('IndividualProfile', 'render');
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
-        const textColor = (this.props.viewContext === IndividualProfile.viewContext.SystemRecommendations
-            || this.props.viewContext === IndividualProfile.viewContext.Wizard) ? Styles.blackColor : Styles.whiteColor;
+        const textColor =  this.props.textColor ? this.props.textColor : Styles.blackColor;
         return <View style={{backgroundColor: backgroundColor}}>
             <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
-            {(this.props.viewContext !== IndividualProfile.viewContext.Wizard && this.props.viewContext !== IndividualProfile.viewContext.SystemRecommendations) ?
+            {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <View style={{
                         marginVertical: 10,

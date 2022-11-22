@@ -78,11 +78,9 @@ export default class BeneficiaryDashboard extends AbstractComponent {
             <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                 <View style={{backgroundColor: Styles.defaultBackground}}>
                     <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
-                    <IndividualProfile style={{marginHorizontal: 16}}
-                                       individual={this.state.beneficiary}
-                                       viewContext={IndividualProfile.viewContext.General}
-                                       hideEnrol={true}
-                    />
+                    <IndividualProfile individual={this.state.beneficiary}
+                                       viewContext={IndividualProfile.viewContext.NonWizard}
+                                       hideEnrol={true}/>
                 </View>
                 <View style={{marginHorizontal: 8}}>
                     {this.renderEncountersSection()}

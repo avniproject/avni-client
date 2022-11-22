@@ -2,7 +2,7 @@ import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 
-var currentLogLevel;
+let currentLogLevel;
 
 class General {
     static LogLevel = {
@@ -42,12 +42,12 @@ class General {
     }
 
     static getTimeStamp() {
-        var date = new Date();
-        var month = date.getMonth() + 1;
-        var day = date.getDate();
-        var hour = date.getHours();
-        var min = date.getMinutes();
-        var sec = date.getSeconds();
+        const date = new Date();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        let hour = date.getHours();
+        let min = date.getMinutes();
+        let sec = date.getSeconds();
 
         month = (month < 10 ? "0" : "") + month;
         day = (day < 10 ? "0" : "") + day;
@@ -227,8 +227,8 @@ class General {
 
     static log(source, message, level) {
         try {
-            let levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
-            let logMessage = `[${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
+            const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
+            const logMessage = `[${source}][${levelName}] [${moment().format("h:mm:ss")}] ${General.getDisplayableMessage(message)}`;
             if (level >= General.getCurrentLogLevel())
                 console[levelName.toLowerCase()](logMessage);
         } catch (e) {

@@ -39,26 +39,27 @@ class PreviousEncounterPullDownView extends AbstractComponent {
     getCollapsedView() {
         return (
             <View style={{flexDirection: 'column'}}>
-                <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard} individual={this.props.individual}
+                <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                                   individual={this.props.individual}
+                                   textColor={Colors.TextOnPrimaryColor}
                                    style={{
                                        backgroundColor: Colors.GreyContentBackground,
                                        paddingHorizontal: Distances.ContentDistanceFromEdge
                                    }}/>
                 <Text style={{height: 11, backgroundColor: Colors.GreyContentBackground}}
                       onPress={this.toggleExpandCollapse}/>
-                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <View style={{width: 81}}>
-                        <Button rightIcon={<AvniIcon style={{color: Styles.greyText}} name='arrow-downward' type='MaterialIcons'/>}
-                                style={{
-                                    position: 'absolute',
-                                    height: 22,
-                                    backgroundColor: Colors.SecondaryActionButtonColor,
-                                    bottom: -11
-                                }}
-                                onPress={this.toggleExpandCollapse}>
-                            <Text style={{fontSize: Fonts.Normal, color: Styles.greyText}}>Expand</Text>
-                        </Button>
-                    </View>
+                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10}}>
+                    <Button secondary
+                            rightIcon={<AvniIcon color={'#212121'} name='arrow-downward' type='MaterialIcons'/>}
+                            style={{
+                                position: 'absolute',
+                                width: 81,
+                                height: 50,
+                                backgroundColor: Colors.SecondaryActionButtonColor,
+                                bottom: -20,
+                            }}
+                            _text={{fontSize: Fonts.Normal, color: Styles.greyText}}
+                            onPress={this.toggleExpandCollapse}>Expand</Button>
                 </View>
                 <Text style={{backgroundColor: 'transparent', height: 11}} onPress={this.toggleExpandCollapse}/>
             </View>
@@ -73,7 +74,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                 }}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                                       individual={this.props.individual}/>
+                                       individual={this.props.individual} textColor={Colors.TextOnPrimaryColor}/>
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}
@@ -82,7 +83,8 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                                         backgroundColor: Colors.GreyContentBackground,
                                         paddingBottom: DynamicGlobalStyles.resizeHeight(25)
-                                    }} onShowMore={() => {}} showPartial={false}/>
+                                    }} onShowMore={() => {
+                }} showPartial={false}/>
 
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                     <View style={{width: 90}}>
