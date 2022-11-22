@@ -25,6 +25,7 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
+import Colors from "../primitives/Colors";
 
 class ProgramFormComponent extends AbstractComponent {
     static propTypes = {
@@ -99,7 +100,8 @@ class ProgramFormComponent extends AbstractComponent {
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction} displayHomePressWarning={true}/>
                 {this.props.state.wizard.isFirstFormPage() &&
-                <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                <IndividualProfile textColor={Colors.TextOnPrimaryColor}
+                    viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.state.enrolment.individual}/>}
                 {displayTimer ?
                     <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.props.state.formElementGroup}/> : null}
