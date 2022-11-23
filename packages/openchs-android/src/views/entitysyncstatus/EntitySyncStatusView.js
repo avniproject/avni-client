@@ -32,9 +32,9 @@ class EntitySyncStatusView extends AbstractComponent {
         return 'EntitySyncStatusView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.Names.ON_LOAD);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     forceSync() {

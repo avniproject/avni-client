@@ -4,9 +4,9 @@ import React from 'react';
 import {CountResult} from "./CountResult";
 import {get} from "lodash";
 
-export const CardTileView = ({index, reportCard, I18n, onCardPress}) => {
+export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
 
-    const {name, uuid, countResult} = reportCard;
+    const {name, uuid} = reportCard;
     const cardGap = 16;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const textColor = reportCard.textColor;

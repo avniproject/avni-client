@@ -40,7 +40,7 @@ class TimeFormElement extends AbstractFormElement {
                                     validationResult={this.props.validationResult}
                                     actionObject={{formElement: this.props.element, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex}}
                                     actionName={this.props.actionName}
-                                    timePickerMode={_.isNil(this.props.element.timePickerMode)
+                                    timePickerDisplay={_.isNil(this.props.element.timePickerMode)
                                         ? this.userSettings.timePickerMode
                                         : this.props.element.timePickerMode
                                     }

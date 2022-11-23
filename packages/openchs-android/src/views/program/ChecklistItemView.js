@@ -1,4 +1,4 @@
-import {View} from "react-native";
+import {ScrollView, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -35,11 +35,12 @@ class ChecklistItemView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.checklistItem);
+        this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {checklistItem: this.props.params.checklistItem});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     previous() {
@@ -75,7 +76,8 @@ class ChecklistItemView extends AbstractComponent {
         General.logDebug('ChecklistItemView', 'render');
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={this.state.checklistItem.checklist.programEnrolment.individual.nameString}
                                func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.checklistItem.latestEntityApprovalStatus}/>
@@ -107,6 +109,7 @@ class ChecklistItemView extends AbstractComponent {
                             func: () => this.next(), label: this.I18n.t('next')
                         }}/>
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

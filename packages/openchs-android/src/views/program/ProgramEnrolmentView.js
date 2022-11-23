@@ -51,7 +51,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         return false;
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, {
             enrolment: this.props.enrolment,
             usage: ProgramEnrolmentView.usageContext.usage,
@@ -59,7 +59,7 @@ class ProgramEnrolmentView extends AbstractComponent {
             forceLoad: this.props.editing,
             pageNumber: this.props.pageNumber,
         });
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     onBack() {

@@ -7,6 +7,7 @@ import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent} from "../../utility/Analytics";
+import moment from "moment";
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -52,9 +53,21 @@ class AbstractComponent extends Component {
 
     dispatchAction(action, params) {
         const type = action instanceof Function ? action.Id : action;
+        if (General.canLog(General.LogLevel.Debug)) {
+            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
+        }
+        const dispatchResult = this.context.getStore().dispatch({type, ...params});
+        if (General.canLog(General.LogLevel.Debug)) {
+            General.logDebug('AbstractComponent', `Dispatched action: ${JSON.stringify(type)}`);
+        }
+        return dispatchResult;
+    }
+
+    async dispatchAsyncAction(action, params) {
+        const type = action instanceof Function ? action.Id : action;
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
-        return this.context.getStore().dispatch({type, ...params});
+        return await this.context.getStore().dispatch({type, ...params});
     }
 
     dispatchFn(fn) {
@@ -76,7 +89,7 @@ class AbstractComponent extends Component {
         );
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (_.isNil(this.topLevelStateVariable)) return;
         this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
         this.refreshState();
@@ -93,15 +106,15 @@ class AbstractComponent extends Component {
     }
 
     scrollToTop() {
-        if (this.refs.scroll) {
-            this.refs.scroll._root.scrollToPosition(0, 10, true);
-            this.refs.scroll._root.scrollToPosition(0, 1, true);
+        if (this.scrollRef.current) {
+            this.scrollRef.current?.scrollTo({x: 0, y: 10, animated: true});
+            this.scrollRef.current?.scrollTo({x: 0, y: 1, animated: true});
         }
     }
 
     scrollToPosition(x, y) {
-        if (this.refs.scroll) {
-            this.refs.scroll._root.scrollToPosition(x, y, true);
+        if (this.scrollRef) {
+            this.scrollRef.current?.scrollTo({x, y, animated: true});
         }
     }
 

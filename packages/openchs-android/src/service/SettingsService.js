@@ -3,9 +3,10 @@ import Service from "../framework/bean/Service";
 import InitialSettings from '../../config/initialSettings.json';
 import AvailableLocales from '../../config/AvailableLocales.json';
 import General from "../utility/General";
-import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'avni-models';
+import {ModelGeneral, Settings, LocaleMapping, OrganisationConfig} from 'openchs-models';
 import Config from '../framework/Config';
 import _ from 'lodash';
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 @Service("settingsService")
 class SettingsService extends BaseService {
@@ -17,10 +18,11 @@ class SettingsService extends BaseService {
 
     init() {
         const dbInScope = this.db;
+        console.log("SettingsService", "Config.ENV", Config.ENV);
         this.db.write(() => {
-            console.log("SettingsService", "Config.ENV", Config.ENV);
             let settings = this.getSettings();
-            if (_.isNil(settings) || Config.ENV === 'dev') {
+            console.log("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
+            if (_.isNil(settings)) {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
                 settings.password = "";
@@ -29,10 +31,9 @@ class SettingsService extends BaseService {
                 settings.serverURL = Config.SERVER_URL;
                 settings.poolId = "";
                 settings.clientId = Config.CLIENT_ID || "";
-                dbInScope.create('Settings', settings, true);
             }
 
-            if (Config.ENV === 'dev') {
+            if (EnvironmentConfig.isDevMode()) {
                 settings.logLevel = General.LogLevel.Debug;
                 settings.pageSize = InitialSettings.dev.pageSize;
                 settings.devSkipValidation = InitialSettings.dev.skipValidation;
@@ -42,11 +43,9 @@ class SettingsService extends BaseService {
                 settings.locale = this.findByKey('locale', InitialSettings.locale, LocaleMapping.schema.name);
                 dbInScope.create('Settings', settings, true);
             }
+            dbInScope.create('Settings', settings, true);
         });
         let level = this.getSettings().logLevel;
-        if (Config.ENV === 'ext-dev') {
-            level = InitialSettings.logLevel;
-        }
         console.log("SettingsService", "Log level", level);
         General.setCurrentLogLevel(level);
         General.logDebug("SettingsService", "General - Test log debug message");
@@ -55,7 +54,7 @@ class SettingsService extends BaseService {
     }
 
     getSettings() {
-        const settings = this.db.objects('Settings');
+        const settings = this.findAll(Settings.schema.name);
         if (settings === undefined || settings.length === 0) return undefined;
         return settings[0];
     }

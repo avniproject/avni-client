@@ -4,15 +4,20 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import FormMappingService from '../../service/FormMappingService';
 import RuleEvaluationService from '../../service/RuleEvaluationService';
 import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
-import GeolocationActions from '../common/GeolocationActions';
-import General from '../../utility/General';
-import EntityService from '../../service/EntityService';
-import PhoneNumberVerificationActions from '../common/PhoneNumberVerificationActions';
-import QuickFormEditingActions from '../common/QuickFormEditingActions';
-import TimerActions from '../common/TimerActions';
+
 import DraftEncounterService from '../../service/draft/DraftEncounterService';
-import _ from 'lodash';
 import {DraftEncounter} from 'openchs-models';
+
+import GeolocationActions from "../common/GeolocationActions";
+import General from "../../utility/General";
+import EntityService from "../../service/EntityService";
+import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
+import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
+import UserInfoService from "../../service/UserInfoService";
+import _ from "lodash";
+import {ObservationsHolder} from "openchs-models";
 
 export class EncounterActions {
     static getInitialState(context) {
@@ -29,7 +34,33 @@ export class EncounterActions {
 
         const form = formMapping && formMapping.form;
 
+        const encounterType = action.encounter.encounterType;
+        const getPreviousEncounter = () => {
+            const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
+            if (previousEncounter) {
+                action.encounter.observations = previousEncounter.cloneForEdit().observations;
+                const observationsHolder = new ObservationsHolder(action.encounter.observations);
+                let groupNo = 0;
+                const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        groupNo = groupNo + 1;
+                        let filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        if (filteredFormElements.length === 0) return false;
+                        return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
+                    });
+
+                if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
+                    action.allElementsFilledForImmutableEncounter = true;
+                else
+                    action.pageNumber = groupNo;
+            }
+            return action.encounter;
+        };
+
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.encounter;
+
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
+
             return o.displayOrder;
         }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, action.encounter).length !== 0);
 
@@ -42,18 +73,25 @@ export class EncounterActions {
 
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
             General.randomUUID(), WorkItem.type.ENCOUNTER, {
-                encounterType: action.encounter.encounterType.name,
-                subjectUUID: action.encounter.individual.uuid
+                encounterType: encounterToPass.encounterType.name,
+                subjectUUID: encounterToPass.individual.uuid
             }
         )]));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return EncounterActionState.createOnLoadStateForEmptyForm(action.editableEncounter, form, isNewEntity, workLists);
+            return EncounterActionState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists)
         }
 
-        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.encounter, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(editableEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+
+        if(action.allElementsFilledForImmutableEncounter) {
+            newState.allElementsFilledForImmutableEncounter = true;
+            newState.wizard.currentPage = form.numberOfPages;
+            return newState;
+        }
+
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 
@@ -120,7 +158,8 @@ export class EncounterActions {
     static onSave(state, action, context) {
         const newState = state.clone();
         let encounter = newState.encounter;
-        context.get(EncounterService).saveOrUpdate(encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        context.get(IndividualService).updateObservations(newState.encounter.individual);
+        context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         context.get(DraftEncounterService).deleteDraftByUUID(encounter.uuid);
         action.cb();
         return state;

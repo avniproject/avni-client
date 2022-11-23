@@ -1,4 +1,5 @@
-import {ListView, Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React, {Fragment} from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -18,11 +19,9 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import EncounterService from "../../service/EncounterService";
-
-const renderTypes = {
-    Image: "Image",
-    Text: "Text",
-};
+import CustomActivityIndicator from "../CustomActivityIndicator";
+import PhoneCall from "../../model/PhoneCall";
+import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -39,6 +38,7 @@ class Observations extends AbstractComponent {
         super(props, context);
         this.createObservationsStyles(props.highlight);
         this.individualService = context.getService(IndividualService);
+        this.state = {displayProgressIndicator: false}
     }
 
     createObservationsStyles(highlight) {
@@ -126,7 +126,7 @@ class Observations extends AbstractComponent {
     }
 
     makeCall(number) {
-        RNImmediatePhoneCall.immediatePhoneCall(number);
+        PhoneCall.makeCall(number, this, (displayProgressIndicator) => this.setState({displayProgressIndicator}));
     }
 
     renderValue(observationModel) {
@@ -138,7 +138,7 @@ class Observations extends AbstractComponent {
         const renderType = observationModel.concept.datatype;
         const isAbnormal = observationModel.isAbnormal();
 
-        let addressLevelService = null;
+        let addressLevelService = this.context.getService(AddressLevelService);
         if (renderType === Concept.dataType.Location) {
             const isWithinCatchment = concept.recordValueByKey(Concept.keys.isWithinCatchment);
             addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
@@ -355,6 +355,7 @@ class Observations extends AbstractComponent {
         if (this.props.observations.length === 0) return <View/>;
         return (
             <View style={[{flexDirection: "column", paddingVertical: 3}, this.props.style]}>
+                <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {this.renderTitle()}
                 {_.isNil(this.props.form) ?
                     this.renderNormalObservationTable() :

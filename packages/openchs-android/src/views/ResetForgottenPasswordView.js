@@ -4,7 +4,7 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {Text, View, TextInput, TouchableNativeFeedback} from "react-native";
 import Styles from "./primitives/Styles";
-import {CheckBox, Spinner} from "native-base";
+import {Checkbox as CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
 import themes from "./primitives/themes";
@@ -22,7 +22,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
         super(props, context);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             return {showPassword: false, showSpinner: false, verificationCode: ''}
         });

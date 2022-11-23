@@ -16,6 +16,7 @@ import GroupAffiliationState from "../../state/GroupAffiliationState";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import TaskService from "../../service/task/TaskService";
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -43,8 +44,14 @@ export class SubjectRegisterActions {
         const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         const groupAffiliationState = new GroupAffiliationState();
+
+        let group;
+        if(!_.isUndefined(action.groupSubjectUUID)) {
+            group = context.get(IndividualService).findByUUID(action.groupSubjectUUID);
+        }
+
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState);
+            return SubjectRegistrationState.createOnLoadForEmptyForm(subject, form, isNewEntity, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, group);
         }
 
         //Populate identifiers much before form elements are hidden or sent to rules.
@@ -54,8 +61,15 @@ export class SubjectRegisterActions {
         context.get(GroupSubjectService).populateGroups(subject.uuid, form, groupAffiliationState);
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(subject, Individual.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context);
+
+        if (!_.isNil(action.taskUuid)) {
+            const observations = context.get(TaskService).getObservationsForSubject(action.taskUuid, form);
+            subject.observations.push(...observations);
+        }
+
+        const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context, group);
         const finalState = action.isDraftEntity ? SubjectRegisterActions.setTotalMemberForDraftSubject(newState, context) : newState;
+
         return QuickFormEditingActions.moveToPage(finalState, action, context, SubjectRegisterActions);
     }
 

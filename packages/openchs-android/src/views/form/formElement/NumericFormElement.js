@@ -26,6 +26,12 @@ class NumericFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
+        this.state = {
+            value: ""
+        };
+        if (props.value.getValue() !== _.toNumber(props.value.getValue())) {
+            this.state.value = _.toString(props.value.getValue());
+        }
     }
 
     rangeText() {
@@ -42,6 +48,12 @@ class NumericFormElement extends AbstractFormElement {
         return _.isNil(rangeText) ? <Text></Text> : <Text style={Styles.formLabel}> ({rangeText}) </Text>;
     }
 
+    componentDidMount() {
+        this.setState(() => ({
+            value: _.toString(this.props.value.getValue())
+        }));
+    }
+
     unitText() {
         return _.isEmpty(this.props.element.concept.unit) ? <Text></Text> :
             <Text style={Styles.formLabel}> ({this.props.element.concept.unit}) </Text>;
@@ -49,12 +61,14 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     onInputChange(text, convertToNumber) {
-        this.dispatchAction(this.props.inputChangeActionName, {
-            formElement: this.props.element,
-            value: text,
-            parentFormElement: this.props.parentElement,
-            questionGroupIndex: this.props.questionGroupIndex,
-            convertToNumber
+        this.setState(() => ({value: text}), () => {
+            this.dispatchAction(this.props.inputChangeActionName, {
+                formElement: this.props.element,
+                value: text,
+                parentFormElement: this.props.parentElement,
+                questionGroupIndex: this.props.questionGroupIndex,
+                convertToNumber
+            });
         });
     }
 
@@ -90,7 +104,7 @@ class NumericFormElement extends AbstractFormElement {
                                 paddingVertical: 5
                             }, Styles.formBodyText, {color: this.color()}]}
                                        underlineColorAndroid={this.borderColor} keyboardType='numeric'
-                                       value={_.toString(this.props.value.getValue())}
+                                       value={this.state.value}
                                        onChangeText={(text) => this.onInputChange(text)}
                                        onEndEditing={(event) => this.onInputChange(event.nativeEvent.text, true)}/>
                         </View>

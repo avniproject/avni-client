@@ -11,11 +11,12 @@ import ObservationHolderActions from "../action/common/ObservationsHolderActions
 import TimerState from "./TimerState";
 
 class SubjectRegistrationState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState) {
+    constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState, group) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isNewEntity);
         this.subject = subject;
         this.subjectType = subjectType;
         this.household = new HouseholdState(workLists);
+        this.group = group;
     }
 
     getEntity() {
@@ -26,7 +27,13 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return Individual.schema.name;
     }
 
-    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context) {
+    getEntityContext() {
+        return {
+            group: this.group
+        }
+    }
+
+    static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context, group) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         const timerState = formElementGroup.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         let state = new SubjectRegistrationState(
@@ -38,7 +45,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             filteredFormElements,
             subject.subjectType,
             workLists,
-            timerState
+            timerState,
+            group
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
@@ -51,7 +59,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         return state;
     }
 
-    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState) {
+    static createOnLoadForEmptyForm(subject, form, isNewEntity, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, group) {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
@@ -60,7 +68,9 @@ class SubjectRegistrationState extends AbstractDataEntryState {
             isNewEntity,
             [],
             subject.subjectType,
-            workLists
+            workLists,
+            group
+
         );
         state.form = form;
         state.minLevelTypeUUIDs = minLevelTypeUUIDs;
@@ -80,6 +90,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         newState.minLevelTypeUUIDs = this.minLevelTypeUUIDs;
         newState.saveDrafts = this.saveDrafts;
         newState.groupAffiliation = this.groupAffiliation;
+        newState.group = this.group;
         super.clone(newState);
         return newState;
     }
@@ -131,11 +142,11 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.subject, this.formElementGroup.form, "Individual");
+        return ruleService.validateAgainstRule(this.subject, this.formElementGroup.form, "Individual", this.getEntityContext());
     }
 
     executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.subject, "Individual");
+        let decisions = ruleService.getDecisions(this.subject, "Individual", {}, this.getEntityContext());
         context.get(ConceptService).addDecisions(this.subject.observations, decisions.registrationDecisions);
 
         return decisions;
@@ -146,7 +157,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, []);
+        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, [], this.getEntityContext());
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.subject, nextScheduledVisits);
     }
 

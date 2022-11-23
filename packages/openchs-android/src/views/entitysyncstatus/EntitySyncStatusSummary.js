@@ -20,12 +20,13 @@ class EntitySyncSummary extends AbstractComponent {
     render() {
         const queuedStyle = this.props.totalQueueCount > 0 ? {color: Styles.redColor} : {color: Styles.blackColor};
 
+        //RN - check history for styles
         return (<View style={Styles.listContainer}>
-            <Text style={Styles.textList}>
+            <Text>
                 {this.I18n.t('totalQueuedCount')}:
                 <Text style={[{fontSize: Styles.normalTextSize},queuedStyle]}>{this.props.totalQueueCount}</Text>
             </Text>
-            <Text style={Styles.textList}>
+            <Text>
                 {this.I18n.t('lastLoaded')}:
                 <Text style={{fontSize: Styles.normalTextSize}}>{this.props.lastLoaded}</Text>
             </Text>

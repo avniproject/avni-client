@@ -30,10 +30,10 @@ class IndividualList extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     onHardwareBackPress() {

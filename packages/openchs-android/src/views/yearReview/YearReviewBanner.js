@@ -12,7 +12,7 @@ class YearReviewBanner extends AbstractComponent {
         this.state = {show: false, token: undefined}
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
         const openedOn = await AsyncStorage.getItem('openedOn');
         const token = await this.getService(AuthService).getAuthToken();
         const openedTime = openedOn && moment(openedOn) || moment();

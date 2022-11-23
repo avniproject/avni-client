@@ -78,7 +78,7 @@ class AddressLevels extends AbstractComponent {
             this.selectAddressLevel(acc, parent.type, parent.uuid, true), {data: addressLevelState});
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         if (this.props.addressLevelState && this.props.multiSelect) {
             if (this.props.addressLevelState.selectedAddresses.length > 0) {
                 const onLowest = !_.isEmpty(this.props.addressLevelState.lowestSelectedAddresses)

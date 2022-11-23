@@ -32,9 +32,9 @@ class SubjectDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.subjectDashboardView);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     displayMessage(message) {
@@ -80,7 +80,7 @@ class SubjectDashboardView extends AbstractComponent {
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
         General.logDebug(this.viewName(), individualUUID);
         const options = [
-            [this.icon(MCIcon, 'face-profile', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
+            [this.icon(MCIcon, 'face-agent', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
             [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program, this.state.displayProgramTab],
             [this.icon(MCIcon, 'view-list', this.state.history), this.I18n.t('general'), () => this.dispatchAction(Actions.ON_HISTORY_CLICK), this.state.history, this.state.displayGeneralTab],
         ];
@@ -90,23 +90,25 @@ class SubjectDashboardView extends AbstractComponent {
                 <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
                     <View style={{backgroundColor: Styles.defaultBackground}}>
                         <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
-                        <IndividualProfile style={{marginHorizontal: 16}}
-                                           individual={this.state.individual}
-                                           viewContext={IndividualProfile.viewContext.Program}
+                        <IndividualProfile individual={this.state.individual}
+                                           viewContext={IndividualProfile.viewContext.NonWizard}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}
                         />
                     </View>
-                    {this.state.individualProfile && (
-                        <SubjectDashboardProfileTab params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
-                    )}
-                    {this.state.program && (
-                        <SubjectDashboardProgramsTab
-                            enrolmentUUID={enrolmentUUID} individualUUID={individualUUID} backFunction={backFunction}/>
-                    )}
-                    {this.state.history && (
-                        <SubjectDashboardGeneralTab params={{individualUUID: individualUUID}}/>
-                    )}
+                    <ScrollView>
+                        {this.state.individualProfile && (
+                            <SubjectDashboardProfileTab
+                                params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
+                        )}
+                        {this.state.program && (
+                            <SubjectDashboardProgramsTab
+                                enrolmentUUID={enrolmentUUID} individualUUID={individualUUID} backFunction={backFunction}/>
+                        )}
+                        {this.state.history && (
+                            <SubjectDashboardGeneralTab params={{individualUUID: individualUUID}}/>
+                        )}
+                    </ScrollView>
                 </CHSContent>
                 {this.state.displayProgramTab &&
                 <View style={styles.tabContainer}>

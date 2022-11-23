@@ -1,4 +1,5 @@
-import {TimePickerAndroid, View, Text} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
+import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -6,16 +7,16 @@ import _ from "lodash";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import Colors from "./Colors";
 import General from "../../utility/General";
-import {Button, Icon} from "native-base";
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Fonts from '../primitives/Fonts';
 
 class TimePicker extends AbstractComponent {
     static propTypes = {
-        timeValue: PropTypes.string,
+        timeValue: PropTypes.object,
         validationResult: PropTypes.object,
         actionName: PropTypes.string.isRequired,
         actionObject: PropTypes.object.isRequired,
-        timePickerMode: PropTypes.string
+        timePickerDisplay: PropTypes.string
     };
 
     constructor(props, context) {
@@ -26,27 +27,33 @@ class TimePicker extends AbstractComponent {
     }
 
 
-render() {
-    console.log(`TimePicker: props timePickerMode: ${this.props.timePickerMode}`);
-    const timePickerMode = _.isNil(this.props.timePickerMode) ?
-            'default' : this.props.timePickerMode;
-        console.log(`TimePicker: final timePickerMode: ${timePickerMode}`);
-        const options = _.isNil(this.props.timeValue) ?  {mode: timePickerMode} : _.merge(General.toTimeObject(this.props.timeValue), {mode: timePickerMode});
-    console.log(`TimePicker: options: ${JSON.stringify(options)}`);
+    render() {
+        const timePickerDisplay = _.isNil(this.props.timePickerDisplay) ?
+            'default' : this.props.timePickerDisplay;
+        const options = {
+            mode: "time",
+            display: timePickerDisplay,
+            is24Hour: true,
+            onChange: (event, date) => this.onTimeChange(event, date),
+            value: _.isNil(this.props.timeValue) ? new Date() : this.props.timeValue
+        };
 
         return (
             <View>
                 <View style={{flexDirection: 'row', justifyContent: 'flex-start'}}>
                     <Text onPress={this.showTimePicker.bind(this, options)}
-                        style={[{fontSize: Fonts.Large, color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError}]}>
+                          style={[{
+                              fontSize: Fonts.Large,
+                              color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError
+                          }]}>
                         {this.timeDisplay()}
                     </Text>
-                    { _.isNil(this.props.timeValue) ?
+                    {_.isNil(this.props.timeValue) ?
                         <View/>
                         :
-                        <Button transparent onPress={() => this.removeTime()} style={{height:20, alignSelf: 'center'}}>
-                            <Icon name='backspace' style={{fontSize: 20, color:'#229688'}}/>
-                        </Button>
+                        <TouchableNativeFeedback transparent onPress={() => this.removeTime()} style={{height: 20, alignSelf: 'center'}}>
+                            <Icon name='backspace' style={{marginLeft: 8, alignSelf: 'center', fontSize: 20, color: Colors.AccentColor}}/>
+                        </TouchableNativeFeedback>
                     }
                 </View>
                 <View>
@@ -58,14 +65,17 @@ render() {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-        ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
+            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayDateAsTime(this.props.timeValue);
     }
 
-    async showTimePicker(options) {
+    showTimePicker(options) {
         this.dismissKeyboard();
-        const {action, hour, minute} = await TimePickerAndroid.open(options);
-        if (action !== TimePickerAndroid.dismissedAction) {
-            this.props.actionObject.value = General.toISOFormatTime(hour, minute);
+        DateTimePickerAndroid.open(options);
+    }
+
+    onTimeChange(event, date) {
+        if (event.type !== "dismissed") {
+            this.props.actionObject.value = date;
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }

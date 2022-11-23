@@ -14,7 +14,7 @@ import Colors from "../primitives/Colors";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GlobalStyles from "../primitives/GlobalStyles";
 import ApprovalListingView from "../../views/approval/ApprovalListingView";
-import IndividualSearchResultPaginatedView from "../../views/individual/IndividualSearchSeasultPaginatedView";
+import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
 import IndividualListView from "../individuallist/IndividualListView";
 import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";
@@ -35,10 +35,10 @@ class CustomDashboardView extends AbstractComponent {
         return 'CustomDashboardView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         this.refreshCounts();
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     refreshCounts() {
@@ -76,17 +76,17 @@ class CustomDashboardView extends AbstractComponent {
             .map((groupedData, sectionUUID) => {
                 const sections = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
                 const cards = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
-                return {...sections, cards};
+                return {sections, cards};
             })
             .sortBy('displayOrder')
             .value();
 
         return (
             <View style={styles.container}>
-                {_.map(sectionWiseData, ({uuid, name, description, viewType, cards}) => (
-                    <View key={uuid} style={styles.sectionContainer}>
-                        {viewType !== DashboardSection.viewTypeName.Default &&
-                        this.renderSectionName(name, description, viewType)}
+                {_.map(sectionWiseData, ({sections, cards}) => (
+                    <View key={sections.uuid} style={styles.sectionContainer}>
+                        {sections.viewType !== DashboardSection.viewTypeName.Default &&
+                        this.renderSectionName(sections.name, sections.description, sections.viewType, cards)}
                         <View style={styles.cardContainer}>
                             {_.map(cards, (card, index) => (
                                 <CustomDashboardCard
@@ -94,7 +94,9 @@ class CustomDashboardView extends AbstractComponent {
                                     reportCard={card}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
-                                    viewType={viewType}
+                                    viewType={sections.viewType}
+                                    countResult={this.state.cardToCountResultMap[card.uuid]}
+                                    countUpdateTime={this.state.countUpdateTime}
                                 />
                             ))}
                         </View>
@@ -109,14 +111,16 @@ class CustomDashboardView extends AbstractComponent {
             'ApprovalListingView': ApprovalListingView,
             'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
             'IndividualListView': IndividualListView,
-            'CommentListView': CommentListView,
-            'TaskListView': TaskListView,
+            'CommentListView': CommentListView
         };
         return viewNameMap[viewName]
     }
 
     onBackPress() {
         this.goBack();
+    }
+
+    didFocus() {
         this.refreshCounts();
     }
 
@@ -124,6 +128,13 @@ class CustomDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
+            goToTaskLists: (taskTypeType) => {
+                TypedTransition.from(this).with({
+                    taskTypeType: taskTypeType,
+                    backFunction: this.onBackPress.bind(this),
+                    indicatorActionName: Actions.LOAD_INDICATOR
+                }).to(TaskListView);
+            },
             cb: (results, count, status, viewName) => TypedTransition.from(this).with({
                 indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: status || 'subjectsList',

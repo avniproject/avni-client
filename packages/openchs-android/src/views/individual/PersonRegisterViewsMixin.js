@@ -1,6 +1,6 @@
 import TypedTransition from "../../framework/routing/TypedTransition";
-import IndividualRegisterFormView from "./IndividualRegisterFormView";
-import {Actions} from "../../action/individual/IndividualRegisterActions";
+import PersonRegisterFormView from "./PersonRegisterFormView";
+import {Actions} from "../../action/individual/PersonRegisterActions";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import {BaseEntity, WorkItem} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
@@ -26,7 +26,7 @@ class Mixin {
             },
                 movedNext: (state) => {
             if (state.wizard.isFirstFormPage())
-                TypedTransition.from(view).with({}).to(IndividualRegisterFormView);
+                TypedTransition.from(view).with({}).to(PersonRegisterFormView);
         },
             validationFailed: (newState) => {
             if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {

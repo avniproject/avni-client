@@ -1,11 +1,9 @@
 import PropTypes from 'prop-types';
 import React, { Component } from "react";
-import { View, TouchableOpacity } from "react-native";
-import { Text, CheckBox } from 'native-base';
+import { Text, View, TouchableOpacity } from "react-native";
+import { Checkbox as CheckBox } from 'native-base';
 import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
-import themes from "../../primitives/themes";
-import Distances from "../../primitives/Distances";
 
 class CheckBoxFormElement extends Component {
     static propTypes = {
@@ -17,30 +15,23 @@ class CheckBoxFormElement extends Component {
 
     render() {
         const { label, checkBoxText, checked, onPress } = this.props;
-        const container = {
-            paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-            flex: 1
-        };
         return (
             <View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
                 <Text style={Styles.formLabel}>{label}</Text>
-                <TouchableOpacity style={container} onPress={onPress}>
-                    <View style={container}>
-                        <View style={{ flex: 0.9, flexDirection: 'row', alignItems: 'center' }}>
-                            <CheckBox
-
-                                checked={checked}
-                                onPress={onPress} />
-                            <Text style={[Styles.formBodyText, { 
-                                marginLeft: 16,
-                                flex: .95, 
-                                color: Colors.InputNormal 
-                            }]}>
-                                {checkBoxText}
-                            </Text>
+                <CheckBox.Group accessibilityLabel={label}
+                                onChange={onPress}>
+                    <TouchableOpacity >
+                        <View style={{ flex: 0.5, flexDirection: 'row', alignItems: 'center' }}>
+                                <CheckBox value={checkBoxText} color={Colors.AccentColor}>
+                                    <Text style={[Styles.formBodyText, {
+                                        color: Colors.InputNormal
+                                    }]}>
+                                        {checkBoxText}
+                                    </Text>
+                                </CheckBox>
                         </View>
-                    </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                </CheckBox.Group>
             </View>
         );
     }

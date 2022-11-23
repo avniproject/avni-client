@@ -1,4 +1,5 @@
-import {ListView, StyleSheet, Text, View} from "react-native";
+import {StyleSheet, Text, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -15,9 +16,9 @@ class EntitySyncStatusTable extends AbstractComponent {
     render() {
         const groups = _.groupBy(this.props.data, 'type');
         const sortedRows = _.concat(_.sortBy(groups.tx, ['entityName']), _.sortBy(groups.reference, ['entityName']));
-        return <View style={defaultStyles.container}>
+        return <View>
             <View>
-                < View style={[defaultStyles.tableHeaderRow]}>
+                <View style={[defaultStyles.tableHeaderRow]}>
                     <Text style={[defaultStyles.tableColHeader, {flex: 5, paddingLeft: 8,}]}>{this.I18n.t('entityName')}</Text>
                     <Text style={[defaultStyles.tableColHeader, {flex: 2.2,}]}>{this.I18n.t('loadedSince')}</Text>
                     <Text style={[defaultStyles.tableColHeader, {flex: 1,}]}>{this.I18n.t('queuedCount')}</Text>

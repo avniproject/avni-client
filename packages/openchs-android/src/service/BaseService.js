@@ -2,6 +2,10 @@
 import _ from "lodash";
 import General from "../utility/General";
 
+/*
+All methods with entity/entities in their name are to be used for disconnected objects. The ones without these terms are for connected objects.
+For more read here.
+ */
 class BaseService {
     constructor(db, context) {
         this.db = db;
@@ -16,7 +20,7 @@ class BaseService {
     }
 
     dispatchAction(action, params) {
-        const type = action instanceof Function? action.Id: action;
+        const type = action instanceof Function ? action.Id : action;
         if (General.canLog(General.LogLevel.Debug))
             General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(type)}`);
         return this.reduxStore.dispatch({type, ...params});
@@ -30,7 +34,7 @@ class BaseService {
     }
 
     getService(name) {
-        return this.context.getBean(name);
+        return this.context.getService(name);
     }
 
     getServerUrl() {
@@ -42,8 +46,7 @@ class BaseService {
         return this.findAllByCriteria(`${keyName}="${value}"`, schemaName);
     }
 
-    findAllByCriteria(filterCriteria, schema) {
-        if (_.isNil(schema)) schema = this.getSchema();
+    findAllByCriteria(filterCriteria, schema = this.getSchema()) {
         return this.findAll(schema).filtered(filterCriteria);
     }
 
@@ -53,7 +56,7 @@ class BaseService {
 
     findOnly(schema) {
         const all = this.findAll(schema);
-        return _.isEmpty(all) ? all : all[0];
+        return all.length === 0 ? null : all[0];
     }
 
     findByUUID(uuid, schema = this.getSchema()) {
@@ -121,7 +124,7 @@ class BaseService {
     }
 
     getAllNonVoided(schema = this.getSchema()) {
-        return this.getAll(schema).filtered("voided = false");
+        return this.db.objects(schema).filtered("voided = false");
     }
 
     getSchema() {
@@ -132,7 +135,7 @@ class BaseService {
         const db = this.db;
 
         entities.forEach((entity) => {
-            General.logDebug(`Deleting all data from ${entity.schema.name}`);
+            General.logDebug("BaseService", `Deleting all data from ${entity.schema.name}`);
             db.write(() => {
                 var objects = db.objects(entity.schema.name);
                 db.delete(objects);
@@ -159,15 +162,19 @@ class BaseService {
         return this.db.objects(this.getSchema()).filtered(...args);
     }
 
-    filterBy(fn: Function) {
+    filterBy(fn) {
         const result = [];
-        this.getAll().forEach(it=> fn(it) && result.push(it));
+        this.getAll().forEach(it => fn(it) && result.push(it));
         return result;
     }
 
     findUniqBy(fn: Function) {
         const result = this.filterBy(fn);
-        if(result.length === 1) return result[0];
+        if (result.length === 1) return result[0];
+    }
+
+    static orFilterCriteria(entities, path) {
+        return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
 }
 

@@ -108,8 +108,6 @@ class ProgramEnrolmentDashboardActions {
             .map(encounter => ({encounter, expand: false}));
         let onEnrolmentChange = ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
 
-        console.log('onEnrolmentChange', onEnrolmentChange.dashboardButtons);
-
         return onEnrolmentChange;
     }
 

@@ -98,7 +98,7 @@ class GrowthChartView extends AbstractComponent {
         this.setState((prevState) => this.graphForSelection(prevState, selectedGraph));
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             const newState = {
                 weightForAge: {dataSets: this.getDataSets(this.props.params.data.weightForAge, 'Weight', 'kg')},
@@ -321,9 +321,6 @@ class GrowthChartView extends AbstractComponent {
                         keepPositionOnRotation={false}
 
                         xAxis={{position: 'BOTTOM', labelCount: 5}}
-
-                        // onSelect={this.handleSelect.bind(this)}
-                        // onChange={(event) => console.log(event.nativeEvent)}
 
                         ref="chart"
                     />

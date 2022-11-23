@@ -3,13 +3,12 @@ import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import Config from '../Config';
-import BeanRegistry from "../bean/BeanRegistry";
-import AuthService from "../../service/AuthService";
+import GlobalContext from "../../GlobalContext";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const getAuthToken = async  () => {
-    const authService = BeanRegistry.getService(AuthService);
+    const authService = GlobalContext.getInstance().beanRegistry.getService("authService");
     return await authService.getAuthToken();
 };
 

@@ -1,10 +1,10 @@
-import {Schema, UserInfo} from 'avni-models';
-import Realm from 'realm';
+import {UserInfo} from 'openchs-models';
 import analytics from "@react-native-firebase/analytics";
 import {defaultTo, isEmpty, noop} from 'lodash';
 import Config from "../framework/Config";
+import RealmFactory from "../framework/db/RealmFactory";
 
-const db = new Realm(Schema);
+const db = RealmFactory.createRealm();;
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 

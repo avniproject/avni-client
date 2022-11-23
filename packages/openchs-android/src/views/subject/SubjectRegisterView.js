@@ -1,4 +1,4 @@
-import {Text, TextInput, ToastAndroid, Vibration, View} from "react-native";
+import {ScrollView, Text, TextInput, ToastAndroid, Vibration, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -50,6 +50,7 @@ class SubjectRegisterView extends AbstractComponent {
         let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
         const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
         this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
+        this.scrollRef = React.createRef();
     }
 
     getTitleForGroupSubject() {
@@ -87,14 +88,17 @@ class SubjectRegisterView extends AbstractComponent {
         return 'SubjectRegisterView';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
+        const params = this.props.params;
         this.dispatchAction(Actions.ON_LOAD, {
-            subjectUUID: this.props.params.subjectUUID,
-            workLists: this.props.params.workLists,
-            isDraftEntity: this.props.params.isDraftEntity,
-            pageNumber: this.props.params.pageNumber,
+            subjectUUID: params.subjectUUID,
+            groupSubjectUUID: params.groupSubjectUUID,
+            workLists: params.workLists,
+            isDraftEntity: params.isDraftEntity,
+            pageNumber: params.pageNumber,
+            taskUuid: params.taskUuid
         });
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     previous() {
@@ -179,7 +183,8 @@ class SubjectRegisterView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
-                <CHSContent ref="scroll">
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
@@ -258,8 +263,8 @@ class SubjectRegisterView extends AbstractComponent {
                             groupAffiliation={this.state.groupAffiliation}
                             syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
                             syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
-                            allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
-                            allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
+                            allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
+                            allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
                         />}
                         {!displayTimer &&
                         <WizardButtons previous={{
@@ -271,6 +276,7 @@ class SubjectRegisterView extends AbstractComponent {
                             label: this.I18n.t('next')
                         }}/>}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

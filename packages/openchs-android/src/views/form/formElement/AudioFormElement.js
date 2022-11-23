@@ -33,8 +33,7 @@ class AudioFormElement extends AbstractFormElement {
         this.state = {
             start: true,
             stop: false,
-            recordSecs: 0,
-            recordTime: '00:00:00',
+            recordTime: '00:00',
         };
         this.audioRecorderPlayer = new AudioRecorderPlayer();
     }
@@ -67,7 +66,7 @@ class AudioFormElement extends AbstractFormElement {
     clearAnswer() {
         this.updateValue(null);
         this.audioRecorderPlayer.removeRecordBackListener();
-        this.setState({recordSecs: 0, recordTime: '00:00:00'});
+        this.setState({recordTime: '00:00'});
     }
 
     showMedia() {
@@ -121,8 +120,7 @@ class AudioFormElement extends AbstractFormElement {
             General.logDebug('AudioFormElement', `Started recording audio at location ${uri}`);
             this.audioRecorderPlayer.addRecordBackListener((e: any) => {
                 this.setState({
-                    recordSecs: e.current_position,
-                    recordTime: this.audioRecorderPlayer.mmssss(Math.floor(e.current_position)),
+                    recordTime: this.audioRecorderPlayer.mmss(Math.floor(e.currentPosition/1000)),
                 });
             });
         }
@@ -133,7 +131,7 @@ class AudioFormElement extends AbstractFormElement {
         General.logDebug('AudioFormElement', `Recording saved at ${filePath}`);
         this.updateValue(filePath.replace(/^.*[\\\/]/, ''), ValidationResult.successful(this.props.element.uuid));
         this.audioRecorderPlayer.removeRecordBackListener();
-        this.setState({recordSecs: 0, start: true, stop: false});
+        this.setState({start: true, stop: false});
     }
 
     showInputOptions() {

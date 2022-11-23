@@ -22,19 +22,25 @@ import DraftSubjectService from "../service/draft/DraftSubjectService";
 import IndividualDetailsCard from "./common/IndividualDetailsCard";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SubjectRegisterView from "./subject/SubjectRegisterView";
-import IndividualRegisterView from "./individual/IndividualRegisterView";
+import PersonRegisterView from "./individual/PersonRegisterView";
 import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
+import PropTypes from "prop-types";
 
 class RegisterView extends AbstractComponent {
+    static propTypes = {
+        hideBackButton: PropTypes.bool.isRequired,
+        defaultObservations: PropTypes.any,
+        taskUuid: PropTypes.string
+    }
 
     constructor(props, context) {
         super(props, context);
         this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     _addRegistrationAction(subjectType) {
@@ -43,7 +49,8 @@ class RegisterView extends AbstractComponent {
         }
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))),
+                {taskUuid: this.props.taskUuid,
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))}),
             label: this.I18n.t(`${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }
@@ -51,17 +58,22 @@ class RegisterView extends AbstractComponent {
 
     _addHouseholdAction(subjectType) {
         const groupRole = this.getService(GroupSubjectService).getGroupRoles(subjectType)[0];
+
         const householdParams = {
-            subjectTypeName: groupRole.memberSubjectType.name,
+            subjectTypeName: _.get(groupRole, 'memberSubjectType.name'),
             saveAndProceedLabel: 'registerHeadOfFamily',
             headOfHousehold: true
         };
+
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`))
-                    .withRegistration(subjectType.name)
-                    .withHouseholdRegistration(householdParams)
-                )),
+                {
+                    taskUuid: this.props.taskUuid,
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`))
+                        .withRegistration(subjectType.name)
+                        .withHouseholdRegistration(householdParams)
+                    )
+                }),
             label: this.I18n.t(`${subjectType.name}`),
             backgroundColor: Colors.AccentColor,
         }
@@ -70,10 +82,12 @@ class RegisterView extends AbstractComponent {
     _addProgramAction(subjectType, program) {
         return {
             fn: () => CHSNavigator.navigateToRegisterView(this,
-                new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
-                    .withRegistration(subjectType.name)
-                    .withEnrolment(program.name)
-                )),
+                {
+                    workLists: new WorkLists(new WorkList(this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`))
+                        .withRegistration(subjectType.name)
+                        .withEnrolment(program.name)
+                    )
+                }),
             label: this.I18n.t(`REG_ENROL_DISPLAY-${program.programSubjectLabel}`),
             backgroundColor: program.colour,
         }
@@ -89,18 +103,21 @@ class RegisterView extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => {
                     onPress()
                 }}>
-                    <View style={{marginRight: Distances.ScaledContentDistanceFromEdge, marginLeft: Distances.ScaledContentDistanceFromEdge}}>
-                    <View style={[styles.container]}>
-                        <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
-                        <View style={[styles.textContainer]}>
-                            <Text
-                                style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
+                    <View style={{
+                        marginRight: Distances.ScaledContentDistanceFromEdge,
+                        marginLeft: Distances.ScaledContentDistanceFromEdge
+                    }}>
+                        <View style={[styles.container]}>
+                            <SubjectTypeIcon style={{marginLeft: 8}} size={24} subjectType={subjectType}/>
+                            <View style={[styles.textContainer]}>
+                                <Text
+                                    style={[Fonts.typography("paperFontSubhead"), styles.programNameStyle, {color: textColor}]}>{text}</Text>
+                            </View>
+                            <Icon style={styles.iconStyle} name='chevron-right'/>
                         </View>
-                        <Icon style={styles.iconStyle} name='chevron-right'/>
-                    </View>
-                    {index + 1 !== totalActions &&
-                    <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal:32}}/>
-                    }
+                        {index + 1 !== totalActions &&
+                            <Separator backgroundColor={Colors.InputBorderNormal} style={{marginHorizontal: 32}}/>
+                        }
                     </View>
                 </TouchableNativeFeedback>
             </View>
@@ -115,7 +132,7 @@ class RegisterView extends AbstractComponent {
                 individualUUID: subject.uuid,
                 isDraftEntity: true,
                 workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
-            }).to(subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView)}>
+            }).to(subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView)}>
                 <View>
                     <IndividualDetailsCard individual={subject} renderDraftString/>
                 </View>
@@ -125,12 +142,12 @@ class RegisterView extends AbstractComponent {
 
     renderDrafts() {
         const draftSubjects = this.context.getService(DraftSubjectService).findAll().sorted('updatedOn', true);
-        if (!_.isEmpty(draftSubjects)) {
+        if (draftSubjects.length > 0) {
             return (
                 <View style={styles.draftContainerStyle}>
                     <Text style={styles.draftHeaderStyle}>{this.I18n.t('drafts')}</Text>
                     <View style={styles.draftMessageContainer}>
-                    <Text style={styles.draftMessageStyle}>{this.I18n.t('draftDeleteMessage')}</Text>
+                        <Text style={styles.draftMessageStyle}>{this.I18n.t('draftDeleteMessage')}</Text>
                     </View>
                     {_.map(draftSubjects, draftSubject => this.renderDraft(draftSubject.constructIndividual()))}
                 </View>
@@ -158,15 +175,18 @@ class RegisterView extends AbstractComponent {
             const enrolCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${subjectType.uuid}'`;
             const allowedProgramTypeUuids = privilegeService.allowedEntityTypeUUIDListForCriteria(enrolCriteria, 'programUuid');
             const programs = formMappingService.findActiveProgramsForSubjectType(subjectType)
-                                .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
+                .filter(p => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramTypeUuids, p.uuid));
             if (this.userSettings.registerEnrol) {
-                actions = actions.concat(this._addProgramActions(subjectType, programs).map(action => ({action, subjectType})));
+                actions = actions.concat(this._addProgramActions(subjectType, programs).map(action => ({
+                    action,
+                    subjectType
+                })));
             }
         });
 
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t("register")} hideBackButton={true} hideIcon={true}/>
+                <AppHeader title={this.I18n.t("register")} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
                 <CHSContent>
                     <ScrollView style={{marginBottom: 110}}>
                         {_.map(actions, ({action, subjectType}, key) =>

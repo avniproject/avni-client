@@ -12,6 +12,8 @@ import General from "../../utility/General";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
+import IndividualService from "../../service/IndividualService";
+import {ObservationsHolder} from "openchs-models";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -37,24 +39,55 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType.name}`);
         }
 
+        const encounterType = action.programEncounter.encounterType;
+        const getPreviousEncounter = () => {
+            const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
+            if (previousEncounter) {
+                action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
+                const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
+                let groupNo = 0;
+                const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        groupNo = groupNo + 1;
+                        let filteredFormElements = ProgramEncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                        if (filteredFormElements.length === 0) return false;
+                        return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
+                    });
+
+                if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
+                    action.allElementsFilledForImmutableEncounter = true;
+                else
+                    action.pageNumber = groupNo;
+            }
+            return action.programEncounter;
+        };
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.programEncounter;
+
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
-        }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, action.programEncounter).length !== 0);
+        }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
-        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(action.programEncounter.uuid, ProgramEncounter.schema.name));
+        const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, ProgramEncounter.schema.name));
+
         const workLists = action.workLists || new WorkLists(new WorkList('Enrolment').withEncounter({
-            encounterType: action.programEncounter.encounterType.name,
-            subjectUUID: action.programEncounter.programEnrolment.individual.uuid,
-            programName: action.programEncounter.programEnrolment.program.name,
+            encounterType: encounterToPass.encounterType.name,
+            subjectUUID: encounterToPass.programEnrolment.individual.uuid,
+            programName: encounterToPass.programEnrolment.program.name,
         }));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return ProgramEncounterState.createOnLoadStateForEmptyForm(action.programEncounter, form, isNewEntity, workLists);
+            return ProgramEncounterState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists);
         }
 
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(action.programEncounter, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
+        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = ProgramEncounterState.createOnLoad(action.programEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = ProgramEncounterState.createOnLoad(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+
+        if(action.allElementsFilledForImmutableEncounter) {
+            newState.allElementsFilledForImmutableEncounter = true;
+            newState.wizard.currentPage = form.numberOfPages;
+            return newState;
+        }
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 
@@ -88,6 +121,7 @@ class ProgramEncounterActions {
         const newState = state.clone();
         const workflowInfo = {workflow: 'Program encounter', programEncounterUuid: newState.programEncounter.uuid};
         context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, workflowInfo);
+        context.get(IndividualService).updateObservations(newState.programEncounter.programEnrolment.individual);
         const service = context.get(ProgramEncounterService);
 
         const scheduledVisits = [];

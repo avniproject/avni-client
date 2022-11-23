@@ -10,7 +10,7 @@ uninstall_apk: ##
 	-adb uninstall ${app_android_package_name}
 
 clear_app_data:
-	adb shell pm clear ${app_android_package_name}
+	-adb shell pm clear ${app_android_package_name}
 
 install_universal_apk: ##
 	$(call _install_apk,app-release.apk)
@@ -40,8 +40,10 @@ open_playstore_openchs:
 
 
 # Run application from the code
-_run_app: ; cd packages/openchs-android && react-native run-android
-_run_app_release: ; cd packages/openchs-android && react-native run-android --variant=release
+_run_app:
+	cd packages/openchs-android && npx react-native run-android
+_run_app_release:
+	cd packages/openchs-android && npx react-native run-android --variant=release
 
 run_app: setup_hosts as_dev _run_app
 

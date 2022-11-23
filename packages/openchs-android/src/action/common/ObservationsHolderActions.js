@@ -5,7 +5,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        let formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup);
+        let formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }
@@ -35,7 +35,7 @@ class ObservationsHolderActions {
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
-        let validationResult = action.formElement.validate(action.value);
+        let validationResult = action.formElement.validate(value);
         if (action.validationResult && validationResult.success) {
             validationResult = action.validationResult;
         }

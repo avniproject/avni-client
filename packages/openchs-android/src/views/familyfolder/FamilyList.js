@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {Text, View, StyleSheet, ListView, TouchableNativeFeedback} from 'react-native';
+import {Text, View, StyleSheet, TouchableNativeFeedback} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import _ from 'lodash';
 import {Header} from 'native-base';
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -45,10 +46,10 @@ class FamilyList extends AbstractComponent {
         }
     });
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         General.logDebug("FamilyList", "Component Will Mount");
         this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     componentWillUnmount() {

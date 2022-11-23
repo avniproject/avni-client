@@ -2,7 +2,7 @@ version: 2
 jobs:
   install_deps:
     docker:
-      - image: circleci/node:8.5.0
+      - image: cimg/node:16.18.0
     working_directory: ~/openchs-client
     steps:
       - checkout
@@ -24,7 +24,7 @@ jobs:
 
   test_android:
     docker:
-      - image: circleci/node:8.5.0
+      - image: cimg/node:16.18.0
     working_directory: ~/openchs-client
     steps:
       - checkout
@@ -39,11 +39,7 @@ jobs:
 
   release_android_staging:
     docker:
-      - image: openchs/react-native-image:latest
-        environment:
-          - TERM: dumb
-          - ENVFILE: .env.staging
-          - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
+      - image: cimg/node:16.18.0
     working_directory: ~/openchs-client
     steps:
       - checkout
@@ -53,9 +49,12 @@ jobs:
           - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
           - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           - v1-dependencies-
+      - run: sudo apt update software-properties-common
+      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
+      - run: sudo apt update
+      - run: sudo apt install openjdk-8-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: make deps_ci
-      - run: make release_staging
+      - run: make deps_ci release_staging_without_clean
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           paths:
@@ -65,7 +64,7 @@ jobs:
            - ~/openchs-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
-          destination: openchs.apk
+          destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js

@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {View, StyleSheet, ListView, Text, TouchableOpacity, Image} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import ListView from "deprecated-react-native-listview";
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -54,9 +55,9 @@ class FamilyFolderView extends AbstractComponent {
             }
     });
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     _onPressButton() {
@@ -70,7 +71,7 @@ class FamilyFolderView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('familyFolder')}/>
                 <CHSContent>
                     <View style={FamilyFolderView.styles.container}>
-                        <ListView dataSource={dataSource}
+                        <ListView enableEmptySections={true} dataSource={dataSource}
                                   initialListSize={1}
                                   removeClippedSubviews={true}
                                   renderSeparator={(ig, idx) => (<Separator key={idx} height={2}/>)}

@@ -13,14 +13,14 @@ include ':react-native-zip-archive'
 project(':react-native-zip-archive').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-zip-archive/android')
 include ':react-native-background-job'
 project(':react-native-background-job').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-job/android')
+include ':react-native-background-worker'
+project(':react-native-background-worker').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-background-worker/android')
 include ':@react-native-firebase_app'
 project(':@react-native-firebase_app').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/app/android')
 include ':@react-native-firebase_analytics'
 project(':@react-native-firebase_analytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/analytics/android')
 include ':react-native-immediate-phone-call'
 project(':react-native-immediate-phone-call').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-immediate-phone-call/android')
-include ':react-native-code-push'
-project(':react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-code-push/android/app')
 include ':react-native-device-info'
 project(':react-native-device-info').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-info/android')
 include ':amazon-cognito-identity-js'
@@ -42,10 +42,12 @@ project(':react-native-charts-wrapper').projectDir = new File(rootProject.projec
 include ':react-native-vector-icons'
 project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
 
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
+
 include ':app'
 include ':react-native-i18n'
 project(':react-native-i18n').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-i18n/android')
-include ':realm'
-project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules/realm/android')
+//include ':realm'
+//project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules/realm/android')
 include ':react-native-webview'
 project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')

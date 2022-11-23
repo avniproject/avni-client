@@ -1,4 +1,5 @@
-import {TouchableNativeFeedback, ListView, Text, View, StyleSheet} from "react-native";
+import {TouchableNativeFeedback, Text, View, StyleSheet} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";

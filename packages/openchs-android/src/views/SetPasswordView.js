@@ -4,7 +4,7 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import {Text, TextInput, TouchableNativeFeedback, View} from "react-native";
 import Styles from "./primitives/Styles";
-import {CheckBox, Spinner} from "native-base";
+import {Checkbox as CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
 import AuthService from "../service/AuthService";
@@ -26,7 +26,7 @@ class SetPasswordView extends AbstractComponent {
         return "SetPasswordView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState(() => {
             return {showPassword: false, showSpinner: false}
         });

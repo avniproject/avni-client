@@ -29,13 +29,13 @@ class SubjectProfilePicture extends AbstractComponent {
         this.props.size = (Math.pow(2, 0.5) * this.props.size);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const isProfilePictureAllowed = this.props.subjectType.allowProfilePicture;
         const isSubjectProfileIconSetup = isProfilePictureAllowed && !isEmpty(this.props.individual.profilePicture);
         isSubjectProfileIconSetup && this.getService(MediaService)
             .downloadFileIfRequired(this.props.individual.profilePicture, 'Profile-Pics')
             .then(url => this.setState({loadProfilePic: true}));
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     renderDefaultIcon({subjectType, size, style, round}) {

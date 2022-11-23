@@ -1,4 +1,5 @@
-import {ListView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";
@@ -17,6 +18,7 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import CollapsibleEncounters from "../views/common/CollapsibleEncounters";
 import DGS from "../views/primitives/DynamicGlobalStyles";
 import Separator from "../views/primitives/Separator";
+import ListViewHelper from "../utility/ListViewHelper";
 
 @Path('/CompletedEncountersView')
 class CompletedEncountersView extends AbstractComponent {
@@ -29,9 +31,9 @@ class CompletedEncountersView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.completedEncounters);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props.params);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     render() {

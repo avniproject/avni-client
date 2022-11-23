@@ -1,0 +1,370 @@
+diff --git a/node_modules/react-native-background-worker/android/build.gradle b/node_modules/react-native-background-worker/android/build.gradle
+index ab9b663..2344aea 100644
+--- a/node_modules/react-native-background-worker/android/build.gradle
++++ b/node_modules/react-native-background-worker/android/build.gradle
+@@ -17,29 +17,29 @@ buildscript {
+ }
+ 
+ apply plugin: 'com.android.library'
+-apply plugin: 'maven'
++apply plugin: 'maven-publish'
+ 
+ // Matches values in recent template from React Native 0.59 / 0.60
+ // https://github.com/facebook/react-native/blob/0.59-stable/template/android/build.gradle#L5-L9
+ // https://github.com/facebook/react-native/blob/0.60-stable/template/android/build.gradle#L5-L9
+-def DEFAULT_COMPILE_SDK_VERSION = 28
+-def DEFAULT_BUILD_TOOLS_VERSION = "28.0.3"
++def DEFAULT_COMPILE_SDK_VERSION = 31
++def DEFAULT_BUILD_TOOLS_VERSION = "31"
+ def DEFAULT_MIN_SDK_VERSION = 16
+-def DEFAULT_TARGET_SDK_VERSION = 28
++def DEFAULT_TARGET_SDK_VERSION = 31
+ 
+ android {
+-  compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
+-  buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
+-
+-  defaultConfig {
+-    minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
+-    targetSdkVersion safeExtGet('targetSdkVersion', DEFAULT_TARGET_SDK_VERSION)
+-    versionCode 1
+-    versionName "1.0"
+-  }
+-  lintOptions {
+-    abortOnError false
+-  }
++    compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
++    buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
++
++    defaultConfig {
++        minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
++        targetSdkVersion safeExtGet('targetSdkVersion', DEFAULT_TARGET_SDK_VERSION)
++        versionCode 1
++        versionName "1.0"
++    }
++    lintOptions {
++        abortOnError false
++    }
+     compileOptions {
+         sourceCompatibility = 1.8
+         targetCompatibility = 1.8
+@@ -61,7 +61,8 @@ repositories {
+ dependencies {
+     implementation "com.facebook.react:react-native:${safeExtGet('reactnativeVersion', '+')}"
+     implementation "androidx.work:work-runtime:2.2.0"
+-    implementation "androidx.work:work-rxjava2:+"
++    implementation "androidx.work:work-rxjava2:2.2.0"
++    implementation "androidx.legacy:legacy-support-core-utils:1.0.0"
+ }
+ 
+ def configureReactNativePom(def pom) {
+@@ -92,45 +93,3 @@ def configureReactNativePom(def pom) {
+     }
+ }
+ 
+-afterEvaluate { project ->
+-
+-    task androidJavadoc(type: Javadoc) {
+-        source = android.sourceSets.main.java.srcDirs
+-        classpath += files(android.bootClasspath)
+-        classpath += files(project.getConfigurations().getByName('compile').asList())
+-        include '**/*.java'
+-    }
+-
+-    task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
+-        classifier = 'javadoc'
+-        from androidJavadoc.destinationDir
+-    }
+-
+-    task androidSourcesJar(type: Jar) {
+-        classifier = 'sources'
+-        from android.sourceSets.main.java.srcDirs
+-        include '**/*.java'
+-    }
+-
+-    android.libraryVariants.all { variant ->
+-        def name = variant.name.capitalize()
+-        task "jar${name}"(type: Jar, dependsOn: variant.javaCompile) {
+-            from variant.javaCompile.destinationDir
+-        }
+-    }
+-
+-    artifacts {
+-        archives androidSourcesJar
+-        archives androidJavadocJar
+-    }
+-
+-    task installArchives(type: Upload) {
+-        configuration = configurations.archives
+-        repositories.mavenDeployer {
+-            // Deploy to react-native-event-bridge/maven, ready to publish to npm
+-            repository url: "file://${projectDir}/../android/maven"
+-
+-            configureReactNativePom pom
+-        }
+-    }
+-}
+diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java
+index ecbb304..5646a54 100644
+--- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java
++++ b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java
+@@ -1,26 +1,19 @@
+ package com.backgroundworker;
+ 
+-import android.content.BroadcastReceiver;
++import android.content.ComponentName;
+ import android.content.Context;
+ import android.content.Intent;
+-import android.content.IntentFilter;
++import android.content.ServiceConnection;
+ import android.os.Bundle;
++import android.os.IBinder;
+ import android.util.Log;
+-
+ import androidx.annotation.NonNull;
+-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+-import androidx.work.Data;
+-import androidx.work.RxWorker;
++import androidx.work.Worker;
+ import androidx.work.WorkerParameters;
+ 
+-import com.facebook.react.bridge.Arguments;
+-import com.facebook.react.modules.core.DeviceEventManagerModule;
+-
+ import java.util.Map;
+ 
+-import io.reactivex.Single;
+-
+-public class BackgroundWorker extends RxWorker {
++public class BackgroundWorker extends Worker {
+ 
+     private Map<String, Object> worker;
+     private String id;
+@@ -31,54 +24,58 @@ public class BackgroundWorker extends RxWorker {
+         id = workerParams.getId().toString();
+     }
+ 
+-    /**
+-     * We chose the RxWorker because we can listen to JS during the task,
+-     * If the module context is destroyed, the app was closed hence we can't perform any task,
+-     * so just return retry to work manager
+-     * @return Single that listens to JS finishing the work
+-     */
+     @NonNull
+     @Override
+-    public Single<Result> createWork() {
++    public Result doWork() {
++        Log.d("BackgroundWorkerService", "doWork: started");
++        try {
++            Intent intent = new Intent(getApplicationContext(), BackgroundWorkerService.class);
++            if ( worker.get("name") == null) {
++                return Result.failure();
++            }
++
++            initIntentExtras(intent);
++
++            Log.d("BackgroundWorkerService", "doWork: binding service");
++            boolean bound = getApplicationContext().bindService(intent, new ServiceConnection() {
++                @Override
++                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
++                    Log.d("BackgroundWorkerService", "doWork: service connected");
++                    BackgroundWorkerService.LocalBinder binder = (BackgroundWorkerService.LocalBinder) iBinder;
++                    BackgroundWorkerService service = binder.getService();
++                    service.onStartCommand(intent, 0, 0);
++                }
++
++                @Override
++                public void onServiceDisconnected(ComponentName componentName) {
++                    Log.d("BackgroundWorkerService", "doWork: service disconnected");
++                }
++            }, Context.BIND_AUTO_CREATE);
+ 
+-        if(BackgroundWorkerModule.context==null)
+-            return Single.just(Result.retry());
++            Log.d("BackgroundWorkerService", "doWork: service bound value = " + bound);
++        } catch (Exception e) {
++            Log.e("BackgroundWorkerService", "doWork: exception while binding", e);
++            return Result.failure();
++        }
++
++        return Result.success();
++    }
+ 
++    private void initIntentExtras(Intent intent) {
+         String name = (String) worker.get("name");
+         String payload = (String) worker.get("payload");
++        String text = (String) worker.get("text");
++        String title = (String) worker.get("title");
+ 
+-        if(name==null)
+-            return Single.just(Result.failure());
++        Bundle bundle = new Bundle();
++        bundle.putString("id", id);
+ 
+-        Bundle extras = new Bundle();
+-        extras.putString("id", id);
+-        if(payload!=null) extras.putString("payload",payload);
++        if (payload != null) bundle.putString("payload", payload);
++        if (name != null) bundle.putString("name", name);
++        if (text != null) bundle.putString("text", text);
++        if (title != null) bundle.putString("title", title);
+ 
+-        BackgroundWorkerModule.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+-                .emit(name, Arguments.fromBundle(extras));
+-
+-        return Single.create(emitter -> {
+-            BroadcastReceiver receiver = new BroadcastReceiver() {
+-                @Override
+-                public void onReceive(Context context, Intent intent) {
+-                    String value = intent.getStringExtra("value");
+-                    String result = intent.getStringExtra("result");
+-                    Data outputData = new Data.Builder()
+-                            .putString("value", value)
+-                            .build();
+-                    switch (result) {
+-                        case "success":
+-                            emitter.onSuccess(Result.success(outputData));
+-                            break;
+-                        case "retry":
+-                            emitter.onSuccess(Result.retry());
+-                            break;
+-                        default:
+-                            emitter.onSuccess(Result.failure(outputData));
+-                    }
+-                }
+-            };
+-            LocalBroadcastManager.getInstance(BackgroundWorkerModule.context).registerReceiver(receiver,new IntentFilter(id+"result"));
+-        });
++        intent.putExtras(bundle);
+     }
++
+ }
+\ No newline at end of file
+diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
+index 823b495..988f4f9 100644
+--- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
++++ b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerModule.java
+@@ -27,6 +27,7 @@ import com.facebook.react.bridge.ReactMethod;
+ import com.facebook.react.bridge.ReadableMap;
+ import com.facebook.react.modules.core.DeviceEventManagerModule;
+ import com.google.common.util.concurrent.ListenableFuture;
++import com.backgroundworker.Parser;
+ 
+ import java.util.HashMap;
+ import java.util.UUID;
+diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java
+index 0158ef3..6c5fd7b 100644
+--- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java
++++ b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorkerService.java
+@@ -1,22 +1,32 @@
+ package com.backgroundworker;
+ 
+-import android.app.Notification;
+-import android.app.NotificationChannel;
+-import android.app.NotificationManager;
+-import android.content.Context;
+ import android.content.Intent;
++import android.os.Binder;
+ import android.os.Bundle;
+-
++import android.os.IBinder;
+ import com.facebook.react.HeadlessJsTaskService;
+ import com.facebook.react.bridge.Arguments;
+ import com.facebook.react.jstasks.HeadlessJsTaskConfig;
+ 
+-import java.util.concurrent.TimeUnit;
+-
+ import javax.annotation.Nullable;
++import java.util.concurrent.TimeUnit;
+ 
+ public class BackgroundWorkerService extends HeadlessJsTaskService {
+ 
++    private final IBinder binder = new LocalBinder();
++
++    public class LocalBinder extends Binder {
++        BackgroundWorkerService getService() {
++            return BackgroundWorkerService.this;
++        }
++    }
++
++    @androidx.annotation.Nullable
++    @Override
++    public IBinder onBind(Intent intent) {
++        return binder;
++    }
++
+     /**
+      * The Headless task should start in foreground in recent versions of android and thus showing
+      * a notification, the intent should contain all the relevant information
+@@ -39,28 +49,11 @@ public class BackgroundWorkerService extends HeadlessJsTaskService {
+         String text = extras.getString("text");
+         assert text!=null;
+ 
+-        int timeout = extras.getInt("timeout");
++        Double timeout = extras.getDouble("timeout");
+ 
+         String id = extras.getString("id");
+ 
+-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+-
+-            NotificationChannel channel = new NotificationChannel(name, name, NotificationManager.IMPORTANCE_MIN);
+-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+-            notificationManager.createNotificationChannel(channel);
+-
+-            Notification notification = new Notification.Builder(this, name)
+-                    .setWhen(System.currentTimeMillis())
+-                    .setContentText(text)
+-                    .setContentTitle(title)
+-                    .setSmallIcon(getResources().getIdentifier(name,"drawable",getApplicationContext().getPackageName()))
+-                    .build();
+-
+-            startForeground(id==null? 123456789 : id.hashCode(), notification);
+-
+-        }
+-
+-        return new HeadlessJsTaskConfig(name, Arguments.fromBundle(extras), TimeUnit.MINUTES.toMillis(timeout), true);
++        return new HeadlessJsTaskConfig(name, Arguments.fromBundle(extras), TimeUnit.MINUTES.toMillis(timeout.intValue()), true);
+ 
+     }
+ 
+diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/Parser.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/Parser.java
+index b7850bf..c3e681e 100644
+--- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/Parser.java
++++ b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/Parser.java
+@@ -1,5 +1,6 @@
+ package com.backgroundworker;
+ 
++import android.os.Build;
+ import android.os.Bundle;
+ 
+ import androidx.work.Constraints;
+@@ -35,13 +36,22 @@ public class Parser {
+         final boolean requiresStorageNotLow = constraints.hasKey("storage") && constraints.getString("storage").equals("notLow");
+         final boolean requiresBatteryNotLow = constraints.hasKey("battery") && constraints.getString("battery").equals("notLow");
+ 
+-        return new Constraints.Builder()
+-                .setRequiredNetworkType(networkType)
+-                .setRequiresCharging(requiresCharging)
+-                .setRequiresDeviceIdle(requiresDeviceIdle)
+-                .setRequiresStorageNotLow(requiresStorageNotLow)
+-                .setRequiresBatteryNotLow(requiresBatteryNotLow)
+-                .build();
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
++            return new Constraints.Builder()
++                    .setRequiredNetworkType(networkType)
++                    .setRequiresCharging(requiresCharging)
++                    .setRequiresDeviceIdle(requiresDeviceIdle)
++                    .setRequiresStorageNotLow(requiresStorageNotLow)
++                    .setRequiresBatteryNotLow(requiresBatteryNotLow)
++                    .build();
++        } else {
++            return new Constraints.Builder()
++                    .setRequiredNetworkType(networkType)
++                    .setRequiresCharging(requiresCharging)
++                    .setRequiresStorageNotLow(requiresStorageNotLow)
++                    .setRequiresBatteryNotLow(requiresBatteryNotLow)
++                    .build();
++        }
+ 
+     }
+ 

@@ -1,9 +1,10 @@
-import {Concept, Observation, Schema} from 'avni-models';
+import {Concept, Observation, RealmConfig} from 'avni-models';
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
+import GlobalContext from "../GlobalContext";
 
 const imageObservationDoesNotExist = (db) => (image) => {
     return db.objects(Observation.schema.name).filtered(
@@ -40,9 +41,10 @@ class PruneMedia extends BaseTask {
     execute() {
         try {
             General.logInfo("PruneMedia", "PruneMedia job started");
-
-            const pruneImageDir = pruneMedia(this.db, FileSystem.getImagesDir());
-            const pruneVideoDir = pruneMedia(this.db, FileSystem.getVideosDir());
+            this.initDependencies();
+            const globalContext = GlobalContext.getInstance();
+            const pruneImageDir = pruneMedia(globalContext.db, FileSystem.getImagesDir());
+            const pruneVideoDir = pruneMedia(globalContext.db, FileSystem.getVideosDir());
 
             return Promise.all(pruneImageDir, pruneVideoDir).catch((e) => {
                 ErrorHandler.postScheduledJobError(e);

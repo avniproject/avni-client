@@ -21,7 +21,7 @@ class RootView extends AbstractComponent {
         this.state = {};
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
         await this.showSplashScreen();
         await this.openApp();
     }
@@ -34,7 +34,8 @@ class RootView extends AbstractComponent {
             General.logDebug("RootView", "Cannot show custom home screen. Showing default screen instead");
             General.logDebug("RootView", e);
         }
-        await General.delay(this.TIME_TO_SHOW_SPLASH_SCREEN);
+        if (!__DEV__)
+            await General.delay(this.TIME_TO_SHOW_SPLASH_SCREEN);
     }
 
     async openApp() {
@@ -44,17 +45,22 @@ class RootView extends AbstractComponent {
             return CHSNavigator.navigateToBeneficiaryIdentificationPage(this);
         }
 
-        if (decisionParameters.userExists && this.isDatabaseSynced()) {
+        let userExists = false;
+        await decisionParameters.userExists().then((x) => userExists = x);
+        const databaseSynced = this.isDatabaseSynced();
+        if (userExists && databaseSynced) {
             return CHSNavigator.navigateToLandingView(this, true);
         }
 
+        General.logDebug("RootView", `User exists: ${userExists}. Database Synced: ${databaseSynced}`);
         return CHSNavigator.navigateToLoginView(this, false);
     }
 
     async nextScreenDecisionParameters() {
+        const authService = this.context.getService(AuthService);
         return {
             beneficiaryModeOn: this.beneficiaryModeOn(),
-            userExists: await this.context.getService(AuthService).userExists,
+            userExists: authService.userExists.bind(authService),
             databaseSynced: this.isDatabaseSynced()
         }
     }

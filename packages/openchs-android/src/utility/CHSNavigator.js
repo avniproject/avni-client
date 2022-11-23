@@ -1,11 +1,11 @@
 // @flow
-import {Encounter, EncounterType, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem, Individual} from 'avni-models';
+import {Encounter, EncounterType, Individual, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
 import _ from "lodash";
 import ProgramEncounterView from "../views/program/ProgramEncounterView";
-import IndividualRegisterView from "../views/individual/IndividualRegisterView";
+import PersonRegisterView from "../views/individual/PersonRegisterView";
 import IndividualEncounterView from "../views/individual/IndividualEncounterView";
 import SystemRecommendationView from "../views/conclusion/SystemRecommendationView";
 import ChecklistView from "../views/program/ChecklistView";
@@ -23,7 +23,7 @@ import FamilyDashboardView from "../views/familyfolder/FamilyDashboardView";
 import ChecklistItemView from "../views/program/ChecklistItemView";
 import VideoPlayerView from "../views/videos/VideoPlayerView";
 import SubjectRegisterView from "../views/subject/SubjectRegisterView";
-import IndividualRegisterFormView from "../views/individual/IndividualRegisterFormView";
+import PersonRegisterFormView from "../views/individual/PersonRegisterFormView";
 import FilterView from "../views/filter/FiltersView";
 import ProgramService from "../service/program/ProgramService";
 import IndividualService from "../service/IndividualService";
@@ -42,6 +42,9 @@ import ApprovalDetailsView from "../views/approval/ApprovalDetailsView";
 import GroupSubjectService from "../service/GroupSubjectService";
 import RemoveMemberView from "../views/groupSubject/RemoveMemberView";
 import moment from "moment";
+import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
+import FormMappingService from "../service/FormMappingService";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 
 class CHSNavigator {
@@ -70,7 +73,7 @@ class CHSNavigator {
     static navigateToProgramEnrolmentDashboardView(source, individualUUID, selectedEnrolmentUUID, isFromWizard, backFn, message, tab = 2) {
         const from = TypedTransition.from(source);
         const toBeRemoved = [SystemRecommendationView, SubjectRegisterView, ProgramEnrolmentView,
-            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView, ChecklistView, ChecklistItemView];
+            ProgramEncounterView, ProgramExitView, ProgramEncounterCancelView, NewVisitPageView, GenericDashboardView, ChecklistView, ChecklistItemView, ManualProgramEligibilityView];
         if (isFromWizard) {
             from.resetStack(toBeRemoved, [
                 TypedTransition.createRoute(GenericDashboardView, {
@@ -95,7 +98,7 @@ class CHSNavigator {
             source: source,
             next: next,
             onSuccessVerification: onSuccess,
-            onSkipVerification : onSkip,
+            onSkipVerification: onSkip,
             phoneNumber: observation.getValue()
         }).to(PhoneNumberVerificationView, true)
     }
@@ -152,7 +155,11 @@ class CHSNavigator {
     }
 
     static navigateToProgramEncounterCancelView(source, programEncounter, editing = false, pageNumber) {
-        TypedTransition.from(source).with({programEncounter: programEncounter, editing, pageNumber}).to(ProgramEncounterCancelView);
+        TypedTransition.from(source).with({
+            programEncounter: programEncounter,
+            editing,
+            pageNumber
+        }).to(ProgramEncounterCancelView);
     }
 
     static navigateToIndividualRegistrationDetails(source, individualUUID, backFunction) {
@@ -163,7 +170,7 @@ class CHSNavigator {
         }).to(GenericDashboardView);
     }
 
-    static navigateToRegisterView(source, workLists, pageNumber, canMoveToNextView) {
+    static navigateToRegisterView(source, {workLists, groupSubjectUUID, taskUuid}, pageNumber, canMoveToNextView) {
         const workItem = workLists.getCurrentWorkItem();
         const uuid = workItem.parameters.uuid;
         const subjectTypeName = workItem.parameters.subjectTypeName;
@@ -171,18 +178,20 @@ class CHSNavigator {
         const params = {
             subjectUUID: uuid,
             individualUUID: uuid,
+            groupSubjectUUID,
+            taskUuid,
             editing: !_.isNil(uuid),
             workLists,
         };
         if (subjectType.isPerson()) {
-            if (IndividualRegisterView.canLoad({uuid, subjectTypeName}, source)) {
+            if (PersonRegisterView.canLoad({uuid, subjectTypeName}, source)) {
                 if (pageNumber > 0 && canMoveToNextView) {
                     TypedTransition.from(source).resetStack([], [
-                        TypedTransition.createRoute(IndividualRegisterView, params),
-                        TypedTransition.createRoute(IndividualRegisterFormView, {...params, pageNumber: pageNumber + 1})
+                        TypedTransition.createRoute(PersonRegisterView, params),
+                        TypedTransition.createRoute(PersonRegisterFormView, {...params, pageNumber: pageNumber + 1})
                     ]);
                 } else {
-                    TypedTransition.from(source).with({...params}).to(IndividualRegisterView)
+                    TypedTransition.from(source).with({...params}).to(PersonRegisterView)
                 }
             }
         } else if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
@@ -202,7 +211,7 @@ class CHSNavigator {
         }).to(IndividualEncounterView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -212,6 +221,29 @@ class CHSNavigator {
                     }, true)
                 ]);
         };
+
+        let onPreviousCallback = undefined;
+        if (fromSDV) {
+            onPreviousCallback = (context) => {
+                const form = context.getService(FormMappingService).findFormForEncounterType(encounter.encounterType, Encounter.schema.name, encounter.subjectType);
+                let pageNumber = form.numberOfPages + 1;
+                const lastGroupWithAtLeastOneVisibleElement = _.findLast(form.getFormElementGroups(),
+                    (formElementGroup) => {
+                        pageNumber = pageNumber - 1;
+                        let formElementStatuses = context.getService(RuleEvaluationService).getFormElementsStatuses(encounter, Encounter.schema.name, formElementGroup);
+                        let elements = formElementGroup.filterElements(formElementStatuses);
+                        return !_.isEmpty(elements);
+                    });
+
+                TypedTransition.from(source).with({
+                    encounter,
+                    individualUUID: encounter.individual.uuid,
+                    editing: true,
+                    pageNumber
+                }).to(IndividualEncounterView, true);
+            }
+        }
+
         CHSNavigator.navigateToSystemsRecommendationView(source,
             decisions,
             ruleValidationErrors,
@@ -228,11 +260,12 @@ class CHSNavigator {
             false,
             popVerificationVew,
             isRejectedEntity,
-            entityApprovalStatus
+            entityApprovalStatus,
+            onPreviousCallback
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus, onPreviousCallback) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -248,7 +281,8 @@ class CHSNavigator {
             workListState,
             isSaveDraftOn,
             isRejectedEntity,
-            entityApprovalStatus
+            entityApprovalStatus,
+            onPreviousCallback
         }).to(SystemRecommendationView, true, popVerificationVew);
     }
 
@@ -304,7 +338,7 @@ class CHSNavigator {
     }
 
     static onSaveGoToProgramEnrolmentDashboardView(recommendationsView, individualUUID, message) {
-        const toBeRemoved = [SystemRecommendationView, IndividualRegisterFormView, IndividualRegisterView, SubjectRegisterView, AddNewMemberView];
+        const toBeRemoved = [SystemRecommendationView, PersonRegisterFormView, PersonRegisterView, SubjectRegisterView, AddNewMemberView];
         TypedTransition
             .from(recommendationsView)
             .resetStack(toBeRemoved, [
@@ -342,8 +376,8 @@ class CHSNavigator {
 
         const toBePoped = [
             SystemRecommendationView,
-            IndividualRegisterFormView,
-            IndividualRegisterView,
+            PersonRegisterFormView,
+            PersonRegisterView,
             SubjectRegisterView,
             ProgramEncounterView,
             ProgramEnrolmentView,
@@ -354,7 +388,7 @@ class CHSNavigator {
             case WorkItem.type.REGISTRATION: {
                 const uuid = nextWorkItem.parameters.uuid;
                 const subjectType = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
-                const target = subjectType.isPerson() ? IndividualRegisterView : SubjectRegisterView;
+                const target = subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView;
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
                         TypedTransition.createRoute(target, {
@@ -387,7 +421,7 @@ class CHSNavigator {
                 const groupSubject = context.getService(GroupSubjectService).findByUUID(nextWorkItem.parameters.groupSubjectUUID);
                 TypedTransition.from(recommendationsView)
                     .resetStack(toBePoped, [
-                        TypedTransition.createRoute(RemoveMemberView, {groupSubject, goToMemberDashboard:true})
+                        TypedTransition.createRoute(RemoveMemberView, {groupSubject, goToMemberDashboard: true})
                     ]);
                 break;
             }

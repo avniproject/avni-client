@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import ConceptService from "../../service/ConceptService";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {Concept, CustomFilter, MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
+import {Concept, CustomFilter} from "avni-models";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomFilterNames} from "../../action/mydashboard/CustomFilterActions";
@@ -21,6 +21,7 @@ import IndividualService from "../../service/IndividualService";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
+import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 
 class CustomFilters extends AbstractComponent {
 
@@ -31,9 +32,9 @@ class CustomFilters extends AbstractComponent {
         this.individualService = context.getService(IndividualService);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(CustomFilterNames.ON_LOAD, {props: this.props});
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     wrap(x, idx) {

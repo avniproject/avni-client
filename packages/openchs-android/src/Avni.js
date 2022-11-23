@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {AppRegistry, StatusBar, StyleSheet, View} from 'react-native';
-import App from "./App";
+import {StatusBar, StyleSheet, View} from 'react-native';
 import Playground from "./Playground";
 import Config from './framework/Config';
 import Colors from "./views/primitives/Colors";
@@ -18,13 +17,16 @@ export default class Avni extends Component {
 
 
     render() {
-        const renderApp = (
+        if (Config.PLAYGROUND) {
+            return <Playground/>;
+        }
+
+        const App = require('./App');
+        return (
             <View style={Avni.styles.container}>
                 <StatusBar backgroundColor={Colors.headerBackgroundColor} barStyle={'default'}/>
                 <App/>
             </View>
         );
-        const renderPlayground = <Playground/>;
-        return Config.PLAYGROUND ? renderPlayground : renderApp;
     }
 }

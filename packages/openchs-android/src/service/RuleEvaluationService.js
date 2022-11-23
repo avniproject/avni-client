@@ -38,6 +38,10 @@ import EntityService from "./EntityService";
 import * as rulesConfig from "rules-config";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
+import ProgramService from "./program/ProgramService";
+import individualServiceFacade from "./facade/IndividualServiceFacade";
+import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
+import AuthService from "./AuthService";
 
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
@@ -70,7 +74,8 @@ class RuleEvaluationService extends BaseService {
         this.conceptService = this.getService(ConceptService);
         this.groupSubjectService = this.getService(GroupSubjectService);
         this.services = {
-            individualService : this.getService(IndividualService),
+            individualService : individualServiceFacade,
+            addressLevelService : addressLevelServiceFacade,
         }
     }
 
@@ -91,7 +96,7 @@ class RuleEvaluationService extends BaseService {
         }
     };
 
-    getEntityDecision(form, entity, context, entityName) {
+    getEntityDecision(form, entity, context, entityName, entityContext) {
         const defaultDecisions = {
             "enrolmentDecisions": [],
             "encounterDecisions": [],
@@ -114,7 +119,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: { decisions: defaultDecisions, entity, services: this.services },
+                    params: { decisions: defaultDecisions, entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
@@ -174,10 +179,10 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getDecisions(entity, entityName, context) {
+    getDecisions(entity, entityName, context, entityContext= {}) {
         const formMapKey = _.get(context, 'usage') === 'Exit' ? 'ProgramExit' : entityName;
         const form = this.entityFormMap.get(formMapKey)(entity);
-        return this.getEntityDecision(form, entity, context, entityName);
+        return this.getEntityDecision(form, entity, context, entityName, entityContext);
     }
 
     updateWorkLists(workLists, context, entityName) {
@@ -294,6 +299,35 @@ class RuleEvaluationService extends BaseService {
       return [];
     }
 
+    validatedStatuses(subjectProgramEligibilityStatuses) {
+        const individualService = this.getService(IndividualService);
+        const programService = this.getService(ProgramService);
+        return _.filter(subjectProgramEligibilityStatuses, ({subjectUUID, programUUID}) =>
+            individualService.existsByUuid(subjectUUID) && programService.existsByUuid(programUUID));
+    }
+
+    async getSubjectProgramEligibilityStatuses(individual, programs, authToken) {
+        const subjectType = individual.subjectType;
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(subjectType.programEligibilityCheckRule);
+            const subjectProgramEligibilityStatuses = await ruleFunc({
+                params: {individual, programs, authToken, services: this.services},
+                imports: {rulesConfig, common, lodash, moment}
+            });
+            const validStatuses = this.validatedStatuses(subjectProgramEligibilityStatuses);
+            if (_.size(validStatuses) !== _.size(subjectProgramEligibilityStatuses)) {
+                General.logDebug("RuleEvaluationService", `Skipped some statuses as valid program or subject cannot be found in the system`);
+            }
+            return validStatuses;
+        } catch (e) {
+            General.logDebug("Rule-Failure",
+                `Subject Program Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
+            this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, 'Individual'));
+            throw Error(e.message);
+        }
+    }
+
     _getEnrolmentSummaryFromBundledRules(rulesFromTheBundle, enrolment, entityName, context) {
         const summaries = this.getEnrolmentSummaryFromCore(entityName, enrolment, context);
         const updatedSummaries = rulesFromTheBundle
@@ -332,7 +366,7 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    validateAgainstRule(entity, form, entityName) {
+    validateAgainstRule(entity, form, entityName, entityContext = {}) {
         const defaultValidationErrors = [];
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
@@ -341,7 +375,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.validationRule);
                 return ruleFunc({
-                    params: { entity, services: this.services },
+                    params: { entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
             } catch (e) {
@@ -361,7 +395,7 @@ class RuleEvaluationService extends BaseService {
         return defaultValidationErrors;
     }
 
-    getNextScheduledVisits(entity, entityName, visitScheduleConfig) {
+    getNextScheduledVisits(entity, entityName, visitScheduleConfig, entityContext = {}) {
         const defaultVisitSchedule = [];
         const form = this.entityFormMap.get(entityName)(entity);
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
@@ -372,7 +406,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
-                    params: { visitSchedule: scheduledVisits, entity, services: this.services },
+                    params: { visitSchedule: scheduledVisits, entity, entityContext, services: this.services },
                     imports: { rulesConfig, common, lodash, moment }
                 });
                 return nextVisits;
@@ -417,7 +451,7 @@ class RuleEvaluationService extends BaseService {
         return defaultChecklists;
     }
 
-    runFormElementGroupRule(formElementGroup, entity, entityName) {
+    runFormElementGroupRule(formElementGroup, entity, entityName, entityContext) {
         if (_.isNil(formElementGroup.rule) || _.isEmpty(_.trim(formElementGroup.rule))) {
             return formElementGroup.getFormElements().flatMap((formElement) => {
                 if (formElement.groupUuid) {
@@ -435,7 +469,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
-                params: {formElementGroup, entity, services: this.services},
+                params: {formElementGroup, entity, services: this.services, entityContext},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {
@@ -444,11 +478,11 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getTheChildFormElementStatues(childFormElement, entity, entityName) {
+    getTheChildFormElementStatues(childFormElement, entity, entityName, entityContext) {
         const size = this.getRepeatableObservationSize(childFormElement, entity);
         return _.range(size)
             .map(questionGroupIndex => {
-                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, questionGroupIndex);
+                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, entityContext, questionGroupIndex);
                 if (formElementStatus)
                     formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                 return formElementStatus;
@@ -464,13 +498,13 @@ class RuleEvaluationService extends BaseService {
         return questionGroupObs ? questionGroupObs.size() : 1;
     }
 
-    getFormElementsStatuses(entity, entityName, formElementGroup) {
+    getFormElementsStatuses(entity, entityName, formElementGroup, entityContext={}) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const formElementsWithRules = formElementGroup
             .getFormElements()
             .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
-        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName);
+        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName, entityContext);
         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
         const applicableFormElements = formElementsWithRules
             .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
@@ -478,9 +512,9 @@ class RuleEvaluationService extends BaseService {
             let formElementStatuses = applicableFormElements
                 .map(formElement => {
                     if (formElement.groupUuid) {
-                        return this.getTheChildFormElementStatues(formElement, entity, entityName);
+                        return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext);
                     }
-                    return this.runFormElementStatusRule(formElement, entity, entityName);
+                    return this.runFormElementStatusRule(formElement, entity, entityName, entityContext);
                 })
                 .filter(fs => !_.isNil(fs))
                 .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
@@ -496,12 +530,12 @@ class RuleEvaluationService extends BaseService {
             .values()];
     }
 
-    runFormElementStatusRule(formElement, entity, entityName, questionGroupIndex) {
+    runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex) {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
             return ruleFunc({
-                params: {formElement, entity, questionGroupIndex, services: this.services},
+                params: {formElement, entity, questionGroupIndex, services: this.services, entityContext},
                 imports: {rulesConfig, common, lodash, moment}
             });
         } catch (e) {
@@ -545,6 +579,7 @@ class RuleEvaluationService extends BaseService {
 
     isEligibleForProgram(individual, program) {
         const rulesFromTheBundle = this.getAllRuleItemsFor(program, "EnrolmentEligibilityCheck", "Program");
+        // TODO: Move the rules in the bundle to actual entities.
         if (!_.isNil(program.enrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.enrolmentEligibilityCheckRule))) {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -563,6 +598,26 @@ class RuleEvaluationService extends BaseService {
         else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', { individual }, true);
         }
+        return true;
+    }
+
+    isManuallyEligibleForProgram(subject, program, subjectProgramEligibility) {
+        if (!_.isNil(program.manualEnrolmentEligibilityCheckRule) && !_.isEmpty(_.trim(program.manualEnrolmentEligibilityCheckRule))) {
+            try {
+                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+                const ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
+                return ruleFunc({
+                    params: {entity: subjectProgramEligibility, subject, program, services: this.services},
+                    imports: { rulesConfig, common, lodash, moment }
+                });
+            }
+            catch (e) {
+                General.logDebug("Rule-Failure", e);
+                General.logDebug("Rule-Failure", `Manual enrolment eligibility failed for: ${program.name} program name`);
+                this.saveFailedRules(e, program.uuid, this.getIndividualUUID(program));
+            }
+        }
+
         return true;
     }
 
@@ -639,6 +694,23 @@ class RuleEvaluationService extends BaseService {
                 saveEntityOfType[schema](entity, nextScheduledVisits);
             });
         });
+    }
+
+    evaluateLinkFunction(linkFunction, menuItem, user, authToken) {
+        const authService = this.getService(AuthService);
+        try {
+            const ruleFunc = eval(linkFunction);
+            return ruleFunc({
+                params: {user: user, moment: moment, token: authToken}
+            });
+        } catch (e) {
+            General.logDebug("Rule-Failure", e);
+            General.logDebug("Rule-Failure",
+                `Link function failed for: ${menuItem.toString()} Menu Item`);
+            // this.saveFailedRules(e, menuItem.uuid, user.uuid);
+            return null;
+
+        }
     }
 }
 

@@ -2,7 +2,7 @@ import {Text, TouchableOpacity, View, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {CheckBox, Radio} from "native-base";
+import {Checkbox, Radio} from "native-base";
 import Colors from '../primitives/Colors';
 import _ from 'lodash';
 import Styles from "./Styles";
@@ -11,7 +11,6 @@ import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
 
 class PresetOptionItem extends AbstractComponent {
-
     static defaultProps = {
         chunked: false,
         disabled: false,
@@ -20,12 +19,12 @@ class PresetOptionItem extends AbstractComponent {
     static propTypes = {
         multiSelect: PropTypes.bool.isRequired,
         checked: PropTypes.bool.isRequired,
-        onPress: PropTypes.func,
         displayText: PropTypes.string.isRequired,
         validationResult: PropTypes.object,
         abnormal: PropTypes.bool,
         style: PropTypes.object,
-        chunked: PropTypes.bool
+        chunked: PropTypes.bool,
+        value: PropTypes.any
     };
 
     static styles = StyleSheet.create({
@@ -39,20 +38,15 @@ class PresetOptionItem extends AbstractComponent {
         super(props, context);
     }
 
-    onPress() {
-        this.dismissKeyboard();
-        this.props.onPress();
-    }
-
-    getSelectComponent() {
+    getSelectComponent(defaultColor, extraLineHeight) {
         const disabled = this.props.disabled;
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
-        if (this.props.multiSelect)
-            return (<CheckBox disabled={disabled} checked={this.props.checked}
-                              onPress={() => this.onPress()} selectedColor={color}/>);
-        else
-            return (<Radio disabled={disabled} selected={this.props.checked}
-                           onPress={() => this.onPress()} selectedColor={color}/>);
+        const SelectComponent = this.props.multiSelect ? Checkbox : Radio;
+        return <SelectComponent disabled={disabled} value={this.props.value} color={color}>
+            <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]}>
+                {this.props.displayText}
+            </Text>
+        </SelectComponent>;
     }
 
     shouldComponentUpdate(nextProps) {
@@ -64,9 +58,6 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const marginLeft = this.props.multiSelect ? 16 : 8;
-        const inputTextStyle = {marginLeft: marginLeft, color: Colors.InputNormal, flex: 1};
-        General.logDebug("PresetOptionItem", "render");
         const color = _.isNil(this.props.validationResult)
             ? this.props.checked && this.props.abnormal
                 ? Colors.AbnormalValueHighlight
@@ -85,14 +76,9 @@ class PresetOptionItem extends AbstractComponent {
         const isExtraHeightRequired = _.includes(['te_IN'], currentLocale);
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
         return (
-            <TouchableOpacity onPress={() => this.onPress()} style={ToRender.container} disabled={this.props.disabled}>
+            <TouchableOpacity style={ToRender.container} disabled={this.props.disabled}>
                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'flex-start'}}>
-                    <View>
-                        {this.getSelectComponent()}
-                    </View>
-                    <Text style={[Styles.formBodyText, inputTextStyle, {color: color}, extraLineHeight]}>
-                        {this.props.displayText}
-                    </Text>
+                    {this.getSelectComponent(color, extraLineHeight)}
                 </View>
             </TouchableOpacity>
         );

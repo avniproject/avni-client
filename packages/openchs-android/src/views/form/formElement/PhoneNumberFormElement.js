@@ -25,9 +25,9 @@ class PhoneNumberFormElement extends AbstractFormElement {
         super(props, context);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(this.props.skipVerificationActionName, {observation: this.props.observation, skipVerification: false, parentFormElement: this.props.parentElement, questionGroupIndex: this.props.questionGroupIndex, formElement: this.props.element});
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
     }
 
     onInputChange(number) {

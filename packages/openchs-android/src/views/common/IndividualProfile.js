@@ -21,11 +21,12 @@ import GenericDashboardView from "../program/GenericDashboardView";
 import Menu from "../menu";
 import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import RNImmediatePhoneCall from "react-native-immediate-phone-call";
 import {MessageIcon} from "./MessageIcon";
 import CommentView from "../comment/CommentView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import SubjectProfilePicture from "./SubjectProfilePicture";
+import PhoneCall from "../../model/PhoneCall";
+import CustomActivityIndicator from "../CustomActivityIndicator";
 
 
 class IndividualProfile extends AbstractComponent {
@@ -34,13 +35,11 @@ class IndividualProfile extends AbstractComponent {
         viewContext: PropTypes.string,
         programsAvailable: PropTypes.bool,
         hideEnrol: PropTypes.bool,
-        style: PropTypes.object
+        textColor: PropTypes.string
     };
     static viewContext = {
-        Program: 'Program',
-        General: 'General',
         Wizard: 'Wizard',
-        Individual: 'Individual'
+        NonWizard: 'NonWizard'
     };
 
     constructor(props, context) {
@@ -48,9 +47,8 @@ class IndividualProfile extends AbstractComponent {
     }
 
     getMobileNoFromObservation() {
-        var i;
+        let i;
         for (i = 0; i < this.props.individual.observations.length; i++) {
-            const observation = this.props.individual.observations[i];
             return this.props.individual.getMobileNo();
         }
     }
@@ -71,11 +69,8 @@ class IndividualProfile extends AbstractComponent {
     }
 
     makeCall(number) {
-        RNImmediatePhoneCall.immediatePhoneCall(number);
-    }
-
-    componentWillMount() {
-        return super.componentWillMount();
+        PhoneCall.makeCall(number, this,
+            (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
     componentDidMount() {
@@ -206,8 +201,10 @@ class IndividualProfile extends AbstractComponent {
     render() {
         General.logDebug('IndividualProfile', 'render');
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
+        const textColor =  this.props.textColor ? this.props.textColor : Styles.blackColor;
         return <View style={{backgroundColor: backgroundColor}}>
-            {this.props.viewContext !== IndividualProfile.viewContext.Wizard ?
+            <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
+            {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <View style={{
                         marginVertical: 10,
@@ -263,19 +260,20 @@ class IndividualProfile extends AbstractComponent {
                     <View style={this.appendedStyle({
                         flexDirection: 'column',
                         backgroundColor: backgroundColor,
-                        paddingHorizontal: Distances.ContentDistanceFromEdge
+                        paddingHorizontal: Distances.ContentDistanceFromEdge,
+                        paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={Fonts.LargeBold}>{this.props.individual.nameString}</Text>
+                            <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
                         </View>
                         {
-                            this.props.individual.subjectType.isPerson() ?
+                            this.props.individual.subjectType.isPerson() &&
                                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <Text style={{fontSize: Fonts.Normal}}>
+                                    <Text style={{fontSize: Fonts.Normal, color: textColor}}>
                                         {this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAge().toString(this.I18n)}</Text>
                                     <Text
-                                        style={Fonts.LargeRegular}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
-                                </View> : <View/>
+                                        style={[Fonts.LargeRegular, {color: textColor}]}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                                </View>
                         }
                     </View>
                 )}

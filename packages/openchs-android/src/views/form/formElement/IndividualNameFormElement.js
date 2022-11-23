@@ -7,7 +7,7 @@ import StaticFormElement from "../../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../../state/AbstractDataEntryState";
 import {  PrimitiveValue  } from 'avni-models';
 import {  Individual  } from 'avni-models';
-import {Actions} from "../../../action/individual/IndividualRegisterActions";
+import {Actions} from "../../../action/individual/PersonRegisterActions";
 import Distances from "../../primitives/Distances";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import _ from "lodash";

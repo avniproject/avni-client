@@ -13,7 +13,8 @@ import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError from "../service/ServerError";
-import {Alert, Dimensions, NetInfo, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Text, TouchableNativeFeedback, View} from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
 import {EntityMetaData, SyncError} from "avni-models";
@@ -24,10 +25,10 @@ import Reducers from "../reducer";
 import SettingsService from "../service/SettingsService";
 import PrivilegeService from "../service/PrivilegeService";
 import AsyncAlert from "./common/AsyncAlert";
-
-const {width, height} = Dimensions.get('window');
+import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 
 class SyncComponent extends AbstractComponent {
+    unsubscribe;
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
@@ -112,8 +113,8 @@ class SyncComponent extends AbstractComponent {
         );
     }
 
-    componentWillMount() {
-        super.componentWillMount();
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
     }
 
     onConnectionChange(isConnected) {
@@ -126,18 +127,18 @@ class SyncComponent extends AbstractComponent {
         if (this.props.startSync) {
             this.sync();
         }
-        NetInfo.isConnected.addEventListener('connectionChange', this._handleConnectivityChange);
-        NetInfo.isConnected.fetch().done((isConnected) => {
+        this.unsubscribe = NetInfo.addEventListener(this._handleConnectivityChange);
+        NetInfo.fetch().then((isConnected) => {
             this.onConnectionChange(isConnected)
         });
     }
 
-    _handleConnectivityChange = (isConnected) => {
-        this.onConnectionChange(isConnected)
+    _handleConnectivityChange = (state) => {
+        this.onConnectionChange(state.isConnected);
     };
 
     componentWillUnmount() {
-        NetInfo.isConnected.removeEventListener('connectionChange', this._handleConnectivityChange);
+        this.unsubscribe && this.unsubscribe();
         super.componentWillUnmount();
     }
 
@@ -150,13 +151,29 @@ class SyncComponent extends AbstractComponent {
         });
     }
 
+    /**
+     * As part of manual sync,
+     * we'll first replace the "background-sync" job with a "dummy sync" job,
+     * perform manual-sync and then,
+     * replace the "dummy sync" job again with "background-sync" job.
+     *
+     * In react-native-background-worker, when we schedule a job with same jobKey(Name) as an existing job,
+     * it replaces the old one with new one. Therefore, above specified steps are supposed to fulfill our need to NOT run
+     * background-sync in parallel with manual-sync.
+     *
+     * This is done, as we do not have a way to cancel jobs by name directly in react-native-background-worker.
+     * We could only cancel by id, but we do not want to store job id in db.
+     * @returns {Promise<void>}
+     */
     async startSync() {
         if (this.state.isConnected) {
             const syncService = this.context.getService(SyncService);
             const onError = this._onError.bind(this);
             this._preSync();
             //sending connection info like this because this returns promise and not possible in the action
-            const connectionInfo = await NetInfo.getConnectionInfo();
+            let connectionInfo;
+            await NetInfo.fetch().then((x) => connectionInfo = x);
+            await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
             syncService.sync(
                 EntityMetaData.model(),
                 (progress) => this.progressBarUpdate(progress),
@@ -166,6 +183,7 @@ class SyncComponent extends AbstractComponent {
                 SyncService.syncSources.SYNC_BUTTON,
                 () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
             ).catch(onError)
+              .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);

@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {CustomFilter, Filter, Privilege, SingleSelectFilter as SingleSelectFilterModel, SubjectType} from 'avni-models';
+import {CustomFilter, Privilege, SubjectType} from 'avni-models';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
@@ -26,6 +26,8 @@ import CustomFilterService from "../../service/CustomFilterService";
 import GenderFilter from "./GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
+import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
+import Filter from "../../model/Filter";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -68,7 +70,7 @@ class FilterView extends AbstractComponent {
         return "FilterView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const subjectTypes = this.entityService.findAllByCriteria('voided = false', SubjectType.schema.name);
         const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
@@ -92,7 +94,7 @@ class FilterView extends AbstractComponent {
             subjectTypes,
             selectedSubjectType
         });
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     onSelect(filter, idx) {

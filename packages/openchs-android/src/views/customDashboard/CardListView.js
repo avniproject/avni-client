@@ -5,11 +5,9 @@ import Styles from "../primitives/Styles";
 import {CountResult} from "./CountResult";
 import {get} from 'lodash';
 
-export const CardListView = ({reportCard, I18n, onCardPress}) => {
+export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
     const {name, colour, uuid} = reportCard;
-
     const renderNumber = () => {
-        const countResult = reportCard.countResult;
         return (_.isNil(get(countResult, 'primaryValue')) ?
                 <ActivityIndicator size="large" color="#0000ff" style={{paddingVertical: 25}}/> :
                 <CountResult
@@ -23,7 +21,7 @@ export const CardListView = ({reportCard, I18n, onCardPress}) => {
     };
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(reportCard, 'countResult.clickable')}>
+        <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(countResult, 'clickable')}>
             <View key={uuid} style={styles.container}>
                 <View style={styles.rowContainer}>
                     <View style={styles.nameContainer}>

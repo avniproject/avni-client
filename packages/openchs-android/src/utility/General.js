@@ -2,7 +2,7 @@ import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 
-var currentLogLevel;
+let currentLogLevel;
 
 class General {
     static LogLevel = {
@@ -42,12 +42,12 @@ class General {
     }
 
     static getTimeStamp() {
-        var date = new Date();
-        var month = date.getMonth() + 1;
-        var day = date.getDate();
-        var hour = date.getHours();
-        var min = date.getMinutes();
-        var sec = date.getSeconds();
+        const date = new Date();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        let hour = date.getHours();
+        let min = date.getMinutes();
+        let sec = date.getSeconds();
 
         month = (month < 10 ? "0" : "") + month;
         day = (day < 10 ? "0" : "") + day;
@@ -63,7 +63,7 @@ class General {
     }
 
     static formatDate(date) {
-        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
+        return _.isNil(date) ? "null" : `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
     }
 
     static formatDateTime(date) {
@@ -84,6 +84,10 @@ class General {
     static toDisplayTime(isoFormatTime){
         const time = this.toTimeObject(isoFormatTime);
         return moment(time).format("LT");
+    }
+
+    static toDisplayDateAsTime(date) {
+        return moment(date).format("HH:mm")
     }
 
     static toTimeObject(isoFormatTime) {
@@ -156,17 +160,6 @@ class General {
         return dest;
     }
 
-    static pick(from, attributes, listAttributes) {
-        const picked = _.pick(from, attributes);
-        if (!_.isNil(listAttributes)) {
-            listAttributes.forEach((listAttribute) => {
-                picked[listAttribute] = [];
-                from[listAttribute].forEach((item) => picked[listAttribute].push(item));
-            });
-        }
-        return picked;
-    }
-
     //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     static randomUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -234,8 +227,8 @@ class General {
 
     static log(source, message, level) {
         try {
-            let levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
-            let logMessage = `[${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
+            const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
+            const logMessage = `[${source}][${levelName}] [${moment().format("h:mm:ss")}] ${General.getDisplayableMessage(message)}`;
             if (level >= General.getCurrentLogLevel())
                 console[levelName.toLowerCase()](logMessage);
         } catch (e) {

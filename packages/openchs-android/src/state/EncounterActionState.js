@@ -15,6 +15,7 @@ class EncounterActionState extends AbstractDataEntryState {
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
         this.loadPullDownView = false;
+        this.allElementsFilledForImmutableEncounter = false;
     }
 
     getEntity() {
@@ -31,6 +32,7 @@ class EncounterActionState extends AbstractDataEntryState {
         newState.previousEncountersDisplayed = this.previousEncountersDisplayed;
         newState.loadPullDownView = this.loadPullDownView;
         newState.messageDisplayed = this.messageDisplayed;
+        newState.allElementsFilledForImmutableEncounter = this.allElementsFilledForImmutableEncounter;
         if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;
         }
@@ -78,6 +80,12 @@ class EncounterActionState extends AbstractDataEntryState {
     executeRule(ruleService, context) {
         let decisions = ruleService.getDecisions(this.encounter, 'Encounter');
         context.get(ConceptService).addDecisions(this.encounter.observations, decisions.encounterDecisions);
+
+        const individual = this.encounter.individual.cloneForEdit();
+        if (!_.isEmpty(decisions.registrationDecisions)) {
+            context.get(ConceptService).addDecisions(individual.observations, decisions.registrationDecisions);
+        }
+        this.encounter.individual = individual;
 
         return decisions;
     }

@@ -4,6 +4,9 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";
+import MenuItemService from "../service/application/MenuItemService";
+import {MenuItem} from "openchs-models";
+import RuleEvaluationService from "../service/RuleEvaluationService";
 
 class MenuActions {
     static getInitialState() {
@@ -14,7 +17,9 @@ class MenuActions {
             backupProgressUserMessage: '',
             percentDone: 0,
             oneSyncCompleted: false,
-            unsyncedTxData: false
+            unsyncedTxData: false,
+            configuredMenuItems: [],
+            configuredMenuItemRuleOutput: new Map()
         }
     }
 
@@ -28,6 +33,17 @@ class MenuActions {
         const entitySyncStatusService = context.get(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
         newState.unsyncedTxData = totalPending !== 0;
+
+        newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
+
+        newState.configuredMenuItemRuleOutput = new Map();
+        const ruleEvaluationService = context.get(RuleEvaluationService);
+        newState.configuredMenuItems.forEach((menuItem) => {
+            if (menuItem.isLinkType()) {
+                const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo, action.authToken);
+                newState.configuredMenuItemRuleOutput.set(menuItem.uuid, evaluatedLink);
+            }
+        });
 
         return newState;
     }

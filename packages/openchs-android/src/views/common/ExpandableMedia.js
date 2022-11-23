@@ -25,13 +25,13 @@ export default class ExpandableMedia extends AbstractFormElement {
 
     }
 
-    async componentWillMount() {
+    async UNSAFE_componentWillMount() {
         await this.mediaService.exists(this.mediaUriInDevice).then(async (exists) => {
             if (exists) {
                 await this.downloadDependentURIs();
             }
         });
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     downloadDependentURIs() {

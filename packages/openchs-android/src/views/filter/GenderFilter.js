@@ -2,10 +2,10 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
 import {GenderFilterNames as Actions} from "../../action/mydashboard/GenderFilterActions";
 import MultiSelectFilter from "./MultiSelectFilter";
-import {MultiSelectFilter as MultiSelectFilterModel} from "avni-models";
 import _ from "lodash";
 import {View} from "react-native";
 import React from "react";
+import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 
 
 class GenderFilter extends AbstractComponent {
@@ -13,9 +13,9 @@ class GenderFilter extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.genderFilterActions);
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     _invokeCallbacks() {

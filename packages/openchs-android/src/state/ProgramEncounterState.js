@@ -19,6 +19,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow);
         this.programEncounter = programEncounter;
         this.messageDisplayed = messageDisplayed;
+        this.allElementsFilledForImmutableEncounter = false;
     }
 
     getEntity() {
@@ -72,7 +73,6 @@ class ProgramEncounterState extends AbstractDataEntryState {
             ProgramEncounter.validationKeys.ENCOUNTER_LOCATION,
             context
         );
-        console.log(`PE error ${this.locationError} ${JSON.stringify(this.programEncounter.encounterLocation)} ${JSON.stringify(locationValidation)}`)
         validationResults.push(locationValidation);
         return validationResults;
     }
@@ -98,6 +98,12 @@ class ProgramEncounterState extends AbstractDataEntryState {
             context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
         }
         this.programEncounter.programEnrolment = enrolment;
+
+        const individual = this.programEncounter.programEnrolment.individual.cloneForEdit();
+        if (!_.isEmpty(decisions.registrationDecisions)) {
+            context.get(ConceptService).addDecisions(individual.observations, decisions.registrationDecisions);
+        }
+        this.programEncounter.programEnrolment.individual = individual;
 
         return decisions;
     }

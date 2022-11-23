@@ -1,23 +1,10 @@
-import {
-    Alert,
-    Platform,
-    ScrollView,
-    SectionList,
-    StyleSheet,
-    Text,
-    TouchableNativeFeedback,
-    View,
-    Linking
-} from "react-native";
+import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import _ from "lodash";
 import Path from "../framework/routing/Path";
 import TypedTransition from "../framework/routing/TypedTransition";
-import FamilyFolderView from "./familyfolder/FamilyFolderView";
-import VideoListView from "./videos/VideoListView";
-import BeneficiaryModeStartView from "./beneficiaryMode/BeneficiaryModeStartView";
 import CHSNavigator from "../utility/CHSNavigator";
 import General from "../utility/General";
 import CHSContent from "./common/CHSContent";
@@ -35,12 +22,10 @@ import Fonts from "./primitives/Fonts";
 import CHSContainer from "./common/CHSContainer";
 import {Icon} from 'native-base';
 import Separator from "./primitives/Separator";
-import EntitySyncStatusView from "./entitysyncstatus/EntitySyncStatusView";
-import DevSettingsView from "./settings/DevSettingsView";
 import SettingsView from "./settings/SettingsView";
 import Styles from "./primitives/Styles";
 import DeviceInfo from "react-native-device-info";
-import {Schema} from 'avni-models';
+import {EntityMappingConfig} from 'openchs-models';
 import MCIIcon from "react-native-vector-icons/FontAwesome";
 import Config from "../framework/Config";
 import {firebaseEvents, logEvent} from "../utility/Analytics";
@@ -52,8 +37,10 @@ import Reducers from "../reducer";
 import {MenuActionNames} from "../action/MenuActions";
 import MediaQueueService from "../service/MediaQueueService";
 import SyncService from "../service/SyncService";
-import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import moment from "moment";
+import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
+import {MenuItem} from 'openchs-models';
+import StaticMenuItem from "./menu/StaticMenuItem";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -77,15 +64,21 @@ class MenuView extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
-                    {(['logout', 'Delete Data', 'backup', 'feedback', 'myDawaPrapatra'].includes(titleKey)) ? <View/> :
+                    {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
                         <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
                 </View>
             </TouchableNativeFeedback>)
             : <View/>
     }
 
+    UNSAFE_componentWillMount() {
+        this.bindMenuActions();
+        super.UNSAFE_componentWillMount();
+    }
+
     componentDidMount() {
-        this.dispatchAction(MenuActionNames.ON_LOAD);
+        const authService = this.context.getService(AuthService);
+        authService.getAuthToken().then((authToken) => this.dispatchAction(MenuActionNames.ON_LOAD, {authToken}));
     }
 
     icon(name, style = {}) {
@@ -122,26 +115,6 @@ class MenuView extends AbstractComponent {
             }, {text: this.I18n.t('logoutCancelled'), onPress: _.noop, style: 'cancel'},
             ]
         );
-    }
-
-    familyFolder() {
-        TypedTransition.from(this).to(FamilyFolderView);
-    }
-
-    videoListView() {
-        TypedTransition.from(this).to(VideoListView);
-    }
-
-    beneficiaryModeView() {
-        TypedTransition.from(this).to(BeneficiaryModeStartView);
-    }
-
-    entitySyncStatusView() {
-        TypedTransition.from(this).to(EntitySyncStatusView);
-    }
-
-    devSettingsView() {
-        TypedTransition.from(this).to(DevSettingsView);
     }
 
     userSettingsView() {
@@ -231,10 +204,6 @@ class MenuView extends AbstractComponent {
         return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
     }
 
-    onDashboard() {
-        TypedTransition.from(this).to(CustomDashboardView);
-    }
-
     onNews() {
         TypedTransition.from(this).to(NewsListView);
     }
@@ -243,11 +212,6 @@ class MenuView extends AbstractComponent {
         return Platform['Version'] >= 21 ?
             TouchableNativeFeedback.SelectableBackgroundBorderless() :
             TouchableNativeFeedback.SelectableBackground();
-    }
-
-    onFeedback() {
-        const url = 'https://docs.google.com/forms/d/e/1FAIpQLSdevhSf89u0rW_xJUazsT-ImyWIiNz-XNmElR17XCAiUrlRtg/viewform';
-        Linking.openURL(url);
     }
 
     renderNewsBadge(unreadCount) {
@@ -308,66 +272,76 @@ class MenuView extends AbstractComponent {
         Linking.openURL(`${questionURL}${params}`);
     }
 
+    createMenuDataGroup() {
+        return [
+            StaticMenuItemFactory.getSyncMenus(),
+            StaticMenuItemFactory.getUserMenus(),
+            StaticMenuItemFactory.getSupportMenus(),
+            StaticMenuItemFactory.getDevMenus()
+        ];
+    }
+
+    bindMenuActions() {
+        const map = new Map();
+        map.set("uploadCatchmentDatabase", () => this.uploadCatchmentDatabase());
+        map.set("uploadDatabase", () => this.uploadDatabase());
+        map.set("changePassword", () => this.changePasswordView());
+        map.set("logout", () => this.logout());
+        map.set("deleteData", () => this.onDelete());
+        this.menuActions = map;
+    }
+
+    getMenuItems(staticMenuItems, allConfiguredMenuItems, groupName) {
+        const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
+        const menuItems = staticMenuItems.map((x) => {
+            let eventHandler = x.type === StaticMenuItem.InternalNavigationMenuType ?
+                () => TypedTransition.from(this).to(x.typeSpecificConfig) : this.menuActions.get(x.uniqueName);
+            return <Item icon={this.icon(x.icon)} titleKey={x.displayKey} onPress={eventHandler}/>
+        });
+
+        if (_.isNil(groupName)) return menuItems;
+
+        const groupsConfiguredItems = _.filter(allConfiguredMenuItems, (x) => x.group === groupName);
+        groupsConfiguredItems.forEach(configuredMenuItem => {
+            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName && !_.isNil(this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid)))
+                {
+                    const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
+                    General.logDebug("MenuView.getMenuItems", url);
+                    menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
+                                                             onPress={() => Linking.openURL(url)}/>);
+                }
+        });
+        return menuItems;
+    }
+
     render() {
-        if (_.isNil(this.state.userInfo)) return null;
+        const {userInfo, configuredMenuItems} = this.state;
+
+        if (_.isNil(userInfo)) return null;
 
         General.logDebug("MenuView", "render");
         const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
-        const otherItems = [
-            <Item icon={this.icon("video-library")} titleKey="VideoList" onPress={() => this.videoListView()}/>,
-            <Item icon={this.icon("sync")} titleKey="entitySyncStatus"
-                  onPress={() => this.entitySyncStatusView()}/>,
-            <Item icon={this.icon("view-dashboard")} titleKey="dashboards"
-                  onPress={this.onDashboard.bind(this)}/>,
-            <Item icon={this.icon("backup-restore")} titleKey="uploadCatchmentDatabase"
-                  onPress={this.uploadCatchmentDatabase.bind(this)}/>,
-            <Item icon={this.icon("backup-restore")} titleKey="uploadDatabase"
-                  onPress={this.uploadDatabase.bind(this)}/>
-        ];
+        const functionalityItems = this.getMenuItems(StaticMenuItemFactory.getFunctionalityMenus(this.beneficiaryModeStatus()), configuredMenuItems, MenuItem.FunctionalityGroupName);
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
-            otherItems.push(this.renderNewsBadge(unreadNews));
+            functionalityItems.push(this.renderNewsBadge(unreadNews));
         }
-        if (_.includes(_.toLower(this.state.userInfo.organisationName), 'sakhi')) {
-            const item = <Item icon={this.icon("note-text-outline")} titleKey="myDawaPrapatra"
-                               onPress={this.onMetabaseReportClick.bind(this)}/>;
-            otherItems.push(item);
-        }
+
         const dataGroup = [
             {
-                title: 'otherItems', data: otherItems
+                title: 'functionality', data: functionalityItems
             },
             {
-                title: 'beneficiaryMode', data: [
-                    <Item icon={this.icon("account-supervisor")}
-                          titleKey="beneficiaryMode"
-                          onPress={this.beneficiaryModeView.bind(this)}
-                          visible={this.beneficiaryModeStatus()}/>
-                ]
+                title: 'sync', data: this.getMenuItems(StaticMenuItemFactory.getSyncMenus(), configuredMenuItems, MenuItem.SyncGroupName)
             },
             {
-                title: 'changePass-logout', data: [
-                    <Item icon={this.icon("account-key")} titleKey="changePassword"
-                          onPress={() => this.changePasswordView()}/>,
-                    <Item icon={this.icon("logout", {color: Colors.NegativeActionButtonColor})} titleKey="logout"
-                          onPress={this.logout.bind(this)}/>
-                ]
+                title: 'user', data: this.getMenuItems(StaticMenuItemFactory.getUserMenus(), configuredMenuItems, MenuItem.UserGroupName)
             },
             {
-                title: 'feedback', data: [
-                    <Item icon={this.icon("comment-text-outline")} titleKey="feedback"
-                          onPress={() => this.onFeedback()}/>
-                ]
+                title: 'support', data: this.getMenuItems(StaticMenuItemFactory.getSupportMenus(), configuredMenuItems, MenuItem.SupportGroupName)
             },
             {
-                title: 'dev', data: [
-                    <Item icon={this.icon("delete", {color: Colors.NegativeActionButtonColor})} titleKey="Delete Data"
-                          onPress={this.onDelete.bind(this)} visible={__DEV__}/>,
-                    <Item icon={this.icon("account-multiple")} titleKey="Family Folder"
-                          onPress={this.familyFolder.bind(this)} visible={__DEV__}/>,
-                    <Item icon={this.icon("cog-outline")} titleKey="Dev Settings"
-                          onPress={this.devSettingsView.bind(this)} visible={__DEV__}/>
-                ]
+                title: 'dev', data: this.getMenuItems(StaticMenuItemFactory.getDevMenus(), configuredMenuItems, null)
             }
         ];
 
@@ -378,7 +352,7 @@ class MenuView extends AbstractComponent {
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
                 <CHSContent>
-                    <ScrollView>
+                    <SafeAreaView>
                         <SectionList
                             contentContainerStyle={{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
@@ -405,7 +379,7 @@ class MenuView extends AbstractComponent {
                                     style={{
                                         color: 'black',
                                         fontSize: Styles.normalTextSize
-                                    }}>{Schema.schemaVersion}</Text></Text>
+                                    }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
                                 <Text style={Styles.textList}>BuildVersion: <Text
                                     style={{
                                         color: 'black',
@@ -413,7 +387,7 @@ class MenuView extends AbstractComponent {
                                     }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
                             </View>
                         </View>
-                    </ScrollView>
+                    </SafeAreaView>
                     <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
                 </CHSContent>
             </CHSContainer>

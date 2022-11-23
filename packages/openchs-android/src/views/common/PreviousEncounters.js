@@ -1,4 +1,5 @@
-import {ListView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React from 'react';
 import {Text} from 'native-base';
@@ -9,17 +10,18 @@ import CHSNavigator from '../../utility/CHSNavigator';
 import ContextAction from '../viewmodel/ContextAction';
 import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
-import FormMappingService from '../../service/FormMappingService';
-import EncounterService from '../../service/EncounterService';
-import Styles from '../primitives/Styles';
-import Colors from '../primitives/Colors';
-import General from '../../utility/General';
-import Distances from '../primitives/Distances';
-import ObservationsSectionOptions from '../common/ObservationsSectionOptions';
-import TypedTransition from '../../framework/routing/TypedTransition';
-import CompletedEncountersView from '../../encounter/CompletedEncountersView';
-import CollapsibleEncounters from './CollapsibleEncounters';
-import PrivilegeService from '../../service/PrivilegeService';
+import FormMappingService from "../../service/FormMappingService";
+import EncounterService from "../../service/EncounterService";
+import Styles from "../primitives/Styles";
+import Colors from "../primitives/Colors";
+import General from "../../utility/General";
+import Distances from "../primitives/Distances";
+import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
+import TypedTransition from "../../framework/routing/TypedTransition";
+import CompletedEncountersView from "../../encounter/CompletedEncountersView";
+import CollapsibleEncounters from "./CollapsibleEncounters";
+import PrivilegeService from "../../service/PrivilegeService";
+import ListViewHelper from "../../utility/ListViewHelper";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -63,8 +65,12 @@ class PreviousEncounters extends AbstractComponent {
         if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
-    isEditAllowed(encounter) {
+    hasEditPrivilege(encounter) {
         return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
+    }
+
+    isEditAllowed(encounter) {
+        return this.hasEditPrivilege(encounter) && !encounter.encounterType.immutable;
     }
 
     encounterActions(encounter) {
@@ -177,7 +183,7 @@ class PreviousEncounters extends AbstractComponent {
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.viewAllText}>{this.I18n.t('viewAll')}</Text>
+                <Text style={styles.viewAllText}>{`${this.I18n.t('viewAll')} (${this.props.encounters.length})`}</Text>
             </View>
         </TouchableOpacity>;
     }
@@ -194,7 +200,7 @@ class PreviousEncounters extends AbstractComponent {
         } else {
             toDisplayEncounters = _.sortBy(this.props.encounters, (encounter) => encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime);
         }
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(toDisplayEncounters);
+        const dataSource = ListViewHelper.getDataSource(toDisplayEncounters);
         const renderable = (<View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 {this.props.title && (

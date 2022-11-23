@@ -12,7 +12,7 @@ export default class ExpandableVideo extends React.Component {
         source: PropTypes.string,
     };
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.setState({expanded: false});
     }
 

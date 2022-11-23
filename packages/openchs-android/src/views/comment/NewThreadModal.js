@@ -14,10 +14,6 @@ class NewThreadModal extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.comment);
     }
 
-    componentWillMount() {
-        super.componentWillMount();
-    }
-
     render() {
         return <Modal transparent
                       visible={this.props.open}

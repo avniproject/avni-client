@@ -18,15 +18,25 @@ class TaskStatusPicker extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.task);
+        this.setValue = this.setValue.bind(this);
     }
 
-    onStatusSelect({value}) {
+
+    setOpen(open) {
+        //do nothing
+    }
+
+    setValue(callback) {
+        this.onStatusSelect(callback(this.props.task.taskStatus.uuid));
+    }
+
+    onStatusSelect(value) {
         const moveToDetailsPage = (taskUUID, statusUUID) => TypedTransition.from(this).with({
             taskUUID,
             statusUUID
         }).bookmark().to(TaskFormView, true);
         this.dispatchAction(Actions.ON_STATUS_CHANGE,
-            {statusUUID: value, task: this.state.task, moveToDetailsPage});
+            {statusUUID: value, task: this.props.task, moveToDetailsPage});
     }
 
 
@@ -54,19 +64,20 @@ class TaskStatusPicker extends AbstractComponent {
                                 name='close'
                                 onPress={() => this.dispatchAction(Actions.ON_STATUS_TOGGLE, {
                                     display: false,
-                                    task: this.state.task
+                                    task: this.props.task
                                 })}
                             />
                         </View>
                         <View style={{height: 100, width: '100%'}}>
                             <DropDownPicker
                                 items={this.state.taskStatusList}
-                                defaultValue={this.state.task.taskStatus.uuid}
+                                value={this.state.task.taskStatus.uuid}
+                                open={true}
+                                setValue={this.setValue}
+                                setOpen={this.setOpen}
                                 containerStyle={{height: 40}}
                                 style={{backgroundColor: '#fafafa'}}
-                                itemStyle={{justifyContent: 'flex-start'}}
-                                dropDownStyle={{backgroundColor: '#fafafa'}}
-                                onChangeItem={this.onStatusSelect.bind(this)}
+                                labelStyle={{backgroundColor: '#fafafa', justifyContent: 'flex-start'}}
                             />
                         </View>
                     </View>

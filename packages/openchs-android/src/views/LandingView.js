@@ -44,14 +44,23 @@ class LandingView extends AbstractComponent {
         return "LandingView";
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
         const authService = this.context.getService(AuthService);
         authService.getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
-        return super.componentWillMount();
+        return super.UNSAFE_componentWillMount();
+    }
+
+    didFocus() {
+        this.refreshCustomDashboardsCounts();
+    }
+
+    refreshCustomDashboardsCounts() {
+        this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
+        setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
     }
 
     renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
@@ -122,7 +131,7 @@ class LandingView extends AbstractComponent {
         General.logDebug("LandingView", "render");
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
-        const subjectTypes = this.context.getService(EntityService).getAll(SubjectType.schema.name);
+        const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
@@ -144,7 +153,7 @@ class LandingView extends AbstractComponent {
                     onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
                     buttonElevated={true}
                     hideBackButton={true}/>}
-                {this.state.register && <RegisterView/>}
+                {this.state.register && <RegisterView hideBackButton={true}/>}
                 {this.state.menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
                 {this.state.dashboard && <CustomDashboardView hideBackButton={true}/>}
 

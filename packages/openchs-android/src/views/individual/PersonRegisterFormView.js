@@ -1,21 +1,21 @@
-import {Vibration, View} from "react-native";
+import {ScrollView, Vibration, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {Actions} from "../../action/individual/IndividualRegisterActions";
+import {Actions} from "../../action/individual/PersonRegisterActions";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AppHeader from "../common/AppHeader";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import IndividualRegisterViewsMixin from "./IndividualRegisterViewsMixin";
+import PersonRegisterViewsMixin from "./PersonRegisterViewsMixin";
 import {ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import _ from "lodash";
-import IndividualRegisterView from "./IndividualRegisterView";
+import PersonRegisterView from "./PersonRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
@@ -24,29 +24,32 @@ import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
 
-@Path('/IndividualRegisterFormView')
-class IndividualRegisterFormView extends AbstractComponent {
+@Path('/PersonRegisterFormView')
+class PersonRegisterFormView extends AbstractComponent {
     static propTypes = {};
 
     viewName() {
-        return "IndividualRegisterFormView";
+        return "PersonRegisterFormView";
     }
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.individualRegister);
+        super(props, context, Reducers.reducerKeys.personRegister);
+        this.scrollRef = React.createRef();
     }
 
-    componentWillMount() {
-        if(this.props.params.pageNumber) {
+    UNSAFE_componentWillMount() {
+        const params = this.props.params;
+        if(params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
                 {
-                    individualUUID: this.props.params.individualUUID,
-                    workLists: this.props.params.workLists,
-                    isDraftEntity: this.props.params.isDraftEntity,
-                    pageNumber: this.props.params.pageNumber,
+                    individualUUID: params.individualUUID,
+                    workLists: params.workLists,
+                    isDraftEntity: params.isDraftEntity,
+                    pageNumber: params.pageNumber,
+                    taskUuid: params.taskUuid
                 });
         }
-        super.componentWillMount();
+        super.UNSAFE_componentWillMount();
     }
 
     get registrationType() {
@@ -70,7 +73,7 @@ class IndividualRegisterFormView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualRegisterView,IndividualRegisterFormView]);
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView,PersonRegisterFormView]);
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
@@ -85,7 +88,7 @@ class IndividualRegisterFormView extends AbstractComponent {
                     () => this.dispatchAction(Actions.ON_TIMED_FORM,
                         {
                             vibrate: (pattern) => Vibration.vibrate(pattern),
-                            nextParams: IndividualRegisterViewsMixin.getNextProps(this),
+                            nextParams: PersonRegisterViewsMixin.getNextProps(this),
                             //https://github.com/ocetnik/react-native-background-timer/issues/310#issuecomment-1169621884
                             stopTimer: () => setTimeout(() => BackgroundTimer.stopBackgroundTimer(), 0)
                         }),
@@ -102,14 +105,15 @@ class IndividualRegisterFormView extends AbstractComponent {
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
-                <CHSContent ref='scroll'>
+                <CHSContent>
+                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
                     <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        <SummaryButton onPress={() => IndividualRegisterViewsMixin.summary(this)}/>
+                        <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
                     </View>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
@@ -124,8 +128,8 @@ class IndividualRegisterFormView extends AbstractComponent {
                                           groupAffiliation={this.state.groupAffiliation}
                                           syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
                                           syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
-                                          allowedSyncConcept1Values={userInfoService.getSyncConcept1Values()}
-                                          allowedSyncConcept2Values={userInfoService.getSyncConcept2Values()}
+                                          allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
+                                          allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
                         />}
                         {!displayTimer &&
                         <WizardButtons
@@ -134,15 +138,16 @@ class IndividualRegisterFormView extends AbstractComponent {
                                 label: this.I18n.t('previous')
                             }}
                             next={{
-                                func: () => IndividualRegisterViewsMixin.next(this),
+                                func: () => PersonRegisterViewsMixin.next(this),
                                 label: this.I18n.t('next')
                             }}
                         />}
                     </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
     }
 }
 
-export default IndividualRegisterFormView;
+export default PersonRegisterFormView;

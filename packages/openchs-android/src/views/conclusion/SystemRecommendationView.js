@@ -5,7 +5,7 @@ import {Alert, View} from "react-native";
 import Path from "../../framework/routing/Path";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
-import {Text} from "native-base";
+import {ScrollView, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
@@ -20,8 +20,8 @@ import CHSContent from "../common/CHSContent";
 import {Individual} from 'avni-models';
 import NextScheduledVisits from "../common/NextScheduledVisits";
 import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualRegisterView from "../individual/IndividualRegisterView";
-import IndividualRegisterFormView from "../individual/IndividualRegisterFormView";
+import PersonRegisterView from "../individual/PersonRegisterView";
+import PersonRegisterFormView from "../individual/PersonRegisterFormView";
 import ProgramEncounterView from "../program/ProgramEncounterView";
 import ProgramEncounterCancelView from "../program/ProgramEncounterCancelView";
 import ProgramExitView from "../program/ProgramExitView";
@@ -35,6 +35,7 @@ import NextScheduledVisitsForOtherSubjects from "../common/NextScheduledVisitsFo
 import {ApprovalDialog} from "../approval/ApprovalDialog";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
+import _ from 'lodash'
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -42,6 +43,7 @@ class SystemRecommendationView extends AbstractComponent {
         individual: PropTypes.object,
         saveActionName: PropTypes.string.isRequired,
         onSaveCallback: PropTypes.func.isRequired,
+        onPreviousCallback: PropTypes.func,
         decisions: PropTypes.any,
         observations: PropTypes.array.isRequired,
         validationErrors: PropTypes.array.isRequired,
@@ -79,7 +81,7 @@ class SystemRecommendationView extends AbstractComponent {
 
     get nextAndMore() {
         let workListState = this.props.workListState;
-        if(_.isNil(workListState))
+        if (_.isNil(workListState))
             return {};
         if (!workListState.peekNextWorkItem()) return {};
 
@@ -137,7 +139,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     previous() {
-            TypedTransition.from(this).goBack();
+        TypedTransition.from(this).goBack();
     }
 
     profile() {
@@ -159,7 +161,7 @@ class SystemRecommendationView extends AbstractComponent {
     }
 
     onAppHeaderBack(isSaveDraftOn) {
-        const wizardViews = [IndividualRegisterView, IndividualRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
+        const wizardViews = [PersonRegisterView, PersonRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, ChecklistItemView, SubjectRegisterView];
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
@@ -174,54 +176,59 @@ class SystemRecommendationView extends AbstractComponent {
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
-                    <View style={{flexDirection: 'column'}}>
-                        {!_.isNil(this.props.individual) && this.profile()}
-                        <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
-                            <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
-                                {
-                                    this.props.validationErrors.map((validationResult, index) => {
-                                        return (
-                                            <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
-                                                  key={`error${index}`}>
-                                                <Text style={{
-                                                    fontSize: Fonts.Medium,
-                                                    color: Colors.ValidationError
-                                                }}>{this.I18n.t(validationResult.messageKey)}</Text>
-                                            </View>
-                                        );
-                                    })
-                                }
-                                <Observations highlight
-                                              observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
-                                              title={this.I18n.t('systemRecommendations')}/>
-                            </View>
-                            <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject))}
-                                                 title={this.I18n.t('visitsBeingScheduled')}/>
-                            <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
-                                                 title={this.I18n.t('visitsBeingScheduledForOthers')}/>
-                            {!_.isNil(this.props.individual) &&
+                    <ScrollView>
+                        <View style={{flexDirection: 'column'}}>
+                            {!_.isNil(this.props.individual) && this.profile()}
+                            <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                                <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
+                                    {
+                                        this.props.validationErrors.map((validationResult, index) => {
+                                            return (
+                                                <View style={this.scaleStyle(SystemRecommendationView.styles.rulesRowView)}
+                                                      key={`error${index}`}>
+                                                    <Text style={{
+                                                        fontSize: Fonts.Medium,
+                                                        color: Colors.ValidationError
+                                                    }}>{this.I18n.t(validationResult.messageKey)}</Text>
+                                                </View>
+                                            );
+                                        })
+                                    }
+                                    <Observations highlight
+                                                  observations={this.context.getService(ConceptService).getObservationsFromDecisions(this.props.decisions)}
+                                                  title={this.I18n.t('systemRecommendations')}/>
+                                </View>
+                                <NextScheduledVisits nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => _.isNil(nsv.subject))}
+                                                     title={this.I18n.t('visitsBeingScheduled')}/>
+                                <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
+                                                                     title={this.I18n.t('visitsBeingScheduledForOthers')}/>
+                                {!_.isNil(this.props.individual) &&
                                 <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>}
-                            <Observations observations={this.props.observations} form={this.props.form}
-                                          title={this.I18n.t('observations')}/>
-                            <WizardButtons previous={{func: () => this.previous(), label: this.I18n.t('previous')}}
-                                           next={{
-                                               func: () => this.save(() => this.props.onSaveCallback(this)),
-                                               visible: this.props.validationErrors.length === 0,
-                                               label: this.I18n.t('save')
-                                           }}
-                                           nextAndMore={this.nextAndMore}
-                                           style={{marginHorizontal: 24}}/>
+                                <Observations observations={this.props.observations} form={this.props.form}
+                                              title={this.I18n.t('observations')}/>
+                                <WizardButtons previous={{
+                                    func: () => !_.isUndefined(this.props.onPreviousCallback) ? this.props.onPreviousCallback(this.context) : this.previous(),
+                                    label: this.I18n.t('previous')
+                                }}
+                                               next={{
+                                                   func: () => this.save(() => this.props.onSaveCallback(this)),
+                                                   visible: this.props.validationErrors.length === 0,
+                                                   label: this.I18n.t('save')
+                                               }}
+                                               nextAndMore={this.nextAndMore}
+                                               style={{marginHorizontal: 24}}/>
 
+                            </View>
+                            <ApprovalDialog
+                                primaryButton={this.I18n.t('yes')}
+                                secondaryButton={this.I18n.t('no')}
+                                onPrimaryPress={() => this.onYesPress(() => this.props.onSaveCallback(this))}
+                                onSecondaryPress={() => this.onNoPress(() => this.props.onSaveCallback(this))}
+                                onClose={() => this.onClose()}
+                                state={this.getDialogState()}
+                                I18n={this.I18n}/>
                         </View>
-                        <ApprovalDialog
-                            primaryButton={this.I18n.t('yes')}
-                            secondaryButton={this.I18n.t('no')}
-                            onPrimaryPress={() => this.onYesPress(() => this.props.onSaveCallback(this))}
-                            onSecondaryPress={() => this.onNoPress(() => this.props.onSaveCallback(this))}
-                            onClose={() => this.onClose()}
-                            state={this.getDialogState()}
-                            I18n={this.I18n}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

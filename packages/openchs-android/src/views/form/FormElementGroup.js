@@ -223,7 +223,7 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
-                            />, uniqueKey, formElement.uuid === erroredUUID);
+                            />, uniqueKey, false);
                         } else if (formElement.concept.datatype === Concept.dataType.Subject && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectSubjectLandingFormElement
                                 key={uniqueKey}
