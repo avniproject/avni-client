@@ -84,7 +84,7 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(editableEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
 
         if(action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
