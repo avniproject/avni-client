@@ -4,7 +4,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
 import MultiSelectFilter from './MultiSelectFilter';
-import {CustomFilter, Filter, Privilege, SubjectType} from 'avni-models';
+import {CustomFilter, Privilege, SubjectType} from 'avni-models';
+import Filter from '../../model/Filter';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
