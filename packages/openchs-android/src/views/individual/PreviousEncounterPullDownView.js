@@ -41,7 +41,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.individual}
-                                   textColor={Colors.TextOnPrimaryColor}
+                                   textColor={Colors.DefaultPrimaryColor}
                                    style={{
                                        backgroundColor: Colors.GreyContentBackground,
                                        paddingHorizontal: Distances.ContentDistanceFromEdge
