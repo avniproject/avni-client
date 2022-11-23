@@ -1,4 +1,4 @@
-package com.openchsclient.tools;
+package org.lfeteach.openchsclient.tools;
 
 import android.content.Context;
 import com.facebook.flipper.android.AndroidFlipperClient;
