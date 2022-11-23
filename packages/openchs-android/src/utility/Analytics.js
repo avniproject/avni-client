@@ -1,15 +1,15 @@
 import {UserInfo} from 'openchs-models';
-import analytics from "@react-native-firebase/analytics";
-import {defaultTo, isEmpty, noop} from 'lodash';
-import Config from "../framework/Config";
-import RealmFactory from "../framework/db/RealmFactory";
+import analytics from '@react-native-firebase/analytics';
+import {defaultTo} from 'lodash';
+import Config from '../framework/Config';
+import RealmFactory from '../framework/db/RealmFactory';
 
 const db = RealmFactory.createRealm();;
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 
 const getUserInfo = () => {
-    const defaultOrg = {organisationName: ''};
+    const defaultOrg = {organisationName: 'Unknown'};
     try {
         const userInfo = db.objects(UserInfo.schema.name);
         return defaultTo(userInfo[0], defaultOrg);
@@ -19,8 +19,8 @@ const getUserInfo = () => {
 };
 
 const setUserProperties = () => {
-    const userInfo = getUserInfo();
-    return firebaseAnalytics.setUserProperty("organisation", userInfo.organisationName);
+    let organisationName = _.get(getUserInfo(), 'organisationName', 'Unknown');
+    return firebaseAnalytics.setUserProperty("organisation", organisationName);
 };
 
 export const logEvent = (name, params) => {
