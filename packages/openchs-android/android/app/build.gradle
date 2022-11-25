@@ -83,9 +83,9 @@ android {
         release {
 
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-avni-release-key.keystore")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
+            storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
-            keyPassword System.getenv("KEY_PASSWORD")
+            keyPassword System.getenv("LFE_KEY_PASSWORD")
         }
     }
     buildTypes {
