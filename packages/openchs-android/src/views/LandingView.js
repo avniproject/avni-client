@@ -4,6 +4,7 @@ import Path from "../framework/routing/Path";
 import IndividualSearchView from "./individual/IndividualSearchView";
 import MenuView from "./MenuView";
 import CHSContainer from "./common/CHSContainer";
+import AvniIcon from "./common/AvniIcon";
 import CHSNavigator from "../utility/CHSNavigator";
 import AuthService from "../service/AuthService";
 import bugsnag from "../utility/bugsnag";
@@ -19,7 +20,6 @@ import _ from "lodash";
 import Colors from "./primitives/Colors";
 import RegisterView from "./RegisterView";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import {Icon as NBIcon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
@@ -83,16 +83,11 @@ class LandingView extends AbstractComponent {
     }
 
     Icon(iconName, iconStyle, isSelected, renderDot = false) {
-        //Arjun: i hate to do this. but MCI does not provide a good video icon and can't provide on decent UI
-        //Arjun: TODO someday we need to have one single icon library.
         const style = iconStyle ? (isSelected ? {
             ...iconStyle,
             color: Colors.iconSelectedColor
         } : iconStyle) : MenuView.iconStyle;
-        if (_.startsWith(iconName, 'video')) {
-            return <NBIcon name={iconName} type='MaterialIcons' style={style}/>
-        }
-        return renderDot ? this.IconWithDot(iconName, style) : <MCIIcon name={iconName} style={style}/>
+        return renderDot ? this.IconWithDot(iconName, style) : <AvniIcon name={iconName} style={style} type='MaterialCommunityIcons'/>
     }
 
     IconWithDot(iconName, iconStyle) {
