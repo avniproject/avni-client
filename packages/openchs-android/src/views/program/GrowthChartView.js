@@ -10,6 +10,7 @@ import moment from 'moment';
 
 import _ from 'lodash';
 import Styles from '../primitives/Styles';
+import CHSContainer from "../common/CHSContainer";
 
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
@@ -142,7 +143,7 @@ class GrowthChartView extends AbstractComponent {
 
     getObservationValue(entity, conceptName) {
         let observationValue = entity.getObservationValue(conceptName);
-        return observationValue? _.toNumber(observationValue): null;
+        return observationValue ? _.toNumber(observationValue) : null;
     }
 
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
@@ -193,10 +194,7 @@ class GrowthChartView extends AbstractComponent {
     static style = {
         graphButton: {
             self: {
-                borderRadius: 2,
-                height: 36,
-                margin: 4,
-                flex: 1
+                borderRadius: 2
             }
         },
         selectedGraphButton: {
@@ -263,69 +261,69 @@ class GrowthChartView extends AbstractComponent {
             }
         });
         let borderColor = processColor("red");
+        const wfaStyle = this.getGraphStyle(this.states.weightForAge);
+        const hfaStyle = this.getGraphStyle(this.states.heightForAge);
+        const wfhStyle = this.getGraphStyle(this.states.weightForHeight);
         return (
-            <View style={{flex: 1, paddingHorizontal: 8, flexDirection: 'column'}}>
-                <View style={{flexDirection: 'row', paddingTop: 4, justifyContent: 'space-between'}}>
-                    <Button
-                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForAge).self]}
-                        onPress={() => {
-                            this.onGraphSelected(this.states.weightForAge)
-                        }}>
-                        <Text style={this.getGraphStyle(this.states.weightForAge).text}>{this.states.weightForAge}</Text>
-                    </Button>
+            <CHSContainer>
+                <View style={{flex: 1, paddingHorizontal: 8, flexDirection: 'column'}}>
+                    <View style={{flexDirection: 'row', paddingTop: 4, paddingHorizontal: 8, justifyContent: 'space-between'}}>
+                        <Button
+                            style={[GrowthChartView.style.graphButton.self, wfaStyle.self]}
+                            _text={wfaStyle.text}
+                            onPress={() => this.onGraphSelected(this.states.weightForAge)}>
+                            {this.states.weightForAge}
+                        </Button>
 
-                    <Button
-                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.heightForAge).self]}
-                        onPress={() => {
-                            this.onGraphSelected(this.states.heightForAge)
-                        }}>
-                        <Text style={this.getGraphStyle(this.states.heightForAge).text}>{this.states.heightForAge}</Text>
-                    </Button>
+                        <Button
+                            style={[GrowthChartView.style.graphButton.self, hfaStyle.self]}
+                            _text={hfaStyle.text}
+                            onPress={() => this.onGraphSelected(this.states.heightForAge)}>{this.states.heightForAge}
+                        </Button>
 
-                    <Button
-                        style={[GrowthChartView.style.graphButton.self, this.getGraphStyle(this.states.weightForHeight).self]}
-                        onPress={() => {
-                            this.onGraphSelected(this.states.weightForHeight)
-                        }}>
-                        <Text style={this.getGraphStyle(this.states.weightForHeight).text}>{this.states.weightForHeight}</Text>
-                    </Button>
+                        <Button
+                            style={[GrowthChartView.style.graphButton.self, wfhStyle.self]}
+                            _text={wfhStyle.text}
+                            onPress={() => this.onGraphSelected(this.states.weightForHeight)}>{this.states.weightForHeight}
+                        </Button>
+                    </View>
+
+                    <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.state.title}</Text>
+
+                    <View style={styles.container}>
+                        <LineChart
+                            style={styles.chart}
+                            data={this.state.data}
+                            chartDescription={{text: ''}}
+                            legend={legend}
+                            marker={marker}
+
+                            drawGridBackground={true}
+
+                            borderColor={borderColor}
+                            borderWidth={0}
+                            drawBorders={false}
+
+                            touchEnabled={true}
+                            dragEnabled={true}
+                            scaleEnabled={true}
+                            scaleXEnabled={true}
+                            scaleYEnabled={true}
+                            pinchZoom={true}
+                            doubleTapToZoomEnabled={false}
+
+                            dragDecelerationEnabled={true}
+                            dragDecelerationFrictionCoef={0.99}
+
+                            keepPositionOnRotation={false}
+
+                            xAxis={{position: 'BOTTOM', labelCount: 5}}
+
+                            ref="chart"
+                        />
+                    </View>
                 </View>
-
-                <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.state.title}</Text>
-
-                <View style={styles.container}>
-                    <LineChart
-                        style={styles.chart}
-                        data={this.state.data}
-                        chartDescription={{text: ''}}
-                        legend={legend}
-                        marker={marker}
-
-                        drawGridBackground={true}
-
-                        borderColor={borderColor}
-                        borderWidth={0}
-                        drawBorders={false}
-
-                        touchEnabled={true}
-                        dragEnabled={true}
-                        scaleEnabled={true}
-                        scaleXEnabled={true}
-                        scaleYEnabled={true}
-                        pinchZoom={true}
-                        doubleTapToZoomEnabled={false}
-
-                        dragDecelerationEnabled={true}
-                        dragDecelerationFrictionCoef={0.99}
-
-                        keepPositionOnRotation={false}
-
-                        xAxis={{position: 'BOTTOM', labelCount: 5}}
-
-                        ref="chart"
-                    />
-                </View>
-            </View>
+            </CHSContainer>
         );
     }
 }
