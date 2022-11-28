@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -41,6 +41,7 @@ import moment from "moment";
 import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 import {MenuItem} from 'openchs-models';
 import StaticMenuItem from "./menu/StaticMenuItem";
+import AvniIcon from "./common/AvniIcon";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -65,7 +66,9 @@ class MenuView extends AbstractComponent {
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
                     {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
-                        <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
+                        <AvniIcon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
+                    }
+
                 </View>
             </TouchableNativeFeedback>)
             : <View/>
@@ -227,7 +230,7 @@ class MenuView extends AbstractComponent {
                         number={unreadCount || 0}
                         component={newsText}/>
                 </View>
-                <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
+                <AvniIcon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
             </View>
         </TouchableNativeFeedback>
     }
@@ -270,15 +273,6 @@ class MenuView extends AbstractComponent {
         const questionURL = "https://reporting.avniproject.org/public/question/11265388-5909-438e-9d9a-6faaa0c5863f";
         const params = `?username=${encodeURIComponent(this.state.userInfo.username)}&name=${encodeURIComponent(this.state.userInfo.name)}&month=${moment().month() + 1}&year=${moment().year()}`;
         Linking.openURL(`${questionURL}${params}`);
-    }
-
-    createMenuDataGroup() {
-        return [
-            StaticMenuItemFactory.getSyncMenus(),
-            StaticMenuItemFactory.getUserMenus(),
-            StaticMenuItemFactory.getSupportMenus(),
-            StaticMenuItemFactory.getDevMenus()
-        ];
     }
 
     bindMenuActions() {
@@ -351,45 +345,48 @@ class MenuView extends AbstractComponent {
                 <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100}
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
-                <CHSContent>
-                    <SafeAreaView>
-                        <SectionList
-                            contentContainerStyle={{
+                <ScrollView>
+                    <CHSContent>
+                        <SafeAreaView>
+                            <SectionList
+                                contentContainerStyle={{
+                                    marginRight: Distances.ScaledContentDistanceFromEdge,
+                                    marginLeft: Distances.ScaledContentDistanceFromEdge,
+                                    marginTop: Distances.ScaledContentDistanceFromEdge
+                                }}
+                                sections={dataGroup}
+                                renderSectionHeader={() =>
+                                    <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
+                                renderItem={({item}) => item}
+                                keyExtractor={(item, index) => index}
+                            />
+                            <View style={[{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
                                 marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                marginTop: Distances.ScaledContentDistanceFromEdge
-                            }}
-                            sections={dataGroup}
-                            renderSectionHeader={() =>
-                                <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
-                            renderItem={({item}) => item}
-                            keyExtractor={(item, index) => index}
-                        />
-                        <View style={[{
-                            marginRight: Distances.ScaledContentDistanceFromEdge,
-                            marginLeft: Distances.ScaledContentDistanceFromEdge,
-                        }]}>
-                            <View style={styles.infoContainer}>
-                                <Text style={Styles.textList}>Server: <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{this.state.serverURL}</Text></Text>
-                                <Text style={Styles.textList}>Database Schema : <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
-                                <Text style={Styles.textList}>BuildVersion: <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
+                            }]}>
+                                <View style={styles.infoContainer}>
+                                    <Text style={Styles.textList}>Server: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{this.state.serverURL}</Text></Text>
+                                    <Text style={Styles.textList}>Database Schema : <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                    <Text style={Styles.textList}>BuildVersion: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
+                                </View>
                             </View>
-                        </View>
-                    </SafeAreaView>
-                    <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
+                        </SafeAreaView>
+                        <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
+                    </CHSContent>
+                </ScrollView>
+
             </CHSContainer>
         );
     }

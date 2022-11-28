@@ -45,10 +45,9 @@ class RadioGroup extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-    }
-
-    groupValue() {
-        return this.getAppropriateInitializedValue(this.initializeSelectedValue());
+        this.state = {
+            groupValue: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
+        };
     }
 
     renderPairedOptions() {
@@ -109,7 +108,7 @@ class RadioGroup extends AbstractComponent {
                         {this.renderSingleValue()}
                     </View> :
                     <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                    value={this.groupValue() || ''} onChange={newValues => this.onValueChanged(newValues)}>
+                                    value={this.state.groupValue || ''} onChange={newValues => this.onValueChanged(newValues)}>
                         {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
                     </GroupComponent>
                     : <View/>}
@@ -123,14 +122,15 @@ class RadioGroup extends AbstractComponent {
     onValueChanged(newValue) {
         let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
         if (_.isString(safeInitNewValue) || _.isNumber(safeInitNewValue) || !_.isArray(safeInitNewValue)) {
-            this.groupValue() && this.props.onPress({value: this.groupValue()}); //Invoke toggle to unset for oldValue
+            this.state.groupValue && this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
             this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
         } else {
-            _.xor(safeInitNewValue, this.groupValue()).forEach(value => {
+            _.xor(safeInitNewValue, this.state.groupValue).forEach(value => {
                     value && this.props.onPress({value: value}); //Invoke toggle for all changed values
                 }
             );
         }
+        this.setState({groupValue: safeInitNewValue});
     }
 
     initializeSelectedValue() {

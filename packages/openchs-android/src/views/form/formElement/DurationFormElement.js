@@ -1,13 +1,13 @@
-import {Text, TextInput, View} from "react-native";
+import {Text, TextInput, View} from 'react-native';
 import PropTypes from 'prop-types';
-import React from "react";
-import AbstractFormElement from "./AbstractFormElement";
-import DGS from "../../primitives/DynamicGlobalStyles";
+import React from 'react';
+import AbstractFormElement from './AbstractFormElement';
+import DGS from '../../primitives/DynamicGlobalStyles';
 import Colors from '../../primitives/Colors';
-import Distances from "../../primitives/Distances";
-import Styles from "../../primitives/Styles";
-import ValidationErrorMessage from "../ValidationErrorMessage";
-import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import Distances from '../../primitives/Distances';
+import Styles from '../../primitives/Styles';
+import ValidationErrorMessage from '../ValidationErrorMessage';
+import FormElementLabelWithDocumentation from '../../common/FormElementLabelWithDocumentation';
 
 class DurationFormElement extends AbstractFormElement {
     static propTypes = {
@@ -42,7 +42,7 @@ class DurationFormElement extends AbstractFormElement {
                     width: 50,
                     color: Colors.InputNormal
                 }]}
-                           keyboardType='numeric'
+                           keyboardType="numeric"
                            underlineColorAndroid={this.borderColor}
                            value={duration.durationValue}
                            onChangeText={this.onUpdate(duration)}/>
@@ -66,10 +66,8 @@ class DurationFormElement extends AbstractFormElement {
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
                     paddingTop: 10
                 }}>
-                    <View style={[{flexDirection: 'row'}]}>
-                        <View style={{flexDirection: 'row'}}>
-                            {durationView}
-                        </View>
+                    <View style={{flexDirection: 'row', flexWrap: "wrap", alignContent: 'flex-start'}}>
+                        {durationView}
                     </View>
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
