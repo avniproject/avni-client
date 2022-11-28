@@ -58,16 +58,13 @@ class AbstractComponent extends Component {
         }
         const dispatchResult = this.context.getStore().dispatch({type, ...params});
         if (General.canLog(General.LogLevel.Debug)) {
-            General.logDebug('AbstractComponent', `Dispatched action: ${JSON.stringify(type)}`);
+            General.logDebug('AbstractComponent', `Dispatched action completed: ${JSON.stringify(type)}`);
         }
         return dispatchResult;
     }
 
     async dispatchAsyncAction(action, params) {
-        const type = action instanceof Function ? action.Id : action;
-        if (General.canLog(General.LogLevel.Debug))
-            General.logDebug('AbstractComponent', `Dispatching action: ${JSON.stringify(type)}`);
-        return await this.context.getStore().dispatch({type, ...params});
+        return await this.dispatchAction(action, params);
     }
 
     dispatchFn(fn) {
