@@ -85,6 +85,7 @@ ifndef $(OPENCHS_CLIENT_BUGSNAG_API_KEY)
 	exit 1
 else
 	$(call _upload_release_sourcemap)
+endif
 # </bugsnag>
 
 # <release>
