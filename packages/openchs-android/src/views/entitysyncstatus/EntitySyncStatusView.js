@@ -1,4 +1,4 @@
-import {Alert, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Text, TouchableNativeFeedback, View, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -64,18 +64,26 @@ class EntitySyncStatusView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={this.I18n.t('entitySyncStatus')}/>
-                    <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
-                        <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount} lastLoaded={this.state.lastLoaded}/>
-                        <EntitySyncStatusTable data={this.state.entitySyncStatusList}/>
-                        <TouchableNativeFeedback onPress={() => this.onForceSync()}>
-                            <View style={[Styles.basicPrimaryButtonView, {paddingLeft: 8, paddingRight: 8, marginTop: Distances.VerticalSpacingBetweenFormElements}]}>
-                                <Text style={{
-                                    fontSize: Fonts.Medium,
-                                    color: Colors.TextOnPrimaryColor
-                                }}>Reset Sync</Text>
-                            </View>
-                        </TouchableNativeFeedback>
-                    </View>
+                    <ScrollView>
+                        <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                            <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount}
+                                                     lastLoaded={this.state.lastLoaded}/>
+                            <EntitySyncStatusTable data={this.state.entitySyncStatusList}/>
+                            <TouchableNativeFeedback onPress={() => this.onForceSync()}>
+                                <View style={[Styles.basicPrimaryButtonView, {
+                                    paddingLeft: 8,
+                                    paddingRight: 8,
+                                    marginTop: Distances.VerticalSpacingBetweenFormElements
+                                }]}>
+                                    <Text style={{
+                                        fontSize: Fonts.Medium,
+                                        color: Colors.TextOnPrimaryColor,
+                                        alignSelf: "center"
+                                    }}>Reset Sync</Text>
+                                </View>
+                            </TouchableNativeFeedback>
+                        </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
