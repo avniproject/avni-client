@@ -1,4 +1,4 @@
-import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Linking, Platform, SafeAreaView, SectionList, StyleSheet, Text, TouchableNativeFeedback, View, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
@@ -345,45 +345,48 @@ class MenuView extends AbstractComponent {
                 <ProgressBarView onPress={_.noop} progress={this.state.percentDone / 100}
                                  message={this.I18n.t(this.state.backupProgressUserMessage)}
                                  syncing={this.state.backupInProgress} notifyUserOnCompletion={false}/>
-                <CHSContent>
-                    <SafeAreaView>
-                        <SectionList
-                            contentContainerStyle={{
+                <ScrollView>
+                    <CHSContent>
+                        <SafeAreaView>
+                            <SectionList
+                                contentContainerStyle={{
+                                    marginRight: Distances.ScaledContentDistanceFromEdge,
+                                    marginLeft: Distances.ScaledContentDistanceFromEdge,
+                                    marginTop: Distances.ScaledContentDistanceFromEdge
+                                }}
+                                sections={dataGroup}
+                                renderSectionHeader={() =>
+                                    <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
+                                renderItem={({item}) => item}
+                                keyExtractor={(item, index) => index}
+                            />
+                            <View style={[{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
                                 marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                marginTop: Distances.ScaledContentDistanceFromEdge
-                            }}
-                            sections={dataGroup}
-                            renderSectionHeader={() =>
-                                <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
-                            renderItem={({item}) => item}
-                            keyExtractor={(item, index) => index}
-                        />
-                        <View style={[{
-                            marginRight: Distances.ScaledContentDistanceFromEdge,
-                            marginLeft: Distances.ScaledContentDistanceFromEdge,
-                        }]}>
-                            <View style={styles.infoContainer}>
-                                <Text style={Styles.textList}>Server: <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{this.state.serverURL}</Text></Text>
-                                <Text style={Styles.textList}>Database Schema : <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
-                                <Text style={Styles.textList}>BuildVersion: <Text
-                                    style={{
-                                        color: 'black',
-                                        fontSize: Styles.normalTextSize
-                                    }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
+                            }]}>
+                                <View style={styles.infoContainer}>
+                                    <Text style={Styles.textList}>Server: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{this.state.serverURL}</Text></Text>
+                                    <Text style={Styles.textList}>Database Schema : <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                    <Text style={Styles.textList}>BuildVersion: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{DeviceInfo.getVersion()}-{Config.COMMIT_ID}</Text></Text>
+                                </View>
                             </View>
-                        </View>
-                    </SafeAreaView>
-                    <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
-                </CHSContent>
+                        </SafeAreaView>
+                        <Separator height={100} backgroundColor={Colors.GreyContentBackground}/>
+                    </CHSContent>
+                </ScrollView>
+
             </CHSContainer>
         );
     }
