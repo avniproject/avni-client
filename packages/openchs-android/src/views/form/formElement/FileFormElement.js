@@ -62,8 +62,9 @@ class FileFormElement extends AbstractFormElement {
         const options = {type: applicableTypes};
         const directory = FileSystem.getFileDir();
         if (await this.isPermissionGranted()) {
-            DocumentPicker.pick(options)
-                .then(({uri, copyError, type, name, size}) => {
+            DocumentPicker.pickSingle(options)
+                .then((response) => {
+                    const {uri, copyError, type, name, size} = response;
                     this.checkFileSizeAndType(type, size);
                     if (name && uri && !copyError) {
                         const fileName = this.getFileName(name);

@@ -80,6 +80,10 @@ define _upload_release_sourcemap
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
+ifndef $(OPENCHS_CLIENT_BUGSNAG_API_KEY)
+	@echo "OPENCHS_CLIENT_BUGSNAG_API_KEY env var not present"
+	exit 1
+else
 	$(call _upload_release_sourcemap)
 # </bugsnag>
 
@@ -113,38 +117,27 @@ create_apk:
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx4096m -Xms1024m)" ./gradlew bundleRelease --stacktrace --w
 
 release: release_clean create_apk
-
 release_dev: setup_hosts as_dev release
 
-release_prod: renew_env as_prod release
-	$(call _upload_release_sourcemap)
-
-release_prod_wo_clean: as_prod release
-
-release_staging: renew_env as_staging
-	enableSeparateBuildPerCPUArchitecture=false make release
+release_prod_without_clean: as_prod release upload-release-sourcemap
+release_prod: renew_env release_prerelease_without_clean
 
 release_staging_playstore_without_clean: as_staging release
-
-release_staging_playstore: renew_env as_staging release
+release_staging_playstore: renew_env release_staging_playstore_without_clean
 
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
-
-release_uat: renew_env as_uat
-	enableSeparateBuildPerCPUArchitecture=false make release
+release_staging: renew_env release_staging_without_clean
 
 release_uat_without_clean: as_uat
 	$(call _create_config,uat)
 	enableSeparateBuildPerCPUArchitecture=false make release
-
-release_prerelease: renew_env as_prerelease
-	$(call _create_config,prerelease)
-	enableSeparateBuildPerCPUArchitecture=false make release
+release_uat: renew_env release_uat_without_clean
 
 release_prerelease_without_clean: as_prerelease
 	$(call _create_config,prerelease)
 	enableSeparateBuildPerCPUArchitecture=false make release
+release_prerelease: renew_env release_prerelease_without_clean
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
