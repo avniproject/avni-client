@@ -95,7 +95,7 @@ class ProgramFormComponent extends AbstractComponent {
         const displayTimer = this.props.state.timerState && this.props.state.timerState.displayTimer(this.props.state.formElementGroup);
         return (<CHSContainer>
             <CHSContent>
-                <ScrollView ref={this.scrollRef}>
+                <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
                     func={this.props.backFunction} displayHomePressWarning={true}/>

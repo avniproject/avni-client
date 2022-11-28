@@ -8,7 +8,7 @@ import AppHeader from "../common/AppHeader";
 import {Actions} from "../../action/subject/SubjectRegisterActions";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import {AbstractEncounter, Individual, ObservationsHolder, PrimitiveValue, SubjectType, WorkItem, SingleCodedValue} from "avni-models";
+import {Individual, ObservationsHolder, PrimitiveValue, SubjectType, WorkItem, SingleCodedValue} from "avni-models";
 import CHSNavigator from "../../utility/CHSNavigator";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
@@ -31,7 +31,6 @@ import HouseholdState from "../../state/HouseholdState";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
-import {Button, Text as NBText} from "native-base";
 import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import SingleSelectMediaFormElement from "../form/formElement/SingleSelectMediaFormElement";
@@ -49,7 +48,7 @@ class SubjectRegisterView extends AbstractComponent {
         let currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
         let subjectTypeName = currentWorkItem.parameters.subjectTypeName;
         const subjectType = context.getService(EntityService).findByKey('name', subjectTypeName, SubjectType.schema.name);
-        this.state = {displayed:true, isAllowedProfilePicture: subjectType.allowProfilePicture};
+        this.state = {displayed: true, isAllowedProfilePicture: subjectType.allowProfilePicture};
         this.scrollRef = React.createRef();
     }
 
@@ -175,7 +174,9 @@ class SubjectRegisterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        {this.displayMessage(this.props.message)}
+        {
+            this.displayMessage(this.props.message)
+        }
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
         const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
         const subjectType = this.state.subject.subjectType;
@@ -184,98 +185,99 @@ class SubjectRegisterView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                displayHomePressWarning={!this.state.saveDrafts}/>
-                    {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
-                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        <SummaryButton onPress={() => this.onGoToSummary()}/>
-                        {this.state.wizard.isFirstFormPage() && (
-                            <View>
-                                <GeolocationFormElement
-                                    actionName={Actions.SET_LOCATION}
-                                    errorActionName={Actions.SET_LOCATION_ERROR}
-                                    location={this.state.subject.registrationLocation}
-                                    editing={this.props.params.editing}
-                                    validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
-                                <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
-                                                 element={new StaticFormElement('registrationDate')}
-                                                 dateValue={new PrimitiveValue(this.state.subject.registrationDate)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
-                                <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
-                                                 element={new StaticFormElement(`${this.state.subject.subjectTypeName} Name`, true)}
-                                                 validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}
-                                                 value={new PrimitiveValue(this.state.subject.firstName)}
-                                                 style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
-                                                 multiline={false}
-                                                 helpText={_.get(this.state.subject, 'subjectType.nameHelpText')}
-                                />
-                                <SingleSelectMediaFormElement
-                                    element={{...profilePicFormElement}}
-                                    value={new SingleCodedValue(this.state.subject.profilePicture)}
-                                    isShown={this.state.isAllowedProfilePicture}
-                                    actionName={Actions.SET_PROFILE_PICTURE}/>
-                                <ValidationErrorMessage validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.nonIndividualValidationKeys.NAME)}/>
-                                {this.state.subject.isHousehold() && this.state.isNewEntity &&
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                        {displayTimer ?
+                            <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
+                        <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                            <SummaryButton onPress={() => this.onGoToSummary()}/>
+                            {this.state.wizard.isFirstFormPage() && (
                                 <View>
+                                    <GeolocationFormElement
+                                        actionName={Actions.SET_LOCATION}
+                                        errorActionName={Actions.SET_LOCATION_ERROR}
+                                        location={this.state.subject.registrationLocation}
+                                        editing={this.props.params.editing}
+                                        validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
+                                    <DateFormElement actionName={Actions.REGISTRATION_ENTER_REGISTRATION_DATE}
+                                                     element={new StaticFormElement('registrationDate')}
+                                                     dateValue={new PrimitiveValue(this.state.subject.registrationDate)}
+                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}/>
+                                    <TextFormElement actionName={Actions.REGISTRATION_ENTER_NAME}
+                                                     element={new StaticFormElement(`${this.state.subject.subjectTypeName} Name`, true)}
+                                                     validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.FIRST_NAME)}
+                                                     value={new PrimitiveValue(this.state.subject.firstName)}
+                                                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+                                                     multiline={false}
+                                                     helpText={_.get(this.state.subject, 'subjectType.nameHelpText')}
+                                    />
+                                    <SingleSelectMediaFormElement
+                                        element={{...profilePicFormElement}}
+                                        value={new SingleCodedValue(this.state.subject.profilePicture)}
+                                        isShown={this.state.isAllowedProfilePicture}
+                                        actionName={Actions.SET_PROFILE_PICTURE}/>
+                                    <ValidationErrorMessage
+                                        validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.nonIndividualValidationKeys.NAME)}/>
+                                    {this.state.subject.isHousehold() && this.state.isNewEntity &&
                                     <View>
-                                        <Text style={DGS.formElementLabel}>{this.I18n.t("totalMembers")}<Text
-                                            style={{color: Colors.ValidationError}}> * </Text></Text>
-                                    </View>
-                                    <TextInput
-                                        style={{flex: 1, borderBottomWidth: 0, marginTop: Distances.VerticalSpacingBetweenFormElements, paddingVertical: 5}}
-                                        keyboardType='numeric'
-                                        maxLength={3}
-                                        underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, HouseholdState.validationKeys.TOTAL_MEMBERS) ? Colors.ValidationError : Colors.InputBorderNormal}
-                                        value={_.isNil(this.state.household.totalMembers) ? "" : this.state.household.totalMembers}
-                                        onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_TOTAL_MEMBERS, {value: text})}/>
+                                        <View>
+                                            <Text style={DGS.formElementLabel}>{this.I18n.t("totalMembers")}<Text
+                                                style={{color: Colors.ValidationError}}> * </Text></Text>
+                                        </View>
+                                        <TextInput
+                                            style={{flex: 1, borderBottomWidth: 0, marginTop: Distances.VerticalSpacingBetweenFormElements, paddingVertical: 5}}
+                                            keyboardType='numeric'
+                                            maxLength={3}
+                                            underlineColorAndroid={AbstractDataEntryState.hasValidationError(this.state, HouseholdState.validationKeys.TOTAL_MEMBERS) ? Colors.ValidationError : Colors.InputBorderNormal}
+                                            value={_.isNil(this.state.household.totalMembers) ? "" : this.state.household.totalMembers}
+                                            onChangeText={(text) => this.dispatchAction(Actions.REGISTRATION_ENTER_TOTAL_MEMBERS, {value: text})}/>
 
-                                </View>}
-                                <AddressLevels
-                                    selectedLowestLevel={this.state.subject.lowestAddressLevel}
-                                    multiSelect={false}
-                                    validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
-                                    mandatory={true}
-                                    onLowestLevel={(lowestSelectedAddresses) => {
-                                        this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})
-                                    }
-                                    }
-                                    minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
-                                />
+                                    </View>}
+                                    <AddressLevels
+                                        selectedLowestLevel={this.state.subject.lowestAddressLevel}
+                                        multiSelect={false}
+                                        validationError={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.LOWEST_ADDRESS_LEVEL)}
+                                        mandatory={true}
+                                        onLowestLevel={(lowestSelectedAddresses) => {
+                                            this.dispatchAction(Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, {value: _.head(lowestSelectedAddresses)})
+                                        }
+                                        }
+                                        minLevelTypeUUIDs={this.state.minLevelTypeUUIDs}
+                                    />
 
-                            </View>
-                        )}
-                    </View>
-                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
-                        {_.get(this.state, 'timerState.displayQuestions', true) &&
+                                </View>
+                            )}
+                        </View>
+                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
+                            {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
-                            observationHolder={new ObservationsHolder(this.state.subject.observations)}
-                            group={this.state.formElementGroup}
-                            actions={Actions}
-                            validationResults={this.state.validationResults}
-                            filteredFormElements={this.state.filteredFormElements}
-                            formElementsUserState={this.state.formElementsUserState}
-                            dataEntryDate={this.state.subject.registrationDate}
-                            onValidationError={(x, y) => this.scrollToPosition(x, y)}
-                            groupAffiliation={this.state.groupAffiliation}
-                            syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
-                            syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
-                            allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
-                            allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
-                        />}
-                        {!displayTimer &&
-                        <WizardButtons previous={{
-                            func: () => this.previous(),
-                            visible: !this.state.wizard.isFirstPage(),
-                            label: this.I18n.t('previous')
-                        }} next={{
-                            func: () => this.next(),
-                            label: this.I18n.t('next')
-                        }}/>}
-                    </View>
+                                observationHolder={new ObservationsHolder(this.state.subject.observations)}
+                                group={this.state.formElementGroup}
+                                actions={Actions}
+                                validationResults={this.state.validationResults}
+                                filteredFormElements={this.state.filteredFormElements}
+                                formElementsUserState={this.state.formElementsUserState}
+                                dataEntryDate={this.state.subject.registrationDate}
+                                onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                                groupAffiliation={this.state.groupAffiliation}
+                                syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
+                                syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
+                                allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
+                                allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
+                            />}
+                            {!displayTimer &&
+                            <WizardButtons previous={{
+                                func: () => this.previous(),
+                                visible: !this.state.wizard.isFirstPage(),
+                                label: this.I18n.t('previous')
+                            }} next={{
+                                func: () => this.next(),
+                                label: this.I18n.t('next')
+                            }}/>}
+                        </View>
                     </ScrollView>
                 </CHSContent>
             </CHSContainer>

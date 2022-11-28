@@ -68,7 +68,7 @@ class TaskFormView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup group={this.state.formElementGroup}

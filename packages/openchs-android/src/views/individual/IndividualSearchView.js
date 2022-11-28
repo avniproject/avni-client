@@ -87,7 +87,7 @@ class IndividualSearchView extends AbstractComponent {
                 <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
                            hideIcon={true}/>
                 <CHSContent>
-                    <ScrollView>
+                    <ScrollView keyboardShouldPersistTaps="handled">
                         <View style={{
                             marginTop: Styles.ContentDistanceFromEdge,
                             paddingHorizontal: Styles.ContentDistanceFromEdge,
