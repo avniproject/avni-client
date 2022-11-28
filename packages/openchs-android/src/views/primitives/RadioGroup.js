@@ -45,6 +45,11 @@ class RadioGroup extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        /*
+         * We are making use of state, in-order to improve user-experience. Earlier, on clicking a checkbox,
+         * we used to wait for props to get updated with the latest value, post the processing initiated by onValueChanged().
+         * By making use of state, we will be reducing the lag between the checkbox being clicked and it being marked as selected on screen.
+         */
         this.state = {
             groupValue: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
         };
