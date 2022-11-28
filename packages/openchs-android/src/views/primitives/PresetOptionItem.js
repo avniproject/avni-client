@@ -77,9 +77,7 @@ class PresetOptionItem extends AbstractComponent {
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
         return (
             <TouchableOpacity style={ToRender.container} disabled={this.props.disabled}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'flex-start'}}>
-                    {this.getSelectComponent(color, extraLineHeight)}
-                </View>
+                {this.getSelectComponent(color, extraLineHeight)}
             </TouchableOpacity>
         );
     }
