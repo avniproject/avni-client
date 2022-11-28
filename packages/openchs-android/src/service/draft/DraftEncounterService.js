@@ -1,11 +1,7 @@
 import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftEncounter} from 'avni-models';
-<<<<<<< HEAD
-import {ObservationsHolder} from 'openchs-models';
-=======
 import {Individual, ObservationsHolder} from 'openchs-models';
->>>>>>> master
 
 @Service("draftEncounterService")
 class DraftEncounterService extends BaseService {
