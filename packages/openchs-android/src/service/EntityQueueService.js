@@ -16,17 +16,6 @@ class EntityQueueService extends BaseService {
         return EntityQueue.schema.name;
     }
 
-    requeueAll() {
-        this.clearDataIn([EntityQueue]);
-        const allTxEntityQueue = EntityMetaData.model().filter((entityMetaData) => entityMetaData.type === "tx")
-            .slice()
-            .reverse()
-            .map((entityModel) => this.findAll(entityModel.entityName)
-                .map(e => EntityQueue.create(e, entityModel.entityName)))
-            .reduce((acc, entityQueue) => acc.concat(entityQueue), []);
-        this.bulkSaveOrUpdate(this.createEntities(EntityQueue.schema.name, allTxEntityQueue));
-    }
-
     getAllQueuedItems(entityMetadata) {
         const items = _.uniqBy(this.db.objects(EntityQueue.schema.name)
             .filtered("entity = $0", entityMetadata.entityName)
