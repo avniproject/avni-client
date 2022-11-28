@@ -41,6 +41,7 @@ import moment from "moment";
 import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 import {MenuItem} from 'openchs-models';
 import StaticMenuItem from "./menu/StaticMenuItem";
+import AvniIcon from "./common/AvniIcon";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -65,7 +66,9 @@ class MenuView extends AbstractComponent {
                             style={[Fonts.typography("paperFontSubhead"), styles.optionStyle]}>{I18n.t(titleKey)}</Text>
                     </View>
                     {(['logout', 'Delete Data', 'backup'].includes(titleKey)) ? <View/> :
-                        <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>}
+                        <AvniIcon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
+                    }
+
                 </View>
             </TouchableNativeFeedback>)
             : <View/>
@@ -227,7 +230,7 @@ class MenuView extends AbstractComponent {
                         number={unreadCount || 0}
                         component={newsText}/>
                 </View>
-                <Icon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
+                <AvniIcon style={styles.iconStyle} name='chevron-right' type='MaterialIcons'/>
             </View>
         </TouchableNativeFeedback>
     }
@@ -270,15 +273,6 @@ class MenuView extends AbstractComponent {
         const questionURL = "https://reporting.avniproject.org/public/question/11265388-5909-438e-9d9a-6faaa0c5863f";
         const params = `?username=${encodeURIComponent(this.state.userInfo.username)}&name=${encodeURIComponent(this.state.userInfo.name)}&month=${moment().month() + 1}&year=${moment().year()}`;
         Linking.openURL(`${questionURL}${params}`);
-    }
-
-    createMenuDataGroup() {
-        return [
-            StaticMenuItemFactory.getSyncMenus(),
-            StaticMenuItemFactory.getUserMenus(),
-            StaticMenuItemFactory.getSupportMenus(),
-            StaticMenuItemFactory.getDevMenus()
-        ];
     }
 
     bindMenuActions() {

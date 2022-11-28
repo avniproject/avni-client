@@ -9,7 +9,7 @@ import CustomDashboardView from "../customDashboard/CustomDashboardView";
 
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
-    new StaticMenuItem("videoList", "video-library", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
+    new StaticMenuItem("videoList", "video", "VideoList", StaticMenuItem.InternalNavigationMenuType, VideoListView),
     new StaticMenuItem("beneficiaryMode", "account-supervisor", "beneficiaryMode", StaticMenuItem.InternalNavigationMenuType, BeneficiaryModeStartView)];
 const SyncMenus = [
     new StaticMenuItem("entitySyncStatus", "sync", "entitySyncStatus", StaticMenuItem.InternalNavigationMenuType, EntitySyncStatusView),

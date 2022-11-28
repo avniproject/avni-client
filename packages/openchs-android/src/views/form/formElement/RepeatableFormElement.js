@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import PropTypes from "prop-types";
 import {StyleSheet, TouchableOpacity, View} from "react-native";
-import {Icon} from "native-base";
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../../primitives/Colors";
 import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni-models';
 import QuestionGroup from "./QuestionGroup";
@@ -54,7 +54,7 @@ class RepeatableFormElement extends AbstractFormElement {
                               disabled={isDisabled}
                               onPress={onPress}
                               style={styles.actionButton}>
-                <Icon name={iconName}
+                <MCIIcon name={iconName}
                       style={{fontSize: 25, color: isDisabled ? Colors.DisabledButtonColor : primaryColor}}
                 />
             </TouchableOpacity>;
@@ -64,7 +64,7 @@ class RepeatableFormElement extends AbstractFormElement {
         const isRemoveDisabled = this.props.value.size() <= 1;
         return (
             <Fragment key={questionGroupIndex}>
-                {this.actionButton('remove-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
+                {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
                     element={this.props.element}
@@ -87,7 +87,7 @@ class RepeatableFormElement extends AbstractFormElement {
             <View style={{marginVertical: 16}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {_.map(_.range(0, _.max([1, this.props.value.size()])), index => this.renderQuestionGroup(index))}
-                {this.actionButton('add-circle', () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
+                {this.actionButton('plus-circle', () => this.onAdd(), isAddDisabled, Colors.ActionButtonColor)}
             </View>
         );
     }

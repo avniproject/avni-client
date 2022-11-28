@@ -36,7 +36,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
             <Text style={[Styles.formLabel, {
                 flex: 8,
                 lineHeight: Styles.normalTextSize + 16
-            }]}>{this.label}{moreTextForLabel}</Text>
+            }]}>{this.label}</Text>
         );
     }
 
