@@ -147,9 +147,8 @@ class ChangePasswordView extends AbstractComponent {
 
                         <TouchableNativeFeedback onPress={() => {
                             this.changePassword()
-                        }}
-                                                 background={TouchableNativeFeedback.SelectableBackground()}>
-                            <View style={[Styles.basicPrimaryButtonView, {width: 144, marginTop: 16}]}>
+                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <View style={[Styles.basicPrimaryButtonView, {flexDirection: "row", justifyContent: "center", alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 10, paddingVertical: 8}]}>
                                 <Text style={{color: Styles.whiteColor, fontSize: 16}}>Change Password</Text>
                             </View>
                         </TouchableNativeFeedback>

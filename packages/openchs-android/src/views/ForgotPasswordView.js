@@ -10,6 +10,8 @@ import CHSNavigator from "../utility/CHSNavigator";
 import {Spinner} from "native-base";
 import Colors from "./primitives/Colors";
 import General from "../utility/General";
+import CHSContent from "./common/CHSContent";
+import CHSContainer from "./common/CHSContainer";
 
 @Path('/forgotPasswordView')
 class ForgotPasswordView extends AbstractComponent {
@@ -91,7 +93,9 @@ class ForgotPasswordView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        return <View style={this.containerStyle}>
+        return <CHSContainer>
+            <CHSContent>
+                <View style={this.containerStyle}>
             <Text
                 style={Styles.formLabel}>{this.I18n.t(`forgot_password_first_page_note`)}</Text>
             <Text style={{
@@ -109,12 +113,14 @@ class ForgotPasswordView extends AbstractComponent {
             <TouchableNativeFeedback onPress={() => {
                 this.sendOTP()
             }} background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={[Styles.basicPrimaryButtonView, {width: 144, marginTop: 16, alignSelf: 'flex-end'}]}>
+                <View style={[Styles.basicPrimaryButtonView, {minWidth: 120, flexDirection: "row", justifyContent: "center", alignSelf: 'flex-end', marginTop: 10}]}>
                     <Text style={{color: Styles.whiteColor, fontSize: 16}}>Send OTP</Text>
                 </View>
             </TouchableNativeFeedback>
             {this.spinner()}
-        </View>;
+        </View>
+        </CHSContent>
+    </CHSContainer>
     }
 }
 
