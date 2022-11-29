@@ -103,7 +103,7 @@ class RadioGroup extends AbstractComponent {
             <View style={this.appendedStyle({})}>
                 {!this.props.skipLabel &&
                 <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>}
-                {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && (this.props.mandatory === true || !this.props.multiSelect) ?
+                {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
                     <View style={[style.radioStyle, this.props.borderStyle]}>
                         {this.renderSingleValue()}
                     </View> :
