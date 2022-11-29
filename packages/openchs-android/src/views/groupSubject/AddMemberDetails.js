@@ -26,6 +26,7 @@ class AddMemberDetails extends AbstractComponent {
         const valueLabelPairs = this.state.groupRoles.map(({uuid, role}) => new RadioLabelValue(role, uuid));
         return (
             <RadioGroup
+                allowRadioUnselect={true}
                 style={this.props.style}
                 inPairs={true}
                 onPress={({label, value}) => this.toggleRole(value)}
@@ -49,6 +50,7 @@ class AddMemberDetails extends AbstractComponent {
         const headOfHouseholdName = !_.isEmpty(headOfHouseholdGroupSubject) ? headOfHouseholdGroupSubject.memberSubject.name : '';
         return (
             <RadioGroup
+                allowRadioUnselect={true}
                 style={this.props.style}
                 inPairs={true}
                 onPress={({label, value}) => this.toggleRelation(value)}

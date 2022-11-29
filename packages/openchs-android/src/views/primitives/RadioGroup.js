@@ -26,7 +26,8 @@ class RadioGroup extends AbstractComponent {
         inPairs: false,
         multiSelect: false,
         disabled: false,
-        skipLabel: false
+        skipLabel: false,
+        allowRadioUnselect: false
     };
 
     static propTypes = {
@@ -41,6 +42,7 @@ class RadioGroup extends AbstractComponent {
         inPairs: PropTypes.bool,
         multiSelect: PropTypes.bool,
         skipLabel: PropTypes.bool,
+        allowRadioUnselect: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -103,12 +105,14 @@ class RadioGroup extends AbstractComponent {
     }
 
     render() {
-        const {mandatory, multiSelect, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
+        const {mandatory, multiSelect, labelValuePairs, allowRadioUnselect, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
         const {groupValues} = this.state;
 
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const GroupComponent = multiSelect ? Checkbox.Group : Radio.Group;
-        const onRadioValuePressed = multiSelect ? _.noop : this.onRadioValuePress.bind(this);
+        //Do not replace null with noop as that would set a listener and not allow the message to prop up to higher level
+        const onRadioValuePressed = (!multiSelect && allowRadioUnselect) ? this.onRadioValuePress.bind(this) : null;
+
         return (
             <View style={this.appendedStyle({})}>
                 {!skipLabel &&
@@ -130,10 +134,9 @@ class RadioGroup extends AbstractComponent {
     }
 
     onRadioValuePress(value) {
-        if (!this.props.multiSelect && _.includes(this.state.groupValues, value)) {
-            this.props.onPress({value: this.state.groupValues});
-            this.setState({groupValues: null});
-        }
+        const newValue = this.state.groupValues === value ? null : value;
+        this.props.onPress({value: value});
+        this.setState({groupValues: newValue});
     }
 
     onValueChanged(newValues) {

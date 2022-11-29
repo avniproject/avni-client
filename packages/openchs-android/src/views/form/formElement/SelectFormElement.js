@@ -48,6 +48,7 @@ class SelectFormElement extends AbstractFormElement {
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element} />
                 <RadioGroup
+                    allowRadioUnselect={true}
                     multiSelect={this.props.multiSelect}
                     inPairs={true}
                     onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}

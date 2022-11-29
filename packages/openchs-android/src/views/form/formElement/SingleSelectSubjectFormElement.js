@@ -44,6 +44,7 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <RadioGroup
+                    allowRadioUnselect={true}
                     multiSelect={false}
                     inPairs={true}
                     onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}

@@ -37,9 +37,8 @@ class PresetOptionItem extends AbstractComponent {
         super(props, context);
     }
 
-    getSelectComponent(defaultColor, extraLineHeight) {
-        const {disabled, multiSelect, value, radioItemPressed, displayText} = this.props;
-        const onRadioItemPress = () => radioItemPressed(value);
+    getSelectComponent(defaultColor, extraLineHeight, onRadioItemPress) {
+        const {disabled, multiSelect, value, displayText} = this.props;
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         const SelectComponent = multiSelect ? Checkbox : Radio;
         return <SelectComponent disabled={disabled} value={value} color={color} onPress={onRadioItemPress}>
@@ -58,26 +57,29 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const color = _.isNil(this.props.validationResult)
-            ? this.props.checked && this.props.abnormal
+        const {value, checked, chunked, abnormal, style, validationResult, radioItemPressed, disabled} = this.props;
+
+        const color = _.isNil(validationResult)
+            ? checked && abnormal
                 ? Colors.AbnormalValueHighlight
                 : Colors.InputNormal
             : Colors.ValidationError;
-        const chunked = {
+        const chunkedStyle = {
             content: PresetOptionItem.styles.multiContent,
-            container: [this.props.style, {flex: 1}]
+            container: [style, {flex: 1}]
         };
-        const single = {
+        const singleStyle = {
             content: PresetOptionItem.styles.content,
-            container: this.props.style
+            container: style
         };
-        const ToRender = this.props.chunked ? chunked : single;
+        const ToRender = chunked ? chunkedStyle : singleStyle;
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const isExtraHeightRequired = _.includes(['te_IN'], currentLocale);
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
+        const onRadioItemPress = _.isNil(radioItemPressed) ? null : () => radioItemPressed(value);
         return (
-            <TouchableOpacity style={ToRender.container} disabled={this.props.disabled} onPress={() => this.props.radioItemPressed(value)}>
-                {this.getSelectComponent(color, extraLineHeight)}
+            <TouchableOpacity style={ToRender.container} disabled={disabled} onPress={onRadioItemPress}>
+                {this.getSelectComponent(color, extraLineHeight, onRadioItemPress)}
             </TouchableOpacity>
         );
     }
