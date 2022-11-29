@@ -48,7 +48,7 @@ class FamilyRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column'}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.family.observations)}

@@ -45,12 +45,17 @@ class RadioGroup extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        /*
+         * We are making use of state as a cache of value, in-order to improve user-experience.
+         * Checkbox doesn't wait for props to get updated with the latest value.
+         * Use of state, reduces lag between the checkbox/radio being clicked and it being marked as selected on screen.
+         */
         this.state = {
-            groupValue: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
+            groupValues: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
         };
     }
 
-    renderPairedOptions() {
+    renderPairedOptions(onRadioItemPressed) {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
                 {rlvPair.map((rlv) =>
@@ -65,12 +70,12 @@ class RadioGroup extends AbstractComponent {
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems
                                       }}
                                       disabled={this.props.disabled}
-                                      value={rlv.value}/>
+                                      value={rlv.value} radioItemPressed={onRadioItemPressed}/>
                 )}
             </View>);
     }
 
-    renderOptions() {
+    renderOptions(onRadioItemPressed) {
         return this.props.labelValuePairs.map(radioLabelValue =>
             <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
                               checked={this.props.selectionFn(radioLabelValue.value)}
@@ -83,6 +88,7 @@ class RadioGroup extends AbstractComponent {
                               }}
                               disabled={this.props.disabled}
                               value={radioLabelValue.value}
+                              radioItemPressed={onRadioItemPressed}
             />);
     }
 
@@ -97,40 +103,51 @@ class RadioGroup extends AbstractComponent {
     }
 
     render() {
-        const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-        const GroupComponent = this.props.multiSelect ? Checkbox.Group : Radio.Group;
+        const {mandatory, multiSelect, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
+        const {groupValues} = this.state;
+
+        const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const GroupComponent = multiSelect ? Checkbox.Group : Radio.Group;
+        const onRadioValuePressed = multiSelect ? _.noop : this.onRadioValuePress.bind(this);
         return (
             <View style={this.appendedStyle({})}>
-                {!this.props.skipLabel &&
-                <Text style={Styles.formLabel}>{this.I18n.t(this.props.labelKey)}{mandatoryText}</Text>}
-                {this.props.labelValuePairs.length > 0 ? this.props.labelValuePairs.length === 1 && this.props.mandatory === true ?
-                    <View style={[style.radioStyle, this.props.borderStyle]}>
+                {!skipLabel &&
+                <Text style={Styles.formLabel}>{this.I18n.t(labelKey)}{mandatoryText}</Text>}
+                {labelValuePairs.length > 0 ? labelValuePairs.length === 1 && mandatory === true ?
+                    <View style={[style.radioStyle, borderStyle]}>
                         {this.renderSingleValue()}
                     </View> :
-                    <GroupComponent accessibilityLabel={this.props.labelKey} style={[style.radioStyle, this.props.borderStyle]}
-                                    value={this.state.groupValue || ''} onChange={newValues => this.onValueChanged(newValues)}>
-                        {this.props.inPairs ? this.renderPairedOptions() : this.renderOptions()}
+                    <GroupComponent accessibilityLabel={labelKey} style={[style.radioStyle, borderStyle]}
+                                    value={groupValues || ''} onChange={newValues => this.onValueChanged(newValues)}>
+                        {inPairs ? this.renderPairedOptions(onRadioValuePressed) : this.renderOptions(onRadioValuePressed)}
                     </GroupComponent>
                     : <View/>}
                 <View style={{backgroundColor: '#ffffff'}}>
-                    <ValidationErrorMessage validationResult={this.props.validationError}/>
+                    <ValidationErrorMessage validationResult={validationError}/>
                 </View>
             </View>
         );
     }
 
-    onValueChanged(newValue) {
-        let safeInitNewValue = this.getAppropriateInitializedValue(newValue);
-        if (_.isString(safeInitNewValue) || _.isNumber(safeInitNewValue) || !_.isArray(safeInitNewValue)) {
-            this.state.groupValue && this.props.onPress({value: this.state.groupValue}); //Invoke toggle to unset for oldValue
-            this.props.onPress({value: safeInitNewValue}); //Invoke toggle to set for oldValue
-        } else {
-            _.xor(safeInitNewValue, this.state.groupValue).forEach(value => {
+    onRadioValuePress(value) {
+        if (!this.props.multiSelect && _.includes(this.state.groupValues, value)) {
+            this.props.onPress({value: this.state.groupValues});
+            this.setState({groupValues: null});
+        }
+    }
+
+    onValueChanged(newValues) {
+        const safelyInitialisedNewValues = this.getAppropriateInitializedValue(newValues);
+        this.setState({groupValues: safelyInitialisedNewValues});
+        if (this.props.multiSelect) {
+            _.xor(safelyInitialisedNewValues, this.state.groupValues).forEach(value => {
                     value && this.props.onPress({value: value}); //Invoke toggle for all changed values
                 }
             );
+        } else {
+            this.state.groupValues && this.props.onPress({value: this.state.groupValues}); //Invoke toggle to unset for old value
+            this.props.onPress({value: safelyInitialisedNewValues}); //Invoke toggle to set for new Value
         }
-        this.setState({groupValue: safeInitNewValue});
     }
 
     initializeSelectedValue() {

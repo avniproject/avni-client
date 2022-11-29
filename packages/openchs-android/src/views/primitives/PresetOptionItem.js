@@ -6,8 +6,6 @@ import {Checkbox, Radio} from "native-base";
 import Colors from '../primitives/Colors';
 import _ from 'lodash';
 import Styles from "./Styles";
-import themes from "./themes"
-import General from "../../utility/General";
 import UserInfoService from "../../service/UserInfoService";
 
 class PresetOptionItem extends AbstractComponent {
@@ -24,7 +22,8 @@ class PresetOptionItem extends AbstractComponent {
         abnormal: PropTypes.bool,
         style: PropTypes.object,
         chunked: PropTypes.bool,
-        value: PropTypes.any
+        value: PropTypes.any,
+        radioItemPressed: PropTypes.func
     };
 
     static styles = StyleSheet.create({
@@ -39,12 +38,13 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     getSelectComponent(defaultColor, extraLineHeight) {
-        const disabled = this.props.disabled;
+        const {disabled, multiSelect, value, radioItemPressed, displayText} = this.props;
+        const onRadioItemPress = () => radioItemPressed(value);
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
-        const SelectComponent = this.props.multiSelect ? Checkbox : Radio;
-        return <SelectComponent disabled={disabled} value={this.props.value} color={color}>
-            <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]}>
-                {this.props.displayText}
+        const SelectComponent = multiSelect ? Checkbox : Radio;
+        return <SelectComponent disabled={disabled} value={value} color={color} onPress={onRadioItemPress}>
+            <Text style={[Styles.formBodyText, {color: defaultColor}, extraLineHeight]} onPress={onRadioItemPress}>
+                {displayText}
             </Text>
         </SelectComponent>;
     }
@@ -76,10 +76,8 @@ class PresetOptionItem extends AbstractComponent {
         const isExtraHeightRequired = _.includes(['te_IN'], currentLocale);
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
         return (
-            <TouchableOpacity style={ToRender.container} disabled={this.props.disabled}>
-                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', alignSelf: 'flex-start'}}>
-                    {this.getSelectComponent(color, extraLineHeight)}
-                </View>
+            <TouchableOpacity style={ToRender.container} disabled={this.props.disabled} onPress={() => this.props.radioItemPressed(value)}>
+                {this.getSelectComponent(color, extraLineHeight)}
             </TouchableOpacity>
         );
     }

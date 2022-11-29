@@ -59,7 +59,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         return <CHSContainer>
             <CHSContent>
-                <ScrollView ref={this.scrollRef}>
+                <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                 <AppHeader title={'BeneficiaryIdentification'} hideBackButton={true} renderExitBeneficiaryMode/>
                 <View style={{flexDirection: 'column'}}>
                     <FormElementGroup

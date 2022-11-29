@@ -242,27 +242,29 @@ class MenuView extends AbstractComponent {
                 <View style={{
                     backgroundColor: Colors.headerBackgroundColor,
                     flexDirection: 'row',
-                    height: 70,
+                    minHeight: 70,
                     elevation: 3,
-                    paddingHorizontal: 16
+                    paddingHorizontal: 16,
+                    paddingVertical: 8
                 }}>
                     <MCIIcon style={{fontSize: 35, color: Colors.headerIconColor, alignSelf: 'center'}}
                              name={'user-circle'}/>
-                    <View style={{flexDirection: 'column', alignSelf: 'center'}}>
-                        <Text style={[{
-                            color: Colors.headerTextColor,
-                            fontSize: 18,
-                            marginLeft: 20
-                        }]}>{this.state.userInfo.organisationName ?
-                            this.state.userInfo.username ?
-                                `${this.state.userInfo.username} (${this.state.userInfo.organisationName})`
-                                : this.state.userInfo.organisationName
-                            : this.I18n.t('syncRequired')
-                        }</Text>
+                    <View style={{flexDirection: 'column', alignSelf: 'center', marginLeft: 20, flex: 1}}>
+                        <View style={{flexDirection: 'row'}}>
+                            <Text style={[{
+                                color: Colors.headerTextColor,
+                                fontSize: Fonts.Large,
+                                flexWrap: 'wrap',
+                            }]}>{this.state.userInfo.organisationName ?
+                                this.state.userInfo.username ?
+                                    `${this.state.userInfo.username} - ${this.state.userInfo.name} (${this.state.userInfo.organisationName})`
+                                    : this.state.userInfo.organisationName
+                                : this.I18n.t('syncRequired')
+                            }</Text>
+                        </View>
                         <Text style={[{
                             color: Colors.headerTextColor,
                             fontSize: 12,
-                            marginLeft: 20
                         }]}>{this.I18n.t('editSettings')}</Text>
                     </View>
                 </View>

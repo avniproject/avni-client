@@ -111,7 +111,8 @@ class PersonRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
-                    <ScrollView ref={this.scrollRef} style={{
+                    <ScrollView keyboardShouldPersistTaps="handled"
+                        ref={this.scrollRef} style={{
                         marginTop: Distances.ScaledVerticalSpacingDisplaySections,
                         flexDirection: 'column',
                         paddingHorizontal: Distances.ScaledContentDistanceFromEdge

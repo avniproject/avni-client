@@ -117,7 +117,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={this.state.programEncounter.individual.nameString}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>

@@ -120,7 +120,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={this.I18n.t("OTPVerification")} func={() => this.goBack()} hideIcon={true}/>
                     <View style={{flex: 1, flexDirection: 'column', paddingVertical: 100, paddingHorizontal: 20}}>
                         <Text style={Styles.menuTitle}>{this.I18n.t("OTPVerification")}</Text>

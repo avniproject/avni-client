@@ -37,28 +37,6 @@ class EntitySyncStatusView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    forceSync() {
-        const entityQueueService = this.context.getService(EntityQueueService);
-        entityQueueService.requeueAll();
-    }
-
-    onForceSync() {
-        Alert.alert(
-            this.I18n.t('forceSyncWarning'),
-            this.I18n.t('forceSyncWarningMessage'),
-            [
-                {
-                    text: this.I18n.t('yes'), onPress: () => this.forceSync()
-                },
-                {
-                    text: this.I18n.t('no'), onPress: () => {
-                },
-                    style: 'cancel'
-                }
-            ]
-        )
-    }
-
     render() {
         return (
             <CHSContainer>
@@ -69,19 +47,6 @@ class EntitySyncStatusView extends AbstractComponent {
                             <EntitySyncStatusSummary totalQueueCount={this.state.totalQueueCount}
                                                      lastLoaded={this.state.lastLoaded}/>
                             <EntitySyncStatusTable data={this.state.entitySyncStatusList}/>
-                            <TouchableNativeFeedback onPress={() => this.onForceSync()}>
-                                <View style={[Styles.basicPrimaryButtonView, {
-                                    paddingLeft: 8,
-                                    paddingRight: 8,
-                                    marginTop: Distances.VerticalSpacingBetweenFormElements
-                                }]}>
-                                    <Text style={{
-                                        fontSize: Fonts.Medium,
-                                        color: Colors.TextOnPrimaryColor,
-                                        alignSelf: "center"
-                                    }}>Reset Sync</Text>
-                                </View>
-                            </TouchableNativeFeedback>
                         </View>
                     </ScrollView>
                 </CHSContent>

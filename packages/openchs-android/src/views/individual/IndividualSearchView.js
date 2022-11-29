@@ -11,7 +11,6 @@ import {IndividualSearchActionNames as Actions} from "../../action/individual/In
 import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
-import CheckBoxFormElement from "../form/formElement/CheckBoxFormElement";
 import {PrimitiveValue, CustomFilter, Privilege} from 'avni-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
@@ -28,6 +27,7 @@ import PrivilegeService from "../../service/PrivilegeService";
 import _ from "lodash";
 import {ScrollView} from "react-native";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
+import {Checkbox} from "native-base";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -84,10 +84,10 @@ class IndividualSearchView extends AbstractComponent {
 
         return (
             <CHSContainer>
+                <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
+                           hideIcon={true}/>
                 <CHSContent>
-                    <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
-                               hideIcon={true}/>
-                    <ScrollView>
+                    <ScrollView keyboardShouldPersistTaps="handled">
                         <View style={{
                             marginTop: Styles.ContentDistanceFromEdge,
                             paddingHorizontal: Styles.ContentDistanceFromEdge,
@@ -124,32 +124,37 @@ class IndividualSearchView extends AbstractComponent {
                                                selectedCustomFilters={this.state.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                 /> : null}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) ?
-                                <GenderFilter
-                                    selectedGenders={this.state.selectedGenders}
-                                    onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
-                                /> : null}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) ?
-                                <AddressLevels
-                                    key={this.state.key}
-                                    onSelect={(addressLevelState) =>
-                                        this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
-                                    }
-                                    multiSelect={true}/> : null}
-                            <CheckBoxFormElement
-                                label={this.I18n.t("includeVoided")}
-                                checkBoxText={this.I18n.t("yes")}
-                                checked={this.state.searchCriteria.includeVoided}
-                                onPress={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
-                                    {value: !this.state.searchCriteria.includeVoided})}/>
-                            {!_.isEmpty(bottomLevelFilters) ?
-                                <CustomFilters filters={bottomLevelFilters}
-                                               selectedCustomFilters={this.state.selectedCustomFilters}
-                                               onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                               addressLevelState={this.state.addressLevelState}
-                                /> : null}
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) &&
+                            <GenderFilter
+                                selectedGenders={this.state.selectedGenders}
+                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                            />}
+                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) &&
+                            <AddressLevels
+                                key={this.state.key}
+                                onSelect={(addressLevelState) =>
+                                    this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
+                                }
+                                multiSelect={true}/>}
+                            <>
+                                <Text style={Styles.formLabel}>{this.I18n.t("includeVoided")}</Text>
+                                <Checkbox.Group accessibilityLabel={this.I18n.t("includeVoided")}
+                                                onChange={() => this.dispatchAction(Actions.ENTER_VOIDED_CRITERIA,
+                                                    {value: !this.state.searchCriteria.includeVoided})}>
+                                    <Checkbox value={"yes"} color={Colors.AccentColor}>
+                                        {this.I18n.t("yes")}
+                                    </Checkbox>
+                                </Checkbox.Group>
+                            </>
+                            {!_.isEmpty(bottomLevelFilters) &&
+                            <CustomFilters filters={bottomLevelFilters}
+                                           selectedCustomFilters={this.state.selectedCustomFilters}
+                                           onSelect={(selectedCustomFilters) =>
+                                               this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                           addressLevelState={this.state.addressLevelState}
+                            />}
                         </View>
-                        <Separator height={1000} backgroundColor={Styles.whiteColor}/>
+                        <Separator height={400} backgroundColor={Styles.whiteColor}/>
                     </ScrollView>
                 </CHSContent>
 

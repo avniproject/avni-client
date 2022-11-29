@@ -1,14 +1,12 @@
 import React, {Fragment} from 'react';
 import UserInfoService from '../../service/UserInfoService';
-import {Text, TouchableNativeFeedback, View} from 'react-native';
+import {Dimensions, Text, TouchableNativeFeedback, View} from 'react-native';
 import Styles from '../primitives/Styles';
 import Colors from '../primitives/Colors';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import PropTypes from 'prop-types';
-import {Icon} from 'native-base';
 import AutoHeightWebView from 'react-native-autoheight-webview';
-import {Dimensions} from 'react-native';
-import Separator from '../primitives/Separator';
+import AvniIcon from './AvniIcon';
 
 class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {
@@ -72,7 +70,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                             onPress={() => this.setState(state => ({...state, expand: true}))}>
                             <View>
                                 {!this.state.expand &&
-                                    <Icon
+                                    <AvniIcon
                                         name="questioncircle"
                                         type="AntDesign"
                                         style={{
@@ -97,16 +95,18 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                             <TouchableNativeFeedback
                                 background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
                                 onPress={() => this.setState(state => ({...state, expand: false}))}>
-                            <Icon
-                                name="closecircle"
-                                type="AntDesign"
-                                style={{
-                                    marginLeft: 5,
-                                    fontSize: Styles.normalTextSize,
-                                    padding: 20,
-                                    color: Colors.Complimentary,
-                                }}
-                            />
+                                <View>
+                                    <AvniIcon
+                                        name="closecircle"
+                                        type="AntDesign"
+                                        style={{
+                                            marginLeft: 5,
+                                            fontSize: Styles.normalTextSize,
+                                            padding: 20,
+                                            color: Colors.Complimentary,
+                                        }}
+                                    />
+                                </View>
                             </TouchableNativeFeedback>
                         </View>
                         <AutoHeightWebView
