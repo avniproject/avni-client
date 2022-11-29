@@ -90,6 +90,12 @@ class ChangePasswordView extends AbstractComponent {
         ) : <View/>
     }
 
+    onToggleShowPassword() {
+        this.setState((oldState) => {
+            return {showPassword: !oldState.showPassword}
+        });
+    }
+
     viewName() {
         return "ChangePasswordView";
     }
@@ -128,11 +134,9 @@ class ChangePasswordView extends AbstractComponent {
                             alignItems: 'center',
                             paddingTop: 8
                         }}>
-                            <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
-                                return {showPassword: !oldState.showPassword}
-                            })}>
+                            <TouchableNativeFeedback onPress={() => {this.onToggleShowPassword()}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <CheckBox checked={this.state.showPassword}/>
+                                    <CheckBox isChecked={this.state.showPassword} onChange={() => {this.onToggleShowPassword()}}/>
                                     <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show passwords"}</Text>
                                 </View>
                             </TouchableNativeFeedback>
@@ -147,9 +151,8 @@ class ChangePasswordView extends AbstractComponent {
 
                         <TouchableNativeFeedback onPress={() => {
                             this.changePassword()
-                        }}
-                                                 background={TouchableNativeFeedback.SelectableBackground()}>
-                            <View style={[Styles.basicPrimaryButtonView, {width: 144, marginTop: 16}]}>
+                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                            <View style={[Styles.basicPrimaryButtonView, {flexDirection: "row", justifyContent: "center", alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 10, paddingVertical: 8}]}>
                                 <Text style={{color: Styles.whiteColor, fontSize: 16}}>Change Password</Text>
                             </View>
                         </TouchableNativeFeedback>

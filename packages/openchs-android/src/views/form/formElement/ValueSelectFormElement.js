@@ -20,6 +20,7 @@ class ValueSelectFormElement extends AbstractFormElement {
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <RadioGroup
+                    allowRadioUnselect={true}
                     multiSelect={false}
                     inPairs={true}
                     onPress={({label, value}) => this.props.onPress(value)}

@@ -32,6 +32,7 @@ class SingleSelectEncounterFormElement extends EncounterSelectFormElement {
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 <RadioGroup
+                    allowRadioUnselect={true}
                     multiSelect={false}
                     inPairs={true}
                     onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}

@@ -48,6 +48,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                 <FormElementLabelWithDocumentation element={this.props.element}/>
                 {!_.isEmpty(this.props.actionName) &&
                 <RadioGroup
+                    allowRadioUnselect={true}
                     multiSelect={false}
                     inPairs={true}
                     onPress={({label, value}) => this.onPress(value)}
