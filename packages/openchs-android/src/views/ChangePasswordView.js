@@ -90,6 +90,12 @@ class ChangePasswordView extends AbstractComponent {
         ) : <View/>
     }
 
+    onToggleShowPassword() {
+        this.setState((oldState) => {
+            return {showPassword: !oldState.showPassword}
+        });
+    }
+
     viewName() {
         return "ChangePasswordView";
     }
@@ -128,11 +134,9 @@ class ChangePasswordView extends AbstractComponent {
                             alignItems: 'center',
                             paddingTop: 8
                         }}>
-                            <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
-                                return {showPassword: !oldState.showPassword}
-                            })}>
+                            <TouchableNativeFeedback onPress={() => {this.onToggleShowPassword()}}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <CheckBox checked={this.state.showPassword}/>
+                                    <CheckBox isChecked={this.state.showPassword} onChange={() => {this.onToggleShowPassword()}}/>
                                     <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show passwords"}</Text>
                                 </View>
                             </TouchableNativeFeedback>
