@@ -60,38 +60,45 @@ class RadioGroup extends AbstractComponent {
     renderPairedOptions(onRadioItemPressed) {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
-                {rlvPair.map((rlv) =>
-                    <PresetOptionItem displayText={this.I18n.t(rlv.label)}
-                                      checked={this.props.selectionFn(rlv.value)}
-                                      abnormal={rlv.abnormal}
-                                      multiSelect={this.props.multiSelect}
-                                      chunked={true}
-                                      validationResult={this.props.validationError}
-                                      key={rlv.label}
-                                      style={{
-                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems
-                                      }}
-                                      disabled={this.props.disabled}
-                                      value={rlv.value} radioItemPressed={onRadioItemPressed}/>
+                {rlvPair.map((rlv) => {
+                    let checked = this.props.selectionFn(rlv.value);
+                    let onRadioItemPress =  checked ? onRadioItemPressed : null;
+                    return <PresetOptionItem displayText={this.I18n.t(rlv.label)}
+                                        checked={checked}
+                                        abnormal={rlv.abnormal}
+                                        multiSelect={this.props.multiSelect}
+                                        chunked={true}
+                                        validationResult={this.props.validationError}
+                                        key={rlv.label}
+                                        style={{
+                                            paddingVertical: Distances.VerticalSpacingBetweenOptionItems
+                                        }}
+                                        disabled={this.props.disabled}
+                                        value={rlv.value}
+                                        radioItemPressed={onRadioItemPress}/>;
+                }
                 )}
             </View>);
     }
 
     renderOptions(onRadioItemPressed) {
-        return this.props.labelValuePairs.map(radioLabelValue =>
-            <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
-                              checked={this.props.selectionFn(radioLabelValue.value)}
-                              multiSelect={this.props.multiSelect}
-                              validationResult={this.props.validationError}
-                              key={radioLabelValue.label}
-                              style={{
-                                  paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                  paddingRight: Distances.HorizontalSpacingBetweenOptionItems
-                              }}
-                              disabled={this.props.disabled}
-                              value={radioLabelValue.value}
-                              radioItemPressed={onRadioItemPressed}
-            />);
+        return this.props.labelValuePairs.map(radioLabelValue => {
+            let checked = this.props.selectionFn(radioLabelValue.value);
+            let onRadioItemPress =  checked ? onRadioItemPressed : null;
+            return  <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
+                                      checked={checked}
+                                      multiSelect={this.props.multiSelect}
+                                      validationResult={this.props.validationError}
+                                      key={radioLabelValue.label}
+                                      style={{
+                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
+                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                      }}
+                                      disabled={this.props.disabled}
+                                      value={radioLabelValue.value}
+                                      radioItemPressed={onRadioItemPress}
+            />;
+        });
     }
 
     renderSingleValue() {
