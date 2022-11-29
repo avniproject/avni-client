@@ -181,7 +181,7 @@ class ProgramEncounterView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title}
                                func={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}/>

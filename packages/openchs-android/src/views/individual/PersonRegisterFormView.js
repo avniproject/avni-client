@@ -39,7 +39,7 @@ class PersonRegisterFormView extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         const params = this.props.params;
-        if(params.pageNumber) {
+        if (params.pageNumber) {
             this.dispatchAction(Actions.ON_FORM_LOAD,
                 {
                     individualUUID: params.individualUUID,
@@ -73,7 +73,7 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView,PersonRegisterFormView]);
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
@@ -106,43 +106,43 @@ class PersonRegisterFormView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef}>
-                    <AppHeader title={title}
-                               func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                    {displayTimer ?
-                        <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
-                    <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                        <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
-                    </View>
-                    <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
-                        {_.get(this.state, 'timerState.displayQuestions', true) &&
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                        <AppHeader title={title}
+                                   func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                        {displayTimer ?
+                            <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
+                        <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                            <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
+                        </View>
+                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
+                            {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
-                                          group={this.state.formElementGroup}
-                                          actions={Actions}
-                                          filteredFormElements={this.state.filteredFormElements}
-                                          validationResults={this.state.validationResults}
-                                          formElementsUserState={this.state.formElementsUserState}
-                                          dataEntryDate={this.state.individual.registrationDate}
-                                          onValidationError={(x, y) => this.scrollToPosition(x, y)}
-                                          groupAffiliation={this.state.groupAffiliation}
-                                          syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
-                                          syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
-                                          allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
-                                          allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
-                        />}
-                        {!displayTimer &&
-                        <WizardButtons
-                            previous={{
-                                func: () => this.previous(),
-                                label: this.I18n.t('previous')
-                            }}
-                            next={{
-                                func: () => PersonRegisterViewsMixin.next(this),
-                                label: this.I18n.t('next')
-                            }}
-                        />}
-                    </View>
+                                              group={this.state.formElementGroup}
+                                              actions={Actions}
+                                              filteredFormElements={this.state.filteredFormElements}
+                                              validationResults={this.state.validationResults}
+                                              formElementsUserState={this.state.formElementsUserState}
+                                              dataEntryDate={this.state.individual.registrationDate}
+                                              onValidationError={(x, y) => this.scrollToPosition(x, y)}
+                                              groupAffiliation={this.state.groupAffiliation}
+                                              syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
+                                              syncRegistrationConcept2UUID={subjectType.syncRegistrationConcept2}
+                                              allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
+                                              allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
+                            />}
+                            {!displayTimer &&
+                            <WizardButtons
+                                previous={{
+                                    func: () => this.previous(),
+                                    label: this.I18n.t('previous')
+                                }}
+                                next={{
+                                    func: () => PersonRegisterViewsMixin.next(this),
+                                    label: this.I18n.t('next')
+                                }}
+                            />}
+                        </View>
                     </ScrollView>
                 </CHSContent>
             </CHSContainer>

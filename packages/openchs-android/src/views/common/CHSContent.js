@@ -1,8 +1,6 @@
-import PropTypes from 'prop-types';
 import React, {Component} from "react";
-import {Container, Box} from "native-base";
 
-
+// This class is not needed anymore. It can be removed after merge is complete.
 class CHSContent extends Component {
     static defaultProps = {
         keyboardShouldPersistTaps: "handled"
