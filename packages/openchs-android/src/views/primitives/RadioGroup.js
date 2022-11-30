@@ -111,6 +111,60 @@ class RadioGroup extends AbstractComponent {
         )
     }
 
+    /**
+     * Purpose: This method is invoked just before render and is used in-order to consolidate
+     * changes to be made to the state, based on rule execution or other actions' effects,
+     * flowing in via props.
+     *
+     * We could not directly use props without state, as this resulted in poor User experience,
+     * with considerable lag between checkbox/radio-button press and visual indication of the same.
+     *
+     * Read https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops for more info.
+     *
+     * This is a static method as per ReactNative specification, due to which we are unable to use
+     * initializeSelectedValue() and getAppropriateInitializedValue() from RadioGroup.
+     * Ensure that you make similar modifications in these methods as and when you touch their corresponding
+     * RadioGroup methods.
+     * @param nextProps
+     * @param prevState
+     * @returns {null|{groupValues: ([]|*)}}
+     */
+    static getDerivedStateFromProps(nextProps, prevState) {
+        let initializeSelectedValue = (nextProps) => {
+            const values = _.filter(nextProps.labelValuePairs,
+              (x) => nextProps.selectionFn(x.value))
+              .map((lvPair) => lvPair.value);
+
+            let initValue = values;
+            if (!nextProps.multiSelect) {
+                initValue = values.length === 0 ? undefined : values[0];
+            }
+            return initValue;
+        };
+
+        let getAppropriateInitializedValue = (nextProps, value) => {
+            if (nextProps.multiSelect) {
+                return _.isNil(value) ? [] : value;
+            }
+            return value;
+        };
+
+        let shouldStateBeUpdated = (nextProps, newGroupValues, oldGroupValues) => {
+            if (nextProps.multiSelect) {
+                return _.xor(newGroupValues, oldGroupValues).length > 0;
+            } else {
+                return newGroupValues !== oldGroupValues;
+            }
+        };
+
+        let newGroupValues = getAppropriateInitializedValue(nextProps, initializeSelectedValue(nextProps));
+        let oldGroupValues = getAppropriateInitializedValue(nextProps, prevState.groupValues);
+        if (shouldStateBeUpdated(nextProps, newGroupValues, oldGroupValues)) {
+            return {groupValues: newGroupValues};
+        }
+        return null;
+    }
+
     render() {
         const {mandatory, multiSelect, labelValuePairs, allowRadioUnselect, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
         const {groupValues} = this.state;
