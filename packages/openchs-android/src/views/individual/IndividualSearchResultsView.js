@@ -39,22 +39,8 @@ class IndividualSearchResultsView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    renderProgram(program, index) {
-        return (
-            <Text key={index} disabled
-                  style={[{
-                      height: 22,
-                      marginLeft: 4,
-                      marginRight: 4,
-                      borderRadius: 2,
-                      paddingHorizontal: 4,
-                      backgroundColor: program.colour,
-                      color: Colors.TextOnPrimaryColor,
-                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
-        );
-    }
-
     renderRow(item, onResultRowPress) {
+        General.logDebug(this.viewName(), 'renderRow');
         return <TouchableNativeFeedback onPress={() => onResultRowPress(item)}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
             <View>
@@ -73,18 +59,17 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
-                    <ListView enableEmptySections={true}
-                              dataSource={dataSource}
-                              style={{marginBottom: 16}}
-                              renderRow={(item) => this.renderRow(item, this.onResultRowPress.bind(this))}/>
-                    <ZeroResults count={this.props.searchResults.length}/>
+                <ListView enableEmptySections={true}
+                          dataSource={dataSource}
+                          style={{marginBottom: 16}}
+                          renderRow={(item) => this.renderRow(item, this.onResultRowPress.bind(this))}/>
+                <ZeroResults count={this.props.searchResults.length}/>
             </CHSContainer>
         );
     }
 
     onResultRowPress(individual) {
         this.props.onIndividualSelection(this, individual);
-        // CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
     }
 }
 

@@ -64,7 +64,7 @@ class IndividualAddRelativeView extends AbstractComponent {
         const valueLabelPairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
             <RadioGroup
-                allowRadioUnselect={true}
+                allowRadioUnselect={false}
                 style={this.props.style}
                 inPairs={true}
                 onPress={({label, value}) => this.toggleRelation(value)}
