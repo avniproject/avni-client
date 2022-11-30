@@ -40,7 +40,7 @@ class ObservationsHolderActions {
             validationResult = action.validationResult;
         }
         if (action.formElement.isUnique && !_.isNil(action.value) && validationResult.success) {
-            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, action.value, action.formElement, context);
+            validationResult = ObservationsHolderActions._ensureValueIsUniqueInTheDatabase(newState, action.value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         return newState;
@@ -59,8 +59,9 @@ class ObservationsHolderActions {
     }
 
     static addPreviousValidationErrors(ruleValidationErrors, validationResult, previousErrors) {
-        const otherFEFailedStatuses = previousErrors.filter(({formIdentifier, success, questionGroupIndex}) => (validationResult.formIdentifier !== formIdentifier && !success && (_.isNil(questionGroupIndex) || questionGroupIndex !== validationResult.questionGroupIndex)));
-        return [...ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), ...otherFEFailedStatuses]
+        const validationResultsThatNeedToBePreserved = previousErrors.filter(({validationType}) => (validationType !== ValidationResult.ValidationTypes.Rule));
+        const validationResultsThatNeedToBePreservedExcludingCurrentValidationResult = validationResultsThatNeedToBePreserved.filter(({formIdentifier, success, questionGroupIndex}) => (validationResult.formIdentifier !== formIdentifier && !success && (_.isNil(questionGroupIndex) || questionGroupIndex !== validationResult.questionGroupIndex)))
+        return [...ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), ...validationResultsThatNeedToBePreservedExcludingCurrentValidationResult]
     }
 
     static onPrimitiveObsEndEditing(state, action, context) {
@@ -155,7 +156,7 @@ class ObservationsHolderActions {
         const value = _.isNil(observation) ? null : observation.getValueWrapper().getValue();
         let validationResult = action.formElement.validate(value);
         if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
-            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, value, action.formElement, context);
+            validationResult = ObservationsHolderActions._ensureValueIsUniqueInTheDatabase(newState, value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
@@ -221,13 +222,13 @@ class ObservationsHolderActions {
             validationResult = action.validationResult;
         }
         if (action.formElement.isUnique && !_.isNil(value) && validationResult.success) {
-            validationResult = ObservationsHolderActions._validateForDuplicateObservation(newState, value, action.formElement, context);
+            validationResult = ObservationsHolderActions._ensureValueIsUniqueInTheDatabase(newState, value, action.formElement, context);
         }
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         return newState;
     }
 
-    static _validateForDuplicateObservation(state, value, formElement, context) {
+    static _ensureValueIsUniqueInTheDatabase(state, value, formElement, context) {
         const currentEntity = state.getEntity();
         const observationFilter = ObservationsHolderActions._getObservationFilterQueryByConceptType(formElement.concept, value);
         const allEntitiesOfSameType = state.getEntityResultSetByType(context);

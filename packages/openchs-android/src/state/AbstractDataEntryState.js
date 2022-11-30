@@ -65,12 +65,13 @@ class AbstractDataEntryState {
     }
 
     handleValidationResults(validationResults, context) {
-        const settings = context.get(SettingsService).getSettings();
-        if (!settings.devSkipValidation) {
-            validationResults.forEach((validationResult) => {
-                this.handleValidationResult(validationResult);
-            });
+        if (context.get(SettingsService).getSettings().devSkipValidation) {
+            return;
         }
+
+        validationResults.forEach((validationResult) => {
+            this.handleValidationResult(validationResult);
+        });
     }
 
     moveNext() {
