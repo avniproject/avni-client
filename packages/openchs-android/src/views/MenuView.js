@@ -42,6 +42,8 @@ import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 import {MenuItem} from 'openchs-models';
 import StaticMenuItem from "./menu/StaticMenuItem";
 import AvniIcon from "./common/AvniIcon";
+import ErrorHandler from "../utility/ErrorHandler";
+import CrashTester from 'react-native-crash-tester';
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -177,6 +179,11 @@ class MenuView extends AbstractComponent {
         this.startUploadDatabase('uploadDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
     }
 
+    crashForTesting() {
+        ErrorHandler.forceSet();
+        CrashTester.nativeCrash('Crashing on purpose, Native crash');
+    }
+
     startUploadDatabase(titleKey, messageKey, dumpType) {
         Alert.alert(
             this.I18n.t(titleKey),
@@ -281,6 +288,7 @@ class MenuView extends AbstractComponent {
         const map = new Map();
         map.set("uploadCatchmentDatabase", () => this.uploadCatchmentDatabase());
         map.set("uploadDatabase", () => this.uploadDatabase());
+        map.set("crashForTesting", () => this.crashForTesting())
         map.set("changePassword", () => this.changePasswordView());
         map.set("logout", () => this.logout());
         map.set("deleteData", () => this.onDelete());

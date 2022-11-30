@@ -59,6 +59,7 @@
     "react-native-background-timer": "^2.4.1",
     "react-native-background-worker": "0.0.5",
     "react-native-charts-wrapper": "0.5.9",
+    "react-native-crash-tester": "0.2.3",
     "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-device-info": "10.0.2",
     "react-native-document-picker": "8.1.1",

@@ -41,4 +41,14 @@ export default class ErrorHandler {
             bugsnag.notify(error);
         }
     }
+
+  static forceSet(errorCallback) {
+    if (ErrorHandler.isSet) return;
+
+    console.log('[ErrorHandler] Setting Global ErrorHandler');
+    ErrorUtils.setGlobalHandler((error, isFatal) => {
+      ErrorHandler.postError(error, isFatal, errorCallback);
+    });
+    ErrorHandler.isSet = true;
+  }
 }
