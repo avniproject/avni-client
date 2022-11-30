@@ -69,7 +69,7 @@ test: test-android  ##
 
 define _upload_release_sourcemap
 	cd packages/openchs-android/android/app/build/generated && npx bugsnag-sourcemaps upload \
-		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
+		--api-key ${LFE_CLIENT_BUGSNAG_API_KEY} \
 		--app-version $(versionName) \
 		--minified-file assets/react/release/index.android.bundle \
 		--source-map sourcemap.js \
@@ -80,7 +80,7 @@ define _upload_release_sourcemap
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
-ifndef $(LFE_CLIENT_BUGSNAG_API_KEY)
+ifndef LFE_CLIENT_BUGSNAG_API_KEY
 	@echo "LFE_CLIENT_BUGSNAG_API_KEY env var not present"
 	exit 1
 else
