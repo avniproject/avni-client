@@ -121,7 +121,7 @@ release: release_clean create_apk
 release_dev: setup_hosts as_dev release
 
 release_prod_without_clean: as_prod release upload-release-sourcemap
-release_prod: renew_env release_prerelease_without_clean
+release_prod: renew_env release_prod_without_clean
 
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
