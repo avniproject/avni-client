@@ -1,4 +1,3 @@
-import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Reducers from "../../reducer";
@@ -19,6 +18,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
 import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 import AvniIcon from "../common/AvniIcon";
+import General from "../../utility/General";
 
 const CardSecondRow = function ({task, I18n}) {
     return (

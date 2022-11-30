@@ -6,7 +6,8 @@ import General from "../../utility/General";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import AppHeader from "../common/AppHeader";
-import {Dimensions, ListView, SafeAreaView, StyleSheet, Text, View} from "react-native";
+import {Dimensions, SafeAreaView, StyleSheet, Text, View} from "react-native";
+import ListView from "deprecated-react-native-listview";
 import TaskCard from "./TaskCard";
 import Reducers from "../../reducer";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -15,12 +16,12 @@ import FloatingButton from "../primitives/FloatingButton";
 import {Actions, TaskListActions} from "../../action/task/TaskListActions";
 import {Actions as TaskFilterActions} from "../../action/task/TaskFilterActions";
 import TaskFilter from "../../model/TaskFilter";
-import Separator from "../primitives/Separator";
 import CHSContent from "../common/CHSContent";
 import {Badge, Button, Icon, IconButton, CloseIcon} from 'native-base';
 import Fonts from "../primitives/Fonts";
 import ZeroResults from "../common/ZeroResults";
-import {TaskType} from 'openchs-models';
+import {TaskType, Task} from 'openchs-models';
+import ListViewHelper from "../../utility/ListViewHelper";
 
 const FilterSummaryItem = function ({text}) {
     if (_.isNil(text) || text.length === 0)
@@ -143,7 +144,7 @@ class TaskListView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), "render");
         const {results, filter} = this.state;
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(results);
+        const dataSource = ListViewHelper.getDataSource(results);
 
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}}
@@ -159,7 +160,7 @@ class TaskListView extends AbstractComponent {
                             pageSize={1}
                             initialListSize={1}
                             removeClippedSubviews={true}
-                            renderRow={(task) => <TaskCard task={task}/>}
+                            renderRow={(taskRealmObject, index) => <TaskCard task={new Task(taskRealmObject)}/>}
                             renderHeader={() => this.renderHeader()}
                         />
                         <ZeroResults count={results.length}/>
