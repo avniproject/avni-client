@@ -21,7 +21,9 @@ class ObservationsHolderActions {
 
     static getRuleValidationErrors(formElementStatuses) {
         return _.flatMap(formElementStatuses,
-            status => new ValidationResult(_.isEmpty(status.validationErrors), status.uuid, _.head(status.validationErrors), null, status.questionGroupIndex));
+            status => new ValidationResult(_.isEmpty(status.validationErrors), status.uuid,
+                _.head(status.validationErrors), null, status.questionGroupIndex,
+                ValidationResult.ValidationTypes.Rule));
     }
 
     static onPrimitiveObsUpdateValue(state, action, context) {
