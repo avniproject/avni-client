@@ -41,7 +41,7 @@ class IndividualSearchResultsView extends AbstractComponent {
 
     renderRow(item, onResultRowPress) {
         General.logDebug(this.viewName(), 'renderRow');
-        return <TouchableNativeFeedback onPress={() => onResultRowPress(item)}
+        return <TouchableNativeFeedback onPress={() => onResultRowPress(new Individual(item))}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
             <View>
                 <IndividualDetailsCard individual={new Individual(item)}/>
