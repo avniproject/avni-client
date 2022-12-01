@@ -17,7 +17,7 @@ export default class GroupAffiliationActions {
             return newState;
         }
         const existingGroupSubjectObs = _.find(newState.groupAffiliation.groupSubjectObservations,
-            (obs) => obs.concept.uuid === formElement.concept.uuid && groupSubject.uuid === obs.groupSubject.groupSubject.uuid);
+            (obs) => !_.isNil(_.get(obs, "groupSubject.groupSubject.uuid")) && obs.concept.uuid === formElement.concept.uuid && groupSubject.uuid === obs.groupSubject.groupSubject.uuid);
         const groupSubjectEntity = _.isEmpty(existingGroupSubjectObs) ? GroupAffiliationActions.createEmptyGroupSubject(groupRole, groupSubject) : existingGroupSubjectObs.groupSubject;
         newState.groupAffiliation.groupSubjectObservations = newState.groupAffiliation.updateGroupSubjectObservations(formElement.concept, groupSubjectEntity);
         GroupAffiliationActions.injectGroupsToIndividual(newState.groupAffiliation, newState);

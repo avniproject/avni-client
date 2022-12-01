@@ -52,7 +52,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                     multiSelect={false}
                     inPairs={true}
                     onPress={({label, value}) => this.onPress(value)}
-                    selectionFn={(groupSubjectUUID) => _.isEmpty(groupSubjectObservation) ? false : groupSubjectObservation.groupSubject.groupSubject.uuid === groupSubjectUUID}
+                    selectionFn={(groupSubjectUUID) => _.isNil(_.get(groupSubjectObservation, "groupSubject.groupSubject.uuid")) ? false : groupSubjectObservation.groupSubject.groupSubject.uuid === groupSubjectUUID}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
