@@ -123,8 +123,18 @@ class BaseService {
         return this.getAll(schema).length;
     }
 
+    /**
+    Loads all objects without materialising them into model. Ideal for displaying large list or for further filtering
+     **/
     getAllNonVoided(schema = this.getSchema()) {
         return this.db.objects(schema).filtered("voided = false");
+    }
+
+    /**
+    Loads all objects and also materialises them into model.
+     **/
+    loadAllNonVoided(schema = this.getSchema()) {
+        return this.getAllNonVoided(schema).map(_.identity);
     }
 
     getSchema() {

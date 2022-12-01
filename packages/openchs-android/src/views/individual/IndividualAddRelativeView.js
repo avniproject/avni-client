@@ -1,4 +1,4 @@
-import {Alert, View} from "react-native";
+import {Alert, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -86,7 +86,7 @@ class IndividualAddRelativeView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={headerMessage}/>
-                    <View style={{
+                    <ScrollView style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
@@ -106,7 +106,7 @@ class IndividualAddRelativeView extends AbstractComponent {
                                            label: this.I18n.t('save')
                                        }}
                                        style={{marginHorizontal: 24}}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

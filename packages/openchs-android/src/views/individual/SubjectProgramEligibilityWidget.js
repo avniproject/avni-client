@@ -32,7 +32,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
     }
 
     async onSubjectProgramEligibility() {
-        const programs = this.getService(ProgramService).getAllNonVoided();
+        const programs = this.getService(ProgramService).loadAllNonVoided();
         const authToken = await this.getService(AuthService).getAuthToken();
         await this.props.onDisplayIndicatorToggle(true);
         let subjectProgramEligibilityStatuses = [];

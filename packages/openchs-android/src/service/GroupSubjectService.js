@@ -68,7 +68,7 @@ class GroupSubjectService extends BaseService {
 
     getFirstGroupForMember(memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID) {
         const groupSubject = this.getAllNonVoided()
-            .filtered('memberSubject.uuid = $0 and groupSubject.subjectType.uuid = $1 and groupRole.uuid = $2', memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID);
+            .filtered('memberSubject.uuid = $0 and groupSubject.subjectType.uuid = $1 and groupRole.uuid = $2', memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID).map(_.identity);
         return _.isEmpty(groupSubject) ? null : groupSubject[0];
     }
 

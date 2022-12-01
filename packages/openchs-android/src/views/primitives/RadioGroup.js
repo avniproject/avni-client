@@ -10,12 +10,38 @@ import Styles from "./Styles";
 import _ from 'lodash';
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 
-
 export class RadioLabelValue {
     constructor(label, value, abnormal) {
         this.label = label;
         this.value = value;
         this.abnormal = abnormal;
+    }
+}
+
+function initializeSelectedValue(props) {
+    const values = _.filter(props.labelValuePairs,
+        (x) => props.selectionFn(x.value))
+        .map((lvPair) => lvPair.value);
+
+    let initValue = values;
+    if (!props.multiSelect) {
+        initValue = values.length === 0 ? undefined : values[0];
+    }
+    return initValue;
+}
+
+function getAppropriateInitializedValue(props, value) {
+    if (props.multiSelect) {
+        return _.isNil(value) ? [] : value;
+    }
+    return value;
+}
+
+function shouldStateBeUpdated(nextProps, newGroupValues, oldGroupValues) {
+    if (nextProps.multiSelect) {
+        return _.xor(newGroupValues, oldGroupValues).length > 0;
+    } else {
+        return newGroupValues !== oldGroupValues;
     }
 }
 
@@ -53,7 +79,7 @@ class RadioGroup extends AbstractComponent {
          * Use of state, reduces lag between the checkbox/radio being clicked and it being marked as selected on screen.
          */
         this.state = {
-            groupValues: this.getAppropriateInitializedValue(this.initializeSelectedValue()),
+            groupValues: getAppropriateInitializedValue(this.props, initializeSelectedValue(this.props)),
         };
     }
 
@@ -61,22 +87,22 @@ class RadioGroup extends AbstractComponent {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
                 {rlvPair.map((rlv) => {
-                    let checked = this.props.selectionFn(rlv.value);
-                    let onRadioItemPress =  checked ? onRadioItemPressed : null;
-                    return <PresetOptionItem displayText={this.I18n.t(rlv.label)}
-                                        checked={checked}
-                                        abnormal={rlv.abnormal}
-                                        multiSelect={this.props.multiSelect}
-                                        chunked={true}
-                                        validationResult={this.props.validationError}
-                                        key={rlv.label}
-                                        style={{
-                                            paddingVertical: Distances.VerticalSpacingBetweenOptionItems
-                                        }}
-                                        disabled={this.props.disabled}
-                                        value={rlv.value}
-                                        radioItemPressed={onRadioItemPress}/>;
-                }
+                        let checked = this.props.selectionFn(rlv.value);
+                        let onRadioItemPress = checked ? onRadioItemPressed : null;
+                        return <PresetOptionItem displayText={this.I18n.t(rlv.label)}
+                                                 checked={checked}
+                                                 abnormal={rlv.abnormal}
+                                                 multiSelect={this.props.multiSelect}
+                                                 chunked={true}
+                                                 validationResult={this.props.validationError}
+                                                 key={rlv.label}
+                                                 style={{
+                                                     paddingVertical: Distances.VerticalSpacingBetweenOptionItems
+                                                 }}
+                                                 disabled={this.props.disabled}
+                                                 value={rlv.value}
+                                                 radioItemPressed={onRadioItemPress}/>;
+                    }
                 )}
             </View>);
     }
@@ -84,19 +110,19 @@ class RadioGroup extends AbstractComponent {
     renderOptions(onRadioItemPressed) {
         return this.props.labelValuePairs.map(radioLabelValue => {
             let checked = this.props.selectionFn(radioLabelValue.value);
-            let onRadioItemPress =  checked ? onRadioItemPressed : null;
-            return  <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
-                                      checked={checked}
-                                      multiSelect={this.props.multiSelect}
-                                      validationResult={this.props.validationError}
-                                      key={radioLabelValue.label}
-                                      style={{
-                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
-                                      }}
-                                      disabled={this.props.disabled}
-                                      value={radioLabelValue.value}
-                                      radioItemPressed={onRadioItemPress}
+            let onRadioItemPress = checked ? onRadioItemPressed : null;
+            return <PresetOptionItem displayText={this.I18n.t(radioLabelValue.label)}
+                                     checked={checked}
+                                     multiSelect={this.props.multiSelect}
+                                     validationResult={this.props.validationError}
+                                     key={radioLabelValue.label}
+                                     style={{
+                                         paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
+                                         paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                     }}
+                                     disabled={this.props.disabled}
+                                     value={radioLabelValue.value}
+                                     radioItemPressed={onRadioItemPress}
             />;
         });
     }
@@ -121,44 +147,14 @@ class RadioGroup extends AbstractComponent {
      *
      * Read https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops for more info.
      *
-     * This is a static method as per ReactNative specification, due to which we are unable to use
-     * initializeSelectedValue() and getAppropriateInitializedValue() from RadioGroup.
-     * Ensure that you make similar modifications in these methods as and when you touch their corresponding
      * RadioGroup methods.
      * @param nextProps
      * @param prevState
      * @returns {null|{groupValues: ([]|*)}}
      */
     static getDerivedStateFromProps(nextProps, prevState) {
-        let initializeSelectedValue = (nextProps) => {
-            const values = _.filter(nextProps.labelValuePairs,
-              (x) => nextProps.selectionFn(x.value))
-              .map((lvPair) => lvPair.value);
-
-            let initValue = values;
-            if (!nextProps.multiSelect) {
-                initValue = values.length === 0 ? undefined : values[0];
-            }
-            return initValue;
-        };
-
-        let getAppropriateInitializedValue = (nextProps, value) => {
-            if (nextProps.multiSelect) {
-                return _.isNil(value) ? [] : value;
-            }
-            return value;
-        };
-
-        let shouldStateBeUpdated = (nextProps, newGroupValues, oldGroupValues) => {
-            if (nextProps.multiSelect) {
-                return _.xor(newGroupValues, oldGroupValues).length > 0;
-            } else {
-                return newGroupValues !== oldGroupValues;
-            }
-        };
-
-        let newGroupValues = getAppropriateInitializedValue(nextProps, initializeSelectedValue(nextProps));
-        let oldGroupValues = getAppropriateInitializedValue(nextProps, prevState.groupValues);
+        const newGroupValues = getAppropriateInitializedValue(nextProps, initializeSelectedValue(nextProps));
+        const oldGroupValues = getAppropriateInitializedValue(nextProps, prevState.groupValues);
         if (shouldStateBeUpdated(nextProps, newGroupValues, oldGroupValues)) {
             return {groupValues: newGroupValues};
         }
@@ -201,7 +197,7 @@ class RadioGroup extends AbstractComponent {
     }
 
     onValueChanged(newValues) {
-        const safelyInitialisedNewValues = this.getAppropriateInitializedValue(newValues);
+        const safelyInitialisedNewValues = getAppropriateInitializedValue(this.props, newValues);
         this.setState({groupValues: safelyInitialisedNewValues});
         if (this.props.multiSelect) {
             _.xor(safelyInitialisedNewValues, this.state.groupValues).forEach(value => {
@@ -212,25 +208,6 @@ class RadioGroup extends AbstractComponent {
             this.state.groupValues && this.props.onPress({value: this.state.groupValues}); //Invoke toggle to unset for old value
             this.props.onPress({value: safelyInitialisedNewValues}); //Invoke toggle to set for new Value
         }
-    }
-
-    initializeSelectedValue() {
-        const values = _.filter(this.props.labelValuePairs,
-            (x) => this.props.selectionFn(x.value))
-            .map((lvPair) => lvPair.value);
-
-        let initValue = values;
-        if (!this.props.multiSelect) {
-            initValue = values.length === 0 ? undefined : values[0];
-        }
-        return initValue;
-    }
-
-    getAppropriateInitializedValue(value) {
-        if (this.props.multiSelect) {
-            return _.isNil(value) ? [] : value;
-        }
-        return value;
     }
 }
 

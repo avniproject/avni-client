@@ -579,8 +579,7 @@ class IndividualService extends BaseService {
 
     getSubjectsInLocation(addressLevel, subjectTypeName) {
         return this.getAllNonVoided()
-            .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName)
-            .map(_.identity);
+            .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName);
     }
 
     getSubjectWithTheNameAndType({firstName, middleName, lastName, subjectType, uuid}) {

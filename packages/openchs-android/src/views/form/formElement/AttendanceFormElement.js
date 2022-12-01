@@ -34,7 +34,7 @@ class AttendanceFormElement extends AbstractFormElement {
 
     render() {
         const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
-        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID);
+        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
         const subjectUUIDs = _.get(this.props.value, 'answer');
         return (
             <Fragment>
