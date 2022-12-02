@@ -209,8 +209,7 @@ class RadioGroup extends AbstractComponent {
                 }
             );
         } else {
-            this.state.groupValues && this.props.onPress({value: this.state.groupValues}); //Invoke toggle to unset for old value
-            this.props.onPress({value: safelyInitialisedNewValues}); //Invoke toggle to set for new Value
+            this.props.onPress({value: safelyInitialisedNewValues}); //Invoke toggle to set for new Value, this also unsets old value
         }
     }
 

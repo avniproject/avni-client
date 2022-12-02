@@ -48,14 +48,6 @@ class PresetOptionItem extends AbstractComponent {
         </SelectComponent>;
     }
 
-    shouldComponentUpdate(nextProps) {
-        return (
-            this.props.checked !== nextProps.checked ||
-            _.isNil(this.props.validationResult) !==
-            _.isNil(nextProps.validationResult)
-        );
-    }
-
     render() {
         const {value, checked, chunked, abnormal, style, validationResult, radioItemPressed, disabled} = this.props;
 
