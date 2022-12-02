@@ -27,7 +27,7 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import SubjectProfilePicture from "./SubjectProfilePicture";
 import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
-
+import AvniIcon from "../common/AvniIcon";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -103,11 +103,11 @@ class IndividualProfile extends AbstractComponent {
                 borderStyle: 'solid', borderRadius: 2, paddingHorizontal: DGS.resizeWidth(6),
                 alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4
             }}>
-                <Icon name={iconMode} style={{
+                <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
                     color: Colors.DarkPrimaryColor,
                     paddingRight: 4
-                }}/>
+                }} type='MaterialIcons'/>
                 <Text style={Styles.programProfileButtonText}>{displayTextMessageKey}</Text>
             </View>
         </TouchableNativeFeedback>);
