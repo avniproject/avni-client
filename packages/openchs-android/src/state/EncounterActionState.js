@@ -47,9 +47,7 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     get observationsHolder() {
-        const observationsHolder = new ObservationsHolder(this.encounter.observations);
-        observationsHolder.migrateMultiSelectMediaObservations(this.formElementGroup.form);
-        return observationsHolder;
+        return new ObservationsHolder(this.encounter.observations);
     }
 
     get staticFormElementIds() {

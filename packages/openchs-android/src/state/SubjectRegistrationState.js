@@ -104,9 +104,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     get observationsHolder() {
-        const observationsHolder = new ObservationsHolder(this.subject.observations);
-        observationsHolder.migrateMultiSelectMediaObservations(this.formElementGroup.form);
-        return observationsHolder;
+        return new ObservationsHolder(this.subject.observations);
     }
 
     get staticFormElementIds() {
