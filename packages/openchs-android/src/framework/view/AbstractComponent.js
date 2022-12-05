@@ -32,6 +32,7 @@ class AbstractComponent extends Component {
         this.I18n = context.getService(MessageService).getI18n();
         this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToPosition = this.scrollToPosition.bind(this);
+        this.scrollToBottom = this.scrollToBottom.bind(this);
     }
 
     getService(Class) {
@@ -106,6 +107,12 @@ class AbstractComponent extends Component {
         if (this.scrollRef.current) {
             this.scrollRef.current?.scrollTo({x: 0, y: 10, animated: true});
             this.scrollRef.current?.scrollTo({x: 0, y: 1, animated: true});
+        }
+    }
+
+    scrollToBottom() {
+        if (this.scrollRef) {
+            this.scrollRef.current?.scrollToEnd({ animated: true });
         }
     }
 

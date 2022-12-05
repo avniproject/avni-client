@@ -340,6 +340,7 @@
     "myDawaPrapatra": "मेरा दावा प्रपत्र",
     "programName": "प्रोग्राम का नाम:",
     "rolesNotConfigured": "भूमिकाएँ कॉन्फ़िगर नहीं की गईं",
-    "rolesNotConfiguredDescription": "सदस्य जोड़ने के लिए भूमिकाएँ कॉन्फ़िगर करें।"
+    "rolesNotConfiguredDescription": "सदस्य जोड़ने के लिए भूमिकाएँ कॉन्फ़िगर करें।",
+    "scrollToBottomToSave": "सेव करने के लिए स्क्रॉल करें"
   }
 }
