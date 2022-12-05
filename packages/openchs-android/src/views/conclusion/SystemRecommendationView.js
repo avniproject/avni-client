@@ -5,7 +5,7 @@ import {Alert, View} from "react-native";
 import Path from "../../framework/routing/Path";
 import IndividualProfile from "../common/IndividualProfile";
 import FamilyProfile from "../familyfolder/FamilyProfile";
-import {ScrollView, Text} from "native-base";
+import {Button, ScrollView, Text} from "native-base";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import WizardButtons from "../common/WizardButtons";
 import AppHeader from "../common/AppHeader";
@@ -36,6 +36,7 @@ import {ApprovalDialog} from "../approval/ApprovalDialog";
 import {RejectionMessage} from "../approval/RejectionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
+import AvniIcon from "../common/AvniIcon";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -72,7 +73,8 @@ class SystemRecommendationView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {showApprovalDialog: false}
+        this.state = {showApprovalDialog: false, viewHeight: -1, bottom: -1};
+        this.scrollRef = React.createRef();
     }
 
     get individual() {
@@ -167,19 +169,30 @@ class SystemRecommendationView extends AbstractComponent {
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
+    doDisplayScrollButton() {
+        const {viewHeight, bottom} = this.state;
+        if (viewHeight === -1 || bottom === -1) return false;
+        return bottom > viewHeight;
+    }
+
     render() {
         General.logDebug(this.viewName(), `render`);
+        const displayScrollButton = this.doDisplayScrollButton();
         return (
-            <CHSContainer>
+            <CHSContainer onLayout={(e) => this.setState({viewHeight: e.nativeEvent.layout.height})}>
                 <CHSContent>
                     <AppHeader title={this.props.headerMessage}
                                func={() => this.onAppHeaderBack(this.props.isSaveDraftOn)}
                                displayHomePressWarning={!this.props.isSaveDraftOn}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.props.entityApprovalStatus}/>
-                    <ScrollView>
+                    <ScrollView ref={this.scrollRef}>
                         <View style={{flexDirection: 'column'}}>
                             {!_.isNil(this.props.individual) && this.profile()}
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                                {displayScrollButton &&
+                                <Button style={{alignSelf: "flex-end", backgroundColor: Colors.AccentColor}}
+                                        leftIcon={<AvniIcon type="MaterialIcons" name="arrow-circle-down" color={Colors.TextOnPrimaryColor} style={{fontSize: 20}}/>}
+                                        onPress={() => this.scrollToBottom()}>{this.I18n.t("scrollToBottomToSave")}</Button>}
                                 <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
                                     {
                                         this.props.validationErrors.map((validationResult, index) => {
@@ -219,6 +232,7 @@ class SystemRecommendationView extends AbstractComponent {
                                                style={{marginHorizontal: 24}}/>
 
                             </View>
+                            <View onLayout={(e) => this.setState({bottom: e.nativeEvent.layout.y})}/>
                             <ApprovalDialog
                                 primaryButton={this.I18n.t('yes')}
                                 secondaryButton={this.I18n.t('no')}

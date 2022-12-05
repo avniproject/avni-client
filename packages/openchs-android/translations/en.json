@@ -471,6 +471,7 @@
     "completedOn": "Completed",
     "status": "Status",
     "type": "Type",
-    "filters": "Filters"
+    "filters": "Filters",
+    "scrollToBottomToSave": "Scroll to Bottom to Save"
   }
 }
