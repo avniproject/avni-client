@@ -71,7 +71,9 @@ class RadioGroup extends AbstractComponent {
                                         validationResult={this.props.validationError}
                                         key={rlv.label}
                                         style={{
-                                            paddingVertical: Distances.VerticalSpacingBetweenOptionItems
+                                            paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
+                                            paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
+                                            justifyContent: "center"
                                         }}
                                         disabled={this.props.disabled}
                                         value={rlv.value}
@@ -92,7 +94,8 @@ class RadioGroup extends AbstractComponent {
                                       key={radioLabelValue.label}
                                       style={{
                                           paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
-                                          paddingRight: Distances.HorizontalSpacingBetweenOptionItems
+                                          paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
+                                          justifyContent: "center"
                                       }}
                                       disabled={this.props.disabled}
                                       value={radioLabelValue.value}
