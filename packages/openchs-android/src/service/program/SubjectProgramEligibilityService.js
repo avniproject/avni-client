@@ -19,7 +19,7 @@ class SubjectProgramEligibilityService extends BaseService {
     }
 
     findBySubjectAndProgram(subject, program) {
-        const results = this.getAllNonVoided().filtered('subject = $0 AND program = $1', subject, program).map(_.identity);
+        const results = this.getAllNonVoided().filtered('subject.uuid = $0 AND program.uuid = $1', subject.uuid, program.uuid).map(_.identity);
         return _.isEmpty(results) ? null : results[0];
     }
 
