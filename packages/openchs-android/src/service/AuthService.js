@@ -36,6 +36,7 @@ class AuthService extends BaseService {
         return this._getSettings().then((settings) => {
             return new Promise((resolve, reject) => {
                 if (this._authIsStubbed(settings)) {
+                    General.logInfo("AuthService", "Auth is stubbed");
                     resolve(settings.userId);
                     return;
                 }
@@ -50,11 +51,10 @@ class AuthService extends BaseService {
                         if (err) {
                             General.logWarn("AuthService", err);
                             reject(new AuthenticationError(err.code, err.message));
-                            return;
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
+                            General.logInfo("AuthService", "Found token");
                             resolve(jwtToken);
-                            return;
                         }
                     });
                 });
