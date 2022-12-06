@@ -307,13 +307,12 @@ class MenuView extends AbstractComponent {
 
         const groupsConfiguredItems = _.filter(allConfiguredMenuItems, (x) => x.group === groupName);
         groupsConfiguredItems.forEach(configuredMenuItem => {
-            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName && !_.isNil(this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid)))
-                {
-                    const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
-                    General.logDebug("MenuView.getMenuItems", url);
-                    menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
-                                                             onPress={() => Linking.openURL(url)}/>);
-                }
+            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName && !_.isNil(this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid))) {
+                const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
+                General.logDebug("MenuView.getMenuItems", url);
+                menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
+                                     onPress={() => Linking.openURL(url)}/>);
+            }
         });
         return menuItems;
     }
@@ -358,18 +357,20 @@ class MenuView extends AbstractComponent {
                 <ScrollView>
                     <CHSContent>
                         <SafeAreaView>
-                            <SectionList
-                                contentContainerStyle={{
-                                    marginRight: Distances.ScaledContentDistanceFromEdge,
-                                    marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                    marginTop: Distances.ScaledContentDistanceFromEdge
-                                }}
-                                sections={dataGroup}
-                                renderSectionHeader={() =>
-                                    <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
-                                renderItem={({item}) => item}
-                                keyExtractor={(item, index) => index}
-                            />
+                            <ScrollView horizontal={true} style={{width: "100%"}}>
+                                <SectionList
+                                    contentContainerStyle={{
+                                        marginRight: Distances.ScaledContentDistanceFromEdge,
+                                        marginLeft: Distances.ScaledContentDistanceFromEdge,
+                                        marginTop: Distances.ScaledContentDistanceFromEdge
+                                    }}
+                                    sections={dataGroup}
+                                    renderSectionHeader={() =>
+                                        <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
+                                    renderItem={({item}) => item}
+                                    keyExtractor={(item, index) => index}
+                                />
+                            </ScrollView>
                             <View style={[{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
                                 marginLeft: Distances.ScaledContentDistanceFromEdge,
