@@ -80,8 +80,7 @@ class MenuView extends AbstractComponent {
     }
 
     componentDidMount() {
-        const authService = this.context.getService(AuthService);
-        authService.getAuthToken().then((authToken) => this.dispatchAction(MenuActionNames.ON_LOAD, {authToken}));
+        this.dispatchAction(MenuActionNames.ON_LOAD);
     }
 
     icon(name, style = {}) {
@@ -287,6 +286,16 @@ class MenuView extends AbstractComponent {
         this.menuActions = map;
     }
 
+    openRuleEvaluatedUrl(menuItem) {
+        const authService = this.context.getService(AuthService);
+        const ruleEvaluationService = this.context.getService(RuleEvaluationService);
+        authService.getAuthToken().then((authToken) => {
+            const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, this.state.userInfo, authToken);
+            General.logDebug("MenuView", `Opening URL: ${evaluatedLink}`);
+            Linking.openURL(evaluatedLink);
+        });
+    }
+
     getMenuItems(staticMenuItems, allConfiguredMenuItems, groupName) {
         const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
         const menuItems = staticMenuItems.map((x) => {
@@ -295,17 +304,12 @@ class MenuView extends AbstractComponent {
             return <Item icon={this.icon(x.icon)} titleKey={x.displayKey} onPress={eventHandler}/>
         });
 
-        if (_.isNil(groupName)) return menuItems;
-
-        const groupsConfiguredItems = _.filter(allConfiguredMenuItems, (x) => x.group === groupName);
-        groupsConfiguredItems.forEach(configuredMenuItem => {
-            if (configuredMenuItem.type === MenuItem.HyperlinkTypeName && !_.isNil(this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid))) {
-                const url = this.state.configuredMenuItemRuleOutput.get(configuredMenuItem.uuid);
-                General.logDebug("MenuView.getMenuItems", url);
+        const groupsConfiguredLinkMenuItems = _.filter(allConfiguredMenuItems, (x) => !_.isNil(groupName) &&
+                                                                x.group === groupName && x.type === MenuItem.HyperlinkTypeName);
+        groupsConfiguredLinkMenuItems.forEach(configuredMenuItem =>
                 menuItems.push(<Item icon={this.icon(configuredMenuItem.icon)} titleKey={configuredMenuItem.displayKey}
-                                     onPress={() => Linking.openURL(url)}/>);
-            }
-        });
+                                 onPress={() => this.openRuleEvaluatedUrl(configuredMenuItem)}/>)
+        );
         return menuItems;
     }
 
@@ -315,7 +319,6 @@ class MenuView extends AbstractComponent {
         if (_.isNil(userInfo)) return null;
 
         General.logDebug("MenuView", "render");
-        const Item = (props) => <MenuView.Item I18n={this.I18n} {...props}/>;
         const functionalityItems = this.getMenuItems(StaticMenuItemFactory.getFunctionalityMenus(this.beneficiaryModeStatus()), configuredMenuItems, MenuItem.FunctionalityGroupName);
         if (this.getService(NewsService).isAnyNewsAvailable()) {
             const unreadNews = this.getService(NewsService).getUnreadNewsCount();
@@ -349,20 +352,18 @@ class MenuView extends AbstractComponent {
                 <ScrollView>
                     <CHSContent>
                         <SafeAreaView>
-                            <ScrollView horizontal={true} style={{width: "100%"}}>
-                                <SectionList
-                                    contentContainerStyle={{
-                                        marginRight: Distances.ScaledContentDistanceFromEdge,
-                                        marginLeft: Distances.ScaledContentDistanceFromEdge,
-                                        marginTop: Distances.ScaledContentDistanceFromEdge
-                                    }}
-                                    sections={dataGroup}
-                                    renderSectionHeader={() =>
-                                        <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
-                                    renderItem={({item}) => item}
-                                    keyExtractor={(item, index) => index}
-                                />
-                            </ScrollView>
+                            <SectionList
+                                contentContainerStyle={{
+                                    marginRight: Distances.ScaledContentDistanceFromEdge,
+                                    marginLeft: Distances.ScaledContentDistanceFromEdge,
+                                    marginTop: Distances.ScaledContentDistanceFromEdge
+                                }}
+                                sections={dataGroup}
+                                renderSectionHeader={() =>
+                                    <Separator height={30} backgroundColor={Colors.GreyContentBackground}/>}
+                                renderItem={({item}) => item}
+                                keyExtractor={(item, index) => index}
+                            />
                             <View style={[{
                                 marginRight: Distances.ScaledContentDistanceFromEdge,
                                 marginLeft: Distances.ScaledContentDistanceFromEdge,
