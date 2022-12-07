@@ -35,16 +35,6 @@ class MenuActions {
         newState.unsyncedTxData = totalPending !== 0;
 
         newState.configuredMenuItems = context.get(MenuItemService).getAllMenuItems();
-
-        newState.configuredMenuItemRuleOutput = new Map();
-        const ruleEvaluationService = context.get(RuleEvaluationService);
-        newState.configuredMenuItems.forEach((menuItem) => {
-            if (menuItem.isLinkType()) {
-                const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, newState.userInfo, action.authToken);
-                newState.configuredMenuItemRuleOutput.set(menuItem.uuid, evaluatedLink);
-            }
-        });
-
         return newState;
     }
 
