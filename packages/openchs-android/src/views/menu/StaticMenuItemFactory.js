@@ -20,8 +20,7 @@ const UserMenus = [
     new StaticMenuItem("logout", "logout", "logout", StaticMenuItem.CustomActionMenuType)
 ];
 const SupportMenus = [
-    new StaticMenuItem("uploadDatabase", "backup-restore", "uploadDatabase", StaticMenuItem.CustomActionMenuType),
-    new StaticMenuItem("crashForTesting", "sync", "crashForTesting", StaticMenuItem.CustomActionMenuType)
+    new StaticMenuItem("uploadDatabase", "backup-restore", "uploadDatabase", StaticMenuItem.CustomActionMenuType)
 ];
 const DevMenus = [
     new StaticMenuItem("deleteData", "delete", "Delete Data", StaticMenuItem.CustomActionMenuType),
