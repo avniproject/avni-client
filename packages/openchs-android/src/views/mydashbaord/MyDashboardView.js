@@ -20,6 +20,7 @@ import UserInfoService from "../../service/UserInfoService";
 import moment from "moment";
 import RefreshReminder from "./RefreshReminder";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
+import AvniIcon from '../common/AvniIcon';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -77,12 +78,12 @@ class MyDashboardView extends AbstractComponent {
                     <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
                                              background={TouchableNativeFeedback.SelectableBackground()}>
                         <View style={{marginRight: 10, alignItems: 'center'}}>
-                            <Icon style={{
+                            <AvniIcon style={{
                                 color: Colors.AccentColor,
                                 opacity: 0.8,
                                 alignSelf: 'center',
                                 fontSize: 30
-                            }} name='refresh'/>
+                            }} name='refresh' type={"MaterialIcons"} />
                         </View>
                     </TouchableNativeFeedback> : <View/>}
             </View>
