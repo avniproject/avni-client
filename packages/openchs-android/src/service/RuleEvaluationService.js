@@ -501,14 +501,12 @@ class RuleEvaluationService extends BaseService {
     getFormElementsStatuses(entity, entityName, formElementGroup, entityContext={}) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
-        const formElementsWithRules = formElementGroup
-            .getFormElements()
-            .filter(formElement => !_.isNil(formElement.rule) && !_.isEmpty(_.trim(formElement.rule)));
+        const allFEGFormElements = formElementGroup.getFormElements();
         const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName, entityContext);
         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
-        const applicableFormElements = formElementsWithRules
-            .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
-        if (!_.isEmpty(formElementsWithRules) && !_.isEmpty(visibleFormElementsUUIDs)) {
+        const applicableFormElements = allFEGFormElements
+          .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
+        if (!_.isEmpty(allFEGFormElements) && !_.isEmpty(visibleFormElementsUUIDs)) {
             let formElementStatuses = applicableFormElements
                 .map(formElement => {
                     if (formElement.groupUuid) {
@@ -531,6 +529,9 @@ class RuleEvaluationService extends BaseService {
     }
 
     runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex) {
+        if (_.isNil(formElement.rule) || _.isEmpty(_.trim(formElement.rule))) {
+            return new FormElementStatus(formElement.uuid, true, null);
+        }
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
