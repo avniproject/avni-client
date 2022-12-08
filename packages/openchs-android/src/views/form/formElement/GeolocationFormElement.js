@@ -11,6 +11,8 @@ import Distances from "../../primitives/Distances";
 import {Button, Text, Icon} from "native-base";
 import Geo from "../../../framework/geo";
 import UserInfoService from "../../../service/UserInfoService";
+import AvniIcon from '../../common/AvniIcon';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {
@@ -95,7 +97,7 @@ class GeolocationFormElement extends AbstractComponent {
     renderGetLocationButton() {
         return (
             <Button small primary iconLeft onPress={this.getPosition}>
-                <Icon name="my-location" />
+                <AvniIcon name="my-location" type={MaterialIcons} />
                 <Text>{this.I18n.t("getLocation")}</Text>
             </Button>
         );
