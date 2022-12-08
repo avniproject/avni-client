@@ -8,6 +8,7 @@ import KeepAwake from "react-native-keep-awake";
 import Styles from "../primitives/Styles";
 import BackgroundTimer from "react-native-background-timer";
 import Colors from "../primitives/Colors";
+import AvniIcon from './AvniIcon';
 
 class Timer extends AbstractComponent {
     static propTypes = {
@@ -49,12 +50,12 @@ class Timer extends AbstractComponent {
                 <KeepAwake/>
                 <View style={styles.container}>
                     <View style={styles.timerStyle}>
-                        <Icon style={{fontSize: 30, marginRight: 8}} name="av-timer" type="MaterialIcons"/>
+                        <AvniIcon style={{fontSize: 30, marginRight: 8}} name="av-timer" type="MaterialIcons" />
                         <Text style={Styles.timerStyle}>{countUpTime}</Text>
                     </View>
                     {countDownTime ?
                         <View style={[styles.timerStyle, {backgroundColor}]}>
-                            <Icon style={{fontSize: 30, marginRight: 8, color}} name="stopwatch" type="Entypo"/>
+                            <AvniIcon style={{fontSize: 30, marginRight: 8, color}} name="stopwatch" type="Entypo"/>
                             <Text style={[Styles.timerStyle, {color}]}>{countDownTime}</Text>
                         </View> : null}
                 </View>
