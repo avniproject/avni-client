@@ -85,14 +85,13 @@ class Relatives extends AbstractComponent {
     renderRelativeActionButton(individualRelative) {
         return (<View>
             <View style={{flex: 0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
-                <Button transparent onPress={() => this.props.onRelativeDeletion(individualRelative)}><Text style={{
-                    fontSize: Fonts.Medium, color: Colors.ActionButtonColor,
-                    paddingHorizontal: 5
-                }}>delete</Text></Button>
-
+                <Button transparent
+                        onPress={() => this.props.onRelativeDeletion(individualRelative)}
+                        _text={{fontSize: Fonts.Medium, paddingHorizontal: 5}}>
+                    {this.I18n.t("delete")}
+                </Button>
             </View>
         </View>);
-
     }
 
     renderNoRelativeMessage() {
@@ -123,8 +122,7 @@ class Relatives extends AbstractComponent {
                                                   <Text
                                                       style={Styles.relativeRelationText}>{this.I18n.t(relative.relation.name)}</Text>
                                               </View>
-                                              {editDeleteFeatureToggle ? this.renderRelativeActionButton(relative) :
-                                                  <View/>}
+                                              {editDeleteFeatureToggle && this.renderRelativeActionButton(relative)}
                                           </View>
                                           <SubjectInfoCard individual={relative.relative} />
                                       </View>
@@ -140,7 +138,6 @@ class Relatives extends AbstractComponent {
 
 export default Relatives;
 
-
 const styles = StyleSheet.create({
     container: {
         margin: 4,
@@ -148,6 +145,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.cardBackgroundColor,
         marginVertical: 3,
         paddingBottom: 5,
+        paddingTop: 5
     },
     relativeDetails: {
         flexDirection: 'row',
