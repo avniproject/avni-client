@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import TextFormElement from "./TextFormElement";
 
@@ -22,7 +21,9 @@ class IdFormElement extends AbstractFormElement {
     }
 
     render() {
-        return <TextFormElement {...this.props} element={_.merge({}, this.props.element, {editable: false})} multiline={false}/>
+        let newFormElement = this.props.element.toJSON();
+        newFormElement.editable = false
+        return <TextFormElement {...this.props} element={newFormElement} multiline={false}/>
     }
 }
 
