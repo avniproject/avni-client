@@ -22,7 +22,7 @@ class IdFormElement extends AbstractFormElement {
     }
 
     render() {
-        return <TextFormElement {...this.props} element={_.merge({}, this.props.element, {editable: false})} multiline={false}/>
+        return <TextFormElement {...this.props} element={_.merge({}, this.props.element.toJSON(), {editable: false})} multiline={false}/>
     }
 }
 
