@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import React from "react";
 import General from "../../utility/General";
 import VideoPlayer from 'react-native-video-player';
-import {Text, TouchableHighlight, View} from 'react-native';
+import {TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import Colors from "../primitives/Colors";
-import {Icon} from "native-base";
+import AvniIcon from '../common/AvniIcon';
 
 /*TODO: Replace some of the code inside VideoPlayerView and put VideoPlayerWrapper Component in there
 * Rename this component after that.
@@ -57,7 +57,7 @@ class VideoPlayerWrapper extends React.Component {
                 style={{margin: 8, padding: 16, position: 'absolute', top: 0, left: 0}}
             >
                 <View>
-                    <Icon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
+                    <AvniIcon style={{fontSize: 40, color: Colors.TextOnPrimaryColor}} name='keyboard-arrow-left' type='MaterialIcons'/>
                 </View>
             </TouchableHighlight>
         );

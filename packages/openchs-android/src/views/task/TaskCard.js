@@ -145,11 +145,11 @@ class TaskCard extends AbstractComponent {
                         <Text style={styles.textStyle}>{task.name}</Text>
                     </View>
                     <View style={styles.iconContainer}>
-                        <Icon
-                            style={styles.iconStyle}
-                            name="clipboard-list"
-                            type="FontAwesome5"
-                            onPress={() => this.onChangeStatusPress(task)}
+                        <AvniIcon
+                          style={styles.iconStyle}
+                          name="clipboard-list"
+                          type="FontAwesome5"
+                          onPress={() => this.onChangeStatusPress(task)}
                         />
                         <IconContainer
                             name="back-in-time"

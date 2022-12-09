@@ -6,10 +6,10 @@ import AbstractFormElement from "../form/formElement/AbstractFormElement";
 import MediaService from "../../service/MediaService";
 import General from "../../utility/General";
 import {StyleSheet, TouchableNativeFeedback, View} from "react-native";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../primitives/Colors";
 import ExpandableAudio from "./ExpandableAudio";
 import ExpandableFile from "./ExpandableFile";
+import AvniIcon from './AvniIcon';
 
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {
@@ -104,7 +104,7 @@ export default class ExpandableMedia extends AbstractFormElement {
         if (!this.state.exists) {
             return <View>
                 <TouchableNativeFeedback onPress={() => this.download()}>
-                    <Icon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon}/>
+                    <AvniIcon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon} type='MaterialCommunityIcons'/>
                 </TouchableNativeFeedback>
             </View>
         }
