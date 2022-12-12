@@ -3,7 +3,7 @@ import EncounterActionState from '../../state/EncounterActionState';
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import FormMappingService from '../../service/FormMappingService';
 import RuleEvaluationService from '../../service/RuleEvaluationService';
-import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {Encounter, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
 
 import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import {DraftEncounter} from 'openchs-models';
@@ -15,7 +15,6 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
-import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
 import {ObservationsHolder} from "openchs-models";
 
@@ -84,7 +83,7 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(editableEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(editableEncounter, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing, !!draftEncounter);
 
         if(action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
