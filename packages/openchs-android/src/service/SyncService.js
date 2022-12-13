@@ -122,7 +122,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, updatedSyncSource});
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
