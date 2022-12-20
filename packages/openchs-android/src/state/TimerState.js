@@ -52,20 +52,13 @@ export default class TimerState {
         return this.hasNotVisited(formElementGroup) && this.startTimer;
     }
 
-    calculateStayTime(timeElapsed) {
-        if(this.stayTime === 0 || _.isNil(this.stayTime) || this.displayQuestions === false)
-            return this.stayTime;
-        else
-            return this.stayTime - timeElapsed;
-    }
-
     onEverySecond() {
-        let previousTime = this.time;
         this.time = moment.duration(moment().diff(this.startingSystemTime || moment())).asSeconds();
-        let timeElapsed = this.time - previousTime;
         if (this.time >= this.startTime) {
-            this.stayTime = this.calculateStayTime(timeElapsed);
-            this.stayTime > 0 ? this.displayQuestions = true : this.stayTime = 0;
+            this.stayTime = this.stayTime === 0 || _.isNil(this.stayTime) ? this.stayTime : this.stayTime - 1;
+            if (this.stayTime > 0) {
+                this.displayQuestions = true;
+            }
         }
     }
 
