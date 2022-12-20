@@ -126,6 +126,9 @@ release_dev: setup_hosts as_dev release
 release_prod: renew_env as_prod release
 	$(call _upload_release_sourcemap)
 
+release_prod_without_clean: as_prod release
+	$(call _upload_release_sourcemap)
+
 release_staging: renew_env as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
