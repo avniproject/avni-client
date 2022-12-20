@@ -30,8 +30,8 @@ export default class TimerActions {
     }
 
     static vibrateOnQuestionDisplay(startTime, time, action) {
-        if (((time - startTime) < 2) && ((time - startTime) > 0)) {
-            action.vibrate(2 * 1000);
+        if (startTime === time) {
+            action.vibrate(3 * 1000);
         }
     }
 
