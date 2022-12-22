@@ -236,7 +236,7 @@ class ObservationsHolderActions {
         const allEntitiesOfSameType = state.getEntityResultSetByType(context);
         const entitiesWithDuplicateObservations = allEntitiesOfSameType.filtered('uuid <> $0', currentEntity.uuid).filtered(observationFilter);
         const subjectTypeName = _.get(currentEntity, 'individual.subjectType.name');
-        return _.isEmpty(entitiesWithDuplicateObservations) ? new ValidationResult(true, formElement.uuid, null) : new ValidationResult(false, formElement.uuid, 'duplicateValue', {subjectTypeName});
+        return _.isEmpty(entitiesWithDuplicateObservations) || entitiesWithDuplicateObservations.length === 0 ? new ValidationResult(true, formElement.uuid, null) : new ValidationResult(false, formElement.uuid, 'duplicateValue', {subjectTypeName});
     }
 
     static _getObservationFilterQueryByConceptType(concept, value) {
