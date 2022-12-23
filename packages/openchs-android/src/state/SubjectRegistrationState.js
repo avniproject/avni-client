@@ -134,7 +134,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         const nameValidationKey = Individual.nonIndividualValidationKeys.NAME;
         if (subjectType.uniqueName) {
             const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, subjectType, uuid});
-            return _.isEmpty(savedSubjectsWithSameName) ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
+            return _.isEmpty(savedSubjectsWithSameName) || savedSubjectsWithSameName.length === 0 ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
         }
         return ValidationResult.successful(nameValidationKey);
     }

@@ -74,19 +74,19 @@ class CustomDashboardView extends AbstractComponent {
         const sectionWiseData = _.chain(activeDashboardSectionMappings)
             .groupBy(({dashboardSection}) => dashboardSection.uuid)
             .map((groupedData, sectionUUID) => {
-                const sections = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
+                const section = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
                 const cards = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
-                return {sections, cards};
+                return {section, cards};
             })
-            .sortBy('displayOrder')
+            .sortBy('section.displayOrder')
             .value();
 
         return (
             <View style={styles.container}>
-                {_.map(sectionWiseData, ({sections, cards}) => (
-                    <View key={sections.uuid} style={styles.sectionContainer}>
-                        {sections.viewType !== DashboardSection.viewTypeName.Default &&
-                        this.renderSectionName(sections.name, sections.description, sections.viewType, cards)}
+                {_.map(sectionWiseData, ({section, cards}) => (
+                    <View key={section.uuid} style={styles.sectionContainer}>
+                        {section.viewType !== DashboardSection.viewTypeName.Default &&
+                        this.renderSectionName(section.name, section.description, section.viewType, cards)}
                         <View style={styles.cardContainer}>
                             {_.map(cards, (card, index) => (
                                 <CustomDashboardCard
@@ -94,7 +94,7 @@ class CustomDashboardView extends AbstractComponent {
                                     reportCard={card}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
-                                    viewType={sections.viewType}
+                                    viewType={section.viewType}
                                     countResult={this.state.cardToCountResultMap[card.uuid]}
                                     countUpdateTime={this.state.countUpdateTime}
                                 />
