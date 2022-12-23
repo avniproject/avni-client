@@ -12,7 +12,7 @@ import Fonts from '../primitives/Fonts';
 
 class TimePicker extends AbstractComponent {
     static propTypes = {
-        timeValue: PropTypes.object,
+        timeValue: PropTypes.string,
         validationResult: PropTypes.object,
         actionName: PropTypes.string.isRequired,
         actionObject: PropTypes.object.isRequired,
@@ -35,7 +35,7 @@ class TimePicker extends AbstractComponent {
             display: timePickerDisplay,
             is24Hour: true,
             onChange: (event, date) => this.onTimeChange(event, date),
-            value: _.isNil(this.props.timeValue) ? new Date() : new Date(this.props.timeValue)
+            value: _.isNil(this.props.timeValue) ? new Date() : General.toDateFromTime(this.props.timeValue)
         };
 
         return (
@@ -65,7 +65,7 @@ class TimePicker extends AbstractComponent {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayDateAsTime(this.props.timeValue);
+            ? this.I18n.t(this.noTimeMessageKey) : this.props.timeValue;
     }
 
     showTimePicker(options) {
@@ -75,7 +75,7 @@ class TimePicker extends AbstractComponent {
 
     onTimeChange(event, date) {
         if (event.type !== "dismissed") {
-            this.props.actionObject.value = date;
+            this.props.actionObject.value = General.toISOFormatTime(date.getHours(), date.getMinutes());
             this.dispatchAction(this.props.actionName, this.props.actionObject);
         }
     }
