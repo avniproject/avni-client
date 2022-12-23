@@ -1,4 +1,4 @@
-import {expect} from "chai";
+import {expect, assert} from "chai";
 import General from "../../../src/utility/General";
 import {Duration} from 'avni-models';
 
@@ -54,6 +54,11 @@ describe('General', () => {
         General.logError("Test", "Some error message"); //Correct usage
         General.logError("Test"); //Incorrect usage, but should work when message is undefined
         General.logError(); //Incorrect usage, but should not fail when logging
-    })
+    });
 
+    it('should get date from time', function () {
+        const date = General.toDateFromTime("05:23");
+        assert.equal(date.getHours(), 5);
+        assert.equal(date.getMinutes(), 23);
+    });
 });

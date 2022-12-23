@@ -99,6 +99,11 @@ class General {
         return `${number}`.length === 1 ? `0${number}` : `${number}`;
     }
 
+    static toDateFromTime(colonSeparatedTime) {
+        const timeArray = _.split(colonSeparatedTime, ':');
+        return moment({hour: timeArray[0], minute: timeArray[1]}).toDate();
+    }
+
     static formatValue(value) {
         if (value instanceof Date) return General.formatDate(value);
         if (value instanceof Duration) return value.toString();

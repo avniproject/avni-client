@@ -25,7 +25,6 @@ class TimeFormElement extends AbstractFormElement {
     }
 
     render() {
-        const concept = this.props.element.concept;
         return (
             <View style={this.appendedStyle({paddingVertical: Distances.VerticalSpacingBetweenFormElements})}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
