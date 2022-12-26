@@ -451,18 +451,18 @@ class RuleEvaluationService extends BaseService {
         return defaultChecklists;
     }
 
-    runFormElementGroupRule(formElementGroup, entity, entityName, entityContext) {
+    runFormElementGroupRule(formElementGroup, entity, entityName, entityContext, mapOfBundleFormElementStatuses) {
         if (_.isNil(formElementGroup.rule) || _.isEmpty(_.trim(formElementGroup.rule))) {
             return formElementGroup.getFormElements().flatMap((formElement) => {
                 if (formElement.groupUuid) {
                     const size = this.getRepeatableObservationSize(formElement, entity);
                     return _.range(size).map(questionGroupIndex => {
-                        const formElementStatus = new FormElementStatus(formElement.uuid, true, undefined);
+                        const formElementStatus = this.getDefaultFormElementStatusIfNotFoundInBundleFESs(mapOfBundleFormElementStatuses, {uuid: formElement.uuid, questionGroupIndex});
                         formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                         return formElementStatus;
                     })
                 }
-                return new FormElementStatus(formElement.uuid, true, undefined);
+                return this.getDefaultFormElementStatusIfNotFoundInBundleFESs(mapOfBundleFormElementStatuses, {uuid: formElement.uuid, questionGroupIndex: null});
             });
         }
         try {
@@ -478,11 +478,12 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getTheChildFormElementStatues(childFormElement, entity, entityName, entityContext) {
+    getTheChildFormElementStatues(childFormElement, entity, entityName, entityContext, mapOfBundleFormElementStatuses) {
         const size = this.getRepeatableObservationSize(childFormElement, entity);
         return _.range(size)
             .map(questionGroupIndex => {
-                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName, entityContext, questionGroupIndex);
+                const formElementStatus = this.runFormElementStatusRule(childFormElement, entity, entityName,
+                  entityContext, questionGroupIndex, mapOfBundleFormElementStatuses);
                 if (formElementStatus)
                     formElementStatus.addQuestionGroupInformation(questionGroupIndex);
                 return formElementStatus;
@@ -498,39 +499,58 @@ class RuleEvaluationService extends BaseService {
         return questionGroupObs ? questionGroupObs.size() : 1;
     }
 
+    /**
+     * Priority ordering for obtaining final FormElementsStatus of a FormElement is as follows:
+     * 1. create a default FormElementsStatus
+     * 2. from rulesFromTheBundle
+     * 3. from rule defined using AppDesigner
+     *
+     * @param entity
+     * @param entityName
+     * @param formElementGroup
+     * @param entityContext
+     * @returns {any[]|*[]}
+     */
     getFormElementsStatuses(entity, entityName, formElementGroup, entityContext={}) {
         if ([entity, formElementGroup, formElementGroup.form].some(_.isEmpty)) return [];
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
+        const mapOfBundleFormElementStatuses = (!_.isEmpty(rulesFromTheBundle)) ?
+            rulesFromTheBundle
+              .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
+              .reduce((all, curr) => all.concat(curr), [])
+              .reduce(this.updateMapUsingKeyPattern(), new Map()) : new Map();
         const allFEGFormElements = formElementGroup.getFormElements();
-        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName, entityContext);
+        const formElementStatusAfterGroupRule = this.runFormElementGroupRule(formElementGroup, entity, entityName, entityContext, mapOfBundleFormElementStatuses);
+        let mapOfFormElementStatuses = new Map();
         const visibleFormElementsUUIDs = _.filter(formElementStatusAfterGroupRule, ({visibility}) => visibility === true).map(({uuid}) => uuid);
         const applicableFormElements = allFEGFormElements
           .filter((fe) => _.includes(visibleFormElementsUUIDs, fe.uuid));
-        if (!_.isEmpty(allFEGFormElements) && !_.isEmpty(visibleFormElementsUUIDs)) {
-            let formElementStatuses = applicableFormElements
-                .map(formElement => {
-                    if (formElement.groupUuid) {
-                        return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext);
-                    }
-                    return this.runFormElementStatusRule(formElement, entity, entityName, entityContext);
-                })
-                .filter(fs => !_.isNil(fs))
-                .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
-                .reduce((acc, fs) => acc.set(`${fs.uuid}-${fs.questionGroupIndex || 0}`, fs), new Map())
-                .values();
-            return [...formElementStatuses];
+        if (!_.isEmpty(formElementStatusAfterGroupRule)) {
+            mapOfFormElementStatuses = formElementStatusAfterGroupRule
+              .reduce(this.updateMapUsingKeyPattern(), mapOfFormElementStatuses);
         }
-        if (_.isEmpty(rulesFromTheBundle)) return formElementStatusAfterGroupRule;
-        return [...rulesFromTheBundle
-            .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
-            .reduce((all, curr) => all.concat(curr), formElementStatusAfterGroupRule)
-            .reduce((acc, fs) => acc.set(fs.uuid, fs), new Map())
-            .values()];
+        if (!_.isEmpty(allFEGFormElements) && !_.isEmpty(visibleFormElementsUUIDs)) {
+            mapOfFormElementStatuses = applicableFormElements
+               .map(formElement => {
+                  if (formElement.groupUuid) {
+                      return this.getTheChildFormElementStatues(formElement, entity, entityName, entityContext, mapOfBundleFormElementStatuses);
+                  }
+                  return this.runFormElementStatusRule(formElement, entity, entityName, entityContext, null, mapOfBundleFormElementStatuses);
+               })
+              .filter(fs => !_.isNil(fs))
+              .reduce((all, curr) => all.concat(curr), [])
+              .reduce(this.updateMapUsingKeyPattern(), mapOfFormElementStatuses);
+        }
+        return [...mapOfFormElementStatuses.values()];
     }
 
-    runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex) {
+    updateMapUsingKeyPattern() {
+        return (acc, fs) => acc.set(`${fs.uuid}-${fs.questionGroupIndex || 0}`, fs);
+    }
+
+    runFormElementStatusRule(formElement, entity, entityName, entityContext, questionGroupIndex, mapOfBundleFormElementStatuses) {
         if (_.isNil(formElement.rule) || _.isEmpty(_.trim(formElement.rule))) {
-            return new FormElementStatus(formElement.uuid, true, null);
+            return this.getDefaultFormElementStatusIfNotFoundInBundleFESs(mapOfBundleFormElementStatuses, {uuid: formElement.uuid, questionGroupIndex});
         }
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -544,6 +564,20 @@ class RuleEvaluationService extends BaseService {
             this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName));
             return null;
         }
+    }
+
+    /**
+     * When we do not have a rule defined for a FormElement,
+     * check if a FormElementStatus is available for the same in mapOfBundleFormElementStatuses.
+     * If yes, return that, else return a newly created default FormElementStatus.
+     *
+     * @param mapOfBundleFormElementStatuses
+     * @param fs has two properties: uuid and questionGroupIndex
+     * @returns {*}
+     */
+    getDefaultFormElementStatusIfNotFoundInBundleFESs(mapOfBundleFormElementStatuses, fs) {
+        return (mapOfBundleFormElementStatuses && mapOfBundleFormElementStatuses.get(`${fs.uuid}-${fs.questionGroupIndex || 0}`))
+          || new FormElementStatus(fs.uuid, true, null);
     }
 
     getAllRuleItemsFor(entity, type, entityTypeHardCoded) {
