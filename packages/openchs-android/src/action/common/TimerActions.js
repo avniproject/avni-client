@@ -4,8 +4,7 @@ export default class TimerActions {
         const newState = state.clone();
         const {timerState, wizard} = newState;
         const isLastPage = wizard.isLastPage();
-        const {startTime, time} = timerState;
-        TimerActions.vibrateOnQuestionDisplay(startTime, time, action);
+        TimerActions.vibrateOnQuestionDisplay(timerState, action);
         TimerActions.moveNextIfRequired(isLastPage, action, newState, context, timerState);
         timerState.onEverySecond();
         return newState;
@@ -29,9 +28,10 @@ export default class TimerActions {
         action.stopTimer();
     }
 
-    static vibrateOnQuestionDisplay(startTime, time, action) {
-        if (startTime === time) {
+    static vibrateOnQuestionDisplay(timerState, action) {
+        if (timerState.vibrate === true) {
             action.vibrate(3 * 1000);
+            timerState.stopVibration();
         }
     }
 

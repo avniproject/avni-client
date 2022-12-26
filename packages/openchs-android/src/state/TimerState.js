@@ -9,6 +9,7 @@ export default class TimerState {
         this.startTimer = false;
         this.displayQuestions = displayQuestions;
         this.visitedGroupUUIDs = [];
+        this.vibrate = false;
     }
 
     displayTimer(formElementGroup) {
@@ -24,6 +25,7 @@ export default class TimerState {
         newState.displayQuestions = this.displayQuestions;
         newState.visitedGroupUUIDs = this.visitedGroupUUIDs;
         newState.startingSystemTime = this.startingSystemTime;
+        newState.vibrate = this.vibrate;
         return newState;
     }
 
@@ -36,6 +38,10 @@ export default class TimerState {
         this.startTimer = false;
         this.time = 0;
         this.startingSystemTime = null;
+    }
+
+    stopVibration() {
+        this.vibrate = false;
     }
 
     addVisited(formElementGroup) {
@@ -52,13 +58,24 @@ export default class TimerState {
         return this.hasNotVisited(formElementGroup) && this.startTimer;
     }
 
+    calculateStayTime(timeElapsed) {
+        if(this.stayTime === 0 || _.isNil(this.stayTime))
+            return this.stayTime;
+        else if (this.displayQuestions === false) {
+            this.vibrate = true;
+            return this.stayTime;
+        }
+        else
+            return this.stayTime - timeElapsed;
+    }
+
     onEverySecond() {
+        let previousTime = this.time;
         this.time = moment.duration(moment().diff(this.startingSystemTime || moment())).asSeconds();
+        let timeElapsed = this.time - previousTime;
         if (this.time >= this.startTime) {
-            this.stayTime = this.stayTime === 0 || _.isNil(this.stayTime) ? this.stayTime : this.stayTime - 1;
-            if (this.stayTime > 0) {
-                this.displayQuestions = true;
-            }
+            this.stayTime = this.calculateStayTime(timeElapsed);
+            this.stayTime > 0 ? this.displayQuestions = true : this.stayTime = 0;
         }
     }
 
