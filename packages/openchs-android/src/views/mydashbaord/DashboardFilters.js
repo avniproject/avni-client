@@ -1,4 +1,5 @@
-import {Text, View, StyleSheet, TouchableOpacity, DatePickerAndroid} from "react-native";
+import {Text, View, StyleSheet, TouchableOpacity} from "react-native";
+import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import React from 'react';
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import Distances from "../primitives/Distances";
@@ -52,10 +53,13 @@ export default class DashboardFilters extends AbstractComponent {
     }
 
     async showPicker(stateKey, options) {
-        const {action, year, month, day} = await DatePickerAndroid.open(options);
-        if (action !== DatePickerAndroid.dismissedAction) {
+        await DateTimePickerAndroid.open(options);
+    }
+
+    onAsOnDateChange(event, date) {
+        if (event.type !== "dismissed") {
             this.dispatchAction(this.props.activityIndicatorActionName, {status: true});
-            setTimeout(() => this.dispatchAction(Actions.ON_DATE, {value: new Date(year, month, day)}), 1);
+            setTimeout(() => this.dispatchAction(Actions.ON_DATE, {value: date}), 1);
         }
     }
 
@@ -90,15 +94,16 @@ export default class DashboardFilters extends AbstractComponent {
                                 : {this.dateDisplay(this.props.date.value)}</Text>
                             <TouchableOpacity
                                 onPress={this.showPicker.bind(this, 'simple', {
-                                    date: this.props.date.value,
-                                    mode: 'calendar'
+                                    value: this.props.date.value,
+                                    mode: 'calendar',
+                                    onChange: this.onAsOnDateChange.bind(this)
                                 })}>
                                 <MCIIcon name={'calendar'} style={iconStyle}/>
                             </TouchableOpacity>
                             {this.renderQuickDateOptions('Today', new Date(), isToday)}
                             {this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                         </View>
-                        <View style={{flex:0.2, alignItems: 'center'}}>
+                        <View style={{flex: 0.2, alignItems: 'center'}}>
                             <TouchableOpacity
                                 style={DashboardFilters.styles.filterButton}
                                 onPress={this.props.onPress}>
