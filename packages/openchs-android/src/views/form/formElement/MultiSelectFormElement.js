@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
 import SelectFormElement from "./SelectFormElement";
