@@ -152,7 +152,7 @@ class IndividualEncounterView extends AbstractComponent {
         const title = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('enterData')}`;
         return (
             <CHSContainer>
-                <CHSContent >
+                <CHSContent>
                     <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     {displayTimer ?
