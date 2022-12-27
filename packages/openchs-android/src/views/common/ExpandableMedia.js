@@ -62,7 +62,7 @@ export default class ExpandableMedia extends AbstractFormElement {
         this.setState({mounted: true});
         this.mediaService.exists(this.mediaUriInDevice).then((exists) => {
             /*https://reactjs.org/blog/2015/12/16/ismounted-antipattern.html*/
-            if(!this.state.mounted) return;
+            if (!this.state.mounted) return;
             this.setState((state) => ({
                 ...state, exists
             }));
@@ -104,7 +104,9 @@ export default class ExpandableMedia extends AbstractFormElement {
         if (!this.state.exists) {
             return <View>
                 <TouchableNativeFeedback onPress={() => this.download()}>
-                    <AvniIcon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon} type='MaterialCommunityIcons'/>
+                    <View>
+                        <AvniIcon name={this.state.downloading ? 'loading' : 'download'} style={styles.icon} type='MaterialCommunityIcons'/>
+                    </View>
                 </TouchableNativeFeedback>
             </View>
         }
@@ -112,11 +114,16 @@ export default class ExpandableMedia extends AbstractFormElement {
 
     getMediaComponentByType(type) {
         switch (type) {
-            case 'Video' : return ExpandableVideo;
-            case 'Image' : return ExpandableImage;
-            case 'Profile-Pics' : return ExpandableImage;
-            case 'Audio' : return ExpandableAudio;
-            case 'File'  : return ExpandableFile;
+            case 'Video' :
+                return ExpandableVideo;
+            case 'Image' :
+                return ExpandableImage;
+            case 'Profile-Pics' :
+                return ExpandableImage;
+            case 'Audio' :
+                return ExpandableAudio;
+            case 'File'  :
+                return ExpandableFile;
         }
     }
 
