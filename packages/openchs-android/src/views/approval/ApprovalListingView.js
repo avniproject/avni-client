@@ -15,6 +15,7 @@ import EntityService from "../../service/EntityService";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FormMappingService from "../../service/FormMappingService";
+import {ScrollView} from "native-base";
 
 const placeHolderPicker = {label: 'All', value: {schema: null, filterQuery: null}};
 
@@ -116,16 +117,18 @@ class ApprovalListingView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter(this.I18n.t(title))}
-                <SafeAreaView style={{marginBottom: 150}}>
-                    <SectionList
-                        sections={this.state.results}
-                        keyExtractor={(item) => item.uuid}
-                        renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
-                        initialNumToRender={50}
-                        updateCellsBatchingPeriod={500}
-                        maxToRenderPerBatch={20}
-                    />
-                </SafeAreaView>
+                <ScrollView>
+                    <SafeAreaView style={{marginBottom: 10}}>
+                        <SectionList
+                            sections={this.state.results}
+                            keyExtractor={(item) => item.uuid}
+                            renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
+                            initialNumToRender={50}
+                            updateCellsBatchingPeriod={500}
+                            maxToRenderPerBatch={20}
+                        />
+                    </SafeAreaView>
+                </ScrollView>
             </CHSContainer>
         )
     }
