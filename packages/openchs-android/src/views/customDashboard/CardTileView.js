@@ -57,7 +57,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
 
 const styles = StyleSheet.create({
     container: {
-        height: 90,
+        minHeight: 90,
         borderRadius: 8,
         elevation: 2,
         justifyContent: 'center',
