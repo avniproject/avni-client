@@ -5,7 +5,7 @@
     "____COMMENT____": "English version for the application labels",
     "next": "NEXT",
     "previous": "PREVIOUS",
-    "save": "Save",
+    "save": "SAVE",
     "deleteConfirmation": "Do you want to delete all saved sessions?",
     "validationResult": "Validation Error",
     "numericValueValidation": "Is not a valid number",

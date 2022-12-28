@@ -40,7 +40,7 @@ class WizardButtons extends AbstractComponent {
                     <Button primary
                             style={{flex: 1, justifyContent: "center"}}
                             onPress={() => nextAndMore.func()}>
-                        <Text style={{textAlign: 'center'}}>{nextAndMore.label}</Text></Button>
+                        {nextAndMore.label}</Button>
                     : null
                 }
             </View>
