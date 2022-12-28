@@ -133,6 +133,7 @@ class MyDashboardActions {
             selectedSubjectType: subjectType,
             individualFilters,
             encountersFilters,
+            generalEncountersFilters,
             enrolmentFilters,
             itemsToDisplay: [],
             fetchFromDB: false,

@@ -5,7 +5,7 @@ import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import _ from "lodash";
 import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "../primitives/Styles";
-import {Icon} from "native-base";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import PropTypes from "prop-types";
 import TaskStatusPicker from "./TaskStatusPicker";
 import TypedTransition from "../../framework/routing/TypedTransition";
@@ -92,7 +92,7 @@ class TaskCard extends AbstractComponent {
                     <View style={[styles.cardContainer]}>
                         <Text style={styles.textStyle}>{task.subject.nameString}</Text>
                         <Text style={styles.textStyle}>{this.I18n.t(task.subject.lowestAddressLevel.name)}</Text>
-                        <Icon name={'chevron-right'} type={'MaterialIcons'} style={styles.iconStyle}/>
+                        <Icon name={'chevron-right'} style={styles.iconStyle}/>
                     </View>
                 </View>
             </TouchableNativeFeedback>
