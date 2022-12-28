@@ -8,7 +8,7 @@ import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import PropTypes from "prop-types";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFormView from "./TaskFormView";
-import {Icon} from "native-base";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 class TaskStatusPicker extends AbstractComponent {
 

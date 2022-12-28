@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import React, {Component} from "react";
 import {Text, View, TouchableNativeFeedback} from "react-native";
 import ListView from "deprecated-react-native-listview";
-import {Icon} from "native-base";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
 import ListViewHelper from "../../utility/ListViewHelper";
 import {Video} from 'openchs-models';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export class VideoList extends AbstractComponent {
 
