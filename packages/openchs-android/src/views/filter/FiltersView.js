@@ -59,8 +59,6 @@ class FilterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.filterAction);
-        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
-            [Filter.types.MultiSelect, MultiSelectFilter]]);
         this.formMappingService = context.getService(FormMappingService);
         this.entityService = context.getService(EntityService);
         this.customFilterService = context.getService(CustomFilterService);
