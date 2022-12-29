@@ -1,10 +1,9 @@
-import {ToastAndroid, Alert, BackHandler} from "react-native";
+import {ToastAndroid, Alert, BackHandler, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import ReducerKeys from "../../reducer";
-import themes from "../primitives/themes";
 import AppHeader from "../common/AppHeader";
 import {ChecklistActionsNames as Actions} from "../../action/program/ChecklistActions";
 import Colors from "../primitives/Colors";
@@ -72,12 +71,14 @@ class ChecklistView extends AbstractComponent {
                                                                                            data={checklist} i18n={this.I18n}
                                                                                            reloadCallback={() => this.dispatchAction(Actions.ON_LOAD, this.props)}/>);
         return (
-            <CHSContainer  style={{backgroundColor: Colors.BlackBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
                     {this.showToast()}
                     <AppHeader func={() => this.goBack()}
                                title={`${this.state.individual.nameString} - ${this.I18n.t('checklists')}`}/>
-                    {checklists}
+                    <ScrollView>
+                        {checklists}
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
