@@ -37,6 +37,13 @@ class PresetOptionItem extends AbstractComponent {
         super(props, context);
     }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+        if (this.props.checked !== nextProps.checked) return true;
+        return (this.props.displayText !== nextProps.displayText) ||
+            (_.isNil(this.props.validationResult) !== _.isNil(nextProps.validationResult)) ||
+            (this.props.abnormal !== nextProps.abnormal);
+    }
+
     getSelectComponent(defaultColor, extraLineHeight, onRadioItemPress) {
         const {disabled, multiSelect, value, displayText} = this.props;
         const color = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;

@@ -15,8 +15,30 @@ import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
 import {ObservationsHolder} from "openchs-models";
 
+function getPreviousEncounter(action, form, context) {
+    const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [action.encounter.encounterType.name]);
+    if (previousEncounter) {
+        action.encounter.observations = previousEncounter.cloneForEdit().observations;
+        const observationsHolder = new ObservationsHolder(action.encounter.observations);
+        let groupNo = 0;
+        const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
+            (formElementGroup) => {
+                groupNo = groupNo + 1;
+                const filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
+                if (filteredFormElements.length === 0) return false;
+                return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
+            });
+
+        if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
+            action.allElementsFilledForImmutableEncounter = true;
+        else
+            action.pageNumber = groupNo;
+    }
+    return action.encounter;
+}
+
 export class EncounterActions {
-    static getInitialState(context) {
+    static getInitialState() {
         return {};
     }
 
@@ -31,29 +53,8 @@ export class EncounterActions {
         const form = formMapping && formMapping.form;
 
         const encounterType = action.encounter.encounterType;
-        const getPreviousEncounter = () => {
-            const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [encounterType.name]);
-            if (previousEncounter) {
-                action.encounter.observations = previousEncounter.cloneForEdit().observations;
-                const observationsHolder = new ObservationsHolder(action.encounter.observations);
-                let groupNo = 0;
-                const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
-                    (formElementGroup) => {
-                        groupNo = groupNo + 1;
-                        let filteredFormElements = EncounterActions.filterFormElements(formElementGroup, context, previousEncounter);
-                        if (filteredFormElements.length === 0) return false;
-                        return formElementGroup.areAllFormElementsEmpty(filteredFormElements, observationsHolder);
-                    });
-
-                if (_.isNil(firstGroupWithAllVisibleElementsEmpty))
-                    action.allElementsFilledForImmutableEncounter = true;
-                else
-                    action.pageNumber = groupNo;
-            }
-            return action.encounter;
-        };
-
-        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.encounter;
+        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ?
+                                    getPreviousEncounter(action, form, context) : action.encounter;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder

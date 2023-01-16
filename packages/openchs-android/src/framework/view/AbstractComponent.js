@@ -48,9 +48,14 @@ class AbstractComponent extends Component {
     didFocus() {
     }
 
-    componentDidUpdate() {
-        // General.logDebug((this.viewName ? this.viewName() : this.constructor.name), "DID UPDATE");
-    }
+    // shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+    //     General.logDebug((this.viewName ? this.viewName() : this.constructor.name), "SHOULD UPDATE");
+    //     return true;
+    // }
+    //
+    // componentDidUpdate() {
+    //     General.logDebug((this.viewName ? this.viewName() : this.constructor.name), "DID UPDATE");
+    // }
 
     dispatchAction(action, params) {
         const type = action instanceof Function ? action.Id : action;
