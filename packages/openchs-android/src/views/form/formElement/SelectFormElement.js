@@ -1,11 +1,9 @@
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
-import PresetOptionItem from "../../primitives/PresetOptionItem";
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 

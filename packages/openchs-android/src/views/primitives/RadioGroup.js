@@ -87,8 +87,8 @@ class RadioGroup extends AbstractComponent {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
                 {rlvPair.map((rlv) => {
-                        let checked = this.props.selectionFn(rlv.value);
-                        let onRadioItemPress = checked ? onRadioItemPressed : null;
+                        const checked = this.props.selectionFn(rlv.value);
+                        const onRadioItemPress = checked ? onRadioItemPressed : null;
                         return <PresetOptionItem displayText={this.I18n.t(rlv.label)}
                                                  checked={checked}
                                                  abnormal={rlv.abnormal}

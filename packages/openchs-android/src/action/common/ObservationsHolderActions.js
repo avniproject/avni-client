@@ -1,11 +1,12 @@
 import _ from "lodash";
 import {Concept, Duration, FormElementGroup, ValidationResult} from 'avni-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import General from "../../utility/General";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
         const ruleService = context.get(RuleEvaluationService);
-        let formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
+        const formElementStatuses = ruleService.getFormElementsStatuses(state.getEntity(), state.getEntityType(), formElementGroup, state.getEntityContext());
         state.filteredFormElements = FormElementGroup._sortedFormElements(formElementGroup.filterElements(formElementStatuses));
         return formElementStatuses;
     }

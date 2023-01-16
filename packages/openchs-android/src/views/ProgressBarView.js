@@ -59,6 +59,8 @@ class ProgressBarView extends AbstractComponent {
     }
 
     render() {
+        if (!this.props.syncing) return null;
+
         return (
             <Modal animationType={'fade'}
                    transparent={true}
