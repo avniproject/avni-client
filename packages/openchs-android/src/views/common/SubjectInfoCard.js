@@ -8,7 +8,7 @@ import SubjectProfilePicture from "./SubjectProfilePicture";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import _ from 'lodash';
 import ConceptService from "../../service/ConceptService";
-import {Observation} from 'avni-models';
+import {Observation, ProgramEnrolment} from 'openchs-models';
 import EncounterService from "../../service/EncounterService";
 import IndividualService from "../../service/IndividualService";
 import AddressLevelService from "../../service/AddressLevelService";
@@ -71,6 +71,9 @@ class SubjectInfoCard extends AbstractComponent {
         const i18n = this.I18n;
         const conceptService = this.getService(ConceptService);
         const iconContainerStyle = {minHeight: 72, alignItems: 'center', justifyContent: 'center'};
+        const enrolledPrograms = _.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
+            .map((x: ProgramEnrolment) => x.program);
+
         return (
             <View style={{
                 flexDirection: 'row',
@@ -127,7 +130,7 @@ class SubjectInfoCard extends AbstractComponent {
                         justifyContent: 'flex-end',
                         flexWrap: 'wrap',
                     }}>
-                        {_.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive).map((enrolment, index) => this.renderProgram(enrolment.program, index))}
+                        {_.uniqBy(enrolledPrograms, (x) => x.name).map((program, index) => this.renderProgram(program, index))}
                     </View>}
                 </View>
             </View>
