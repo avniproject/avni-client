@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View, StyleSheet} from "react-native";
+import {StyleSheet, Text, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -6,7 +6,6 @@ import {Checkbox, Radio} from "native-base";
 import Colors from '../primitives/Colors';
 import _ from 'lodash';
 import Styles from "./Styles";
-import UserInfoService from "../../service/UserInfoService";
 
 class PresetOptionItem extends AbstractComponent {
     static defaultProps = {
@@ -23,7 +22,8 @@ class PresetOptionItem extends AbstractComponent {
         style: PropTypes.object,
         chunked: PropTypes.bool,
         value: PropTypes.any,
-        radioItemPressed: PropTypes.func
+        radioItemPressed: PropTypes.func,
+        currentLocale: PropTypes.string
     };
 
     static styles = StyleSheet.create({
@@ -56,7 +56,7 @@ class PresetOptionItem extends AbstractComponent {
     }
 
     render() {
-        const {value, checked, chunked, abnormal, style, validationResult, radioItemPressed, disabled} = this.props;
+        const {value, checked, chunked, abnormal, style, validationResult, radioItemPressed, disabled, currentLocale} = this.props;
 
         const color = _.isNil(validationResult)
             ? checked && abnormal
@@ -72,7 +72,6 @@ class PresetOptionItem extends AbstractComponent {
             container: style
         };
         const ToRender = chunked ? chunkedStyle : singleStyle;
-        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const isExtraHeightRequired = _.includes(['te_IN'], currentLocale);
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
         const onRadioItemPress = _.isNil(radioItemPressed) ? null : () => radioItemPressed(value);

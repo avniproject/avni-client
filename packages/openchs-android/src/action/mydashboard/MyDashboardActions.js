@@ -244,7 +244,7 @@ class MyDashboardActions {
         const genderQuery = (path) => _.map(action.selectedGenders, (gender) => `${path} = "${gender.name}"`);
 
         const customFilterService = context.get(CustomFilterService);
-        var individualUUIDs = [];
+        let individualUUIDs = [];
         const selectedCustomFilterBySubjectType = _.mapValues(action.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === action.selectedSubjectType.uuid);
             return s.length === 0 ? [] : s

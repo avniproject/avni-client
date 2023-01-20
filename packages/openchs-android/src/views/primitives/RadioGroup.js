@@ -9,6 +9,8 @@ import Distances from "./Distances";
 import Styles from "./Styles";
 import _ from 'lodash';
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
+import General from "../../utility/General";
+import UserInfoService from "../../service/UserInfoService";
 
 export class RadioLabelValue {
     constructor(label, value, abnormal) {
@@ -83,7 +85,7 @@ class RadioGroup extends AbstractComponent {
         };
     }
 
-    renderPairedOptions(onRadioItemPressed) {
+    renderPairedOptions(onRadioItemPressed, currentLocale) {
         return _.chunk(this.props.labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", justifyContent: "space-between"}} key={idx}>
                 {rlvPair.map((rlv) => {
@@ -96,6 +98,7 @@ class RadioGroup extends AbstractComponent {
                                                  chunked={true}
                                                  validationResult={this.props.validationError}
                                                  key={rlv.label}
+                                                 currentLocale={currentLocale}
                                                  style={{
                                                      paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                                      paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
@@ -109,7 +112,7 @@ class RadioGroup extends AbstractComponent {
             </View>);
     }
 
-    renderOptions(onRadioItemPressed) {
+    renderOptions(onRadioItemPressed, currentLocale) {
         return this.props.labelValuePairs.map(radioLabelValue => {
             let checked = this.props.selectionFn(radioLabelValue.value);
             let onRadioItemPress = checked ? onRadioItemPressed : null;
@@ -118,6 +121,7 @@ class RadioGroup extends AbstractComponent {
                                      multiSelect={this.props.multiSelect}
                                      validationResult={this.props.validationError}
                                      key={radioLabelValue.label}
+                                     currentLocale={currentLocale}
                                      style={{
                                          paddingVertical: Distances.VerticalSpacingBetweenOptionItems,
                                          paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
@@ -170,25 +174,26 @@ class RadioGroup extends AbstractComponent {
 
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const GroupComponent = multiSelect ? Checkbox.Group : Radio.Group;
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         //Do not replace null with noop as that would set a listener and not allow the message to prop up to higher level
         const onRadioValuePressed = (!multiSelect && allowRadioUnselect) ? this.onRadioValuePress.bind(this) : null;
 
         return (
             <View style={this.appendedStyle({})}>
-                {!skipLabel &&
-                <Text style={Styles.formLabel}>{this.I18n.t(labelKey)}{mandatoryText}</Text>}
-                {labelValuePairs.length > 0 ? labelValuePairs.length === 1 && mandatory === true ?
-                    <View style={[style.radioStyle, borderStyle]}>
-                        {this.renderSingleValue()}
-                    </View> :
-                    <GroupComponent accessibilityLabel={labelKey} style={[style.radioStyle, borderStyle]}
-                                    value={groupValues || ''} onChange={newValues => this.onValueChanged(newValues)}>
-                        {inPairs ? this.renderPairedOptions(onRadioValuePressed) : this.renderOptions(onRadioValuePressed)}
-                    </GroupComponent>
-                    : <View/>}
-                <View style={{backgroundColor: '#ffffff'}}>
-                    <ValidationErrorMessage validationResult={validationError}/>
-                </View>
+            {!skipLabel &&
+            <Text style={Styles.formLabel}>{this.I18n.t(labelKey)}{mandatoryText}</Text>}
+            {labelValuePairs.length > 0 ? labelValuePairs.length === 1 && mandatory === true ?
+                <View style={[style.radioStyle, borderStyle]}>
+                    {this.renderSingleValue()}
+                </View> :
+                <GroupComponent accessibilityLabel={labelKey} style={[style.radioStyle, borderStyle]}
+                                value={groupValues || ''} onChange={newValues => this.onValueChanged(newValues)}>
+                    {inPairs ? this.renderPairedOptions(onRadioValuePressed, currentLocale) : this.renderOptions(onRadioValuePressed, currentLocale)}
+                </GroupComponent>
+                : <View/>}
+            <View style={{backgroundColor: '#ffffff'}}>
+                <ValidationErrorMessage validationResult={validationError}/>
+            </View>
             </View>
         );
     }
