@@ -120,8 +120,7 @@ class TaskCard extends AbstractComponent {
                             onPress={() => _.isNil(phoneNumberObs) ? _.noop() :
                                 this.onCallPress(phoneNumberObs.getReadableValue(), task)}
                         />
-                        <AvniIcon
-                            style={styles.iconStyle}
+                        <IconContainer
                             name="clipboard-list"
                             type="FontAwesome5"
                             onPress={() => this.onChangeStatusPress(task)}/>

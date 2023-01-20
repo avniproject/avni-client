@@ -9,6 +9,7 @@ import PropTypes from "prop-types";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFormView from "./TaskFormView";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import Colors from '../primitives/Colors';
 
 class TaskStatusPicker extends AbstractComponent {
 
@@ -66,6 +67,12 @@ class TaskStatusPicker extends AbstractComponent {
                                     display: false,
                                     task: this.props.task
                                 })}
+                                style={{
+                                    color: Colors.DefaultPrimaryColor,
+                                    opacity: 0.8,
+                                    fontSize: 24,
+                                    padding: 8
+                                }}
                             />
                         </View>
                         <View style={{height: 100, width: '100%'}}>
