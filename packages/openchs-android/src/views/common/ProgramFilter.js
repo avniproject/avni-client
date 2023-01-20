@@ -28,17 +28,17 @@ class ProgramFilter extends AbstractComponent {
         const valueLabelPairs = this.props.visits.map(({uuid, operationalProgramName, operationalEncounterTypeName, name}) => new RadioLabelValue(operationalProgramName || operationalEncounterTypeName || name, uuid, false));
         return (
             <RadioGroup
-                multiSelect={this.props.multiSelect}
-                style={{
-                    marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
-                    marginBottom: Styles.VerticalSpacingBetweenInGroupFormElements
-                }}
-                borderStyle={{borderWidth: 0}}
-                inPairs={true}
-                onPress={({label, value}) => this.props.onToggle(label, value)}
-                selectionFn={(value) => this.props.selectionFn(value)}
-                labelKey={this.props.name}
-                mandatory={false}
+            multiSelect={this.props.multiSelect}
+            style={{
+                marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
+                marginBottom: Styles.VerticalSpacingBetweenInGroupFormElements
+            }}
+            borderStyle={{borderWidth: 0}}
+            inPairs={true}
+            onPress={({label, value}) => this.props.onToggle(label, value)}
+            selectionFn={(value) => this.props.selectionFn(value)}
+            labelKey={this.props.name}
+            mandatory={false}
                 labelValuePairs={valueLabelPairs}/>
         );
     }

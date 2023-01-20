@@ -422,17 +422,17 @@ class IndividualService extends BaseService {
                 fromDate)
             .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
             .map((individual) => {
-                const registrationDate = individual.registrationDate;
-                return {
-                    individual,
-                    visitInfo: {
-                        uuid: individual.uuid,
-                        visitName: [],
-                        groupingBy: General.formatDate(registrationDate),
-                        sortingBy: registrationDate,
-                        allow: true,
-                    }
-                };
+            const registrationDate = individual.registrationDate;
+            return {
+                individual,
+                visitInfo: {
+                    uuid: individual.uuid,
+                    visitName: [],
+                    groupingBy: General.formatDate(registrationDate),
+                    sortingBy: registrationDate,
+                    allow: true,
+                }
+            };
             })
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]

@@ -1,5 +1,5 @@
 import React from "react";
-import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Dimensions, StyleSheet, FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
