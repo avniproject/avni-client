@@ -83,7 +83,6 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
                 {_.map(_.range(0, this.state.mediaCount), index => this.renderMedia(index))}
                 <Button disabled={isDisabled}
                         style={{
-                            height: 22,
                             backgroundColor: isDisabled ? Colors.DisabledButtonColor : Colors.ActionButtonColor,
                             alignSelf: 'flex-end',
                             marginTop: 10,
