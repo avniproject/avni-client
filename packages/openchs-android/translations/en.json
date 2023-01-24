@@ -472,6 +472,8 @@
     "status": "Status",
     "type": "Type",
     "filters": "Filters",
-    "scrollToBottomToSave": "Scroll to Bottom to Save"
+    "scrollToBottomToSave": "Scroll to Bottom to Save",
+    "openCodedFilter": "may take few seconds to open",
+    "closeCodedFilter": "may speed up"
   }
 }

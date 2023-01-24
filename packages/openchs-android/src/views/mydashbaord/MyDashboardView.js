@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, TouchableNativeFeedback, View, ScrollView} from 'react-native';
+import {ScrollView, Text, TouchableNativeFeedback, View} from 'react-native';
 import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -19,6 +19,7 @@ import moment from "moment";
 import RefreshReminder from "./RefreshReminder";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 import AvniIcon from '../common/AvniIcon';
+import _ from 'lodash';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -93,9 +94,16 @@ class MyDashboardView extends AbstractComponent {
         setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: true}), 0);
     }
 
+    renderableVisits() {
+        const {selectedPrograms, selectedGeneralEncounterTypes, visits} = this.state;
+        if (!_.isEmpty(selectedPrograms) || !_.isEmpty(selectedGeneralEncounterTypes))
+            return _.filter(visits, (visit) => _.isNil(visit.visits.total));
+        return visits;
+    }
+
     render() {
-        General.logDebug(this.viewName(), 'render');
-        const dataSource = this.ds.cloneWithRows((this.state.visits));
+        General.logDebug(this.viewName(), "render");
+        const dataSource = this.ds.cloneWithRows(this.renderableVisits());
         const date = this.state.date;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
