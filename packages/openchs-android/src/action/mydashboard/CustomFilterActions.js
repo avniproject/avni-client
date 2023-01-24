@@ -2,14 +2,23 @@ import _ from "lodash";
 import CustomFilterService from "../../service/CustomFilterService";
 import moment from "moment";
 
-
 class CustomFilterActions {
-
     static getInitialState() {
         return {
-            selectedCustomFilters: {}
-
+            selectedCustomFilters: {},
+            openedCodedConceptUuids: []
         }
+    }
+
+    static onCodedConceptFilterToggled(state, action, context) {
+        const newState = {...state};
+        if (_.some(newState.openedCodedConceptUuids, (x) => action.conceptUuid === x)) {
+             _.remove(newState["openedCodedConceptUuids"], (x) => action.conceptUuid === x);
+            newState["openedCodedConceptUuids"] = [...newState["openedCodedConceptUuids"]];
+        } else {
+            newState["openedCodedConceptUuids"] = [...newState["openedCodedConceptUuids"], action.conceptUuid];
+        }
+        return newState;
     }
 
     static onLoad(state, action, context) {
@@ -105,11 +114,11 @@ class CustomFilterActions {
         const previousValue = state.selectedCustomFilters[titleKey];
         if (_.some(previousValue, pv => pv.groupSubjectUUID === groupSubjectUUID)) {
             const newState = _.filter(previousValue, pv => pv.groupSubjectUUID !== groupSubjectUUID);
-            return {...state, selectedCustomFilters: {...state.selectedCustomFilters, [titleKey]: newState}}
+            return {...state, selectedCustomFilters: {...state.selectedCustomFilters, [titleKey]: newState}, openedCodedConceptUuids: []}
         }
         const newState = {subjectTypeUUID, groupSubjectUUID, name};
         const selectedCustomFilters = {...state.selectedCustomFilters, [titleKey]: [...previousValue, newState]};
-        return {...state, selectedCustomFilters};
+        return {...state, selectedCustomFilters, openedCodedConceptUuids: []};
     }
 }
 
@@ -124,6 +133,7 @@ const CustomFilterNames = {
     ON_MIN_TIME_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MIN_TIME_CUSTOM_FILTER_SELECT`,
     ON_MAX_TIME_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MAX_TIME_CUSTOM_FILTER_SELECT`,
     ON_GROUP_SUBJECT_CHANGE: `${ActionPrefix}.ON_GROUP_SUBJECT_CHANGE`,
+    ON_CODED_CONCEPT_FILTER_TOGGLED: `${ActionPrefix}.ON_CODED_CONCEPT_FILTER_TOGGLED`
 };
 
 const CustomFilterMap = new Map([
@@ -136,6 +146,7 @@ const CustomFilterMap = new Map([
     [CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT, CustomFilterActions.onMinTimeSelect],
     [CustomFilterNames.ON_MAX_TIME_CUSTOM_FILTER_SELECT, CustomFilterActions.onMaxTimeSelect],
     [CustomFilterNames.ON_GROUP_SUBJECT_CHANGE, CustomFilterActions.onGroupSubjectFilterChange],
+    [CustomFilterNames.ON_CODED_CONCEPT_FILTER_TOGGLED, CustomFilterActions.onCodedConceptFilterToggled],
 ]);
 
 export {

@@ -112,7 +112,6 @@ class IndividualService extends BaseService {
 
     _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
         const permissionAllowed = individualWithVisit.visitInfo.allow;
-
         if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
             const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
             const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
@@ -134,7 +133,10 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allIn(ignored, queryAdditions) {
+    allIn(ignored, queryAdditions, programs = [], encounterTypes = []) {
+        if (encounterTypes.length > 0 || programs.length > 0)
+            return null;
+
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
@@ -349,8 +351,7 @@ class IndividualService extends BaseService {
                 fromDate)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
-                const individual = enc.programEnrolment.individual;
-                return individual;
+                return enc.programEnrolment.individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -411,17 +412,25 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyRegistered(date, addressQuery) {
+    recentlyRegistered(date, addressQuery, programs = [], encounterTypes = []) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
-        return [...this.db.objects(Individual.schema.name)
+        let individuals = this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
                 tillDate,
                 fromDate)
             .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
-            .map((individual) => {
+            .map((individual) => individual);
+
+        if (encounterTypes.length > 0 && programs.length > 0) {
+            individuals = _.filter(individuals, (individual) => individual.hasProgramEncounterOfType(encounterTypes));
+        } else if (encounterTypes.length > 0) {
+            individuals = _.filter(individuals, (individual) => individual.hasEncounterOfType(encounterTypes));
+        }
+
+        return [...individuals.map((individual) => {
             const registrationDate = individual.registrationDate;
             return {
                 individual,
@@ -433,8 +442,7 @@ class IndividualService extends BaseService {
                     allow: true,
                 }
             };
-            })
-            .reduce(this._uniqIndividualWithVisitName, new Map())
+        }).reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }

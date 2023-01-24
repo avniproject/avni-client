@@ -1,6 +1,5 @@
 import {Modal, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import BeneficiaryModePinService from "../../service/BeneficiaryModePinService";
