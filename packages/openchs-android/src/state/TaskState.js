@@ -49,7 +49,8 @@ class TaskState extends AbstractDataEntryState {
 
     clone() {
         const newState = new TaskState();
-        newState.task = _.isNil(this.task) ? this.task : this.task.cloneForEdit();
+        // newState.task = _.isNil(this.task) ? this.task : this.task.cloneForEdit();
+        newState.task = this.task;
         newState.displayTaskStatusSelector = this.displayTaskStatusSelector;
         newState.taskStatusList = this.taskStatusList;
         newState.displayProgressIndicator = this.displayProgressIndicator;

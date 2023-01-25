@@ -81,7 +81,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
 
     clone() {
         const newState = new SubjectRegistrationState();
-        newState.subject = this.subject.cloneForEdit();
+        // newState.subject = this.subject.cloneForEdit();
+        newState.subject = this.subject;
         newState.subjectType = this.subjectType;
         newState.form = this.form;
         newState.filteredFormElements = this.filteredFormElements;
