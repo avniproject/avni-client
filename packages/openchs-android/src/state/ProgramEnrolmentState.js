@@ -31,7 +31,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     clone() {
         const newState = super.clone();
-        newState.enrolment = this.enrolment.cloneForEdit();
+        // newState.enrolment = this.enrolment.cloneForEdit();
+        newState.enrolment = this.enrolment;
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;
         newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);

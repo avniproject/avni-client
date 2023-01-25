@@ -37,7 +37,8 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
 
     clone() {
         const newState = super.clone();
-        newState.programEncounter = this.programEncounter.cloneForEdit();
+        // newState.programEncounter = this.programEncounter.cloneForEdit();
+        newState.programEncounter = this.programEncounter;
         return newState;
     }
 

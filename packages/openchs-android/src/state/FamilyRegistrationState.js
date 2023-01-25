@@ -27,7 +27,8 @@ class FamilyRegistrationState extends AbstractDataEntryState {
 
     clone() {
         const newState = new FamilyRegistrationState();
-        newState.family = this.family.cloneForEdit();
+        // newState.family = this.family.cloneForEdit();
+        newState.family = this.family;
         newState.form = this.form;
         super.clone(newState);
         return newState;

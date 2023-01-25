@@ -38,7 +38,8 @@ class SubjectProgramEligibilityState extends AbstractDataEntryState {
 
     clone() {
         const newState = new SubjectProgramEligibilityState();
-        newState.subjectProgramEligibility = _.isNil(this.subjectProgramEligibility) ? this.subjectProgramEligibility : this.subjectProgramEligibility.cloneForEdit();
+        // newState.subjectProgramEligibility = _.isNil(this.subjectProgramEligibility) ? this.subjectProgramEligibility : this.subjectProgramEligibility.cloneForEdit();
+        newState.subjectProgramEligibility = this.subjectProgramEligibility;
         super.clone(newState);
         return newState;
     }
