@@ -126,6 +126,9 @@ release_prod: renew_env release_prod_without_clean
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
 
+release_prod_unsigned_without_clean: as_prod
+	enableSeparateBuildPerCPUArchitecture=false make release
+
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 release_staging: renew_env release_staging_without_clean
@@ -263,6 +266,10 @@ analyse_crash: ##
 screencap:
 	mkdir -p ./tmp/
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
+
+upload-prod-apk-unsigned:
+	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
 
 upload-staging-apk:
 	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
