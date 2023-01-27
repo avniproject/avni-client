@@ -183,9 +183,7 @@ class FilterView extends AbstractComponent {
                 borderColor: Colors.InputBorderNormal,
                 paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
             }}>
-                {this.state.programs.length === 1 ?
-                    programEncounterFilter
-                    :
+                {
                     <View>
                         {this.state.programs.length > 0 ? programFilter : <View/>}
                         {this.state.encounterTypes.length > 0 ? programEncounterFilter : <View/>}
