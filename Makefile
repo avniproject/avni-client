@@ -80,7 +80,7 @@ define _upload_release_sourcemap
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
-ifndef $(OPENCHS_CLIENT_BUGSNAG_API_KEY)
+ifndef OPENCHS_CLIENT_BUGSNAG_API_KEY
 	@echo "OPENCHS_CLIENT_BUGSNAG_API_KEY env var not present"
 	exit 1
 else
