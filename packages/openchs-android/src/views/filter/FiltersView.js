@@ -73,10 +73,8 @@ class FilterView extends AbstractComponent {
         const subjectTypes = this.entityService.findAllByCriteria('voided = false', SubjectType.schema.name);
         const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
-        const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
-        const encounterTypes = programs.length === 1
-            ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType)
-            : this.props.encounterTypes;
+        const selectedPrograms = this.props.selectedPrograms;
+        const encounterTypes = this.props.encounterTypes;
 
         this.dispatchAction(FilterActionNames.ON_LOAD, {
             filters: this.props.filters,
