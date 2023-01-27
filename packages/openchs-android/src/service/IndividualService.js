@@ -96,7 +96,7 @@ class IndividualService extends BaseService {
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         const programs = this.getService(FormMappingService).findActiveProgramsForSubjectType(individual.subjectType);
-        const nonEnrolledPrograms = individual.eligiblePrograms(programs);
+        const nonEnrolledPrograms = individual.staticallyEligiblePrograms(programs);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         const enrolProgramCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}'`;
         const privilegeService = this.getService(PrivilegeService);
