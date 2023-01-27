@@ -208,7 +208,7 @@ class SyncComponent extends AbstractComponent {
         });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
-        return !this.state.syncing && totalPending > 0 ? Badge({icon, totalPending}) : icon;
+        return !this.state.syncing && totalPending > 0 ? <Badge icon={icon} number={totalPending}/> : icon;
     }
 
     render() {
@@ -234,7 +234,7 @@ class SyncComponent extends AbstractComponent {
 
 }
 
-const Badge = function({icon, number}) {
+const Badge = ({number, icon}) => {
     const [height, width, fontSize] = number > 99 ? [17, 17, 9, 0] : [17, 17, 11, 6];
     return (
         <View style={{
