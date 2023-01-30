@@ -71,9 +71,9 @@ class TaskFilterState {
         return initialiseForTaskType(state, taskType, taskStatuses);
     }
 
-    static toggleTaskStatus(state, taskStatus) {
-        if (_.remove(state.selectedTaskStatuses, (x) => x.uuid === taskStatus.uuid).length === 0)
-            state.selectedTaskStatuses.push(taskStatus);
+    static toggleTaskStatus(state, action) {
+        if (_.remove(state.selectedTaskStatuses, (x) => x.uuid === action.taskStatus.uuid).length === 0)
+            state.selectedTaskStatuses.push(action.taskStatus);
         return state;
     }
 
