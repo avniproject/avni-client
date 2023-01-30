@@ -31,10 +31,10 @@ it('should toggle task status', function () {
     const taskType = TestTaskTypeFactory.create({metadataSearchFields: []});
     const state = TaskFilterState.createEmptyState();
     TaskFilterState.initialise(state, [taskType], taskType, [taskStatus1, taskStatus2], "foo");
-    TaskFilterState.toggleTaskStatus(state, taskStatus1);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus1});
     assert.equal(state.selectedTaskStatuses.length, 1);
-    TaskFilterState.toggleTaskStatus(state, taskStatus2);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus2});
     assert.equal(state.selectedTaskStatuses.length, 2);
-    TaskFilterState.toggleTaskStatus(state, taskStatus2);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus2});
     assert.equal(state.selectedTaskStatuses.length, 1);
 });
