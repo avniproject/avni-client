@@ -42,6 +42,7 @@ class TaskStatusPicker extends AbstractComponent {
 
 
     render() {
+        console.log('rendering task', this.props.task.uuid);
         return (
             <Modal transparent={true}
                    onRequestClose={_.noop}
@@ -78,7 +79,7 @@ class TaskStatusPicker extends AbstractComponent {
                         <View style={{height: 100, width: '100%'}}>
                             <DropDownPicker
                                 items={this.state.taskStatusList}
-                                value={this.state.task.taskStatus.uuid}
+                                value={this.props.task.taskStatus.uuid}
                                 open={true}
                                 setValue={this.setValue}
                                 setOpen={this.setOpen}

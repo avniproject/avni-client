@@ -1,24 +1,24 @@
 import React from 'react';
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import Reducers from "../../reducer";
-import {TaskActionNames as Actions} from "../../action/task/TaskActions";
-import _ from "lodash";
-import {StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
-import Styles from "../primitives/Styles";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import PropTypes from "prop-types";
-import TaskStatusPicker from "./TaskStatusPicker";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import CHSNavigator from "../../utility/CHSNavigator";
-import IndividualSearchResultPaginatedView from "../individual/IndividualSearchResultPaginatedView";
-import IndividualService from "../../service/IndividualService";
-import {IconContainer} from "./IconContainer";
-import PhoneCall from "../../model/PhoneCall";
-import CustomActivityIndicator from "../CustomActivityIndicator";
-import SubjectRegisterFromTaskView from "../individual/SubjectRegisterFromTaskView";
-import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
-import AvniIcon from "../common/AvniIcon";
-import General from "../../utility/General";
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import Reducers from '../../reducer';
+import {TaskActionNames as Actions} from '../../action/task/TaskActions';
+import _ from 'lodash';
+import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import Styles from '../primitives/Styles';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import PropTypes from 'prop-types';
+import TaskStatusPicker from './TaskStatusPicker';
+import TypedTransition from '../../framework/routing/TypedTransition';
+import CHSNavigator from '../../utility/CHSNavigator';
+import IndividualSearchResultPaginatedView from '../individual/IndividualSearchResultPaginatedView';
+import IndividualService from '../../service/IndividualService';
+import {IconContainer} from './IconContainer';
+import PhoneCall from '../../model/PhoneCall';
+import CustomActivityIndicator from '../CustomActivityIndicator';
+import SubjectRegisterFromTaskView from '../individual/SubjectRegisterFromTaskView';
+import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import AvniIcon from '../common/AvniIcon';
+import General from '../../utility/General';
 
 const CardSecondRow = function ({task, I18n}) {
     return (
@@ -38,6 +38,7 @@ const CardSecondRow = function ({task, I18n}) {
 class TaskCard extends AbstractComponent {
     static propTypes = {
         task: PropTypes.object.isRequired,
+        onChangeStatus: PropTypes.func
     };
 
     constructor(props, context) {
@@ -61,7 +62,8 @@ class TaskCard extends AbstractComponent {
         return CHSNavigator.navigateToProgramEnrolmentDashboardView(source, subject.uuid);
     }
 
-    async onReschedulePress(task) {
+    async onReschedulePress() {
+        const task = this.props.task;
         const dateOptions = {
             mode: 'date', //To only enable date selection
             display: 'calendar', //Type of DatePicker
@@ -77,11 +79,6 @@ class TaskCard extends AbstractComponent {
             this.dispatchAction(Actions.ON_RE_SCHEDULED, {task, date});
         }
     }
-
-    onChangeStatusPress(task) {
-        this.dispatchAction(Actions.ON_STATUS_TOGGLE, {display: true, task});
-    }
-
     renderSubjectDetails(task) {
         return task.isOpenSubjectType() && !_.isNil(task.subject) ? (
             <TouchableNativeFeedback
@@ -123,9 +120,9 @@ class TaskCard extends AbstractComponent {
                         <IconContainer
                             name="clipboard-list"
                             type="FontAwesome5"
-                            onPress={() => this.onChangeStatusPress(task)}/>
+                            onPress={this.props.onChangeStatus}/>
                         <IconContainer
-                            onPress={() => this.onReschedulePress(task)}
+                            onPress={this.onReschedulePress}
                             name="back-in-time"
                             type="Entypo"
                         />
@@ -148,12 +145,12 @@ class TaskCard extends AbstractComponent {
                           style={styles.iconStyle}
                           name="clipboard-list"
                           type="FontAwesome5"
-                          onPress={() => this.onChangeStatusPress(task)}
+                          onPress={this.props.onChangeStatus}
                         />
                         <IconContainer
                             name="back-in-time"
                             type="Entypo"
-                            onPress={() => this.onReschedulePress(task)}
+                            onPress={this.onReschedulePress}
                         />
                     </View>
                 </View>
@@ -169,7 +166,6 @@ class TaskCard extends AbstractComponent {
                 <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {task.isCallType() ? this.renderCallType(task) : this.renderOpenSubjectType(task)}
                 {this.renderSubjectDetails(task)}
-                {this.state.displayTaskStatusSelector && <TaskStatusPicker task={task}/>}
             </View>
         );
     }
