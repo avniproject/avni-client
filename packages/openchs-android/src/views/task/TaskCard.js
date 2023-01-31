@@ -120,7 +120,7 @@ class TaskCard extends AbstractComponent {
                         <IconContainer
                             name="clipboard-list"
                             type="FontAwesome5"
-                            onPress={this.props.onChangeStatus}/>
+                            onPress={() => {this.props.onChangeStatus(task)}}/>
                         <IconContainer
                             onPress={this.onReschedulePress}
                             name="back-in-time"
@@ -145,7 +145,7 @@ class TaskCard extends AbstractComponent {
                           style={styles.iconStyle}
                           name="clipboard-list"
                           type="FontAwesome5"
-                          onPress={this.props.onChangeStatus}
+                          onPress={() => {this.props.onChangeStatus(task)}}
                         />
                         <IconContainer
                             name="back-in-time"

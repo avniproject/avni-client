@@ -7,7 +7,6 @@ class TaskState extends AbstractDataEntryState {
     constructor(task, validationResults, formElementGroup, wizard, filteredFormElements) {
         super(validationResults, formElementGroup, wizard, false, filteredFormElements);
         this.task = task;
-        this.displayTaskStatusSelector = false;
         this.taskStatusList = [];
         this.displayProgressIndicator = false;
     }
@@ -51,7 +50,6 @@ class TaskState extends AbstractDataEntryState {
         const newState = new TaskState();
         // newState.task = _.isNil(this.task) ? this.task : this.task.cloneForEdit();
         newState.task = this.task;
-        newState.displayTaskStatusSelector = this.displayTaskStatusSelector;
         newState.taskStatusList = this.taskStatusList;
         newState.displayProgressIndicator = this.displayProgressIndicator;
         super.clone(newState);

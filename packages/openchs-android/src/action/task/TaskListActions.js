@@ -53,7 +53,7 @@ class TaskListActions {
         };
     }
 
-    static onHideTaskStatusChangeModal() {
+    static onHideTaskStatusChangeModal(state, action, context) {
         return {
             ...state,
             showTaskStatusChangeModal: false

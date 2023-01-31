@@ -46,6 +46,12 @@ class TaskActions {
 
     static onStatusChange(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
+        const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
+        newState.taskStatusList = context.get(EntityService)
+          .getAllNonVoided(TaskStatus.schema.name)
+          .filtered(`taskType.uuid = '${taskTypeUUID}'`)
+          .map(_.identity)
+          .map(({name, uuid}) => ({label: name, value: uuid}));
         const newStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(newState.task.taskType);
         if (!newStatus.isTerminal || _.isNil(formMapping)) {
@@ -54,7 +60,6 @@ class TaskActions {
         } else {
             action.moveToDetailsPage(newState.task.uuid, newStatus.uuid)
         }
-        newState.displayTaskStatusSelector = false;
         return newState;
     }
 
@@ -81,7 +86,6 @@ class TaskActions {
 
     static toggleStatusSelector(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
-        newState.displayTaskStatusSelector = action.display;
         const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
         newState.taskStatusList = context.get(EntityService)
             .getAllNonVoided(TaskStatus.schema.name)

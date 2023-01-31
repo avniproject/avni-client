@@ -10,7 +10,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFormView from "./TaskFormView";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Colors from '../primitives/Colors';
-
+import {Actions as TaskListActions} from '../../action/task/TaskListActions';
 class TaskStatusPicker extends AbstractComponent {
 
     static propTypes = {
@@ -22,6 +22,10 @@ class TaskStatusPicker extends AbstractComponent {
         this.setValue = this.setValue.bind(this);
     }
 
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
+        this.dispatchAction(Actions.ON_STATUS_TOGGLE, {task: this.props.task});
+    }
 
     setOpen(open) {
         //do nothing
@@ -38,6 +42,9 @@ class TaskStatusPicker extends AbstractComponent {
         }).bookmark().to(TaskFormView, true);
         this.dispatchAction(Actions.ON_STATUS_CHANGE,
             {statusUUID: value, task: this.props.task, moveToDetailsPage});
+        this.dispatchAction(TaskListActions.ON_HIDE_TASK_STATUS_CHANGE_MODAL, {
+            task: this.props.task
+        })
     }
 
 
@@ -46,7 +53,6 @@ class TaskStatusPicker extends AbstractComponent {
         return (
             <Modal transparent={true}
                    onRequestClose={_.noop}
-                   visible={this.state.displayTaskStatusSelector}
             >
                 <View style={{
                     flex: 1,
@@ -64,8 +70,7 @@ class TaskStatusPicker extends AbstractComponent {
                         <View style={{alignItems: 'flex-end'}}>
                             <Icon
                                 name='close'
-                                onPress={() => this.dispatchAction(Actions.ON_STATUS_TOGGLE, {
-                                    display: false,
+                                onPress={() => this.dispatchAction(TaskListActions.ON_HIDE_TASK_STATUS_CHANGE_MODAL, {
                                     task: this.props.task
                                 })}
                                 style={{

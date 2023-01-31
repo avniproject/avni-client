@@ -159,7 +159,7 @@ class TaskListView extends AbstractComponent {
         const dataSource = ListViewHelper.getDataSource(results);
 
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('openTasks')} func={this.onBackPress.bind(this)}/>
                 <CHSContent>
                     <TaskFilterSummary I18n={this.I18n} taskFilter={filter}
@@ -171,15 +171,19 @@ class TaskListView extends AbstractComponent {
                             pageSize={1}
                             initialListSize={1}
                             removeClippedSubviews={true}
-                            renderRow={(taskRealmObject, index) => <TaskCard task={new Task(taskRealmObject)}/>}
+                            renderRow={(taskRealmObject, index) => <TaskCard task={new Task(taskRealmObject)}
+                            onChangeStatus={(task) => {
+                                this.dispatchAction(Actions.ON_SHOW_TASK_STATUS_CHANGE_MODAL, {task});
+                            }}/>}
                             renderHeader={() => this.renderHeader()}
                         />
+                        {this.state.showTaskStatusChangeModal && <TaskStatusPicker task={this.state.selectedTask}/>}
                         <ZeroResults count={results.length}/>
                     </SafeAreaView>
                 </CHSContent>
                 <FloatingButton buttonTextKey="filter"
                                 onClick={() => TypedTransition.from(this).with({taskType: filter.taskType}).to(TaskFilterView, true)}/>
-            </View>
+            </CHSContainer>
         )
     }
 }
