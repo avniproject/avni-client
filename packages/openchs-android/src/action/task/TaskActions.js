@@ -22,6 +22,9 @@ class TaskActions {
         const taskStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         task.setTaskStatus(taskStatus);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(task.taskType);
+        if(!formMapping.form) {
+            return TaskState.createOnLoadStateForEmptyForm(task, null);
+        }
         const form = formMapping.form;
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
