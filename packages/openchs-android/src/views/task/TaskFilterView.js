@@ -44,10 +44,10 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
             case Concept.dataType.Coded:
                 const conceptAnswers = c.getAnswers();
                 return <RadioGroup key={index}
-                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
+                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConceptUuid: rlv.value})}
                                    inPairs={true}
-                                   selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(taskMetadataValues[c.uuid], selectedVal)}
-                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept, false))}
+                                   selectionFn={(selectedValue) => _.some(taskMetadataValues[c.uuid], (item) => item.uuid === selectedValue)}
+                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept.uuid, false))}
                                    labelKey={c.name} multiSelect={true}/>;
             default:
                 return null;

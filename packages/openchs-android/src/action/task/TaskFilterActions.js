@@ -61,7 +61,7 @@ class TaskFilterActions {
 
     static onMetadataCodedValueChange(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        return TaskFilterState.changeMetadataCodedAnswer(newState, action.concept, action.chosenAnswerConcept);
+        return TaskFilterState.changeMetadataCodedAnswer(newState, action.concept, action.chosenAnswerConceptUuid);
     }
 
     static onClear(state, action, context) {

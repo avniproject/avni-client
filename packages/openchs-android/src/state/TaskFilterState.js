@@ -60,10 +60,10 @@ class TaskFilterState {
         };
     }
 
-    static changeMetadataCodedAnswer(state, concept, answerConcept) {
+    static changeMetadataCodedAnswer(state, concept, answerConceptUuid) {
         const answers = state.taskMetadataValues[concept.uuid];
-        if (_.remove(answers, (x) => x.uuid === answerConcept.uuid).length === 0)
-            answers.push(answerConcept);
+        if (_.remove(answers, (x) => x.uuid === answerConceptUuid).length === 0)
+            answers.push(concept.getAnswerWithConceptUuid(answerConceptUuid).concept);
         return state;
     }
 
