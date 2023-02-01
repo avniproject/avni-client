@@ -33,6 +33,7 @@
         "syncingData": "ಡೇಟಾವನ್ನು ಸಿಂಕ್(Sync) ಮಾಡಲಾಗುತ್ತಿದೆ",
         "changePassword": "ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸಿ",
         "close": "X",
+        "CLOSE": "X",
         "serverURL": "ಸರ್ವರ್ URL",
         "locale": "ಭಾಷೆ",
         "minutes": "ನಿಮಿಷ (ಗಳು)",

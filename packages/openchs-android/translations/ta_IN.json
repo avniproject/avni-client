@@ -33,6 +33,7 @@
     "syncingData": "தரவை ஒத்திசைத்தல்",
     "changePassword": "கடவுச்சொல் மாற்ற",
     "close": "X",
+    "CLOSE": "X",
     "serverURL": "சேவையக URL",
     "locale": "மொழி",
     "minutes": "நிமிடம்(கள்)",
