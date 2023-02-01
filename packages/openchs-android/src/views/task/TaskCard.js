@@ -62,8 +62,7 @@ class TaskCard extends AbstractComponent {
         return CHSNavigator.navigateToProgramEnrolmentDashboardView(source, subject.uuid);
     }
 
-    async onReschedulePress() {
-        const task = this.props.task;
+    async onReschedulePress(task) {
         const dateOptions = {
             mode: 'date', //To only enable date selection
             display: 'calendar', //Type of DatePicker
@@ -122,7 +121,7 @@ class TaskCard extends AbstractComponent {
                             type="FontAwesome5"
                             onPress={() => {this.props.onChangeStatus(task)}}/>
                         <IconContainer
-                            onPress={this.onReschedulePress}
+                            onPress={() => {this.onReschedulePress(task)}}
                             name="back-in-time"
                             type="Entypo"
                         />
