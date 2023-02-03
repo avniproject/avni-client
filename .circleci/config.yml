@@ -39,8 +39,8 @@ jobs:
 
   release_android_staging:
     docker:
-      - image: cimg/node:16.18.0
       - image: cimg/android:2022.12-node
+      - image: cimg/node:16.18.0
     working_directory: ~/avni-client
     resource_class: large
     steps:
