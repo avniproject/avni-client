@@ -56,7 +56,7 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: npm i -g react-native-cli
+      - run: sudo npm i -g react-native-cli
       - run: make deps_ci release_staging_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
