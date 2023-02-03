@@ -186,10 +186,7 @@ class CHSNavigator {
         if (subjectType.isPerson()) {
             if (PersonRegisterView.canLoad({uuid, subjectTypeName}, source)) {
                 if (pageNumber > 0 && canMoveToNextView) {
-                    TypedTransition.from(source).resetStack([], [
-                        TypedTransition.createRoute(PersonRegisterView, params),
-                        TypedTransition.createRoute(PersonRegisterFormView, {...params, pageNumber: pageNumber + 1})
-                    ]);
+                    TypedTransition.from(source).with({...params, pageNumber: pageNumber + 1}).to(PersonRegisterFormView)
                 } else {
                     TypedTransition.from(source).with({...params}).to(PersonRegisterView)
                 }
