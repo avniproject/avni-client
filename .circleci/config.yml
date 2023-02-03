@@ -48,6 +48,8 @@ jobs:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
             - v1-dependencies-
       - run: sudo apt --only-upgrade install software-properties-common
@@ -83,6 +85,8 @@ jobs:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
       - run: sudo apt update
