@@ -126,6 +126,10 @@ workflows:
           requires:
             - test_android
       - release_android_staging:
+          filters:
+            branches:
+              only:
+                - master
           requires:
 #            - hold_staging
             - test_android
