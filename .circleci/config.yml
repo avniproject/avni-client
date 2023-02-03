@@ -3,14 +3,14 @@ jobs:
   install_deps:
     docker:
       - image: cimg/node:16.18.0
-    working_directory: ~/openchs-client
+    working_directory: ~/avni-client
     steps:
       - checkout
-#      - restore_cache:
-#          keys:
-#          - v1-dependencies-{{ checksum "package.json" }}
-#          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-#          - v1-dependencies-
+      #      - restore_cache:
+      #          keys:
+      #          - v1-dependencies-{{ checksum "package.json" }}
+      #          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      #          - v1-dependencies-
       - run: sudo apt-get install make
       - run: make deps_ci
       - save_cache:
@@ -19,20 +19,20 @@ jobs:
           key: v1-dependencies-{{ checksum "package.json" }}
       - save_cache:
           paths:
-           - packages/openchs-android/node_modules
+            - packages/openchs-android/node_modules
           key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
 
   test_android:
     docker:
       - image: cimg/node:16.18.0
-    working_directory: ~/openchs-client
+    working_directory: ~/avni-client
     steps:
       - checkout
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v1-dependencies-
       - run: sudo apt-get install make
       - run: make deps_ci
       - run: make ci test-android
@@ -40,28 +40,29 @@ jobs:
   release_android_staging:
     docker:
       - image: cimg/node:16.18.0
-    working_directory: ~/openchs-client
+    working_directory: ~/avni-client
     steps:
       - checkout
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-          - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+            - v1-dependencies-
       - run: sudo apt update software-properties-common
       - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
       - run: sudo apt update
       - run: sudo apt install openjdk-8-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: make deps_ci release_staging_without_clean
+      - run: make deploy_platform_translations_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           paths:
-           - ~/.gradle
-           - ~/.m2
-           - ~/openchs-client/packages/openchs-android/android/app/.gradle
-           - ~/openchs-client/packages/openchs-android/android/.gradle
+            - ~/.gradle
+            - ~/.m2
+            - ~/openchs-client/packages/openchs-android/android/app/.gradle
+            - ~/openchs-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
           destination: avni.apk
@@ -70,37 +71,37 @@ jobs:
           destination: sourcemap.js
 
   release_android_live:
-      docker:
-        - image: openchs/react-native-image:latest
-          environment:
-            - TERM: dumb
-            - ENVFILE: .env.live
-            - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
-      working_directory: ~/openchs-client
-      steps:
-        - checkout
-        - restore_cache:
-            keys:
+    docker:
+      - image: openchs/react-native-image:latest
+        environment:
+          - TERM: dumb
+          - ENVFILE: .env.live
+          - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
+    working_directory: ~/openchs-client
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
-        - run: sudo chmod a+x packages/openchs-android/android/gradlew
-        - run: make deps_ci
-        - run: make release
-        - save_cache:
-            key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
-            paths:
-             - ~/.gradle
-             - ~/.m2
-             - ~/openchs-client/packages/openchs-android/android/app/.gradle
-             - ~/openchs-client/packages/openchs-android/android/.gradle
-        - store_artifacts:
-            path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
-            destination: openchs.apk
-        - store_artifacts:
-            path: packages/openchs-android/android/app/build/generated/sourcemap.js
-            destination: sourcemap.js
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: make deps_ci
+      - run: make release
+      - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - ~/openchs-client/packages/openchs-android/android/app/.gradle
+            - ~/openchs-client/packages/openchs-android/android/.gradle
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+          destination: openchs.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          destination: sourcemap.js
 
 workflows:
   version: 2
@@ -120,7 +121,7 @@ workflows:
             - test_android
       - release_android_staging:
           requires:
-            - hold_staging
+            - test_android
       - release_android_live:
           requires:
             - hold_live
