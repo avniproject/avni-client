@@ -1,10 +1,10 @@
-import {Text, TouchableNativeFeedback, View} from "react-native";
+import {Text, TouchableNativeFeedback, View, TextInput, ScrollView} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import _ from "lodash";
 import General from "../../utility/General";
-import {SettingsActionsNames as Actions} from "../../action/SettingsActions";
+import {SettingsActionsNames, SettingsActionsNames as Actions} from "../../action/SettingsActions";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
@@ -15,7 +15,7 @@ import Styles from "../primitives/Styles";
 import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Rule} from 'avni-models';
+import {Rule} from 'openchs-models';
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -58,6 +58,7 @@ class DevSettingsView extends AbstractComponent {
 
     renderDevOptions() {
         if (__DEV__) {
+            const {rulesToRun, settings} = this.state;
             const labelValues = Object.entries(this.entityMap)
                 .map(([displayName, value]) => new RadioLabelValue(displayName, value));
             return (<View>
@@ -65,19 +66,23 @@ class DevSettingsView extends AbstractComponent {
                     onPress={({value}) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
                     labelValuePairs={labelValues}
                     labelKey='Rules to run'
-                    selectionFn={(ruleToRun) => this.state.rulesToRun.indexOf(ruleToRun) > -1}
+                    selectionFn={(ruleToRun) => rulesToRun.indexOf(ruleToRun) > -1}
                     validationError={null}
                     multiSelect={true}
                     style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
                 />
-                <TouchableNativeFeedback onPress={() => this.runRules(this.state.rulesToRun)}>
+                <TouchableNativeFeedback onPress={() => this.runRules(rulesToRun)}>
                     <View style={Styles.basicPrimaryButtonView}>
                         <Text style={{
                             fontSize: Fonts.Medium,
                             color: Colors.TextOnPrimaryColor
-                        }}>Run {this.state.rulesToRun.length === 0 ? 'All' : 'Selected'} Rules</Text>
+                        }}>Run {rulesToRun.length === 0 ? 'All' : 'Selected'} Rules</Text>
                     </View>
                 </TouchableNativeFeedback>
+                <View style={{marginTop: 20}}>
+                    <Text>Server URL:</Text>
+                    <TextInput value={settings.serverURL} onChangeText={(text) => this.dispatchAction(Actions.ON_SERVER_URL_CHANGE, {value: text})}/>
+                </View>
             </View>);
         }
     }
@@ -87,10 +92,10 @@ class DevSettingsView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={'Dev Settings'}/>
-                    <View style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
+                    <ScrollView style={{paddingHorizontal: Distances.ContentDistanceFromEdge}}>
                         {this.renderDevOptions()}
                         {this.renderLogLevels()}
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

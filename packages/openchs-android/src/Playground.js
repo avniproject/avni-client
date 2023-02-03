@@ -13,6 +13,7 @@ function executeQuery(queryString, type) {
             objects = objects.filtered(queryString);
         return objects.map(_.identity).length;
     } catch (e) {
+        console.error(e);
         return -1;
     }
 }
