@@ -35,6 +35,7 @@ class IndividualService extends BaseService {
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
         this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
         this.allIn = this.allIn.bind(this);
+        this.allInWithFilters = this.allInWithFilters.bind(this);
     }
 
     getSchema() {
@@ -133,9 +134,15 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allIn(ignored, queryAdditions, programs = [], encounterTypes = []) {
-        if (encounterTypes.length > 0 || programs.length > 0)
+    allInWithFilters(ignored, queryAdditions, programs = [], encounterTypes = []) {
+        if (encounterTypes.length > 0 || programs.length > 0) {
             return null;
+        }
+        return this.allIn(ignored, queryAdditions);
+
+    }
+
+    allIn(ignored, queryAdditions) {
 
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
