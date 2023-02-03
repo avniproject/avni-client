@@ -30,6 +30,8 @@ import DurationDateFormElement from "./DurationDateFormElement";
 import DurationFormElement from "./DurationFormElement";
 import MultiSelectMediaFormElement from "./MultiSelectMediaFormElement";
 import PhoneNumberFormElement from "./PhoneNumberFormElement";
+import SingleSelectSubjectLandingFormElement from './SingleSelectSubjectLandingFormElement';
+import MultiSelectSubjectLandingFormElement from './MultiSelectSubjectLandingFormElement';
 
 class QuestionGroup extends AbstractFormElement {
     static propTypes = {
@@ -95,6 +97,11 @@ class QuestionGroup extends AbstractFormElement {
         return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
     }
 
+    getSelectedAnswerFromObservationHolder(concept, element, questionGroupIndex, nullReplacement) {
+        const observation = this.props.observationHolder.findQuestionGroupObservation(concept, element, questionGroupIndex);
+        return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
+    }
+
     renderTextFormElement(formElement) {
         return <TextFormElement
             key={formElement.concept.uuid}
@@ -140,6 +147,7 @@ class QuestionGroup extends AbstractFormElement {
                         actionName: this.props.actionName,
                         validationResult: validationResult,
                         parentElement: this.props.element,
+                        parentFormElement: this.props.element,
                         questionGroupIndex: this.props.questionGroupIndex
                     };
                     const dataType = concept.datatype;
@@ -213,6 +221,20 @@ class QuestionGroup extends AbstractFormElement {
                             value={this.getSelectedAnswer(fe.concept, new PhoneNumber())}
                             observation={this.props.observationHolder.findQuestionGroupObservation(fe.concept, this.props.element, this.props.questionGroupIndex)}
                             {...commonProps}/>
+                    }
+                    if (dataType === dataTypes.Subject && fe.isSingleSelect()) {
+                        return <SingleSelectSubjectLandingFormElement
+                          element={fe}
+                          value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new SingleCodedValue())}
+                          {...commonProps}
+                        />
+                    }
+                    if (dataType === dataTypes.Subject && fe.isMultiSelect()) {
+                        return <MultiSelectSubjectLandingFormElement
+                          element={fe}
+                          value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new MultipleCodedValues())}
+                          {...commonProps}
+                        />
                     }
                 })}
             </Fragment>
