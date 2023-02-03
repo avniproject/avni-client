@@ -41,6 +41,7 @@ jobs:
     docker:
       - image: cimg/node:16.18.0
     working_directory: ~/avni-client
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
@@ -62,8 +63,8 @@ jobs:
           paths:
             - ~/.gradle
             - ~/.m2
-            - ~/openchs-client/packages/openchs-android/android/app/.gradle
-            - ~/openchs-client/packages/openchs-android/android/.gradle
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
           destination: avni.apk
@@ -78,7 +79,7 @@ jobs:
           - TERM: dumb
           - ENVFILE: .env.live
           - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
-    working_directory: ~/openchs-client
+    working_directory: ~/avni-client
     steps:
       - checkout
       - restore_cache:
@@ -95,8 +96,8 @@ jobs:
           paths:
             - ~/.gradle
             - ~/.m2
-            - ~/openchs-client/packages/openchs-android/android/app/.gradle
-            - ~/openchs-client/packages/openchs-android/android/.gradle
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
           destination: openchs.apk
