@@ -30,7 +30,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v1-dependencies-
       - run: sudo apt-get install make
@@ -45,7 +45,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
             - v1-dependencies-
@@ -54,6 +54,7 @@ jobs:
       - run: sudo apt update
       - run: sudo apt install openjdk-8-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: npm i react-native
       - run: make deps_ci release_staging_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
