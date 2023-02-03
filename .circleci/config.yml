@@ -74,21 +74,21 @@ jobs:
 
   release_android_live:
     docker:
-      - image: openchs/react-native-image:latest
-        environment:
-          - TERM: dumb
-          - ENVFILE: .env.live
-          - GRADLE_OPTS: "-Xmx512m -Xms512m -Dorg.gradle.daemon=false"
+      - image: cimg/android:2022.12-node
     working_directory: ~/avni-client
+    resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
+      - run: sudo apt update
+      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: sudo npm i -g react-native-cli
       - run: make deps_ci
       - run: make release
       - save_cache:
@@ -100,7 +100,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
-          destination: openchs.apk
+          destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
@@ -113,16 +113,17 @@ workflows:
       - test_android:
           requires:
             - install_deps
-      - hold_staging:
-          type: approval
-          requires:
-            - test_android
+#      - hold_staging:
+#          type: approval
+#          requires:
+#            - test_android
       - hold_live:
           type: approval
           requires:
             - test_android
       - release_android_staging:
           requires:
+#            - hold_staging
             - test_android
       - release_android_live:
           requires:
