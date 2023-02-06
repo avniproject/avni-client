@@ -128,8 +128,8 @@ workflows:
       - release_android_staging:
           filters:
             branches:
-              only:
-                - master
+              ignore:
+                - /^dependabot.*/
           requires:
 #            - hold_staging
             - test_android
