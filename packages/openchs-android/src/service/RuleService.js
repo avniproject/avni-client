@@ -46,7 +46,10 @@ class RuleService extends BaseService {
     getRuleFunctions(rules = []) {
         return _.defaults(rules, [])
             .filter(ar => _.isFunction(this.allRules[ar.fnName]) && _.isFunction(this.allRules[ar.fnName].exec))
-            .map(ar => ({...ar, fn: this.allRules[ar.fnName]}));
+            .map(x => {
+                x.fn = this.allRules[x.fnName];
+                return x;
+            });
     }
 
     getRulesByType(type) {
