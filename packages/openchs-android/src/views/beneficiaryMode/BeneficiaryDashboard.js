@@ -80,6 +80,7 @@ export default class BeneficiaryDashboard extends AbstractComponent {
                     <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                     <IndividualProfile individual={this.state.beneficiary}
                                        viewContext={IndividualProfile.viewContext.NonWizard}
+                                       displayOnly={false}
                                        hideEnrol={true}/>
                 </View>
                 <View style={{marginHorizontal: 8}}>

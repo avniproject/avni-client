@@ -64,51 +64,45 @@ export default class Router extends Component {
     configureScene(route) {
         if (route.sceneConfig) return route.sceneConfig;
 
-        return Navigator.SceneConfigs.FloatFromRight;
+        return Navigator.SceneConfigs.PushFromRight;
     }
 
     renderScene(route, nav) {
+        const currentRoutes = nav.getCurrentRoutes();
         this.navigator = nav;
         this.path = route.path;
-        if (!this.state.routes[route.path]) return <View/>;
+        if (!this.state.routes[route.path] || (currentRoutes.length > 2 && currentRoutes[currentRoutes.length - 2].path === route.path)) {
+            return this.element;
+        }
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
-        const element = route.isTyped ? <Element {...route.queryParams} ref={(child) => {
-                this.routeElementMap[route.path] = child;
-            }}/> :
-            <Element ref={(child) => {
-                this.routeElementMap[route.path] = child;
-            }} params={route.queryParams}/>;
+        const element = route.isTyped ? <Element {...route.queryParams}/> :
+            <Element params={route.queryParams}/>;
+        this.element = element;
         this.willChangeFocus(route);
         return element;
     }
 
     willChangeFocus(route) {
-        General.logDebug("Router", `willChangeFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.changeFocus)) {
             element.changeFocus();
         }
-        General.logDebug("Router", `willChangeFocus ended: ${route.path}`);
     }
 
     willFocus(route) {
-        General.logDebug("Router", `willFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.willFocus)) {
             element.willFocus();
         }
-        General.logDebug("Router", `willFocus ended: ${route.path}`);
     }
 
     didFocus(route) {
-        General.logDebug("Router", `didFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
-        General.logDebug("Router", `didFocus ended: ${route.path}`);
     }
 
     render() {
