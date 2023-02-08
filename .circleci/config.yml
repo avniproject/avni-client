@@ -52,10 +52,10 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
             - v1-dependencies-
-      - run: sudo apt --only-upgrade install software-properties-common
+#      - run: sudo apt --only-upgrade install software-properties-common
 #      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
-      - run: sudo apt update
-      - run: sudo apt install openjdk-11-jdk make
+#      - run: sudo apt update
+#      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci release_staging_without_clean
@@ -89,8 +89,8 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
-      - run: sudo apt update
-      - run: sudo apt install openjdk-11-jdk make
+#      - run: sudo apt update
+#      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci
@@ -128,8 +128,8 @@ workflows:
       - release_android_staging:
           filters:
             branches:
-              only:
-                - master
+              ignore:
+                - /^dependabot.*/
           requires:
 #            - hold_staging
             - test_android
