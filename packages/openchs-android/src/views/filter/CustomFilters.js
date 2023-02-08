@@ -40,7 +40,7 @@ function ExpandedFilter({onCollapse, concept, I18n}) {
         <Button onPress={() => onCollapse()}
                 secondary
                 rightIcon={<AvniIcon color="#fff" style={{fontSize: Fonts.Large}} name='expand-less'
-                                     type='MaterialIcons'/>}>{`CLOSE ${concept.name} (${I18n.t("closeCodedFilter")})`}</Button>
+                                     type='MaterialIcons'/>}>{`${I18n.t("CLOSE")} ${concept.name} (${I18n.t("closeCodedFilter")})`}</Button>
     </Box>;
 }
 
