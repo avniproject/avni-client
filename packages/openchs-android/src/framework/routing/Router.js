@@ -4,10 +4,6 @@ import {BackHandler, View} from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
 
-const getRoutes = function (navigator) {
-    return JSON.stringify(_.map(_.invoke(navigator, 'getCurrentRoutes'), 'path'), null, 2);
-}
-
 export default class Router extends Component {
 
     static propTypes = {
@@ -69,17 +65,23 @@ export default class Router extends Component {
 
     renderScene(route, nav) {
         const currentRoutes = nav.getCurrentRoutes();
+        General.logDebug("Router", `renderScene: Current Routes: ${currentRoutes.map((x) => x.path)}. Route: ${route.path}`);
         this.navigator = nav;
         this.path = route.path;
-        if (!this.state.routes[route.path] || (currentRoutes.length > 2 && currentRoutes[currentRoutes.length - 2].path === route.path)) {
-            return this.element;
+        if (!this.state.routes[route.path]) {
+            return <View/>;
+        }
+
+        if (currentRoutes.length > 1 && currentRoutes[currentRoutes.length - 2].path === route.path) {
+            General.logDebug("Router", `Using cached route: ${route.path}. Element map path: ${this.elementMap.path}`);
+            return this.elementMap.element;
         }
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
         const element = route.isTyped ? <Element {...route.queryParams}/> :
             <Element params={route.queryParams}/>;
-        this.element = element;
+        this.elementMap = {element: element, path: route.path};
         this.willChangeFocus(route);
         return element;
     }
