@@ -144,8 +144,8 @@ class BaseService {
     clearDataIn(entityTypes) {
         const db = this.db;
 
-        entities.forEach((entity) => {
-            General.logDebug("BaseService", `Deleting all data from ${entity.schema.name}`);
+        entityTypes.forEach((entityType) => {
+            General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
             db.write(() => {
                 db.delete(db.objects(entityType.schema.name));
             });
