@@ -28,6 +28,7 @@ import _ from "lodash";
 import {ScrollView} from "react-native";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import {Checkbox} from "native-base";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -81,6 +82,7 @@ class IndividualSearchView extends AbstractComponent {
         const allowedSubjectTypeUuidsForView = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
         const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), ({name}) => this.I18n.t(name));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.searchCriteria.subjectType);
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
 
         return (
             <CHSContainer>
@@ -96,7 +98,7 @@ class IndividualSearchView extends AbstractComponent {
                             <CustomActivityIndicator
                                 loading={this.state.loading}/>
                             {allowedSubjectTypes.length > 1 &&
-                            <SingleSelectFilter filter={subjectTypeSelectFilter}
+                            <SingleSelectFilter filter={subjectTypeSelectFilter} locale={locale} I18n={this.I18n}
                                                 onSelect={(subjectType) =>
                                                     this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
                             }

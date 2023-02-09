@@ -12,16 +12,17 @@ export default class SingleSelectFilter extends BaseFilter {
     }
 
     static propTypes = {
+        locale: PropTypes.string.isRequired,
+        I18n: PropTypes.object.isRequired,
         filter: PropTypes.object,
         onSelect: PropTypes.func,
     };
 
     render() {
-        const filter = this.props.filter;
+        const {filter, I18n, locale} = this.props;
         const labelValuePairs = filter.options.map(([l, v]) => new RadioLabelValue(l, v));
-        const locale = this.getService(UserInfoService).getUserSettings().locale;
         return <SelectableItemGroup labelValuePairs={labelValuePairs} labelKey={filter.label}
                                  selectionFn={(selectedVal) => filter.isSelected(selectedVal)} onPress={(value) => this.props.onSelect(value)}
-                                 I18n={this.I18n} locale={locale} inPairs={true} multiSelect={false} mandatory={false}/>;
+                                 I18n={I18n} locale={locale} inPairs={true} multiSelect={false} mandatory={false}/>;
     }
 }

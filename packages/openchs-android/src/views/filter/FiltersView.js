@@ -29,6 +29,7 @@ import PrivilegeService from "../../service/PrivilegeService";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import Filter from "../../model/Filter";
 import {ScrollView} from "native-base";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -226,6 +227,7 @@ class FilterView extends AbstractComponent {
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
         const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
@@ -245,7 +247,7 @@ class FilterView extends AbstractComponent {
                                         dateValue={this.state.filterDate.value}/>
                                 </View>
                                 {allowedSubjectTypes.length > 1 &&
-                                (<SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
+                                (<SingleSelectFilter locale={locale} I18n={this.I18n} filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
                                     this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
                                 }}/>)
                                 }
