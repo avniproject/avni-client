@@ -7,6 +7,7 @@ import General from "../utility/General";
 import MenuItemService from "../service/application/MenuItemService";
 import {MenuItem} from "openchs-models";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import AnonymizeRealmService from "../service/AnonymizeRealmService";
 
 class MenuActions {
     static getInitialState() {
@@ -63,6 +64,15 @@ class MenuActions {
         newState.backupInProgress = action.percentDone !== 100;
         return newState;
     }
+
+    static onAnonymizeDatabase(state, action, context) {
+        let newState = MenuActions.clone(state);
+        let anonymizeRealmService = context.get(AnonymizeRealmService);
+        anonymizeRealmService.copyAndAnonymizeDatabase((percent, message)=> {
+            General.logDebug("MenuActions.onAnonymizeDatabase", `${percent}% done. ${message}`)
+        })
+        return newState;
+    }
 }
 
 const ActionPrefix = 'Menu';
@@ -70,13 +80,16 @@ const ActionPrefix = 'Menu';
 const MenuActionNames = {
     ON_LOAD: `${ActionPrefix}.ON_LOAD`,
     ON_BACKUP_DUMP: `${ActionPrefix}.ON_BACKUP_DUMP`,
-    ON_BACKUP_PROGRESS: `${ActionPrefix}.ON_BACKUP_PROGRESS`
+    ON_BACKUP_PROGRESS: `${ActionPrefix}.ON_BACKUP_PROGRESS`,
+    ON_ANONYMIZE_DB: `${ActionPrefix}.ON_ANONYMIZE_DB`,
+    ON_ANONYMIZE_PROGRESS: `${ActionPrefix}.ON_ANONYMIZE_PROGRESS`
 };
 
 const MenuActionMap = new Map([
     [MenuActionNames.ON_LOAD, MenuActions.onLoad],
     [MenuActionNames.ON_BACKUP_DUMP, MenuActions.onBackupDump],
-    [MenuActionNames.ON_BACKUP_PROGRESS, MenuActions.onBackupProgress]
+    [MenuActionNames.ON_BACKUP_PROGRESS, MenuActions.onBackupProgress],
+    [MenuActionNames.ON_ANONYMIZE_DB, MenuActions.onAnonymizeDatabase]
 ]);
 
 export {MenuActions, MenuActionNames, MenuActionMap}

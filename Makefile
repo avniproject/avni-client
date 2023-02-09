@@ -180,6 +180,10 @@ dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/${app_android_package_name}/files/default.realm ../db
 
+get_anon_db: ## Get anon realmdb and copy to ../
+	mkdir -p ../db; adb pull /data/data/${app_android_package_name}/files/anonymized.realm ../db
+	adb shell rm /data/data/${app_android_package_name}/files/anonymized.realm
+
 appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 
 put_db: ## Apply realmdb from ../default.realm
