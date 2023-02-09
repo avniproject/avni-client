@@ -72,7 +72,7 @@ export default class Router extends Component {
             return <View/>;
         }
 
-        if (currentRoutes.length > 1 && currentRoutes[currentRoutes.length - 2].path === route.path) {
+        if (currentRoutes.length > 1 && currentRoutes[currentRoutes.length - 2].path === route.path && this.elementMap.path === route.path) {
             General.logDebug("Router", `Using cached route: ${route.path}. Element map path: ${this.elementMap.path}`);
             return this.elementMap.element;
         }
