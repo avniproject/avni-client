@@ -25,6 +25,7 @@ class SelectableItemGroup extends React.Component {
         labelKey: PropTypes.string.isRequired,
         labelValuePairs: PropTypes.array.isRequired,
         selectionFn: PropTypes.func.isRequired,
+        I18n: PropTypes.object.isRequired,
         validationError: PropTypes.object,
         style: PropTypes.object,
         borderStyle: PropTypes.object,
@@ -34,36 +35,35 @@ class SelectableItemGroup extends React.Component {
         skipLabel: PropTypes.bool,
         allowUnselect: PropTypes.bool,
         locale: PropTypes.string.isRequired,
-        I18n: PropTypes.object.isRequired
+        disabled: PropTypes.bool
     };
 
-    onItemPressed(value, checked) {
+    onItemPressed(value, checked, label) {
         if (checked && !this.props.allowUnselect) return;
-        this.props.onPress(value);
+        this.props.onPress(value, label);
     }
 
     renderPairedOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, locale, multiSelect} = this.props;
+        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return _.chunk(labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
                 {rlvPair.map((radioLabelValue) => {
                         const checked = selectionFn(radioLabelValue.value);
-                        return <View style={{flex: 0.5, display: "flex"}}>
+                        return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 10}}
+                                     key={radioLabelValue.label}>
                             <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                             checked={checked}
                                             abnormal={radioLabelValue.abnormal}
                                             multiSelect={multiSelect}
                                             chunked={true}
                                             validationResult={validationError}
-                                            key={radioLabelValue.label}
                                             currentLocale={locale}
                                             style={{
-                                                paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
                                                 justifyContent: "center"
                                             }}
                                             disabled={disabled}
                                             value={radioLabelValue.value}
-                                            onPressed={(value) => this.onItemPressed(value, checked)}/>
+                                            onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}/>
                         </View>;
                     }
                 )}
@@ -71,7 +71,7 @@ class SelectableItemGroup extends React.Component {
     }
 
     renderOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, locale, multiSelect} = this.props;
+        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return labelValuePairs.map(radioLabelValue => {
             const checked = selectionFn(radioLabelValue.value);
             return <SelectableItem displayText={I18n.t(radioLabelValue.label)}
@@ -87,7 +87,7 @@ class SelectableItemGroup extends React.Component {
                                    }}
                                    disabled={disabled}
                                    value={radioLabelValue.value}
-                                   onPressed={(value) => this.onItemPressed(value, checked)}
+                                   onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             />;
         });
     }

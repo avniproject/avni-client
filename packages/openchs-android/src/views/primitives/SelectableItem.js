@@ -35,6 +35,7 @@ class SelectableItem extends React.Component {
         chunked: PropTypes.bool,
         value: PropTypes.any,
         currentLocale: PropTypes.string,
+        disabled: PropTypes.bool
     };
 
     static styles = StyleSheet.create({
@@ -79,8 +80,8 @@ class SelectableItem extends React.Component {
         const iconName = icons[multiSelect ? "checkbox" : "radio"][checked ? "checked" : "unchecked"];
         return (
             <Pressable onPress={onPress}
-                       style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container]}>
-                <Icon.Button iconStyle={{marginLeft: -10}} name={iconName} backgroundColor="white" color="black" onPress={onPress}>
+                       style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container]} disabled={disabled}>
+                <Icon.Button iconStyle={{marginLeft: -10}} name={iconName} backgroundColor="white" color={iconColor} onPress={onPress} disabled={disabled}>
                     <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16}, extraLineHeight]}>
                         {displayText}
                     </Text>

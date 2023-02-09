@@ -4,6 +4,8 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 class AddressLevel extends AbstractComponent {
     static propTypes = {
@@ -25,8 +27,11 @@ class AddressLevel extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const valueLabelPairs = this.props.levels.map(({uuid, name}) => new RadioLabelValue(this.I18n.t(name), uuid));
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         return (
-            <RadioGroup
+            <SelectableItemGroup
+                locale={currentLocale}
+                I18n={this.I18n}
                 multiSelect={this.props.multiSelect}
                 style={{
                     marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
@@ -36,7 +41,7 @@ class AddressLevel extends AbstractComponent {
                     borderWidth: 0
                 }}
                 inPairs={true}
-                onPress={(selectedLevel) => this.props.onToggle(selectedLevel.value)}
+                onPress={(selectedLevelValue) => this.props.onToggle(selectedLevelValue)}
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}
                 mandatory={this.props.mandatory}

@@ -60,17 +60,21 @@ export default class App extends Component {
     render() {
         const labelValuePairs = [
             new RadioLabelValue("Item 1", "item1", false),
-            new RadioLabelValue("Item 2", "item2", false),
-            new RadioLabelValue("Item 3", "item3", false),
+            new RadioLabelValue("Very very very long item 2", "item2", false),
+            new RadioLabelValue("Very very very long item 3", "item3", false),
             new RadioLabelValue("Item 4", "item4", false)
+        ];
+
+        const singleLabelValuePairs = [
+            new RadioLabelValue("Item 1", "item1", false)
         ]
 
         return (
             <CHSContainer>
-                <SelectableItemGroup onPress={(value) => this.setState({value: value})}
+                <SelectableItemGroup onPress={(value) => this.setState({value: value === this.state.value ? null : value})}
                                      selectionFn={(value) => this.state.value === value}
-                                     labelValuePairs={labelValuePairs} labelKey={"Selectable Group"}
-                                     I18n={{t: _.identity}} locale={"en"} inPairs={true}/>
+                                     labelValuePairs={singleLabelValuePairs} labelKey={"Selectable Group"}
+                                     I18n={{t: _.identity}} locale={"en"} inPairs={true} allowUnselect={false} multiSelect={false}/>
             </CHSContainer>
         );
     }
