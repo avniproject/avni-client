@@ -136,12 +136,13 @@ class CustomFilterService extends BaseService {
     filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc, inMemoryFilter) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
-        return _.isEmpty(latestEncounters) ? [] : [...latestEncounters
-            //check if selected filter is present in the observations
-            .filtered(` ${selectedAnswerFilters()} `)
-            .filterInternal((obsHolder) => inMemoryFilter(obsHolder))
-            .map(indFunc)
-        ];
+        if (_.isEmpty(latestEncounters)) return [];
+        let encountersBasedOnSelectedAnswers = latestEncounters.filtered(` ${selectedAnswerFilters()} `);
+        if (!_.isNil(inMemoryFilter)) {
+            General.logDebug("CustomFilterService", "Running in memory filter");
+            encountersBasedOnSelectedAnswers = encountersBasedOnSelectedAnswers.filterInternal((obsHolder) => inMemoryFilter(obsHolder))
+        }
+        return encountersBasedOnSelectedAnswers.map(indFunc);
     }
 
     filterForRangeWidgetType(latestEntities, selectedAnswerFilters, indFunc) {
