@@ -49,7 +49,7 @@ class SelectableItemGroup extends React.Component {
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
                 {rlvPair.map((radioLabelValue) => {
                         const checked = selectionFn(radioLabelValue.value);
-                        return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 10}}
+                        return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 2}}
                                      key={radioLabelValue.label}>
                             <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                             checked={checked}
@@ -95,7 +95,7 @@ class SelectableItemGroup extends React.Component {
     renderSingleValue() {
         const radioLabelValue = _.head(this.props.labelValuePairs);
         if (!this.props.selectionFn(radioLabelValue.value)) {
-            this.props.onPress(radioLabelValue);
+            this.props.onPress(radioLabelValue.value, radioLabelValue.label);
         }
         return (
             <Text style={Styles.formLabel}>{radioLabelValue.label}</Text>

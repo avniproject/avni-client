@@ -82,7 +82,7 @@ class SelectableItem extends React.Component {
             <Pressable onPress={onPress}
                        style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container]} disabled={disabled}>
                 <Icon.Button iconStyle={{marginLeft: -10}} name={iconName} backgroundColor="white" color={iconColor} onPress={onPress} disabled={disabled}>
-                    <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16}, extraLineHeight]}>
+                    <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
                         {displayText}
                     </Text>
                 </Icon.Button>
