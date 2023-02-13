@@ -41,6 +41,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.individual}
+                                   displayOnly={true}
                                    textColor={Colors.DefaultPrimaryColor}
                                    style={{
                                        backgroundColor: Colors.GreyContentBackground,
@@ -71,7 +72,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                 }}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                                       individual={this.props.individual} textColor={Colors.TextOnPrimaryColor}/>
+                                       individual={this.props.individual} textColor={Colors.TextOnPrimaryColor} displayOnly={true}/>
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}

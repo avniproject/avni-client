@@ -74,6 +74,43 @@ jobs:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
 
+  release_android_prerelease:
+    docker:
+      - image: cimg/android:2022.12-node
+    working_directory: ~/avni-client
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            #            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+            - v1-dependencies-
+      #      - run: sudo apt --only-upgrade install software-properties-common
+      #      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
+      #      - run: sudo apt update
+      #      - run: sudo apt install openjdk-11-jdk make
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: sudo npm i -g react-native-cli
+      - run: make deps_ci release_prerelease_without_clean
+      - run: make deploy_platform_translations_prerelease
+      - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
+          destination: avni.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          destination: sourcemap.js
+
   release_android_live:
     docker:
       - image: cimg/android:2022.12-node
@@ -121,6 +158,10 @@ workflows:
 #          type: approval
 #          requires:
 #            - test_android
+      - hold_prerelease:
+          type: approval
+          requires:
+            - test_android
       - hold_live:
           type: approval
           requires:
@@ -133,6 +174,9 @@ workflows:
           requires:
 #            - hold_staging
             - test_android
+      - release_android_prerelease:
+          requires:
+            - hold_prerelease
       - release_android_live:
           requires:
             - hold_live

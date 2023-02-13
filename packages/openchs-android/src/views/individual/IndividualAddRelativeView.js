@@ -19,6 +19,8 @@ import CHSContainer from "../common/CHSContainer";
 import themes from "../primitives/themes";
 import CHSNavigator from "../../utility/CHSNavigator";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/individualAddRelative')
 class IndividualAddRelativeView extends AbstractComponent {
@@ -61,17 +63,20 @@ class IndividualAddRelativeView extends AbstractComponent {
     }
 
     renderRelations() {
-        const valueLabelPairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
+        const labelValuePairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
-            <RadioGroup
+            <SelectableItemGroup
                 allowRadioUnselect={false}
                 style={this.props.style}
                 inPairs={true}
-                onPress={({label, value}) => this.toggleRelation(value)}
+                onPress={(value) => this.toggleRelation(value)}
                 selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
                 labelKey={this.I18n.t('Relation')}
                 mandatory={true}
-                labelValuePairs={valueLabelPairs}
+                I18n={this.I18n}
+                locale={locale}
+                labelValuePairs={labelValuePairs}
                 validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}
             />
         );

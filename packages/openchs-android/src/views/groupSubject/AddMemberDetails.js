@@ -10,6 +10,8 @@ import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAc
 import _ from "lodash";
 import Reducers from "../../reducer";
 import {IndividualRelative} from 'avni-models';
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 
 class AddMemberDetails extends AbstractComponent {
@@ -23,16 +25,19 @@ class AddMemberDetails extends AbstractComponent {
     }
 
     renderRoles() {
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const valueLabelPairs = this.state.groupRoles.map(({uuid, role}) => new RadioLabelValue(role, uuid));
         return (
-            <RadioGroup
+            <SelectableItemGroup
                 allowRadioUnselect={true}
                 style={this.props.style}
                 inPairs={true}
-                onPress={({label, value}) => this.toggleRole(value)}
+                onPress={(value) => this.toggleRole(value)}
                 selectionFn={(groupRoleUUID) => this.state.member.groupRole.uuid === groupRoleUUID}
                 labelKey={this.I18n.t('Role')}
                 mandatory={true}
+                I18n={this.I18n}
+                locale={locale}
                 labelValuePairs={valueLabelPairs}
                 validationError={AbstractDataEntryState.getValidationError(this.state, 'ROLE')}
             />
@@ -45,17 +50,20 @@ class AddMemberDetails extends AbstractComponent {
     }
 
     renderRelationOptions() {
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const valueLabelPairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         const headOfHouseholdGroupSubject = this.state.member.groupSubject.getHeadOfHouseholdGroupSubject();
         const headOfHouseholdName = !_.isEmpty(headOfHouseholdGroupSubject) ? headOfHouseholdGroupSubject.memberSubject.name : '';
         return (
-            <RadioGroup
+            <SelectableItemGroup
                 allowRadioUnselect={true}
                 style={this.props.style}
                 inPairs={true}
-                onPress={({label, value}) => this.toggleRelation(value)}
+                onPress={(value) => this.toggleRelation(value)}
                 selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
                 labelKey={`${this.I18n.t('RelationWithHeadOfHousehold')} (${headOfHouseholdName})`}
+                locale={locale}
+                I18n={this.I18n}
                 labelValuePairs={valueLabelPairs}
                 validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}
             />

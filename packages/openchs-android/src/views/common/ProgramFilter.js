@@ -7,6 +7,8 @@ import {RadioLabelValue} from "../primitives/RadioGroup";
 import Styles from "../primitives/Styles";
 import RadioGroup from "../primitives/RadioGroup";
 import FormMappingService from "../../service/FormMappingService";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 class ProgramFilter extends AbstractComponent {
     static propTypes = {
@@ -25,20 +27,28 @@ class ProgramFilter extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
-        const valueLabelPairs = this.props.visits.map(({uuid, operationalProgramName, operationalEncounterTypeName, name}) => new RadioLabelValue(operationalProgramName || operationalEncounterTypeName || name, uuid, false));
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
+        const valueLabelPairs = this.props.visits.map(({
+                                                           uuid,
+                                                           operationalProgramName,
+                                                           operationalEncounterTypeName,
+                                                           name
+                                                       }) => new RadioLabelValue(operationalProgramName || operationalEncounterTypeName || name, uuid, false));
         return (
-            <RadioGroup
-            multiSelect={this.props.multiSelect}
-            style={{
-                marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
-                marginBottom: Styles.VerticalSpacingBetweenInGroupFormElements
-            }}
-            borderStyle={{borderWidth: 0}}
-            inPairs={true}
-            onPress={({label, value}) => this.props.onToggle(label, value)}
-            selectionFn={(value) => this.props.selectionFn(value)}
-            labelKey={this.props.name}
-            mandatory={false}
+            <SelectableItemGroup
+                multiSelect={this.props.multiSelect}
+                style={{
+                    marginTop: Styles.VerticalSpacingBetweenInGroupFormElements,
+                    marginBottom: Styles.VerticalSpacingBetweenInGroupFormElements
+                }}
+                borderStyle={{borderWidth: 0}}
+                inPairs={true}
+                onPress={(value, label) => this.props.onToggle(label, value)}
+                selectionFn={(value) => this.props.selectionFn(value)}
+                labelKey={this.props.name}
+                mandatory={false}
+                locale={locale}
+                I18n={this.I18n}
                 labelValuePairs={valueLabelPairs}/>
         );
     }

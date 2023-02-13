@@ -4,10 +4,6 @@ import {BackHandler, View} from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
 
-const getRoutes = function (navigator) {
-    return JSON.stringify(_.map(_.invoke(navigator, 'getCurrentRoutes'), 'path'), null, 2);
-}
-
 export default class Router extends Component {
 
     static propTypes = {
@@ -64,51 +60,51 @@ export default class Router extends Component {
     configureScene(route) {
         if (route.sceneConfig) return route.sceneConfig;
 
-        return Navigator.SceneConfigs.FloatFromRight;
+        return Navigator.SceneConfigs.PushFromRight;
     }
 
     renderScene(route, nav) {
+        const currentRoutes = nav.getCurrentRoutes();
+        General.logDebug("Router", `renderScene: Current Routes: ${currentRoutes.map((x) => x.path)}. Route: ${route.path}`);
         this.navigator = nav;
         this.path = route.path;
-        if (!this.state.routes[route.path]) return <View/>;
+        if (!this.state.routes[route.path]) {
+            return <View/>;
+        }
+
+        if (currentRoutes.length > 1 && currentRoutes[currentRoutes.length - 2].path === route.path && this.elementMap.path === route.path) {
+            General.logDebug("Router", `Using cached route: ${route.path}. Element map path: ${this.elementMap.path}`);
+            return this.elementMap.element;
+        }
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
-        const element = route.isTyped ? <Element {...route.queryParams} ref={(child) => {
-                this.routeElementMap[route.path] = child;
-            }}/> :
-            <Element ref={(child) => {
-                this.routeElementMap[route.path] = child;
-            }} params={route.queryParams}/>;
+        const element = route.isTyped ? <Element {...route.queryParams}/> :
+            <Element params={route.queryParams}/>;
+        this.elementMap = {element: element, path: route.path};
         this.willChangeFocus(route);
         return element;
     }
 
     willChangeFocus(route) {
-        General.logDebug("Router", `willChangeFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.changeFocus)) {
             element.changeFocus();
         }
-        General.logDebug("Router", `willChangeFocus ended: ${route.path}`);
     }
 
     willFocus(route) {
-        General.logDebug("Router", `willFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.willFocus)) {
             element.willFocus();
         }
-        General.logDebug("Router", `willFocus ended: ${route.path}`);
     }
 
     didFocus(route) {
-        General.logDebug("Router", `didFocus: ${route.path}`);
         const element = this.routeElementMap[route.path];
         if (!_.isNil(element) && _.isFunction(element.didFocus)) {
             element.didFocus();
         }
-        General.logDebug("Router", `didFocus ended: ${route.path}`);
     }
 
     render() {

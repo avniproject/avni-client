@@ -12,7 +12,7 @@ import Separator from "../primitives/Separator";
 import {TextInput, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import Colors from '../primitives/Colors';
-import {Box, Button, Text} from "native-base";
+import {Text} from "native-base";
 import DatePicker from "../primitives/DatePicker";
 import TimePicker from "../primitives/TimePicker";
 import moment from "moment";
@@ -21,28 +21,7 @@ import IndividualService from "../../service/IndividualService";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
-import AvniIcon from "../common/AvniIcon";
-import Fonts from "../primitives/Fonts";
-import MessageService from "../../service/MessageService";
-
-function CollapsedFilter({onExpand, concept, I18n}) {
-    return <Box>
-        <Button secondary
-                onPress={() => onExpand()}
-                rightIcon={<AvniIcon color="#fff" style={{fontSize: Fonts.Large}} name='expand-more' type='MaterialIcons'/>}>
-            {`${concept.name} - (${I18n.t("openCodedFilter")})`}
-        </Button>
-    </Box>;
-}
-
-function ExpandedFilter({onCollapse, concept, I18n}) {
-    return <Box>
-        <Button onPress={() => onCollapse()}
-                secondary
-                rightIcon={<AvniIcon color="#fff" style={{fontSize: Fonts.Large}} name='expand-less'
-                                     type='MaterialIcons'/>}>{`CLOSE ${concept.name} (${I18n.t("closeCodedFilter")})`}</Button>
-    </Box>;
-}
+import UserInfoService from "../../service/UserInfoService";
 
 class CustomFilters extends AbstractComponent {
     constructor(props, context) {
@@ -299,27 +278,22 @@ class CustomFilters extends AbstractComponent {
             });
     }
 
-    toggleCodedFilter(concept) {
-        this.dispatchAction(CustomFilterNames.ON_CODED_CONCEPT_FILTER_TOGGLED, {conceptUuid: concept.uuid});
-    }
-
     codedConceptFilter(concept, filter, idx) {
-        const showCodedFilter = this.state.openedCodedConceptUuids.includes(concept.uuid);
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const conceptAnswers = concept.getAnswers();
         const selectedOne = this.state.selectedCustomFilters[filter.titleKey].map(c => c.name);
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.titleKey, optsFnMap, new Map(), selectedOne).selectOption(selectedOne);
-        return this.wrap(showCodedFilter ? <>
-                <ExpandedFilter onCollapse={() => this.toggleCodedFilter(concept)} concept={concept} I18n={this.I18n}/>
-                <MultiSelectFilter filter={filterModel}
+        return this.wrap(<MultiSelectFilter filter={filterModel}
+                                   locale={locale}
+                                   I18n={this.I18n}
                                    onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT,
                                        {
                                            titleKey: filter.titleKey,
                                            subjectTypeUUID: filter.subjectTypeUUID,
                                            conceptAnswerName,
                                            conceptAnswers
-                                       })}/></> :
-            <CollapsedFilter concept={concept} onExpand={() => this.toggleCodedFilter(concept)} I18n={this.I18n}/>, idx);
+                                       })}/>, idx);
     }
 
     _invokeCallbacks() {

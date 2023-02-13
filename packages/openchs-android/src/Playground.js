@@ -2,6 +2,9 @@ import React, {Component, useState} from 'react';
 import {Text, View, TextInput, Button} from "react-native";
 import RealmFactory from "./framework/db/RealmFactory";
 import _ from 'lodash';
+import SelectableItemGroup from "./views/primitives/SelectableItemGroup";
+import {RadioLabelValue} from "./views/primitives/RadioGroup";
+import CHSContainer from "./views/common/CHSContainer";
 
 const db = RealmFactory.createRealm();
 
@@ -49,23 +52,30 @@ function TxQueries() {
 export default class App extends Component {
     constructor(props, context) {
         super(props, context);
-    }
-
-    test() {
-        console.log("Playground-1");
-        const encounters = db.objects("ProgramEncounter")
-            .filtered(`SUBQUERY(observations, $concept,  (concept.uuid == 'e19e68fd-97f1-4803-a1b2-bb850836ff54')).@count > 0`).map(_.identity);
-        console.log("Playground-1", encounters[0].observations);
+        this.state = {
+            value: "item1"
+        }
     }
 
     render() {
+        const labelValuePairs = [
+            new RadioLabelValue("Item 1", "item1", false),
+            new RadioLabelValue("Very very very long item 2", "item2", false),
+            new RadioLabelValue("Very very very long item 3", "item3", false),
+            new RadioLabelValue("Item 4", "item4", false)
+        ];
+
+        const singleLabelValuePairs = [
+            new RadioLabelValue("Item 1", "item1", false)
+        ]
+
         return (
-            <>
-                <Text>
-                    This is your playground to try out new components
-                </Text>
-                <TxQueries/>
-            </>
+            <CHSContainer>
+                <SelectableItemGroup onPress={(value) => this.setState({value: value === this.state.value ? null : value})}
+                                     selectionFn={(value) => this.state.value === value}
+                                     labelValuePairs={singleLabelValuePairs} labelKey={"Selectable Group"}
+                                     I18n={{t: _.identity}} locale={"en"} inPairs={true} allowUnselect={false} multiSelect={false}/>
+            </CHSContainer>
         );
     }
 }

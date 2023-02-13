@@ -90,6 +90,7 @@ class SubjectDashboardView extends AbstractComponent {
                     <View style={{backgroundColor: Styles.defaultBackground}}>
                         <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                         <IndividualProfile individual={this.state.individual}
+                                           displayOnly={false}
                                            viewContext={IndividualProfile.viewContext.NonWizard}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}
