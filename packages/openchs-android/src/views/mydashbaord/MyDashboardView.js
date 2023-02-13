@@ -96,7 +96,7 @@ class MyDashboardView extends AbstractComponent {
 
     renderableVisits() {
         const {selectedPrograms, selectedGeneralEncounterTypes, visits} = this.state;
-        if (!_.isEmpty(selectedPrograms) || !_.isEmpty(selectedGeneralEncounterTypes))
+        if (!_.isEmpty(selectedGeneralEncounterTypes))
             return _.filter(visits, (visit) => _.isNil(visit.visits.total));
         return visits;
     }
