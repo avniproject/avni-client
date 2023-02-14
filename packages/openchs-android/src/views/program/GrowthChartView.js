@@ -26,7 +26,7 @@ class GrowthChartView extends AbstractComponent {
 
     settings = {
         SD3neg: {
-            label: "Grade 3",
+            label: this.I18n.t('Grade 3'),
             config: {
                 color: processColor("red"),
                 fillColor: processColor("red"),
@@ -34,7 +34,7 @@ class GrowthChartView extends AbstractComponent {
             }
         },
         SD2neg: {
-            label: "Grade 2",
+            label: this.I18n.t('Grade 2'),
             config: {
                 color: processColor("orange"),
                 fillColor: processColor("orange"),
@@ -42,7 +42,7 @@ class GrowthChartView extends AbstractComponent {
             }
         },
         SD0: {
-            label: "Grade 1",
+            label: this.I18n.t('Grade 1'),
             config: {
                 color: processColor("green"),
                 fillColor: processColor("green"),
@@ -50,14 +50,14 @@ class GrowthChartView extends AbstractComponent {
             }
         },
         SD2: {
-            label: "Grade 1",
+            label: this.I18n.t('Grade 1'),
             config: {
                 color: processColor("green"),
                 fillColor: processColor("green"),
             }
         },
         SD3: {
-            label: "Grade 1",
+            label: this.I18n.t('Grade 1'),
             config: {
                 color: processColor("green"),
                 fillColor: processColor("green"),
@@ -242,7 +242,7 @@ class GrowthChartView extends AbstractComponent {
             maxSizePercent: 0.5,
             custom: {
                 colors: [processColor('black'), processColor('green'), processColor("orange"), processColor("red")],
-                labels: [this.getLegendLabel(), "Grade 1", "Grade 2", "Grade 3"]
+                labels: [this.I18n.t(this.getLegendLabel()), this.I18n.t('Grade 1'), this.I18n.t('Grade 2'), this.I18n.t('Grade 3')]
             }
         };
         const marker = {
@@ -272,23 +272,25 @@ class GrowthChartView extends AbstractComponent {
                             style={[GrowthChartView.style.graphButton.self, wfaStyle.self]}
                             _text={wfaStyle.text}
                             onPress={() => this.onGraphSelected(this.states.weightForAge)}>
-                            {this.states.weightForAge}
+                            {this.I18n.t(this.states.weightForAge)}
                         </Button>
 
                         <Button
                             style={[GrowthChartView.style.graphButton.self, hfaStyle.self]}
                             _text={hfaStyle.text}
-                            onPress={() => this.onGraphSelected(this.states.heightForAge)}>{this.states.heightForAge}
+                            onPress={() => this.onGraphSelected(this.states.heightForAge)}>
+                            {this.I18n.t(this.states.heightForAge)}
                         </Button>
 
                         <Button
                             style={[GrowthChartView.style.graphButton.self, wfhStyle.self]}
                             _text={wfhStyle.text}
-                            onPress={() => this.onGraphSelected(this.states.weightForHeight)}>{this.states.weightForHeight}
+                            onPress={() => this.onGraphSelected(this.states.weightForHeight)}>
+                            {this.I18n.t(this.states.weightForHeight)}
                         </Button>
                     </View>
 
-                    <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.state.title}</Text>
+                    <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.I18n.t(this.state.title)}</Text>
 
                     <View style={styles.container}>
                         <LineChart
