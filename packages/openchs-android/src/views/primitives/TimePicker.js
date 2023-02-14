@@ -65,7 +65,7 @@ class TimePicker extends AbstractComponent {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-            ? this.I18n.t(this.noTimeMessageKey) : this.props.timeValue;
+            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
     }
 
     showTimePicker(options) {
