@@ -48,6 +48,8 @@ class RuleEvaluationService extends BaseService {
     constructor(db, context) {
         super(db, context);
         this.getEntityDecision = this.getEntityDecision.bind(this);
+
+        global.ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
     }
 
     init() {
