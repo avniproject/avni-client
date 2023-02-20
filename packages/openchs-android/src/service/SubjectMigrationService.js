@@ -94,7 +94,7 @@ class SubjectMigrationService extends BaseService {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const entities = entityResources.reduce((acc, resource) => acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]), []);
-        let entitiesToCreateFns = this.createEntities(entityMetaData.entityName, entities);
+        let entitiesToCreateFns = this.createEntities(entityMetaData.schemaName, entities);
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
@@ -105,10 +105,10 @@ class SubjectMigrationService extends BaseService {
         if (!_.isEmpty(entityMetaData.parent)) {
             if (entityMetaData.hasMoreThanOneAssociation) {
                 const mergedParentEntities = this.associateMultipleParents(entityResources, entities, entityMetaData);
-                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
+                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.schemaName, mergedParentEntities));
             } else {
                 const mergedParentEntities = this.associateParent(entityResources, entities, entityMetaData);
-                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.entityName, mergedParentEntities));
+                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.schemaName, mergedParentEntities));
             }
         }
         if (entityMetaData.entityName === 'EntityApprovalStatus') {

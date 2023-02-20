@@ -61,25 +61,22 @@ class ConventionalRestClient {
             .filter(p => !_.isEmpty(p))
             .join("/");
         const {loadedSince, entityTypeUuid} = entityMetadata.syncStatus;
-        const {privilegeParam} = entityMetadata;
+        const {privilegeParam, apiQueryParams} = entityMetadata;
+        const apiQueryParamsHolder = {}
         if (privilegeParam) {
-            const params = (page, size) => this.makeParams({
-                [privilegeParam]: entityTypeUuid,
-                lastModifiedDateTime: moment(loadedSince).toISOString(),
-                now: now,
-                size: size,
-                page: page
-            });
-            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
-        } else {
-            const params = (page, size) => this.makeParams({
-                lastModifiedDateTime: moment(loadedSince).toISOString(),
-                now: now,
-                size: size,
-                page: page
-            });
-            return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
+            _.merge(apiQueryParamsHolder, {[privilegeParam]: entityTypeUuid});
         }
+        console.log('apiQueryParams', apiQueryParams, !_.isEmpty(apiQueryParams), _.merge(apiQueryParamsHolder, apiQueryParams));
+        if (!_.isEmpty(apiQueryParams)) {
+            _.merge(apiQueryParamsHolder, apiQueryParams);
+        }
+        const params = (page, size) => this.makeParams(_.merge(apiQueryParamsHolder, {
+            lastModifiedDateTime: moment(loadedSince).toISOString(),
+            now: now,
+            size: size,
+            page: page
+        }));
+        return this.fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage);
     }
 
     fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage) {

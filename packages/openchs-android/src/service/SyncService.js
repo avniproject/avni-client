@@ -169,7 +169,7 @@ class SyncService extends BaseService {
     }
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
-        const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.entityName === SyncTelemetry.schema.name);
+        const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.schemaName === SyncTelemetry.schema.name);
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => this.entityQueueService.popItem(entityUUID)();
         const entitiesToPost = telemetryMetadata.reverse()
             .map(this.entityQueueService.getAllQueuedItems)

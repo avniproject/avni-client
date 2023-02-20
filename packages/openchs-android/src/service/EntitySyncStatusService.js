@@ -57,6 +57,7 @@ class EntitySyncStatusService extends BaseService {
         const entityQueueService = this.getService(EntityQueueService);
         const entities = _.map(this.findAllByUniqueEntityName(), ({entityName, loadedSince}) => {
             const isNeverSynced = loadedSince.getTime() === EntitySyncStatus.REALLY_OLD_DATE.getTime();
+            // console.log('entityName', entityName)
             return {
                 entityName: entityName,
                 loadedSince: isNeverSynced ? 'Never' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
@@ -88,6 +89,7 @@ class EntitySyncStatusService extends BaseService {
             if (_.isNil(self.get(entity.entityName)) && _.isEmpty(entity.privilegeParam)) {
                 General.logDebug('EntitySyncStatusService', `Setting up base entity sync status for ${entity.entityName}`);
                 try {
+                    //TODO check that this works
                     const entitySyncStatus = EntitySyncStatus.create(entity.entityName, EntitySyncStatus.REALLY_OLD_DATE, General.randomUUID(), '');
                     self.save(entitySyncStatus);
                 } catch (e) {
