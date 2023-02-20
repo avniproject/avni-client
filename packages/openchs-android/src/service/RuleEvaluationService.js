@@ -667,9 +667,14 @@ class RuleEvaluationService extends BaseService {
         return result;
     }
 
+    isOldStyleQueryResult(queryResult) {
+        //The result can either be an array or a RealmResultsProxy. We are verifying this by looking for existence of the length key.
+        return queryResult.length !== undefined;
+    }
+
     getDashboardCardCount(rule) {
         const queryResult = this.executeDashboardCardRule(rule);
-        if (queryResult.constructor.name === 'Array') {
+        if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
         } else {
             return {
@@ -682,7 +687,7 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardQueryResult(rule) {
         const queryResult = this.executeDashboardCardRule(rule);
-        if (queryResult.constructor.name === 'Array') {
+        if (this.isOldStyleQueryResult(queryResult)) {//The result can either be an array or a RealmResultsProxy. We are looking for existence of the length key.
             return queryResult;
         } else {
             return _.isFunction(queryResult.lineListFunction) ? queryResult.lineListFunction() : null;
