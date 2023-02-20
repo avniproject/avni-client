@@ -33,7 +33,7 @@ class TimePicker extends AbstractComponent {
         const options = {
             mode: "time",
             display: timePickerDisplay,
-            is24Hour: true,
+            is24Hour: false,
             onChange: (event, date) => this.onTimeChange(event, date),
             value: _.isNil(this.props.timeValue) ? new Date() : General.toDateFromTime(this.props.timeValue)
         };
@@ -65,7 +65,7 @@ class TimePicker extends AbstractComponent {
 
     timeDisplay() {
         return _.isNil(this.props.timeValue)
-            ? this.I18n.t(this.noTimeMessageKey) : this.props.timeValue;
+            ? this.I18n.t(this.noTimeMessageKey) : General.toDisplayTime(this.props.timeValue);
     }
 
     showTimePicker(options) {

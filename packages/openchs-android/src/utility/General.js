@@ -73,6 +73,14 @@ class General {
       return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
     }
 
+    static to12HourDateTimeFormat(dateTime) {
+        return moment(dateTime).format("lll");
+    }
+
+    static to12HourDateFormat(dateTime) {
+        return moment(dateTime).format("ll");
+    }
+
     static isoFormat(date) {
         return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
     }

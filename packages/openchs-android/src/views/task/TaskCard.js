@@ -66,7 +66,7 @@ class TaskCard extends AbstractComponent {
         const dateOptions = {
             mode: 'date', //To only enable date selection
             display: 'calendar', //Type of DatePicker
-            is24Hour: true,
+            is24Hour: false,
             onChange: (event, date) => this.onDateChange(event, date, task),
             value: task.scheduledOn
         };

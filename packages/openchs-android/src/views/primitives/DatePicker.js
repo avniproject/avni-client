@@ -33,15 +33,15 @@ class DatePicker extends AbstractComponent {
         return _.isNil(date)
             ? this.I18n.t(noDateMessageKey)
             : (this.props.pickTime && !(General.hoursAndMinutesOfDateAreZero(date)))
-                ? General.formatDateTime(date)
-                : General.formatDate(date);
+                ? General.to12HourDateTimeFormat(date)
+                : General.to12HourDateFormat(date);
     }
 
     showDatePicker() {
         const datePickerOptions = {
             mode: 'date',
             display: _.isNil(this.props.datePickerMode) ? 'calendar' : this.props.datePickerMode,
-            is24Hour: true,
+            is24Hour: false,
             onChange: (event, date) => this.onDateChange(event, date),
             value: _.isNil(this.props.dateValue) ? new Date() : this.props.dateValue
         };
@@ -72,7 +72,7 @@ class DatePicker extends AbstractComponent {
         const timePickerOptions = {
             mode: 'time',
             display: timePickerDisplay,
-            is24Hour: true,
+            is24Hour: false,
             onChange: (event, date) => this.onTimeChange(event, date),
             value: date
         };
