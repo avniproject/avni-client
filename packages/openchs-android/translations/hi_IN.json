@@ -307,7 +307,7 @@
     "restoreNoDump": "कोई डम्प मौजूद नहीं, फ़्रेश सिंक चालू",
     "performNormalSync": "स्लो सिंक करो",
     "groupInformation": "समूह की जानकारी",
-    "groupAdditionMessage" : "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
+    "groupAdditionMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} में जोड़ा जाएगा |",
     "groupRemovalMessage": "{{memberName}} को {{groupSubjectName}} {{groupSubjectTypeName}} से हटा दिया जाएगा |",
     "visitDetailsSection": "विजिट का विवरण",
     "recentStatisticsSection": "पिछले 24 घंटे के आंकड़े",
@@ -344,6 +344,13 @@
     "rolesNotConfiguredDescription": "सदस्य जोड़ने के लिए भूमिकाएँ कॉन्फ़िगर करें।",
     "scrollToBottomToSave": "सेव करने के लिए स्क्रॉल करें",
     "openCodedFilter": "कुछ सेकंड लगेगा",
-    "closeCodedFilter": "फ़िल्टर जल्दी चलेगा"
+    "closeCodedFilter": "फ़िल्टर जल्दी चलेगा",
+    "Grade 3": "ग्रेड 3",
+    "Grade 2": "ग्रेड 2",
+    "Grade 1": "ग्रेड 1",
+    "Weight For Age": "उम्र के हिसाब से वजन",
+    "Height For Age": "उम्र के हिसाब से ऊंचाई",
+    "Weight For Height": "ऊंचाई के हिसाब से वजन",
+    "Growth Chart": "विकास चार्ट"
   }
 }
