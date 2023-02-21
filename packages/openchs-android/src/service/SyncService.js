@@ -318,7 +318,7 @@ class SyncService extends BaseService {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const entities = entityResources.reduce((acc, resource) => acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]), []);
-        let entitiesToCreateFns = this.createEntities(entityMetaData.entityName, entities);
+        let entitiesToCreateFns = this.createEntities(entityMetaData.schemaName, entities);
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
@@ -340,7 +340,7 @@ class SyncService extends BaseService {
             this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
         }
 
-        if (entityMetaData.entityName === 'EntityApprovalStatus') {
+        if (entityMetaData.schemaName === 'EntityApprovalStatus') {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
@@ -352,14 +352,12 @@ class SyncService extends BaseService {
         }
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
-
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
-
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
             entityName: entityMetaData.entityName,
             numberOfPulledEntities: entities.length
