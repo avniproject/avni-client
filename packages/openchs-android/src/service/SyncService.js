@@ -184,13 +184,20 @@ class SyncService extends BaseService {
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
         const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
-        return post(`${url}/syncDetails`, entitySyncStatus, true)
+        return post(`${url}/syncDetailsWithScopeAwareEAS`, entitySyncStatus, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,
                 now,
                 endDateTime: nowMinus10Seconds
             }));
+    }
+
+    updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData) {
+        const entityMetadataEntityNames = _.map(allEntitiesMetaData, 'entityName');
+        return _.filter(syncDetails, (syncDetail) =>
+            entityMetadataEntityNames.includes(syncDetail.entityName)
+        )
     }
 
     async confirmUserAndResetSync(userConfirmation) {
@@ -228,16 +235,17 @@ class SyncService extends BaseService {
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
-        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
-        this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
+        const updatedSyncDetails = this.updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData);
+        General.logDebug("SyncService", `Entities to sync ${_.map(updatedSyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
+        this.entitySyncStatusService.updateAsPerSyncDetails(updatedSyncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
-            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
+            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, updatedSyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, updatedSyncDetails, endDateTime))
             .then(() => this.getService(SubjectMigrationService).migrateSubjects())
-            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, updatedSyncDetails, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())

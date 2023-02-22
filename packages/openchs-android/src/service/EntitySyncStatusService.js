@@ -57,7 +57,7 @@ class EntitySyncStatusService extends BaseService {
         const entityQueueService = this.getService(EntityQueueService);
         const entities = _.map(this.findAllByUniqueEntityName(), ({entityName, loadedSince}) => {
             const isNeverSynced = loadedSince.getTime() === EntitySyncStatus.REALLY_OLD_DATE.getTime();
-            // console.log('entityName', entityName)
+
             return {
                 entityName: entityName,
                 loadedSince: isNeverSynced ? 'Never' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
