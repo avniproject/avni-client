@@ -59,7 +59,7 @@ class OrganisationConfigService extends BaseService {
         return this.getSettings().maxAddressDisplayInlineCount || 30;
     }
 
-    hasHideTotalForProgram() {
+    hasHideTotalForProgram = () => {
         return this.getSettings().hideTotalForProgram === undefined || this.getSettings().hideTotalForProgram  ;
     }
 }
