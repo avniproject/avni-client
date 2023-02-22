@@ -59,6 +59,9 @@ class OrganisationConfigService extends BaseService {
         return this.getSettings().maxAddressDisplayInlineCount || 30;
     }
 
+    hasHideTotalForProgram() {
+        return !(!!(this.getSettings().hideTotalForProgram));
+    }
 }
 
 export default OrganisationConfigService;

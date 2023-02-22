@@ -22,6 +22,7 @@ import EncounterService from "./EncounterService";
 import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
+import OrganisationConfigService from './OrganisationConfigService';
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -34,8 +35,6 @@ class IndividualService extends BaseService {
         this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
         this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
-        this.allIn = this.allIn.bind(this);
-        this.allInWithFilters = this.allInWithFilters.bind(this);
     }
 
     getSchema() {
@@ -45,6 +44,7 @@ class IndividualService extends BaseService {
     init() {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram();
     }
 
     search(criteria) {
@@ -134,14 +134,14 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allInWithFilters(ignored, queryAdditions, programs = [], encounterTypes = []) {
-        if (encounterTypes.length > 0) {
+    allInWithFilters = (ignored, queryAdditions, programs = [], encounterTypes = []) => {
+        if (encounterTypes.length > 0 || programs.length > 0 || this.hideTotalForProgram) {
             return null;
         }
         return this.allIn(ignored, queryAdditions);
     }
 
-    allIn(ignored, queryAdditions) {
+    allIn = (ignored, queryAdditions) => {
 
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
