@@ -60,7 +60,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     hasHideTotalForProgram() {
-        return !(!!(this.getSettings().hideTotalForProgram));
+        return this.getSettings().hideTotalForProgram === undefined || this.getSettings().hideTotalForProgram  ;
     }
 }
 
