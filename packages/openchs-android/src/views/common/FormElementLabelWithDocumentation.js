@@ -125,9 +125,6 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
             ;
     }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
-        return this.props.moreTextForLabel !== nextProps.moreTextForLabel;
-    }
 
     getContentHtml(element) {
         const currentLocale = _.get(this.getService(UserInfoService).getUserSettings(), 'locale', 'en');
