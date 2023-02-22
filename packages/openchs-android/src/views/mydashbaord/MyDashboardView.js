@@ -30,7 +30,6 @@ class MyDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
         this.disableAutoRefresh = context.getService(UserInfoService).getUserInfo().getSettings().disableAutoRefresh;
-        this.hideTotalForProgram = context.getService(OrganisationConfigService).hasHideTotalForProgram();
     }
 
     viewName() {
@@ -97,8 +96,9 @@ class MyDashboardView extends AbstractComponent {
     }
 
     renderableVisits() {
-        const {selectedPrograms, selectedGeneralEncounterTypes, visits} = this.state;
-        if(_.isEmpty(selectedGeneralEncounterTypes) && (!this.hideTotalForProgram || _.isEmpty(selectedPrograms))) {
+        const {selectedPrograms, selectedGeneralEncounterTypes, selectedEncounterTypes, visits} = this.state;
+        const hideTotalForProgram = this.context.getService(OrganisationConfigService).hasHideTotalForProgram();
+        if(_.isEmpty(selectedGeneralEncounterTypes) && _.isEmpty(selectedEncounterTypes) && (!hideTotalForProgram || _.isEmpty(selectedPrograms))) {
           return visits;
         }
         return _.filter(visits, (visit) => _.isNil(visit.visits.total));
