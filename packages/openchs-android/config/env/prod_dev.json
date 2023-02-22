@@ -1,4 +1,5 @@
 {
   "SERVER_URL": "https://app.lfe.avniproject.org",
-  "ENV": "ext-dev"
+  "ENV": "ext-dev",
+  "DISABLE_AUTO_SYNC": true
 }

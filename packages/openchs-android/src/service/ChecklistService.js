@@ -1,23 +1,15 @@
-import BaseService from "./BaseService";
-import Service from "../framework/bean/Service";
+import BaseService from './BaseService';
+import Service from '../framework/bean/Service';
 import {
     Checklist,
-    ChecklistItem,
-    EntityQueue,
-    StringKeyNumericValue,
-    ChecklistItemStatus,
-    Form,
-    ChecklistItemDetail,
     ChecklistDetail,
-    ObservationsHolder,
-    EntitySyncStatus,
-    EntityApprovalStatus,
-    ApprovalStatus
+    ChecklistItem,
+    ChecklistItemDetail,
+    EntityQueue,
+    ObservationsHolder
 } from 'avni-models';
 import _ from 'lodash';
-import ConceptService from "./ConceptService";
-import General from "../utility/General";
-import EntityApprovalStatusService from "./EntityApprovalStatusService";
+import General from '../utility/General';
 
 @Service("ChecklistService")
 class ChecklistService extends BaseService {

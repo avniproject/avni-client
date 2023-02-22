@@ -27,7 +27,7 @@ import OrganisationConfigService from "../../service/OrganisationConfigService";
 import SubjectProfilePicture from "./SubjectProfilePicture";
 import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
-
+import AvniIcon from "../common/AvniIcon";
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -35,15 +35,17 @@ class IndividualProfile extends AbstractComponent {
         viewContext: PropTypes.string,
         programsAvailable: PropTypes.bool,
         hideEnrol: PropTypes.bool,
-        textColor: PropTypes.string
+        textColor: PropTypes.string,
+        displayOnly: PropTypes.bool.isRequired
     };
+
     static viewContext = {
         Wizard: 'Wizard',
         NonWizard: 'NonWizard'
     };
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.individualProfile);
+        super(props, context, props.displayOnly ? null : Reducers.reducerKeys.individualProfile);
     }
 
     getMobileNoFromObservation() {
@@ -74,6 +76,8 @@ class IndividualProfile extends AbstractComponent {
     }
 
     componentDidMount() {
+        if (this.props.displayOnly) return;
+
         const individual = this.props.individual;
         const programEnrolmentCallback = (program) => {
             const enrolment = ProgramEnrolment.createEmptyInstance({individual, program});
@@ -103,11 +107,11 @@ class IndividualProfile extends AbstractComponent {
                 borderStyle: 'solid', borderRadius: 2, paddingHorizontal: DGS.resizeWidth(6),
                 alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4
             }}>
-                <Icon name={iconMode} style={{
+                <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
                     color: Colors.DarkPrimaryColor,
                     paddingRight: 4
-                }}/>
+                }} type='MaterialIcons'/>
                 <Text style={Styles.programProfileButtonText}>{displayTextMessageKey}</Text>
             </View>
         </TouchableNativeFeedback>);
@@ -203,9 +207,10 @@ class IndividualProfile extends AbstractComponent {
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
         const textColor =  this.props.textColor ? this.props.textColor : Styles.blackColor;
         return <View style={{backgroundColor: backgroundColor}}>
-            <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
+                    <>
+                    <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                     <View style={{
                         marginVertical: 10,
                         marginHorizontal: 10,
@@ -254,7 +259,7 @@ class IndividualProfile extends AbstractComponent {
                                 <View/>}
                             {this.renderGroupOptions()}
                         </View>
-                    </View>
+                    </View></>
                 ) :
                 (
                     <View style={this.appendedStyle({

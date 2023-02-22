@@ -15,7 +15,7 @@ class SubjectTypeService extends BaseService {
     }
 
     getAllSubjectTypesWithIcon() {
-        return this.getAllNonVoided().filtered('iconFileS3Key <> null');
+        return this.getAllNonVoided().filtered('iconFileS3Key <> null').map(_.identity);
     }
 
     getAllDirectlyAssignable() {

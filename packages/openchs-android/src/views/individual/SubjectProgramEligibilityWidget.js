@@ -32,7 +32,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
     }
 
     async onSubjectProgramEligibility() {
-        const programs = this.getService(ProgramService).getAllNonVoided();
+        const programs = this.getService(ProgramService).loadAllNonVoided();
         const authToken = await this.getService(AuthService).getAuthToken();
         await this.props.onDisplayIndicatorToggle(true);
         let subjectProgramEligibilityStatuses = [];
@@ -86,8 +86,15 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         TypedTransition.from(this).with({subject, program}).to(ManualProgramEligibilityView, true)
     }
 
+    isManualEligibilityCheckEnabled(data) {
+        let manualEligibilityCheckEnabledProgram = _.find(data, (programEligibilityData) =>
+            programEligibilityData.program.manualEligibilityCheckRequired === true)
+        if(!_.isNil(manualEligibilityCheckEnabledProgram))
+            return true;
+    }
+
     renderItem({program, subjectProgramEligibility, isEnrolmentEligible}) {
-        if(_.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
+        if(!program.manualEligibilityCheckRequired && _.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
 
         const eligibilityStatus = _.get(subjectProgramEligibility, 'eligibilityString', 'unavailable');
         return (
@@ -112,8 +119,8 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
         )
     }
 
-    renderSection(subject) {
-        if(_.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
+    renderSection(subject, data) {
+        if(!this.isManualEligibilityCheckEnabled(data) && _.isNil(this.isSubjectProgramEligibilityStatusAvailable())) return null;
 
         return (
             <Fragment>
@@ -140,7 +147,7 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
                     sections={this.props.subjectProgramEligibilityStatuses}
                     keyExtractor={(item, index) => item.program.uuid + index}
                     renderItem={({item}) => this.renderItem({...item})}
-                    renderSectionHeader={({section: {subject}}) => this.renderSection(subject)}
+                    renderSectionHeader={({section: {subject, data}}) => this.renderSection(subject, data)}
                     ListHeaderComponent={this.renderHeader()}
                 />
             </View>

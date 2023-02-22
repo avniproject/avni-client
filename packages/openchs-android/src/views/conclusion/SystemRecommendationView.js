@@ -147,6 +147,7 @@ class SystemRecommendationView extends AbstractComponent {
     profile() {
         return (this.props.individual instanceof Individual) ?
             <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
+                               displayOnly={true}
                                individual={this.props.individual} style={{
                 backgroundColor: Colors.GreyContentBackground,
                 paddingHorizontal: 24,

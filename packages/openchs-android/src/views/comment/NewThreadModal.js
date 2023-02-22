@@ -31,10 +31,10 @@ class NewThreadModal extends AbstractComponent {
                                multiline={true}/>
                     <View style={styles.buttonContainer}>
                         <Button onPress={this.props.onClose} style={styles.buttonStyle}>
-                            <Text>{this.I18n.t('closeModal')}</Text>
+                            {this.I18n.t('closeModal')}
                         </Button>
                         <Button onPress={() => this.dispatchAction(Actions.ON_SEND)} style={styles.buttonStyle}>
-                            <Text>{this.I18n.t('createThread')}</Text>
+                            {this.I18n.t('createThread')}
                         </Button>
                     </View>
                 </View>
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     },
     buttonStyle: {
         marginHorizontal: 5,
-        height: 35,
+        height: 45,
         borderRadius: 5,
         alignSelf: 'center'
     }

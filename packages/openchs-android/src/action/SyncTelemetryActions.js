@@ -22,6 +22,7 @@ class SyncTelemetryActions {
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
+        syncTelemetry.syncSource = action.syncSource
         return newState;
     }
 

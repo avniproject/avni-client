@@ -99,7 +99,7 @@ class IndividualListView extends AbstractComponent {
                     renderSectionHeader={this.renderHeader}
                     SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
                         <Separator style={{alignSelf: 'stretch'}} height={5} backgroundColor={Colors.GreyContentBackground}/>) : null}
-                    initialNumToRender={50}
+                    initialNumToRender={15}
                     updateCellsBatchingPeriod={500}
                     maxToRenderPerBatch={30}
                 />

@@ -4,7 +4,7 @@ import {Actions} from "../../action/task/TaskFilterActions";
 import {Actions as TaskListActions} from "../../action/task/TaskListActions";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
-import {SafeAreaView, Text, TextInput, View} from "react-native";
+import {ScrollView, Text, TextInput, View} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import React from "react";
 import Reducers from "../../reducer";
@@ -17,7 +17,6 @@ import General from "../../utility/General";
 import FloatingButton from "../primitives/FloatingButton";
 import TaskFilter from "../../model/TaskFilter";
 import CHSContent from "../common/CHSContent";
-import Separator from "../primitives/Separator";
 import PropTypes from "prop-types";
 
 const numericFieldStyle = [{
@@ -45,10 +44,10 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
             case Concept.dataType.Coded:
                 const conceptAnswers = c.getAnswers();
                 return <RadioGroup key={index}
-                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConcept: rlv.value})}
+                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConceptUuid: rlv.value})}
                                    inPairs={true}
-                                   selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(taskMetadataValues[c.uuid], selectedVal)}
-                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept, false))}
+                                   selectionFn={(selectedValue) => _.some(taskMetadataValues[c.uuid], (item) => item.uuid === selectedValue)}
+                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept.uuid, false))}
                                    labelKey={c.name} multiSelect={true}/>;
             default:
                 return null;
@@ -89,7 +88,7 @@ class TaskFilterView extends AbstractComponent {
         return <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
             <AppHeader title={this.I18n.t('filter')}/>
             <CHSContent>
-                <SafeAreaView style={{flex: 1, padding: 20}}>
+                <ScrollView style={{flex: 1, padding: 20}}>
                     <RadioGroup labelKey="type"
                                 labelValuePairs={taskTypeLVPairs}
                                 inPairs={true}
@@ -102,7 +101,7 @@ class TaskFilterView extends AbstractComponent {
                                 labelValuePairs={taskStatusLVPairs}
                                 inPairs={true}
                                 multiSelect={true}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, rlv.value)}
+                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, {taskStatus: rlv.value})}
                                 selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(selectedTaskStatuses, selectedVal)}
                                 mandatory={false}/>
                     <View style={{flexDirection: "row", marginTop: 20}}>
@@ -128,8 +127,8 @@ class TaskFilterView extends AbstractComponent {
                                             taskMetadataValues={taskMetadataValues}
                                             dispatch={(actionName, action) => this.dispatchAction(actionName, action)} I18n={this.I18n}/>
                     </View>
-                </SafeAreaView>
-                <Separator height={170} backgroundColor={Styles.whiteColor}/>
+                    <View style={{marginTop: 100}}/>
+                </ScrollView>
             </CHSContent>
             <FloatingButton buttonTextKey={"apply"} onClick={() => this.onApplyFilter()}/>
         </CHSContainer>;

@@ -32,7 +32,7 @@ class ProgramFormComponent extends AbstractComponent {
         context: PropTypes.object.isRequired,
         state: PropTypes.object.isRequired,
         backFunction: PropTypes.func.isRequired,
-        editing: PropTypes.bool.isRequired
+        editing: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -46,7 +46,7 @@ class ProgramFormComponent extends AbstractComponent {
         return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const observations = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? state.enrolment.observations : state.enrolment.programExitObservations;
-                const message = observations === state.enrolment.observations ? this.I18n.t('enrolmentSavedMsg', {programName: state.enrolment.program.name}) : this.I18n.t('enrolmentExitMsg', {programName: state.enrolment.program.name});
+                const message = this.props.context.usage === ProgramEnrolmentState.UsageKeys.Enrol ? this.I18n.t('enrolmentSavedMsg', {programName: state.enrolment.program.name}) : this.I18n.t('enrolmentExitMsg', {programName: state.enrolment.program.name});
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.enrolment.individual.uuid, state.enrolment.uuid, true,null, message);
                 };
@@ -101,7 +101,7 @@ class ProgramFormComponent extends AbstractComponent {
                     func={this.props.backFunction} displayHomePressWarning={true}/>
                 {this.props.state.wizard.isFirstFormPage() &&
                 <IndividualProfile textColor={Colors.TextOnPrimaryColor}
-                    viewContext={IndividualProfile.viewContext.Wizard}
+                    viewContext={IndividualProfile.viewContext.Wizard} displayOnly={true}
                                    individual={this.props.state.enrolment.individual}/>}
                 {displayTimer ?
                     <Timer timerState={this.props.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.props.state.formElementGroup}/> : null}

@@ -12,6 +12,7 @@ import {CompletedVisitsFilterActionNames as Actions} from "../../action/program/
 import Reducers from "../../reducer";
 import MultiSelectFilter from "./MultiSelectFilter";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
+import UserInfoService from "../../service/UserInfoService";
 
 
 @Path('/CompletedVisitsFilterView')
@@ -38,6 +39,7 @@ class CompletedVisitsFilterView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), 'render');
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const selectedVisit = this.state.selectedEncounterTypes.map(e => e.operationalEncounterTypeName);
         const optsFnMap = this.state.encounterTypes.reduce((visitTypesMap, visitType) => visitTypesMap.set(visitType.operationalEncounterTypeName, visitType), new Map());
         const filterModel = new MultiSelectFilterModel(this.I18n.t("chooseVisitType"), optsFnMap, new Map(), selectedVisit).selectOption(selectedVisit);
@@ -48,6 +50,8 @@ class CompletedVisitsFilterView extends AbstractComponent {
                 <CHSContent>
                     <View style={{margin: Styles.VerticalSpacingBetweenFormElements}}>
                         <MultiSelectFilter filter={filterModel}
+                                           locale={locale}
+                                           I18n={this.I18n}
                                             onSelect={(encounterTypeName) => this.dispatchAction(Actions.ON_VISIT_SELECT, {encounterTypeName})}/>
                     </View>
                 </CHSContent>

@@ -1,11 +1,12 @@
 import {Modal, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Colors from "../primitives/Colors";
 import BeneficiaryModePinService from "../../service/BeneficiaryModePinService";
 import Pin from "../common/Pin";
 import CHSNavigator from "../../utility/CHSNavigator";
+import AvniIcon from '../common/AvniIcon';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
 class ExitBeneficiaryModeButton extends AbstractComponent {
@@ -63,7 +64,8 @@ class ExitBeneficiaryModeButton extends AbstractComponent {
                         width: 72,
                         paddingHorizontal: 16,
                     }}>
-                        <Icon style={{fontSize: 30, color: Colors.headerIconColor}} name='logout'/>
+                        <AvniIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='logout'
+                                  type={MaterialIcons} color={ Colors.headerIconColor}/>
                     </View>
                 </TouchableNativeFeedback>
                 <Modal onRequestClose={() => this.resetState()}

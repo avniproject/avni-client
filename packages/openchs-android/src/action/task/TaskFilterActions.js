@@ -22,7 +22,7 @@ class TaskFilterActions {
         const userInfoService = context.get(UserInfoService);
         const userSettings = userInfoService.getUserSettingsObject();
 
-        const allTaskTypes = entityService.getAllNonVoided(TaskType.schema.name).map(_.identity);
+        const allTaskTypes = entityService.loadAllNonVoided(TaskType.schema.name);
         const taskStatuses = taskStatusService.getAllForTaskType(action.taskType);
         return TaskFilterState.initialise(newState, allTaskTypes, action.taskType, taskStatuses, userSettings.datePickerMode);
     }
@@ -61,7 +61,7 @@ class TaskFilterActions {
 
     static onMetadataCodedValueChange(state, action, context) {
         const newState = TaskFilterState.clone(state);
-        return TaskFilterState.changeMetadataCodedAnswer(newState, action.concept, action.chosenAnswerConcept);
+        return TaskFilterState.changeMetadataCodedAnswer(newState, action.concept, action.chosenAnswerConceptUuid);
     }
 
     static onClear(state, action, context) {

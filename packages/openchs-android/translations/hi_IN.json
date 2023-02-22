@@ -12,6 +12,7 @@
     "emptyValidationMessage": "इस सवाल का जवाब अनिवार्य है",
     "settings": "सेटिंग",
     "close": "X",
+    "CLOSE": "बंद करें",
     "months": "महिने",
     "Month": "महिने",
     "years": "वर्ष",
@@ -341,6 +342,15 @@
     "programName": "प्रोग्राम का नाम:",
     "rolesNotConfigured": "भूमिकाएँ कॉन्फ़िगर नहीं की गईं",
     "rolesNotConfiguredDescription": "सदस्य जोड़ने के लिए भूमिकाएँ कॉन्फ़िगर करें।",
-    "scrollToBottomToSave": "सेव करने के लिए स्क्रॉल करें"
+    "scrollToBottomToSave": "सेव करने के लिए स्क्रॉल करें",
+    "openCodedFilter": "कुछ सेकंड लगेगा",
+    "closeCodedFilter": "फ़िल्टर जल्दी चलेगा",
+    "Grade 3": "ग्रेड 3",
+    "Grade 2": "ग्रेड 2",
+    "Grade 1": "ग्रेड 1",
+    "Weight For Age": "उम्र के हिसाब से वजन",
+    "Height For Age": "उम्र के हिसाब से ऊंचाई",
+    "Weight For Height": "ऊंचाई के हिसाब से वजन",
+    "Growth Chart": "विकास चार्ट"
   }
 }

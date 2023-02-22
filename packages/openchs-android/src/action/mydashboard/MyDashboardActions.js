@@ -10,6 +10,10 @@ import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 
+function getApplicableEncounterTypes(state) {
+    return _.isEmpty(state.selectedGeneralEncounterTypes) ? state.selectedEncounterTypes : state.selectedGeneralEncounterTypes;
+}
+
 class MyDashboardActions {
     static getInitialState(context) {
         return {
@@ -91,9 +95,9 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allIn(state.date.value, individualFilters), state.individualUUIDs, true)
+                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total]);
 
@@ -133,6 +137,7 @@ class MyDashboardActions {
             selectedSubjectType: subjectType,
             individualFilters,
             encountersFilters,
+            generalEncountersFilters,
             enrolmentFilters,
             itemsToDisplay: [],
             fetchFromDB: false,
@@ -174,7 +179,12 @@ class MyDashboardActions {
             (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
-        const allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
+        let allIndividuals;
+        if (listType === "recentlyCompletedRegistration" || listType === "total")
+            allIndividuals = methodMap.get(listType)(state.date.value, filters, state.selectedPrograms, getApplicableEncounterTypes(state));
+        else
+            allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
+
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
         const totalToDisplay = listType === 'total' ? commonIndividuals : _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {
@@ -235,15 +245,14 @@ class MyDashboardActions {
         const addressUUIDs = action.locationSearchCriteria.clone().getAllAddressLevelUUIDs();
         const locationQuery = (path) => _.map(addressUUIDs, (address) => `${path} = \'${address}\'`);
         const subjectTypeQuery = (path) => `${path} = "${action.selectedSubjectType.uuid}"`;
-        const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounter) => `${path} = \'${encounter.uuid}\'`) : '';
-        const generalVisitQuery = (path) => _.map(action.selectedGeneralEncounterTypes, (encounter) => `${path} = \'${encounter.uuid}\'`);
-        const generalVisitQueryFromIndividual = _.map(action.selectedGeneralEncounterTypes, (encounter) => `$encounter.encounterType.uuid = \'${encounter.uuid}\' AND $encounter.voided = false`);
+        const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounterType) => `${path} = \'${encounterType.uuid}\'`) : '';
+        const generalVisitQuery = (path) => _.map(action.selectedGeneralEncounterTypes, (encounterType) => `${path} = \'${encounterType.uuid}\'`);
         const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
         const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
         const genderQuery = (path) => _.map(action.selectedGenders, (gender) => `${path} = "${gender.name}"`);
 
         const customFilterService = context.get(CustomFilterService);
-        var individualUUIDs = [];
+        let individualUUIDs = [];
         const selectedCustomFilterBySubjectType = _.mapValues(action.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === action.selectedSubjectType.uuid);
             return s.length === 0 ? [] : s
@@ -255,21 +264,16 @@ class MyDashboardActions {
 
         const restIndividualFilters = [
             MyDashboardActions.orQuery(programQuery('$enrolment.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('$enrolment.encounters.encounterType.uuid')),
             validEnrolmentQuery('$enrolment')
         ].filter(Boolean).join(" AND ");
 
         const buildEnrolmentSubQueryForIndividual = () => _.isEmpty(restIndividualFilters) ? '' :
             'SUBQUERY(enrolments, $enrolment, ' + restIndividualFilters + ' ).@count > 0';
 
-        const encounterQuery = () => _.isEmpty(MyDashboardActions.orQuery(generalVisitQueryFromIndividual)) ? '' :
-            'SUBQUERY(encounters, $encounter, ' + MyDashboardActions.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
-
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
             MyDashboardActions.orQuery(genderQuery('gender.name')),
             MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
-            encounterQuery(),
             buildEnrolmentSubQueryForIndividual()
         ].filter(Boolean).join(" AND ");
 

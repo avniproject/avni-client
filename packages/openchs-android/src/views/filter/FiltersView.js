@@ -1,5 +1,5 @@
 import React from "react";
-import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Dimensions, StyleSheet, FlatList, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Distances from '../primitives/Distances'
 import SingleSelectFilter from './SingleSelectFilter';
@@ -28,6 +28,8 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import Filter from "../../model/Filter";
+import {ScrollView} from "native-base";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -58,8 +60,6 @@ class FilterView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.filterAction);
-        this.filterMap = new Map([[Filter.types.SingleSelect, SingleSelectFilter],
-            [Filter.types.MultiSelect, MultiSelectFilter]]);
         this.formMappingService = context.getService(FormMappingService);
         this.entityService = context.getService(EntityService);
         this.customFilterService = context.getService(CustomFilterService);
@@ -74,10 +74,8 @@ class FilterView extends AbstractComponent {
         const subjectTypes = this.entityService.findAllByCriteria('voided = false', SubjectType.schema.name);
         const selectedSubjectType = this.props.selectedSubjectType || subjectTypes[0];
         const programs = this.formMappingService.findProgramsForSubjectType(selectedSubjectType);
-        const selectedPrograms = programs.length === 1 ? programs : this.props.selectedPrograms;
-        const encounterTypes = programs.length === 1
-            ? this.formMappingService.findEncounterTypesForProgram(_.first(programs), selectedSubjectType)
-            : this.props.encounterTypes;
+        const selectedPrograms = this.props.selectedPrograms;
+        const encounterTypes = this.props.encounterTypes;
 
         this.dispatchAction(FilterActionNames.ON_LOAD, {
             filters: this.props.filters,
@@ -184,9 +182,7 @@ class FilterView extends AbstractComponent {
                 borderColor: Colors.InputBorderNormal,
                 paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
             }}>
-                {this.state.programs.length === 1 ?
-                    programEncounterFilter
-                    :
+                {
                     <View>
                         {this.state.programs.length > 0 ? programFilter : <View/>}
                         {this.state.encounterTypes.length > 0 ? programEncounterFilter : <View/>}
@@ -231,58 +227,61 @@ class FilterView extends AbstractComponent {
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
         const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
-                <CHSContent>
-                    <View style={{backgroundColor: Styles.whiteColor}}>
-                        <CustomActivityIndicator
-                            loading={this.state.loading}/>
-                        <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
-                            <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
-                                <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("date")}</Text>
-                                <DatePicker
-                                    nonRemovable={true}
-                                    actionName={FilterActionNames.ON_DATE}
-                                    actionObject={this.state.filterDate}
-                                    pickTime={false}
-                                    dateValue={this.state.filterDate.value}/>
+                <ScrollView keyboardShouldPersistTaps="handled">
+                    <CHSContent>
+                        <View style={{backgroundColor: Styles.whiteColor}}>
+                            <CustomActivityIndicator
+                                loading={this.state.loading}/>
+                            <View style={[FilterView.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                                <View style={{flexDirection: "column", justifyContent: "flex-start"}}>
+                                    <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("date")}</Text>
+                                    <DatePicker
+                                        nonRemovable={true}
+                                        actionName={FilterActionNames.ON_DATE}
+                                        actionObject={this.state.filterDate}
+                                        pickTime={false}
+                                        dateValue={this.state.filterDate.value}/>
+                                </View>
+                                {allowedSubjectTypes.length > 1 &&
+                                (<SingleSelectFilter locale={locale} I18n={this.I18n} filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
+                                    this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
+                                }}/>)
+                                }
+                                {!_.isEmpty(topLevelFilters) ?
+                                    <CustomFilters filters={topLevelFilters}
+                                                   selectedCustomFilters={this.props.selectedCustomFilters}
+                                                   onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                    /> : null}
+                                {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.selectedSubjectType.uuid) ?
+                                    <GenderFilter selectedGenders={this.props.selectedGenders}
+                                                  onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
+                                    /> : null}
+                                {_.isEmpty(this.state.selectedGeneralEncounterTypes) && this.renderProgramEncounterGroup()}
+                                {_.isEmpty(this.state.selectedPrograms) && _.isEmpty(this.state.selectedEncounterTypes) && this.renderEncounterGroup()}
+                                {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
+                                    <AddressLevels
+                                        addressLevelState={this.state.addressLevelState}
+                                        onSelect={(addressLevelState) => {
+                                            this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
+                                                addressLevelState: addressLevelState
+                                            })
+                                        }}
+                                        multiSelect={true}/> : null}
+                                {!_.isEmpty(bottomLevelFilters) ?
+                                    <CustomFilters filters={bottomLevelFilters}
+                                                   selectedCustomFilters={this.props.selectedCustomFilters}
+                                                   onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
+                                                   addressLevelState={this.state.addressLevelState}
+                                    /> : null}
+                                <Separator height={50} backgroundColor={Styles.whiteColor}/>
                             </View>
-                            {allowedSubjectTypes.length > 1 &&
-                            (<SingleSelectFilter filter={subjectTypeSelectFilter} onSelect={(subjectTypeName) => {
-                                this.dispatchAction(FilterActionNames.ADD_SUBJECT_TYPE, {subjectTypeName})
-                            }}/>)
-                            }
-                            {!_.isEmpty(topLevelFilters) ?
-                                <CustomFilters filters={topLevelFilters}
-                                               selectedCustomFilters={this.props.selectedCustomFilters}
-                                               onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                /> : null}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.selectedSubjectType.uuid) ?
-                                <GenderFilter selectedGenders={this.props.selectedGenders}
-                                              onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
-                                /> : null}
-                            {_.isEmpty(this.state.selectedGeneralEncounterTypes) && this.renderProgramEncounterGroup()}
-                            {_.isEmpty(this.state.selectedPrograms) && _.isEmpty(this.state.selectedEncounterTypes) && this.renderEncounterGroup()}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, this.state.selectedSubjectType.uuid) ?
-                                <AddressLevels
-                                    addressLevelState={this.state.addressLevelState}
-                                    onSelect={(addressLevelState) => {
-                                        this.dispatchAction(FilterActionNames.INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {
-                                            addressLevelState: addressLevelState
-                                        })
-                                    }}
-                                    multiSelect={true}/> : null}
-                            {!_.isEmpty(bottomLevelFilters) ?
-                                <CustomFilters filters={bottomLevelFilters}
-                                               selectedCustomFilters={this.props.selectedCustomFilters}
-                                               onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
-                                               addressLevelState={this.state.addressLevelState}
-                                /> : null}
-                            <Separator height={50} backgroundColor={Styles.whiteColor}/>
                         </View>
-                    </View>
-                </CHSContent>
+                    </CHSContent>
+                </ScrollView>
                 <TouchableOpacity activeOpacity={0.5}
                                   onPress={() => this.onApply()}
                                   style={FilterView.styles.floatingButton}>

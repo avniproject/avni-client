@@ -22,6 +22,9 @@ class TaskActions {
         const taskStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         task.setTaskStatus(taskStatus);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(task.taskType);
+        if(!formMapping.form) {
+            return TaskState.createOnLoadStateForEmptyForm(task, null);
+        }
         const form = formMapping.form;
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
@@ -43,15 +46,20 @@ class TaskActions {
 
     static onStatusChange(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
+        const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
+        newState.taskStatusList = context.get(EntityService)
+          .getAllNonVoided(TaskStatus.schema.name)
+          .filtered(`taskType.uuid = '${taskTypeUUID}'`)
+          .map(_.identity)
+          .map(({name, uuid}) => ({label: name, value: uuid}));
         const newStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(newState.task.taskType);
-        if (!newStatus.isTerminal || _.isNil(formMapping)) {
+        if (newStatus.isTerminal && formMapping.uuid) {
+            action.moveToDetailsPage(newState.task.uuid, newStatus.uuid)
+        } else {
             newState.task.setTaskStatus(newStatus);
             context.get(TaskService).saveOrUpdate(newState.task);
-        } else {
-            action.moveToDetailsPage(newState.task.uuid, newStatus.uuid)
         }
-        newState.displayTaskStatusSelector = false;
         return newState;
     }
 
@@ -78,7 +86,6 @@ class TaskActions {
 
     static toggleStatusSelector(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
-        newState.displayTaskStatusSelector = action.display;
         const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
         newState.taskStatusList = context.get(EntityService)
             .getAllNonVoided(TaskStatus.schema.name)

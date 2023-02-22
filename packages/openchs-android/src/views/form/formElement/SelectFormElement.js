@@ -1,13 +1,13 @@
-import {Text, View} from "react-native";
+import {View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
-import Colors from "../../primitives/Colors";
 import Distances from "../../primitives/Distances";
-import PresetOptionItem from "../../primitives/PresetOptionItem";
 import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import SelectableItemGroup from "../../primitives/SelectableItemGroup";
+import UserInfoService from "../../../service/UserInfoService";
 
 class SelectFormElement extends AbstractFormElement {
     static propTypes = {
@@ -44,20 +44,22 @@ class SelectFormElement extends AbstractFormElement {
         const answers = disabled ? this.getSelectedAnswers() : this.getAnswers();
         const valueLabelPairs = answers
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element} />
-                <RadioGroup
-                    allowRadioUnselect={true}
+                <SelectableItemGroup
                     multiSelect={this.props.multiSelect}
                     inPairs={true}
-                    onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}
+                    onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={this.props.isSelected}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
                     labelValuePairs={valueLabelPairs}
                     disabled={disabled}
+                    I18n={this.I18n}
+                    locale={currentLocale}
                     skipLabel={true}
                 />
             </View>);

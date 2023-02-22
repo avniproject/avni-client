@@ -40,11 +40,6 @@ class BaseAddressLevelService extends BaseService {
         return [...this.findAllByCriteria(`${levelQuery} AND voided = false`, this.getSchema()).sorted('level', true)];
     }
 
-    getAllAtLevelWithParent(level, parentUUID) {
-        return [...this.findAllByCriteria(`level = ${level} AND parentUuid = '${parentUUID}' AND voided = false`,
-            this.getSchema())];
-    }
-
     highestLevel(minLevelTypeUUIDs) {
         const maxLevels = this.maxLevels();
         const levelQuery = _.isEmpty(maxLevels) ? 'level = 0' : _.map(maxLevels, l => `level = ${l}`).join(" or ");

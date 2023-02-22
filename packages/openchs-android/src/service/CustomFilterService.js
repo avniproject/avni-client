@@ -9,7 +9,8 @@ import {
     Concept,
     CustomFilter,
     GroupSubject,
-} from "avni-models";
+    ObservationsHolder
+} from "openchs-models";
 import General from "../utility/General";
 import _ from "lodash";
 import ConceptService from "./ConceptService";
@@ -118,7 +119,7 @@ class CustomFilterService extends BaseService {
 
     // Note that the query is run for every filter(concept) separately, this is because we don't have
     // joins in realm and after getting latest from each filter(concept) we need to query for selected concept answer.
-    queryFromLatestObservation(schemaName, conceptFilters, selectedAnswerFilters, scopeFilters, sortFilter, indFunc, widget) {
+    queryFromLatestObservation(schemaName, conceptFilters, selectedAnswerFilters, scopeFilters, sortFilter, indFunc, widget, inMemoryFilter) {
         const latestEncounters = this.db.objects(schemaName)
             .filtered(`voided = false `)
             //limit the scope of query by giving encounter/program uuid
@@ -129,17 +130,19 @@ class CustomFilterService extends BaseService {
             .filtered(_.isEmpty(sortFilter) ? 'uuid != null' : ` ${sortFilter} `);
 
         return widget === CustomFilter.widget.Range ? this.filterForRangeWidgetType(latestEncounters, selectedAnswerFilters, indFunc)
-            : this.filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc);
+            : this.filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc, inMemoryFilter);
     }
 
-    filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc) {
+    filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc, inMemoryFilter) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
-        return _.isEmpty(latestEncounters) ? [] : [...latestEncounters
-            //check if selected filter is present in the observations
-            .filtered(` ${selectedAnswerFilters()} `)
-            .map(indFunc)
-        ];
+        if (_.isEmpty(latestEncounters)) return [];
+        let encountersBasedOnSelectedAnswers = latestEncounters.filtered(` ${selectedAnswerFilters()} `);
+        if (!_.isNil(inMemoryFilter)) {
+            General.logDebug("CustomFilterService", "Running in memory filter");
+            encountersBasedOnSelectedAnswers = encountersBasedOnSelectedAnswers.filterInternal((obsHolder) => inMemoryFilter(obsHolder))
+        }
+        return encountersBasedOnSelectedAnswers.map(indFunc);
     }
 
     filterForRangeWidgetType(latestEntities, selectedAnswerFilters, indFunc) {
@@ -190,8 +193,8 @@ class CustomFilterService extends BaseService {
         const selectedOption = _.head(selectedOptions);
         switch (concept.datatype) {
             case (Concept.dataType.Coded) :
-                const codedFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
-                return () => this.getObsSubQueryForQuery(codedFilterQuery);
+                const codedFilterQuery = _.map(selectedOptions, c => ` (observations.concept.uuid == '${concept.uuid}' AND  observations.valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
+                return () => codedFilterQuery;
             case (Concept.dataType.Text) :
             case (Concept.dataType.Notes) :
             case (Concept.dataType.Id) :
@@ -239,7 +242,7 @@ class CustomFilterService extends BaseService {
         return filter.join(" AND ");
     }
 
-    queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilters, conceptFilter, widget) {
+    queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilters, conceptFilter, widget, inMemoryFilter) {
         switch (scope) {
             case CustomFilter.scope.ProgramEncounter : {
                 const encounterOptions = _.map(scopeParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
@@ -247,7 +250,7 @@ class CustomFilterService extends BaseService {
                 const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, programOptions);
                 const scopeFiltersWithNonExit = `(${scopeFilters}) and programEnrolment.programExitDateTime = null`;
                 const sortFilter = 'TRUEPREDICATE sort(programEnrolment.individual.uuid asc , encounterDateTime desc) Distinct(programEnrolment.individual.uuid)';
-                const individualUUIDs = this.queryFromLatestObservation(ProgramEncounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.programEnrolment.individual.uuid, widget);
+                const individualUUIDs = this.queryFromLatestObservation(ProgramEncounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enc => enc.programEnrolment.individual.uuid, widget, inMemoryFilter);
                 this.updateIndividuals(individualUUIDs);
                 break;
             }
@@ -256,12 +259,12 @@ class CustomFilterService extends BaseService {
                 const scopeFilters = this.createProgramEncounterScopeFilter(null, programOptions);
                 const scopeFiltersWithNonExit = `(${scopeFilters}) and programExitDateTime = null`;
                 const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , enrolmentDateTime desc) Distinct(individual.uuid)';
-                const individualUUIDs = this.queryFromLatestObservation(ProgramEnrolment.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enl => enl.individual.uuid, widget);
+                const individualUUIDs = this.queryFromLatestObservation(ProgramEnrolment.schema.name, conceptFilter, selectedAnswerFilters, scopeFiltersWithNonExit, sortFilter, enl => enl.individual.uuid, widget, inMemoryFilter);
                 this.updateIndividuals(individualUUIDs);
                 break;
             }
             case CustomFilter.scope.Registration : {
-                const individualUUIDs = this.queryFromLatestObservation(Individual.schema.name, null, selectedAnswerFilters, null, null, ind => ind.uuid, widget);
+                const individualUUIDs = this.queryFromLatestObservation(Individual.schema.name, null, selectedAnswerFilters, null, null, ind => ind.uuid, widget, inMemoryFilter);
                 this.updateIndividuals(individualUUIDs);
                 break;
             }
@@ -269,7 +272,7 @@ class CustomFilterService extends BaseService {
                 const encounterOptions = _.map(scopeParameters.encounterTypeUUIDs, e => `encounterType.uuid == "${e}"`).join(" OR ");
                 const scopeFilters = this.createProgramEncounterScopeFilter(encounterOptions, null);
                 const sortFilter = 'TRUEPREDICATE sort(individual.uuid asc , encounterDateTime desc) Distinct(individual.uuid)';
-                const individualUUIDs = this.queryFromLatestObservation(Encounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFilters, sortFilter, enc => enc.individual.uuid, widget);
+                const individualUUIDs = this.queryFromLatestObservation(Encounter.schema.name, conceptFilter, selectedAnswerFilters, scopeFilters, sortFilter, enc => enc.individual.uuid, widget, inMemoryFilter);
                 this.updateIndividuals(individualUUIDs);
                 break;
             }
@@ -292,7 +295,10 @@ class CustomFilterService extends BaseService {
                 const conceptFilter = `observations.concept.uuid == "${conceptUUID}"`;
                 switch (type) {
                     case CustomFilter.type.Concept :
-                        this.queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilterQuery, conceptFilter, widget);
+                        const concept = this.getService(ConceptService).findByUUID(conceptUUID);
+                        const inMemoryFilter = concept.isCodedConcept() ?
+                            (obsHolder) => ObservationsHolder.hasAnyAnswer(obsHolder, conceptUUID, selectedOptions.map(x => x.uuid),) : null;
+                        this.queryConceptTypeFilters(scope, scopeParameters, selectedAnswerFilterQuery, conceptFilter, widget, inMemoryFilter);
                         break;
                     case CustomFilter.type.RegistrationDate:
                         this.updateIndividuals(this.queryEntity(Individual.schema.name, selectedAnswerFilterQuery, null, ind => ind.uuid));

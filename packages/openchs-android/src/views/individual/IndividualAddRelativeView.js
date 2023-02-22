@@ -1,4 +1,4 @@
-import {Alert, View} from "react-native";
+import {Alert, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -19,6 +19,8 @@ import CHSContainer from "../common/CHSContainer";
 import themes from "../primitives/themes";
 import CHSNavigator from "../../utility/CHSNavigator";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/individualAddRelative')
 class IndividualAddRelativeView extends AbstractComponent {
@@ -61,17 +63,20 @@ class IndividualAddRelativeView extends AbstractComponent {
     }
 
     renderRelations() {
-        const valueLabelPairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
+        const labelValuePairs = this.state.relations.map(({uuid, name}) => new RadioLabelValue(name, uuid));
         return (
-            <RadioGroup
-                allowRadioUnselect={true}
+            <SelectableItemGroup
+                allowRadioUnselect={false}
                 style={this.props.style}
                 inPairs={true}
-                onPress={({label, value}) => this.toggleRelation(value)}
+                onPress={(value) => this.toggleRelation(value)}
                 selectionFn={(relationUUID) => this.state.individualRelative.relation.uuid === relationUUID}
                 labelKey={this.I18n.t('Relation')}
                 mandatory={true}
-                labelValuePairs={valueLabelPairs}
+                I18n={this.I18n}
+                locale={locale}
+                labelValuePairs={labelValuePairs}
                 validationError={AbstractDataEntryState.getValidationError(this.state, IndividualRelative.validationKeys.RELATION)}
             />
         );
@@ -86,7 +91,7 @@ class IndividualAddRelativeView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={headerMessage}/>
-                    <View style={{
+                    <ScrollView style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
@@ -106,7 +111,7 @@ class IndividualAddRelativeView extends AbstractComponent {
                                            label: this.I18n.t('save')
                                        }}
                                        style={{marginHorizontal: 24}}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

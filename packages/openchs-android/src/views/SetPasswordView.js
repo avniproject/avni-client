@@ -100,7 +100,7 @@ class SetPasswordView extends AbstractComponent {
                             return {showPassword: !oldState.showPassword}
                         })}>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <CheckBox checked={this.state.showPassword}/>
+                                <CheckBox isChecked={this.state.showPassword}/>
                                 <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show password"}</Text>
                             </View>
                         </TouchableNativeFeedback>

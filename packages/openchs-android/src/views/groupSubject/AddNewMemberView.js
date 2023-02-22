@@ -9,7 +9,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import Reducers from "../../reducer";
 import {AddNewMemberActions as Actions} from "../../action/groupSubject/MemberAction";
-import {Alert, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Alert, Text, ToastAndroid, TouchableOpacity, View, ScrollView} from "react-native";
 import Styles from "../primitives/Styles";
 import IndividualFormElement from "../form/formElement/IndividualFormElement";
 import _ from "lodash";
@@ -191,7 +191,7 @@ class AddNewMemberView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <AppHeader title={title}/>
-                    <View style={{
+                    <ScrollView style={{
                         marginTop: Styles.ContentDistanceFromEdge,
                         paddingHorizontal: Styles.ContentDistanceFromEdge,
                         flexDirection: 'column'
@@ -221,7 +221,7 @@ class AddNewMemberView extends AbstractComponent {
                                        nextAndMore={this.nextAndMore}
                                        style={{marginHorizontal: 24}}/>
                         }
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );

@@ -4,6 +4,7 @@ import PruneMedia from "./task/PruneMedia";
 import Sync from "./task/Sync";
 import WorkManager from 'react-native-background-worker';
 import General from "./utility/General";
+import AppConfig from "./framework/AppConfig";
 
 const SYNC_JOB_KEY = "syncJob"; //Should be used for both SyncJobSchedule and DummySyncJobSchedule, so that one replaces another when scheduled
 
@@ -13,7 +14,12 @@ const SyncJobSchedule = {
   period: 60,
   persist: true,
   exact: true,
-  job: () => Sync.execute()
+  job: () => {
+      if (!AppConfig.autoSyncDisabled)
+        Sync.execute();
+      else
+          General.logDebug("AvniBackgroundJob", "Background job is disabled");
+  }
 };
 
 const DummySyncJobSchedule = {
@@ -45,6 +51,7 @@ const PruneMediaJobSchedule = {
 
 //The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
 export const RegisterAndScheduleJobs = function () {
+    General.logDebug("AvniBackgroundJob", `Background job is ${AppConfig.autoSyncDisabled ? "disabled" : "enabled"}`);
   Schedule(DeleteDraftsJobSchedule)
     .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Successfully scheduled"))
     .catch(err => General.logError("AvniBackgroundJob-DeleteDraftsJob", err));

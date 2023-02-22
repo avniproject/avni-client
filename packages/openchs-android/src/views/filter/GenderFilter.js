@@ -6,6 +6,7 @@ import _ from "lodash";
 import {View} from "react-native";
 import React from "react";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
+import UserInfoService from "../../service/UserInfoService";
 
 
 class GenderFilter extends AbstractComponent {
@@ -25,12 +26,15 @@ class GenderFilter extends AbstractComponent {
     }
 
     renderGenders = () => {
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const {genders, selectedGenders} = this.state;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
         const filterModel = new MultiSelectFilterModel(this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
         return <View>
             <MultiSelectFilter filter={filterModel}
+                               locale={locale}
+                               I18n={this.I18n}
                                onSelect={(gender) => this.dispatchAction(Actions.ON_GENDER_SELECT, {gender})}/>
         </View>
     };

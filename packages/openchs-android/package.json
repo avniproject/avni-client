@@ -50,7 +50,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "native-base": "3.4.9",
-    "openchs-models": "1.27.14",
+    "openchs-models": "1.27.25",
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-native": "0.69.7",
@@ -85,7 +85,7 @@
     "realm": "11.0.0-rc.1",
     "redux": "4.2.0",
     "rn-fetch-blob": "0.13.0-beta-1",
-    "rules-config": "github:openchs/rules-config#a35ade353300f8dde3a20af4234b49036e2fda16",
+    "rules-config": "github:openchs/rules-config#526c5c2fc35daff3d662b5aa55b7b5a617045286",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174"
   },

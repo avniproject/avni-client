@@ -2,13 +2,10 @@ import _ from "lodash";
 import CustomFilterService from "../../service/CustomFilterService";
 import moment from "moment";
 
-
 class CustomFilterActions {
-
     static getInitialState() {
         return {
             selectedCustomFilters: {}
-
         }
     }
 
@@ -123,7 +120,7 @@ const CustomFilterNames = {
     ON_MAX_DATE_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MAX_DATE_CUSTOM_FILTER_SELECT`,
     ON_MIN_TIME_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MIN_TIME_CUSTOM_FILTER_SELECT`,
     ON_MAX_TIME_CUSTOM_FILTER_SELECT: `${ActionPrefix}.ON_MAX_TIME_CUSTOM_FILTER_SELECT`,
-    ON_GROUP_SUBJECT_CHANGE: `${ActionPrefix}.ON_GROUP_SUBJECT_CHANGE`,
+    ON_GROUP_SUBJECT_CHANGE: `${ActionPrefix}.ON_GROUP_SUBJECT_CHANGE`
 };
 
 const CustomFilterMap = new Map([
@@ -135,7 +132,7 @@ const CustomFilterMap = new Map([
     [CustomFilterNames.ON_MAX_DATE_CUSTOM_FILTER_SELECT, CustomFilterActions.onMaxDateFilterSelect],
     [CustomFilterNames.ON_MIN_TIME_CUSTOM_FILTER_SELECT, CustomFilterActions.onMinTimeSelect],
     [CustomFilterNames.ON_MAX_TIME_CUSTOM_FILTER_SELECT, CustomFilterActions.onMaxTimeSelect],
-    [CustomFilterNames.ON_GROUP_SUBJECT_CHANGE, CustomFilterActions.onGroupSubjectFilterChange],
+    [CustomFilterNames.ON_GROUP_SUBJECT_CHANGE, CustomFilterActions.onGroupSubjectFilterChange]
 ]);
 
 export {

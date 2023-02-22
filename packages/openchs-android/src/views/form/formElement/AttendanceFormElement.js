@@ -25,7 +25,7 @@ class AttendanceFormElement extends AbstractFormElement {
                         <Text style={Styles.formBodyText}>{memberSubject.nameString}</Text>
                     </View>
                     <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
-                        <CheckBox onPress={onPress} checked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
+                        <CheckBox onPress={onPress} isChecked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
                     </View>
                 </View>
             </TouchableOpacity>
@@ -34,16 +34,14 @@ class AttendanceFormElement extends AbstractFormElement {
 
     render() {
         const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
-        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID);
+        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
         const subjectUUIDs = _.get(this.props.value, 'answer');
         return (
             <Fragment>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                <FlatList
-                    data={groupsSubjects}
-                    renderItem={({item, index}) => this.renderSubject(item, subjectUUIDs, index)}
-                    keyExtractor={item => item.uuid}
-                />
+                { _.map(groupsSubjects, (groupSubject, index) =>
+                    this.renderSubject(groupSubject, subjectUUIDs, index)
+                )}
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </Fragment>
         )

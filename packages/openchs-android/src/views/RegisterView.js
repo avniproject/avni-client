@@ -1,5 +1,4 @@
 import AbstractComponent from "../framework/view/AbstractComponent";
-import Path from "../framework/routing/Path";
 import General from "../utility/General";
 import {ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import React from "react";

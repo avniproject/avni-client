@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import SettingsService from "../../service/SettingsService";
 import AuthService from "../../service/AuthService";
 import moment from "moment";
-import {Icon} from 'native-base';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class YearReviewBanner extends AbstractComponent {
     constructor(props, context) {
@@ -37,7 +37,7 @@ class YearReviewBanner extends AbstractComponent {
                     </View>
                     <View style={styles.footerContainer}>
                         <View style={{flex: 0.2}}>
-                            <Icon style={styles.iconStyle} name='trophy-outline' type='MaterialCommunityIcons'/>
+                            <Icon style={styles.iconStyle} name='trophy-outline'/>
                         </View>
                         <View style={{flex: 0.8}}>
                             <Text style={{color:'#f1fbf8'}}>{this.I18n.t('msg1')}</Text>

@@ -20,7 +20,7 @@ import {
     PhoneNumber,
     QuestionGroup,
     RepeatableQuestionGroup
-} from 'avni-models';
+} from 'openchs-models';
 import Distances from '../primitives/Distances';
 import DurationDateFormElement from "./formElement/DurationDateFormElement";
 import Styles from "../primitives/Styles";
@@ -64,7 +64,8 @@ class FormElementGroup extends AbstractComponent {
     }
 
     wrap(x, idx, shouldScroll) {
-        return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}} key={idx}
+        return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}}
+                     key={idx}
                      onLayout={(event) => shouldScroll && _.isFunction(this.props.onValidationError) ? this.props.onValidationError(event.nativeEvent.layout.x, event.nativeEvent.layout.y) : _.noop()}>{x}</View>;
     }
 

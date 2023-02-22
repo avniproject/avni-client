@@ -51,7 +51,8 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     clone() {
         const newState = new IndividualRegistrationState();
-        newState.individual = this.individual.cloneForEdit();
+        // newState.individual = this.individual.cloneForEdit();
+        newState.individual = this.individual;
         newState.group = this.group;
         newState.genders = this.genders;
         newState.age = this.age;
@@ -112,7 +113,7 @@ class IndividualRegistrationState extends AbstractDataEntryState {
         const nameValidationKey = Individual.validationKeys.NAME;
         if (subjectType.uniqueName) {
             const savedSubjectsWithSameName = context.get(IndividualService).getSubjectWithTheNameAndType({firstName, middleName, lastName, subjectType, uuid});
-            return _.isEmpty(savedSubjectsWithSameName) ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
+            return savedSubjectsWithSameName.length === 0 ? ValidationResult.successful(nameValidationKey) : ValidationResult.failure(nameValidationKey, 'duplicateValue', {subjectTypeName: subjectType.name});
         }
         return ValidationResult.successful(nameValidationKey);
     }

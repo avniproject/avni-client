@@ -125,6 +125,10 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
             ;
     }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
+        return this.props.moreTextForLabel !== nextProps.moreTextForLabel;
+    }
+
     getContentHtml(element) {
         const currentLocale = _.get(this.getService(UserInfoService).getUserSettings(), 'locale', 'en');
         const documentationItems = _.get(element.documentation, 'documentationItems', []);
@@ -140,7 +144,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
         if (_.isNil(element)) return null;
         if (_.isNil(element.documentation)) return this.labelDisplay();
         const contentHtml = this.getContentHtml(element);
-        return _.isEmpty(contentHtml) ? this.labelDisplay() : this.renderHtml(contentHtml)
+        return _.isEmpty(contentHtml) ? this.labelDisplay() : this.renderHtml(contentHtml);
     }
 }
 

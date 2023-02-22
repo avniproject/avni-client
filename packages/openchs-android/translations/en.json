@@ -5,7 +5,7 @@
     "____COMMENT____": "English version for the application labels",
     "next": "NEXT",
     "previous": "PREVIOUS",
-    "save": "Save",
+    "save": "SAVE",
     "deleteConfirmation": "Do you want to delete all saved sessions?",
     "validationResult": "Validation Error",
     "numericValueValidation": "Is not a valid number",
@@ -33,6 +33,7 @@
     "syncingData": "Syncing Data",
     "changePassword": "Change Password",
     "close": "X",
+    "CLOSE": "Close",
     "serverURL": "Server URL",
     "locale": "Language",
     "minutes": "Minute(s)",
@@ -473,6 +474,15 @@
     "status": "Status",
     "type": "Type",
     "filters": "Filters",
-    "scrollToBottomToSave": "Scroll to Bottom to Save"
+    "scrollToBottomToSave": "Scroll to Bottom to Save",
+    "openCodedFilter": "may take few seconds to open",
+    "closeCodedFilter": "may speed up",
+    "Grade 3": "Grade 3",
+    "Grade 2": "Grade 2",
+    "Grade 1": "Grade 1",
+    "Weight For Age": "Weight For Age",
+    "Height For Age": "Height For Age",
+    "Weight For Height": "Weight For Height",
+    "Growth Chart": "Growth Chart"
   }
 }

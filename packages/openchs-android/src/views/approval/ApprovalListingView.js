@@ -9,12 +9,15 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import ApprovalDetailsCard from "./ApprovalDetailsCard";
 import DropDownPicker from 'react-native-dropdown-picker';
-import {ReportCard} from 'avni-models';
+import {ReportCard} from 'openchs-models';
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FormMappingService from "../../service/FormMappingService";
+import {ScrollView} from "native-base";
+
+const placeHolderPicker = {label: 'All', value: {schema: null, filterQuery: null}};
 
 @Path('/approvalListingView')
 class ApprovalListingView extends AbstractComponent {
@@ -28,7 +31,7 @@ class ApprovalListingView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {results: this.props.results}
+        this.state = {results: this.props.results, selectedFilterPicker: placeHolderPicker, allFilterItems: []};
     }
 
     viewName() {
@@ -37,7 +40,13 @@ class ApprovalListingView extends AbstractComponent {
 
     componentDidMount() {
         if (this.props.indicatorActionName) {
-            setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
+            setTimeout(() => {
+                this.dispatchAction(this.props.indicatorActionName, {loading: false});
+                const options = this.getService(FormMappingService).getAllWithEnableApproval()
+                    .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
+                const optionsWithAll = [placeHolderPicker, ...options];
+                this.setState({allFilterItems: optionsWithAll});
+            }, 0);
         }
     }
 
@@ -59,29 +68,35 @@ class ApprovalListingView extends AbstractComponent {
         const schemaAndQueryFilter = value;
         const reportCard = this.getService(EntityService).findByUUID(this.props.reportCardUUID, ReportCard.schema.name);
         const {result} = this.getService(ReportCardService).getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter);
-        this.setState({results: result});
+        this.setState({results: result, selectedFilterPicker: schemaAndQueryFilter});
+    }
+
+    openFilterPicker(value) {
+        this.setState({filterPickerOpened: value});
     }
 
     renderFilter(title) {
-        const options = this.getService(FormMappingService).getAllWithEnableApproval()
-            .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
-        const optionsWithAll = [{label: 'All', value: {schema: null, filterQuery: null}}, ...options];
-        const total = _.map(this.state.results, ({data}) => data.length).reduce((total, l) => total + l, 0);
-        const maxFormLength = _.max(_.map(options, ({label}) => label.length));
+        const {allFilterItems, filterPickerOpened, selectedFilterPicker, results} = this.state;
+
+        const total = _.map(results, ({data}) => data.length).reduce((total, l) => total + l, 0);
+        const maxFormLength = _.max(_.map(allFilterItems, ({label}) => label.length));
         return (
             <View style={styles.filterContainer}>
-                <View style={{flex: 0.5, flexWrap: 'wrap'}}>
+                <View>
                     <Text style={{color: Colors.DetailsTextColor}}>{`Showing ${total} ${title} requests`}</Text>
                 </View>
-                <View style={{flex: 0.5}}>
+                <View style={{marginTop: 10}}>
                     <DropDownPicker
-                        items={optionsWithAll}
+                        items={allFilterItems}
+                        open={filterPickerOpened}
+                        setOpen={(value) => this.openFilterPicker(value)}
                         containerStyle={{height: maxFormLength}}
                         itemStyle={{justifyContent: 'flex-start'}}
                         placeholder={'Select type'}
                         dropDownStyle={{backgroundColor: '#fafafa'}}
                         arrowColor={Colors.DefaultPrimaryColor}
-                        onChangeItem={this.onFilterChange.bind(this)}
+                        onSelectItem={this.onFilterChange.bind(this)}
+                        value={selectedFilterPicker}
                         customArrowUp={() => <Icon name={'caret-up'} size={18}/>}
                         customArrowDown={() => <Icon name={'caret-down'} size={18}/>}
                     />
@@ -102,16 +117,18 @@ class ApprovalListingView extends AbstractComponent {
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
                 {this.renderFilter(this.I18n.t(title))}
-                <SafeAreaView style={{marginBottom: 150}}>
-                    <SectionList
-                        sections={this.state.results}
-                        keyExtractor={(item) => item.uuid}
-                        renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
-                        initialNumToRender={50}
-                        updateCellsBatchingPeriod={500}
-                        maxToRenderPerBatch={20}
-                    />
-                </SafeAreaView>
+                <ScrollView>
+                    <SafeAreaView style={{marginBottom: 10}}>
+                        <SectionList
+                            sections={this.state.results}
+                            keyExtractor={(item) => item.uuid}
+                            renderItem={({item, section}) => this.renderItem(item, section, onApprovalSelection)}
+                            initialNumToRender={50}
+                            updateCellsBatchingPeriod={500}
+                            maxToRenderPerBatch={20}
+                        />
+                    </SafeAreaView>
+                </ScrollView>
             </CHSContainer>
         )
     }
@@ -130,8 +147,7 @@ const styles = StyleSheet.create({
     filterContainer: {
         marginHorizontal: 16,
         marginVertical: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
         alignItems: 'center'
     }
 });

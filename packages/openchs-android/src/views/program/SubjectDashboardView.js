@@ -78,7 +78,6 @@ class SubjectDashboardView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const {enrolmentUUID, individualUUID, backFunction} = this.state;
-        General.logDebug(this.viewName(), individualUUID);
         const options = [
             [this.icon(MCIcon, 'face-agent', this.state.individualProfile), this.I18n.t('profile'), () => this.dispatchAction(Actions.ON_PROFILE_CLICK), this.state.individualProfile, true],
             [this.icon(OIcon, 'project', this.state.program), this.I18n.t('programs'), () => this.dispatchAction(Actions.ON_PROGRAM_CLICK), this.state.program, this.state.displayProgramTab],
@@ -91,6 +90,7 @@ class SubjectDashboardView extends AbstractComponent {
                     <View style={{backgroundColor: Styles.defaultBackground}}>
                         <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                         <IndividualProfile individual={this.state.individual}
+                                           displayOnly={false}
                                            viewContext={IndividualProfile.viewContext.NonWizard}
                                            programsAvailable={this.state.programsAvailable}
                                            hideEnrol={this.state.hideEnrol}

@@ -8,8 +8,9 @@ import {TaskActionNames as Actions} from "../../action/task/TaskActions";
 import PropTypes from "prop-types";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import TaskFormView from "./TaskFormView";
-import {Icon} from "native-base";
-
+import Icon from "react-native-vector-icons/MaterialIcons";
+import Colors from '../primitives/Colors';
+import {Actions as TaskListActions} from '../../action/task/TaskListActions';
 class TaskStatusPicker extends AbstractComponent {
 
     static propTypes = {
@@ -21,6 +22,10 @@ class TaskStatusPicker extends AbstractComponent {
         this.setValue = this.setValue.bind(this);
     }
 
+    UNSAFE_componentWillMount() {
+        super.UNSAFE_componentWillMount();
+        this.dispatchAction(Actions.ON_STATUS_TOGGLE, {task: this.props.task});
+    }
 
     setOpen(open) {
         //do nothing
@@ -37,14 +42,17 @@ class TaskStatusPicker extends AbstractComponent {
         }).bookmark().to(TaskFormView, true);
         this.dispatchAction(Actions.ON_STATUS_CHANGE,
             {statusUUID: value, task: this.props.task, moveToDetailsPage});
+        this.dispatchAction(TaskListActions.ON_HIDE_TASK_STATUS_CHANGE_MODAL, {
+            task: this.props.task
+        })
     }
 
 
     render() {
+        console.log('rendering task', this.props.task.uuid);
         return (
             <Modal transparent={true}
                    onRequestClose={_.noop}
-                   visible={this.state.displayTaskStatusSelector}
             >
                 <View style={{
                     flex: 1,
@@ -62,16 +70,21 @@ class TaskStatusPicker extends AbstractComponent {
                         <View style={{alignItems: 'flex-end'}}>
                             <Icon
                                 name='close'
-                                onPress={() => this.dispatchAction(Actions.ON_STATUS_TOGGLE, {
-                                    display: false,
+                                onPress={() => this.dispatchAction(TaskListActions.ON_HIDE_TASK_STATUS_CHANGE_MODAL, {
                                     task: this.props.task
                                 })}
+                                style={{
+                                    color: Colors.DefaultPrimaryColor,
+                                    opacity: 0.8,
+                                    fontSize: 24,
+                                    padding: 8
+                                }}
                             />
                         </View>
                         <View style={{height: 100, width: '100%'}}>
                             <DropDownPicker
                                 items={this.state.taskStatusList}
-                                value={this.state.task.taskStatus.uuid}
+                                value={this.props.task.taskStatus.uuid}
                                 open={true}
                                 setValue={this.setValue}
                                 setOpen={this.setOpen}

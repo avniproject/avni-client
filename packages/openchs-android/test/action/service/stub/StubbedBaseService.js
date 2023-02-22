@@ -14,6 +14,10 @@ class StubbedBaseService {
     getAllNonVoided() {
         return this.serviceData;
     }
+
+    loadAllNonVoided() {
+        return this.serviceData;
+    }
 }
 
 export default StubbedBaseService;

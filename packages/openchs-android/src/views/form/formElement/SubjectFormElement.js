@@ -57,6 +57,8 @@ class SubjectFormElement extends AbstractFormElement {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             answerUUID: subjectUUID,
+            parentFormElement: this.props.parentElement,
+            questionGroupIndex: this.props.questionGroupIndex,
         });
     }
 
@@ -80,6 +82,8 @@ class SubjectFormElement extends AbstractFormElement {
                         this.dispatchAction(this.props.actionName, {
                             formElement: this.props.element,
                             answerUUID: individual.uuid,
+                            parentFormElement: this.props.parentElement,
+                            questionGroupIndex: this.props.questionGroupIndex,
                         });
                     }
                 }).to(IndividualSearchView, true);

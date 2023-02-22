@@ -122,7 +122,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, updatedSyncSource});
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
@@ -132,7 +132,7 @@ class SyncService extends BaseService {
 
         // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
-        console.log('mediaUploadRequired', mediaUploadRequired);
+        General.logDebug('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
         const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         return mediaUploadRequired ?

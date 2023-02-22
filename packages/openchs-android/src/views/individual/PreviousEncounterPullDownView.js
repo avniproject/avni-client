@@ -1,19 +1,19 @@
-import {View} from "react-native";
+import {View} from 'react-native';
 import PropTypes from 'prop-types';
-import React from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import IndividualProfile from "../common/IndividualProfile";
-import Colors from "../primitives/Colors";
-import Fonts from "../primitives/Fonts";
-import Distances from "../primitives/Distances";
-import {Button, Icon, Text} from "native-base";
-import PreviousEncounters from "../common/PreviousEncounters";
-import Separator from "../primitives/Separator";
+import React from 'react';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import IndividualProfile from '../common/IndividualProfile';
+import Colors from '../primitives/Colors';
+import Fonts from '../primitives/Fonts';
+import Distances from '../primitives/Distances';
+import {Button, IconButton} from 'native-base';
+import PreviousEncounters from '../common/PreviousEncounters';
+import Separator from '../primitives/Separator';
 import DynamicGlobalStyles from '../primitives/DynamicGlobalStyles';
-import Styles from "../primitives/Styles";
-import General from "../../utility/General";
+import Styles from '../primitives/Styles';
+import General from '../../utility/General';
 import {Form} from 'avni-models';
-import AvniIcon from "../common/AvniIcon";
+import AvniIcon from '../common/AvniIcon';
 
 class PreviousEncounterPullDownView extends AbstractComponent {
     static propTypes = {
@@ -41,27 +41,25 @@ class PreviousEncounterPullDownView extends AbstractComponent {
             <View style={{flexDirection: 'column'}}>
                 <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
                                    individual={this.props.individual}
+                                   displayOnly={true}
                                    textColor={Colors.DefaultPrimaryColor}
                                    style={{
                                        backgroundColor: Colors.GreyContentBackground,
                                        paddingHorizontal: Distances.ContentDistanceFromEdge
                                    }}/>
-                <Text style={{height: 11, backgroundColor: Colors.GreyContentBackground}}
-                      onPress={this.toggleExpandCollapse}/>
-                <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10}}>
-                    <Button secondary
-                            rightIcon={<AvniIcon color={'#212121'} name='arrow-downward' type='MaterialIcons'/>}
+                <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                    <IconButton
+                            icon={<AvniIcon color={'#212121'}  style={{fontSize: Fonts.Large}} name='arrow-downward' type='MaterialIcons'/>}
                             style={{
                                 position: 'absolute',
-                                width: 81,
-                                height: 50,
+                                bottom: -10,
+                                width: 96,
+                                height: 36,
                                 backgroundColor: Colors.SecondaryActionButtonColor,
-                                bottom: -20,
+                                borderRadius: 18
                             }}
-                            _text={{fontSize: Fonts.Normal, color: Styles.greyText}}
-                            onPress={this.toggleExpandCollapse}>Expand</Button>
+                            onPress={this.toggleExpandCollapse}/>
                 </View>
-                <Text style={{backgroundColor: 'transparent', height: 11}} onPress={this.toggleExpandCollapse}/>
             </View>
         );
     }
@@ -74,7 +72,7 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                     paddingHorizontal: Distances.ScaledContentDistanceFromEdge
                 }}>
                     <IndividualProfile viewContext={IndividualProfile.viewContext.Wizard}
-                                       individual={this.props.individual} textColor={Colors.TextOnPrimaryColor}/>
+                                       individual={this.props.individual} textColor={Colors.TextOnPrimaryColor} displayOnly={true}/>
                     <Separator style={{marginTop: DynamicGlobalStyles.resizeHeight(16)}}/>
                 </View>
                 <PreviousEncounters encounters={this.props.encounters}
@@ -87,21 +85,17 @@ class PreviousEncounterPullDownView extends AbstractComponent {
                 }} showPartial={false}/>
 
                 <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                    <View style={{width: 90}}>
-                        <Button rightIcon={<AvniIcon style={{color: '#212121'}} name='arrow-upward'/>}
-                                style={{
-                                    position: 'absolute',
-                                    height: 22,
-                                    backgroundColor: Colors.SecondaryActionButtonColor,
-                                    bottom: -11
-                                }}
-                                onPress={this.toggleExpandCollapse}
-                                textStyle={{color: '#212121'}}>
-                            <Text style={{fontSize: Fonts.Normal}} onPress={this.toggleExpandCollapse}>Collapse</Text>
-                        </Button>
-                    </View>
+                    <Button secondary
+                            rightIcon={<AvniIcon color={'#212121'} name='arrow-upward' type='MaterialIcons'/>}
+                            style={{
+                                position: 'absolute',
+                                bottom: -10,
+                                width: 96,
+                                backgroundColor: Colors.SecondaryActionButtonColor,
+                            }}
+                            _text={{fontSize: Fonts.Normal, color: Styles.greyText}}
+                            onPress={this.toggleExpandCollapse}/>
                 </View>
-                <Text style={{backgroundColor: 'transparent', height: 11}} onPress={this.toggleExpandCollapse}/>
             </View>
         );
     }

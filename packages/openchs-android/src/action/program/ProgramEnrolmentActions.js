@@ -25,25 +25,26 @@ export class ProgramEnrolmentActions {
 
     static onLoad(state: ProgramEnrolmentState, action, context) {
         if (ProgramEnrolmentState.hasEnrolmentOrItsUsageChanged(state, action) || action.forceLoad) {
+            const enrolment = action.enrolment.cloneForEdit();
             const formMappingService = context.get(FormMappingService);
             const isProgramEnrolment = action.usage === ProgramEnrolmentState.UsageKeys.Enrol;
             const form =
                 isProgramEnrolment
-                    ? formMappingService.findFormForProgramEnrolment(action.enrolment.program, action.enrolment.individual.subjectType)
-                    : formMappingService.findFormForProgramExit(action.enrolment.program, action.enrolment.individual.subjectType);
+                    ? formMappingService.findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType)
+                    : formMappingService.findFormForProgramExit(enrolment.program, enrolment.individual.subjectType);
 
             //Populate identifiers much before form elements are hidden or sent to rules.
             //This will enable the value to be used in rules
-            context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(action.enrolment.observations));
+            context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(enrolment.observations));
             const groupAffiliationState = new GroupAffiliationState();
-            const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(action.enrolment.program, action.enrolment.individual.subjectType);
-            context.get(GroupSubjectService).populateGroups(action.enrolment.individual.uuid, enrolmentForm, groupAffiliationState);
-            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(action.enrolment.uuid);
+            const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType);
+            context.get(GroupSubjectService).populateGroups(enrolment.individual.uuid, enrolmentForm, groupAffiliationState);
+            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(enrolment.uuid);
             const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
             let formElementStatuses = context
                 .get(RuleEvaluationService)
-                .getFormElementsStatuses(action.enrolment, ProgramEnrolment.schema.name, formElementGroup);
+                .getFormElementsStatuses(enrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
             const timerState = formElementGroup.timed && isNewEnrolment ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
             let programEnrolmentState = new ProgramEnrolmentState(
@@ -51,7 +52,7 @@ export class ProgramEnrolmentActions {
                 formElementGroup,
                 new Wizard(numberOfPages),
                 action.usage,
-                action.enrolment,
+                enrolment,
                 isNewEnrolment,
                 filteredElements,
                 action.workLists,

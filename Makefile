@@ -126,6 +126,9 @@ release_prod: renew_env release_prod_without_clean
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
 
+release_prod_unsigned_without_clean: as_prod
+	enableSeparateBuildPerCPUArchitecture=false make release
+
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 release_staging: renew_env release_staging_without_clean
@@ -177,6 +180,10 @@ dat := $(shell /bin/date "+%Y-%m-%d-%H-%M-%S")
 get_db: ## Get realmdb and copy to ../
 	mkdir -p ../db; adb pull /data/data/${app_android_package_name}/files/default.realm ../db
 
+get_anon_db: ## Get anon realmdb and copy to ../
+	mkdir -p ../db; adb pull /data/data/${app_android_package_name}/files/anonymized.realm ../db
+	adb shell rm /data/data/${app_android_package_name}/files/anonymized.realm
+
 appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 
 put_db: ## Apply realmdb from ../default.realm
@@ -188,7 +195,8 @@ rm_db:
 kill_realm_browser:
 	pkill "Realm Browser" || true
 
-open_db: rm_db get_db ## Open realmdb in Realm Browser
+open_db: rm_db get_db open_db_only
+open_db_only:
 	$(call _open_resource,../db/default.realm)
 # </db>
 
@@ -266,6 +274,10 @@ analyse_crash: ##
 screencap:
 	mkdir -p ./tmp/
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
+
+upload-prod-apk-unsigned:
+	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
 
 upload-staging-apk:
 	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
@@ -352,13 +364,13 @@ else
 endif
 
 deploy_platform_translations_staging:
-	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.avniproject.org port=443 username=admin password=$(password)
+	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
 
 deploy_platform_translations_uat:
 	make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.avniproject.org port=443 username=admin password=$(password)
 
 deploy_platform_translations_prerelease:
-	make deploy_translations poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.avniproject.org port=443 username=admin password=$(password)
+	make deploy_translations poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.avniproject.org port=443 username=admin password=$(OPENCHS_PRERELEASE_ADMIN_PASSWORD)
 
 deploy_platform_translations_live:
 	make deploy_translations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.avniproject.org port=443 username=admin password=$(password)

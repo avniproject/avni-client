@@ -16,11 +16,11 @@ it('should toggle coded metadata fields', function () {
     const state = TaskFilterState.createEmptyState();
     TaskFilterState.initialise(state, [taskType], taskType, [taskStatus], "foo");
 
-    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept1);
+    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept1.uuid);
     assert.equal(state.taskMetadataValues["uuid-1"].length, 1);
-    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept2);
+    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept2.uuid);
     assert.equal(state.taskMetadataValues["uuid-1"].length, 2);
-    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept1);
+    TaskFilterState.changeMetadataCodedAnswer(state, concept, answerConcept1.uuid);
     assert.equal(state.taskMetadataValues["uuid-1"].length, 1);
 });
 
@@ -31,10 +31,10 @@ it('should toggle task status', function () {
     const taskType = TestTaskTypeFactory.create({metadataSearchFields: []});
     const state = TaskFilterState.createEmptyState();
     TaskFilterState.initialise(state, [taskType], taskType, [taskStatus1, taskStatus2], "foo");
-    TaskFilterState.toggleTaskStatus(state, taskStatus1);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus1});
     assert.equal(state.selectedTaskStatuses.length, 1);
-    TaskFilterState.toggleTaskStatus(state, taskStatus2);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus2});
     assert.equal(state.selectedTaskStatuses.length, 2);
-    TaskFilterState.toggleTaskStatus(state, taskStatus2);
+    TaskFilterState.toggleTaskStatus(state, {taskStatus: taskStatus2});
     assert.equal(state.selectedTaskStatuses.length, 1);
 });

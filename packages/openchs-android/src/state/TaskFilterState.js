@@ -60,10 +60,10 @@ class TaskFilterState {
         };
     }
 
-    static changeMetadataCodedAnswer(state, concept, answerConcept) {
+    static changeMetadataCodedAnswer(state, concept, answerConceptUuid) {
         const answers = state.taskMetadataValues[concept.uuid];
-        if (_.remove(answers, (x) => x.uuid === answerConcept.uuid).length === 0)
-            answers.push(answerConcept);
+        if (_.remove(answers, (x) => x.uuid === answerConceptUuid).length === 0)
+            answers.push(concept.getAnswerWithConceptUuid(answerConceptUuid).concept);
         return state;
     }
 
@@ -71,9 +71,9 @@ class TaskFilterState {
         return initialiseForTaskType(state, taskType, taskStatuses);
     }
 
-    static toggleTaskStatus(state, taskStatus) {
-        if (_.remove(state.selectedTaskStatuses, (x) => x.uuid === taskStatus.uuid).length === 0)
-            state.selectedTaskStatuses.push(taskStatus);
+    static toggleTaskStatus(state, action) {
+        if (_.remove(state.selectedTaskStatuses, (x) => x.uuid === action.taskStatus.uuid).length === 0)
+            state.selectedTaskStatuses.push(action.taskStatus);
         return state;
     }
 

@@ -1,12 +1,10 @@
-import PropTypes from 'prop-types';
 import React from "react";
-import {View, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import ListView from "deprecated-react-native-listview";
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import themes from "../primitives/themes";
 import {FamilyFolderActionNames as Actions} from "../../action/familyFolder/FamilyFolderActions";
 import AppHeader from "../common/AppHeader";
 import Colors from '../primitives/Colors';
@@ -17,7 +15,7 @@ import Distances from '../primitives/Distances'
 import Separator from '../primitives/Separator';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import FamilyRegisterView from "../familyfolder/FamilyRegisterView";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AvniIcon from '../common/AvniIcon';
 
 @Path('/FamilyFolder')
 class FamilyFolderView extends AbstractComponent {
@@ -80,8 +78,8 @@ class FamilyFolderView extends AbstractComponent {
                     </View>
                 </CHSContent>
                 <TouchableOpacity activeOpacity={0.5} onPress={this._onPressButton.bind(this)} style ={FamilyFolderView.styles.TouchableOpacityStyle}>
-                    <Icon name='account-multiple-plus' size={40}
-                           style={FamilyFolderView.styles.FloatingButtonStyle} />
+                    <AvniIcon name='account-multiple-plus' type='MaterialCommunityIcons'
+                              style={{fontSize: 40, ...FamilyFolderView.styles.FloatingButtonStyle}}/>
                 </TouchableOpacity>
             </CHSContainer>
         );

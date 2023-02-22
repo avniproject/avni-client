@@ -5,6 +5,7 @@ import {ImageViewer} from "react-native-image-zoom-viewer";
 import _ from 'lodash';
 import {Button, Icon} from "native-base";
 import Colors from "../primitives/Colors";
+import AvniIcon from "./AvniIcon";
 
 export default class ExpandableImage extends React.Component {
     static propTypes = {
@@ -37,15 +38,13 @@ export default class ExpandableImage extends React.Component {
             </TouchableNativeFeedback>
             {this.state.showModal && (
                 <Modal onRequestClose={() => this.hideModal()}>
-                    <View style={{backgroundColor: 'black'}}>
-                        <Button transparent onPress={() => this.hideModal()}
-                                style={{height: 20, alignSelf: 'flex-end', marginTop: 10}}>
-                            <Icon style={{fontSize: 35, color: Colors.headerIconColor}} name='close'
-                                  type='MaterialIcons'/>
+                    <View style={{backgroundColor: "black", padding: 5}}>
+                        <Button onPress={() => this.hideModal()}
+                                style={{height: 35, alignSelf: 'flex-end'}}
+                                leftIcon={<AvniIcon type="MaterialIcons" name="close" style={{color: Colors.headerIconColor, fontSize: 15}}/>}>
                         </Button>
                     </View>
-                    <ImageViewer imageUrls={_.map(mediaPath, path => ({url: `file://${path}`}))}
-                    />
+                    <ImageViewer imageUrls={_.map(mediaPath, path => ({url: `file://${path}`}))}/>
                 </Modal>
             )}
         </View>

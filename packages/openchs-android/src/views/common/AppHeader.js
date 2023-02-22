@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import {Icon} from "native-base";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import {Platform, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";

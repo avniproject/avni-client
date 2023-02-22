@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {Modal, StyleSheet, TouchableNativeFeedback, View} from "react-native";
 import Colors from "../primitives/Colors";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import VideoPlayerWrapper from "../videos/VideoPlayerWrapper";
+import AvniIcon from './AvniIcon';
 
 export default class ExpandableAudio extends React.Component {
     static propTypes = {
@@ -28,7 +28,7 @@ export default class ExpandableAudio extends React.Component {
         return <View>
             <TouchableNativeFeedback onPress={() => this.showModal()}>
                 <View style={styles.previewContainer}>
-                    <Icon name={'headphones'} style={styles.playIconStyle}/>
+                    <AvniIcon name='headphones' style={styles.playIconStyle} type='MaterialCommunityIcons'/>
                 </View>
             </TouchableNativeFeedback>
             {this.state.showModal && (

@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, TouchableNativeFeedback, View, ScrollView} from 'react-native';
+import {ScrollView, Text, TouchableNativeFeedback, View} from 'react-native';
 import ListView from "deprecated-react-native-listview";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -7,7 +7,6 @@ import Reducers from "../../reducer";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
 import Colors from '../primitives/Colors';
 import CHSContainer from "../common/CHSContainer";
-import CHSContent from "../common/CHSContent";
 import StatusCountRow from './StatusCountRow';
 import Separator from '../primitives/Separator';
 import AppHeader from "../common/AppHeader";
@@ -15,11 +14,13 @@ import DashboardFilters from "./DashboardFilters";
 import CHSNavigator from "../../utility/CHSNavigator";
 import General from "../../utility/General";
 import CustomActivityIndicator from "../CustomActivityIndicator";
-import {Icon} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
 import moment from "moment";
 import RefreshReminder from "./RefreshReminder";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
+import AvniIcon from '../common/AvniIcon';
+import _ from 'lodash';
+import OrganisationConfigService from '../../service/OrganisationConfigService';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -29,6 +30,7 @@ class MyDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
         this.disableAutoRefresh = context.getService(UserInfoService).getUserInfo().getSettings().disableAutoRefresh;
+        this.hideTotalForProgram = context.getService(OrganisationConfigService).hasHideTotalForProgram();
     }
 
     viewName() {
@@ -77,12 +79,12 @@ class MyDashboardView extends AbstractComponent {
                     <TouchableNativeFeedback onPress={() => this.refreshDashBoard()}
                                              background={TouchableNativeFeedback.SelectableBackground()}>
                         <View style={{marginRight: 10, alignItems: 'center'}}>
-                            <Icon style={{
+                            <AvniIcon style={{
                                 color: Colors.AccentColor,
                                 opacity: 0.8,
                                 alignSelf: 'center',
                                 fontSize: 30
-                            }} name='refresh'/>
+                            }} name='refresh' type={"MaterialIcons"} />
                         </View>
                     </TouchableNativeFeedback> : <View/>}
             </View>
@@ -94,9 +96,17 @@ class MyDashboardView extends AbstractComponent {
         setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: true}), 0);
     }
 
+    renderableVisits() {
+        const {selectedPrograms, selectedGeneralEncounterTypes, visits} = this.state;
+        if(_.isEmpty(selectedGeneralEncounterTypes) && (!this.hideTotalForProgram || _.isEmpty(selectedPrograms))) {
+          return visits;
+        }
+        return _.filter(visits, (visit) => _.isNil(visit.visits.total));
+    }
+
     render() {
-        General.logDebug(this.viewName(), 'render');
-        const dataSource = this.ds.cloneWithRows((this.state.visits));
+        General.logDebug(this.viewName(), "render");
+        const dataSource = this.ds.cloneWithRows(this.renderableVisits());
         const date = this.state.date;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>

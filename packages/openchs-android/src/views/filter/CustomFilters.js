@@ -19,12 +19,11 @@ import moment from "moment";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import IndividualService from "../../service/IndividualService";
 import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
-import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
+import UserInfoService from "../../service/UserInfoService";
 
 class CustomFilters extends AbstractComponent {
-
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.customFilterActions);
         this.conceptService = context.getService(ConceptService);
@@ -269,19 +268,32 @@ class CustomFilters extends AbstractComponent {
         </View>, idx)
     }
 
+    dispatchCodedAction(conceptAnswerName, conceptAnswers) {
+        this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT,
+            {
+                titleKey: filter.titleKey,
+                subjectTypeUUID: filter.subjectTypeUUID,
+                conceptAnswerName,
+                conceptAnswers
+            });
+    }
+
     codedConceptFilter(concept, filter, idx) {
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const conceptAnswers = concept.getAnswers();
         const selectedOne = this.state.selectedCustomFilters[filter.titleKey].map(c => c.name);
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.titleKey, optsFnMap, new Map(), selectedOne).selectOption(selectedOne);
         return this.wrap(<MultiSelectFilter filter={filterModel}
-                                            onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT,
-                                                {
-                                                    titleKey: filter.titleKey,
-                                                    subjectTypeUUID: filter.subjectTypeUUID,
-                                                    conceptAnswerName,
-                                                    conceptAnswers
-                                                })}/>, idx);
+                                   locale={locale}
+                                   I18n={this.I18n}
+                                   onSelect={(conceptAnswerName) => this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT,
+                                       {
+                                           titleKey: filter.titleKey,
+                                           subjectTypeUUID: filter.subjectTypeUUID,
+                                           conceptAnswerName,
+                                           conceptAnswers
+                                       })}/>, idx);
     }
 
     _invokeCallbacks() {
@@ -296,10 +308,8 @@ class CustomFilters extends AbstractComponent {
                 {this.renderConceptFilters(_.filter(this.props.filters, filter => filter.type === CustomFilter.type.Concept))}
                 {this.renderOtherFilters(_.filter(this.props.filters, filter => filter.type !== CustomFilter.type.Concept))}
             </View>
-        )
-
+        );
     }
-
 }
 
 const styles = {

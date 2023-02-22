@@ -4,35 +4,33 @@ import React from 'react';
 import {CountResult} from "./CountResult";
 import {get} from "lodash";
 
+const renderIcon = function(iconName, textColor) {
+    return (
+        <View style={styles.iconContainer}>
+            <Icon name={iconName} size={30} color={textColor} style={{opacity: 0.8}}/>
+        </View>
+    )
+};
+
+const renderNumber = function (countResult, textColor) {
+    return (_.isNil(get(countResult, 'primaryValue')) ?
+            <ActivityIndicator size="small" color={textColor}/> :
+            <CountResult
+                direction={'row'}
+                primary={countResult.primaryValue}
+                secondary={countResult.secondaryValue}
+                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}]}
+                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}]}
+            />
+    )
+};
+
+const cardGap = 16;
+
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
-
-    const {name, uuid} = reportCard;
-    const cardGap = 16;
+    const {name, uuid, textColor, iconName} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
-    const textColor = reportCard.textColor;
     const cardColor = reportCard.cardColor || '#ffffff';
-    const iconName = reportCard.iconName;
-
-    const renderIcon = () => {
-        return (
-            <View style={styles.iconContainer}>
-                <Icon name={iconName} size={30} color={textColor} style={{opacity: 0.8}}/>
-            </View>
-        )
-    };
-
-    const renderNumber = () => {
-        return (_.isNil(get(countResult, 'primaryValue')) ?
-                <ActivityIndicator size="small" color={textColor}/> :
-                <CountResult
-                    direction={'row'}
-                    primary={countResult.primaryValue}
-                    secondary={countResult.secondaryValue}
-                    primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}]}
-                    secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}]}
-                />
-        )
-    };
 
     return (
         <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(countResult, 'clickable')}>
@@ -45,12 +43,12 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                   }]}>
                 <View style={{flexDirection: 'row'}}>
                     <View style={styles.leftContainer}>
-                        <View style={{height: 20, marginBottom: 10}}>
-                            {renderNumber()}
+                        <View style={{height: 30, marginBottom: 10}}>
+                            {renderNumber(countResult, textColor)}
                         </View>
                         <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(name)}</Text>
                     </View>
-                    {iconName && renderIcon()}
+                    {iconName && renderIcon(iconName, textColor)}
                 </View>
             </View>
         </TouchableNativeFeedback>
@@ -59,7 +57,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
 
 const styles = StyleSheet.create({
     container: {
-        height: 80,
+        minHeight: 90,
         borderRadius: 8,
         elevation: 2,
         justifyContent: 'center',

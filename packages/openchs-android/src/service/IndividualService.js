@@ -22,6 +22,7 @@ import EncounterService from "./EncounterService";
 import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
+import OrganisationConfigService from './OrganisationConfigService';
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -34,7 +35,6 @@ class IndividualService extends BaseService {
         this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
         this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
-        this.allIn = this.allIn.bind(this);
     }
 
     getSchema() {
@@ -44,6 +44,7 @@ class IndividualService extends BaseService {
     init() {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
+        this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram();
     }
 
     search(criteria) {
@@ -96,7 +97,7 @@ class IndividualService extends BaseService {
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         const programs = this.getService(FormMappingService).findActiveProgramsForSubjectType(individual.subjectType);
-        const nonEnrolledPrograms = individual.eligiblePrograms(programs);
+        const nonEnrolledPrograms = individual.staticallyEligiblePrograms(programs);
         const ruleEvaluationService = this.getService(RuleEvaluationService);
         const enrolProgramCriteria = `privilege.name = '${Privilege.privilegeName.enrolSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}'`;
         const privilegeService = this.getService(PrivilegeService);
@@ -112,7 +113,6 @@ class IndividualService extends BaseService {
 
     _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
         const permissionAllowed = individualWithVisit.visitInfo.allow;
-
         if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
             const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
             const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
@@ -134,7 +134,15 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allIn(ignored, queryAdditions) {
+    allInWithFilters = (ignored, queryAdditions, programs = [], encounterTypes = []) => {
+        if(_.isEmpty(encounterTypes) && (!this.hideTotalForProgram || _.isEmpty(programs))) {
+            return this.allIn(ignored, queryAdditions);
+        }
+        return null;
+    }
+
+    allIn = (ignored, queryAdditions) => {
+
         return this.db.objects(Individual.schema.name)
             .filtered('voided = false ')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
@@ -349,8 +357,7 @@ class IndividualService extends BaseService {
                 fromDate)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
-                const individual = enc.programEnrolment.individual;
-                return individual;
+                return enc.programEnrolment.individual;
             })
             .reduce(this._uniqIndividualsFrom, new Map())
             .values()]
@@ -411,30 +418,37 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyRegistered(date, addressQuery) {
+    recentlyRegistered(date, addressQuery, programs = [], encounterTypes = []) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
-        return [...this.db.objects(Individual.schema.name)
+        let individuals = this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
                 tillDate,
                 fromDate)
             .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
-            .map((individual) => {
-                const registrationDate = individual.registrationDate;
-                return {
-                    individual,
-                    visitInfo: {
-                        uuid: individual.uuid,
-                        visitName: [],
-                        groupingBy: General.formatDate(registrationDate),
-                        sortingBy: registrationDate,
-                        allow: true,
-                    }
-                };
-            })
-            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .map((individual) => individual);
+
+        if (encounterTypes.length > 0 && programs.length > 0) {
+            individuals = _.filter(individuals, (individual) => individual.hasProgramEncounterOfType(encounterTypes));
+        } else if (encounterTypes.length > 0) {
+            individuals = _.filter(individuals, (individual) => individual.hasEncounterOfType(encounterTypes));
+        }
+
+        return [...individuals.map((individual) => {
+            const registrationDate = individual.registrationDate;
+            return {
+                individual,
+                visitInfo: {
+                    uuid: individual.uuid,
+                    visitName: [],
+                    groupingBy: General.formatDate(registrationDate),
+                    sortingBy: registrationDate,
+                    allow: true,
+                }
+            };
+        }).reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -579,8 +593,7 @@ class IndividualService extends BaseService {
 
     getSubjectsInLocation(addressLevel, subjectTypeName) {
         return this.getAllNonVoided()
-            .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName)
-            .map(_.identity);
+            .filtered('lowestAddressLevel.uuid = $0 and subjectType.name = $1', addressLevel.uuid, subjectTypeName);
     }
 
     getSubjectWithTheNameAndType({firstName, middleName, lastName, subjectType, uuid}) {

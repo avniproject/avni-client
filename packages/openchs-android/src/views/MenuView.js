@@ -206,6 +206,15 @@ class MenuView extends AbstractComponent {
         return `${unSyncedDataMessage} ${noSyncCompletedMessage} ${this.I18n.t('uploadCatchmentDatabaseActionRecommended')}`;
     }
 
+    createAnonymizedDatabase() {
+        this.dispatchAction(MenuActionNames.ON_ANONYMIZE_DB, {
+            onAnonymizeDBCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_ANONYMIZE_PROGRESS, {
+                percentDone: percentDone,
+                message: message
+            })
+        });
+    }
+
     onNews() {
         TypedTransition.from(this).to(NewsListView);
     }
@@ -283,6 +292,7 @@ class MenuView extends AbstractComponent {
         map.set("changePassword", () => this.changePasswordView());
         map.set("logout", () => this.logout());
         map.set("deleteData", () => this.onDelete());
+        map.set("createAnonymizedDatabase", () => this.createAnonymizedDatabase());
         this.menuActions = map;
     }
 

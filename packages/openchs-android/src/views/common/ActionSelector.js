@@ -138,7 +138,7 @@ class ActionSelector extends AbstractComponent {
                     this.props.hide();
                     onPress();
                 }}>
-                    <View style={[Styles.basicPrimaryButtonView, {backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
+                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
                         <Text style={{
                             fontSize: 18,
                             color: textColor,

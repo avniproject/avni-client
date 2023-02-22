@@ -224,7 +224,7 @@ class FormMappingService extends BaseService {
     }
 
     getAllWithEnableApproval() {
-        return this.getAllNonVoided().filtered('enableApproval = true').sorted('subjectType.name');
+        return this.getAllNonVoided().filtered('enableApproval = true').sorted('subjectType.name').map(_.identity);
     }
 
     formMappingByCriteria(criteriaQuery) {
