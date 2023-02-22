@@ -20,6 +20,7 @@ import RefreshReminder from "./RefreshReminder";
 import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
+import OrganisationConfigService from '../../service/OrganisationConfigService';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -29,6 +30,7 @@ class MyDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.myDashboard);
         this.ds = new ListView.DataSource({rowHasChanged: () => false});
         this.disableAutoRefresh = context.getService(UserInfoService).getUserInfo().getSettings().disableAutoRefresh;
+        this.hideTotalForProgram = context.getService(OrganisationConfigService).hasHideTotalForProgram();
     }
 
     viewName() {
@@ -96,9 +98,10 @@ class MyDashboardView extends AbstractComponent {
 
     renderableVisits() {
         const {selectedPrograms, selectedGeneralEncounterTypes, visits} = this.state;
-        if (!_.isEmpty(selectedPrograms) || !_.isEmpty(selectedGeneralEncounterTypes))
-            return _.filter(visits, (visit) => _.isNil(visit.visits.total));
-        return visits;
+        if(_.isEmpty(selectedGeneralEncounterTypes) && (!this.hideTotalForProgram || _.isEmpty(selectedPrograms))) {
+          return visits;
+        }
+        return _.filter(visits, (visit) => _.isNil(visit.visits.total));
     }
 
     render() {
