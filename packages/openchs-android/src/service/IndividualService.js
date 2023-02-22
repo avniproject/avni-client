@@ -135,11 +135,10 @@ class IndividualService extends BaseService {
     }
 
     allInWithFilters(ignored, queryAdditions, programs = [], encounterTypes = []) {
-        if (encounterTypes.length > 0 || programs.length > 0) {
+        if (encounterTypes.length > 0) {
             return null;
         }
         return this.allIn(ignored, queryAdditions);
-
     }
 
     allIn(ignored, queryAdditions) {
