@@ -184,7 +184,7 @@ class SyncService extends BaseService {
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
         const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
-        return post(`${url}/syncDetailsWithScopeAwareEAS`, entitySyncStatus, true)
+        return post(`${url}/v2/syncDetails`, entitySyncStatus, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,
@@ -213,9 +213,10 @@ class SyncService extends BaseService {
      */
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
         const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
+        const deprecatedEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "deprecated");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-          .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
+          .then(() => this.pushData(_.union(allTxEntityMetaData.slice(), deprecatedEntityMetaData.slice()), onProgressPerEntity))
           .then(() => onAfterMediaPush("After_Media", 0));
         if(isOnlyUploadRequired) {
             return uploadData;

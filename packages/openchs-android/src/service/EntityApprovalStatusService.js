@@ -28,9 +28,9 @@ class EntityApprovalStatusService extends BaseService {
         return EntityApprovalStatus.schema.name;
     }
 
-    saveStatus(entityUUID, entityType, status, db, approvalStatusComment) {
+    saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid) {
         const approvalStatus = this.getService(EntityService).findByKey("status", status, ApprovalStatus.schema.name);
-        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment);
+        const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid);
         const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
         db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
         return savedStatus;
@@ -77,14 +77,16 @@ class EntityApprovalStatusService extends BaseService {
         this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
     }
 
-    createPendingStatus(entityUUID, schema, db) {
-        return this.saveStatus(entityUUID, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db);
+    createPendingStatus(entityUUID, schema, db, entityTypeUuid) {
+        return this.saveStatus(entityUUID, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
     }
 
     saveEntityWithStatus(entity, schema, status, comment) {
         const db = this.db;
+        const entityTypeUuid = _.get(entity, 'subjectType.uuid') || _.get(entity, 'encounterType.uuid') || _.get(entity, 'program.uuid');
+
         this.db.write(() => {
-            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment);
+            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid);
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
