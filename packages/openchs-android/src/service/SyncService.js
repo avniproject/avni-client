@@ -64,7 +64,7 @@ class SyncService extends BaseService {
 
     getProgressSteps(allEntitiesMetaData) {
         const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
-        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
+        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx" || entityMetaData.type === "virtualTx" );
 
         if (this.mediaQueueService.isMediaUploadRequired()) {
             //entities will be used two times during sync
@@ -169,7 +169,7 @@ class SyncService extends BaseService {
     }
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
-        const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.entityName === SyncTelemetry.schema.name);
+        const telemetryMetadata = allEntitiesMetaData.filter(entityMetadata => entityMetadata.schemaName === SyncTelemetry.schema.name);
         const onCompleteOfIndividualPost = (entityMetadata, entityUUID) => this.entityQueueService.popItem(entityUUID)();
         const entitiesToPost = telemetryMetadata.reverse()
             .map(this.entityQueueService.getAllQueuedItems)
@@ -184,13 +184,20 @@ class SyncService extends BaseService {
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
         const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
-        return post(`${url}/syncDetails`, entitySyncStatus, true)
+        return post(`${url}/v2/syncDetails`, entitySyncStatus, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,
                 now,
                 endDateTime: nowMinus10Seconds
             }));
+    }
+
+    updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData) {
+        const entityMetadataEntityNames = _.map(allEntitiesMetaData, 'entityName');
+        return _.filter(syncDetails, (syncDetail) =>
+            entityMetadataEntityNames.includes(syncDetail.entityName)
+        )
     }
 
     async confirmUserAndResetSync(userConfirmation) {
@@ -205,7 +212,7 @@ class SyncService extends BaseService {
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
-        const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
+        const allTxEntityMetaData = _.union(this.getMetadataByType(allEntitiesMetaData, "parentOfVirtualTx"), this.getMetadataByType(allEntitiesMetaData, "tx"));
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
           .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
@@ -226,18 +233,19 @@ class SyncService extends BaseService {
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
-        const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        const filteredTxData = _.union(this.getMetadataByType(filteredMetadata, "virtualTx"), this.getMetadataByType(filteredMetadata, "tx"));
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
-        General.logDebug("SyncService", `Entities to sync ${_.map(syncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
-        this.entitySyncStatusService.updateAsPerSyncDetails(syncDetails);
+        const updatedSyncDetails = this.updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData);
+        General.logDebug("SyncService", `Entities to sync ${_.map(updatedSyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
+        this.entitySyncStatusService.updateAsPerSyncDetails(updatedSyncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
-            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails))
+            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, updatedSyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, updatedSyncDetails, endDateTime))
             .then(() => this.getService(SubjectMigrationService).migrateSubjects())
-            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, updatedSyncDetails, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
@@ -318,7 +326,7 @@ class SyncService extends BaseService {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const entities = entityResources.reduce((acc, resource) => acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]), []);
-        let entitiesToCreateFns = this.createEntities(entityMetaData.entityName, entities);
+        let entitiesToCreateFns = this.createEntities(entityMetaData.schemaName, entities);
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
@@ -340,7 +348,7 @@ class SyncService extends BaseService {
             this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
         }
 
-        if (entityMetaData.entityName === 'EntityApprovalStatus') {
+        if (entityMetaData.schemaName === 'EntityApprovalStatus') {
             const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
             _.forEach(latestApprovalStatuses, ({schema, entity}) => {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
@@ -352,14 +360,12 @@ class SyncService extends BaseService {
         }
 
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
-
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.createEntities(EntitySyncStatus.schema.name, [entitySyncStatus])));
-
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
             entityName: entityMetaData.entityName,
             numberOfPulledEntities: entities.length
