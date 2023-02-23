@@ -11,7 +11,7 @@ import {
     ProgramEncounter,
     ProgramEnrolment,
     GroupSubject
-} from 'openchs-models';
+} from 'avni-models';
 import General from '../utility/General';
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";
