@@ -44,7 +44,7 @@ class IndividualService extends BaseService {
     init() {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
-        this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram();
+        this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
     }
 
     search(criteria) {
@@ -135,7 +135,7 @@ class IndividualService extends BaseService {
     }
 
     allInWithFilters = (ignored, queryAdditions, programs = [], encounterTypes = []) => {
-        if(_.isEmpty(encounterTypes) && (!this.hideTotalForProgram || _.isEmpty(programs))) {
+        if(_.isEmpty(encounterTypes) && (!this.hideTotalForProgram() || _.isEmpty(programs))) {
             return this.allIn(ignored, queryAdditions);
         }
         return null;
