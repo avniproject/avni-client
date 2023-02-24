@@ -8,7 +8,8 @@ googleServices {
 import com.android.build.OutputFile
 
 project.ext.react = [
-        extraPackagerArgs: ["--sourcemap-output", "$buildDir/generated/sourcemap.js"]
+        extraPackagerArgs: ["--sourcemap-output", "$buildDir/generated/sourcemap.js"],
+        enableHermes: true
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -143,6 +144,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
     implementation project(':react-native-device-info')
     implementation "com.facebook.react:react-native:+"
+    implementation 'com.facebook.soloader:soloader:0.10.5'
     implementation 'com.android.support:multidex:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha03'
@@ -150,7 +152,10 @@ dependencies {
     // required to avoid crash on Android 12 API 31
     implementation 'androidx.work:work-runtime:2.7.1'
 
-    implementation jscFlavor
+//    implementation jscFlavor
+    implementation("com.facebook.react:hermes-engine:+") { // From node_modules
+        exclude group:'com.facebook.fbjni'
+    }
 
     debugImplementation('com.facebook.flipper:flipper:0.174.0') {
         exclude group:'com.facebook.fbjni'
