@@ -7,9 +7,12 @@ googleServices {
 
 import com.android.build.OutputFile
 
+def enableHermes = System.getenv("enableHermes") ? System.getenv("enableHermes").toBoolean() : false;
+println('[Avni] Hermes Enabled:' + enableHermes)
+
 project.ext.react = [
         extraPackagerArgs: ["--sourcemap-output", "$buildDir/generated/sourcemap.js"],
-        enableHermes: true
+        enableHermes: enableHermes
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
@@ -30,7 +33,6 @@ def enableSeparateBuildPerCPUArchitecture = System.getenv("enableSeparateBuildPe
  */
 def enableProguardInReleaseBuilds = true
 
-def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -152,9 +154,12 @@ dependencies {
     // required to avoid crash on Android 12 API 31
     implementation 'androidx.work:work-runtime:2.7.1'
 
-//    implementation jscFlavor
-    implementation("com.facebook.react:hermes-engine:+") { // From node_modules
-        exclude group:'com.facebook.fbjni'
+    if (enableHermes) {
+        implementation("com.facebook.react:hermes-engine:+") { // From node_modules
+            exclude group:'com.facebook.fbjni'
+        }
+    } else {
+        implementation 'org.webkit:android-jsc:+'
     }
 
     debugImplementation('com.facebook.flipper:flipper:0.174.0') {
