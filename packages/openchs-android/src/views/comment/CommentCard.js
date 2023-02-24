@@ -74,13 +74,13 @@ class CommentCard extends AbstractComponent {
         const {comment, renderStatus, renderSubjectName} = this.props;
         return (
             <View style={styles.cardContainer}>
-                <View style={{flex: 0.1}}>
+                <View style={{minWidth: 30 , marginRight: 1}}>
                     <MCIcon name={'account-circle'} size={30}/>
                 </View>
-                <View style={{flex: 0.9}}>
+                <View style={{flex: 1}}>
                     <View style={{flex: 1, flexDirection: 'column'}}>
                         <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex: 0.6, flexDirection: 'column'}}>
+                            <View style={{flex: 0.6, flexDirection: 'column', minWidth:20}}>
                                 <Text style={styles.titleTextStyle}>
                                     {this.getUserNameToDisplay(comment)}
                                 </Text>

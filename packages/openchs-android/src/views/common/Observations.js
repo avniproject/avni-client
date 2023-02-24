@@ -241,7 +241,7 @@ class Observations extends AbstractComponent {
                     <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
                 </View>
                 {groupUUID && quickFormEdit &&
-                <View style={{flex: 0.1}}>
+                <View style={{flex: 0.1, minWidth: 5}}>
                     <TouchableOpacity
                         onPress={() => this.onFEGEdit(groupUUID)}>
                         <Text style={{color: Colors.ActionButtonColor,}}>{this.I18n.t('edit')}</Text>
