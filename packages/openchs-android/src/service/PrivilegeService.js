@@ -79,7 +79,7 @@ class PrivilegeService extends BaseService {
         }
         const requiredEntities = ['Encounter', 'ProgramEncounter', 'ChecklistItem', 'Checklist', 'IndividualRelationship', 'ProgramEnrolment', 'Individual'];
         const metadata = EntityMetaData.model().filter(({type, entityName}) => type === "tx" && _.includes(requiredEntities, entityName));
-        const getNonPrivilegeUUIDs = (entityName) => {
+        const x = (entityName) => {
             const {privilegeEntity, privilegeName, privilegeParam} = _.find(metadata, d => d.entityName === entityName);
             return this.getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam);
         };

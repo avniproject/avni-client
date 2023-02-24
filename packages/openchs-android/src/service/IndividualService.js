@@ -72,7 +72,7 @@ class IndividualService extends BaseService {
         const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
         this.db.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                individual.latestEntityApprovalStatus = this.entityApprovalStatusService.createPendingStatus(individual.uuid, Individual.schema.name, db);
+                individual.latestEntityApprovalStatus = this.entityApprovalStatusService.createPendingStatus(individual.uuid, Individual.schema.name, db, individual.subjectType.uuid);
             const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
