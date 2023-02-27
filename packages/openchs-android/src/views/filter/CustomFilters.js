@@ -18,10 +18,11 @@ import TimePicker from "../primitives/TimePicker";
 import moment from "moment";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import IndividualService from "../../service/IndividualService";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import {RadioLabelValue} from "../primitives/RadioGroup";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
 
 class CustomFilters extends AbstractComponent {
     constructor(props, context) {
@@ -125,11 +126,15 @@ class CustomFilters extends AbstractComponent {
             .filter(subject => !_.isEmpty(addressLevelUUIDs) ? _.includes(addressLevelUUIDs, subject.lowestAddressLevel.uuid) : true)
             .map((subject) => new RadioLabelValue(`${subject.nameString} (${subject.lowestAddressLevel.translatedFieldValue})`, subject.uuid));
         const selectedGroupSubjectUUIDs = _.map(this.state.selectedCustomFilters[titleKey], ({groupSubjectUUID}) => groupSubjectUUID);
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
+
         return this.wrap(<View style={{flexDirection: 'column'}}>
-            <RadioGroup
+            <SelectableItemGroup
+                locale={currentLocale}
+                I18n={this.I18n}
                 multiSelect={true}
                 inPairs={true}
-                onPress={({label, value}) => this.onGroupSubjectChange(label, value, filter)}
+                onPress={(value, label) => this.onGroupSubjectChange(label, value, filter)}
                 selectionFn={(groupSubjectUUID) => _.includes(selectedGroupSubjectUUIDs, groupSubjectUUID)}
                 labelKey={titleKey}
                 labelValuePairs={valueLabelPairs}/>
