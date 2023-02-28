@@ -30,6 +30,7 @@ import {RejectionMessage} from "./RejectionMessage";
 import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
 import FormMappingService from "../../service/FormMappingService";
+import {ScrollView} from 'native-base';
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -40,6 +41,7 @@ class ApprovalDetailsView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.approval);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -182,33 +184,35 @@ class ApprovalDetailsView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <AppHeader title={title} hideIcon={true}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
-                    <View style={styles.container}>
-                        <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
-                            {this.renderDetails(entity)}
-                            {this.renderEntityDate(entity, schema, this.I18n)}
-                            <Observations
-                                observations={_.defaultTo(observations, [])}
-                                form={this.findForm(schema, entity)}
-                            />
-                            {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
-                            {showEdit && this.renderEditButton(entity, schema)}
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                        <AppHeader title={title} hideIcon={true}/>
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
+                        <View style={styles.container}>
+                            <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                                {this.renderDetails(entity)}
+                                {this.renderEntityDate(entity, schema, this.I18n)}
+                                <Observations
+                                    observations={_.defaultTo(observations, [])}
+                                    form={this.findForm(schema, entity)}
+                                />
+                                {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
+                                {showEdit && this.renderEditButton(entity, schema)}
+                            </View>
                         </View>
-                    </View>
-                    <ApprovalDialog
-                        primaryButton={this.I18n.t('confirm')}
-                        secondaryButton={this.I18n.t('cancel')}
-                        onPrimaryPress={() => this.dispatchAction(confirmActionName, {
-                            entity,
-                            schema,
-                            cb: this.goBack.bind(this)
-                        })}
-                        onSecondaryPress={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
-                        onClose={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
-                        onInputChange={(value) => this.dispatchAction(Actions.ON_INPUT_CHANGE, {value})}
-                        state={this.state}
-                        I18n={this.I18n}/>
+                        <ApprovalDialog
+                            primaryButton={this.I18n.t('confirm')}
+                            secondaryButton={this.I18n.t('cancel')}
+                            onPrimaryPress={() => this.dispatchAction(confirmActionName, {
+                                entity,
+                                schema,
+                                cb: this.goBack.bind(this)
+                            })}
+                            onSecondaryPress={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
+                            onClose={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
+                            onInputChange={(value) => this.dispatchAction(Actions.ON_INPUT_CHANGE, {value})}
+                            state={this.state}
+                            I18n={this.I18n}/>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         )
