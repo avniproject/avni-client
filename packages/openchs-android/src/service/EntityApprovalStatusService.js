@@ -83,13 +83,25 @@ class EntityApprovalStatusService extends BaseService {
 
     saveEntityWithStatus(entity, schema, status, comment) {
         const db = this.db;
-        const entityTypeUuid = _.get(entity, 'subjectType.uuid') || _.get(entity, 'encounterType.uuid') || _.get(entity, 'program.uuid');
+        const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.db.write(() => {
             entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid);
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
+    }
+
+    _getEntityTypeUuid(entity, schema) {
+        switch (schema) {
+            case(Individual.schema.name) : return _.get(entity, 'subjectType.uuid');
+            case(ProgramEnrolment.schema.name) : return _.get(entity, 'program.uuid');
+            case(Encounter.schema.name) :
+            case(ProgramEncounter.schema.name) :
+                return _.get(entity, 'encounterType.uuid');
+            case(ChecklistItem.name): return _.get(entity, 'checklist.programEnrolment.program.uuid');
+            default : return null;
+        }
     }
 
     _getEntityTypeForSchema(passedSchema) {

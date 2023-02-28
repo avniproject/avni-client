@@ -30,6 +30,7 @@ import {RejectionMessage} from "./RejectionMessage";
 import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
 import FormMappingService from "../../service/FormMappingService";
+import {ScrollView} from "native-base";
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -182,6 +183,7 @@ class ApprovalDetailsView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
+                    <ScrollView>
                     <AppHeader title={title} hideIcon={true}/>
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
                     <View style={styles.container}>
@@ -196,6 +198,7 @@ class ApprovalDetailsView extends AbstractComponent {
                             {showEdit && this.renderEditButton(entity, schema)}
                         </View>
                     </View>
+                    </ScrollView>
                     <ApprovalDialog
                         primaryButton={this.I18n.t('confirm')}
                         secondaryButton={this.I18n.t('cancel')}
