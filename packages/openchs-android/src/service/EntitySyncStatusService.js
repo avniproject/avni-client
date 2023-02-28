@@ -83,6 +83,7 @@ class EntitySyncStatusService extends BaseService {
     }
 
     setup(entityMetaDataModel) {
+        entityMetaDataModel = EntityMetaData.model().filter(({type}) => type !== "parentOfVirtualTx")
         const self = this;
 
         entityMetaDataModel.forEach(function (entity) {
