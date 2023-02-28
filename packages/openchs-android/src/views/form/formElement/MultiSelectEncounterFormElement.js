@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from "prop-types";
 import _ from "lodash";
 import Distances from "../../primitives/Distances";
-import RadioGroup from "../../primitives/RadioGroup";
 import {View} from "react-native";
 import EncounterSelectFormElement from "./EncounterSelectFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import SelectableItemGroup from "../../primitives/SelectableItemGroup";
+import UserInfoService from "../../../service/UserInfoService";
 
 class MultiSelectEncounterFormElement extends EncounterSelectFormElement {
 
@@ -28,13 +29,16 @@ class MultiSelectEncounterFormElement extends EncounterSelectFormElement {
     render() {
         const encounterUUIDs = _.get(this.props.value, 'answer');
         const valueLabelPairs = this.getValueLabelPairs();
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                <RadioGroup
+                <SelectableItemGroup
                     multiSelect={true}
                     inPairs={true}
-                    onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}
+                    locale={currentLocale}
+                    I18n={this.I18n}
+                    onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={(encounterUUID) => _.isEmpty(encounterUUIDs) ? false : _.includes(encounterUUIDs, encounterUUID)}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}

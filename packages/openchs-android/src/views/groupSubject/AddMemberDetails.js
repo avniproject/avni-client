@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
 import {Text, View} from "react-native";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import AbstractDataEntryState from "../../state/AbstractDataEntryState";
 import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";

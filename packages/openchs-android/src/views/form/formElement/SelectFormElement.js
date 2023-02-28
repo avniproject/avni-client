@@ -4,7 +4,7 @@ import React from "react";
 import _ from "lodash";
 import AbstractFormElement from "./AbstractFormElement";
 import Distances from "../../primitives/Distances";
-import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
+import RadioLabelValue from "../../primitives/RadioLabelValue";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
 import UserInfoService from "../../../service/UserInfoService";

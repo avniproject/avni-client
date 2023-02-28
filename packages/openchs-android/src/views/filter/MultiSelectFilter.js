@@ -1,7 +1,7 @@
 import React from "react";
 import {View} from 'react-native';
 import BaseFilter from "./BaseFilter";
-import {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import PropTypes from "prop-types";
 

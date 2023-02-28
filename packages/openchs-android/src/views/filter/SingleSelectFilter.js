@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import {View, Text} from 'react-native';
 import BaseFilter from "./BaseFilter";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
-import UserInfoService from "../../service/UserInfoService";
 
 export default class SingleSelectFilter extends BaseFilter {
     constructor(props, context) {

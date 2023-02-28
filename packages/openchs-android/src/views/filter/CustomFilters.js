@@ -18,7 +18,7 @@ import TimePicker from "../primitives/TimePicker";
 import moment from "moment";
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import IndividualService from "../../service/IndividualService";
-import {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import AddressLevelsState from "../../action/common/AddressLevelsState";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";

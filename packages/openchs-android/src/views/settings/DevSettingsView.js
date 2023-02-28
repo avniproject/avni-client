@@ -5,7 +5,7 @@ import Path from "../../framework/routing/Path";
 import _ from "lodash";
 import General from "../../utility/General";
 import {SettingsActionsNames, SettingsActionsNames as Actions} from "../../action/SettingsActions";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import Reducers from "../../reducer";
 import AppHeader from "../common/AppHeader";
 import Distances from '../primitives/Distances';
@@ -16,6 +16,8 @@ import Fonts from "../primitives/Fonts";
 import Colors from "../primitives/Colors";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Rule} from 'openchs-models';
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -42,13 +44,18 @@ class DevSettingsView extends AbstractComponent {
 
     renderLogLevels() {
         const logLevelLabelValuePairs = _.keys(General.LogLevel).map((logLevelName) => new RadioLabelValue(logLevelName, General.LogLevel[logLevelName]));
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         return <View>
-            <RadioGroup
-                onPress={({value}) => this.dispatchAction(Actions.ON_LOG_LEVEL_CHANGE, {value: value})}
-                labelValuePairs={logLevelLabelValuePairs} labelKey='logLevel'
+            <SelectableItemGroup
+                locale={currentLocale}
+                I18n={this.I18n}
+                onPress={(value) => this.dispatchAction(Actions.ON_LOG_LEVEL_CHANGE, {value: value})}
                 selectionFn={(logLevel) => this.state.settings.logLevel === logLevel}
                 validationError={null}
-                style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}/>
+                labelValuePairs={logLevelLabelValuePairs}
+                labelKey='logLevel'
+                style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
+            />
         </View>;
     }
 
@@ -61,9 +68,12 @@ class DevSettingsView extends AbstractComponent {
             const {rulesToRun, settings} = this.state;
             const labelValues = Object.entries(this.entityMap)
                 .map(([displayName, value]) => new RadioLabelValue(displayName, value));
+            const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
             return (<View>
-                <RadioGroup
-                    onPress={({value}) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
+                <SelectableItemGroup
+                    locale={currentLocale}
+                    I18n={this.I18n}
+                    onPress={(value) => this.dispatchAction(Actions.ON_RULE_CHANGE, {value: value})}
                     labelValuePairs={labelValues}
                     labelKey='Rules to run'
                     selectionFn={(ruleToRun) => rulesToRun.indexOf(ruleToRun) > -1}

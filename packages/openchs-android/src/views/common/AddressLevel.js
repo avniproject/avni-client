@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import General from "../../utility/General";
 import Styles from "../primitives/Styles";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";

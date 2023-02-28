@@ -3,9 +3,11 @@ import React from "react";
 import _ from "lodash";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Distances from "../../primitives/Distances";
-import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
+import RadioLabelValue from "../../primitives/RadioLabelValue";
 import SubjectFormElement from "./SubjectFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import UserInfoService from "../../../service/UserInfoService";
+import SelectableItemGroup from "../../primitives/SelectableItemGroup";
 
 class SingleSelectSubjectFormElement extends SubjectFormElement {
 
@@ -41,18 +43,23 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
     renderSelectUI(subject, subjectOptions) {
         const valueLabelPairs = subjectOptions
             .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
+
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
-                <RadioGroup
-                    allowRadioUnselect={true}
+                <SelectableItemGroup
                     multiSelect={false}
+                    allowRadioUnselect={true}
                     inPairs={true}
-                    onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}
+                    locale={currentLocale}
+                    I18n={this.I18n}
+                    onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={(subjectUUID) => _.isEmpty(subject) ? false : subject.uuid === subjectUUID}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
+                    labelValuePairs={valueLabelPairs}
+                />
             </View>);
     }
 }

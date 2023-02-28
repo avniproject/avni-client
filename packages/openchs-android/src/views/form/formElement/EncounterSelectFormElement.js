@@ -2,7 +2,7 @@ import React from 'react';
 import AbstractFormElement from "./AbstractFormElement";
 import EncounterService from "../../../service/EncounterService";
 import {Concept} from "openchs-models";
-import {RadioLabelValue} from "../../primitives/RadioGroup";
+import RadioLabelValue from "../../primitives/RadioLabelValue";
 import ConceptService from "../../../service/ConceptService";
 import IndividualService from "../../../service/IndividualService";
 import AddressLevelService from "../../../service/AddressLevelService";

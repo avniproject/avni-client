@@ -8,9 +8,9 @@ import {ScrollView, Text, TextInput, View} from "react-native";
 import CHSContainer from "../common/CHSContainer";
 import React from "react";
 import Reducers from "../../reducer";
-import RadioGroup, {RadioLabelValue} from "../primitives/RadioGroup";
+import RadioLabelValue from "../primitives/RadioLabelValue";
 import DatePicker from "../primitives/DatePicker";
-import {Concept, BaseEntity} from 'openchs-models';
+import {BaseEntity, Concept} from 'openchs-models';
 import _ from "lodash";
 import Colors from "../primitives/Colors";
 import General from "../../utility/General";
@@ -18,13 +18,15 @@ import FloatingButton from "../primitives/FloatingButton";
 import TaskFilter from "../../model/TaskFilter";
 import CHSContent from "../common/CHSContent";
 import PropTypes from "prop-types";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
 
 const numericFieldStyle = [{
     marginVertical: 0,
     paddingVertical: 5
 }, Styles.formBodyText];
 
-const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, dispatch, I18n}) {
+const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, dispatch, I18n, currentLocale}) {
     return taskMetadataFields.map((c, index) => {
         switch (c.datatype) {
             case Concept.dataType.Numeric:
@@ -43,12 +45,15 @@ const TaskMetadataFilter = function ({taskMetadataFields, taskMetadataValues, di
                 </View>;
             case Concept.dataType.Coded:
                 const conceptAnswers = c.getAnswers();
-                return <RadioGroup key={index}
-                                   onPress={(rlv) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConceptUuid: rlv.value})}
-                                   inPairs={true}
-                                   selectionFn={(selectedValue) => _.some(taskMetadataValues[c.uuid], (item) => item.uuid === selectedValue)}
-                                   labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept.uuid, false))}
-                                   labelKey={c.name} multiSelect={true}/>;
+                return <SelectableItemGroup
+                                    locale={currentLocale}
+                                    I18n={I18n}
+                                    key={index}
+                                    onPress={(value) => dispatch(Actions.ON_METADATA_CODED_VALUE_CHANGE, {concept: c, chosenAnswerConceptUuid: value})}
+                                    inPairs={true}
+                                    selectionFn={(selectedValue) => _.some(taskMetadataValues[c.uuid], (item) => item.uuid === selectedValue)}
+                                    labelValuePairs={conceptAnswers.map((a) => new RadioLabelValue(a.concept.name, a.concept.uuid, false))}
+                                    labelKey={c.name} multiSelect={true}/>;
             default:
                 return null;
         }
@@ -82,28 +87,36 @@ class TaskFilterView extends AbstractComponent {
             allTaskTypes, selectedTaskType, allTaskStatuses, selectedTaskStatuses, datePickerMode,
             taskMetadataFields, taskScheduledDate, taskCompletedDate, taskMetadataValues
         } = this.state;
-
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const taskTypeLVPairs = allTaskTypes.map((x) => new RadioLabelValue(x.name, x, false));
         const taskStatusLVPairs = allTaskStatuses.map((x) => new RadioLabelValue(x.name, x, false));
         return <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
             <AppHeader title={this.I18n.t('filter')}/>
             <CHSContent>
                 <ScrollView style={{flex: 1, padding: 20}}>
-                    <RadioGroup labelKey="type"
-                                labelValuePairs={taskTypeLVPairs}
-                                inPairs={true}
-                                multiSelect={false}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, {taskType: rlv.value})}
-                                selectionFn={(selectedVal) => selectedTaskType.uuid === selectedVal.uuid}
-                                mandatory={false}/>
-                    <RadioGroup labelKey="status"
-                                style={{marginTop: 20}}
-                                labelValuePairs={taskStatusLVPairs}
-                                inPairs={true}
-                                multiSelect={true}
-                                onPress={(rlv) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, {taskStatus: rlv.value})}
-                                selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(selectedTaskStatuses, selectedVal)}
-                                mandatory={false}/>
+                    <SelectableItemGroup
+                        locale={currentLocale}
+                        I18n={this.I18n}
+                        labelKey="type"
+                        labelValuePairs={taskTypeLVPairs}
+                        inPairs={true}
+                        multiSelect={false}
+                        onPress={(value) => this.dispatchAction(Actions.ON_TASK_TYPE_CHANGE, {taskType: value})}
+                        selectionFn={(selectedVal) => selectedTaskType.uuid === selectedVal.uuid}
+                        mandatory={false}
+                    />
+                    <SelectableItemGroup
+                        locale={currentLocale}
+                        I18n={this.I18n}
+                        labelKey="status"
+                        style={{marginTop: 20}}
+                        labelValuePairs={taskStatusLVPairs}
+                        inPairs={true}
+                        multiSelect={true}
+                        onPress={(value) => this.dispatchAction(Actions.ON_TASK_STATUS_CHANGE, {taskStatus: value})}
+                        selectionFn={(selectedVal) => BaseEntity.collectionHasEntity(selectedTaskStatuses, selectedVal)}
+                        mandatory={false}
+                    />
                     <View style={{flexDirection: "row", marginTop: 20}}>
                         <View>
                             <Text style={{fontSize: 15, color: Styles.greyText}}>{this.I18n.t("scheduled")}</Text>
@@ -125,7 +138,9 @@ class TaskFilterView extends AbstractComponent {
                     <View style={{marginTop: 20}}>
                         <TaskMetadataFilter taskMetadataFields={taskMetadataFields}
                                             taskMetadataValues={taskMetadataValues}
-                                            dispatch={(actionName, action) => this.dispatchAction(actionName, action)} I18n={this.I18n}/>
+                                            dispatch={(actionName, action) => this.dispatchAction(actionName, action)}
+                                            I18n={this.I18n}
+                                            currentLocale={currentLocale}/>
                     </View>
                     <View style={{marginTop: 100}}/>
                 </ScrollView>

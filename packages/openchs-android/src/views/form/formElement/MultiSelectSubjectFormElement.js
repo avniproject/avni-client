@@ -4,8 +4,10 @@ import _ from "lodash";
 import SubjectFormElement from "./SubjectFormElement";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import Distances from "../../primitives/Distances";
-import RadioGroup, {RadioLabelValue} from "../../primitives/RadioGroup";
+import RadioLabelValue from "../../primitives/RadioLabelValue";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import SelectableItemGroup from "../../primitives/SelectableItemGroup";
+import UserInfoService from "../../../service/UserInfoService";
 
 class MultiSelectSubjectFormElement extends SubjectFormElement {
     constructor(props, context) {
@@ -38,19 +40,23 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
     }
 
     renderSelectUI(subjectUUIDs, subjectOptions) {
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const valueLabelPairs = subjectOptions
             .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
-                <RadioGroup
+                <SelectableItemGroup
                     multiSelect={true}
                     inPairs={true}
-                    onPress={({label, value}) => this.toggleFormElementAnswerSelection(value)}
+                    locale={currentLocale}
+                    I18n={this.I18n}
+                    onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={(subjectUUID) => subjectUUIDs.indexOf(subjectUUID) !== -1}
                     labelKey={this.props.element.name}
                     mandatory={this.props.element.mandatory}
                     validationError={this.props.validationResult}
-                    labelValuePairs={valueLabelPairs}/>
+                    labelValuePairs={valueLabelPairs}
+                />
             </View>);
     }
 }

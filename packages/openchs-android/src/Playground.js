@@ -3,7 +3,7 @@ import {Text, View, TextInput, Button} from "react-native";
 import RealmFactory from "./framework/db/RealmFactory";
 import _ from 'lodash';
 import SelectableItemGroup from "./views/primitives/SelectableItemGroup";
-import {RadioLabelValue} from "./views/primitives/RadioGroup";
+import RadioLabelValue from "./views/primitives/RadioLabelValue";
 import CHSContainer from "./views/common/CHSContainer";
 
 const db = RealmFactory.createRealm();
