@@ -135,7 +135,7 @@ class IndividualService extends BaseService {
     }
 
     allInWithFilters = (ignored, queryAdditions, programs = [], encounterTypes = []) => {
-        if(_.isEmpty(encounterTypes) && (!this.hideTotalForProgram() || _.isEmpty(programs))) {
+        if(!this.hideTotalForProgram() || (_.isEmpty(programs) && _.isEmpty(encounterTypes))) {
             return this.allIn(ignored, queryAdditions);
         }
         return null;
