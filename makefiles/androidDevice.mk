@@ -52,6 +52,7 @@ run_app_release: as_dev _run_app_release
 run_app_staging: as_staging _run_app
 run_app_staging_dev: as_staging_dev _run_app
 run_app_uat: as_uat _run_app
+run_app_perf: as_perf _run_app
 run_app_prerelease: as_prerelease _run_app
 run_app_prod: as_prod _run_app
 run_app_prod_dev: as_prod_dev _run_app
@@ -78,6 +79,9 @@ switch_app_to_uat:
 
 switch_app_to_prerelease:
 	make switch_app_to_env env=prerelease
+
+switch_app_to_perf:
+	make switch_app_to_env env=perf
 
 switch_app_to_prod:
 	make switch_app_to_env env=prod

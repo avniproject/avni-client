@@ -100,6 +100,7 @@ as_staging: ; $(call _create_config,staging)
 as_staging_dev: ; $(call _create_config,staging_dev)
 as_uat: ; $(call _create_config,uat)
 as_prerelease: ; $(call _create_config,prerelease)
+as_perf: ; $(call _create_config,perf)
 as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 
@@ -142,6 +143,11 @@ release_prerelease_without_clean: as_prerelease
 	$(call _create_config,prerelease)
 	enableSeparateBuildPerCPUArchitecture=false make release
 release_prerelease: renew_env release_prerelease_without_clean
+
+release_perf_without_clean: as_perf
+	$(call _create_config,perf)
+	enableSeparateBuildPerCPUArchitecture=false make release
+release_perf: renew_env release_perf_without_clean
 
 release-offline: ##
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease

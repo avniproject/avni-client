@@ -111,6 +111,38 @@ jobs:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
 
+  release_android_perf:
+    docker:
+      - image: cimg/android:2022.12-node
+    working_directory: ~/avni-client
+    resource_class: large
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+            - v1-dependencies-
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: sudo npm i -g react-native-cli
+      - run: make deps_ci release_perf_without_clean
+      - run: make deploy_platform_translations_prerelease
+      - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
+          destination: avni.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          destination: sourcemap.js
+
   release_android_live:
     docker:
       - image: cimg/android:2022.12-node
@@ -162,6 +194,10 @@ workflows:
           type: approval
           requires:
             - test_android
+      - hold_perf:
+          type: approval
+          requires:
+            - test_android
       - hold_live:
           type: approval
           requires:
@@ -177,6 +213,9 @@ workflows:
       - release_android_prerelease:
           requires:
             - hold_prerelease
+      - release_android_perf:
+          requires:
+            - hold_perf
       - release_android_live:
           requires:
             - hold_live

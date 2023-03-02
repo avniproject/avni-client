@@ -9,7 +9,7 @@ import Config from '../framework/Config';
 const configuration = new Configuration();
 configuration.autoNotify = false;
 configuration.releaseStage = Config.ENV;
-configuration.notifyReleaseStages = ['staging', 'prod', 'uat', 'prerelease'];
+configuration.notifyReleaseStages = ['staging', 'prod', 'uat', 'prerelease', 'perf'];
 console.log("Creating new instance of Bugsnag");
 const client = new Client(configuration);
 
