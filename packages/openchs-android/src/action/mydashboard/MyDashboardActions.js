@@ -247,6 +247,7 @@ class MyDashboardActions {
         const subjectTypeQuery = (path) => `${path} = "${action.selectedSubjectType.uuid}"`;
         const visitQuery = (path) => shouldApplyValidEnrolmentQuery ? action.selectedEncounterTypes.map((encounterType) => `${path} = \'${encounterType.uuid}\'`) : '';
         const generalVisitQuery = (path) => _.map(action.selectedGeneralEncounterTypes, (encounterType) => `${path} = \'${encounterType.uuid}\'`);
+        const generalVisitQueryFromIndividual = _.map(action.selectedGeneralEncounterTypes, (encounterType) => `$encounter.encounterType.uuid = \'${encounterType.uuid}\' AND $encounter.voided = false`);
         const programQuery = (path) => shouldApplyValidEnrolmentQuery ? _.map(action.selectedPrograms, (program) => `${path} = \'${program.uuid}\'`) : '';
         const validEnrolmentQuery = (path) => shouldApplyValidEnrolmentQuery ? `${path}.voided = false and ${path}.programExitDateTime = null` : '';
         const genderQuery = (path) => _.map(action.selectedGenders, (gender) => `${path} = "${gender.name}"`);
@@ -264,16 +265,21 @@ class MyDashboardActions {
 
         const restIndividualFilters = [
             MyDashboardActions.orQuery(programQuery('$enrolment.program.uuid')),
+            MyDashboardActions.orQuery(visitQuery('$enrolment.encounters.encounterType.uuid')),
             validEnrolmentQuery('$enrolment')
         ].filter(Boolean).join(" AND ");
 
         const buildEnrolmentSubQueryForIndividual = () => _.isEmpty(restIndividualFilters) ? '' :
             'SUBQUERY(enrolments, $enrolment, ' + restIndividualFilters + ' ).@count > 0';
 
+        const encounterQuery = () => _.isEmpty(MyDashboardActions.orQuery(generalVisitQueryFromIndividual)) ? '' :
+          'SUBQUERY(encounters, $encounter, ' + MyDashboardActions.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
+
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
             MyDashboardActions.orQuery(genderQuery('gender.name')),
             MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
+            encounterQuery(),
             buildEnrolmentSubQueryForIndividual()
         ].filter(Boolean).join(" AND ");
 

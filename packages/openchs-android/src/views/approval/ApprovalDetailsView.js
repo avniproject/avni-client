@@ -41,6 +41,7 @@ class ApprovalDetailsView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.approval);
+        this.scrollRef = React.createRef();
     }
 
     viewName() {
@@ -89,7 +90,7 @@ class ApprovalDetailsView extends AbstractComponent {
             [ProgramEncounter.schema.name]: () => this.getNavigateToEncounterView(clonedEntity),
             [ChecklistItem.schema.name]: () => CHSNavigator.navigateToChecklistItemView(this, clonedEntity)
         };
-        return <View style={styles.footerContainer}>
+        return <View style={[styles.footerContainer, {alignSelf: 'flex-end'}]}>
             <ApprovalButton
                 name={this.I18n.t('edit')}
                 textColor={Colors.TextOnPrimaryColor}
@@ -130,13 +131,13 @@ class ApprovalDetailsView extends AbstractComponent {
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.NegativeActionButtonColor}
                 onPress={() => this.dispatchAction(Actions.ON_REJECT_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50}}/>
+                extraStyle={{paddingHorizontal: 20}}/>
             <ApprovalButton
                 name={I18n.t('approve')}
                 textColor={Colors.TextOnPrimaryColor}
                 buttonColor={Colors.DarkPrimaryColor}
                 onPress={() => this.dispatchAction(Actions.ON_APPROVE_PRESS, {entity, I18n})}
-                extraStyle={{paddingHorizontal: 50, marginLeft: 20}}/>
+                extraStyle={{paddingHorizontal: 20}}/>
         </View>)
     }
 
@@ -183,35 +184,35 @@ class ApprovalDetailsView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView>
-                    <AppHeader title={title} hideIcon={true}/>
-                    <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
-                    <View style={styles.container}>
-                        <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
-                            {this.renderDetails(entity)}
-                            {this.renderEntityDate(entity, schema, this.I18n)}
-                            <Observations
-                                observations={_.defaultTo(observations, [])}
-                                form={this.findForm(schema, entity)}
-                            />
-                            {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
-                            {showEdit && this.renderEditButton(entity, schema)}
+                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
+                        <AppHeader title={title} hideIcon={true}/>
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={entity.latestEntityApprovalStatus}/>
+                        <View style={styles.container}>
+                            <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
+                                {this.renderDetails(entity)}
+                                {this.renderEntityDate(entity, schema, this.I18n)}
+                                <Observations
+                                    observations={_.defaultTo(observations, [])}
+                                    form={this.findForm(schema, entity)}
+                                />
+                                {showApproveReject && this.renderApproveAndRejectButtons(entity, this.I18n)}
+                                {showEdit && this.renderEditButton(entity, schema)}
+                            </View>
                         </View>
-                    </View>
                     </ScrollView>
                     <ApprovalDialog
-                        primaryButton={this.I18n.t('confirm')}
-                        secondaryButton={this.I18n.t('cancel')}
-                        onPrimaryPress={() => this.dispatchAction(confirmActionName, {
-                            entity,
-                            schema,
-                            cb: this.goBack.bind(this)
-                        })}
-                        onSecondaryPress={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
-                        onClose={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
-                        onInputChange={(value) => this.dispatchAction(Actions.ON_INPUT_CHANGE, {value})}
-                        state={this.state}
-                        I18n={this.I18n}/>
+                      primaryButton={this.I18n.t('confirm')}
+                      secondaryButton={this.I18n.t('cancel')}
+                      onPrimaryPress={() => this.dispatchAction(confirmActionName, {
+                          entity,
+                          schema,
+                          cb: this.goBack.bind(this)
+                      })}
+                      onSecondaryPress={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
+                      onClose={() => this.dispatchAction(Actions.ON_DIALOG_CLOSE)}
+                      onInputChange={(value) => this.dispatchAction(Actions.ON_INPUT_CHANGE, {value})}
+                      state={this.state}
+                      I18n={this.I18n}/>
                 </CHSContent>
             </CHSContainer>
         )
@@ -224,22 +225,23 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     headerContainer: {
+        display: "flex",
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         alignItems: 'center',
         marginVertical: 10,
     },
     footerContainer: {
+        display: "flex",
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        justifyContent: 'space-around',
         marginVertical: 20,
-        alignSelf: 'flex-end'
     },
     headerTextStyle: {
         fontSize: Styles.titleSize,
         fontStyle: 'normal',
         color: Styles.blackColor,
+        marginRight: 50
     },
     buttonContainer: {
         elevation: 2,

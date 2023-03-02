@@ -16,7 +16,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
         }
     };
     const {height} = Dimensions.get('window');
-    const dialogHeight = showInputBox ? 280 : 220;
+    const dialogHeight = showInputBox ? height/1.5 : height/2;
 
     return (
         <Modal
@@ -42,6 +42,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
                             textColor={Colors.DarkPrimaryColor}
                             buttonColor={Colors.cardBackgroundColor}
                             onPress={onSecondaryPress}
+                            extraStyle={styles.approvalDialogButtonContainer}
                         />
                         <View style={{width: 20}}/>
                         <ApprovalButton
@@ -49,6 +50,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
                             textColor={Colors.TextOnPrimaryColor}
                             buttonColor={Colors.DarkPrimaryColor}
                             onPress={primaryButtonHandler}
+                            extraStyle={styles.approvalDialogButtonContainer}
                         />
                     </View>
                 </View>
@@ -94,5 +96,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'flex-end'
+    },
+    approvalDialogButtonContainer: {
+        elevation: 2,
+        height: 38,
+        width: 90,
+        borderRadius: 5,
     }
 });

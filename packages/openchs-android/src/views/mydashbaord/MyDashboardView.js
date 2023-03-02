@@ -98,7 +98,10 @@ class MyDashboardView extends AbstractComponent {
     renderableVisits() {
         const {selectedPrograms, selectedGeneralEncounterTypes, selectedEncounterTypes, visits} = this.state;
         const hideTotalForProgram = this.context.getService(OrganisationConfigService).hasHideTotalForProgram();
-        if(_.isEmpty(selectedGeneralEncounterTypes) && _.isEmpty(selectedEncounterTypes) && (!hideTotalForProgram || _.isEmpty(selectedPrograms))) {
+        if(!hideTotalForProgram ||
+          (_.isEmpty(selectedPrograms)
+            && _.isEmpty(selectedGeneralEncounterTypes)
+            && _.isEmpty(selectedEncounterTypes))) {
           return visits;
         }
         return _.filter(visits, (visit) => _.isNil(visit.visits.total));
