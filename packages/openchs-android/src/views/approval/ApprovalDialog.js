@@ -16,7 +16,7 @@ export const ApprovalDialog = ({onClose, onInputChange, state, I18n, primaryButt
         }
     };
     const {height} = Dimensions.get('window');
-    const dialogHeight = showInputBox ? 280 : 220;
+    const dialogHeight = showInputBox ? height/1.5 : height/2;
 
     return (
         <Modal
