@@ -391,7 +391,7 @@ class SyncService extends BaseService {
 
     clearData() {
         this.entityService.clearDataIn(EntityMetaData.entitiesLoadedFromServer());
-        this.entitySyncStatusService.setup(EntityMetaData.model());
+        this.entitySyncStatusService.setup();
         this.ruleEvaluationService.init();
         this.messageService.init();
         this.ruleService.init();

@@ -124,7 +124,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Removing downloaded files");
                             cb(94, "restoringDb");
                         })
-                        .then(() => entitySyncStatusService.setup(EntityMetaData.model()))
+                        .then(() => entitySyncStatusService.setup())
                         .then(() => removeBackupFile(downloadedFile))
                         .then(() => removeBackupFile(downloadedUncompressedDir))
                         .then(() => {

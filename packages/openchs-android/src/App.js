@@ -23,7 +23,7 @@ try {
     }
 
     const entitySyncStatusService = globalContext.beanRegistry.getService("entitySyncStatusService");
-    entitySyncStatusService.setup(EntityMetaData.model());
+    entitySyncStatusService.setup();
 
     RegisterAndScheduleJobs();
 } catch (e) {
