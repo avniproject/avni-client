@@ -13,7 +13,7 @@ import {
     Individual,
     EntityMetaData,
     SubjectType,
-    Privilege
+    Privilege, EntityApprovalStatus
 } from 'avni-models';
 import FormMappingService from "./FormMappingService";
 import EntityService from "./EntityService";
@@ -77,19 +77,22 @@ class PrivilegeService extends BaseService {
         if (this.hasAllPrivileges()) {
             return;
         }
-        const requiredEntities = ['Encounter', 'ProgramEncounter', 'ChecklistItem', 'Checklist', 'IndividualRelationship', 'ProgramEnrolment', 'Individual'];
-        const metadata = EntityMetaData.model().filter(({type, entityName}) => type === "tx" && _.includes(requiredEntities, entityName));
-        const x = (entityName) => {
+
+        const metadata = EntityMetaData.model().filter(({type}) => type === "tx" || type === "virtualTx");
+        const getNonPrivilegeUUIDs = (entityName) => {
             const {privilegeEntity, privilegeName, privilegeParam} = _.find(metadata, d => d.entityName === entityName);
             return this.getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam);
         };
-        this.deleteEncounters(getNonPrivilegeUUIDs(Encounter.schema.name), 'encounterType');
-        this.deleteProgramEncounters(getNonPrivilegeUUIDs(ProgramEncounter.schema.name), 'encounterType');
-        this.deleteChecklistItemsDirectly(getNonPrivilegeUUIDs(ChecklistItem.schema.name), 'detail.checklistDetail');
-        this.deleteCheckListDirectly(getNonPrivilegeUUIDs(Checklist.schema.name), 'detail');
-        this.deleteIndividualRelationship(getNonPrivilegeUUIDs(IndividualRelationship.schema.name), 'individualA.subjectType');
-        this.deleteEnrolments(getNonPrivilegeUUIDs(ProgramEnrolment.schema.name), 'program');
-        this.deleteSubjects(getNonPrivilegeUUIDs(Individual.schema.name), 'subjectType');
+        this.deleteEncounters(getNonPrivilegeUUIDs(Encounter.schema.name), 'encounterType.uuid');
+        this.deleteProgramEncounters(getNonPrivilegeUUIDs(ProgramEncounter.schema.name), 'encounterType.uuid');
+        this.deleteChecklistItemsDirectly(getNonPrivilegeUUIDs(ChecklistItem.schema.name), 'detail.checklistDetail.uuid');
+        this.deleteCheckListDirectly(getNonPrivilegeUUIDs(Checklist.schema.name), 'detail.uuid');
+        this.deleteIndividualRelationship(getNonPrivilegeUUIDs(IndividualRelationship.schema.name), 'individualA.subjectType.uuid');
+        this.deleteEnrolments(getNonPrivilegeUUIDs(ProgramEnrolment.schema.name), 'program.uuid');
+        this.deleteSubjects(getNonPrivilegeUUIDs(Individual.schema.name), 'subjectType.uuid');
+        _.forEach(EntityApprovalStatus.entityType, (value, key) => {
+            this.deleteEntityApprovalStatuses(getNonPrivilegeUUIDs(`${value}${EntityApprovalStatus.schema.name}`), 'entityTypeUuid');
+        })
     }
 
     deleteEntity(entityName, filterQuery) {
@@ -102,7 +105,7 @@ class PrivilegeService extends BaseService {
     }
 
     getRequiredFilterQuery(nonPrivilegeUuids, queryParam) {
-        const filterQuery = nonPrivilegeUuids.map(uuid => `${queryParam}.uuid = '${uuid}'`).join(' OR ');
+        const filterQuery = nonPrivilegeUuids.map(uuid => `${queryParam} = '${uuid}'`).join(' OR ');
         return _.isEmpty(nonPrivilegeUuids) ? 'uuid = null' : filterQuery;
     }
 
@@ -111,6 +114,10 @@ class PrivilegeService extends BaseService {
         this.deleteEnrolments(nonPrivilegedEntityTypeUUIDs, `individual.${queryParam}`);
         this.deleteIndividualRelationship(nonPrivilegedEntityTypeUUIDs, `individualA.${queryParam}`);
         this.deleteEntity(Individual.schema.name, this.getRequiredFilterQuery(nonPrivilegedEntityTypeUUIDs, queryParam));
+    }
+
+    deleteEntityApprovalStatuses(nonPrivilegedEntityTypeUUIDs, queryParam) {
+        this.deleteEntity(EntityApprovalStatus.schema.name, this.getRequiredFilterQuery(nonPrivilegedEntityTypeUUIDs, queryParam));
     }
 
     deleteEnrolments(nonPrivilegedEntityTypeUUIDs, queryParam) {

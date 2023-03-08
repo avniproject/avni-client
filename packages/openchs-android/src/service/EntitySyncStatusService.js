@@ -196,6 +196,12 @@ class EntitySyncStatusService extends BaseService {
                 this.resetSync(GroupSubject.schema.name, revokedPrivilegeUUIDs);
                 break;
             }
+            case 'SubjectEntityApprovalStatus':
+            case 'EncounterEntityApprovalStatus':
+            case 'ProgramEncounterEntityApprovalStatus':
+            case 'ProgramEnrolmentEntityApprovalStatus':
+            case 'ChecklistItemEntityApprovalStatus':
+                this.resetSync(entity.entityName, revokedPrivilegeUUIDs);
         }
     }
 

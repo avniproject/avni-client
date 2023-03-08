@@ -61,10 +61,13 @@ class ConventionalRestClient {
             .filter(p => !_.isEmpty(p))
             .join("/");
         const {loadedSince, entityTypeUuid} = entityMetadata.syncStatus;
-        const {privilegeParam, apiQueryParams} = entityMetadata;
+        const {privilegeParam, apiQueryParams, apiQueryParamKey} = entityMetadata;
         const apiQueryParamsHolder = {}
         if (privilegeParam) {
             _.merge(apiQueryParamsHolder, {[privilegeParam]: entityTypeUuid});
+        }
+        if(apiQueryParamKey) {
+            _.merge(apiQueryParamsHolder, {[apiQueryParamKey]: entityTypeUuid});
         }
         console.log('apiQueryParams', apiQueryParams, !_.isEmpty(apiQueryParams), _.merge(apiQueryParamsHolder, apiQueryParams));
         if (!_.isEmpty(apiQueryParams)) {
