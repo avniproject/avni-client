@@ -17,7 +17,6 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import UserInfoService from "../../service/UserInfoService";
 import moment from "moment";
 import RefreshReminder from "./RefreshReminder";
-import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
 import OrganisationConfigService from '../../service/OrganisationConfigService';
@@ -115,7 +114,6 @@ class MyDashboardView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={this.props.startSync}
                            renderSync={true} icon={this.props.icon}/>
-                <YearReviewBanner from={this} t={this.I18n.t}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}

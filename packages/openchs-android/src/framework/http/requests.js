@@ -53,6 +53,7 @@ const _addAuthIfRequired = async (request, bypassAuth) => {
         return request;
     }
     const token = await getAuthToken();
+    console.log('token', token);
     return Config.ENV === 'dev' ?
         _.merge({}, request, {headers: {"USER-NAME": token}}) :
         _.merge({}, request, {headers: {'AUTH-TOKEN': token}});

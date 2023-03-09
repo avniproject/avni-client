@@ -20,7 +20,6 @@ import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";
 import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
-import {YearReviewBanner} from "../yearReview/YearReviewBanner";
 import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
 
@@ -171,7 +170,6 @@ class CustomDashboardView extends AbstractComponent {
                            renderSync={this.props.renderSync}
                            icon={this.props.icon}
                            hideIcon={_.isNil(this.props.icon)}/>
-                {this.props.onlyPrimary && <YearReviewBanner t={this.I18n.t} from={this}/>}
                 {!this.props.onlyPrimary &&
                 <SafeAreaView style={{height: 50}}>
                     <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
