@@ -69,7 +69,6 @@ class ConventionalRestClient {
         if(apiQueryParamKey) {
             _.merge(apiQueryParamsHolder, {[apiQueryParamKey]: entityTypeUuid});
         }
-        console.log('apiQueryParams', apiQueryParams, !_.isEmpty(apiQueryParams), _.merge(apiQueryParamsHolder, apiQueryParams));
         if (!_.isEmpty(apiQueryParams)) {
             _.merge(apiQueryParamsHolder, apiQueryParams);
         }

@@ -52,8 +52,8 @@ class ProgramEncounterService extends BaseService {
         this.getService(MediaQueueService).addMediaToQueue(programEncounter, ProgramEncounter.schema.name);
     }
 
-    saveScheduledVisit(enrolment, nextScheduledVisit, db, schedulerDate) {
-        const {encounterType: encounterTypeName, visitCreationStrategy = 'default', programEnrolment = enrolment} = nextScheduledVisit;
+    saveScheduledVisit(programEnrolment, nextScheduledVisit, db, schedulerDate) {
+        const {encounterType: encounterTypeName, visitCreationStrategy = 'default'} = nextScheduledVisit;
 
         let encountersToUpdate = programEnrolment.scheduledEncountersOfType(encounterTypeName);
         if (_.isEmpty(encountersToUpdate) || visitCreationStrategy === 'createNew') {
@@ -72,8 +72,11 @@ class ProgramEncounterService extends BaseService {
     saveScheduledVisits(enrolment, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
             if (nSV.programEnrolment) {
-                return this.saveScheduledVisit(nSV.programEnrolment, nSV, db, schedulerDate);
+                enrolment = this.findByUUID(nSV.programEnrolment.uuid, ProgramEnrolment.schema.name);
+                return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
             }
+
+            enrolment = this.findByUUID(enrolment.uuid, ProgramEnrolment.schema.name);
             if (this.getService(IndividualService).determineSubjectForVisitToBeScheduled(enrolment.individual, nSV).uuid !== enrolment.individual.uuid) {
                 return this.getService(EncounterService).saveScheduledVisit(nSV.subject, nSV, db, schedulerDate);
             }
