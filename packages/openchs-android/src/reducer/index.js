@@ -45,6 +45,7 @@ import {TaskActionMap, TaskActions} from "../action/task/TaskActions";
 import {TaskFilterActionMap, TaskFilterActions} from "../action/task/TaskFilterActions";
 import {TaskListActionMap, TaskListActions} from "../action/task/TaskListActions";
 import {ManualProgramEligibilityActionMap, ManualProgramEligibilityActions} from "../action/program/ManualProgramEligibilityActions";
+import {GlificActionMap, GlificActions} from '../action/glific/GlificActions';
 
 export default class Reducers {
     static reducerKeys = {
@@ -95,6 +96,7 @@ export default class Reducers {
         taskFilter: "TaskFilter",
         taskList: "TaskList",
         manualProgramEligibility: "manualProgramEligibility",
+        glific: "glific",
     };
 
     static createReducers(beanStore) {
@@ -145,6 +147,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.taskList] = Reducers._add(TaskListActionMap, TaskListActions, beanStore);
         reducerMap[Reducers.reducerKeys.taskFilter] = Reducers._add(TaskFilterActionMap, TaskFilterActions, beanStore);
         reducerMap[Reducers.reducerKeys.manualProgramEligibility] = Reducers._add(ManualProgramEligibilityActionMap, ManualProgramEligibilityActions, beanStore);
+        reducerMap[Reducers.reducerKeys.glific] = Reducers._add(GlificActionMap, GlificActions, beanStore);
         return reducerMap;
     };
 

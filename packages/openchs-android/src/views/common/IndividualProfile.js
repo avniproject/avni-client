@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {Icon, Text} from "native-base";
+import {Text} from "native-base";
 import {Actions} from "../../action/individual/IndividualProfileActions";
 import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
@@ -28,6 +28,7 @@ import SubjectProfilePicture from "./SubjectProfilePicture";
 import PhoneCall from "../../model/PhoneCall";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import AvniIcon from "../common/AvniIcon";
+import GlificScheduledAndSentMsgsView from '../glific/GlificScheduledAndSentMsgsView';
 
 class IndividualProfile extends AbstractComponent {
     static propTypes = {
@@ -68,6 +69,30 @@ class IndividualProfile extends AbstractComponent {
                 <View/>
             );
         }
+    }
+
+    renderWhatsappButton(individualUUID) {
+        const number = this.getMobileNoFromObservation();
+        const {enableMessaging} = this.getService(OrganisationConfigService).getSettings();
+
+        if (number && enableMessaging) {
+            return (<View>
+              <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
+                  <View>
+                    <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
+                            style={{fontSize: 30}} color={Colors.TextOnPrimaryColor}/>
+                  </View>
+              </TouchableNativeFeedback>
+            </View>);
+        } else {
+            return (
+              <View/>
+            );
+        }
+    }
+
+    showWhatsappMessages(individualUUID) {
+        TypedTransition.from(this).with({individualUUID}).to(GlificScheduledAndSentMsgsView, true);
     }
 
     makeCall(number) {
@@ -245,6 +270,7 @@ class IndividualProfile extends AbstractComponent {
                             <View style={{flexDirection: 'column'}}>
                                 {this.renderCommentIcon()}
                                 {this.renderCallButton()}
+                                {this.renderWhatsappButton(this.props.individual.uuid)}
                             </View>
                         </View>
                         <View
