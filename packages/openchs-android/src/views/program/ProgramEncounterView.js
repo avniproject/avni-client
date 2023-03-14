@@ -83,7 +83,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const encounterName = programEncounter.name || programEncounter.encounterType.name;
 
                 let onPreviousCallback = undefined;
-                if (fromSDV) {
+                if (fromSDV === true) {
                     onPreviousCallback = (context) => {
                         const form = context.getService(FormMappingService).findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.subjectType);
                         let pageNumber = form.numberOfPages + 1;
