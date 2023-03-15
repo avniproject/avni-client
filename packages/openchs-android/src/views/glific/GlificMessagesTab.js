@@ -43,8 +43,8 @@ class GlificMessagesTab extends AbstractComponent {
 
   renderScheduledMessageView(msg) {
     const primaryDate = msg.scheduledDateTime;
-    const messageRule = msg.messageRule.messageRule;
-    const messageTemplateName = msg.messageRule.name;
+    const messageRule = msg.messageRule;
+    const messageTemplateName = msg.messageTemplateName;
     const paramsSearchResult = messageRule.match(/parameters: \[.*\]/);
     const msgBody = messageTemplateName + (paramsSearchResult ? '\' with ' + paramsSearchResult[0] : '\'');
 
@@ -63,27 +63,33 @@ class GlificMessagesTab extends AbstractComponent {
       .groupBy((msg) => General.toDisplayDate(tabTypeSentMessages ? msg.insertedAt : msg.scheduledDateTime))
       .map((value, key) => ({title: key, data: value}))
       .value();
+    const getRenderSectionHeaderFooter = ({section: {title}}) => (
+      <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{flex: 1}}>
+        </View>
+        <Text style={styles.heading}>{title}</Text>
+        <View style={{flex: 1}}>
+        </View>
+      </View>
+    );
+    const footerHeaderProps = tabTypeSentMessages ? {
+      renderSectionFooter: getRenderSectionHeaderFooter
+    } : {
+      renderSectionHeader: getRenderSectionHeaderFooter
+    };
     return (<SectionList
       contentContainerStyle={{
         margin: Distances.ScaledContentDistanceFromEdge
       }}
-      inverted={true}
+      inverted={tabTypeSentMessages}
       sections={sectionWiseList}
       ListEmptyComponent={this.status(
-        this.props.failedToFetchMessages ? "Could not retrieve messages" :
-        tabTypeSentMessages ? "No Messages Sent" : "No Messages Scheduled", this.props.failedToFetchMessages)}
-      renderSectionFooter={({section: {title}}) => (
-        <View style={{flex: 1, flexDirection: 'row'}}>
-          <View style={{flex: 1}}>
-          </View>
-            <Text style={styles.heading}>{title}</Text>
-          <View style={{flex: 1}}>
-          </View>
-        </View>
-      )}
+        this.props.failedToFetchMessages ? "failedToFetchMsgs" :
+          tabTypeSentMessages ? "emptySentMsgs" : "emptyScheduledMsgs", this.props.failedToFetchMessages)}
       renderItem={(msg) =>
         tabTypeSentMessages ? this.renderMessageView(msg.item) : this.renderScheduledMessageView(msg.item)}
       keyExtractor={(item, index) => item + index}
+      {...footerHeaderProps}
     />);
   }
 

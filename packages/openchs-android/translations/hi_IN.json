@@ -351,6 +351,12 @@
     "Weight For Age": "उम्र के हिसाब से वजन",
     "Height For Age": "उम्र के हिसाब से ऊंचाई",
     "Weight For Height": "ऊंचाई के हिसाब से वजन",
-    "delete": "निकाले"
+    "delete": "निकाले",
+    "failedToFetchMsgs" : "संदेश पुनर्प्राप्त नहीं किया जा सका",
+    "emptySentMsgs" : "कोई संदेश नहीं भेजा गया",
+    "emptyScheduledMsgs" : "कोई संदेश अनुसूचित नहीं किया गया",
+    "sentMessages" : "भेजे गए संदेश",
+    "scheduledMessages" : "अनुसूचित किए गए संदेश",
+    "GlificMessagesList" : "ग्लिफिक संदेश सूची"
   }
 }

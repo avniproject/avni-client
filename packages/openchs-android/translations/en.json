@@ -483,6 +483,12 @@
     "Height For Age": "Height For Age",
     "Weight For Height": "Weight For Height",
     "Growth Chart": "Growth Chart",
-    "delete": "Delete"
+    "delete": "Delete",
+    "failedToFetchMsgs" : "Could not retrieve messages",
+    "emptySentMsgs" : "No Messages Sent",
+    "emptyScheduledMsgs" : "No Messages Scheduled",
+    "sentMessages" : "Sent Messages",
+    "scheduledMessages" : "Scheduled Messages",
+    "GlificMessagesList" : "Glific Messages List"
   }
 }

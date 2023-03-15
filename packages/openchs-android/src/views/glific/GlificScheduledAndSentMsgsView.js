@@ -111,7 +111,16 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
 
   render() {
     General.logDebug(this.viewName(), 'render');
-    const options = [[this.icon(MCIcon, 'view-list', this.state.tabType === GlificActions.TAB_TYPE_SENT_MSGS), this.I18n.t('sentMessages'), () => this.dispatchAction(Actions.ON_SENT_MSGS_CLICK), this.state.tabType === GlificActions.TAB_TYPE_SENT_MSGS, true], [this.icon(MCIcon, 'view-list', this.state.tabType === GlificActions.TAB_TYPE_SCHEDULED_MSGS), this.I18n.t('scheduledMessages'), () => this.dispatchAction(Actions.ON_SCHEDULED_MSGS_CLICK), this.state.tabType === GlificActions.TAB_TYPE_SCHEDULED_MSGS, true],];
+    const options = [[this.icon(MCIcon, 'view-list',
+      this.state.tabType === GlificActions.TAB_TYPE_SENT_MSGS),
+      this.I18n.t('sentMessages'),
+      () => this.dispatchAction(Actions.ON_SENT_MSGS_CLICK),
+      this.state.tabType === GlificActions.TAB_TYPE_SENT_MSGS, true],
+      [this.icon(MCIcon, 'view-list',
+        this.state.tabType === GlificActions.TAB_TYPE_SCHEDULED_MSGS),
+        this.I18n.t('scheduledMessages'),
+        () => this.dispatchAction(Actions.ON_SCHEDULED_MSGS_CLICK),
+        this.state.tabType === GlificActions.TAB_TYPE_SCHEDULED_MSGS, true],];
     return (<CHSContainer>
       <View style={styles.header}>
         <AppHeader title={this.I18n.t('GlificMessagesList')} hideIcon={true}
