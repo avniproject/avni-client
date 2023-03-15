@@ -14,7 +14,7 @@ const getAuthToken = async  () => {
 
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
-        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
+      if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
             return Promise.resolve(response);
         }
         if (parseInt(response.status) === 403) {
@@ -53,7 +53,6 @@ const _addAuthIfRequired = async (request, bypassAuth) => {
         return request;
     }
     const token = await getAuthToken();
-    console.log('token', token);
     return Config.ENV === 'dev' ?
         _.merge({}, request, {headers: {"USER-NAME": token}}) :
         _.merge({}, request, {headers: {'AUTH-TOKEN': token}});
