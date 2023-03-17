@@ -57,11 +57,11 @@ class GlificMessagesTab extends AbstractComponent {
   }
 
   formatMsgTemplate = (str, params) => {
-    let r = function (v, i) {
-      str = str.replace(new RegExp("\\{\\{" + (i + 1) + "\\}\\}", "g"), v);
+    let replacer = function (value, index) {
+      str = str.replace(new RegExp("\\{\\{" + (index + 1) + "\\}\\}", "g"), value);
     };
-    let p = params.replace(new RegExp("\\[|\\]", "g"), '').split(/[,]+/);
-    p.forEach(r);
+    let paramsArray = params.replace(new RegExp("\\[|\\]", "g"), '').split(/[,]+/);
+    paramsArray.forEach(replacer);
     return str;
   }
 
