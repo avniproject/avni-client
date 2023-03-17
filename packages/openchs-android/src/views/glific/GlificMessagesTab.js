@@ -43,18 +43,26 @@ class GlificMessagesTab extends AbstractComponent {
 
   renderScheduledMessageView(msg) {
     const primaryDate = msg.scheduledDateTime;
-    const messageRule = msg.messageRule;
-    const messageTemplateName = msg.messageTemplateName;
-    const paramsSearchResult = messageRule.match(/parameters: \[.*\]/);
-    const msgBody = messageTemplateName + (paramsSearchResult ? '\' with ' + paramsSearchResult[0] : '\'');
+    const messageRuleParams = msg.messageRuleParams;
+    const messageTemplate = msg.messageTemplate.body;
+    const msgBody = this.formatMsgTemplate(messageTemplate, messageRuleParams);
 
     return <View style={styles.container}>
       <View
         style={styles.message}>
-        <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>Scheduled to send message using template '{msgBody}</Text>
+        <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
         <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
       </View>
     </View>;
+  }
+
+  formatMsgTemplate = (str, params) => {
+    let r = function (v, i) {
+      str = str.replace(new RegExp("\\{\\{" + (i + 1) + "\\}\\}", "g"), v);
+    };
+    let p = params.replace(new RegExp("\\[|\\]", "g"), '').split(/[,]+/);
+    p.forEach(r);
+    return str;
   }
 
   renderSentMessagesList(tabTypeSentMessages) {
