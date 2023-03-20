@@ -189,6 +189,7 @@ class MediaQueueService extends BaseService {
         // Parallel push to S3 ensures maximal usage of existing bandwidth.
         // Return only once everything is complete. Errors are logged in console only
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
+        General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
         return Promise.all(
             _.map(mediaQueueItems,
                 (mediaQueueItem) => {

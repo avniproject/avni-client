@@ -26,6 +26,7 @@ import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
+import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -39,13 +40,6 @@ class SyncService extends BaseService {
         BACKGROUND_JOB: 'automatic',
         SYNC_BUTTON: 'manual'
     };
-
-    getFormattedMetadata(metadata, reduceWeightBy) {
-        return _.map(metadata, (data) => ({
-            name: data.entityName,
-            syncWeight: data.syncWeight / reduceWeightBy
-        }))
-    }
 
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
@@ -62,63 +56,15 @@ class SyncService extends BaseService {
         this.subjectTypeService = this.getService(SubjectTypeService);
     }
 
-    getProgressSteps(allEntitiesMetaData) {
-        const allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
-        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx" || entityMetaData.type === "virtualTx" );
-
-        if (this.mediaQueueService.isMediaUploadRequired()) {
-            //entities will be used two times during sync
-            const txMetaData = this.getFormattedMetadata(allTxEntityMetaData, 2);
-            //entities will be used three times during sync
-            const queuedItems = allTxEntityMetaData
-                .map(this.entityQueueService.getAllQueuedItems)
-                .filter((entities) => !_.isEmpty(entities.entities)).map((it) => ({name: it.metaData.entityName}));
-            const entityQueueData = _.map(_.intersectionBy(this.getFormattedMetadata(allTxEntityMetaData, 1), queuedItems, 'name'), (data) => ({
-                name: data.name,
-                syncWeight: data.syncWeight / 3
-            }));
-            //reduce some weights from ref data for media it will used two times during sync
-            const refDataWithWeightsReduced = allReferenceDataMetaData.map((entityMetaData) => ({
-                name: entityMetaData.entityName,
-                syncWeight: (entityMetaData.syncWeight - 0.1) / 2
-            }));
-            const mediaEntities = ['Media', 'After_Media'].map((media) => ({
-                name: media,
-                syncWeight: (allReferenceDataMetaData.length * 0.1) / 2
-            }));
-            return _.concat(
-                entityQueueData,
-                _.differenceBy(txMetaData, entityQueueData, 'name'),
-                mediaEntities,
-                refDataWithWeightsReduced,
-            );
-        } else {
-            //entities will be used once during sync
-            const txMetaData = this.getFormattedMetadata(allTxEntityMetaData, 1);
-            const queuedItems = allTxEntityMetaData
-                .map(this.entityQueueService.getAllQueuedItems)
-                .filter((entities) => !_.isEmpty(entities.entities)).map((it) => ({name: it.metaData.entityName}));
-            //entities will be used twice during sync
-            const entityQueueData = _.map(_.intersectionBy(txMetaData, queuedItems, 'name'), (data) => ({
-                name: data.name,
-                syncWeight: data.syncWeight / 2
-            }));
-            return _.concat(
-                this.getFormattedMetadata(allReferenceDataMetaData, 1),
-                entityQueueData,
-                _.differenceBy(txMetaData, entityQueueData, 'name')
-            );
-        }
-    }
-
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
-        const progressBarStatus = new ProgressbarStatus(trackProgress, this.getProgressSteps(allEntitiesMetaData));
+        General.logDebug("SyncService", "sync");
+        const progressBarStatus = new ProgressbarStatus(trackProgress,
+                    AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, numOfPages) => {
             progressBarStatus.onComplete(entityType, numOfPages);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
-        const firstDataServerSync = (isSyncResetRequired, isOnlyUploadRequired) => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, _.noop, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired);
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
@@ -135,12 +81,13 @@ class SyncService extends BaseService {
         General.logDebug('mediaUploadRequired', mediaUploadRequired);
         const isManualSync = updatedSyncSource === SyncService.syncSources.SYNC_BUTTON;
         const isOnlyUploadRequired = updatedSyncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
-        return mediaUploadRequired ?
-            firstDataServerSync(false, isOnlyUploadRequired)
-                .then(() => this.imageSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0)))
-                .then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired))
-                .then(syncCompleted)
-            : firstDataServerSync(isManualSync, isOnlyUploadRequired).then(syncCompleted);
+        let promise;
+        if (mediaUploadRequired) {
+            promise = this.mediaSync(statusMessageCallBack).then(() => onAfterMediaPush('Media', 0));
+        } else {
+            promise = Promise.resolve();
+        }
+        promise.then(() => this.dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isManualSync, userConfirmation, isOnlyUploadRequired)).then(syncCompleted);
     }
 
     /*
@@ -149,8 +96,8 @@ class SyncService extends BaseService {
      */
     getUpdatedSyncSource(syncSource) {
         return (syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB
-          && this.wasLastCompletedFullSyncDoneMoreThan12HoursAgo())
-          ?  SyncService.syncSources.BACKGROUND_JOB : syncSource;
+            && this.wasLastCompletedFullSyncDoneMoreThan12HoursAgo())
+            ? SyncService.syncSources.BACKGROUND_JOB : syncSource;
     }
 
     wasLastCompletedFullSyncDoneMoreThan12HoursAgo() {
@@ -163,7 +110,7 @@ class SyncService extends BaseService {
         logEvent(firebaseEvents.SYNC_COMPLETE, {time_taken: syncTime});
     }
 
-    imageSync(statusMessageCallBack) {
+    mediaSync(statusMessageCallBack) {
         return Promise.resolve(statusMessageCallBack("uploadMedia"))
             .then(() => this.mediaQueueService.uploadMedia());
     }
@@ -215,17 +162,17 @@ class SyncService extends BaseService {
         const allTxEntityMetaData = _.union(this.getMetadataByType(allEntitiesMetaData, "parentOfVirtualTx"), this.getMetadataByType(allEntitiesMetaData, "tx"));
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-          .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
-          .then(() => onAfterMediaPush("After_Media", 0));
-        if(isOnlyUploadRequired) {
+            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
+            .then(() => onAfterMediaPush("After_Media", 0));
+        if (isOnlyUploadRequired) {
             return uploadData;
         }
         await uploadData
-            .then(() =>statusMessageCallBack("FetchingChangedResource"))
+            .then(() => statusMessageCallBack("FetchingChangedResource"))
             .then(() => this.getResetSyncData(resetSyncMetadata, onProgressPerEntity))
             .then(async () => {
-              const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
-              return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
+                const isResetSyncRequired = this.getService(ResetSyncService).isResetSyncRequired();
+                return await isResetSyncRequired && isSyncResetRequired && this.confirmUserAndResetSync(userConfirmation);
             });
 
         const {syncDetails, endDateTime, now} = await this.getSyncDetails();
@@ -279,7 +226,7 @@ class SyncService extends BaseService {
         return this.getData(entitiesMetaDataWithSyncStatus, afterEachPagePulled, now);
     }
 
-    getResetSyncData(entitiesMetadata, afterEachPagePulled ) {
+    getResetSyncData(entitiesMetadata, afterEachPagePulled) {
         const entitiesMetaDataWithSyncStatus = entitiesMetadata
             .map((entityMetadata) => _.assignIn({
                 syncStatus: this.entitySyncStatusService.get(entityMetadata.entityName),
@@ -355,7 +302,7 @@ class SyncService extends BaseService {
             });
         }
 
-        if(entityMetaData.entityName === 'UserSubjectAssignment') {
+        if (entityMetaData.entityName === 'UserSubjectAssignment') {
             this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
         }
 
