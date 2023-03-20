@@ -48,10 +48,12 @@ class GlificMessagesTab extends AbstractComponent {
     const msgBody = this.formatMsgTemplate(messageTemplate, messageRuleParams);
 
     return <View style={styles.container}>
-      <View
-        style={styles.message}>
+      <View style={styles.message}>
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
-        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+        <View style={styles.senderAndTime}>
+            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>  - {msg.createdBy}</Text>
+            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+        </View>
       </View>
     </View>;
   }
@@ -136,6 +138,13 @@ const styles = StyleSheet.create({
     marginVertical: "70%",
     display: 'flex',
     alignSelf: 'center',
+  },
+  senderAndTime: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    display: 'flex',
+    width: '100%',
   },
   message: {
     flexDirection: 'column',
