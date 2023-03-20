@@ -85,7 +85,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
         height: 45,
         borderRadius: 5,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        backgroundColor: Colors.ActionButtonColor
     }
 });
 

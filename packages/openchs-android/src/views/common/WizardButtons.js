@@ -38,7 +38,7 @@ class WizardButtons extends AbstractComponent {
                 style={this.appendedStyle({justifyContent: 'space-between', flexDirection: 'row', marginBottom: 12})}>
                 {nextAndMore.visible ?
                     <Button primary
-                            style={{flex: 1, justifyContent: "center"}}
+                            style={{flex: 1, justifyContent: "center",backgroundColor: Colors.ActionButtonColor}}
                             onPress={() => nextAndMore.func()}>
                         {nextAndMore.label}</Button>
                     : null
@@ -62,7 +62,7 @@ class WizardButtons extends AbstractComponent {
                     <View style={{flex: 0.5}}/>}
                 {nextButton.visible ?
                     <Button primary
-                            style={{flex: 0.5, flexDirection: "row", marginLeft: 8, justifyContent: "center"}}
+                            style={{flex: 0.5, flexDirection: "row", marginLeft: 8, justifyContent: "center",backgroundColor: Colors.ActionButtonColor}}
                             onPress={() => nextButton.func()}
                             rightIcon={<AvniIcon color={Colors.buttonIconColor} name='stepforward' type='AntDesign'/>}>{nextButton.label}
                     </Button> : <View style={{flex: 0.5}}/>}

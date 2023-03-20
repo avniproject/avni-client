@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import {EntityMetaData, EntityQueue, MediaQueue} from 'avni-models';
+import {EntityQueue, MediaQueue, EntityMetaData} from 'openchs-models';
 import _ from "lodash";
 import bugsnag from "../utility/bugsnag";
 
@@ -16,9 +16,9 @@ class EntityQueueService extends BaseService {
         return EntityQueue.schema.name;
     }
 
-    getAllQueuedItems(entityMetadata) {
+    getAllQueuedItems(entityMetaData: EntityMetaData) {
         const items = _.uniqBy(this.db.objects(EntityQueue.schema.name)
-            .filtered("entity = $0", entityMetadata.entityName)
+            .filtered("entity = $0", entityMetaData.entityName)
             .sorted("savedAt")
             .slice(), 'entityUUID');
 
@@ -26,7 +26,7 @@ class EntityQueueService extends BaseService {
         const getEntityResource = (item) => {
             const entity = getEntity(item);
             if (_.isNil(entity)) {
-                bugsnag.notify(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}` ));
+                bugsnag.notify(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}`));
                 this.db.write(() => this.db.delete(item));
                 return undefined;
             }
@@ -34,11 +34,15 @@ class EntityQueueService extends BaseService {
         };
 
         return {
-            metaData: entityMetadata,
+            metaData: entityMetaData,
             entities: items.map((item) => _.assignIn({
                 resource: getEntityResource(item)
             })).filter(resourceItem => !_.isNil(resourceItem.resource))
         };
+    }
+
+    getPresentEntities() {
+        return this.db.objects(EntityQueue.schema.name).filtered("TRUEPREDICATE DISTINCT(entity)");
     }
 
     getQueuedItemCount(entityName) {

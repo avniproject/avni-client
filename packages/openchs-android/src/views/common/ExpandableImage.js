@@ -40,7 +40,7 @@ export default class ExpandableImage extends React.Component {
                 <Modal onRequestClose={() => this.hideModal()}>
                     <View style={{backgroundColor: "black", padding: 5}}>
                         <Button onPress={() => this.hideModal()}
-                                style={{height: 35, alignSelf: 'flex-end'}}
+                                style={{height: 35, alignSelf: 'flex-end',backgroundColor: Colors.ActionButtonColor}}
                                 leftIcon={<AvniIcon type="MaterialIcons" name="close" style={{color: Colors.headerIconColor, fontSize: 15}}/>}>
                         </Button>
                     </View>
