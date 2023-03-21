@@ -47,9 +47,7 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
       })
       .catch(error => {
         this.dispatchAction(Actions.ON_FETCH_OF_GLIFIC_CONTACT, {glificContact: {}});
-        General.logError("GlificScheduledAndSentMsgsView-fetchGlificContactDetailsForSubject", JSON.stringify(
-          error
-        ));
+        General.logError("GlificScheduledAndSentMsgsView-fetchGlificContactDetailsForSubject", error);
       });
   }
 
@@ -60,9 +58,7 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
         this.dispatchAction(Actions.ON_FETCH_OF_SENT_MSGS, {sentMessages: response, failedToFetchSentMessages: false});
       }).catch(error => {
       this.dispatchAction(Actions.ON_FETCH_OF_SENT_MSGS, {sentMessages: [], failedToFetchSentMessages: true});
-      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsSentForSubject-${this.props.individualUUID}`, JSON.stringify(
-        error
-      ));
+      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsSentForSubject-${this.props.individualUUID}`, error);
     });
   }
 
@@ -76,9 +72,7 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
       this.dispatchAction(Actions.ON_FETCH_OF_SCHEDULED_MSGS, {
         scheduledMessages: [], failedToFetchScheduledMessages: true
       });
-      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsScheduledForSubject-${this.props.individualUUID}`, JSON.stringify(
-        error
-      ));
+      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsScheduledForSubject-${this.props.individualUUID}`, error);
     });
   }
 
