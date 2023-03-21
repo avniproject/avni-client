@@ -40,13 +40,29 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
     super.UNSAFE_componentWillMount();
   }
 
+  fetchGlificContactDetailsForSubject() {
+    this.context.getService(GlificService).getGlificContactDetailsForSubject(this.props.individualUUID)
+      .then(response => {
+        this.dispatchAction(Actions.ON_FETCH_OF_GLIFIC_CONTACT, {glificContact: response});
+      })
+      .catch(error => {
+        this.dispatchAction(Actions.ON_FETCH_OF_GLIFIC_CONTACT, {glificContact: {}});
+        General.logError("GlificScheduledAndSentMsgsView-fetchGlificContactDetailsForSubject", JSON.stringify(
+          error
+        ));
+      });
+  }
+
   fetchMsgsSentForSubject() {
+    this.fetchGlificContactDetailsForSubject();
     this.context.getService(GlificService).getAllMessagesForSubject(this.props.individualUUID)
       .then(response => {
         this.dispatchAction(Actions.ON_FETCH_OF_SENT_MSGS, {sentMessages: response, failedToFetchSentMessages: false});
       }).catch(error => {
       this.dispatchAction(Actions.ON_FETCH_OF_SENT_MSGS, {sentMessages: [], failedToFetchSentMessages: true});
-      console.log("Error encountered while fetching All Messages to Subject ", this.props.individualUUID, error);
+      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsSentForSubject-${this.props.individualUUID}`, JSON.stringify(
+        error
+      ));
     });
   }
 
@@ -60,7 +76,9 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
       this.dispatchAction(Actions.ON_FETCH_OF_SCHEDULED_MSGS, {
         scheduledMessages: [], failedToFetchScheduledMessages: true
       });
-      console.log("Error encountered while fetching scheduled Messages for Subject ", this.props.individualUUID);
+      General.logError(`GlificScheduledAndSentMsgsView-fetchMsgsScheduledForSubject-${this.props.individualUUID}`, JSON.stringify(
+        error
+      ));
     });
   }
 
@@ -103,10 +121,16 @@ class GlificScheduledAndSentMsgsView extends AbstractComponent {
     const dataLoaded = sentMsgsTabType ? this.state.setMsgsSentAvailable : this.state.setMsgsScheduledAvailable;
     const failedToFetchMessages = sentMsgsTabType ? this.state.failedToFetchSentMessages : this.state.failedToFetchScheduledMessages;
     const msgList = sentMsgsTabType ? this.state.sentMessages : this.state.scheduledMessages;
-    const loading = (this.state.showSpinnerWhileLoadingSentMessages || this.state.showSpinnerWhileLoadingScheduledMessages)
-    return loading ? <View/> : <GlificMessagesTab dataLoaded={dataLoaded}
-                                                  failedToFetchMessages={failedToFetchMessages}
-                                                  msgList={msgList} tabType={this.state.tabType}/>;
+    const loading = (this.state.showSpinnerWhileLoadingGlificContact || this.state.showSpinnerWhileLoadingSentMessages || this.state.showSpinnerWhileLoadingScheduledMessages)
+    return loading ?
+      <View />
+      :
+      <GlificMessagesTab dataLoaded={dataLoaded}
+                         failedToFetchMessages={failedToFetchMessages}
+                         msgList={msgList}
+                         tabType={this.state.tabType}
+                         glificContact={this.state.glificContact}
+      />;
   }
 
   render() {

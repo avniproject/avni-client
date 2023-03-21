@@ -10,6 +10,7 @@ class GlificActions {
         return {
             showSpinnerWhileLoadingSentMessages: true,
             showSpinnerWhileLoadingScheduledMessages: true,
+            showSpinnerWhileLoadingGlificContact: true,
             tabType: "Sent Messages",
             sentMessages: [],
             scheduledMessages: [],
@@ -61,6 +62,13 @@ class GlificActions {
         newState.scheduledMessages = orderBy(newState.scheduledMessages, "insertedAt", "desc");
         return newState;
     }
+
+  static onFetchOfGlificContact(state, action, context) {
+    const newState = {...state};
+    newState.glificContact = action.glificContact;
+    newState.showSpinnerWhileLoadingGlificContact = false;
+    return newState;
+  }
 }
 
 const ActionPrefix = 'Glific';
@@ -71,6 +79,7 @@ const GlificActionNames = {
     ON_SCHEDULED_MSGS_CLICK: `${ActionPrefix}.ON_SCHEDULED_MSGS_CLICK`,
     ON_FETCH_OF_SENT_MSGS: `${ActionPrefix}.ON_FETCH_OF_SENT_MSGS`,
     ON_FETCH_OF_SCHEDULED_MSGS: `${ActionPrefix}.ON_FETCH_OF_SCHEDULED_MSGS`,
+    ON_FETCH_OF_GLIFIC_CONTACT: `${ActionPrefix}.ON_FETCH_OF_GLIFIC_CONTACT`,
 };
 
 const GlificActionMap = new Map([
@@ -79,6 +88,7 @@ const GlificActionMap = new Map([
     [GlificActionNames.ON_SCHEDULED_MSGS_CLICK, GlificActions.onScheduledMsgsClick],
     [GlificActionNames.ON_FETCH_OF_SENT_MSGS, GlificActions.onFetchOfSentMsgs],
     [GlificActionNames.ON_FETCH_OF_SCHEDULED_MSGS, GlificActions.onFetchOfScheduledMsgs],
+    [GlificActionNames.ON_FETCH_OF_GLIFIC_CONTACT, GlificActions.onFetchOfGlificContact],
 ]);
 
 export {GlificActions, GlificActionNames, GlificActionMap}
