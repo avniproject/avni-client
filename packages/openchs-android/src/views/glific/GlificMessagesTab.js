@@ -38,7 +38,7 @@ class GlificMessagesTab extends AbstractComponent {
       <View
         style={msg.receiver.id === this.props.glificContact.id ? styles.sentMessage : styles.receivedMessage}>
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
-        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayDateAsTime12H(primaryDate)}</Text>
       </View>
     </View>;
   }
@@ -54,7 +54,7 @@ class GlificMessagesTab extends AbstractComponent {
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
         <View style={styles.senderAndTime}>
             <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>  - {msg.createdBy}</Text>
-            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayDateAsTime(primaryDate)}</Text>
         </View>
       </View>
     </View>;

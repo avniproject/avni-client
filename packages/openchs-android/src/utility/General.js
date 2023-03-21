@@ -98,6 +98,10 @@ class General {
         return moment(date).format("HH:mm")
     }
 
+  static toDisplayDateAsTime12H(date) {
+    return moment(date).format("hh:mm a")
+  }
+
     static toTimeObject(isoFormatTime) {
         const timeArray = _.split(isoFormatTime, ':');
         return {hour: _.toInteger(timeArray[0]), minute: _.toInteger(timeArray[1])};
