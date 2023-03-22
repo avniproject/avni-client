@@ -51,7 +51,6 @@ class GlificMessagesTab extends AbstractComponent {
       <View style={styles.message}>
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
         <View style={styles.senderAndTime}>
-            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>  - {msg.createdBy}</Text>
             <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
         </View>
       </View>
