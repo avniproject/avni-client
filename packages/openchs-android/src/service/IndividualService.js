@@ -23,6 +23,7 @@ import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import OrganisationConfigService from './OrganisationConfigService';
+import {getUnderlyingRealmCollection} from "openchs-models";
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -52,10 +53,11 @@ class IndividualService extends BaseService {
         let searchResults, finalSearchResults = [];
 
         if (_.isEmpty(filterCriteria)) {
-            searchResults = this.db.objects(Individual.schema.name);
-            finalSearchResults = _.concat(finalSearchResults, searchResults.asArray());
+            searchResults = this.db.objects(Individual.schema.name).sorted("name");
+            finalSearchResults = getUnderlyingRealmCollection(searchResults);
         } else {
             function filterIndividualsByChunks(baseResult) {
+                // if chunkSize is less/more than 500, processing is slower
                 const chunkSize = 500, noOfChunks = individualUUIDs.length / chunkSize;
                 for (let chunk = 0; chunk < noOfChunks; chunk++) {
                     let individualUuidsChunk = _.slice(individualUUIDs, chunk * chunkSize, ((chunk + 1) * chunkSize) - 1);
@@ -71,13 +73,17 @@ class IndividualService extends BaseService {
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
                     criteria.getMaxDateOfBirth()
-                );
+                ).sorted("name");
 
-            _.isEmpty(individualUUIDs) ? finalSearchResults = _.concat(finalSearchResults, baseResult.asArray()) :
+            if(_.isEmpty(individualUUIDs))
+                finalSearchResults = getUnderlyingRealmCollection(baseResult);
+            else {
                 filterIndividualsByChunks(baseResult);
+                finalSearchResults = _.orderBy(finalSearchResults, [individual => individual.name.toLowerCase()]);
+            }
         }
 
-        return _.sortBy(finalSearchResults, ['name']);
+        return finalSearchResults;
     }
 
     register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
