@@ -64,7 +64,6 @@ class IndividualSearchResultsView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const title = this.props.headerTitle || "searchResults";
-        const searchResultsCollection = getUnderlyingRealmCollection(this.props.searchResults);
 
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground}}>
@@ -72,7 +71,7 @@ class IndividualSearchResultsView extends AbstractComponent {
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
                 <FlatList
-                    data={searchResultsCollection}
+                    data={this.props.searchResults}
                     keyExtractor={(item) => item.uuid}
                     renderItem={({item}) => <IndividualSearchResultRow item={item} onResultRowPress={this.onResultRowPress.bind(this)}/>}
                 />

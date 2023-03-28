@@ -47,21 +47,37 @@ class IndividualService extends BaseService {
         this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
     }
 
-    search(criteria) {
+    search(criteria, individualUUIDs) {
         const filterCriteria = criteria.getFilterCriteria();
-        let searchResults;
+        let searchResults, finalSearchResults = [];
+
         if (_.isEmpty(filterCriteria)) {
             searchResults = this.db.objects(Individual.schema.name);
+            finalSearchResults = _.concat(finalSearchResults, searchResults.asArray());
         } else {
-            searchResults = this.db
+            function filterIndividualsByChunks(baseResult) {
+                const chunkSize = 500, noOfChunks = individualUUIDs.length / chunkSize;
+                for (let chunk = 0; chunk < noOfChunks; chunk++) {
+                    let individualUuidsChunk = _.slice(individualUUIDs, chunk * chunkSize, ((chunk + 1) * chunkSize) - 1);
+                    let individualQuery = _.map(individualUuidsChunk, individualUUID => `uuid = "${individualUUID}"`).join(" OR ")
+                    let searchResultsChunk = baseResult.filtered(individualQuery, ...individualUuidsChunk);
+                    finalSearchResults = _.concat(finalSearchResults, searchResultsChunk.asArray());
+                }
+            }
+
+            const baseResult = this.db
                 .objects(Individual.schema.name)
                 .filtered(
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
                     criteria.getMaxDateOfBirth()
-                ).sorted('name');
+                );
+
+            _.isEmpty(individualUUIDs) ? finalSearchResults = _.concat(finalSearchResults, baseResult.asArray()) :
+                filterIndividualsByChunks(baseResult);
         }
-        return searchResults;
+
+        return _.sortBy(finalSearchResults, ['name']);
     }
 
     register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
