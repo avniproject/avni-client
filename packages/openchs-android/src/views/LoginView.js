@@ -206,7 +206,7 @@ class LoginView extends AbstractComponent {
                                                      autoCompleteType={'username'}
                                                      keyboardType={'email-address'}
                                     />
-                                    {Config.ENV !== 'dev' ?
+                                    {this.state.idpType !== 'none' ?
                                         <View>
                                             <TextFormElement element={new StaticFormElement('password')}
                                                              secureTextEntry={!this.state.showPassword}
@@ -295,8 +295,9 @@ class LoginView extends AbstractComponent {
     }
 
     clearDataAndLogin() {
-        this.getService(AuthService).logout()
+        this.getService(AuthService).getAuthProviderService().logout()
             .then(() => this.getService(SyncService).clearData())
+            .then(() => this.getService(AuthService).fetchAuthSettingsFromServer())
             .then(() => this.reset())
             .then(() => this.justLogin());
     }

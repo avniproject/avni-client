@@ -51,7 +51,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
                 showSpinner: true
             });
 
-            this.context.getService(AuthService).verifyOtpAndSetPassword(this.props.user, this.state.verificationCode, this.state.password).then(
+            this.context.getService(AuthService).getAuthProviderService().verifyOtpAndSetPassword(this.props.user, this.state.verificationCode, this.state.password).then(
                 () => {
                     this.setState(() => {
                         showSpinner: false

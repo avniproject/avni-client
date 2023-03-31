@@ -39,6 +39,10 @@ class RootView extends AbstractComponent {
     }
 
     async openApp() {
+        const authService = await this.context.getService(AuthService);
+        if (! await authService.isAuthInitialized()) {
+            await authService.fetchAuthSettingsFromServer();
+        }
         const decisionParameters = await this.nextScreenDecisionParameters();
 
         if (decisionParameters.beneficiaryModeOn) {
@@ -57,7 +61,7 @@ class RootView extends AbstractComponent {
     }
 
     async nextScreenDecisionParameters() {
-        const authService = this.context.getService(AuthService);
+        const authService = this.context.getService(AuthService).getAuthProviderService();
         return {
             beneficiaryModeOn: this.beneficiaryModeOn(),
             userExists: authService.userExists.bind(authService),

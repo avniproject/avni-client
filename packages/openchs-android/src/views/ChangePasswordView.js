@@ -32,7 +32,7 @@ class ChangePasswordView extends AbstractComponent {
         });
 
         let authService = this.context.getService(AuthService);
-        authService.getAuthToken().then(
+        authService.getAuthProviderService().getAuthToken().then(
             () => {
                 authService.getUser().then(
                     (user) => {
@@ -57,7 +57,7 @@ class ChangePasswordView extends AbstractComponent {
             return {showSpinner: true}
         });
 
-        this.context.getService(AuthService).changePassword(this.state.password, this.state.newPassword).then(
+        this.context.getService(AuthService).getAuthProviderService().changePassword(this.state.password, this.state.newPassword).then(
             () => {
                 this.setState(() => {
                     showSpinner: false

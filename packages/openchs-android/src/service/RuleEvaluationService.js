@@ -739,7 +739,6 @@ class RuleEvaluationService extends BaseService {
     }
 
     evaluateLinkFunction(linkFunction, menuItem, user, authToken) {
-        const authService = this.getService(AuthService);
         try {
             const ruleFunc = eval(linkFunction);
             return ruleFunc({

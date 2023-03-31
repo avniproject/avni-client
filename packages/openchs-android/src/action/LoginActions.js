@@ -5,6 +5,7 @@ import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import {firebaseEvents, logEvent} from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import SettingsService from "../service/SettingsService";
 
 class LoginActions {
     static getInitialState() {
@@ -19,15 +20,18 @@ class LoginActions {
             validationResult: ValidationResult.successful(),
             dumpRestoring: false,
             percentProgress: 0,
-            dumpRestoreMessage: null
+            dumpRestoreMessage: null,
+            idpType: null
         };
     }
 
     static onLoad(state, action, context) {
         const userInfo = context.get(UserInfoService).getUserInfo();
-        const newState = _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null} : {
+        const settings = context.get(SettingsService).getSettings();
+        const newState = _.assignIn({}, state, userInfo ? {userId: userInfo.username, loggedInUser: userInfo.username, percentProgress: null, idpType: settings.idpType} : {
             percentProgress: null,
-            dumpRestoreMessage: null
+            dumpRestoreMessage: null,
+            idpType: settings.idpType
         });
         newState.dumpRestoring = false;
         return newState;
@@ -48,7 +52,7 @@ class LoginActions {
 
     static onLoginStarted(state, action, context) {
         let newState = _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
-        context.get(AuthService)
+        context.get(AuthService).getAuthProviderService()
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {

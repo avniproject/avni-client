@@ -101,7 +101,9 @@ class MenuView extends AbstractComponent {
 
     _logout = () => {
         const authService = this.context.getService(AuthService);
-        authService.logout().then(() => {
+        authService.getAuthProviderService().logout()
+            .then(() => authService.fetchAuthSettingsFromServer())
+            .then(() => {
             logEvent(firebaseEvents.LOG_OUT);
             CHSNavigator.navigateToLoginView(this, false);
         });
@@ -139,7 +141,7 @@ class MenuView extends AbstractComponent {
     }
 
     deleteData() {
-        this.getService(AuthService).logout()
+        this.getService(AuthService).getAuthProviderService().logout()
             .then(() => this.getService(SyncService).clearData())
             .then(() => this.reset())
             .then(() => CHSNavigator.navigateToLoginView(this, false));
@@ -299,7 +301,7 @@ class MenuView extends AbstractComponent {
     openRuleEvaluatedUrl(menuItem) {
         const authService = this.context.getService(AuthService);
         const ruleEvaluationService = this.context.getService(RuleEvaluationService);
-        authService.getAuthToken().then((authToken) => {
+        authService.getAuthProviderService().getAuthToken().then((authToken) => {
             const evaluatedLink = ruleEvaluationService.evaluateLinkFunction(menuItem.linkFunction, menuItem, this.state.userInfo, authToken);
             General.logDebug("MenuView", `Opening URL: ${evaluatedLink}`);
             Linking.openURL(evaluatedLink);

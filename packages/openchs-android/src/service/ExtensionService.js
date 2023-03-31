@@ -59,8 +59,8 @@ class ExtensionService extends BaseService {
     }
 
     async downloadFromUrl(url, targetFilePath, cb) {
-        const token = await this.getService(AuthService).getAuthToken();
-        const headers = Config.ENV === 'dev' ? {'USER-NAME': token} : {'AUTH-TOKEN': token};
+        const [token, idpType] = await Promise.all([this.getService(AuthService).getAuthProviderService().getAuthToken(), this.getService(SettingsService).getSettings().idpType]);
+        const headers = idpType === 'none' ? {'USER-NAME': token} : {'AUTH-TOKEN': token};
         return RNFetchBlob
             .config({fileCache: true, path: targetFilePath,})
             .fetch('GET', url, headers)

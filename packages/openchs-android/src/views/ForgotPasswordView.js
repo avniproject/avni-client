@@ -27,7 +27,7 @@ class ForgotPasswordView extends AbstractComponent {
 
     sendOTP() {
         this.setState(() => {return {showSpinner: true}});
-        this.context.getService(AuthService).forgotPassword(this.state.userId).then(
+        this.context.getService(AuthService).getAuthProviderService().forgotPassword(this.state.userId).then(
             (response) => {
                 this.setState(() => {return {showSpinner: false}});
                 if (response.status === "SUCCESS") {
@@ -45,7 +45,7 @@ class ForgotPasswordView extends AbstractComponent {
     }
 
     componentDidMount() {
-        this.context.getService(AuthService).getUser().then(user => {
+        this.context.getService(AuthService).getAuthProviderService().getUser().then(user => {
             if (user !== null) {
                 this.setState(() => {
                     return {userId: user.getUsername()}

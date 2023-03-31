@@ -41,7 +41,7 @@ class SetPasswordView extends AbstractComponent {
         this.setState(() => {
             return {showSpinner: true};
         });
-        this.context.getService(AuthService).completeNewPasswordChallenge(this.props.user, this.state.password).then(
+        this.context.getService(AuthService).getAuthProviderService().completeNewPasswordChallenge(this.props.user, this.state.password).then(
             () => {
                 this.setState(() => {
                     return {showSpinner: false}

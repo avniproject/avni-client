@@ -2,15 +2,19 @@ import General from "../../utility/General";
 import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
-import Config from '../Config';
 import GlobalContext from "../../GlobalContext";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
 const getAuthToken = async  () => {
     const authService = GlobalContext.getInstance().beanRegistry.getService("authService");
-    return await authService.getAuthToken();
+    return await authService.getAuthProviderService().getAuthToken();
 };
+
+const getIdpType = async () => {
+    const settingsService = GlobalContext.getInstance().beanRegistry.getService("settingsService");
+    return await settingsService.getSettings().idpType;
+}
 
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
@@ -52,8 +56,9 @@ const _addAuthIfRequired = async (request, bypassAuth) => {
     if (bypassAuth) {
         return request;
     }
-    const token = await getAuthToken();
-    return Config.ENV === 'dev' ?
+    const [token, idpType] = await Promise.all([getAuthToken(), getIdpType()]);
+
+    return idpType === 'none' ?
         _.merge({}, request, {headers: {"USER-NAME": token}}) :
         _.merge({}, request, {headers: {'AUTH-TOKEN': token}});
 };
@@ -87,3 +92,8 @@ export let get = (endpoint, bypassAuth = false) => {
 export let getJSON = (endpoint, bypassAuth = false) => {
     return _get(endpoint, bypassAuth);
 };
+
+export let postUrlFormEncoded = (endpoint, body) => {
+    const formBody = new URLSearchParams(body).toString();
+    return fetchFactory(endpoint, "POST", {headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}, body: formBody}, true)
+}

@@ -47,7 +47,7 @@ class LandingView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD);
         const authService = this.context.getService(AuthService);
-        authService.getUserName().then(username => {
+        authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
