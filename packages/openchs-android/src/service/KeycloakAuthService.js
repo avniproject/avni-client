@@ -1,8 +1,8 @@
 import Service from "../framework/bean/Service";
-import { BaseAuthProviderService } from "./BaseAuthProviderService";
 import { postUrlFormEncoded } from "../framework/http/requests";
 import General from "../utility/General";
 import AuthenticationError, { NO_USER } from "./AuthenticationError";
+import BaseAuthProviderService from "./BaseAuthProviderService";
 
 
 @Service("keycloakAuthService")

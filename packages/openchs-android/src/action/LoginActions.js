@@ -6,7 +6,7 @@ import _ from 'lodash';
 import { firebaseEvents, logEvent } from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SettingsService from "../service/SettingsService";
-import { IDP_PROVIDERS } from "../service/BaseAuthProviderService";
+import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 class LoginActions {
     static getInitialState() {

@@ -31,7 +31,7 @@ import SyncService from '../service/SyncService';
 import TypedTransition from '../framework/routing/TypedTransition';
 import SetPasswordView from './SetPasswordView';
 import LandingView from './LandingView';
-import { IDP_PROVIDERS } from "../service/BaseAuthProviderService";
+import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {

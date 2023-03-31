@@ -58,11 +58,4 @@ class BaseAuthProviderService extends BaseService {
 
 }
 
-const IDP_PROVIDERS = {
-    COGNITO: 'cognito',
-    KEYCLOAK: 'keycloak',
-    BOTH: 'both',
-    NONE: 'none'
-}
-
-export {BaseAuthProviderService, IDP_PROVIDERS};
+export default BaseAuthProviderService;

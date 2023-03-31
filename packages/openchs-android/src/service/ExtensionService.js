@@ -8,10 +8,8 @@ import General from "../utility/General";
 import Service from "../framework/bean/Service";
 import RNFetchBlob from "rn-fetch-blob";
 import AuthService from "./AuthService";
-import Config from "../framework/Config";
-import UserInfoService from "./UserInfoService";
 import fs from 'react-native-fs';
-import { IDP_PROVIDERS } from "./BaseAuthProviderService";
+import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 
 @Service("extensionService")

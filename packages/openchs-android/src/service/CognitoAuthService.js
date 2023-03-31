@@ -7,7 +7,7 @@ import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
 import UserInfoService from "./UserInfoService";
 import AuthService from "./AuthService";
-import { BaseAuthProviderService } from "./BaseAuthProviderService";
+import BaseAuthProviderService from "./BaseAuthProviderService";
 
 @Service("cognitoAuthService")
 class CognitoAuthService extends BaseAuthProviderService {

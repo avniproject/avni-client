@@ -7,7 +7,7 @@ import UserInfoService from "./UserInfoService";
 import StubbedAuthService from "./StubbedAuthService";
 import CognitoAuthService from "./CognitoAuthService";
 import KeycloakAuthService from "./KeycloakAuthService";
-import { IDP_PROVIDERS } from "./BaseAuthProviderService";
+import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 @Service("authService")
 class AuthService extends BaseService {

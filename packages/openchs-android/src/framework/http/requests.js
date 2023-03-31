@@ -3,7 +3,7 @@ import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import GlobalContext from "../../GlobalContext";
-import { IDP_PROVIDERS } from "../../service/BaseAuthProviderService";
+import { IDP_PROVIDERS } from "../../model/IdpProviders";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
