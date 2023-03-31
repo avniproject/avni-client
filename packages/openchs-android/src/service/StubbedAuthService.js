@@ -1,6 +1,6 @@
 import Service from "../framework/bean/Service";
-import BaseAuthProviderService from "./BaseAuthProviderService";
 import General from "../utility/General";
+import { BaseAuthProviderService } from "./BaseAuthProviderService";
 
 @Service("stubbedAuthService")
 class StubbedAuthService extends BaseAuthProviderService {
