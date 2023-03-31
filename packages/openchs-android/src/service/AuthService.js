@@ -7,6 +7,7 @@ import UserInfoService from "./UserInfoService";
 import StubbedAuthService from "./StubbedAuthService";
 import CognitoAuthService from "./CognitoAuthService";
 import KeycloakAuthService from "./KeycloakAuthService";
+import { IDP_PROVIDERS } from "./BaseAuthProviderService";
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -56,18 +57,23 @@ class AuthService extends BaseService {
         return !_.isNil(settings.idpType);
     }
 
-    getAuthProviderService() {
-        const idpType = this.settingsService.getSettings().idpType;
+    getAuthProviderService(userSelectedIdp) {
+        const settings = this.settingsService.getSettings();
+        const idpType = settings.idpType;
 
         switch (idpType) {
-            case 'none':
+            case IDP_PROVIDERS.NONE:
                 return this.stubbedAuthService;
-            case 'keycloak':
+            case IDP_PROVIDERS.KEYCLOAK:
                 return this.keycloakAuthService;
-            case 'both':
-            //TODO handle user preference
-                return this.cognitoAuthService;
-            case 'cognito':
+            case IDP_PROVIDERS.BOTH:
+                if (userSelectedIdp) {
+                    const newSettings = settings.clone();
+                    newSettings.idpType = userSelectedIdp;
+                    this.settingsService.saveOrUpdate(newSettings);
+                }
+                return userSelectedIdp === IDP_PROVIDERS.KEYCLOAK ? this.keycloakAuthService : this.cognitoAuthService;
+            case IDP_PROVIDERS.COGNITO:
                 return this.cognitoAuthService;
             default:
                 throw new Error(`Unsupported idpType: ${idpType}`);

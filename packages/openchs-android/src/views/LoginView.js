@@ -31,6 +31,7 @@ import SyncService from '../service/SyncService';
 import TypedTransition from '../framework/routing/TypedTransition';
 import SetPasswordView from './SetPasswordView';
 import LandingView from './LandingView';
+import { IDP_PROVIDERS } from "../service/BaseAuthProviderService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -206,7 +207,7 @@ class LoginView extends AbstractComponent {
                                                      autoCompleteType={'username'}
                                                      keyboardType={'email-address'}
                                     />
-                                    {this.state.idpType !== 'none' ?
+                                    {this.state.idpType !== IDP_PROVIDERS.NONE ?
                                         <View>
                                             <TextFormElement element={new StaticFormElement('password')}
                                                              secureTextEntry={!this.state.showPassword}
@@ -245,6 +246,21 @@ class LoginView extends AbstractComponent {
                                             {this.spinner()}
                                         </View>
                                         : null}
+                                    {this.state.idpType === IDP_PROVIDERS.BOTH ?
+                                        <TouchableNativeFeedback
+                                            onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
+                                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                                                <CheckBox
+                                                    accessible={true}
+                                                    accessibilityLabel={"Use Keycloak"}
+                                                    onChange={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}
+                                                    isChecked={this.state.userSelectedIdp === IDP_PROVIDERS.KEYCLOAK}/>
+                                                <Text
+                                                    style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>
+                                        : null
+                                    }
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                                     {_.get(this, 'props.params.allowSkipLogin') ?

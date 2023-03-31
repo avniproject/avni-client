@@ -11,6 +11,7 @@ import AuthService from "./AuthService";
 import Config from "../framework/Config";
 import UserInfoService from "./UserInfoService";
 import fs from 'react-native-fs';
+import { IDP_PROVIDERS } from "./BaseAuthProviderService";
 
 
 @Service("extensionService")
@@ -60,7 +61,7 @@ class ExtensionService extends BaseService {
 
     async downloadFromUrl(url, targetFilePath, cb) {
         const [token, idpType] = await Promise.all([this.getService(AuthService).getAuthProviderService().getAuthToken(), this.getService(SettingsService).getSettings().idpType]);
-        const headers = idpType === 'none' ? {'USER-NAME': token} : {'AUTH-TOKEN': token};
+        const headers = idpType === IDP_PROVIDERS.NONE ? {'USER-NAME': token} : {'AUTH-TOKEN': token};
         return RNFetchBlob
             .config({fileCache: true, path: targetFilePath,})
             .fetch('GET', url, headers)

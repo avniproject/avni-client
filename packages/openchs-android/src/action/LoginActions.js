@@ -1,11 +1,12 @@
 import AuthService from "../service/AuthService";
 import General from "../utility/General";
-import {ValidationResult} from 'avni-models';
+import { ValidationResult } from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
-import {firebaseEvents, logEvent} from "../utility/Analytics";
+import { firebaseEvents, logEvent } from "../utility/Analytics";
 import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SettingsService from "../service/SettingsService";
+import { IDP_PROVIDERS } from "../service/BaseAuthProviderService";
 
 class LoginActions {
     static getInitialState() {
@@ -21,7 +22,8 @@ class LoginActions {
             dumpRestoring: false,
             percentProgress: 0,
             dumpRestoreMessage: null,
-            idpType: null
+            idpType: null,
+            userSelectedIdp: IDP_PROVIDERS.COGNITO
         };
     }
 
@@ -52,7 +54,7 @@ class LoginActions {
 
     static onLoginStarted(state, action, context) {
         let newState = _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
-        context.get(AuthService).getAuthProviderService()
+        context.get(AuthService).getAuthProviderService(state.userSelectedIdp)
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
@@ -119,6 +121,10 @@ class LoginActions {
         return newState;
     }
 
+    static onUserToggleIdp(state) {
+        return _.assignIn({}, state, {userSelectedIdp: state.userSelectedIdp === IDP_PROVIDERS.COGNITO ? IDP_PROVIDERS.KEYCLOAK: IDP_PROVIDERS.COGNITO});
+    }
+
 }
 
 const LoginActionsNames = {
@@ -132,6 +138,7 @@ const LoginActionsNames = {
     ON_LOAD: 'LA.ON_LOAD',
     ON_DUMP_RESTORING: 'LA.ON_DUMP_RESTORING',
     ON_DUMP_RESTORE_RETRY: 'LA.ON_DUMP_RESTORE_RETRY',
+    ON_USER_TOGGLE_IDP: 'LA.ON_USER_TOGGLE_IDP',
 };
 
 const LoginActionsMap = new Map([
@@ -144,6 +151,7 @@ const LoginActionsMap = new Map([
     [LoginActionsNames.ON_EMPTY_LOGIN, LoginActions.onEmptyLogin],
     [LoginActionsNames.ON_DUMP_RESTORING, LoginActions.onDumpRestoring],
     [LoginActionsNames.ON_DUMP_RESTORE_RETRY, LoginActions.onDumpRestoreRetry],
+    [LoginActionsNames.ON_USER_TOGGLE_IDP, LoginActions.onUserToggleIdp],
 ]);
 
 export {LoginActionsNames, LoginActionsMap, LoginActions} ;

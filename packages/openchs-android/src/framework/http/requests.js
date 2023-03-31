@@ -3,6 +3,7 @@ import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import GlobalContext from "../../GlobalContext";
+import { IDP_PROVIDERS } from "../../service/BaseAuthProviderService";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
@@ -58,7 +59,7 @@ const _addAuthIfRequired = async (request, bypassAuth) => {
     }
     const [token, idpType] = await Promise.all([getAuthToken(), getIdpType()]);
 
-    return idpType === 'none' ?
+    return idpType === IDP_PROVIDERS.NONE ?
         _.merge({}, request, {headers: {"USER-NAME": token}}) :
         _.merge({}, request, {headers: {'AUTH-TOKEN': token}});
 };
