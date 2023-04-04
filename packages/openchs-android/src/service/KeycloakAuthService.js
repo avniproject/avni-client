@@ -1,5 +1,5 @@
 import Service from "../framework/bean/Service";
-import { postUrlFormEncoded } from "../framework/http/requests";
+import { postUrlFormEncoded, putJSON } from "../framework/http/requests";
 import General from "../utility/General";
 import AuthenticationError, { NO_USER } from "./AuthenticationError";
 import BaseAuthProviderService from "./BaseAuthProviderService";
@@ -79,8 +79,17 @@ class KeycloakAuthService extends BaseAuthProviderService {
         // return new AuthenticationError(NO_USER, "No user or needs login");
     }
 
-    async changePassword() {
-        throw new Error("Not implemented for Keycloak");
+    async changePassword(oldPassword, newPassword) {
+        const settings = this.settingsService.getSettings();
+        this.authenticate(settings.userId, oldPassword)
+            .then(async (authResult) => {
+                if (authResult.status === 'LOGIN_SUCCESS') {
+                    const changePasswordEndpoint = `${settings.serverURL}/user/changePassword`;
+                    await putJSON(changePasswordEndpoint, {newPassword})
+                        .catch((e) => e);
+                } else throw new Error('Unable to authenticate user');
+            })
+            .catch(e => e);
     }
 
     async logout() {

@@ -84,6 +84,14 @@ let _post = (endpoint, file, fetchWithoutTimeout, bypassAuth = false) => {
     return params.then((headers) => fetchFactory(endpoint, "POST", headers, fetchWithoutTimeout))
 };
 
+let _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
+    const params = _addAuthIfRequired(makeRequest("json", {body: JSON.stringify(body)}), bypassAuth);
+    General.logDebug('Requests', `PUT: ${endpoint}`);
+    return params.then((headers) => {
+        return fetchFactory(endpoint, "PUT", headers, fetchWithoutTimeout)
+    })
+};
+
 export let post = _post;
 
 export let get = (endpoint, bypassAuth = false) => {
@@ -92,6 +100,10 @@ export let get = (endpoint, bypassAuth = false) => {
 
 export let getJSON = (endpoint, bypassAuth = false) => {
     return _get(endpoint, bypassAuth);
+};
+
+export let putJSON = (endpoint, body, fetchWithoutTimeout = false, bypassAuth = false) => {
+    return _put(endpoint, body, fetchWithoutTimeout, bypassAuth)
 };
 
 export let postUrlFormEncoded = (endpoint, body) => {
