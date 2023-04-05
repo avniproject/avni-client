@@ -315,6 +315,7 @@
     "uploadCatchmentDatabaseLocalOneSyncNeeded": "You have not completed a full sync with server.",
     "uploadCatchmentDatabaseActionRecommended": "Please perform a full sync, before trying this.",
     "uploadDatabase": "Upload database",
+    "feedback": "Provide Feedback",
     "disableAutoRefresh": "Disable Dashboard Auto Refresh",
     "autoRefresh": "Dashboard Auto Refresh",
     "role": "Role",

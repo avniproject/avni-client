@@ -3,7 +3,7 @@ import EncounterActionState from "../../state/EncounterActionState";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import {Encounter, Form, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
+import {Encounter, Point, WorkItem, WorkList, WorkLists} from 'avni-models';
 import GeolocationActions from "../common/GeolocationActions";
 import General from "../../utility/General";
 import EntityService from "../../service/EntityService";
@@ -11,9 +11,10 @@ import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationAct
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
-import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
-import {ObservationsHolder} from "openchs-models";
+import {DraftEncounter, ObservationsHolder} from "openchs-models";
+import DraftEncounterService from '../../service/draft/DraftEncounterService';
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 function getPreviousEncounter(action, form, context) {
     const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [action.encounter.encounterType.name]);
@@ -37,6 +38,11 @@ function getPreviousEncounter(action, form, context) {
     return action.encounter;
 }
 
+const getDraftStatus = (context) => {
+    const organisationConfigService = context.get(OrganisationConfigService);
+    return organisationConfigService.isSaveDraftOn()
+}
+
 export class EncounterActions {
     static getInitialState() {
         return {};
@@ -51,16 +57,22 @@ export class EncounterActions {
         const formMapping = context.get(FormMappingService).getIndividualEncounterFormMapping(action.encounter.encounterType, action.encounter.individual.subjectType);
 
         const form = formMapping && formMapping.form;
-
         const encounterType = action.encounter.encounterType;
         const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ?
-                                    getPreviousEncounter(action, form, context) : action.encounter;
+            getPreviousEncounter(action, form, context) : action.encounter;
 
         const firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => EncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
+        let editableEncounter = action.encounter;
+        const draftEncounter = context.get(DraftEncounterService).findByUUID(action.encounter.uuid);
+        if (draftEncounter) {
+            editableEncounter = draftEncounter.constructEncounter();
+        }
+
+
         const workLists = action.workLists || new WorkLists(new WorkList('Encounter', [new WorkItem(
             General.randomUUID(), WorkItem.type.ENCOUNTER, {
                 encounterType: encounterToPass.encounterType.name,
@@ -74,9 +86,9 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(getDraftStatus(context) ? editableEncounter : encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
 
-        if(action.allElementsFilledForImmutableEncounter) {
+        if (action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
             newState.wizard.currentPage = form.numberOfPages;
             return newState;
@@ -85,9 +97,20 @@ export class EncounterActions {
         return QuickFormEditingActions.moveToPage(newState, action, context, EncounterActions);
     }
 
+    static saveDraftEncounter(encounter, validationResults, context) {
+        if (_.isEmpty(validationResults)) {
+            const draftEncounter = DraftEncounter.create(encounter);
+            context.get(DraftEncounterService).saveDraft(draftEncounter);
+        }
+    }
+
     static onNext(state, action, context) {
         const newState = state.clone();
         newState.handleNext(action, context);
+        if (getDraftStatus(context)) {
+            EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context)
+        }
+        ;
         return newState;
     }
 
@@ -96,7 +119,11 @@ export class EncounterActions {
     }
 
     static onPrevious(state, action, context) {
-        return state.clone().handlePrevious(action, context);
+        let newState = state.clone().handlePrevious(action, context);
+        if (getDraftStatus(context)) {
+            EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
+        }
+        return newState;
     }
 
     static onEncounterDateTimeChange(state, action, context) {
@@ -137,6 +164,7 @@ export class EncounterActions {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.encounter.individual);
         context.get(EncounterService).saveOrUpdate(newState.encounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
+        context.get(DraftEncounterService).deleteDraftByUUID(newState.encounter.uuid);
         action.cb();
         return state;
     }

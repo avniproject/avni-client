@@ -39,6 +39,9 @@ class PreviousEncounters extends AbstractComponent {
         subjectInfo: PropTypes.string,
         expandCollapseView: PropTypes.bool,
         onToggleAction: PropTypes.string,
+        containsDrafts: PropTypes.bool,
+        deleteDraft: PropTypes.func,
+        hideIfEmpty: PropTypes.bool
     };
 
     constructor(props, context) {
@@ -74,8 +77,22 @@ class PreviousEncounters extends AbstractComponent {
         return this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
-    scheduledEncounterActions(encounter, actionName, textColor) {
-        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? [new ContextAction(actionName, () => this.editEncounter(encounter), textColor)] : [];
+    addScheduledEncounterActions(encounter, actionName, textColor, actions) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
+            actions.push(new ContextAction(actionName, () => this.editEncounter(encounter), textColor));
+        }
+        return actions;
+    }
+
+    deleteDraft(encounter) {
+        return this.props.deleteDraft(encounter.uuid);
+    }
+
+    addDeleteDraftAction(encounter, actionName, textColor, actions) {
+        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
+            actions.push(new ContextAction(actionName, () => this.deleteDraft(encounter), textColor));
+        }
+        return actions;
     }
 
     badge = (status, color) => <View style={{
@@ -107,16 +124,25 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     renderNormalView(encounter) {
+        const containsDrafts = this.props.containsDrafts || false;
         const formMappingService = this.context.getService(FormMappingService);
+        const actions = [];
+        if (containsDrafts) {
+            this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
+        }
+        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions);
         return <View>
             <TouchableOpacity
                 onPress={() => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
+                {containsDrafts && (<View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                    {this.badge(this.I18n.t('draft'), Colors.WarningButtonColor)}
+                </View>)}
                 {this.renderTitleAndDetails(encounter)}
                 <Observations form={formMappingService.findFormForEncounterType(encounter.encounterType,
                     this.props.formType, encounter.subjectType)} observations={encounter.getObservations()}/>
                 <View style={{paddingTop: 6}}>
                     <ObservationsSectionOptions
-                        contextActions={this.scheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor)}
+                        contextActions={actions}
                         primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
                 </View>
             </TouchableOpacity>
@@ -164,6 +190,8 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     render() {
+        if (this.props.hideIfEmpty && this.props.encounters.length === 0) return null;
+
         let toDisplayEncounters;
         let showingPartial = this.props.showPartial && (this.props.showCount < this.props.encounters.length);
         General.logDebug('PreviousEncounters.render', `ShowingPartial:${showingPartial}, ShowCount:${this.props.showCount}, Total:${this.props.encounters.length}`);
