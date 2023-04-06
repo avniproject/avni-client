@@ -8,6 +8,7 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import General from "../utility/General";
 import HomeScreenView from "./HomeScreenView";
 import ExtensionService from "../service/ExtensionService";
+import bugsnag from "../utility/bugsnag";
 
 
 @Path('/rootView')
@@ -27,6 +28,7 @@ class RootView extends AbstractComponent {
     }
 
     async showSplashScreen() {
+        bugsnag.notify(new Error('Testing bugsnag with flavours'));
         try {
             const homeScreenHtml = await this.getService(ExtensionService).getHomeScreen();
             this.setState({html: homeScreenHtml});

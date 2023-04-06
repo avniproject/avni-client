@@ -49,7 +49,6 @@ android {
     }
 
     defaultConfig {
-        applicationId ""
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode System.getenv("versionCode") ? 4 * 1048576 + System.getenv("versionCode").toInteger() : 1
@@ -64,9 +63,6 @@ android {
                 abiFilters.clear()
             }
         }
-        manifestPlaceholders = [
-                bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"
-        ]
         multiDexEnabled true
     }
 
@@ -111,11 +107,13 @@ android {
             applicationId "com.openchsclient"
             resValue "string", "app_name", "Avni"
             signingConfig signingConfigs.generic
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
         lfe {
             applicationId "org.lfeteach.openchsclient"
             resValue "string", "app_name", "Teach AP"
             signingConfig signingConfigs.lfe
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
     }
 }

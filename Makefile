@@ -67,6 +67,7 @@ flavour_server_url:=$(call _get_from_config,$(flavour).server_url)
 bugsnag_env_var_name:=$(call _get_from_config,$(flavour).bugsnag.env_var_name)
 bugsnag_project_name:=$(call _get_from_config,$(flavour).bugsnag.project_name)
 app_android_package_name:=$(call _get_from_config,$(flavour).package_name)
+prod_admin_password_env_var_name:=$(call _get_from_config,$(flavour).prod_admin_password_env_var_name)
 
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
@@ -364,8 +365,7 @@ get-token: auth
 	@echo
 
 auth_live:
-	make auth poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) username=admin password=$(OPENCHS_PROD_ADMIN_USER_PASSWORD)
-	echo $(token)
+	make get-token server=$(flavour_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
 
 upload = \
 	curl -X POST $(server):$(port)/$(1) -d $(2)  \
@@ -396,14 +396,19 @@ else
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
 endif
 
+
 deploy_platform_translations_staging:
-	make deploy_translations poolId=$(OPENCHS_STAGING_USER_POOL_ID) clientId=$(OPENCHS_STAGING_APP_CLIENT_ID) server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
+	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
 
 deploy_platform_translations_uat:
-	make deploy_translations poolId=$(OPENCHS_UAT_USER_POOL_ID) clientId=$(OPENCHS_UAT_APP_CLIENT_ID) server=https://uat.avniproject.org port=443 username=admin password=$(password)
+	make deploy_translations server=https://uat.avniproject.org port=443 username=admin password=$(password)
 
 deploy_platform_translations_prerelease:
-	make deploy_translations poolId=$(OPENCHS_PRERELEASE_USER_POOL_ID) clientId=$(OPENCHS_PRERELEASE_APP_CLIENT_ID) server=https://prerelease.avniproject.org port=443 username=admin password=$(OPENCHS_PRERELEASE_ADMIN_PASSWORD)
+	make deploy_translations server=https://prerelease.avniproject.org port=443 username=admin password=$(OPENCHS_PRERELEASE_ADMIN_PASSWORD)
 
-deploy_platform_translations_live:
-	make deploy_translations poolId=$(OPENCHS_PROD_USER_POOL_ID) clientId=$(OPENCHS_PROD_APP_CLIENT_ID) server=https://server.avniproject.org port=443 username=admin password=$(password)
+deploy_platform_translations_for_flavour_live:
+	make deploy_translations server=$(flavour_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
+
+deploy_platform_translations_live_for_all_flavours:
+	make deploy_platform_translations_for_flavour_live flavour='lfe'
+	make deploy_platform_translations_for_flavour_live flavour='generic'
