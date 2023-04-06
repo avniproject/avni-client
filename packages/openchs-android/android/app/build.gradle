@@ -49,10 +49,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.openchsclient"
+        applicationId ""
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode System.getenv("versionCode") ? System.getenv("versionCode").toInteger() : 1
+        versionCode System.getenv("versionCode") ? 4 * 1048576 + System.getenv("versionCode").toInteger() : 1
         //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         // Major.Minor.Patch. We should not change major version every release, just change the minor. Each number allows for two digits
         // https://medium.com/@maxirosson/versioning-android-apps-d6ec171cfd82
@@ -83,37 +83,39 @@ android {
 
     signingConfigs {
 
-        release {
+        generic {
 
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("KEY_PASSWORD")
         }
+        lfe {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-avni-release-key.keystore")
+            storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
+            keyPassword System.getenv("LFE_KEY_PASSWORD")
+        }
     }
     buildTypes {
         release {
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
-            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
-    // applicationVariants are e.g. debug, release
-    applicationVariants.all { variant ->
-        println('[Avni] Base version code:' + defaultConfig.versionCode)
-        variant.outputs.each { output ->
-            // For each separate APK per architecture, set a unique version code as described here:
-            // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(OutputFile.ABI)
-            if (abi != null) {  // null for the universal-debug, universal-release variants
-                output.versionCodeOverride =
-                        versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
-                println('[Avni] APK version code:' + output.versionCodeOverride + ' for variant: ' + versionCodes.get(abi))
-            } else {
-                println('[Avni] Using universal release variant')
-            }
+
+    flavorDimensions "organisation"
+    productFlavors {
+        generic {
+            applicationId "com.openchsclient"
+            resValue "string", "app_name", "Avni"
+            signingConfig signingConfigs.generic
+        }
+        lfe {
+            applicationId "org.lfeteach.openchsclient"
+            resValue "string", "app_name", "Teach AP"
+            signingConfig signingConfigs.lfe
         }
     }
 }

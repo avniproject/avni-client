@@ -1,0 +1,18 @@
+{
+  "generic": {
+    "server_url": "https://server.avniproject.org",
+    "package_name": "com.openchsclient",
+    "bugsnag": {
+      "project_name": "avni-client",
+      "env_var_name": "OPENCHS_CLIENT_BUGSNAG_API_KEY"
+    }
+  },
+  "lfe": {
+    "server_url": "https://app.lfe.avniproject.org",
+    "package_name": "org.lfeteach.openchsclient",
+    "bugsnag": {
+      "project_name": "lfe",
+      "env_var_name": "LFE_CLIENT_BUGSNAG_API_KEY"
+    }
+  }
+}

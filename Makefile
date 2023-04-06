@@ -55,6 +55,19 @@ ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short=4 HEAD)
 
+ifndef flavour
+	flavour:=generic
+endif
+
+define _get_from_config
+$(shell node -p "require('./packages/openchs-android/config/flavour_config.json').$(1)")
+endef
+
+flavour_server_url:=$(call _get_from_config,$(flavour).server_url)
+bugsnag_env_var_name:=$(call _get_from_config,$(flavour).bugsnag.env_var_name)
+bugsnag_project_name:=$(call _get_from_config,$(flavour).bugsnag.project_name)
+app_android_package_name:=$(call _get_from_config,$(flavour).package_name)
+
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
 
@@ -69,19 +82,19 @@ test: test-android  ##
 
 define _upload_release_sourcemap
 	cd packages/openchs-android/android/app/build/generated && npx bugsnag-sourcemaps upload \
-		--api-key ${OPENCHS_CLIENT_BUGSNAG_API_KEY} \
+		--api-key $$$(bugsnag_env_var_name) \
 		--app-version $(versionName) \
-		--minified-file assets/react/release/index.android.bundle \
+		--minified-file assets/react/$(flavour)/release/index.android.bundle \
 		--source-map sourcemap.js \
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
-	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/openchs-client/source-maps)
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps)
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
-ifndef OPENCHS_CLIENT_BUGSNAG_API_KEY
-	@echo "OPENCHS_CLIENT_BUGSNAG_API_KEY env var not present"
+ifndef $(bugsnag_env_var_name)
+	@echo "$(bugsnag_env_var_name) env var not present"
 	exit 1
 else
 	$(call _upload_release_sourcemap)
@@ -92,7 +105,11 @@ endif
 
 define _create_config
 	@echo "Creating config for $1"
-	@echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js
+	@if [ $(1) = "prod" ]; then \
+		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavour_server_url)'});" > packages/openchs-android/src/framework/Config.js; \
+	else \
+	 	echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js; \
+	fi
 endef
 
 as_dev: ; $(call _create_config,dev)
@@ -105,7 +122,6 @@ as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 
 release_clean:
-	rm -f packages/openchs-android/android/app/build/outputs/apk/*.apk
 	rm -rf packages/openchs-android/android/app/build
 	mkdir -p packages/openchs-android/android/app/build/generated
 	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
@@ -116,13 +132,42 @@ release_clean:
 
 create_apk:
 	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assembleRelease --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavour)Release --stacktrace --w
+
+create_bundle:
+	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavour)Release --stacktrace --w
 
 release: release_clean create_apk
+bundle_release: release_clean create_bundle
 release_dev: setup_hosts as_dev release
 
 release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod: renew_env release_prod_without_clean
+
+bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
+bundle_release_prod: renew_env release_prod_without_clean
+
+bundle_clean:
+	rm -rf packages/openchs-android/android/app/bundles
+	mkdir -p packages/openchs-android/android/app/bundles
+
+define _copy_bundle
+	cp -r packages/openchs-android/android/app/build/outputs/bundle/$(1)Release packages/openchs-android/android/app/bundles
+endef
+
+release_prod_all_flavours_without_clean: bundle_clean
+	make bundle_release_prod_without_clean flavour='lfe'
+	$(call _copy_bundle,lfe)
+	make bundle_release_prod_without_clean flavour='generic'
+	$(call _copy_bundle,generic)
+	open packages/openchs-android/android/app/bundles
+release_prod_all_flavours: bundle_clean
+	make bundle_release_prod flavour='generic'
+	$(call _copy_bundle,generic)
+	make bundle_release_prod flavour='lfe'
+	$(call _copy_bundle,lfe)
+	open packages/openchs-android/android/app/bundles
 
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
@@ -212,6 +257,9 @@ local_deploy_apk: ##
 openlocation_apk: ## Open location of built apk
 	open packages/openchs-android/android/app/build/outputs/apk
 
+open_location_bundles:
+	open packages/openchs-android/android/app/bundles
+
 # <env>
 clean_packager_cache:
 	-watchman watch-del-all && rm -rf $(TMPDIR)/react-*
@@ -278,33 +326,15 @@ screencap:
 	mkdir -p ./tmp/
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
 
-upload-prod-apk-unsigned:
-	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
+define _upload_apk
+	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/$(flavour)/release/app-$(flavour)-release.apk s3://samanvay/openchs/$(1)-apks/$(flavour)/$(1)-$(flavour)-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/$(1)-apks/$(flavour)/$(1)-$(flavour)-$(sha)-$(dat).apk"
+endef
 
-upload-staging-apk:
-	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/staging-apks/staging-$(sha)-$(dat).apk"
-
-upload-prerelease-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prerelease-apks/prerelease-$(sha)-$(dat).apk"
-
-upload-uat-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/uat-apks/uat-$(sha)-$(dat).apk"
-
-upload-prod-apk:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-universal-release.apk s3://samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-$(sha)-$(dat).apk"
-
-upload-prod-apk-x86:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-x86-release.apk s3://samanvay/openchs/prod-apks/prod-x86-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-x86-$(sha)-$(dat).apk"
-
-upload-prod-apk-arm:
-	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk s3://samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/prod-apks/prod-arm-$(sha)-$(dat).apk"
+upload-prod-apk-unsigned: ; $(call _upload_apk,prod)
+upload-staging-apk: ; $(call _upload_apk,staging)
+upload-prerelease-apk: ; $(call _upload_apk,prerelease)
+upload-uat-apk: ; $(call _upload_apk,uat)
 
 define _inpremise_upload_prod_apk
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk;

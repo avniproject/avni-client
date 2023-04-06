@@ -41,9 +41,9 @@ open_playstore_openchs:
 
 # Run application from the code
 _run_app:
-	cd packages/openchs-android && npx react-native run-android
+	cd packages/openchs-android && npx react-native run-android --variant "$(flavour)Debug" --appId "$(app_android_package_name)"
 _run_app_release:
-	cd packages/openchs-android && npx react-native run-android --variant=release
+	cd packages/openchs-android && npx react-native run-android --variant "$(flavour)Release" --appId "$(app_android_package_name)"
 
 run_app: setup_hosts as_dev _run_app
 
