@@ -58,7 +58,12 @@ class AuthService extends BaseService {
     }
 
     getAuthProviderService(userSelectedIdp) {
-        const settings = this.settingsService.getSettings();
+        let settings = this.settingsService.getSettings();
+        if (userSelectedIdp) {
+            const newSettings = settings.clone();
+            newSettings.idpType = userSelectedIdp;
+            settings = this.settingsService.saveOrUpdate(newSettings);
+        }
         const idpType = settings.idpType;
 
         switch (idpType) {
@@ -67,11 +72,6 @@ class AuthService extends BaseService {
             case IDP_PROVIDERS.KEYCLOAK:
                 return this.keycloakAuthService;
             case IDP_PROVIDERS.BOTH:
-                if (userSelectedIdp) {
-                    const newSettings = settings.clone();
-                    newSettings.idpType = userSelectedIdp;
-                    this.settingsService.saveOrUpdate(newSettings);
-                }
                 return userSelectedIdp === IDP_PROVIDERS.KEYCLOAK ? this.keycloakAuthService : this.cognitoAuthService;
             case IDP_PROVIDERS.COGNITO:
                 return this.cognitoAuthService;

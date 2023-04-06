@@ -48,10 +48,12 @@ class LoginView extends AbstractComponent {
     reset() {
         const userIdBeforeReset = this.state.userId;
         const passwdBeforeReset = this.state.password;
+        const idpTypeBeforeReset = this.state.idpType;
         this.dispatchAction('RESET');
         this.dispatchAction(Actions.ON_LOAD);
         this.dispatchAction(Actions.ON_USER_ID_CHANGE, {value: userIdBeforeReset});
         this.dispatchAction(Actions.ON_PASSWORD_CHANGE, {value: passwdBeforeReset});
+        this.dispatchAction(Actions.ON_USER_TOGGLE_IDP, {value: idpTypeBeforeReset});
     }
 
     loginComplete(source) {
