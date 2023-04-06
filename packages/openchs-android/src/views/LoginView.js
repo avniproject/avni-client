@@ -192,7 +192,7 @@ class LoginView extends AbstractComponent {
                                 minHeight: height*0.8,
                                 paddingHorizontal: 48
                             }}>
-                                <Image source={{uri: `asset:/avni-logo.png`}}
+                                <Image source={{uri: `asset:/logo.png`}}
                                        style={{height: 120, width: 120, alignSelf: 'center', }} resizeMode={'center'}/>
                                 {this.renderMultiUserLoginFailure()}
                                 <Text style={{
