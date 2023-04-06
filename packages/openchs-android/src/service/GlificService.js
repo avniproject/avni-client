@@ -29,6 +29,10 @@ class GlificService extends BaseService {
     getAllMessagesNotYetSentForUser(userID) {
         return getJSON(`${this.serverUrl}/web/message/user/${userID}/msgsNotYetSent`);
     }
+
+    getGlificContactDetailsForSubject(individualUUID) {
+      return getJSON(`${this.serverUrl}/web/contact/subject/${individualUUID}`);
+    }
 }
 
 export default GlificService;

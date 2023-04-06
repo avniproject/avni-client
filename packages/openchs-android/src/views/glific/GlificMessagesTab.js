@@ -15,6 +15,7 @@ class GlificMessagesTab extends AbstractComponent {
     failedToFetchMessages: PropTypes.bool.isRequired,
     msgList: PropTypes.array.isRequired,
     tabType: PropTypes.string.isRequired,
+    glificContact: PropTypes.object
   };
 
   constructor(props, context) {
@@ -26,17 +27,18 @@ class GlificMessagesTab extends AbstractComponent {
       nextProps.failedToFetchMessages !== state.failedToFetchMessages ||
       nextProps.dataLoaded !== state.dataLoaded ||
       nextProps.tabType !== state.tabType ||
-      nextProps.msgList !== state.msgList;
+      nextProps.msgList !== state.msgList ||
+      nextProps.glificContact !== state.glificContact;
   }
 
   renderMessageView(msg) {
     const primaryDate = msg.insertedAt;
     const msgBody = msg.body;
-    return <View style={styles.container}>
+    return <View style={msg.receiver.id === this.props.glificContact.id ? styles.sentContainer : styles.receivedContainer}>
       <View
-        style={styles.message}>
+        style={msg.receiver.id === this.props.glificContact.id ? styles.sentMessage : styles.receivedMessage}>
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
-        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayDateAsTime12H(primaryDate)}</Text>
       </View>
     </View>;
   }
@@ -47,11 +49,11 @@ class GlificMessagesTab extends AbstractComponent {
     const messageTemplate = msg.messageTemplate.body;
     const msgBody = this.formatMsgTemplate(messageTemplate, messageRuleParams);
 
-    return <View style={styles.container}>
-      <View style={styles.message}>
+    return <View style={styles.sentContainer}>
+      <View style={styles.sentMessage}>
         <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor,}}>{msgBody}</Text>
         <View style={styles.senderAndTime}>
-            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayTime(primaryDate)}</Text>
+            <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{General.toDisplayDateAsTime(primaryDate)}</Text>
         </View>
       </View>
     </View>;
@@ -120,7 +122,7 @@ class GlificMessagesTab extends AbstractComponent {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  sentContainer: {
     padding: Distances.ScaledContentDistanceFromEdge,
     margin: 4,
     elevation: 2,
@@ -131,6 +133,20 @@ const styles = StyleSheet.create({
     width: 'auto',
     maxWidth: '80%',
     alignSelf: 'flex-end',
+    justifyContent: 'flex-end'
+  },
+  receivedContainer: {
+    padding: Distances.ScaledContentDistanceFromEdge,
+    margin: 4,
+    elevation: 2,
+    backgroundColor: Colors.cardBackgroundColor,
+    marginVertical: 3,
+    borderRadius: 10,
+    display: 'flex',
+    width: 'auto',
+    maxWidth: '80%',
+    alignSelf: 'flex-start',
+    justifyContent: "flex-start"
   },
   errorScreen: {
     padding: Distances.ScaledContentDistanceFromEdge,
@@ -145,11 +161,19 @@ const styles = StyleSheet.create({
     display: 'flex',
     width: '100%',
   },
-  message: {
+  sentMessage: {
+    flexDirection: 'column',
+    width: 'auto',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    flexWrap: 'wrap',
+    fontSize: 20,
+  },
+  receivedMessage: {
     flexDirection: 'column',
     width: 'auto',
     justifyContent: 'space-around',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     flexWrap: 'wrap',
     fontSize: 20,
   },
