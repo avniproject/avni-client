@@ -68,7 +68,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
+          path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
           destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
@@ -105,7 +105,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
+          path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
           destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
@@ -137,7 +137,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk
+          path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
           destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
@@ -172,7 +172,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/app-release.apk
+          path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
           destination: avni.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
