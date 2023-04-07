@@ -28,7 +28,7 @@ class RootView extends AbstractComponent {
     }
 
     async showSplashScreen() {
-        bugsnag.notify(new Error('Testing bugsnag with flavours'));
+        bugsnag.notify(new Error('Testing bugsnag with flavors'));
         try {
             const homeScreenHtml = await this.getService(ExtensionService).getHomeScreen();
             this.setState({html: homeScreenHtml});

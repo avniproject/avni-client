@@ -55,19 +55,19 @@ ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 sha:=$(shell git rev-parse --short=4 HEAD)
 
-ifndef flavour
-	flavour:=generic
+ifndef flavor
+	flavor:=generic
 endif
 
 define _get_from_config
-$(shell node -p "require('./packages/openchs-android/config/flavour_config.json').$(1)")
+$(shell node -p "require('./packages/openchs-android/config/flavor_config.json').$(1)")
 endef
 
-flavour_server_url:=$(call _get_from_config,$(flavour).server_url)
-bugsnag_env_var_name:=$(call _get_from_config,$(flavour).bugsnag.env_var_name)
-bugsnag_project_name:=$(call _get_from_config,$(flavour).bugsnag.project_name)
-app_android_package_name:=$(call _get_from_config,$(flavour).package_name)
-prod_admin_password_env_var_name:=$(call _get_from_config,$(flavour).prod_admin_password_env_var_name)
+flavor_server_url:=$(call _get_from_config,$(flavor).server_url)
+bugsnag_env_var_name:=$(call _get_from_config,$(flavor).bugsnag.env_var_name)
+bugsnag_project_name:=$(call _get_from_config,$(flavor).bugsnag.project_name)
+app_android_package_name:=$(call _get_from_config,$(flavor).package_name)
+prod_admin_password_env_var_name:=$(call _get_from_config,$(flavor).prod_admin_password_env_var_name)
 
 setup_hosts:
 	sed 's/SERVER_URL_VAR/$(ip)/g' packages/openchs-android/config/env/dev.json.template > packages/openchs-android/config/env/dev.json
@@ -85,7 +85,7 @@ define _upload_release_sourcemap
 	cd packages/openchs-android/android/app/build/generated && npx bugsnag-sourcemaps upload \
 		--api-key $$$(bugsnag_env_var_name) \
 		--app-version $(versionName) \
-		--minified-file assets/react/$(flavour)/release/index.android.bundle \
+		--minified-file assets/react/$(flavor)/release/index.android.bundle \
 		--source-map sourcemap.js \
 		--overwrite \
 		--minified-url "index.android.bundle" \
@@ -107,7 +107,7 @@ endif
 define _create_config
 	@echo "Creating config for $1"
 	@if [ $(1) = "prod" ]; then \
-		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavour_server_url)'});" > packages/openchs-android/src/framework/Config.js; \
+		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)'});" > packages/openchs-android/src/framework/Config.js; \
 	else \
 	 	echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js; \
 	fi
@@ -133,11 +133,11 @@ release_clean:
 
 create_apk:
 	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavour)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor)Release --stacktrace --w
 
 create_bundle:
 	cd packages/openchs-android; react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavour)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
 
 release: release_clean create_apk
 bundle_release: release_clean create_bundle
@@ -157,16 +157,16 @@ define _copy_bundle
 	cp -r packages/openchs-android/android/app/build/outputs/bundle/$(1)Release packages/openchs-android/android/app/bundles
 endef
 
-release_prod_all_flavours_without_clean: bundle_clean
-	make bundle_release_prod_without_clean flavour='lfe'
+release_prod_all_flavors_without_clean: bundle_clean
+	make bundle_release_prod_without_clean flavor='lfe'
 	$(call _copy_bundle,lfe)
-	make bundle_release_prod_without_clean flavour='generic'
+	make bundle_release_prod_without_clean flavor='generic'
 	$(call _copy_bundle,generic)
 	open packages/openchs-android/android/app/bundles
-release_prod_all_flavours: bundle_clean
-	make bundle_release_prod flavour='generic'
+release_prod_all_flavors: bundle_clean
+	make bundle_release_prod flavor='generic'
 	$(call _copy_bundle,generic)
-	make bundle_release_prod flavour='lfe'
+	make bundle_release_prod flavor='lfe'
 	$(call _copy_bundle,lfe)
 	open packages/openchs-android/android/app/bundles
 
@@ -328,8 +328,8 @@ screencap:
 	adb exec-out screencap -p > ./tmp/`date +%Y-%m-%d-%T`.png
 
 define _upload_apk
-	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/$(flavour)/release/app-$(flavour)-release.apk s3://samanvay/openchs/$(1)-apks/$(flavour)/$(1)-$(flavour)-$(sha)-$(dat).apk
-	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/$(1)-apks/$(flavour)/$(1)-$(flavour)-$(sha)-$(dat).apk"
+	aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/$(flavor)/release/app-$(flavor)-release.apk s3://samanvay/openchs/$(1)-apks/$(flavor)/$(1)-$(flavor)-$(sha)-$(dat).apk
+	@echo "APK Available at https://s3.ap-south-1.amazonaws.com/samanvay/openchs/$(1)-apks/$(flavor)/$(1)-$(flavor)-$(sha)-$(dat).apk"
 endef
 
 upload-prod-apk-unsigned: ; $(call _upload_apk,prod)
@@ -365,7 +365,7 @@ get-token: auth
 	@echo
 
 auth_live:
-	make get-token server=$(flavour_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
+	make get-token server=$(flavor_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
 
 upload = \
 	curl -X POST $(server):$(port)/$(1) -d $(2)  \
@@ -406,9 +406,9 @@ deploy_platform_translations_uat:
 deploy_platform_translations_prerelease:
 	make deploy_translations server=https://prerelease.avniproject.org port=443 username=admin password=$(OPENCHS_PRERELEASE_ADMIN_PASSWORD)
 
-deploy_platform_translations_for_flavour_live:
-	make deploy_translations server=$(flavour_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
+deploy_platform_translations_for_flavor_live:
+	make deploy_translations server=$(flavor_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
 
-deploy_platform_translations_live_for_all_flavours:
-	make deploy_platform_translations_for_flavour_live flavour='lfe'
-	make deploy_platform_translations_for_flavour_live flavour='generic'
+deploy_platform_translations_live_for_all_flavors:
+	make deploy_platform_translations_for_flavor_live flavor='lfe'
+	make deploy_platform_translations_for_flavor_live flavor='generic'
