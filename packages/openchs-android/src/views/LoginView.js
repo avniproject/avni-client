@@ -234,16 +234,18 @@ class LoginView extends AbstractComponent {
                                                             style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
                                                     </View>
                                                 </TouchableNativeFeedback>
-                                                <TouchableNativeFeedback onPress={() => {
-                                                    this.forgotPassword();
-                                                }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                    <View style={{paddingTop: 7}}>
-                                                        <Text style={{
-                                                            color: Styles.accentColor,
-                                                            fontSize: 16
-                                                        }}>{this.I18n.t('Forgot Password')}</Text>
-                                                    </View>
-                                                </TouchableNativeFeedback>
+                                                {this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO &&
+                                                    <TouchableNativeFeedback onPress={() => {
+                                                        this.forgotPassword();
+                                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                        <View style={{paddingTop: 7}}>
+                                                            <Text style={{
+                                                                color: Styles.accentColor,
+                                                                fontSize: 16
+                                                            }}>{this.I18n.t('Forgot Password')}</Text>
+                                                        </View>
+                                                    </TouchableNativeFeedback>
+                                                }
                                             </View>
                                             {this.spinner()}
                                         </View>
