@@ -87,7 +87,8 @@ class Relatives extends AbstractComponent {
             <View style={{flex: 0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
                 <Button transparent
                         onPress={() => this.props.onRelativeDeletion(individualRelative)}
-                        _text={{fontSize: Fonts.Medium, paddingHorizontal: 5}}>
+                        _text={{fontSize: Fonts.Medium, paddingHorizontal: 5}}
+                        style={styles.buttonStyle}>
                     {this.I18n.t("delete")}
                 </Button>
             </View>
@@ -154,5 +155,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center',
         flex: 1
+    },
+    buttonStyle: {
+        backgroundColor: Colors.ActionButtonColor
     }
 });
