@@ -40,9 +40,9 @@ class PhoneNumberFormElement extends AbstractFormElement {
         return (
             <View style={styles.skipButtonContainer}>
                 <Button primary
-                        style={{height:40}}
+                        style={{height:40, backgroundColor: Colors.ActionButtonColor}}
                         onPress={() => CHSNavigator.navigateToPhoneNumberVerificationView(this, () => this.goBack(), this.props.observation, onSuccess, onSkip)}>
-                    <Text>{`${this.I18n.t('verifyNumber')}`}</Text>
+                    <Text style={{color:'white'}}>{`${this.I18n.t('verifyNumber')}`}</Text>
                 </Button>
             </View>
         )
