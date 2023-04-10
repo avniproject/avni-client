@@ -10,7 +10,7 @@ class Mixin {
     static getNextProps(view, popVerificationVew) {
         const phoneNumberObservation = _.find(view.state.individual.observations, obs => obs.isPhoneNumberVerificationRequired(view.state.filteredFormElements));
         return {
-            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
+            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const onSaveCallback = ((source) => {
                     const workLists = state.workListState.workLists;
                     const workItem = workLists.getCurrentWorkItem();

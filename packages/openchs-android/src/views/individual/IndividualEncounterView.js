@@ -71,7 +71,7 @@ class IndividualEncounterView extends AbstractComponent {
     getNextParams(popVerificationVew, fromSDV) {
         const phoneNumberObservation = _.find(this.state.encounter.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
-            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits, context, fromSDV) => {
+            completed: (newState, encounterDecisions, ruleValidationErrors, checklists, nextScheduledVisits, fromSDV) => {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);

@@ -168,7 +168,7 @@ class AbstractDataEntryState {
                 nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
                 this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());
             }
-            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, context, action.fromSDV);
+            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, action.fromSDV);
         } else {
             if (action.popVerificationVew)
                 action.popVerificationVewFunc();

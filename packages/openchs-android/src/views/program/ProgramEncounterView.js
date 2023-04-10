@@ -32,6 +32,7 @@ import ProgramEnrolmentState from "../../state/ProgramEnrolmentState";
 import BackgroundTimer from "react-native-background-timer";
 import Timer from "../common/Timer";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
+import SystemRecommendationView from "../conclusion/SystemRecommendationView";
 
 @Path('/ProgramEncounterView')
 class ProgramEncounterView extends AbstractComponent {
@@ -83,7 +84,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const encounterName = programEncounter.name || programEncounter.encounterType.name;
 
                 let onPreviousCallback = undefined;
-                if (fromSDV === true) {
+                if (fromSDV) {
                     onPreviousCallback = (context) => {
                         const form = context.getService(FormMappingService).findFormForEncounterType(programEncounter.encounterType, ProgramEncounter.schema.name, programEncounter.subjectType);
                         let pageNumber = form.numberOfPages + 1;
@@ -95,19 +96,21 @@ class ProgramEncounterView extends AbstractComponent {
                                 return !_.isEmpty(elements);
                             });
 
-                        TypedTransition.from(this).with({
-                            params: {
-                                programEncounter,
-                                encounterType: encounterName,
-                                individualUUID: programEncounter.individual.uuid,
-                                enrolmentUUID: programEnrolment.uuid,
-                                editing: true,
-                                pageNumber,
-                                onSaveCallback: this.props.params.onSaveCallback,
-                                backFunction: this.props.params.backFunction,
-                                message: null
-                            }
-                        }).to(ProgramEncounterView, true);
+                    TypedTransition
+                        .from(this)
+                        .resetStack([SystemRecommendationView], [
+                            TypedTransition.createRoute(ProgramEncounterView, {
+                                params: {
+                                    programEncounter,
+                                    encounterType: encounterName,
+                                    individualUUID: programEncounter.individual.uuid,
+                                    enrolmentUUID: programEnrolment.uuid,
+                                    editing: true,
+                                    pageNumber,
+                                    onSaveCallback: this.props.params.onSaveCallback,
+                                    backFunction: this.props.params.backFunction,
+                                    message: null
+                                }}, true)]);
                     }
                 }
 
