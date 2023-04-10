@@ -234,7 +234,7 @@ class LoginView extends AbstractComponent {
                                                             style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
                                                     </View>
                                                 </TouchableNativeFeedback>
-                                                {(this.state.idpType === IDP_PROVIDERS.COGNITO || this.state.idpType === IDP_PROVIDERS.NONE ||
+                                                {(this.state.idpType === IDP_PROVIDERS.COGNITO ||
                                                     (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO))
                                                       && <TouchableNativeFeedback onPress={() => {
                                                         this.forgotPassword();
