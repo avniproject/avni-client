@@ -38,7 +38,7 @@ function getPreviousEncounter(action, form, context) {
     return action.encounter;
 }
 
-const getDraftStatus = (context) => {
+const isSaveDraftOn = (context) => {
     const organisationConfigService = context.get(OrganisationConfigService);
     return organisationConfigService.isSaveDraftOn()
 }
@@ -86,7 +86,7 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(getDraftStatus(context) ? editableEncounter : encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = EncounterActionState.createOnLoadState(isSaveDraftOn(context) ? editableEncounter : encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action);
 
         if (action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
@@ -107,10 +107,9 @@ export class EncounterActions {
     static onNext(state, action, context) {
         const newState = state.clone();
         newState.handleNext(action, context);
-        if (getDraftStatus(context)) {
+        if (isSaveDraftOn(context)) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context)
         }
-        ;
         return newState;
     }
 
@@ -120,7 +119,7 @@ export class EncounterActions {
 
     static onPrevious(state, action, context) {
         let newState = state.clone().handlePrevious(action, context);
-        if (getDraftStatus(context)) {
+        if (isSaveDraftOn(context)) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
         }
         return newState;
