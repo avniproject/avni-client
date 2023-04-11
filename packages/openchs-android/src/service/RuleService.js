@@ -20,6 +20,7 @@ class RuleService extends BaseService {
         /*variables used inside the eval*/
         let rulesConfig = undefined;
         /*keeping it long to avoid name conflicts*/
+        //This is deprecated.
         let ruleServiceLibraryInterfaceForSharingModules = {
             log: console.log,
             common: common,
