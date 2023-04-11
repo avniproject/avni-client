@@ -232,12 +232,15 @@ class CHSNavigator {
                         return !_.isEmpty(elements);
                     });
 
-                TypedTransition.from(source).with({
-                    encounter,
-                    individualUUID: encounter.individual.uuid,
-                    editing: true,
-                    pageNumber
-                }).to(IndividualEncounterView, true);
+                TypedTransition
+                    .from(source)
+                    .resetStack([SystemRecommendationView], [
+                        TypedTransition.createRoute(IndividualEncounterView, {
+                            encounter,
+                            individualUUID: encounter.individual.uuid,
+                            editing: true,
+                            pageNumber
+                        }, true)]);
             }
         }
 

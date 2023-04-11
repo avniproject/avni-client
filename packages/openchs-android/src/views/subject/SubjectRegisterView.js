@@ -115,7 +115,7 @@ class SubjectRegisterView extends AbstractComponent {
     getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.subject.observations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
-            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, context) => {
+            completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 const observations = state.subject.observations;
                 const onSaveCallback = (source) => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, state.subject.uuid, null, true, null, this.I18n.t('registrationSavedMsg'), 1);
