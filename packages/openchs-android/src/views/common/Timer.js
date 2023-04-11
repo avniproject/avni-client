@@ -1,8 +1,8 @@
 import React from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import {Button, Icon} from "native-base";
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {Button} from "native-base";
 import _ from "lodash";
 import KeepAwake from "react-native-keep-awake";
 import Styles from "../primitives/Styles";
@@ -31,8 +31,9 @@ class Timer extends AbstractComponent {
         return (
             <View style={[styles.buttonContainer, {marginTop: height / 2.5}]}>
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                    <Button onPress={() => this.props.onStartTimer()} style={{padding: 35, borderRadius: 20}}>
-                        <Text>{this.I18n.t('start')}</Text>
+                    <Button onPress={() => this.props.onStartTimer()}
+                            style={{padding: 35, borderRadius: 20, backgroundColor: Colors.ActionButtonColor}}>
+                        <Text style={styles.buttonText}>{this.I18n.t('start')}</Text>
                     </Button>
                 </View>
             </View>
@@ -93,6 +94,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         flexWrap: 'nowrap',
         alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white'
     }
 });
 
