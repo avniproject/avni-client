@@ -63,8 +63,8 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
             <View style={{marginVertical: 8}}>
                 <Text style={styles.titleTextStyle}>{this.I18n.t('eligibilityReport')}</Text>
                 {!_.isEmpty(programEligibilityCheckRule) &&
-                <Button small onPress={async () => await this.onSubjectProgramEligibility()} style={{alignSelf: 'flex-end'}}>
-                    <Text>{this.I18n.t('checkEligibility')}</Text>
+                <Button small onPress={async () => await this.onSubjectProgramEligibility()} style={{alignSelf: 'flex-end', backgroundColor: Colors.ActionButtonColor}}>
+                    <Text style={styles.buttonText}>{this.I18n.t('checkEligibility')}</Text>
                 </Button>}
             </View>
         )
@@ -107,12 +107,12 @@ class SubjectProgramEligibilityWidget extends AbstractComponent {
                 </View>
                 <View style={styles.programActionsContainer}>
                     {program.manualEligibilityCheckRequired ?
-                    <Button small onPress={() => this.onManualEligibilityCheck(this.props.subject, program)}>
-                        <Text>{this.I18n.t('check')}</Text>
+                    <Button small style={{ backgroundColor: Colors.ActionButtonColor}} onPress={() => this.onManualEligibilityCheck(this.props.subject, program)}>
+                        <Text style={styles.buttonText}>{this.I18n.t('check')}</Text>
                     </Button> : null}
                     {isEnrolmentEligible ?
-                    <Button style={{marginLeft: 3}} small onPress={() => this.onEnrol(subjectProgramEligibility)}>
-                        <Text>{this.I18n.t('Enrol')}</Text>
+                    <Button style={{marginLeft: 3,  backgroundColor: Colors.ActionButtonColor}} small onPress={() => this.onEnrol(subjectProgramEligibility)} >
+                        <Text style={styles.buttonText}>{this.I18n.t('Enrol')}</Text>
                     </Button> : null}
                 </View>
             </View>
@@ -200,6 +200,9 @@ const styles = StyleSheet.create({
         fontSize: Styles.normalTextSize,
         fontStyle: 'normal',
         color: '#151515',
+    },
+    buttonText: {
+        color: 'white'
     }
 });
 
