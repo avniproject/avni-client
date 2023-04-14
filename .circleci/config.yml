@@ -1,4 +1,10 @@
 version: 2
+parameters:
+  flavor:
+    type: enum
+    default: "generic"
+    enum: ["generic", "lfe"]
+    description: Flavor of the binary to generate. Must be one of "generic" or "lfe"
 jobs:
   install_deps:
     docker:
@@ -42,6 +48,8 @@ jobs:
       - image: cimg/android:2022.12-node
     working_directory: ~/avni-client
     resource_class: large
+    environment:
+      flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
       - restore_cache:
