@@ -52,6 +52,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
+      - run: echo "Building flavor ${flavor}"
       - restore_cache:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
@@ -64,7 +65,6 @@ jobs:
 #      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
 #      - run: sudo apt update
 #      - run: sudo apt install openjdk-11-jdk make
-      - run: echo "Flavor set to ${flavor}"
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci release_staging_without_clean
@@ -78,7 +78,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: avni.apk
+          destination: << pipeline.parameters.flavor >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
@@ -92,6 +92,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
+      - run: echo "Building flavor ${flavor}"
       - restore_cache:
           keys:
             #            - v1-dependencies-{{ checksum "package.json" }}
@@ -117,7 +118,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: avni.apk
+          destination: << pipeline.parameters.flavor >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
@@ -131,6 +132,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
+      - run: echo "Building flavor ${flavor}"
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -151,7 +153,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: avni.apk
+          destination: << pipeline.parameters.flavor >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
@@ -165,6 +167,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
+      - run: echo "Building flavor ${flavor}"
       - restore_cache:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
@@ -188,7 +191,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: avni.apk
+          destination: << pipeline.parameters.flavor >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap.js
