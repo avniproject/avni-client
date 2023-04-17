@@ -78,9 +78,9 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>.apk
+          destination: << pipeline.parameters.flavor >>-staging-<< pipeline.git.tag >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          path: packages/openchs-android/android/app/build/generated/sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.tag >>.js
           destination: sourcemap.js
 
   release_android_prerelease:
@@ -118,9 +118,9 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>.apk
+          destination: << pipeline.parameters.flavor >>-prerelease-<< pipeline.git.tag >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          path: packages/openchs-android/android/app/build/generated/sourcemap-<< pipeline.parameters.flavor >>-prerelease-<< pipeline.git.tag >>.js
           destination: sourcemap.js
 
   release_android_perf:
@@ -153,9 +153,9 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>.apk
+          destination: << pipeline.parameters.flavor >>-perf-<< pipeline.git.tag >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          path: packages/openchs-android/android/app/build/generated/sourcemap-<< pipeline.parameters.flavor >>-perf-<< pipeline.git.tag >>.js
           destination: sourcemap.js
 
   release_android_live:
@@ -191,9 +191,9 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>.apk
+          destination: << pipeline.parameters.flavor >>-live-<< pipeline.git.tag >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
+          path: packages/openchs-android/android/app/build/generated/sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.git.tag >>.js
           destination: sourcemap.js
 
 workflows:
