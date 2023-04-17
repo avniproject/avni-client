@@ -67,7 +67,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         const searchResultsCollection = getUnderlyingRealmCollection(this.props.searchResults);
 
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground, paddingBottom: 30}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground,flex:1}}>
                 <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
