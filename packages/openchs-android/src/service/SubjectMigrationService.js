@@ -111,12 +111,6 @@ class SubjectMigrationService extends BaseService {
                 entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(entityMetaData.parent.schemaName, mergedParentEntities));
             }
         }
-        if (entityMetaData.entityName === 'EntityApprovalStatus') {
-            const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
-            _.forEach(latestApprovalStatuses, ({schema, entity}) => {
-                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
-            });
-        }
 
         this.bulkSaveOrUpdate(entitiesToCreateFns);
     }

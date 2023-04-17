@@ -260,7 +260,9 @@ class SyncService extends BaseService {
     associateParent(entityResources, entities, entityMetaData) {
         const parentEntities = _.zip(entityResources, entities)
             .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
-        return _.values(_.groupBy(parentEntities, 'uuid')).map(entityMetaData.parent.entityClass.merge(entityMetaData.entityClass));
+        console.log(parentEntities);
+        return _.values(_.groupBy(parentEntities, 'uuid'))
+            .map((parentEntitiesWithSameUuid) => entityMetaData.parent.entityClass.merge(entityMetaData.entityClass)(parentEntitiesWithSameUuid));
     }
 
     associateMultipleParents(entityResources, entities, entityMetaData) {
@@ -293,13 +295,6 @@ class SyncService extends BaseService {
 
         if (entityMetaData.entityName === "TaskUnAssignment") {
             this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
-        }
-
-        if (entityMetaData.schemaName === 'EntityApprovalStatus') {
-            const latestApprovalStatuses = EntityApprovalStatus.getLatestApprovalStatusByEntity(entities, this.entityService);
-            _.forEach(latestApprovalStatuses, ({schema, entity}) => {
-                entitiesToCreateFns = entitiesToCreateFns.concat(this.createEntities(schema, [entity]));
-            });
         }
 
         if (entityMetaData.entityName === 'UserSubjectAssignment') {

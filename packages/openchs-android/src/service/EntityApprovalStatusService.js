@@ -16,7 +16,6 @@ import _ from 'lodash';
 
 @Service("entityApprovalStatusService")
 class EntityApprovalStatusService extends BaseService {
-
     constructor(db, context) {
         super(db, context);
     }
@@ -29,7 +28,8 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid) {
-        const approvalStatus = this.getService(EntityService).findByKey("status", status, ApprovalStatus.schema.name);
+        const entityService = this.getService(EntityService);
+        const approvalStatus = entityService.findByKey("status", status, ApprovalStatus.schema.name);
         const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid);
         const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
         db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
@@ -37,19 +37,12 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     getAllEntitiesWithStatus(status, schema, filterQuery) {
-        const entityWithApprovalWorkflow = [
-            Individual.schema.name,
-            ProgramEnrolment.schema.name,
-            Encounter.schema.name,
-            ProgramEncounter.schema.name,
-            ChecklistItem.schema.name
-        ];
-        const applicableEntities = entityWithApprovalWorkflow.filter(entity => _.isEmpty(schema) ? true : entity === schema);
-        const result = _.map(applicableEntities, (schema) => {
+        const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema().filter(entity => _.isEmpty(schema) ? true : entity === schema);
+        const result = _.map(applicableEntitiesSchema, (schema) => {
             const entities = this.getAll(schema)
                 .filtered(this.getVoidedQuery(schema))
                 .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status)
-                .filtered(_.isEmpty(filterQuery) ? 'uuid <> null' : filterQuery);
+                .filtered(_.isEmpty(filterQuery) ? 'uuid <> null' : filterQuery)
             return {title: schema, data: entities};
         });
         return {status, result};
@@ -86,7 +79,7 @@ class EntityApprovalStatusService extends BaseService {
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.db.write(() => {
-            entity.latestEntityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid);
+            entity.addUpdateApprovalStatus(this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid));
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
@@ -106,10 +99,6 @@ class EntityApprovalStatusService extends BaseService {
 
     _getEntityTypeForSchema(passedSchema) {
         return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({schema}) => schema === passedSchema), 'entityType');
-    }
-
-    _getSchemaForEntityType(passedEntityType) {
-        return _.get(_.find(EntityApprovalStatus.getSchemaEntityTypeList(), ({entityType}) => entityType === passedEntityType), 'schema');
     }
 }
 

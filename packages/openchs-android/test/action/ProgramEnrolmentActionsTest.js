@@ -11,7 +11,7 @@ describe('ProgramEnrolmentActionsTest', () => {
         serviceData[enrolment.uuid] = enrolment;
         const context = new TestContext(serviceData);
 
-        var state = ProgramEnrolmentActions.getInitialState(context);
+        let state = ProgramEnrolmentActions.getInitialState(context);
         enrolment.enrolmentDateTime = null;
         enrolment.individual = Individual.createEmptyInstance();
         state = ProgramEnrolmentActions.onLoad(state, {enrolment: enrolment, usage: ProgramEnrolmentState.UsageKeys.Enrol}, context);
