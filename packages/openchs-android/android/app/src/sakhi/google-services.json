@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "745785400831",
+    "project_id": "sakhi-671d3",
+    "storage_bucket": "sakhi-671d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745785400831:android:78d24bd2d3eb04ea3ddbca",
+        "android_client_info": {
+          "package_name": "org.sakhi.openchsclient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745785400831-v0qv7opbkqsruiu315i2kgt0vclvjbuv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByER7wwipzq-WEYQtQcuctGxdfVkpmWx4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745785400831-v0qv7opbkqsruiu315i2kgt0vclvjbuv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
