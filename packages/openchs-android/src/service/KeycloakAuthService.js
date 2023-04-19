@@ -36,12 +36,12 @@ class KeycloakAuthService extends BaseAuthProviderService {
     }
 
     async userExists() {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         return !_.isNil(settings.accessToken);
     }
 
     async getAuthToken() {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         const accessToken = settings.accessToken;
         if (_.isNil(accessToken) || _.isEmpty(accessToken)) {
             return new AuthenticationError(NO_USER, "No user or needs login");
@@ -54,7 +54,7 @@ class KeycloakAuthService extends BaseAuthProviderService {
     }
 
     async _refreshAccessToken() {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         const refreshToken = settings.refreshToken;
         const requestBody = {
             grant_type: 'refresh_token',
@@ -93,7 +93,7 @@ class KeycloakAuthService extends BaseAuthProviderService {
     }
 
     async logout() {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         let newSettings = settings.clone();
         newSettings.accessToken = null;
         newSettings.refreshToken = null;
@@ -109,7 +109,7 @@ class KeycloakAuthService extends BaseAuthProviderService {
     }
 
     async persistTokens(authResponse) {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         let newSettings = settings.clone();
         newSettings.accessToken = authResponse.access_token;
         newSettings.refreshToken = authResponse.refresh_token;
@@ -118,7 +118,7 @@ class KeycloakAuthService extends BaseAuthProviderService {
     }
 
     async callKeycloak(requestBody) {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         const endpoint = `${settings.keycloakAuthServerUrl}/realms/${settings.keycloakRealm}/protocol/openid-connect/token`;
         const commonBody = {
             client_id: settings.keycloakClientId,

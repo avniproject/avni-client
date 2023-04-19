@@ -36,26 +36,25 @@ class BaseAuthProviderService extends BaseService {
     }
 
     async persistUserId(userId) {
-        const settings = await this.getAuthSettings();
+        const settings = this.getAuthSettings();
         let newSettings = settings.clone();
         newSettings.userId = userId;
         this.settingsService.saveOrUpdate(newSettings);
         return newSettings;
     }
 
-    async getAuthSettings() {
+    getAuthSettings() {
         return this.settingsService.getSettings();
     }
 
-    async getUserName() {
-        const settings = await this.getAuthSettings();
+    getUserName() {
+        const settings = this.getAuthSettings();
         return settings.userId;
     }
 
     isJWTTokenExpired(token) {
         return jwt_decode(token).exp < Date.now().valueOf() / 1000;
     }
-
 }
 
 export default BaseAuthProviderService;

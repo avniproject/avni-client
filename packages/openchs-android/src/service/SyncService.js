@@ -260,7 +260,6 @@ class SyncService extends BaseService {
     associateParent(entityResources, entities, entityMetaData) {
         const parentEntities = _.zip(entityResources, entities)
             .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
-        console.log(parentEntities);
         return _.values(_.groupBy(parentEntities, 'uuid'))
             .map((parentEntitiesWithSameUuid) => entityMetaData.parent.entityClass.merge(entityMetaData.entityClass)(parentEntitiesWithSameUuid));
     }

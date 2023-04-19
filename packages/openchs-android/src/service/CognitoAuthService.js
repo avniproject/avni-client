@@ -32,9 +32,8 @@ class CognitoAuthService extends BaseAuthProviderService {
     }
 
     getAuthToken() {
-        return this.getAuthSettings().then((settings) => {
+        return Promise.resolve().then(() => {
             return new Promise((resolve, reject) => {
-
                 this.getUser().then((cognitoUser) => {
                     if (cognitoUser === null) {
                         reject(new AuthenticationError(NO_USER, "No user or needs login"));
@@ -43,11 +42,11 @@ class CognitoAuthService extends BaseAuthProviderService {
 
                     cognitoUser.getSession(function (err, session) {
                         if (err) {
-                            General.logWarn("AuthService", err);
+                            General.logWarn("CognitoAuthService", err);
                             reject(new AuthenticationError(err.code, err.message));
                         } else {
                             const jwtToken = session.getIdToken().getJwtToken();
-                            General.logInfo("AuthService", "Found token");
+                            General.logInfo("CognitoAuthService", "Found token");
                             resolve(jwtToken);
                         }
                     });
@@ -57,7 +56,8 @@ class CognitoAuthService extends BaseAuthProviderService {
     }
 
     getUser() {
-        return this.getAuthSettings().then((settings) => {
+        const settings = this.getAuthSettings();
+        return Promise.resolve().then(() => {
             return new Promise((resolve) => {
                 const userPool = new CognitoUserPool({UserPoolId: settings.poolId, ClientId: settings.clientId});
                 let user = userPool.getCurrentUser();
@@ -69,7 +69,7 @@ class CognitoAuthService extends BaseAuthProviderService {
                 //Try syncing from local storage if not readily available
                 userPool.storage.sync((error) => {
                     if (error) {
-                        General.logDebug("AuthService", "Could not sync memory storage from AsyncStorage. Ignoring. ")
+                        General.logDebug("CognitoAuthService", "Could not sync memory storage from AsyncStorage. Ignoring. ")
                         resolve(null);
                         return;
                     }
@@ -92,7 +92,7 @@ class CognitoAuthService extends BaseAuthProviderService {
 
             //Fail fast. Do not do round trip server requests if settings is absent
             if (this._authParametersAbsent(settings)) {
-                General.logDebug("AuthService", "Auth parameters are missing");
+                General.logDebug("CognitoAuthService", "Auth parameters are missing");
                 resolve(false);
                 return;
             }
@@ -105,9 +105,8 @@ class CognitoAuthService extends BaseAuthProviderService {
     }
 
     logout() {
-        return this.getAuthSettings().then((settings) => {
+        return Promise.resolve().then(() => {
             return new Promise((resolve) => {
-
                 this.getUser().then((user) => {
                     if (user === null) {
                         resolve();
@@ -135,7 +134,8 @@ class CognitoAuthService extends BaseAuthProviderService {
     }
 
     forgotPassword(userId) {
-        return this.getAuthSettings().then((settings) => {
+        const settings = this.getAuthSettings()
+        return Promise.resolve().then(() => {
             return new Promise((resolve, reject) => {
                 const cognitoUser = this._createCognitoUser(settings, userId.trim());
                 cognitoUser.forgotPassword({

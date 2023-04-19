@@ -251,7 +251,7 @@ class LoginView extends AbstractComponent {
                                             {this.spinner()}
                                         </View>
                                         : null}
-                                    {this.state.idpType === IDP_PROVIDERS.BOTH ?
+                                    {this.state.idpType === IDP_PROVIDERS.BOTH &&
                                         <TouchableNativeFeedback
                                             onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
                                             <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
@@ -263,12 +263,10 @@ class LoginView extends AbstractComponent {
                                                 <Text
                                                     style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
                                             </View>
-                                        </TouchableNativeFeedback>
-                                        : null
-                                    }
+                                        </TouchableNativeFeedback>}
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
-                                    {_.get(this, 'props.params.allowSkipLogin') ?
+                                    {_.get(this, 'props.params.allowSkipLogin') &&
                                         <TouchableNativeFeedback onPress={() => {
                                             this.cancelLogin();
                                         }} background={TouchableNativeFeedback.SelectableBackground()}>
@@ -276,8 +274,6 @@ class LoginView extends AbstractComponent {
                                                 <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
                                             </View>
                                         </TouchableNativeFeedback>
-                                        :
-                                        <View/>
                                     }
                                     <TouchableNativeFeedback onPress={this.safeLogin}
                                                              background={TouchableNativeFeedback.SelectableBackground()}>

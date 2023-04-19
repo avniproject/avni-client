@@ -94,3 +94,14 @@ open_app_bundle:
 
 fill_text:
 	@adb shell input text $(text)
+
+fill_password:
+	@adb shell input text $(text)
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 61
+	@adb shell input keyevent 66
