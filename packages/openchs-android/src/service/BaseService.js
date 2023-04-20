@@ -11,7 +11,7 @@ class BaseService {
         this.db = db;
         this.context = context;
         this.init = this.init.bind(this);
-        this.createEntities = this.createEntities.bind(this);
+        this.getCreateEntityFunctions = this.getCreateEntityFunctions.bind(this);
         this.bulkSaveOrUpdate = this.bulkSaveOrUpdate.bind(this);
     }
 
@@ -100,7 +100,7 @@ class BaseService {
         });
     }
 
-    createEntities(schema, entities) {
+    getCreateEntityFunctions(schema, entities) {
         return entities.map((entity) => () => {
             this.db.create(schema, entity, true)
         });

@@ -12,7 +12,8 @@ println('[Avni] Hermes Enabled:' + enableHermes)
 
 project.ext.react = [
         extraPackagerArgs: ["--sourcemap-output", "$buildDir/generated/sourcemap.js"],
-        enableHermes: enableHermes
+        enableHermes: enableHermes,
+        bundleInDebug: true
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"

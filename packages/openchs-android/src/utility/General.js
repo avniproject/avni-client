@@ -233,7 +233,11 @@ class General {
 
     static logError(source, error) {
         if (General.LogLevel.Error >= General.getCurrentLogLevel()) {
-            console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`);
+            if (error && error.stack) {
+                console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`, error.stack);
+            } else {
+                console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`);
+            }
         }
     }
 

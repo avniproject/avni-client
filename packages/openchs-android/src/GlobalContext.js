@@ -21,7 +21,7 @@ class GlobalContext {
     }
 
     isInitialised() {
-        return !_.isNil(this.db);
+        return !_.isNil(this.reduxStore);
     }
 
     initialiseGlobalContext(appStore, realmFactory) {

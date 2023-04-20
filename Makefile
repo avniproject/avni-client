@@ -321,6 +321,11 @@ run_app_debug: setup_hosts
 # <crash>
 analyse_crash: ##
 	cd packages/unminifiy && npm start ../openchs-android/android/app/build/generated/sourcemap.js $(line) $(column)
+
+analyse_stacktrace:
+	pbpaste > stacktrace.txt
+	npx metro-symbolicate packages/openchs-android/android/app/build/generated/sourcemap.js < stacktrace.txt | pbcopy
+	pbpaste
 # </crash>
 
 
