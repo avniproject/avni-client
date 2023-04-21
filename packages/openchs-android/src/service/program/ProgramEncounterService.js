@@ -63,7 +63,7 @@ class ProgramEncounterService extends BaseService {
             if (isProgramEncounter) {
                 encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
             } else {
-                this.getService(EncounterService).saveScheduledVisit(enrolment.individual, nextScheduledVisit, db, schedulerDate);
+                this.getService(EncounterService).saveScheduledVisit(programEnrolment.individual, nextScheduledVisit, db, schedulerDate);
             }
         }
         _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));

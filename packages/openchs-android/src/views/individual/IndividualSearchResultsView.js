@@ -66,7 +66,7 @@ class IndividualSearchResultsView extends AbstractComponent {
         const title = this.props.headerTitle || "searchResults";
 
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground, paddingBottom: 30}}>
+            <View style={{backgroundColor: Colors.GreyContentBackground,flex:1}}>
                 <AppHeader title={this.I18n.t(title)}/>
                 <SearchResultsHeader totalCount={this.props.totalSearchResultsCount}
                                      displayedCount={this.props.searchResults.length}/>
