@@ -1,14 +1,15 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
-import {StyleSheet, View, FlatList, TouchableOpacity} from "react-native";
-import {Checkbox as CheckBox, Text} from "native-base";
-import Styles from "../../primitives/Styles";
+import {StyleSheet, TouchableOpacity, View} from "react-native";
+import {Checkbox as CheckBox} from "native-base";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import GroupSubjectService from "../../../service/GroupSubjectService";
 import _ from 'lodash';
 import Colors from "../../primitives/Colors";
 import {Concept} from 'openchs-models';
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import SubjectInfoCard from "../../common/SubjectInfoCard";
+import Separator from "../../primitives/Separator";
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
@@ -16,20 +17,22 @@ class AttendanceFormElement extends AbstractFormElement {
     }
 
     renderSubject({memberSubject}, subjectUUIDs, index) {
-        const onPress = () => this.dispatchAction(this.props.actionName, {formElement: this.props.element, answerUUID: memberSubject.uuid});
-        return (
-            <TouchableOpacity style={{paddingVertical: 5}} onPress={onPress}>
-                <View key={memberSubject.uuid}
-                      style={[styles.memberContainer, index % 2 === 0 ? {backgroundColor: Colors.InputBorderNormal} : {backgroundColor: 'white'}]}>
-                    <View style={{flex: .8}}>
-                        <Text style={Styles.formBodyText}>{memberSubject.nameString}</Text>
-                    </View>
-                    <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
-                        <CheckBox onPress={onPress} isChecked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
-                    </View>
+        const onPress = () => this.dispatchAction(this.props.actionName, {
+            formElement: this.props.element, answerUUID: memberSubject.uuid
+        });
+        return (<TouchableOpacity style={{paddingVertical: 5}} onPress={onPress}>
+
+            <View key={memberSubject.uuid}
+                  style={styles.memberContainer}>
+                <View style={{flex: .8}}>
+                    <SubjectInfoCard individual={memberSubject}/>
                 </View>
-            </TouchableOpacity>
-        )
+                <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
+                    <CheckBox onPress={onPress} isChecked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
+                </View>
+            </View>
+            <Separator backgroundColor={Colors.InputBorderNormal}/>
+        </TouchableOpacity>)
     }
 
     render() {
