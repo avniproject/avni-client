@@ -1,14 +1,13 @@
 // @flow
 import PropTypes from "prop-types";
 import React from "react";
-import {SectionList, StyleSheet, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
+import {ScrollView} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import AppHeader from "../common/AppHeader";
 import General from "../../utility/General";
-import {ProgramEncounter} from "avni-models";
 import NewVisitMenuView from "./NewVisitMenuView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
@@ -38,9 +37,9 @@ class NewVisitPageView extends AbstractComponent {
                                backFunction={() => this.onAppHeaderBack()}
                                displayHomePressWarning={true}
                     />
-                    <View>
+                    <ScrollView>
                         <NewVisitMenuView enrolmentUUID={this.props.params.enrolmentUUID} allowedEncounterTypeUuids={this.props.params.allowedEncounterTypeUuids}/>
-                    </View>
+                    </ScrollView>
                 </CHSContent>
             </CHSContainer>
         );
