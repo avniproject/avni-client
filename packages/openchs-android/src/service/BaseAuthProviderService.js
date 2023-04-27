@@ -47,7 +47,7 @@ class BaseAuthProviderService extends BaseService {
         return this.settingsService.getSettings();
     }
 
-    getUserName() {
+    async getUserName() {
         const settings = this.getAuthSettings();
         return settings.userId;
     }

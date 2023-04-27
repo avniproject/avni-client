@@ -54,7 +54,7 @@ class LoginActions {
 
     static onLoginStarted(state, action, context) {
         let newState = _.assignIn({}, state, {loggingIn: true, loginError: '', loginSuccess: false});
-        context.get(AuthService).getAuthProviderService(state.userSelectedIdp)
+        context.get(AuthService).getAuthProviderService(state.idpType === IDP_PROVIDERS.BOTH ? state.userSelectedIdp : null)
             .authenticate(state.userId, state.password)
             .then((response) => {
                 if (response.status === "LOGIN_SUCCESS") {
