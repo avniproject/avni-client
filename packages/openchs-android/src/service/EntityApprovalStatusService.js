@@ -70,8 +70,9 @@ class EntityApprovalStatusService extends BaseService {
         this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
     }
 
-    createPendingStatus(entityUUID, schema, db, entityTypeUuid) {
-        return this.saveStatus(entityUUID, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
+    createPendingStatus(entity, schema, db, entityTypeUuid) {
+        const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
+        entity.addUpdateApprovalStatus(entityApprovalStatus);
     }
 
     saveEntityWithStatus(entity, schema, status, comment) {

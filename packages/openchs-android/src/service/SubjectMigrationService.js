@@ -124,37 +124,68 @@ class SubjectMigrationService extends BaseService {
     deleteSubjectAndChildren(subject) {
         General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subject.uuid}`);
         const db = this.db;
+
         db.write(() => {
-            db.delete(subject.encounters);
+            // SUBJECT children (program enrolments)
             _.forEach(subject.enrolments, (enrolment) => {
+                // ENROLMENT
                 //For some reason, the last element shows up as undefined when there are multiple enrolments for a subject
                 if (_.isNil(enrolment)) {
                     return;
                 }
+
+                // ENROLMENT children (encounters)
+                _.forEach(enrolment.encounters, (programEncounter) => {
+                    // PROGRAM ENCOUNTER
+                    // PROGRAM ENCOUNTER children (others)
+                    db.delete(programEncounter.approvalStatuses);
+                });
                 db.delete(enrolment.encounters);
-                db.delete(enrolment.observations);
-                db.delete(enrolment.programExitObservations);
+
+                // ENROLMENT children (checklists)
                 _.forEach(enrolment.checklists, (checklist) => {
+                    // CHECKLIST
                     if (_.isNil(checklist)) {
                         return;
                     }
+
+                    // CHECKLIST children (checklist items)
                     _.forEach(checklist.items, (checklistItem) => {
+                        // CHECKLIST ITEM
                         if (_.isNil(checklistItem)) {
                             return;
                         }
+
+                        // CHECKLIST ITEM children (others)
                         db.delete(checklistItem.observations);
-                        checklistItem.latestEntityApprovalStatus && db.delete(checklistItem.latestEntityApprovalStatus);
-                        db.delete(checklistItem);
+                        db.delete(checklistItem.approvalStatuses);
                     });
-                    db.delete(checklist);
+                    db.delete(checklist.items);
                 });
-                db.delete(enrolment)
+                db.delete(enrolment.checklists);
+
+                // ENROLMENT children (others)
+                db.delete(enrolment.observations);
+                db.delete(enrolment.programExitObservations);
+                db.delete(enrolment.approvalStatuses);
             });
+            db.delete(subject.enrolments);
+
+            _.forEach(subject.encounters, (encounter) => {
+                // ENCOUNTER
+                // ENCOUNTER children (others)
+                db.delete(encounter.approvalStatuses);
+            });
+            db.delete(subject.encounters);
+
+            // SUBJECT children (others)
             db.delete(this.getService(IndividualRelationshipService).findBySubject(subject));
-            subject.latestEntityApprovalStatus && db.delete(subject.latestEntityApprovalStatus);
             db.delete(subject.comments);
             db.delete(subject.groupSubjects);
             db.delete(subject.groups);
+            db.delete(subject.approvalStatuses);
+
+            // SUBJECT root
             db.delete(subject);
         });
     }
