@@ -27,6 +27,7 @@ class MyDashboardActions {
             encountersFilters: [],
             generalEncountersFilters: [],
             enrolmentFilters: [],
+            dueChecklistFilter: [],
             selectedLocations: [],
             addressLevelState: new AddressLevelState(),
             programs: [],
@@ -67,18 +68,20 @@ class MyDashboardActions {
         const subjectType = state.selectedSubjectType || allowedSubjectTypes[0] || SubjectType.create("");
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
 
-        let individualFilters, encountersFilters, enrolmentFilters, generalEncountersFilters;
+        let individualFilters, encountersFilters, enrolmentFilters, generalEncountersFilters, dueChecklistFilter;
         if (_.isEmpty(state.individualFilters)) {
             const subjectTypeQuery = (path) => [`${path} = "${subjectType.uuid}"`];
             individualFilters = subjectTypeQuery('subjectType.uuid');
             encountersFilters = subjectTypeQuery('programEnrolment.individual.subjectType.uuid');
             enrolmentFilters = subjectTypeQuery('individual.subjectType.uuid');
             generalEncountersFilters = subjectTypeQuery('individual.subjectType.uuid');
+            dueChecklistFilter = subjectTypeQuery('individual.subjectType.uuid');
         } else {
             individualFilters = state.individualFilters;
             encountersFilters = state.encountersFilters;
             enrolmentFilters = state.enrolmentFilters;
             generalEncountersFilters = state.generalEncountersFilters;
+            dueChecklistFilter = state.dueChecklistFilter;
         }
 
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
@@ -90,16 +93,18 @@ class MyDashboardActions {
             allIndividualsWithRecentlyCompletedVisits,
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
-            allIndividuals
-        ] = state.returnEmpty ? [[], [], [], [], [], []] : (fetchFromDB ? [
+            allIndividuals,
+            dueChecklist
+        ] = state.returnEmpty ? [[], [], [], [], [], [], []] : (fetchFromDB ? [
                 MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true)
+                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true),
+                MyDashboardActions.commonIndividuals(individualService.dueChecklists(state.date.value, dueChecklistFilter), state.individualUUIDs)
             ]
-            : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total]);
+            : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
 
         const queryResult = {
             scheduled: allIndividualsWithScheduledVisits,
@@ -108,6 +113,7 @@ class MyDashboardActions {
             recentlyCompletedRegistration: allIndividualsWithRecentRegistrations,
             recentlyCompletedEnrolment: allIndividualsWithRecentEnrolments,
             total: allIndividuals,
+            dueChecklist: dueChecklist
         };
 
         if (state.returnEmpty || fetchFromDB) {
@@ -139,6 +145,7 @@ class MyDashboardActions {
             encountersFilters,
             generalEncountersFilters,
             enrolmentFilters,
+            dueChecklistFilter,
             itemsToDisplay: [],
             fetchFromDB: false,
             loading: false,
@@ -173,15 +180,19 @@ class MyDashboardActions {
             ["recentlyCompletedVisits", individualService.recentlyCompletedVisitsIn],
             ["recentlyCompletedRegistration", individualService.recentlyRegistered],
             ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
-            ["total", individualService.allIn]
+            ["total", individualService.allIn],
+            ["dueChecklist", individualService.dueChecklists]
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
-            (listType === 'total' || listType === 'recentlyCompletedRegistration') ? state.individualFilters : state.encountersFilters;
+            (listType === 'total' || listType === 'recentlyCompletedRegistration' || listType === "dueChecklist") ? state.individualFilters : state.encountersFilters;
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         let allIndividuals;
         if (listType === "recentlyCompletedRegistration" || listType === "total")
             allIndividuals = methodMap.get(listType)(state.date.value, filters, state.selectedPrograms, getApplicableEncounterTypes(state));
+        else if (listType === "dueChecklist") {
+            allIndividuals = methodMap.get(listType)(state.date.value, state.dueChecklistFilter)
+        }
         else
             allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
 
@@ -308,6 +319,13 @@ class MyDashboardActions {
             'voided = false and programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
+        const dueChecklistFilter = [
+            subjectTypeQuery('individual.subjectType.uuid'),
+            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
+            MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
+            MyDashboardActions.orQuery(programQuery('program.uuid')),
+            'programExitDateTime = null'
+        ].filter(Boolean).join(" AND ");
 
         const newState = {
             ...state,
@@ -326,6 +344,7 @@ class MyDashboardActions {
             encountersFilters,
             enrolmentFilters,
             generalEncountersFilters,
+            dueChecklistFilter,
             selectedSubjectType: action.selectedSubjectType,
             fetchFromDB: true,
             selectedCustomFilters: selectedCustomFilterBySubjectType,
@@ -359,7 +378,7 @@ class MyDashboardActions {
         return {...state, loading: action.status};
     }
 
-    static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total}, displayProgramTab) {
+    static getRowCount({scheduled, overdue, recentlyCompletedVisits, recentlyCompletedRegistration, recentlyCompletedEnrolment, total, dueChecklist}, displayProgramTab) {
         const row1 = {
             visits: {
                 scheduled: {
@@ -420,10 +439,22 @@ class MyDashboardActions {
             },
             sectionName: "registrationOverviewSection"
         };
+        const row4 = {
+            visits: {
+                dueChecklist: {
+                    count: dueChecklist,
+                    abnormal: false,
+                    cardColor: "#388e3c",
+                    textColor: "#FFF",
+                    numberColor: '#FFF'
+                }
+            },
+            sectionName: "vaccinationOverviewSection"
+        };
         if (!displayProgramTab) {
             delete row2.visits.recentlyCompletedEnrolment;
         }
-        return [row1, row2, row3];
+        return [row1, row2, row3, row4];
     }
 }
 

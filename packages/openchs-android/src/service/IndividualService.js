@@ -3,7 +3,6 @@ import Service from "../framework/bean/Service";
 import {
     Encounter,
     EntityQueue,
-    GroupSubject,
     Individual,
     ObservationsHolder,
     Privilege,
@@ -520,6 +519,37 @@ class IndividualService extends BaseService {
                 fromDate,
                 encounterType.uuid).map(_.identity);
         return this._uniqIndividualsFrom(encounters);
+    }
+    
+    dueChecklists = (date, queryAdditions) => {
+        const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
+            .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child')
+            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
+
+        const enrolmentsWithDueChecklist = childEnrolments.filter(enrolment => {
+            let stateArray = [];
+            _.some(enrolment.checklists, checklist => {
+                _.forEach(checklist.items, items => {
+                    let applicableState = items.calculateApplicableState();
+                    if (!!applicableState.status) stateArray.push(applicableState.status.state);
+                })
+            })
+            return _.includes(stateArray, "Due");
+        }).map(_.identity);
+
+        return _.map(enrolmentsWithDueChecklist, enl => {
+            const individual = enl.individual;
+            const enrolmentDateTime = enl.enrolmentDateTime;
+            return {
+                individual, visitInfo: {
+                    uuid: individual.uuid,
+                    visitName: [],
+                    groupingBy: General.formatDate(enrolmentDateTime),
+                    sortingBy: enrolmentDateTime,
+                    allow: true,
+                }
+            };
+        })
     }
 
     totalCompletedVisits(program, addressLevel, encounterType, fromDate, tillDate) {
