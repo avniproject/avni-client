@@ -60,7 +60,11 @@ class OrganisationConfigService extends BaseService {
     }
 
     hasHideTotalForProgram = () => {
-        return this.getSettings().hideTotalForProgram === undefined || this.getSettings().hideTotalForProgram  ;
+        return this.getSettings().hideTotalForProgram === undefined || this.getSettings().hideTotalForProgram;
+    }
+
+    hasShowDueVaccineOnDashboard = () => {
+        return this.getSettings().showDueVaccineOnDashboard === undefined || this.getSettings().showDueVaccineOnDashboard;
     }
 }
 
