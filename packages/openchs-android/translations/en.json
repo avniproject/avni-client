@@ -491,7 +491,7 @@
     "sentMessages": "Sent Messages",
     "scheduledMessages": "Scheduled Messages",
     "GlificMessagesList": "Glific Messages List",
-    "vaccinationOverviewSection": "Vaccination overview",
+    "checklistOverviewSection": "Vaccination overview",
     "dueChecklist": "Due"
   }
 }

@@ -449,7 +449,7 @@ class MyDashboardActions {
                     numberColor: '#FFF'
                 }
             },
-            sectionName: "vaccinationOverviewSection"
+            sectionName: "checklistOverviewSection"
         };
         if (!displayProgramTab) {
             delete row2.visits.recentlyCompletedEnrolment;
