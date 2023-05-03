@@ -4,7 +4,7 @@ import AppHeader from "../common/AppHeader";
 import React from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {SafeAreaView, ScrollView, StyleSheet, Text, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import {DashboardSection} from 'avni-models';
@@ -22,9 +22,24 @@ import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
+import {Button} from "native-base";
+import Distances from "../primitives/Distances";
+import FiltersViewV2 from "../filter/FiltersViewV2";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
+    static styles = StyleSheet.create({
+        filterButton: {
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            backgroundColor: Colors.ActionButtonColor,
+            borderRadius: 3
+        },
+        buttonText: {
+            color: Colors.TextOnPrimaryColor,
+            fontSize: Styles.normalTextSize
+        }
+    });
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.customDashboard);
@@ -178,6 +193,13 @@ class CustomDashboardView extends AbstractComponent {
                     </ScrollView>
                 </SafeAreaView>}
                 <View style={{marginBottom: 140}}>
+                    {this.state.hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
+                        <TouchableOpacity
+                            style={CustomDashboardView.styles.filterButton}
+                            onPress={() => TypedTransition.from(this).to(FiltersViewV2)}>
+                            <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
+                        </TouchableOpacity>
+                    </View>}
                     <CustomActivityIndicator loading={this.state.loading}/>
                     <ScrollView>
                         {this.renderCards()}

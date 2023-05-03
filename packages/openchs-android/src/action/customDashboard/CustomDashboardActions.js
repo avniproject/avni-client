@@ -5,6 +5,7 @@ import EntityService from "../../service/EntityService";
 import {ReportCard} from "avni-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
+import DashboardFilterService from "../../service/reports/DashboardFilterService";
 
 class CustomDashboardActions {
 
@@ -13,12 +14,15 @@ class CustomDashboardActions {
             loading: false,
             reportCardSectionMappings: [],
             cardToCountResultMap: {},
-            countUpdateTime: null
+            countUpdateTime: null,
+            hasFilters: false
         };
     }
 
     static onLoad(state, action, context) {
         const dashboardService = context.get(CustomDashboardService);
+        const dashboardFilterService = context.get(DashboardFilterService);
+
         const newState = {...state};
         const onlyPrimary = action.onlyPrimary;
         const dashboards = dashboardService.getDashboards(onlyPrimary);
@@ -27,6 +31,7 @@ class CustomDashboardActions {
         newState.activeDashboardUUID = firstDashboardUUID;
         if (firstDashboardUUID) {
             newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(firstDashboardUUID, context);
+            newState.hasFilters = dashboardFilterService.hasFilters(firstDashboardUUID);
         }
         return newState;
     }
@@ -36,9 +41,12 @@ class CustomDashboardActions {
     }
 
     static onDashboardChange(state, action, context) {
+        const dashboardFilterService = context.get(DashboardFilterService);
+
         const newState = {...state};
         newState.activeDashboardUUID = action.dashboardUUID;
         newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context);
+        newState.hasFilters = dashboardFilterService.hasFilters(action.dashboardUUID);
         return newState;
     }
 

@@ -8,7 +8,6 @@ import React from "react";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";
 
-
 class GenderFilter extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.genderFilterActions);

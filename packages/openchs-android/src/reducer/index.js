@@ -11,6 +11,7 @@ import {ProgramEnrolmentDashboardActions, ProgramEnrolmentDashboardActionsMap} f
 import {FamilyDashboardActions, FamilyDashboardActionsMap} from '../action/familyFolder/FamilyDashboardActions';
 import {MyDashboardActions, MyDashboardActionsMap, MyDashboardPrefix} from '../action/mydashboard/MyDashboardActions';
 import {ActionPrefix, FilterActionMap, FiltersActions} from '../action/mydashboard/FiltersActions'
+import {FilterActionPrefix, FilterActionMapV2, FiltersActionsV2} from '../action/mydashboard/FiltersActionsV2'
 import {FamilyFolderActions, FamilyFolderActionsMap} from '../action/familyFolder/FamilyFolderActions';
 import {ProgramEncounterActions, ProgramEncounterActionsMap} from '../action/program/ProgramEncounterActions';
 import {IndividualRegistrationDetailsActions, IndividualRegistrationDetailsActionsMap} from '../action/individual/IndividualRegistrationDetailsActions';
@@ -80,6 +81,7 @@ export default class Reducers {
         landingView: 'landingView',
         syncTelemetryActions: "syncTelemetryActions",
         filterAction: "filterAction",
+        filterActionV2: "filterActionV2",
         completedVisitsFilterAction: "CompletedVisitsFilterAction",
         completedEncounters: "CompletedEncounters",
         subjectDashboardView: "subjectDashboardView",
@@ -121,6 +123,7 @@ export default class Reducers {
         reducerMap[Reducers.reducerKeys.loginActions] = Reducers._add(LoginActionsMap, LoginActions, beanStore);
         reducerMap[Reducers.reducerKeys.myDashboard] = Reducers._add(MyDashboardActionsMap, MyDashboardActions, beanStore, MyDashboardPrefix);
         reducerMap[Reducers.reducerKeys.filterAction] = Reducers._add(FilterActionMap, FiltersActions, beanStore, ActionPrefix);
+        reducerMap[Reducers.reducerKeys.filterActionV2] = Reducers._add(FilterActionMapV2, FiltersActionsV2, beanStore, FilterActionPrefix);
         reducerMap[Reducers.reducerKeys.familyFolder] = Reducers._add(FamilyFolderActionsMap, FamilyFolderActions, beanStore, FamilyFolderActions);
         reducerMap[Reducers.reducerKeys.programEncounterCancel] = Reducers._add(ProgramEncounterCancelActionsMap, ProgramEncounterCancelActions, beanStore);
         reducerMap[Reducers.reducerKeys.familyRegister] = Reducers._add(FamilyRegisterActionMap, FamilyRegisterActions, beanStore, 'FRA');
