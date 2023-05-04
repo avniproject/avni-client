@@ -14,8 +14,9 @@ class TimePicker extends AbstractComponent {
     static propTypes = {
         timeValue: PropTypes.string,
         validationResult: PropTypes.object,
-        actionName: PropTypes.string.isRequired,
-        actionObject: PropTypes.object.isRequired,
+        actionName: PropTypes.string,
+        actionObject: PropTypes.object,
+        onChange: PropTypes.func,
         timePickerDisplay: PropTypes.string
     };
 
@@ -75,15 +76,22 @@ class TimePicker extends AbstractComponent {
 
     onTimeChange(event, date) {
         if (event.type !== "dismissed") {
-            this.props.actionObject.value = General.toISOFormatTime(date.getHours(), date.getMinutes());
-            this.dispatchAction(this.props.actionName, this.props.actionObject);
+            this.notifyChange(General.toISOFormatTime(date.getHours(), date.getMinutes()));
         }
     }
 
     removeTime() {
         this.dismissKeyboard();
-        this.props.actionObject.value = null;
-        this.dispatchAction(this.props.actionName, this.props.actionObject);
+        this.notifyChange(null);
+    }
+
+    notifyChange(value) {
+        if (_.isNil(this.props.actionName)) {
+            this.props.onChange(value);
+        } else {
+            this.props.actionObject.value = value;
+            this.dispatchAction(this.props.actionName, this.props.actionObject);
+        }
     }
 }
 

@@ -1,4 +1,21 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
+import AddressLevelsState from "../common/AddressLevelsState";
+import moment from "moment";
+import _ from "lodash";
+import {Concept, CustomFilter, ArrayUtil} from 'openchs-models';
+
+// dateMismatchError({minDate, maxDate}) {
+//     return moment(minDate).isSameOrBefore(maxDate) ? null : {messageKey: 'startDateGreaterThanEndError'};
+// }
+//
+// dateNotPresentError({minDate, maxDate}) {
+//     return (minDate && _.isNil(maxDate)) || (maxDate && _.isNil(minDate)) ? {messageKey: 'bothDateShouldBeSelectedError'} : null;
+// }
+//
+// dateValidationError(dateObject) {
+//     return this.dateNotPresentError(dateObject) || this.dateMismatchError(dateObject);
+// }
+// addressLevelState: new AddressLevelsState(),
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -6,7 +23,8 @@ class FiltersActionsV2 {
             loading: false,
             filters: [],
             filterConfigs: {},
-            selectedValues: {}
+            selectedValues: {},
+            validationResults: {}
         };
     }
 
@@ -17,10 +35,34 @@ class FiltersActionsV2 {
         return {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
     }
 
+    // minValue: value.replace(/[^0-9.]/g, '')
     static onFilterUpdate(state, action) {
         const {filter, value} = action;
+        const {filterConfigs} = state;
         const newState = {...state};
-        newState.selectedValues[filter.uuid] = value;
+        const inputDataType = filterConfigs[filter.uuid].getInputDataType();
+        let updatedValue;
+        switch (inputDataType) {
+            case Concept.datatype.Subject:
+                break;
+            case Concept.dataType.Text :
+            case Concept.dataType.Notes :
+            case Concept.dataType.Id :
+                updatedValue = value;
+                break;
+            case Concept.dataType.Numeric:
+            case Concept.datatype.Date:
+            case Concept.dataType.DateTime:
+            case Concept.dataType.Time:
+                updatedValue = filter.widget === CustomFilter.widget.Range ? {...state.value, value} : value;
+                break;
+            case Concept.data.Coded:
+                ArrayUtil.toggle(state.value, value);
+                updatedValue = state.value;
+                break;
+        }
+
+        newState.selectedValues[filter.uuid] = updatedValue;
         return newState;
     }
 

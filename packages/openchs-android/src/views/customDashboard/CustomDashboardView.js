@@ -177,6 +177,7 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         const title = this.props.title || 'dashboards';
+        const {hasFilters, activeDashboardUUID, loading} = this.state;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)}
@@ -193,14 +194,14 @@ class CustomDashboardView extends AbstractComponent {
                     </ScrollView>
                 </SafeAreaView>}
                 <View style={{marginBottom: 140}}>
-                    {this.state.hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
+                    {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
                         <TouchableOpacity
                             style={CustomDashboardView.styles.filterButton}
-                            onPress={() => TypedTransition.from(this).to(FiltersViewV2)}>
+                            onPress={() => TypedTransition.from(this).with({dashboardUUID: activeDashboardUUID}).to(FiltersViewV2, true)}>
                             <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
                         </TouchableOpacity>
                     </View>}
-                    <CustomActivityIndicator loading={this.state.loading}/>
+                    <CustomActivityIndicator loading={loading}/>
                     <ScrollView>
                         {this.renderCards()}
                     </ScrollView>

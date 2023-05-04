@@ -14,13 +14,14 @@ class DatePicker extends AbstractComponent {
     static propTypes = {
         dateValue: PropTypes.object,
         validationResult: PropTypes.object,
-        actionName: PropTypes.string.isRequired,
+        actionName: PropTypes.string,
         datePickerMode: PropTypes.string,
         timePickerMode: PropTypes.string,
-        actionObject: PropTypes.object.isRequired,
+        actionObject: PropTypes.object,
         pickTime: PropTypes.bool,
         nonRemovable: PropTypes.bool,
-        noDateMessageKey: PropTypes.string
+        noDateMessageKey: PropTypes.string,
+        onChange: PropTypes.func
     };
 
     constructor(props, context) {
@@ -50,13 +51,21 @@ class DatePicker extends AbstractComponent {
         DateTimePickerAndroid.open(datePickerOptions);
     }
 
+    notifyChange(value) {
+        if (_.isNil(this.props.actionName)) {
+            this.props.onChange(value);
+        } else {
+            this.props.actionObject.value = value;
+            this.dispatchAction(this.props.actionName, this.props.actionObject);
+        }
+    }
+
     onDateChange(event, date) {
         if (event.type === 'dismissed') {
             return;
         }
 
-        this.props.actionObject.value = date;
-        this.dispatchAction(this.props.actionName, this.props.actionObject);
+        this.notifyChange(date);
         if (this.props.pickTime) {
             this.showTimePicker(date);
         }
@@ -87,14 +96,12 @@ class DatePicker extends AbstractComponent {
             return;
         }
 
-        this.props.actionObject.value = date;
-        this.dispatchAction(this.props.actionName, this.props.actionObject);
+        this.notifyChange(date);
     }
 
     removeDate() {
         this.dismissKeyboard();
-        this.props.actionObject.value = null;
-        this.dispatchAction(this.props.actionName, this.props.actionObject);
+        this.notifyChange(null);
     }
 
     renderRemoveButton() {

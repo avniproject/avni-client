@@ -17,6 +17,7 @@ import GenderFilter from "./GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {ScrollView} from "native-base";
 import PropTypes from "prop-types";
+import ObservationBasedFilterView from "./ObservationBasedFilterView";
 
 @Path('/FilterViewV2')
 class FiltersViewV2 extends AbstractComponent {
@@ -76,12 +77,15 @@ class FiltersViewV2 extends AbstractComponent {
         return true;
     }
 
+    dispatchFilterUpdate(filter, value) {
+        this.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {filter: filter, value: value});
+    }
+
     render() {
         General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
 
-        const {loading, filterConfigs, filters, selectedValues} = this.state;
-        const {addressLevelState} = this.props;
+        const {addressLevelState, loading, filterConfigs, filters, selectedValues, validationResults} = this.state;
 
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
@@ -94,22 +98,21 @@ class FiltersViewV2 extends AbstractComponent {
                                 {filters.map((filter) => {
                                     const filterConfig = filterConfigs[filter.uuid];
                                     const inputDataType = filterConfig.getInputDataType();
-                                    const selectedValue = selectedValues[filter.uuid];
+                                    const filterValue = selectedValues[filter.uuid];
+                                    const validationResult = validationResults[filter.uuid];
                                     switch (inputDataType) {
                                         case "Gender":
-                                            return <GenderFilter selectedGenders={selectedValue}
-                                                                 onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {value: selectedGenders})}/>;
+                                            return <GenderFilter selectedGenders={filterValue}
+                                                                 onSelect={(selectedGenders) => this.dispatchFilterUpdate(filter, selectedGenders)}/>;
                                         case "Address":
-                                            return <AddressLevels addressLevelState={addressLevelState} onSelect={(updatedAddressLevelState) => {
-                                                this.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {
-                                                    value: updatedAddressLevelState
-                                                })
-                                            }} multiSelect={true}/>;
+                                            return <AddressLevels addressLevelState={addressLevelState}
+                                                                  onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
+                                                                  multiSelect={true}/>;
                                         default:
-                                            return <CustomFilters filters={[]}
-                                                                  selectedCustomFilters={[filter]}
-                                                                  onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {selectedCustomFilters})}
-                                            />;
+                                            return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)}
+                                                                               filter={filter}
+                                                                               observationBasedFilter={filterConfig.observationBasedFilter}
+                                                                               validationResult={validationResult} value={filterValue}/>;
                                     }
                                 })}
                             </View>
