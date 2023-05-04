@@ -97,10 +97,10 @@ class MyDashboardView extends AbstractComponent {
     renderableVisits() {
         const {selectedPrograms, selectedGeneralEncounterTypes, selectedEncounterTypes, visits} = this.state;
         const hideTotalForProgram = this.context.getService(OrganisationConfigService).hasHideTotalForProgram();
-        const showDueVaccineOnDashboard = this.context.getService(OrganisationConfigService).hasShowDueVaccineOnDashboard();
+        const showDueChecklistOnDashboard = this.context.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard();
         const displayCards = (visits) => {
             return _.filter(visits, visit => {
-                if (showDueVaccineOnDashboard && visit.visits.dueChecklist) {
+                if (showDueChecklistOnDashboard && visit.visits.dueChecklist) {
                     return visit.visits.dueChecklist.count !== 0
                 }
                 return true;

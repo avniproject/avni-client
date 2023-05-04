@@ -45,7 +45,7 @@ class IndividualService extends BaseService {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
-        this.showDueVaccineOnDashboard = this.getService(OrganisationConfigService).hasShowDueVaccineOnDashboard;
+        this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard;
     }
 
     search(criteria, individualUUIDs) {
@@ -523,7 +523,7 @@ class IndividualService extends BaseService {
     }
     
     dueChecklists = (date, queryAdditions) => {
-        if (!this.showDueVaccineOnDashboard) {
+        if (!this.showDueChecklistOnDashboard) {
             return null;
         }
         const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
