@@ -45,7 +45,7 @@ class IndividualService extends BaseService {
         this.encounterService = this.getService(EncounterService);
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
-        this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard;
+        this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard();
     }
 
     search(criteria, individualUUIDs) {
@@ -521,11 +521,15 @@ class IndividualService extends BaseService {
                 encounterType.uuid).map(_.identity);
         return this._uniqIndividualsFrom(encounters);
     }
-    
-    dueChecklists = (date, queryAdditions) => {
+
+    dueChecklistForDefaultDashboard = (date, queryAdditions) => {
         if (!this.showDueChecklistOnDashboard) {
             return null;
         }
+        return this.dueChecklists(date, queryAdditions);
+    }
+    
+    dueChecklists = (date, queryAdditions) => {
         const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));

@@ -102,7 +102,7 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true),
-                MyDashboardActions.commonIndividuals(individualService.dueChecklists(state.date.value, dueChecklistFilter), state.individualUUIDs)
+                MyDashboardActions.commonIndividuals(individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter), state.individualUUIDs)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
 
