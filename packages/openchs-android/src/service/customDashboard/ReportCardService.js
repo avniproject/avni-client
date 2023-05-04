@@ -73,7 +73,8 @@ class ReportCardService extends BaseService {
             [StandardReportCardType.type.LatestVisits, individualService.recentlyCompletedVisitsIn],
             [StandardReportCardType.type.LatestRegistrations, individualService.recentlyRegistered],
             [StandardReportCardType.type.LatestEnrolments, individualService.recentlyEnrolled],
-            [StandardReportCardType.type.Total, individualService.allIn]
+            [StandardReportCardType.type.Total, individualService.allIn],
+            [StandardReportCardType.type.DueChecklist, individualService.dueChecklists]
         ]);
         const resultFunc = typeToMethodMap.get(type);
         const result = type === StandardReportCardType.type.Total ? resultFunc() : resultFunc(new Date());
