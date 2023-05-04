@@ -71,6 +71,8 @@ class CustomDashboardActions {
                 return 'CommentListView';
             case standardReportCardType.isTaskType() :
                 return 'TaskListView';
+            case standardReportCardType.isChecklistType():
+                return 'IndividualListView';
         }
     }
 

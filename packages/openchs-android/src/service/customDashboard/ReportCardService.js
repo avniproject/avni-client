@@ -90,6 +90,19 @@ class ReportCardService extends BaseService {
         };
     }
 
+    getResultForChecklistCardType(type) {
+        const individualService = this.getService(IndividualService);
+        return {status: type, result: individualService.dueChecklists()};
+    }
+
+    getCountForChecklistCardType(type) {
+        return {
+            primaryValue: this.getResultForChecklistCardType(type).result.length,
+            secondaryValue: null,
+            clickable: true
+        };
+    }
+
     getReportCardCount(reportCard) {
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
@@ -103,6 +116,8 @@ class ReportCardService extends BaseService {
                 return this.getCountForCommentCardType();
             case standardReportCardType.isTaskType() :
                 return this.getCountForTaskCardType(standardReportCardType.getTaskTypeType());
+            case standardReportCardType.isChecklistType() :
+                return this.getCountForChecklistCardType(standardReportCardType.name);
         }
     }
 
@@ -118,8 +133,10 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name);
             case standardReportCardType.isCommentType() : {
-                return {status: null, result: this.getResultForCommentCardType()}
+                return {status: null, result: this.getResultForCommentCardType()};
             }
+            case standardReportCardType.isChecklistType() :
+                return this.getResultForChecklistCardType(standardReportCardType.name);
         }
     }
 
