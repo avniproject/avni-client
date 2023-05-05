@@ -273,16 +273,6 @@ class CustomFilters extends AbstractComponent {
         </View>, idx)
     }
 
-    dispatchCodedAction(conceptAnswerName, conceptAnswers) {
-        this.dispatchAction(CustomFilterNames.ON_CODED_CUSTOM_FILTER_SELECT,
-            {
-                titleKey: filter.titleKey,
-                subjectTypeUUID: filter.subjectTypeUUID,
-                conceptAnswerName,
-                conceptAnswers
-            });
-    }
-
     codedConceptFilter(concept, filter, idx) {
         const locale = this.getService(UserInfoService).getUserSettings().locale;
         const conceptAnswers = concept.getAnswers();
