@@ -80,7 +80,7 @@ class CustomDashboardActions {
             case standardReportCardType.isTaskType() :
                 return 'TaskListView';
             case standardReportCardType.isChecklistType():
-                return 'IndividualListView';
+                return 'ChecklistListingView';
         }
     }
 

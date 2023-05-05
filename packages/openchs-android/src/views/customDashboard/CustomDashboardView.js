@@ -22,9 +22,8 @@ import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
-import {Button} from "native-base";
-import Distances from "../primitives/Distances";
 import FiltersViewV2 from "../filter/FiltersViewV2";
+import ChecklistListingView from "../checklist/ChecklistListingView";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -125,7 +124,8 @@ class CustomDashboardView extends AbstractComponent {
             'ApprovalListingView': ApprovalListingView,
             'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
             'IndividualListView': IndividualListView,
-            'CommentListView': CommentListView
+            'CommentListView': CommentListView,
+            'ChecklistListingView': ChecklistListingView
         };
         return viewNameMap[viewName]
     }

@@ -528,24 +528,27 @@ class IndividualService extends BaseService {
         }
         return this.dueChecklists(date, queryAdditions);
     }
-    
+
     dueChecklists = (date, queryAdditions) => {
         const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
-
+        const checklistItemNames = [];
         const enrolmentsWithDueChecklist = childEnrolments.filter(enrolment => {
             let stateArray = [];
             _.some(enrolment.checklists, checklist => {
                 _.forEach(checklist.items, items => {
                     let applicableState = items.calculateApplicableState();
-                    if (!!applicableState.status) stateArray.push(applicableState.status.state);
+                    if (!!applicableState.status && applicableState.status.state === "Due") {
+                        checklistItemNames.push(items.detail.concept.name)
+                        stateArray.push(applicableState.status.state)
+                    }
                 })
             })
             return _.includes(stateArray, "Due");
         }).map(_.identity);
 
-        return _.map(enrolmentsWithDueChecklist, enl => {
+        let individualsWithVisitInfo = _.map(enrolmentsWithDueChecklist, enl => {
             const individual = enl.individual;
             const enrolmentDateTime = enl.enrolmentDateTime;
             return {
@@ -558,6 +561,9 @@ class IndividualService extends BaseService {
                 }
             };
         })
+        return {
+            individual: individualsWithVisitInfo, checklistItemNames
+        }
     }
 
     totalCompletedVisits(program, addressLevel, encounterType, fromDate, tillDate) {
