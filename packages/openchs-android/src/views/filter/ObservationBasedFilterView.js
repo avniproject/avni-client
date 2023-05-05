@@ -14,12 +14,32 @@ import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";
 import PropTypes from "prop-types";
 
-function FilterContainer({children}) {
-    return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements}}>
+export function FilterContainer({children}) {
+    return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, marginBottom: Distances.ScaledVerticalSpacingBetweenFormElements}}>
         {children}
     </View>;
 }
 
+export class FilterContainerWithLabel extends AbstractComponent {
+    constructor(props, context, topLevelStateVariable) {
+        super(props, context, topLevelStateVariable);
+    }
+
+    static propTypes = {
+        filter: PropTypes.object.isRequired
+    }
+
+    render() {
+        return <FilterContainer>
+            <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
+                <Text style={Styles.formLabel}>{this.I18n.t(this.props.filter.name)}</Text>
+                {this.props.children}
+            </View>
+        </FilterContainer>;
+    }
+}
+
+//map concept answers and display them
 class ObservationBasedFilterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
@@ -75,10 +95,10 @@ class ObservationBasedFilterView extends AbstractComponent {
 
     numericConceptFilter() {
         return <TextInput style={[Styles.formBodyText]}
-                   underlineColorAndroid={Colors.InputBorderNormal}
-                   value={value}
-                   onChangeText={(value) => this.props.onChange(value)}
-                   multiline={false}/>;
+                          underlineColorAndroid={Colors.InputBorderNormal}
+                          value={value}
+                          onChangeText={(value) => this.props.onChange(value)}
+                          multiline={false}/>;
     }
 
     numericConceptFilterWithRange(concept, filter, idx, props, value) {
@@ -106,13 +126,13 @@ class ObservationBasedFilterView extends AbstractComponent {
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.name, optsFnMap, new Map(), selectedConcepts).selectOption(selectedConcepts);
         return <MultiSelectFilter filter={filterModel}
-                                            locale={locale}
-                                            I18n={this.I18n}
-                                            onSelect={(conceptAnswerName) => this.props.onChange(conceptAnswerName)}/>;
+                                  locale={locale}
+                                  I18n={this.I18n}
+                                  onSelect={(conceptAnswerName) => this.props.onChange(conceptAnswerName)}/>;
     }
 
     renderNonCodedFilter() {
-        const {observationBasedFilter, filter} = this.props;
+        const {observationBasedFilter, filter, value} = this.props;
         const concept = observationBasedFilter.concept;
 
         switch (concept.datatype) {
@@ -151,12 +171,9 @@ class ObservationBasedFilterView extends AbstractComponent {
             </FilterContainer>;
         }
 
-        return <FilterContainer>
-            <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
-                <Text style={Styles.formLabel}>{this.I18n.t(filter.name)}</Text>
-                {this.renderNonCodedFilter()}
-            </View>
-        </FilterContainer>;
+        return <FilterContainerWithLabel filter={filter}>
+            {this.renderNonCodedFilter()}
+        </FilterContainerWithLabel>;
     }
 }
 

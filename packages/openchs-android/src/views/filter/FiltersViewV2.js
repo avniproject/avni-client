@@ -12,12 +12,60 @@ import Reducers from "../../reducer";
 import {FilterActionNames} from "../../action/mydashboard/FiltersActionsV2";
 import AddressLevels from "../common/AddressLevels";
 import General from "../../utility/General";
-import CustomFilters from "./CustomFilters";
 import GenderFilter from "./GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import {ScrollView} from "native-base";
 import PropTypes from "prop-types";
-import ObservationBasedFilterView from "./ObservationBasedFilterView";
+import ObservationBasedFilterView, {FilterContainer, FilterContainerWithLabel} from "./ObservationBasedFilterView";
+import {CustomFilter} from 'openchs-models';
+import DatePicker from "../primitives/DatePicker";
+import _ from "lodash";
+import SelectableItemGroup from "../primitives/SelectableItemGroup";
+import UserInfoService from "../../service/UserInfoService";
+import RadioLabelValue from "../primitives/RadioLabelValue";
+import IndividualService from "../../service/IndividualService";
+
+class GroupSubjectFilter extends AbstractComponent {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            groupSubjects: []
+        }
+    }
+
+    static propTypes = {
+        filter: PropTypes.object.isRequired,
+        filterConfig: PropTypes.object.isRequired,
+        selectedGroupSubjectUUIDs: PropTypes.array.isRequired
+    }
+
+    UNSAFE_componentWillMount() {
+        const groupSubjects = this.getService(IndividualService).getAllBySubjectTypeUUID(this.props.filterConfig.groupSubjectTypeFilter.subjectType.uuid);
+        this.setState({groupSubjects: groupSubjects});
+    }
+
+    render() {
+        const {filter, selectedGroupSubjectUUIDs} = this.props;
+        const {groupSubjects} = this.state;
+
+        if (groupSubjects.length === 0) return null;
+
+        const labelValuePairs = groupSubjects.map((x) => new RadioLabelValue(`${x.nameString} (${x.lowestAddressLevel.translatedFieldValue})`, x.uuid));
+
+        const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
+        return <FilterContainer>
+            <SelectableItemGroup
+                locale={currentLocale}
+                I18n={this.I18n}
+                multiSelect={true}
+                inPairs={true}
+                onPress={(value) => this.props.onChange(value)}
+                selectionFn={(groupSubjectUUID) => _.includes(selectedGroupSubjectUUIDs, groupSubjectUUID)}
+                labelKey={filter.name}
+                labelValuePairs={labelValuePairs}/>
+        </FilterContainer>;
+    }
+}
 
 @Path('/FilterViewV2')
 class FiltersViewV2 extends AbstractComponent {
@@ -97,17 +145,28 @@ class FiltersViewV2 extends AbstractComponent {
                             <View style={[FiltersViewV2.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
                                 {filters.map((filter) => {
                                     const filterConfig = filterConfigs[filter.uuid];
-                                    const inputDataType = filterConfig.getInputDataType();
                                     const filterValue = selectedValues[filter.uuid];
                                     const validationResult = validationResults[filter.uuid];
-                                    switch (inputDataType) {
-                                        case "Gender":
+                                    General.logDebugTemp("FiltersViewV2",
+                                        `FilterValue: ${filterValue}, TypeOfData: ${typeof filterValue}, FilterConfigType: ${filterConfig.type}`);
+                                    switch (filterConfig.type) {
+                                        case CustomFilter.type.Gender:
                                             return <GenderFilter selectedGenders={filterValue}
+                                                                 invokeCallbacks={false}
                                                                  onSelect={(selectedGenders) => this.dispatchFilterUpdate(filter, selectedGenders)}/>;
-                                        case "Address":
+                                        case CustomFilter.type.Address:
                                             return <AddressLevels addressLevelState={addressLevelState}
                                                                   onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
                                                                   multiSelect={true}/>;
+                                        case CustomFilter.type.RegistrationDate:
+                                        case CustomFilter.type.EnrolmentDate:
+                                        case CustomFilter.type.ProgramEncounterDate:
+                                        case CustomFilter.type.EncounterDate:
+                                            return <FilterContainerWithLabel filter={filter}>
+                                                <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>
+                                            </FilterContainerWithLabel>;
+                                        case CustomFilter.type.GroupSubject:
+                                            return <GroupSubjectFilter filter={filter} filterConfig={filterConfig} selectedGroupSubjectUUIDs={filterValue}/>;
                                         default:
                                             return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)}
                                                                                filter={filter}

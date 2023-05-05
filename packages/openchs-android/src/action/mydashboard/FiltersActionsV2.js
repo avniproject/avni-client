@@ -3,6 +3,7 @@ import AddressLevelsState from "../common/AddressLevelsState";
 import moment from "moment";
 import _ from "lodash";
 import {Concept, CustomFilter, ArrayUtil} from 'openchs-models';
+import General from "../../utility/General";
 
 // dateMismatchError({minDate, maxDate}) {
 //     return moment(minDate).isSameOrBefore(maxDate) ? null : {messageKey: 'startDateGreaterThanEndError'};
@@ -15,7 +16,6 @@ import {Concept, CustomFilter, ArrayUtil} from 'openchs-models';
 // dateValidationError(dateObject) {
 //     return this.dateNotPresentError(dateObject) || this.dateMismatchError(dateObject);
 // }
-// addressLevelState: new AddressLevelsState(),
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -39,11 +39,14 @@ class FiltersActionsV2 {
     static onFilterUpdate(state, action) {
         const {filter, value} = action;
         const {filterConfigs} = state;
+
         const newState = {...state};
+        newState.selectedValues = {...state.selectedValues};
+
         const inputDataType = filterConfigs[filter.uuid].getInputDataType();
         let updatedValue;
         switch (inputDataType) {
-            case Concept.datatype.Subject:
+            case Concept.dataType.Subject:
                 break;
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
@@ -51,18 +54,20 @@ class FiltersActionsV2 {
                 updatedValue = value;
                 break;
             case Concept.dataType.Numeric:
-            case Concept.datatype.Date:
+            case Concept.dataType.Date:
             case Concept.dataType.DateTime:
             case Concept.dataType.Time:
                 updatedValue = filter.widget === CustomFilter.widget.Range ? {...state.value, value} : value;
                 break;
-            case Concept.data.Coded:
+            case Concept.dataType.Coded:
                 ArrayUtil.toggle(state.value, value);
                 updatedValue = state.value;
                 break;
         }
 
         newState.selectedValues[filter.uuid] = updatedValue;
+        General.logDebugTemp("FiltersActionsV2",
+            `Action Value: ${value}, TypeOfData: ${typeof value}, InputDataType: ${inputDataType}, Updated Value: ${updatedValue}, TypeOfUpdateValue: ${updatedValue}`);
         return newState;
     }
 

@@ -7,11 +7,21 @@ import {View} from "react-native";
 import React from "react";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";
+import PropTypes from "prop-types";
 
 class GenderFilter extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.genderFilterActions);
     }
+
+    static propTypes = {
+        onSelect: PropTypes.func,
+        selectedGenders: PropTypes.object,
+        invokeCallbacks: PropTypes.bool
+    }
+    static defaultProps = {
+        invokeCallbacks: true
+    };
 
     UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
@@ -19,7 +29,7 @@ class GenderFilter extends AbstractComponent {
     }
 
     _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders) {
+        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders && this.props.invokeCallbacks) {
             this.props.onSelect(this.state.selectedGenders);
         }
     }
@@ -40,7 +50,7 @@ class GenderFilter extends AbstractComponent {
 
     render() {
         this._invokeCallbacks();
-        return this.renderGenders()
+        return this.renderGenders();
     }
 }
 

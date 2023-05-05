@@ -223,6 +223,10 @@ class General {
         General.log(source, message, General.LogLevel.Debug);
     }
 
+    static logDebugTemp(source, message) {
+        General.log(source, message, General.LogLevel.Debug, true);
+    }
+
     static logInfo(source, message) {
         General.log(source, message, General.LogLevel.Info);
     }
@@ -246,12 +250,17 @@ class General {
             console.log(`[${source}]`, error.message, JSON.stringify(error));
     }
 
-    static log(source, message, level) {
+    static log(source, message, level, decorate = false) {
         try {
             const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
             const logMessage = `[${moment().format("h:mm:ss:SSS")}] [${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
-            if (level >= General.getCurrentLogLevel())
-                console[levelName.toLowerCase()](logMessage);
+            if (level >= General.getCurrentLogLevel()) {
+                //https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
+                if (decorate)
+                    console[levelName.toLowerCase()]("\x1b[100m%s\x1b[0m", logMessage);
+                else
+                    console[levelName.toLowerCase()](logMessage);
+            }
         } catch (e) {
             console.error('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
         }
