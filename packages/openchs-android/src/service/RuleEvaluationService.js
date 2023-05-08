@@ -656,10 +656,10 @@ class RuleEvaluationService extends BaseService {
         return true;
     }
 
-    executeDashboardCardRule(rule) {
+    executeDashboardCardRule(rule, ruleInput) {
         const ruleFunc = eval(rule);
         const result = ruleFunc({
-            params: {db: this.db},
+            params: {db: this.db, ruleInput: ruleInput},
             imports: {lodash, moment}
         });
         return result;
@@ -670,8 +670,8 @@ class RuleEvaluationService extends BaseService {
         return queryResult.length !== undefined;
     }
 
-    getDashboardCardCount(rule) {
-        const queryResult = this.executeDashboardCardRule(rule);
+    getDashboardCardCount(rule, ruleInput) {
+        const queryResult = this.executeDashboardCardRule(rule, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
         } else {
@@ -683,8 +683,8 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getDashboardCardQueryResult(rule) {
-        const queryResult = this.executeDashboardCardRule(rule);
+    getDashboardCardQueryResult(rule, ruleInput) {
+        const queryResult = this.executeDashboardCardRule(rule, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {//The result can either be an array or a RealmResultsProxy. We are looking for existence of the length key.
             return queryResult;
         } else {

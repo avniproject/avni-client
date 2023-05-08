@@ -175,9 +175,18 @@ class CustomDashboardView extends AbstractComponent {
             return (<View/>);
     }
 
+    onFilterPressed() {
+        const {activeDashboardUUID} = this.state;
+        TypedTransition.from(this)
+            .with({
+                dashboardUUID: activeDashboardUUID,
+                onFilterChosen: (ruleInput) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: ruleInput})
+            }).to(FiltersViewV2, true);
+    }
+
     render() {
         const title = this.props.title || 'dashboards';
-        const {hasFilters, activeDashboardUUID, loading} = this.state;
+        const {hasFilters, loading} = this.state;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)}
@@ -197,7 +206,7 @@ class CustomDashboardView extends AbstractComponent {
                     {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
                         <TouchableOpacity
                             style={CustomDashboardView.styles.filterButton}
-                            onPress={() => TypedTransition.from(this).with({dashboardUUID: activeDashboardUUID}).to(FiltersViewV2, true)}>
+                            onPress={() => this.onFilterPressed()}>
                             <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
                         </TouchableOpacity>
                     </View>}

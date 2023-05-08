@@ -24,6 +24,7 @@ import UserInfoService from "../../service/UserInfoService";
 import RadioLabelValue from "../primitives/RadioLabelValue";
 import IndividualService from "../../service/IndividualService";
 import DateRangeFilter from "./DateRangeFilter";
+import TypedTransition from "../../framework/routing/TypedTransition";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -71,7 +72,8 @@ class GroupSubjectFilter extends AbstractComponent {
 @Path('/FilterViewV2')
 class FiltersViewV2 extends AbstractComponent {
     static propTypes = {
-        dashboardUUID: PropTypes.string.isRequired
+        dashboardUUID: PropTypes.string.isRequired,
+        onFilterChosen: PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -117,7 +119,14 @@ class FiltersViewV2 extends AbstractComponent {
     }
 
     applyFilters() {
-        return this.dispatchAction(FilterActionNames.APPLIED_FILTER, {});
+        return this.dispatchAction(FilterActionNames.APPLIED_FILTER, {
+            navigateToDashboardView: (ruleInput) => {
+                TypedTransition.from(this).goBack();
+                setTimeout(() => {
+                    this.props.onFilterChosen(ruleInput);
+                }, 100);
+            }
+        });
     }
 
     onHardwareBackPress() {
@@ -156,10 +165,7 @@ class FiltersViewV2 extends AbstractComponent {
                                     case CustomFilter.type.Address:
                                         return <AddressLevels addressLevelState={filterValue}
                                                               key={index}
-                                                              onSelect={(updatedAddressLevelState) => {
-                                                                  General.logDebugTemp("FiltersViewV2", JSON.stringify(updatedAddressLevelState));
-                                                                  this.dispatchFilterUpdate(filter, updatedAddressLevelState);
-                                                              }}
+                                                              onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
                                                               multiSelect={true}/>;
                                     case CustomFilter.type.RegistrationDate:
                                     case CustomFilter.type.EnrolmentDate:

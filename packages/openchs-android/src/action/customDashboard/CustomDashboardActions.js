@@ -15,7 +15,8 @@ class CustomDashboardActions {
             reportCardSectionMappings: [],
             cardToCountResultMap: {},
             countUpdateTime: null,
-            hasFilters: false
+            hasFilters: false,
+            ruleInput: null
         };
     }
 
@@ -57,7 +58,7 @@ class CustomDashboardActions {
         if (reportCard.isStandardTaskType()) {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType());
         } else {
-            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard);
+            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, state.ruleInput);
             const standardReportCardType = reportCard.standardReportCardType;
             const viewName = CustomDashboardActions._getViewName(standardReportCardType);
             if (!_.isNil(result)) {
@@ -87,10 +88,11 @@ class CustomDashboardActions {
     static refreshCount(state, action, context) {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
+        newState.ruleInput = action.ruleInput;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card);
+            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card, action.ruleInput);
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
         return newState;
@@ -122,7 +124,7 @@ const CustomDashboardActionNames = {
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
-    REMOVE_OLDER_COUNTS: `${ActionPrefix}.REMOVE_OLDER_COUNTS`,
+    REMOVE_OLDER_COUNTS: `${ActionPrefix}.REMOVE_OLDER_COUNTS`
 };
 
 const CustomDashboardActionMap = new Map([
@@ -131,7 +133,7 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
-    [CustomDashboardActionNames.REMOVE_OLDER_COUNTS, CustomDashboardActions.removeOlderCounts],
+    [CustomDashboardActionNames.REMOVE_OLDER_COUNTS, CustomDashboardActions.removeOlderCounts]
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}

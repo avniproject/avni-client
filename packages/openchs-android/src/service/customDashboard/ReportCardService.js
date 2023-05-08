@@ -103,11 +103,11 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getReportCardCount(reportCard) {
+    getReportCardCount(reportCard, ruleInput) {
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :
-                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query);
+                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard.query, ruleInput);
             case standardReportCardType.isApprovalType() :
                 return this.getCountForApprovalCardsType(standardReportCardType.name);
             case standardReportCardType.isDefaultType() :
@@ -121,11 +121,11 @@ class ReportCardService extends BaseService {
         }
     }
 
-    getReportCardResult(reportCard) {
+    getReportCardResult(reportCard, ruleInput) {
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) : {
-                const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query);
+                const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard.query, ruleInput);
                 return {status: null, result}
             }
             case standardReportCardType.isApprovalType() :

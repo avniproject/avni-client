@@ -1,8 +1,6 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
 import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
-import RuleEvaluationService from "../../service/RuleEvaluationService";
-import General from "../../utility/General";
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -69,13 +67,13 @@ class FiltersActionsV2 {
 
     static appliedFilter(state, action, context) {
         const {filterConfigs, selectedValues} = state;
+        const {navigateToDashboardView} = action;
         const newState = {...state};
 
         newState.filterErrors = {};
         const filledFilterValues = _.filter(Object.entries(selectedValues), ([, filterValue]) => !ModelGeneral.isDeepEmpty(filterValue));
 
         filledFilterValues.forEach(([filterUUID, filterValue]) => {
-            General.logDebugTemp("FiltersActionsV2", `FilterUUID: ${filterUUID}, FilterValue: ${JSON.stringify(filterValue)}`);
             const [success, message] = filterConfigs[filterUUID].validate(filterValue);
             if (!success)
                 newState.filterErrors[filterUUID] = message;
@@ -88,9 +86,7 @@ class FiltersActionsV2 {
         const ruleInput = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
 
-        const ruleEvaluationService = context.get(RuleEvaluationService);
-        General.logDebugTemp("FiltersActionsV2", JSON.stringify(ruleInput));
-        ruleEvaluationService.runReport(ruleInput);
+        navigateToDashboardView(ruleInput);
         return newState;
     }
 }
