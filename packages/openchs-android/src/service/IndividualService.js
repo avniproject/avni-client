@@ -75,7 +75,7 @@ class IndividualService extends BaseService {
                     criteria.getMaxDateOfBirth()
                 ).sorted("name");
 
-            if(_.isEmpty(individualUUIDs))
+            if (_.isEmpty(individualUUIDs))
                 finalSearchResults = getUnderlyingRealmCollection(baseResult);
             else {
                 filterIndividualsByChunks(baseResult);
@@ -524,7 +524,7 @@ class IndividualService extends BaseService {
 
     dueChecklistForDefaultDashboard = (date, queryAdditions) => {
         if (!this.showDueChecklistOnDashboard) {
-            return null;
+            return {individual: [], checklistItemNames: []}
         }
         return this.dueChecklists(date, queryAdditions);
     }

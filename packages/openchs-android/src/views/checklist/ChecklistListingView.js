@@ -49,9 +49,8 @@ class ChecklistListingView extends AbstractComponent {
 
     componentDidMount() {
         if (this.props.indicatorActionName) {
-
             setTimeout(() => {
-                this.dispatchAction(this.props.indicatorActionName, {loading: false})
+                this.dispatchAction(this.props.indicatorActionName, {loading: false,status: false})
                 const options = _.uniq(this.state.results.checklistItemNames)
                     .map((name) => ({label: name, value: name}));
                 const optionsWithAll = [placeHolderPicker, ...options];

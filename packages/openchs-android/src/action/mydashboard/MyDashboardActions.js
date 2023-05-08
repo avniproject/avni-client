@@ -94,14 +94,16 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals,
-            dueChecklist
-        ] = state.returnEmpty ? [[], [], [], [], [], [], []] : (fetchFromDB ? [
+            dueChecklist,
+            dueChecklistWithChecklistItem
+        ] = state.returnEmpty ? [[], [], [], [], [], [], [],[]] : (fetchFromDB ? [
                 MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true),
+                MyDashboardActions.commonIndividuals(individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter), state.individualUUIDs).individual,
                 MyDashboardActions.commonIndividuals(individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter), state.individualUUIDs)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
@@ -113,7 +115,8 @@ class MyDashboardActions {
             recentlyCompletedRegistration: allIndividualsWithRecentRegistrations,
             recentlyCompletedEnrolment: allIndividualsWithRecentEnrolments,
             total: allIndividuals,
-            dueChecklist: dueChecklist
+            dueChecklist: dueChecklist,
+            dueChecklistWithChecklistItem: dueChecklistWithChecklistItem
         };
 
         if (state.returnEmpty || fetchFromDB) {
@@ -181,7 +184,7 @@ class MyDashboardActions {
             ["recentlyCompletedRegistration", individualService.recentlyRegistered],
             ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
             ["total", individualService.allIn],
-            ["dueChecklist", individualService.dueChecklists]
+            ["dueChecklist", individualService.dueChecklistForDefaultDashboard]
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration' || listType === "dueChecklist") ? state.individualFilters : state.encountersFilters;

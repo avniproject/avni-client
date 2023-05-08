@@ -64,7 +64,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     hasShowDueChecklistOnDashboard = () => {
-        return !!this.getSettings().showDueChecklistOnDashboard ;
+        return !!this.getSettings().showDueChecklistOnDashboard;
     }
 }
 

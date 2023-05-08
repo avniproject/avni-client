@@ -7,6 +7,7 @@ import TitleNumberBlock from './TitleNumberBlock';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import IndividualList from "../individuallist/IndividualList";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
+import ChecklistListingView from "../checklist/ChecklistListingView";
 
 class StatusCountRow extends AbstractComponent {
     static propTypes = {
@@ -28,12 +29,25 @@ class StatusCountRow extends AbstractComponent {
 
     onPressHandler(title, count, backFunction, cardTitle) {
         this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
-        setTimeout(() => TypedTransition.from(this).with({
-            listType: title,
-            total: count,
-            backFunction: backFunction,
-            cardTitle: cardTitle,
-        }).to(IndividualList), 0);
+        if (title === "dueChecklist") {
+            setTimeout(() => TypedTransition.from(this).with({
+                total: count,
+                backFunction: backFunction,
+                cardTitle: cardTitle,
+                results: this.props.dueChecklist,
+                indicatorActionName: Actions.LOAD_INDICATOR,
+                headerTitle: title,
+                totalSearchResultsCount: count,
+                listType: _.lowerCase("Due checklist"),
+            }).to(ChecklistListingView, true), 0);
+        } else {
+            setTimeout(() => TypedTransition.from(this).with({
+                total: count,
+                backFunction: backFunction,
+                cardTitle: cardTitle,
+                listType: title,
+            }).to(IndividualList), 0);
+        }
     }
 
     render() {
