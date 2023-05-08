@@ -24,6 +24,10 @@ class DatePicker extends AbstractComponent {
         onChange: PropTypes.func
     };
 
+    static defaultProps = {
+        onChange: _.noop
+    }
+
     constructor(props, context) {
         super(props, context);
     }

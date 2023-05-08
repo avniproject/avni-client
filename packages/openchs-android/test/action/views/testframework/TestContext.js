@@ -29,6 +29,8 @@ import PrivilegeService from "../../../../src/service/PrivilegeService";
 import StubbedPrivilegeService from "../../service/stub/StubbedPrivilegeService";
 import OrganisationConfigService from '../../../../src/service/OrganisationConfigService';
 import StubbedOrganisationConfigService from '../../service/stub/StubbedOrganisationConfigService';
+import DashboardFilterService from "../../../../src/service/reports/DashboardFilterService";
+import StubbedDashboardFilterService from "../../service/stub/dashboard/StubbedDashboardFilterService";
 
 class TestContext {
     static stubs = new Map([
@@ -46,11 +48,13 @@ class TestContext {
         [IdentifierAssignmentService, (serviceData) => new StubbedIdentifierAssignmentService(serviceData)],
         [GroupSubjectService, (serviceData) => new StubbedGroupSubjectService(serviceData)],
         [PrivilegeService, (serviceData) => new StubbedPrivilegeService(serviceData)],
-        [OrganisationConfigService, (serviceData) => new StubbedOrganisationConfigService(serviceData)]
+        [OrganisationConfigService, (serviceData) => new StubbedOrganisationConfigService(serviceData)],
+        [DashboardFilterService, (serviceData, capturedData) => new StubbedDashboardFilterService(serviceData, capturedData)]
     ]);
 
-    constructor(serviceData) {
+    constructor(serviceData, capturedData) {
         this.serviceData = serviceData;
+        this.capturedData = capturedData;
     }
 
     getService(type) {
@@ -67,7 +71,7 @@ class TestContext {
                 }
             };
         }
-        return stub(this.serviceData);
+        return stub(this.serviceData, this.capturedData);
     }
 
     get(type) {

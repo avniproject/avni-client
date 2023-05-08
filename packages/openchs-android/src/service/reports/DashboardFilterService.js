@@ -1,6 +1,16 @@
 import Service from "../../framework/bean/Service";
 import BaseService from "../BaseService";
-import {DashboardFilter, DashboardFilterConfig, SubjectType, CustomFilter, ObservationBasedFilter, GroupSubjectTypeFilter, Program, EncounterType, Concept, Dashboard} from 'openchs-models';
+import {
+    Concept,
+    CustomFilter,
+    DashboardFilter,
+    DashboardFilterConfig,
+    EncounterType,
+    GroupSubjectTypeFilter,
+    ObservationBasedFilter,
+    Program,
+    SubjectType
+} from 'openchs-models';
 
 @Service("dashboardFilterService")
 class DashboardFilterService extends BaseService {
@@ -39,6 +49,33 @@ class DashboardFilterService extends BaseService {
             filterConfigs[x.uuid] = filterConfig;
         });
         return filterConfigs;
+    }
+
+    toRuleInputObject(filterConfig, filterValue) {
+        const ruleInput = {
+            type: filterConfig.type,
+            isRange: (filterConfig.widget === CustomFilter.widget.Range),
+            subjectType: filterConfig.subjectType,
+        };
+        if (filterConfig.type === CustomFilter.type.GroupSubject) {
+            ruleInput.groupSubjectTypeFilter = {
+                subjectType: filterConfig.groupSubjectTypeFilter.subjectType
+            }
+        } else if (filterConfig.type === CustomFilter.type.Concept) {
+            const {scope, concept, programs, encounterTypes} = filterConfig.observationBasedFilter;
+            ruleInput.observationBasedFilter = {
+                scope: scope,
+                concept: concept,
+                programs: _.keyBy(programs, (x) => x.uuid),
+                encounterTypes: _.keyBy(encounterTypes, (x) => x.uuid)
+            };
+        }
+        if (filterConfig.type === CustomFilter.type.Address) {
+            ruleInput.filterValue = filterValue.selectedAddresses;
+        }
+        else
+            ruleInput.filterValue = filterValue;
+        return ruleInput;
     }
 
     hasFilters(dashboardUUID) {

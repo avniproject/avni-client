@@ -1,6 +1,7 @@
 class StubbedBaseService {
-    constructor(serviceData) {
+    constructor(serviceData, capturedData) {
         this.serviceData = serviceData;
+        this.capturedData = capturedData;
     }
 
     findByUUID(uuid) {

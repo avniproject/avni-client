@@ -1,6 +1,8 @@
 import {FormElementStatus, ValidationResult} from 'avni-models';
 
 class StubbedRuleEvaluationService {
+    reportInput;
+
     validateAgainstRule(entity) {
         return [ValidationResult.successful('whatever')];
     }
@@ -17,11 +19,17 @@ class StubbedRuleEvaluationService {
     getNextScheduledVisits() {
         return null;
     }
+
     updateWorkLists(workLists, context) {
         return workLists;
     }
+
     isEligibleForEncounter() {
         return true;
+    }
+
+    runReport(reportInput) {
+        this.reportInput = reportInput;
     }
 }
 

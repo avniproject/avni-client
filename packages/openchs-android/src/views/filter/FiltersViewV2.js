@@ -7,7 +7,6 @@ import Styles from "../primitives/Styles";
 import Path from "../../framework/routing/Path";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
-import CHSContent from "../common/CHSContent";
 import Reducers from "../../reducer";
 import {FilterActionNames} from "../../action/mydashboard/FiltersActionsV2";
 import AddressLevels from "../common/AddressLevels";
@@ -24,6 +23,7 @@ import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import UserInfoService from "../../service/UserInfoService";
 import RadioLabelValue from "../primitives/RadioLabelValue";
 import IndividualService from "../../service/IndividualService";
+import DateRangeFilter from "./DateRangeFilter";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -36,7 +36,8 @@ class GroupSubjectFilter extends AbstractComponent {
     static propTypes = {
         filter: PropTypes.object.isRequired,
         filterConfig: PropTypes.object.isRequired,
-        selectedGroupSubjectUUIDs: PropTypes.array.isRequired
+        selectedGroupSubjectUUIDs: PropTypes.array,
+        onChange: PropTypes.func
     }
 
     UNSAFE_componentWillMount() {
@@ -70,8 +71,7 @@ class GroupSubjectFilter extends AbstractComponent {
 @Path('/FilterViewV2')
 class FiltersViewV2 extends AbstractComponent {
     static propTypes = {
-        dashboardUUID: PropTypes.string.isRequired,
-        addressLevelState: PropTypes.object.isRequired
+        dashboardUUID: PropTypes.string.isRequired
     };
 
     static styles = StyleSheet.create({
@@ -133,50 +133,57 @@ class FiltersViewV2 extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const {width} = Dimensions.get('window');
 
-        const {addressLevelState, loading, filterConfigs, filters, selectedValues, validationResults} = this.state;
+        const {loading, filterConfigs, filters, selectedValues, filterErrors} = this.state;
 
         return (
-            <CHSContainer style={{backgroundColor: Styles.whiteColor}}>
+            <CHSContainer style={{backgroundColor: Styles.whiteColor, display: "flex", flexDirection: "column", paddingBottom: 50}}>
                 <AppHeader title={this.I18n.t('filter')} func={this.props.onBack}/>
                 <ScrollView keyboardShouldPersistTaps="handled">
-                    <CHSContent>
-                        <View style={{backgroundColor: Styles.whiteColor}}>
-                            <CustomActivityIndicator loading={loading}/>
-                            <View style={[FiltersViewV2.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
-                                {filters.map((filter) => {
-                                    const filterConfig = filterConfigs[filter.uuid];
-                                    const filterValue = selectedValues[filter.uuid];
-                                    const validationResult = validationResults[filter.uuid];
-                                    General.logDebugTemp("FiltersViewV2",
-                                        `FilterValue: ${filterValue}, TypeOfData: ${typeof filterValue}, FilterConfigType: ${filterConfig.type}`);
-                                    switch (filterConfig.type) {
-                                        case CustomFilter.type.Gender:
-                                            return <GenderFilter selectedGenders={filterValue}
-                                                                 invokeCallbacks={false}
-                                                                 onSelect={(selectedGenders) => this.dispatchFilterUpdate(filter, selectedGenders)}/>;
-                                        case CustomFilter.type.Address:
-                                            return <AddressLevels addressLevelState={addressLevelState}
-                                                                  onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
-                                                                  multiSelect={true}/>;
-                                        case CustomFilter.type.RegistrationDate:
-                                        case CustomFilter.type.EnrolmentDate:
-                                        case CustomFilter.type.ProgramEncounterDate:
-                                        case CustomFilter.type.EncounterDate:
-                                            return <FilterContainerWithLabel filter={filter}>
-                                                <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>
-                                            </FilterContainerWithLabel>;
-                                        case CustomFilter.type.GroupSubject:
-                                            return <GroupSubjectFilter filter={filter} filterConfig={filterConfig} selectedGroupSubjectUUIDs={filterValue}/>;
-                                        default:
-                                            return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)}
-                                                                               filter={filter}
-                                                                               observationBasedFilter={filterConfig.observationBasedFilter}
-                                                                               validationResult={validationResult} value={filterValue}/>;
-                                    }
-                                })}
-                            </View>
+                    <View style={{backgroundColor: Styles.whiteColor}}>
+                        <CustomActivityIndicator loading={loading}/>
+                        <View style={[FiltersViewV2.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
+                            {filters.map((filter, index) => {
+                                const filterConfig = filterConfigs[filter.uuid];
+                                const filterValue = selectedValues[filter.uuid];
+                                const filterError = filterErrors[filter.uuid];
+
+                                switch (filterConfig.type) {
+                                    case CustomFilter.type.Gender:
+                                        return <GenderFilter selectedGenders={filterValue}
+                                                             key={index}
+                                                             deprecatedUsage={false}
+                                                             onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
+                                    case CustomFilter.type.Address:
+                                        return <AddressLevels addressLevelState={filterValue}
+                                                              key={index}
+                                                              onSelect={(updatedAddressLevelState) => {
+                                                                  General.logDebugTemp("FiltersViewV2", JSON.stringify(updatedAddressLevelState));
+                                                                  this.dispatchFilterUpdate(filter, updatedAddressLevelState);
+                                                              }}
+                                                              multiSelect={true}/>;
+                                    case CustomFilter.type.RegistrationDate:
+                                    case CustomFilter.type.EnrolmentDate:
+                                    case CustomFilter.type.ProgramEncounterDate:
+                                    case CustomFilter.type.EncounterDate:
+                                        return <FilterContainerWithLabel filter={filter} key={index}>
+                                            {filterConfig.widget === CustomFilter.widget.Range ?
+                                                <DateRangeFilter pickTime={false} maxValue={_.get(filterValue, "maxValue")} minValue={_.get(filterValue, "minValue")}
+                                                                 onChange={(x) => this.dispatchFilterUpdate(filter, x)} errorMessage={filterError}/>
+                                                :
+                                                <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>}
+                                        </FilterContainerWithLabel>;
+                                    case CustomFilter.type.GroupSubject:
+                                        return <GroupSubjectFilter filter={filter} filterConfig={filterConfig} selectedGroupSubjectUUIDs={filterValue} key={index}
+                                                                   onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
+                                    default:
+                                        return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)} key={index}
+                                                                           filter={filter}
+                                                                           observationBasedFilter={filterConfig.observationBasedFilter}
+                                                                           value={filterValue}/>;
+                                }
+                            })}
                         </View>
-                    </CHSContent>
+                    </View>
                 </ScrollView>
                 <TouchableOpacity activeOpacity={0.5}
                                   onPress={() => this.onApply()}

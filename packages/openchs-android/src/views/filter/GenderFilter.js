@@ -16,11 +16,12 @@ class GenderFilter extends AbstractComponent {
 
     static propTypes = {
         onSelect: PropTypes.func,
-        selectedGenders: PropTypes.object,
-        invokeCallbacks: PropTypes.bool
+        selectedGenders: PropTypes.array,
+        deprecatedUsage: PropTypes.bool //updating redux state on change. callbacks on render both deprecated.
     }
     static defaultProps = {
-        invokeCallbacks: true
+        deprecatedUsage: true,
+        selectedGenders: []
     };
 
     UNSAFE_componentWillMount() {
@@ -29,14 +30,22 @@ class GenderFilter extends AbstractComponent {
     }
 
     _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders && this.props.invokeCallbacks) {
+        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders) {
             this.props.onSelect(this.state.selectedGenders);
         }
     }
 
+    notifyChange(genderName) {
+        if (this.props.deprecatedUsage)
+            this.dispatchAction(Actions.ON_GENDER_SELECT, {genderName});
+        else
+            this.props.onSelect(_.find(this.state.genders, (x) => x.name === genderName));
+    }
+
     renderGenders = () => {
         const locale = this.getService(UserInfoService).getUserSettings().locale;
-        const {genders, selectedGenders} = this.state;
+        const {genders} = this.state;
+        const selectedGenders = this.props.deprecatedUsage ? this.state.selectedGenders : this.props.selectedGenders;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
         const filterModel = new MultiSelectFilterModel(this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
@@ -44,12 +53,13 @@ class GenderFilter extends AbstractComponent {
             <MultiSelectFilter filter={filterModel}
                                locale={locale}
                                I18n={this.I18n}
-                               onSelect={(gender) => this.dispatchAction(Actions.ON_GENDER_SELECT, {gender})}/>
+                               onSelect={(genderName) => this.notifyChange(genderName)}/>
         </View>
     };
 
     render() {
-        this._invokeCallbacks();
+        if (this.props.deprecatedUsage)
+            this._invokeCallbacks();
         return this.renderGenders();
     }
 }
