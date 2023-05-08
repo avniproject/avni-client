@@ -1,11 +1,8 @@
 import {Form} from 'avni-models';
 import EntityFactory from "../../../EntityFactory";
+import StubbedBaseService from "./StubbedBaseService";
 
-class StubbedFormMappingService {
-    constructor(serviceData) {
-        this.serviceData = serviceData;
-    }
-
+class StubbedFormMappingService extends StubbedBaseService {
     findFormForProgramEnrolment() {
         const form = Form.safeInstance();
         form.addFormElementGroup(EntityFactory.createSafeFormElementGroup(form));

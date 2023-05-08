@@ -9,10 +9,11 @@ import Colors from '../primitives/Colors';
 import {Text} from "native-base";
 import DatePicker from "../primitives/DatePicker";
 import TimePicker from "../primitives/TimePicker";
-import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import MultiSelectFilterModel from "../../model/MultiSelectFilterModel";
 import UserInfoService from "../../service/UserInfoService";
 import PropTypes from "prop-types";
+import _ from 'lodash';
+import DateRangeFilter from "./DateRangeFilter";
 
 export function FilterContainer({children}) {
     return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, marginBottom: Distances.ScaledVerticalSpacingBetweenFormElements}}>
@@ -46,10 +47,9 @@ class ObservationBasedFilterView extends AbstractComponent {
     }
 
     static propTypes = {
-        filter: PropTypes.string.isRequired,
+        filter: PropTypes.object.isRequired,
         observationBasedFilter: PropTypes.object.isRequired,
         value: PropTypes.any,
-        validationResult: PropTypes.object,
         onChange: PropTypes.func.isRequired
     };
 
@@ -74,15 +74,7 @@ class ObservationBasedFilterView extends AbstractComponent {
 
     dateFilterWithRange(pickTime) {
         const {minValue, maxValue} = this.props.value;
-        return <View>
-            <View style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
-                <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
-                <DatePicker pickTime={pickTime} dateValue={minValue} onChange={(value) => this.props.onChange({minValue: value})}/>
-                <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
-                <DatePicker pickTime={pickTime} dateValue={maxValue} onChange={(value) => this.props.onChange({maxValue: value})}/>
-            </View>
-            <ValidationErrorMessage validationResult={this.props.validationResult}/>
-        </View>;
+        return <DateRangeFilter pickTime={pickTime} onChange={(value) => this.props.onChange(value)} minValue={minValue} maxValue={maxValue}/>;
     }
 
     textConceptFilter() {
@@ -122,13 +114,13 @@ class ObservationBasedFilterView extends AbstractComponent {
         const {filter, observationBasedFilter, value} = this.props;
         const locale = this.getService(UserInfoService).getUserSettings().locale;
         const conceptAnswers = observationBasedFilter.concept.getAnswers();
-        const selectedConcepts = value.map(c => c.name);
+        const selectedConcepts = _.isNil(value) ? [] : value.map(c => c.name);
         const optsFnMap = conceptAnswers.reduce((conceptMap, conceptAnswers) => conceptMap.set(conceptAnswers.concept.name, conceptAnswers), new Map());
         const filterModel = new MultiSelectFilterModel(filter.name, optsFnMap, new Map(), selectedConcepts).selectOption(selectedConcepts);
         return <MultiSelectFilter filter={filterModel}
                                   locale={locale}
                                   I18n={this.I18n}
-                                  onSelect={(conceptAnswerName) => this.props.onChange(conceptAnswerName)}/>;
+                                  onSelect={(conceptAnswerName) => this.props.onChange(_.find(conceptAnswers, (x) => conceptAnswerName === x.concept.name).concept)}/>;
     }
 
     renderNonCodedFilter() {

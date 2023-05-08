@@ -257,7 +257,7 @@ class General {
             if (level >= General.getCurrentLogLevel()) {
                 //https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
                 if (decorate)
-                    console[levelName.toLowerCase()]("\x1b[100m%s\x1b[0m", logMessage);
+                    console[levelName.toLowerCase()]("\x1b[43m\x1b[30m%s\x1b[0m", logMessage);
                 else
                     console[levelName.toLowerCase()](logMessage);
             }

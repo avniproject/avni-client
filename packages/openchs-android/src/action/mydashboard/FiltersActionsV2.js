@@ -1,21 +1,8 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
-import AddressLevelsState from "../common/AddressLevelsState";
-import moment from "moment";
 import _ from "lodash";
-import {Concept, CustomFilter, ArrayUtil} from 'openchs-models';
+import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
-
-// dateMismatchError({minDate, maxDate}) {
-//     return moment(minDate).isSameOrBefore(maxDate) ? null : {messageKey: 'startDateGreaterThanEndError'};
-// }
-//
-// dateNotPresentError({minDate, maxDate}) {
-//     return (minDate && _.isNil(maxDate)) || (maxDate && _.isNil(minDate)) ? {messageKey: 'bothDateShouldBeSelectedError'} : null;
-// }
-//
-// dateValidationError(dateObject) {
-//     return this.dateNotPresentError(dateObject) || this.dateMismatchError(dateObject);
-// }
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -23,16 +10,17 @@ class FiltersActionsV2 {
             loading: false,
             filters: [],
             filterConfigs: {},
+            filterErrors: {},
             selectedValues: {},
-            validationResults: {}
+            filterApplied: false
         };
     }
 
     static onLoad(state, action, context) {
-        const dashboardService = context.get(DashboardFilterService);
-        const filterConfigs = dashboardService.getFilterConfigsForDashboard(action.dashboardUUID);
-        const filters = dashboardService.getFilters(action.dashboardUUID);
-        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
+        const dashboardFilterService = context.get(DashboardFilterService);
+        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
+        const filters = dashboardFilterService.getFilters(action.dashboardUUID);
+        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false, filterApplied: false};
     }
 
     // minValue: value.replace(/[^0-9.]/g, '')
@@ -40,34 +28,38 @@ class FiltersActionsV2 {
         const {filter, value} = action;
         const {filterConfigs} = state;
 
+        const filterConfig = filterConfigs[filter.uuid];
+        const inputDataType = filterConfig.getInputDataType();
+        const currentFilterValue = state.selectedValues[filter.uuid];
+        const isRange = filterConfig.widget === CustomFilter.widget.Range;
+
         const newState = {...state};
         newState.selectedValues = {...state.selectedValues};
-
-        const inputDataType = filterConfigs[filter.uuid].getInputDataType();
         let updatedValue;
         switch (inputDataType) {
-            case Concept.dataType.Subject:
+            case Concept.dataType.Coded:
+            case CustomFilter.type.Gender:
+                updatedValue = _.isNil(currentFilterValue) ? [] : [...currentFilterValue];
+                ArrayUtil.toggle(updatedValue, value, (a, b) => a.uuid === b.uuid);
                 break;
+
+            case CustomFilter.type.Address:
+            case Concept.dataType.Subject:
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
             case Concept.dataType.Id :
                 updatedValue = value;
                 break;
+
             case Concept.dataType.Numeric:
             case Concept.dataType.Date:
             case Concept.dataType.DateTime:
             case Concept.dataType.Time:
-                updatedValue = filter.widget === CustomFilter.widget.Range ? {...state.value, value} : value;
-                break;
-            case Concept.dataType.Coded:
-                ArrayUtil.toggle(state.value, value);
-                updatedValue = state.value;
+                updatedValue = isRange ? {...currentFilterValue, ...value} : value;
                 break;
         }
 
         newState.selectedValues[filter.uuid] = updatedValue;
-        General.logDebugTemp("FiltersActionsV2",
-            `Action Value: ${value}, TypeOfData: ${typeof value}, InputDataType: ${inputDataType}, Updated Value: ${updatedValue}, TypeOfUpdateValue: ${updatedValue}`);
         return newState;
     }
 
@@ -75,8 +67,31 @@ class FiltersActionsV2 {
         return {...state, loading: true};
     }
 
-    static appliedFilter(state) {
-        return {...state};
+    static appliedFilter(state, action, context) {
+        const {filterConfigs, selectedValues} = state;
+        const newState = {...state};
+
+        newState.filterErrors = {};
+        const filledFilterValues = _.filter(Object.entries(selectedValues), ([, filterValue]) => !ModelGeneral.isDeepEmpty(filterValue));
+
+        filledFilterValues.forEach(([filterUUID, filterValue]) => {
+            General.logDebugTemp("FiltersActionsV2", `FilterUUID: ${filterUUID}, FilterValue: ${JSON.stringify(filterValue)}`);
+            const [success, message] = filterConfigs[filterUUID].validate(filterValue);
+            if (!success)
+                newState.filterErrors[filterUUID] = message;
+        });
+        if (Object.keys(newState.filterErrors).length > 0) {
+            return newState;
+        }
+
+        const dashboardFilterService = context.get(DashboardFilterService);
+        const ruleInput = filledFilterValues
+            .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
+
+        const ruleEvaluationService = context.get(RuleEvaluationService);
+        General.logDebugTemp("FiltersActionsV2", JSON.stringify(ruleInput));
+        ruleEvaluationService.runReport(ruleInput);
+        return newState;
     }
 }
 

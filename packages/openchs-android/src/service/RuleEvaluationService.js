@@ -751,6 +751,10 @@ class RuleEvaluationService extends BaseService {
 
         }
     }
+
+    runReport() {
+
+    }
 }
 
 export default RuleEvaluationService;
