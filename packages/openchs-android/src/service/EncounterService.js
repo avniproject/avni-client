@@ -2,7 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import FormMappingService from "./FormMappingService";
 import General from "../utility/General";
-import {Encounter, EncounterType, EntityQueue, Individual, ObservationsHolder, FormMapping, EntityApprovalStatus, ApprovalStatus} from 'avni-models';
+import {Encounter, EncounterType, EntityQueue, FormMapping, Individual, ObservationsHolder} from 'avni-models';
 import _ from 'lodash';
 import MediaQueueService from "./MediaQueueService";
 import IndividualService from "./IndividualService";
@@ -75,6 +75,7 @@ class EncounterService extends BaseService {
 
     saveScheduledVisits(individual, nextScheduledVisits = [], db, schedulerDate) {
         return nextScheduledVisits.map(nSV => {
+            individual = this.findByUUID(individual.uuid, Individual.schema.name);
             return this.saveScheduledVisit(this.getService(IndividualService).determineSubjectForVisitToBeScheduled(individual, nSV), nSV, db, schedulerDate);
         });
     }
