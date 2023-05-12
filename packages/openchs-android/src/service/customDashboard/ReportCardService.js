@@ -8,6 +8,15 @@ import CommentService from "../comment/CommentService";
 import _ from "lodash";
 import TaskService from "../task/TaskService";
 
+function getApprovalStatusForType(type) {
+    const typeToStatusMap = {
+        [StandardReportCardType.type.PendingApproval]: ApprovalStatus.statuses.Pending,
+        [StandardReportCardType.type.Approved]: ApprovalStatus.statuses.Approved,
+        [StandardReportCardType.type.Rejected]: ApprovalStatus.statuses.Rejected,
+    };
+    return typeToStatusMap[type];
+}
+
 @Service("reportCardService")
 class ReportCardService extends BaseService {
 
@@ -19,17 +28,8 @@ class ReportCardService extends BaseService {
         return ReportCard.schema.name;
     }
 
-    _getApprovalStatusForType(type) {
-        const typeToStatusMap = {
-            [StandardReportCardType.type.PendingApproval]: ApprovalStatus.statuses.Pending,
-            [StandardReportCardType.type.Approved]: ApprovalStatus.statuses.Approved,
-            [StandardReportCardType.type.Rejected]: ApprovalStatus.statuses.Rejected,
-        };
-        return typeToStatusMap[type];
-    }
-
-    getCountForApprovalCardsType(type) {
-        const {result} = this.getResultForApprovalCardsType(type);
+    getCountForApprovalCardsType(type, filterValuePairs) {
+        const {result} = this.getResultForApprovalCardsType(type, filterValuePairs);
         return {
             primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
             secondaryValue: null,
@@ -37,8 +37,9 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForApprovalCardsType(type) {
-        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(this._getApprovalStatusForType(type));
+    getResultForApprovalCardsType(type, filterValuePairs) {
+        const approvalStatus = getApprovalStatusForType(type);
+        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(approvalStatus);
     }
 
     getCountForCommentCardType() {
@@ -141,7 +142,7 @@ class ReportCardService extends BaseService {
     }
 
     getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter) {
-        const status = this._getApprovalStatusForType(reportCard.standardReportCardType.name);
+        const status = getApprovalStatusForType(reportCard.standardReportCardType.name);
         const {schema, filterQuery} = schemaAndQueryFilter;
         return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, schema, filterQuery)
     }
