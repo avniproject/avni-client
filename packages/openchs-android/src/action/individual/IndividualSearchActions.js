@@ -75,6 +75,7 @@ export class IndividualSearchActions {
         const selectedSubjectType = newState.subjectTypes.find(
             (subjectType) => subjectType.name === action.subjectType);
         newState.searchCriteria.addSubjectTypeCriteria(selectedSubjectType);
+        newState.searchCriteria.addVoidedCriteria(state.searchCriteria.includeVoided);
         return newState;
     };
 
