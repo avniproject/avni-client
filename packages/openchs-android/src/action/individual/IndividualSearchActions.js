@@ -114,7 +114,7 @@ export class IndividualSearchActions {
             return newState;
         }
 
-        const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters');
+        const individualUUIDs = customFilterService.applyCustomFilters(selectedCustomFilterForSubjectType, 'searchFilters', newState.searchCriteria.includeVoided);
         const searchResponse = _.isEmpty(individualUUIDs) ? [] :
             individualService.search(newState.searchCriteria, individualUUIDs);
         logEvent(firebaseEvents.SEARCH_FILTER, {
