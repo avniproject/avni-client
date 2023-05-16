@@ -36,7 +36,6 @@ class DashboardFilterService extends BaseService {
             const filterConfig = new DashboardFilterConfig();
             filterConfig.widget = obj.widget;
             filterConfig.type = obj.type;
-            filterConfig.subjectType = this.findByUUID(obj.subjectTypeUUID, SubjectType.schema.name);
             if (obj.type === CustomFilter.type.GroupSubject) {
                 filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
                 filterConfig.groupSubjectTypeFilter.subjectType = this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name);
@@ -57,7 +56,6 @@ class DashboardFilterService extends BaseService {
         const ruleInput = new DashboardReportFilterRuleInput();
         ruleInput.type = filterConfig.type;
         ruleInput.dataType = filterConfig.widget;
-        ruleInput.subjectType = filterConfig.subjectType;
 
         if (filterConfig.type === CustomFilter.type.GroupSubject) {
             ruleInput.groupSubjectTypeFilter = {
