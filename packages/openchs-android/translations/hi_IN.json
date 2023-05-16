@@ -357,6 +357,10 @@
     "emptyScheduledMsgs" : "कोई संदेश अनुसूचित नहीं किया गया",
     "sentMessages" : "भेजे गए संदेश",
     "scheduledMessages" : "अनुसूचित किए गए संदेश",
-    "GlificMessagesList" : "ग्लिफिक संदेश सूची"
+    "GlificMessagesList" : "ग्लिफिक संदेश सूची",
+    "registeredOn": "पंजीकरण की तारीख: ",
+    "disableAutoRefresh": "डैशबोर्ड ऑटो रिफ्रेश को अक्षम करें",
+    "autoRefresh": "डैशबोर्ड ऑटो रिफ्रेश",
+    "trackLocation": "ट्रैक स्थान"
   }
 }

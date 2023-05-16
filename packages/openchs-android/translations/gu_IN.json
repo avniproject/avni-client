@@ -304,6 +304,10 @@
     "openTasks": "કાર્યો ખોલો",
     "programName": "પ્રોગ્રામનું નામ:",
     "rolesNotConfigured": "ભૂમિકાઓ ગોઠવેલ નથી",
-    "rolesNotConfiguredDescription": "સભ્ય ઉમેરવા માટે ભૂમિકાઓ ગોઠવો."
+    "rolesNotConfiguredDescription": "સભ્ય ઉમેરવા માટે ભૂમિકાઓ ગોઠવો.",
+    "registeredOn": "નોંધણી તારીખ: ",
+    "disableAutoRefresh": "ડેશબોર્ડ ઓટો રિફ્રેશને અક્ષમ કરો",
+    "autoRefresh": "ડેશબોર્ડ ઓટો રિફ્રેશ",
+    "trackLocation": "ટ્રૅક સ્થાન"
   }
 }
