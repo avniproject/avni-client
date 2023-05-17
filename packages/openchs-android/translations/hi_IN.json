@@ -359,6 +359,10 @@
     "scheduledMessages": "अनुसूचित किए गए संदेश",
     "GlificMessagesList": "ग्लिफिक संदेश सूची",
     "checklistOverviewSection": "टीकाकरण अवलोकन",
-    "dueChecklist": "ड्यू"
+    "dueChecklist": "ड्यू",
+    "registeredOn": "पंजीकरण की तारीख: ",
+    "disableAutoRefresh": "डैशबोर्ड ऑटो रिफ्रेश को अक्षम करें",
+    "autoRefresh": "डैशबोर्ड ऑटो रिफ्रेश",
+    "trackLocation": "ट्रैक स्थान"
   }
 }
