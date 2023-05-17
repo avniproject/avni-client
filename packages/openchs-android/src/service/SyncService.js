@@ -261,13 +261,13 @@ class SyncService extends BaseService {
         const parentEntities = _.zip(entityResources, entities)
             .map(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChild(entity, entityMetaData.entityClass, entityResource, this.entityService));
         return _.values(_.groupBy(parentEntities, 'uuid'))
-            .map((parentEntitiesWithSameUuid) => entityMetaData.parent.entityClass.merge(entityMetaData.entityClass)(parentEntitiesWithSameUuid));
+            .map((parentEntitiesWithSameUuid) => entityMetaData.parent.entityClass.merge(entityMetaData.entityClass.schema.name)(parentEntitiesWithSameUuid));
     }
 
     associateMultipleParents(entityResources, entities, entityMetaData) {
         const parentEntities = _.zip(entityResources, entities)
             .flatMap(([entityResource, entity]) => entityMetaData.parent.entityClass.associateChildToMultipleParents(entity, entityMetaData.entityClass, entityResource, this.entityService));
-        return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass, entities));
+        return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass.schema.name, entities));
     }
 
     persistAll(entityMetaData, entityResources) {
