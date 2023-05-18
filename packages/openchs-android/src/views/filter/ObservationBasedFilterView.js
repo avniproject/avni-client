@@ -85,7 +85,7 @@ class ObservationBasedFilterView extends AbstractComponent {
                           multiline={false} numberOfLines={1}/>;
     }
 
-    numericConceptFilter() {
+    numericConceptFilter(value) {
         return <TextInput style={[Styles.formBodyText]}
                           underlineColorAndroid={Colors.InputBorderNormal}
                           value={value}
@@ -135,7 +135,7 @@ class ObservationBasedFilterView extends AbstractComponent {
             case (Concept.dataType.Numeric) :
                 return filter.widget === CustomFilter.widget.Range ?
                     this.numericConceptFilterWithRange(concept, filter, styles.rangeInput, value) :
-                    this.numericConceptFilter(concept, filter, {}, value);
+                    this.numericConceptFilter(value);
             case(Concept.dataType.Date):
                 return filter.widget === CustomFilter.widget.Range ?
                     this.dateFilterWithRange(filter, value, false)
