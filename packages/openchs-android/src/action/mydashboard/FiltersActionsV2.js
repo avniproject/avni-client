@@ -18,7 +18,7 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false, filterApplied: false};
+        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false, filterApplied: false, selectedValues: {}, filterErrors: {}};
     }
 
     // minValue: value.replace(/[^0-9.]/g, '')
