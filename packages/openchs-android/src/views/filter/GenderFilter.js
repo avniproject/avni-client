@@ -17,6 +17,7 @@ class GenderFilter extends AbstractComponent {
     static propTypes = {
         onSelect: PropTypes.func,
         selectedGenders: PropTypes.array,
+        filterLabel: PropTypes.string,
         deprecatedUsage: PropTypes.bool //updating redux state on change. callbacks on render both deprecated.
     }
     static defaultProps = {
@@ -48,7 +49,7 @@ class GenderFilter extends AbstractComponent {
         const selectedGenders = this.props.deprecatedUsage ? this.state.selectedGenders : this.props.selectedGenders;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
-        const filterModel = new MultiSelectFilterModel(this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
+        const filterModel = new MultiSelectFilterModel(this.props.filterLabel || this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
         return <View>
             <MultiSelectFilter filter={filterModel}
                                locale={locale}

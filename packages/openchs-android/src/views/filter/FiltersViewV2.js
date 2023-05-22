@@ -159,11 +159,13 @@ class FiltersViewV2 extends AbstractComponent {
                                 switch (filterConfig.type) {
                                     case CustomFilter.type.Gender:
                                         return <GenderFilter selectedGenders={filterValue}
+                                                             filterLabel={this.I18n.t(filter.name)}
                                                              key={index}
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
                                         return <AddressLevels addressLevelState={filterValue}
+                                                              fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}
                                                               onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
                                                               multiSelect={true}/>;

@@ -27,7 +27,8 @@ class AddressLevels extends AbstractComponent {
         skipLabel: PropTypes.bool,
         minLevelTypeUUIDs: PropTypes.array,
         maxLevelTypeUUID: PropTypes.string,
-        isOutsideCatchment: PropTypes.bool
+        isOutsideCatchment: PropTypes.bool,
+        fieldLabel: PropTypes.string
     };
 
     viewName() {
@@ -141,7 +142,7 @@ class AddressLevels extends AbstractComponent {
                 marginBottom: Styles.VerticalSpacingBetweenFormElements,
             }}>
                 {this.props.skipLabel ? null :
-                    <Text style={Styles.formLabel}>{this.I18n.t('Address')}{mandatoryText}</Text>}
+                    <Text style={Styles.formLabel}>{this.props.fieldLabel || this.I18n.t('Address')}{mandatoryText}</Text>}
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',
