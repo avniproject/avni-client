@@ -76,7 +76,7 @@ class AuthService extends BaseService {
             case IDP_PROVIDERS.COGNITO:
                 return this.cognitoAuthService;
             default:
-                throw new Error(`Unsupported idpType: ${idpType}`);
+                return this.cognitoAuthService;
         }
     }
 }
