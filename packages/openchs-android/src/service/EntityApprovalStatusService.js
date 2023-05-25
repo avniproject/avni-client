@@ -1,6 +1,5 @@
 import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
-import OrganisationConfigService from "./OrganisationConfigService";
 import EntityService from "./EntityService";
 import {
     ApprovalStatus,
@@ -13,6 +12,7 @@ import {
     ProgramEnrolment,
 } from "avni-models";
 import _ from 'lodash';
+import {BaseEntity} from 'openchs-models';
 
 @Service("entityApprovalStatusService")
 class EntityApprovalStatusService extends BaseService {
@@ -72,7 +72,7 @@ class EntityApprovalStatusService extends BaseService {
 
     createPendingStatus(entity, schema, db, entityTypeUuid) {
         const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
-        entity.addUpdateApprovalStatus(entityApprovalStatus);
+        this._addUpdateApprovalStatus(entity, entityApprovalStatus);
     }
 
     saveEntityWithStatus(entity, schema, status, comment) {
@@ -80,10 +80,17 @@ class EntityApprovalStatusService extends BaseService {
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
         this.db.write(() => {
-            entity.addUpdateApprovalStatus(this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid));
+            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid));
             db.create(schema, entity, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
+    }
+
+    _addUpdateApprovalStatus(entity, approvalStatus) {
+        if (!BaseEntity.collectionHasEntity(entity.approvalStatuses, approvalStatus)) {
+            entity.approvalStatuses.push(approvalStatus);
+        }
+        entity.latestEntityApprovalStatus = _.maxBy(entity.approvalStatuses, 'statusDateTime');
     }
 
     _getEntityTypeUuid(entity, schema) {
