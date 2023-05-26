@@ -104,7 +104,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
                     }}>
 
                         <Text
-                            style={Styles.formLabel}>{`Enter new password for ${this.props.user.getUsername()}`}</Text>
+                            style={Styles.formLabel}>{`${this.I18n.t("enterNewPasswordFor", {userName: this.props.user.getUsername()})}`}</Text>
                         <Text style={{
                             color: Colors.ValidationError,
                             justifyContent: 'center'
@@ -116,23 +116,23 @@ class ResetForgottenPasswordView extends AbstractComponent {
                         }}>{this.state.passwordNotMatchTest}</Text>
 
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
-                                   placeholder={"Enter OTP"} value={this.state.verificationCode} keyboardType={"numeric"}
+                                   placeholder={this.I18n.t("enterOTP")} value={this.state.verificationCode} keyboardType={"numeric"}
                                    onChangeText={(verificationCode) => this.setState({verificationCode})}/>
 
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
-                                   placeholder={"Enter New password"} value={this.state.password}
+                                   placeholder={this.I18n.t("enterNewPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
-                                   placeholder={"Confirm New Password"} value={this.state.ConfirmnewPassword}
+                                   placeholder={this.I18n.t("confirmNewPassword")} value={this.state.ConfirmnewPassword}
                                    onChangeText={(ConfirmnewPassword) => this.setState({ConfirmnewPassword})}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TouchableNativeFeedback onPress={() => this.onToggleShowPassword()}>
                             <View style={{flexDirection: 'row', alignItems: 'center', paddingTop:10}}>
                                 <CheckBox isChecked={this.state.showPassword} onChange={() => this.onToggleShowPassword()} />
-                                <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show password"}</Text>
+                                <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t("Show password")}</Text>
                             </View>
                         </TouchableNativeFeedback>
 
@@ -141,7 +141,7 @@ class ResetForgottenPasswordView extends AbstractComponent {
                         }}
                                                  background={TouchableNativeFeedback.SelectableBackground()}>
                             <View style={[Styles.basicPrimaryButtonView, {flexDirection: "row", justifyContent: "center", alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 10, paddingVertical: 8}]}>
-                                <Text style={{color: Styles.whiteColor, fontSize: 16}}>Change Password</Text>
+                                <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t("changePassword")}</Text>
                             </View>
                         </TouchableNativeFeedback>
 
