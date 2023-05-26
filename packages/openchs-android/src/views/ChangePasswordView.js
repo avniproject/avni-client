@@ -30,14 +30,13 @@ class ChangePasswordView extends AbstractComponent {
         this.setState(() => {
             return {showPassword: false, showSpinner: false, password: '', newPassword: '', userId: ''}
         });
-
         let authService = this.context.getService(AuthService);
         authService.getAuthToken().then(
             () => {
-                authService.getUser().then(
-                    (user) => {
+                authService.getAuthProviderService().getUserName().then(
+                    (username) => {
                         this.setState(() => {
-                            return {userId: user.getUsername()}
+                            return {userId: username}
                         })
                     })
             },
@@ -113,17 +112,17 @@ class ChangePasswordView extends AbstractComponent {
                     }}>
 
                         <Text
-                            style={Styles.formLabel}>{`Change password for ${this.state.userId}`}</Text>
+                            style={Styles.formLabel}>{`${this.I18n.t("changePasswordFor", {userId: this.state.userId})}`}</Text>
                         <Text style={{
                             color: Colors.ValidationError,
                             justifyContent: 'center'
                         }}>{this.errorMessage()}</Text>
 
-                        <TextInput placeholder={"Current password"} value={this.state.password}
+                        <TextInput placeholder={this.I18n.t("currentPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
                                    secureTextEntry={!this.state.showPassword}/>
 
-                        <TextInput placeholder={"New password"} value={this.state.newPassword}
+                        <TextInput placeholder={this.I18n.t("newPassword")} value={this.state.newPassword}
                                    onChangeText={(newPassword) => this.setState({newPassword})}
                                    secureTextEntry={!this.state.showPassword}/>
 
@@ -134,26 +133,33 @@ class ChangePasswordView extends AbstractComponent {
                             alignItems: 'center',
                             paddingTop: 8
                         }}>
-                            <TouchableNativeFeedback onPress={() => {this.onToggleShowPassword()}}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <CheckBox isChecked={this.state.showPassword} onChange={() => {this.onToggleShowPassword()}}/>
-                                    <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{"Show passwords"}</Text>
-                                </View>
-                            </TouchableNativeFeedback>
-                            <TouchableNativeFeedback onPress={() => {
-                                this.forgotPassword()
-                            }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-                                    <Text style={{color: Styles.accentColor, fontSize: 16}}>Forgot Password</Text>
-                                </View>
-                            </TouchableNativeFeedback>
+                                    <TouchableNativeFeedback onPress={() => {
+                                        this.onToggleShowPassword()
+                                    }}>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <CheckBox isChecked={this.state.showPassword} onChange={() => {
+                                                this.onToggleShowPassword()
+                                            }}/>
+                                            <Text style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t("showPasswords")}</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>
+                                    <TouchableNativeFeedback onPress={() => {
+                                        this.forgotPassword()
+                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                            <Text style={{
+                                                color: Styles.accentColor,
+                                                fontSize: 16
+                                            }}>{this.I18n.t("forgotPassword")}</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>
                         </View>
 
                         <TouchableNativeFeedback onPress={() => {
                             this.changePassword()
                         }} background={TouchableNativeFeedback.SelectableBackground()}>
                             <View style={[Styles.basicPrimaryButtonView, {flexDirection: "row", justifyContent: "center", alignSelf: 'flex-start', marginTop: 16, paddingHorizontal: 10, paddingVertical: 8}]}>
-                                <Text style={{color: Styles.whiteColor, fontSize: 16}}>Change Password</Text>
+                                <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('changePassword')}</Text>
                             </View>
                         </TouchableNativeFeedback>
 
