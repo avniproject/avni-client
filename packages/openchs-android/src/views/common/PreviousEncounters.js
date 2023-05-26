@@ -129,7 +129,7 @@ class PreviousEncounters extends AbstractComponent {
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
                 color: Colors.SecondaryText
-            }}>{encounter.earliestVisitDateTime && `Scheduled : ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
+            }}>{encounter.earliestVisitDateTime && `${this.I18n.t('scheduled')} : ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
             <View/>;
         return <View>
             <View
