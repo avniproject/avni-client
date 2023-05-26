@@ -372,6 +372,10 @@
     "confirmNewPassword" : "नए पासवर्ड की पुष्टि करें",
     "enterNewPassword" : "नया पासवर्ड दर्ज करें",
     "enterNewPasswordFor" : "{{userName}} के लिए नया पासवर्ड डालें",
-    "enterOTP" : "ओटीपी दर्ज करें"
+    "enterOTP" : "वन-टाइम पासवर्ड (OTP) दर्ज करें",
+    "forgot_password_OPT_sent_alert" : "हमने आपके पंजीकृत मोबाइल नंबर पर वन-टाइम पासवर्ड (OTP) भेजा है",
+    "forgot_password_first_page_note" : "कृपया अपना यूजर आईडी दर्ज करें, आपका पासवर्ड रीसेट करने के लिए हम आपको वन-टाइम पासवर्ड (OTP) भेजेंगे।",
+    "forgot_password_userId_placeholder" : "अपनी यूजर आईडी दर्ज करें",
+    "Send OTP" : "वन-टाइम पासवर्ड (OTP) भेजें"
   }
 }
