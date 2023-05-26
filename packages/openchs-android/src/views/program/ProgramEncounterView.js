@@ -81,7 +81,7 @@ class ProgramEncounterView extends AbstractComponent {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits, fromSDV) => {
                 const {programEncounter} = state;
                 const {programEnrolment} = programEncounter;
-                const encounterName = programEncounter.name || programEncounter.encounterType.name;
+                const encounterName = programEncounter.name || programEncounter.encounterType.displayName;
 
                 let onPreviousCallback = undefined;
                 if (fromSDV) {
@@ -116,7 +116,7 @@ class ProgramEncounterView extends AbstractComponent {
 
                 const onSaveCallback = this.props.params.onSaveCallback || (source => {
                     CHSNavigator.navigateToProgramEnrolmentDashboardView(source, programEnrolment.individual.uuid, programEnrolment.uuid, true,
-                        this.props.params.backFunction, this.I18n.t('encounterSavedMsg', {encounterName}));
+                        this.props.params.backFunction, this.I18n.t('encounterSavedMsg', {encounterName: this.I18n.t(encounterName)}));
                 });
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
