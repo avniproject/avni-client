@@ -492,6 +492,15 @@
     "scheduledMessages": "Scheduled Messages",
     "GlificMessagesList": "Glific Messages List",
     "checklistOverviewSection": "Vaccination overview",
-    "dueChecklist": "Due"
+    "dueChecklist": "Due",
+    "showPasswords" : "Show passwords",
+    "forgotPassword" : "Forgot Password",
+    "changePasswordFor" : "Change password for {{userId}} ",
+    "currentPassword" : "Current password",
+    "newPassword" : "New password",
+    "confirmNewPassword" : "Confirm new password",
+    "enterNewPassword" : "Enter new password",
+    "enterNewPasswordFor" : "Enter new password for {{userName}}",
+    "enterOTP" : "Enter OTP"
   }
 }
