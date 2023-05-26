@@ -361,6 +361,15 @@
     "registeredOn": "पंजीकरण की तारीख: ",
     "disableAutoRefresh": "डैशबोर्ड ऑटो रिफ्रेश को अक्षम करें",
     "autoRefresh": "डैशबोर्ड ऑटो रिफ्रेश",
-    "trackLocation": "ट्रैक स्थान"
+    "trackLocation": "ट्रैक स्थान",
+    "showPasswords": "पासवर्ड दिखाएं",
+    "forgotPassword": "पासवर्ड भूल गया",
+    "changePasswordFor" : "{{userId}} के लिए पासवर्ड बदलें",
+    "currentPassword" : "वर्तमान पासवर्ड",
+    "newPassword" : "नया पासवर्ड",
+    "confirmNewPassword" : "नए पासवर्ड की पुष्टि करें",
+    "enterNewPassword" : "नया पासवर्ड दर्ज करें",
+    "enterNewPasswordFor" : "{{userName}} के लिए नया पासवर्ड डालें",
+    "enterOTP" : "ओटीपी दर्ज करें"
   }
 }
