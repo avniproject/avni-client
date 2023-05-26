@@ -75,8 +75,8 @@ class ProgramEncounterCancelView extends AbstractComponent {
 
     onSaveCallback(source, encounter) {
         _.isNil(encounter.programEnrolment) ?
-            CHSNavigator.navigateToIndividualEncounterDashboardView(source, encounter.individual.uuid, encounter, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName})) :
-            CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: encounter.encounterType.operationalEncounterTypeName}));
+            CHSNavigator.navigateToIndividualEncounterDashboardView(source, encounter.individual.uuid, encounter, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: this.I18n.t(encounter.encounterType.operationalEncounterTypeName)})) :
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: this.I18n.t(encounter.encounterType.operationalEncounterTypeName)}));
     }
     getNextParams(popVerificationVew) {
         const phoneNumberObservation = _.find(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
