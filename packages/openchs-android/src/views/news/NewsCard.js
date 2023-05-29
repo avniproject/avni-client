@@ -43,7 +43,7 @@ class NewsCard extends AbstractComponent {
     }
 
     onNewsPress(imageInfo, newsUUID) {
-        const cb = () => TypedTransition.from(this).with({...imageInfo}).to(NewsDetailView, true);
+        const cb = () => TypedTransition.from(this).with(imageInfo).to(NewsDetailView, true);
         this.dispatchAction(Actions.ON_NEWS_PRESS, {newsUUID, cb});
     }
 
@@ -57,7 +57,7 @@ class NewsCard extends AbstractComponent {
         const {title, publishedDate, uuid, read} = this.props.news;
         const imageURI = `file://${this.imageUriInDevice}`;
         const newsPublishedDate = General.toDisplayDateTime(publishedDate);
-        const imageInfo = {...this.props.news, exists: this.state.exists, imageURI, newsPublishedDate};
+        const imageInfo = {news: this.props.news, exists: this.state.exists, imageURI, newsPublishedDate, title};
         return (
             <TouchableNativeFeedback key={uuid}
                                      onPress={this.onNewsPress.bind(this, imageInfo, uuid)}
