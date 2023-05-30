@@ -74,7 +74,7 @@ class ForgotPasswordView extends AbstractComponent {
 
     errorMessage() {
         const error = this.state.errorMessage || '';
-        return error.slice(error.indexOf(":") + 1).trim();
+        return this.I18n.t(error.slice(error.indexOf(":") + 1).trim());
     }
 
     get containerStyle() {
