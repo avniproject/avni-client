@@ -98,7 +98,7 @@ class LoginView extends AbstractComponent {
 
     errorMessage() {
         const error = this.state.loginError || '';
-        return error.slice(error.indexOf(':') + 1).trim();
+        return this.I18n.t(error.slice(error.indexOf(':') + 1).trim());
     }
 
     spinner() {
