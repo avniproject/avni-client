@@ -57,12 +57,12 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
 
 const styles = StyleSheet.create({
     container: {
-        minHeight: 90,
         borderRadius: 8,
         elevation: 2,
         justifyContent: 'center',
         alignItems: 'flex-start',
-        padding: 20
+        paddingHorizontal: 20,
+        paddingVertical: 10
     },
     leftContainer: {
         flexDirection: 'column',
