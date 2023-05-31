@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge
     },
     sectionContainer: {
-        marginVertical: Styles.ContainerHorizontalDistanceFromEdge,
+        marginVertical: Styles.ContentDistanceWithinContainer,
         flexDirection: 'column'
     },
     sectionNameTextStyle: {
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
         opacity: 0.8
     },
     cardContainer: {
-        marginVertical: 20,
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
