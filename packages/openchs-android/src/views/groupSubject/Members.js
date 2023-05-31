@@ -57,14 +57,23 @@ class Members extends AbstractComponent {
 
     renderEnrolledPrograms(memberSubject) {
         const nonExitedEnrolledPrograms = this.getService(ProgramEnrolmentService).getAllNonExitedEnrolmentsForSubject(memberSubject.uuid);
-        const renderProgramTitles = _.map(nonExitedEnrolledPrograms, enl => this.getTextComponent(this.I18n.t(enl.program.operationalProgramName || enl.program.name), Colors.InputNormal));
-        return !_.isEmpty(renderProgramTitles) && (
-            <View>
-                <View style={{flex: 0.8, alignSelf: 'stretch'}}>
-                    <Text
-                        style={[Fonts.typography("paperFontBody1"), {color: Styles.blackColor}]}>{this.I18n.t('programsEnrolled')}</Text>
-                </View>
-            <View>{renderProgramTitles}</View></View>
+        return _.map(nonExitedEnrolledPrograms, (enl, index) => this.renderProgram(enl.program, index));
+    }
+
+    renderProgram(program, index) {
+        return (
+            <Text key={index} disabled
+                  style={[{
+                      height: 22,
+                      marginLeft: 4,
+                      marginRight: 4,
+                      borderRadius: 2,
+                      paddingHorizontal: 4,
+                      marginVertical: 1,
+                      backgroundColor: program.colour,
+                      color: Colors.TextOnPrimaryColor,
+                  }, Styles.userProfileProgramTitle]}
+                  numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(program.operationalProgramName || program.name)}</Text>
         );
     }
 
@@ -72,19 +81,28 @@ class Members extends AbstractComponent {
         const iconContainerStyle = {minHeight: 40, alignItems: 'center', justifyContent: 'center'};
         return (
             <View style={styles.rowContainer}>
-                <View key={index} style={[styles.container, {alignItems: 'center', minHeight: 20}]}>
-                    <SubjectProfilePicture containerStyle={iconContainerStyle} size={18} subjectType={groupSubject.memberSubject.subjectType} individual={groupSubject.memberSubject}/>
-                    <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}
-                                      style={{flex: 1, alignSelf: 'center', flexWrap: 'wrap'}}>
-                        {this.renderGroupMember(groupSubject)}
-                    </TouchableOpacity>
-                    <View style={{flex: 0.2, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between'}}>
-                        <Actions key={index} actions={this.props.actions} item={groupSubject}/>
+                <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}>
+                    <View key={index} style={[styles.container, { alignItems: 'center', minHeight: 20 }]}>
+                        <SubjectProfilePicture containerStyle={iconContainerStyle} size={18}
+                                               subjectType={groupSubject.memberSubject.subjectType}
+                                               individual={groupSubject.memberSubject}/>
+
+                        <View style={{ flex: 1, alignSelf: 'center', flexWrap: 'wrap' }}>
+                            {this.renderGroupMember(groupSubject)}
+                        </View>
+                        <View style={{
+                            flex: 0.2,
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            justifyContent: 'space-between'
+                        }}>
+                            <Actions key={index} actions={this.props.actions} item={groupSubject}/>
+                        </View>
                     </View>
-                </View>
-                <View style={{flex: 0.8, flexWrap: 'wrap'}}>
-                    {this.renderEnrolledPrograms(groupSubject.memberSubject)}
-                </View>
+                    <View style={{ flex: 0.8, flexWrap: 'wrap', flexDirection: 'row' }}>
+                        {this.renderEnrolledPrograms(groupSubject.memberSubject)}
+                    </View>
+                </TouchableOpacity>
             </View>
         );
     }
