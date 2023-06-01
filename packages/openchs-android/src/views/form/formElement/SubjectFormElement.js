@@ -14,16 +14,6 @@ import {Text} from "native-base";
 import Entypo from "react-native-vector-icons/Entypo";
 
 class SubjectFormElement extends AbstractFormElement {
-    static propTypes = {
-        element: PropTypes.object.isRequired,
-        actionName: PropTypes.string.isRequired,
-        value: PropTypes.object,
-        validationResult: PropTypes.object,
-    };
-    static defaultProps = {
-        style: {}
-    };
-
     SWITCH_TO_SEARCH_UI_THRESHOLD: number = 30;
 
     constructor(props, context) {

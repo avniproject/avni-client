@@ -40,7 +40,6 @@ export class FilterContainerWithLabel extends AbstractComponent {
     }
 }
 
-//map concept answers and display them
 class ObservationBasedFilterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
