@@ -90,7 +90,7 @@ class EntityApprovalStatusService extends BaseService {
         if (!BaseEntity.collectionHasEntity(entity.approvalStatuses, approvalStatus)) {
             entity.approvalStatuses.push(approvalStatus);
         }
-        entity.latestEntityApprovalStatus = _.maxBy(entity.approvalStatuses, 'statusDateTime');
+        entity.setLatestEntityApprovalStatus(_.maxBy(entity.approvalStatuses, 'statusDateTime'));
     }
 
     _getEntityTypeUuid(entity, schema) {
