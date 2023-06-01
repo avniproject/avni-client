@@ -74,7 +74,7 @@ class ForgotPasswordView extends AbstractComponent {
 
     errorMessage() {
         const error = this.state.errorMessage || '';
-        return error.slice(error.indexOf(":") + 1).trim();
+        return this.I18n.t(error.slice(error.indexOf(":") + 1).trim());
     }
 
     get containerStyle() {
@@ -114,7 +114,7 @@ class ForgotPasswordView extends AbstractComponent {
                 this.sendOTP()
             }} background={TouchableNativeFeedback.SelectableBackground()}>
                 <View style={[Styles.basicPrimaryButtonView, {minWidth: 120, flexDirection: "row", justifyContent: "center", alignSelf: 'flex-end', marginTop: 10}]}>
-                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>Send OTP</Text>
+                    <Text style={{color: Styles.whiteColor, fontSize: 16}}>{this.I18n.t('Send OTP')}</Text>
                 </View>
             </TouchableNativeFeedback>
             {this.spinner()}

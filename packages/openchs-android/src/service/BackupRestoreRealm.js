@@ -76,12 +76,15 @@ export default class BackupRestoreRealmService extends BaseService {
             });
     }
 
+
+
     restore(cb) {
         let settingsService = this.getService(SettingsService);
         let mediaService = this.getService(MediaService);
         let entitySyncStatusService = this.getService(EntitySyncStatusService);
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
+        const prevSettings = settingsService.getSettings().clone();
 
         General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
@@ -130,6 +133,11 @@ export default class BackupRestoreRealmService extends BaseService {
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
                             cb(97, "restoringDb");
+                        })
+                        .then(() => {
+                            this._restoreSettings(prevSettings);
+                            General.logDebug("BackupRestoreRealmService", "Restoring prev settings to revert any changes" +
+                            " caused due to fast sync restore from a different environment");
                         })
                         .then(() => {
                             this._deleteUserInfoAndIdAssignment();
@@ -203,6 +211,10 @@ export default class BackupRestoreRealmService extends BaseService {
             this.deleteTxDataForSubjectType(subjectType);
             this.resetSyncForSubjectType(subjectType, db);
         });
+    }
+
+    _restoreSettings(prevSettings) {
+        this.getService(SettingsService).saveOrUpdate(prevSettings);
     }
 
     resetSyncForSubjectType(subjectType, db) {

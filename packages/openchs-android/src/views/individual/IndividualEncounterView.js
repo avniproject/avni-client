@@ -75,7 +75,7 @@ class IndividualEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(this.state.encounter.encounterType.displayName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.encounter.encounterType, Form.formTypes.Encounter, this.state.encounter.individual.subjectType);
-                const message = this.I18n.t('encounterSavedMsg', {encounterName: this.state.encounter.encounterType.name});
+                const message = this.I18n.t('encounterSavedMsg', {encounterName: this.I18n.t(this.state.encounter.encounterType.displayName)});
                 CHSNavigator.navigateToSystemRecommendationViewFromEncounterWizard(this,
                     encounterDecisions,
                     ruleValidationErrors,

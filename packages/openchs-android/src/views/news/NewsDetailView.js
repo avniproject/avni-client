@@ -34,7 +34,7 @@ class NewsDetailView extends AbstractComponent {
     }
 
     render() {
-        const {title, newsPublishedDate, contentHtml, imageURI, exists} = this.props;
+        const {title, newsPublishedDate, news: {contentHtml}, imageURI, exists} = this.props;
         const slicedTitle = title.slice(0, 25);
         const headerTitle = size(title) > size(slicedTitle) ? `${slicedTitle} ...` : slicedTitle;
         const {width, height} = Dimensions.get('window');
