@@ -1,14 +1,11 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import AbstractFormElement from "./AbstractFormElement";
-import AddressLevels from "../../common/AddressLevels";
 import {View} from "react-native";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import _ from "lodash";
-import AddressLevelService from "../../../service/AddressLevelService";
-import {Concept} from 'openchs-models'
-import LocationHierarchyService from "../../../service/LocationHierarchyService";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import LocationHierarchyInput from "../inputComponents/LocationHierarchyInput";
 
 class LocationHierarchyFormElement extends AbstractFormElement {
     static propTypes = {
@@ -17,14 +14,6 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         value: PropTypes.object,
         validationResult: PropTypes.object,
     };
-    static defaultProps = {
-        style: {}
-    };
-
-    constructor(props, context) {
-        super(props, context);
-        this.addressLevelService = context.getService(this.isWithinCatchment() ? AddressLevelService : LocationHierarchyService);
-    }
 
     onSelect(lowestSelectedAddresses) {
         const addressLevel = _.head(lowestSelectedAddresses);
@@ -36,35 +25,11 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         });
     }
 
-    minLevelTypeUUIDs() {
-        const lowestAddressLevelTypeUUIDs = this.props.element.concept.recordValueByKey(Concept.keys.lowestAddressLevelTypeUUIDs);
-        return !_.isEmpty(lowestAddressLevelTypeUUIDs) ? lowestAddressLevelTypeUUIDs : this.addressLevelService.minTypeUUIDs();
-    }
-
-    maxLevelTypeUUID() {
-        const highestAddressLevelTypeUUID = this.props.element.concept.recordValueByKey(Concept.keys.highestAddressLevelTypeUUID);
-        return !_.isEmpty(highestAddressLevelTypeUUID) ? highestAddressLevelTypeUUID : this.addressLevelService.maxTypeUUID();
-    }
-
-    isWithinCatchment() {
-        return this.props.element.concept.recordValueByKey(Concept.keys.isWithinCatchment);
-    }
-
     render() {
-        const lowestAddressLevel = !_.isEmpty(_.get(this.props.value, 'answer')) ? this.addressLevelService.findByUUID(this.props.value.answer) : null;
-
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                <AddressLevels
-                    selectedLowestLevel={lowestAddressLevel}
-                    multiSelect={false}
-                    onLowestLevel={(lowestSelectedAddresses) => this.onSelect(lowestSelectedAddresses)}
-                    skipLabel={true}
-                    minLevelTypeUUIDs={this.minLevelTypeUUIDs()}
-                    maxLevelTypeUUID={this.maxLevelTypeUUID()}
-                    isOutsideCatchment={!this.isWithinCatchment()}
-                />
+                <LocationHierarchyInput concept={this.props.element.concept} value={this.props.value} onSelect={(selectedAddresses) => this.onSelect(selectedAddresses)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>)
     }

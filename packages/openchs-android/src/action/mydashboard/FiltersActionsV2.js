@@ -1,6 +1,7 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
 import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
+import General from "../../utility/General";
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -45,6 +46,7 @@ class FiltersActionsV2 {
             case Concept.dataType.Subject:
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
+            case Concept.dataType.Location :
             case Concept.dataType.Id :
                 updatedValue = value;
                 break;
