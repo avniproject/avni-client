@@ -91,7 +91,7 @@ class Members extends AbstractComponent {
                             {this.renderGroupMember(groupSubject)}
                         </View>
                         <View style={{
-                            flex: 0.2,
+                            flex: 0.4,
                             flexDirection: 'row',
                             flexWrap: 'wrap',
                             justifyContent: 'space-between'
@@ -115,7 +115,7 @@ class Members extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), {color: Styles.blackColor}]}>{this.I18n.t('name')}</Text>
                     </View>
-                    <View style={{flex: 0.2, alignSelf: 'stretch'}}>
+                    <View style={{flex: 0.4, alignSelf: 'stretch'}}>
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), {color: Styles.blackColor}]}>{this.I18n.t('actions')}</Text>
                     </View>
