@@ -1,6 +1,6 @@
-import {View, StyleSheet, Text} from 'react-native';
+import {View} from 'react-native';
 import PropTypes from 'prop-types';
-import React, {Component} from 'react';
+import React from 'react';
 import AbstractComponent from '../../../framework/view/AbstractComponent';
 import TextFormElement from "./TextFormElement";
 import StaticFormElement from "../../viewmodel/StaticFormElement";
@@ -41,7 +41,7 @@ class IndividualNameFormElement extends AbstractComponent {
                                  multiline={false}
                 />}
                 <TextFormElement actionName={Actions.REGISTRATION_ENTER_LAST_NAME}
-                                 element={new StaticFormElement('lastName', true)}
+                                 element={new StaticFormElement('lastName', !this.props.state.individual.subjectType.lastNameOptional)}
                                  validationResult={AbstractDataEntryState.getValidationError(this.props.state, Individual.validationKeys.LAST_NAME)}
                                  value={new PrimitiveValue(this.props.state.individual.lastName)}
                                  style={{marginTop: Distances.VerticalSpacingBetweenFormElements}}
