@@ -149,7 +149,7 @@ release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod: renew_env release_prod_without_clean
 
 bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
-bundle_release_prod: renew_env bundle_release_prod_without_clean
+bundle_release_prod: renew_env release_prod_without_clean
 
 bundle_clean:
 	rm -rf packages/openchs-android/android/app/bundles
