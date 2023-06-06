@@ -90,7 +90,7 @@ define _upload_release_sourcemap
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
-	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps)
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps) || true
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
@@ -147,7 +147,7 @@ release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod: renew_env release_prod_without_clean
 
 bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
-bundle_release_prod: renew_env release_prod_without_clean
+bundle_release_prod: renew_env bundle_release_prod_without_clean
 
 bundle_clean:
 	rm -rf packages/openchs-android/android/app/bundles
