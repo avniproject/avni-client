@@ -18,9 +18,10 @@ export default class Avni extends Component {
 
     render() {
         if (Config.PLAYGROUND) {
+            console.log("=====================>>>>>>>Rendering Playground app component");
             return <Playground/>;
         }
-
+        console.log("=====================>>>>>>>Rendering main app component");
         const App = require('./App');
         return (
             <View style={Avni.styles.container}>

@@ -3,5 +3,6 @@
   "ENV": "dev",
   "CLIENT_ID": "dummy",
   "goToLastPageOnNext": false,
-  "debugFirebaseAnalyticsEvents": false
+  "debugFirebaseAnalyticsEvents": false,
+  "PLAYGROUND": false
 }

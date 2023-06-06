@@ -1,16 +1,25 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useState, useEffect} from 'react';
 import {Text, View, TextInput, Button} from "react-native";
 import RealmFactory from "./framework/db/RealmFactory";
 import _ from 'lodash';
-import SelectableItemGroup from "./views/primitives/SelectableItemGroup";
-import RadioLabelValue from "./views/primitives/RadioLabelValue";
-import CHSContainer from "./views/common/CHSContainer";
 
-const db = RealmFactory.createRealm();
+import {Gender} from "openchs-models";
 
-function executeQuery(queryString, type) {
+function executeQuery(queryString, type, db) {
+    //waitForNotNULL(getDb)
     console.log("executeQuery", queryString);
+    if(db == null) {
+        return -1000;
+    }
     try {
+        if (db.objects("Gender").length === 0) {
+            console.log("creating Gender objects")
+            db.write(() => {
+                db.create(Gender.schema.name, Gender.create("Male"), true);
+                db.create(Gender.schema.name, Gender.create("Female"), true);
+                db.create(Gender.schema.name, Gender.create("Transgender"), true);
+            })
+        }
         let objects = db.objects(type);
         if (!_.isEmpty(queryString))
             objects = objects.filtered(queryString);
@@ -24,15 +33,23 @@ function executeQuery(queryString, type) {
 function QueryAndOutput() {
     const [output, setOutput] = useState("-")
     const [query, setQuery] = useState("")
+    const [db, setDb] = useState({})
+    useEffect(() => {
+        async function foo() {
+            setDb(await RealmFactory.createRealmWithEncryptionKey());
 
+        }
+        foo();
+    }, [])
     return <View>
         <TextInput multiline={true} onChangeText={(text) => setQuery(text)} value={query}/>
         <Text>{output}</Text>
         <View style={{display: "flex", flexDirection: "row", justifyContent: "space-around"}}>
-            <Button onPress={() => setOutput(executeQuery(query, "Individual"))} title="Ind"/>
-            <Button onPress={() => setOutput(executeQuery(query, "ProgramEnrolment"))} title="Enrolment"/>
-            <Button onPress={() => setOutput(executeQuery(query, "ProgramEncounter"))} title="P Enc"/>
-            <Button onPress={() => setOutput(executeQuery(query, "Observation"))} title="Obs"/>
+            <Button onPress={() => setOutput(executeQuery(query, "Gender", db))} title="Gender"/>
+            {/*<Button onPress={() => setOutput(executeQuery(query, "ProgramEnrolment", db))} title="Enrolment"/>*/}
+            {/*<Button onPress={() => setOutput(executeQuery(query, "ProgramEncounter", db))} title="P Enc"/>*/}
+            {/*<Button onPress={() => setOutput(executeQuery(query, "Observation", db))} title="Obs"/>*/}
+            {/*<Button onPress={() => setOutput(executeQuery(query, "Observation", db))} title="Rand"/>*/}
         </View>
         <View style={{marginTop: 20}}>
             <Button onPress={() => {
@@ -44,34 +61,11 @@ function QueryAndOutput() {
 }
 
 function TxQueries() {
-    return <>
-        <QueryAndOutput type="ProgramEncounter"/>
-    </>
+    return <QueryAndOutput/>;
 }
 
-function SelectableGroup() {
-    const labelValuePairs = [
-        new RadioLabelValue("Item 1", "item1", false),
-        new RadioLabelValue("Very very very long item 2", "item2", false),
-        new RadioLabelValue("Very very very long item 3", "item3", false),
-        new RadioLabelValue("Item 4", "item4", false)
-    ];
 
-    const singleLabelValuePairs = [
-        new RadioLabelValue("Item 1", "item1", false)
-    ]
-
-    return (
-        <CHSContainer>
-            <SelectableItemGroup onPress={(value) => this.setState({value: value === this.state.value ? null : value})}
-                                 selectionFn={(value) => this.state.value === value}
-                                 labelValuePairs={singleLabelValuePairs} labelKey={"Selectable Group"}
-                                 I18n={{t: _.identity}} locale={"en"} inPairs={true} allowUnselect={false} multiSelect={false}/>
-        </CHSContainer>
-    );
-}
-
-export default class App extends Component {
+export default class Playground extends Component {
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -80,6 +74,10 @@ export default class App extends Component {
     }
 
     render() {
-        return <TxQueries/>;
+        console.log("======================================>>>>>>>>>>>>>>>>>>>Rendering playground");
+        return  <View>
+            <Text>Hello playground</Text>
+            <TxQueries/>
+        </View>;
     }
 }

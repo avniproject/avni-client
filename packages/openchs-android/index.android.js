@@ -1,6 +1,7 @@
 /* @flow */
-import {AppRegistry, LogBox} from 'react-native';
-import Avni from "./src/App";
+import {AppRegistry} from 'react-native';
+//import {LogBox} from 'react-native';
+import App from "./src/Avni";
 
-LogBox.ignoreAllLogs();
-AppRegistry.registerComponent('Avni', () => Avni);
+//LogBox.ignoreAllLogs();
+AppRegistry.registerComponent('Avni', () => App);
