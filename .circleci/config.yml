@@ -3,8 +3,8 @@ parameters:
   flavor:
     type: enum
     default: "generic"
-    enum: ["generic", "lfe"]
-    description: Flavor of the binary to generate. Must be one of "generic" or "lfe"
+    enum: ["generic", "lfe", "sakhi"]
+    description: Flavor of the binary to generate. Must be one of "generic", "lfe" or "sakhi"
   versionCode:
     type: string
     default: "1"
