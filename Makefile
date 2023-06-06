@@ -92,7 +92,7 @@ define _upload_release_sourcemap
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
-	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps)
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps) || true
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
