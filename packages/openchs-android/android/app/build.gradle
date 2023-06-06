@@ -79,7 +79,6 @@ android {
     }
 
     signingConfigs {
-
         generic {
 
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key.keystore")
@@ -92,6 +91,12 @@ android {
             storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("LFE_KEY_PASSWORD")
+        }
+        sakhi {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
+            storePassword System.getenv("SAKHI_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi"
+            keyPassword System.getenv("SAKHI_KEY_PASSWORD")
         }
     }
     buildTypes {
@@ -115,6 +120,12 @@ android {
             resValue "string", "app_name", "Teach AP"
             signingConfig signingConfigs.lfe
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
+        }
+        sakhi {
+            applicationId "org.sakhi.openchsclient"
+            resValue "string", "app_name", "Sakhi 2.0"
+            signingConfig signingConfigs.sakhi
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
     }
 }

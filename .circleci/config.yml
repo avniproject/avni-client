@@ -3,8 +3,16 @@ parameters:
   flavor:
     type: enum
     default: "generic"
-    enum: ["generic", "lfe"]
-    description: Flavor of the binary to generate. Must be one of "generic" or "lfe"
+    enum: ["generic", "lfe", "sakhi"]
+    description: Flavor of the binary to generate. Must be one of "generic", "lfe" or "sakhi"
+  versionCode:
+    type: string
+    default: "1"
+    description: Version code for the binary for internal use on the play store. Is of the format 33702.
+  versionName:
+    type: string
+    default: "1.0.0"
+    description: Version name for the binary for external display on the play store. Is of the format 3.37.2.
 jobs:
   install_deps:
     docker:
@@ -165,9 +173,12 @@ jobs:
     resource_class: large
     environment:
       flavor: << pipeline.parameters.flavor >>
+      versionCode: << pipeline.parameters.versionCode >>
+      versionName: << pipeline.parameters.versionName >>
     steps:
       - checkout
       - run: echo "Building flavor ${flavor}"
+      - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
       - restore_cache:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
@@ -181,7 +192,11 @@ jobs:
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci
-      - run: make release
+#      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_without_clean
+#      - store_artifacts:
+#          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+#          destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.apk
+      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
           paths:
@@ -190,12 +205,16 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>-live-<< pipeline.git.revision >>.apk
+          path: packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab
+          destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.aab
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
-          destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.git.revision >>.js
-
+          destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.js
+      - run: curl -L https://github.com/google/bundletool/releases/download/1.15.1/bundletool-all-1.15.1.jar > ./bundletool.jar
+      - run: java -jar ./bundletool.jar build-apks --bundle=packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab --output=avniuniversal.apks --mode=universal
+      - store_artifacts:
+          path: avniuniversal.apks
+          destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
 workflows:
   version: 2
   test_all:
