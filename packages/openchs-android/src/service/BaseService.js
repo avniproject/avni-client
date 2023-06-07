@@ -106,6 +106,12 @@ class BaseService {
         });
     }
 
+    getCreateEntityFunction(schema, entity) {
+        return () => {
+            this.db.create(schema, entity, true)
+        };
+    }
+
     save(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
