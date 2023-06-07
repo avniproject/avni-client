@@ -85,7 +85,7 @@ export class IndividualSearchActions {
         const addressLevelState = action.values;
         const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
         const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(addressLevelService.getLeavesOfParent(parent)), []);
+            .reduce((acc, parent) => acc.concat(parent, addressLevelService.getLeavesOfParent(parent)), []);
         newState.searchCriteria.toggleLowestAddresses(lowestAddressLevels);
         newState.addressLevelState = addressLevelState;
         return newState;
