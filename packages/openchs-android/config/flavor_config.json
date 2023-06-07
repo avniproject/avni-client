@@ -22,7 +22,7 @@
     "package_name": "org.sakhi.openchsclient",
     "prod_admin_password_env_var_name": "OPENCHS_STAGING_ADMIN_PASSWORD",
     "bugsnag": {
-      "project_name": "lfe",
+      "project_name": "avni-client",
       "env_var_name": "OPENCHS_CLIENT_BUGSNAG_API_KEY"
     }
   }
