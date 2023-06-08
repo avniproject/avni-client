@@ -99,8 +99,10 @@ class IndividualRegistrationDetailsActions {
                 subjectProgramEligibilityStatues.push({subject, data: allProgramStatuses})
             }
         };
+
+        const nonVoidedGroupSubjects = _.filter(subject.groupSubjects, (groupSubject) => !groupSubject.voided);
         if (subject.isGroup()) {
-            _.forEach(subject.groupSubjects, ({memberSubject}) => addStatusesForSubject(memberSubject))
+            _.forEach(nonVoidedGroupSubjects, ({memberSubject}) => addStatusesForSubject(memberSubject))
         }
         addStatusesForSubject(subject);
         return subjectProgramEligibilityStatues;
