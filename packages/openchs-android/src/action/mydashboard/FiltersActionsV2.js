@@ -5,7 +5,6 @@ import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
 class FiltersActionsV2 {
     static getInitialState() {
         return {
-            dashboardUUID : '',
             loading: false,
             filters: [],
             filterConfigs: {},
@@ -19,11 +18,7 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        if(state.dashboardUUID !== action.dashboardUUID) {
-            newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: false, selectedValues: {}, filterErrors: {}};
-        }
-        return newState;
+        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false, filterApplied: false, selectedValues: {}, filterErrors: {}};
     }
 
     // minValue: value.replace(/[^0-9.]/g, '')
