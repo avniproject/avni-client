@@ -30,13 +30,24 @@ export class IndividualSearchActions {
         }
     }
 
-    static onLoad(state, action, context) {
-        const newState = IndividualSearchActions.resetFilters(state);
+    static determineSubjectTypesToDisplay(action, context) {
+        if (!_.isNil(action.memberSubjectType)) {
+            return [action.memberSubjectType];
+        }
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = context.get(PrivilegeService);
         const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] :
-            _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
+        const viewableSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
+
+        if (!_.isNil(action.allowedSubjectTypes)) {
+            return _.filter(viewableSubjectTypes, subjectType => action.allowedSubjectTypes.includes(subjectType.type));
+        }
+        return viewableSubjectTypes;
+    }
+
+    static onLoad(state, action, context) {
+        const newState = IndividualSearchActions.resetFilters(state);
+        newState.subjectTypes = IndividualSearchActions.determineSubjectTypesToDisplay(action, context);
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
         if (action.allowedSubjectUUIDs && action.allowedSubjectUUIDs.length > 0) {
