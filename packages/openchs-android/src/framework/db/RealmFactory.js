@@ -10,17 +10,23 @@ class RealmFactory {
     }
 
     static createRealmWithoutProxy() {
+        console.log('RealmFactory','----------------------------- Loading PLAIN db');
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const realmConfig = entityMappingConfig.getRealmConfig();
         return new Realm(realmConfig);
     }
 
     static async createRealmWithEncryptionKey() {
+        console.log('RealmFactory','+++++++++++++++++++++++++ Loading ENCRYPTED db');
         let key = await getKey();
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const configWithEncryptionKey = entityMappingConfig.getRealmConfig();
         configWithEncryptionKey["encryptionKey"] = key
         return new RealmProxy(new Realm(configWithEncryptionKey), entityMappingConfig);
+    }
+
+    static async getRealm(isEncrypted) {
+        return isEncrypted ? (await this.createRealmWithEncryptionKey()) : this.createRealm();
     }
 }
 
