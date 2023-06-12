@@ -6,14 +6,21 @@ import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
 import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
 import GlobalContext from "../GlobalContext";
+import _ from "lodash";
+import SettingsService from '../service/SettingsService';
 
 class Sync extends BaseTask {
     async execute() {
         try {
+            const globalContext = GlobalContext.getInstance();
+            let settings = globalContext.beanRegistry.getService(SettingsService).getSettings();
+            if (_.isNil(settings.userId)) {
+                General.logInfo("Sync", "Skipping sync since idpType not set");
+                return false;
+            }
             this.initDependencies();
             General.logInfo("Sync", "Starting SyncService");
             General.logInfo("Sync", "Getting SyncService");
-            const globalContext = GlobalContext.getInstance();
             const syncService = globalContext.beanRegistry.getService("syncService");
             General.logInfo("Sync", "Getting connection info");
             let connectionInfo;
