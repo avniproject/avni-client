@@ -262,7 +262,7 @@ openlocation_apk: ## Open location of built apk
 	open packages/openchs-android/android/app/build/outputs/apk
 
 open_location_bundles:
-	open packages/openchs-android/android/app/bundles
+	open packages/openchs-android/android/app/build/outputs/bundle/
 
 # <env>
 clean_packager_cache:
