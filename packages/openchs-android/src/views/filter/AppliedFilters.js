@@ -3,6 +3,7 @@ import React from 'react';
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
+import {Concept} from 'openchs-models';
 
 export default class AppliedFilters extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -60,7 +61,10 @@ export default class AppliedFilters extends AbstractComponent {
     }
 
     renderCustomFilters() {
-        const readableTime = (dateType, value) => dateType && General.toDisplayDate(value) || value;
+        const readableTime = (dateType, value) =>  (dateType && (dateType == Concept.dataType.Time) && General.toDisplayTime(value))
+              || (dateType && (dateType == Concept.dataType.DateTime) && General.formatDateTime(value))
+              || (dateType && (dateType == Concept.dataType.Date) && General.toDisplayDate(value))
+              || value;
         const filterValue = (value) => [
             this.I18n.t(value.name || value.value || readableTime(value.dateType, value.minValue) || ''),
             this.I18n.t(value.maxValue && readableTime(value.dateType, value.maxValue) || '')

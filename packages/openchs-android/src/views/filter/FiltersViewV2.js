@@ -73,7 +73,8 @@ class GroupSubjectFilter extends AbstractComponent {
 class FiltersViewV2 extends AbstractComponent {
     static propTypes = {
         dashboardUUID: PropTypes.string.isRequired,
-        onFilterChosen: PropTypes.func.isRequired
+        onFilterChosen: PropTypes.func.isRequired,
+        loadFiltersData: PropTypes.func.isRequired,
     };
 
     static styles = StyleSheet.create({
@@ -119,13 +120,18 @@ class FiltersViewV2 extends AbstractComponent {
     }
 
     applyFilters() {
-        return this.dispatchAction(FilterActionNames.APPLIED_FILTER, {
+        this.dispatchAction(FilterActionNames.APPLIED_FILTER, {
             navigateToDashboardView: (ruleInput) => {
                 TypedTransition.from(this).goBack();
                 setTimeout(() => {
                     this.props.onFilterChosen(ruleInput);
                 }, 100);
-            }
+            },
+            setFiltersDataOnDashboardView: (customDashboardFilters) => {
+                setTimeout(() => {
+                    this.props.loadFiltersData(customDashboardFilters);
+                }, 100);
+            },
         });
     }
 
@@ -185,7 +191,9 @@ class FiltersViewV2 extends AbstractComponent {
                                                                    onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
                                     default:
                                         return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)} key={index}
+                                                                           errorMessage={filterError}
                                                                            filter={filter}
+                                                                           filterConfig={filterConfig}
                                                                            observationBasedFilter={filterConfig.observationBasedFilter}
                                                                            value={filterValue}/>;
                                 }

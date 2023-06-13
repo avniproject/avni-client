@@ -308,6 +308,8 @@
     "endDateAndTime": "End date and time",
     "startDateGreaterThanEndError": "Start date cannot be greater than End date",
     "bothDateShouldBeSelectedError": "Both start date and end date should be selected",
+    "startTimeGreaterThanEndError": "Start time cannot be greater than End time",
+    "bothTimeShouldBeSelectedError": "Both start time and end time should be selected",
     "uploadCatchmentDatabase": "Setup fast sync",
     "uploadCatchmentDatabaseConfirmationMessage": "This will upload your entire Avni mobile database to the avni server. Do you want to continue?",
     "uploadCatchmentDatabaseErrorTitle": "Cannot setup fast sync",

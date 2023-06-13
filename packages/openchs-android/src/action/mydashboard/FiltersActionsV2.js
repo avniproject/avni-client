@@ -1,10 +1,12 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
 import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
+import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
 
 class FiltersActionsV2 {
     static getInitialState() {
         return {
+            dashboardUUID : '',
             loading: false,
             filters: [],
             filterConfigs: {},
@@ -18,7 +20,11 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        return {...state, filterConfigs: filterConfigs, filters: filters, loading: false, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
+        if(state.dashboardUUID !== action.dashboardUUID) {
+            newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        }
+        return newState;
     }
 
     // minValue: value.replace(/[^0-9.]/g, '')
@@ -65,9 +71,62 @@ class FiltersActionsV2 {
         return {...state, loading: true};
     }
 
+    static transformFilters = (filledFilterValues, filterConfigs, selectedValues) => {
+        let selectedFilters = CustomDashboardActions.getDefaultCustomDashboardFilters();
+
+        filledFilterValues.forEach(([filterUUID, filterValue]) => {
+            selectedFilters.applied = true; //At-least one of the filters have been set
+            const filterConfig = filterConfigs[filterUUID];
+            const inputDataType = filterConfig.getInputDataType();
+            const currentFilterValue = selectedValues[filterUUID];
+            switch (inputDataType) {
+                case Concept.dataType.Subject:
+                case Concept.dataType.Program:
+                case Concept.dataType.Encounter:
+                case Concept.dataType.ProgramEncounter:
+                case Concept.dataType.Image:
+                case Concept.dataType.Video:
+                case Concept.dataType.Audio:
+                case Concept.dataType.File:
+                case Concept.dataType.NA:
+                case Concept.dataType.PhoneNumber:
+                case Concept.dataType.GroupAffiliation:
+                case Concept.dataType.QuestionGroup:
+                case Concept.dataType.Duration:
+                case Concept.dataType.Location:
+                    //Not supported
+                    break;
+                case Concept.dataType.Time:
+                case Concept.dataType.DateTime:
+                    let customDateValue = [{dateType: inputDataType,
+                        minValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
+                        maxValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
+                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                        [filterConfig.observationBasedFilter.concept.name] : customDateValue};
+                    break;
+                case Concept.dataType.Date:
+                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                        [filterConfig.type] : [{dateType: inputDataType, minValue: currentFilterValue}]};
+                    break;
+                case CustomFilter.type.Gender:
+                    selectedFilters.selectedGenders = currentFilterValue;
+                    break;
+                case CustomFilter.type.Address:
+                    selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels, (level) => {return level[1]});
+                    break;
+                default:
+                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                        [filterConfig.observationBasedFilter.concept.name] : [{value: currentFilterValue}]};
+                    break;
+            }
+
+        });
+        return selectedFilters;
+    };
+
     static appliedFilter(state, action, context) {
         const {filterConfigs, selectedValues} = state;
-        const {navigateToDashboardView} = action;
+        const {navigateToDashboardView, setFiltersDataOnDashboardView} = action;
         const newState = {...state};
 
         newState.filterErrors = {};
@@ -79,13 +138,17 @@ class FiltersActionsV2 {
                 newState.filterErrors[filterUUID] = message;
         });
         if (Object.keys(newState.filterErrors).length > 0) {
+            newState.filterApplied = false;
+            newState.loading = false;
+            // setFiltersDataOnDashboardView(CustomDashboardActions.getDefaultCustomDashboardFilters());
             return newState;
         }
 
         const dashboardFilterService = context.get(DashboardFilterService);
         const ruleInput = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
-
+        newState.filterApplied = true;
+        setFiltersDataOnDashboardView(FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues));
         navigateToDashboardView(ruleInput);
         return newState;
     }

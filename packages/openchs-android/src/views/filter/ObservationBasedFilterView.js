@@ -48,9 +48,11 @@ class ObservationBasedFilterView extends AbstractComponent {
 
     static propTypes = {
         filter: PropTypes.object.isRequired,
+        filterConfig: PropTypes.object.isRequired,
         observationBasedFilter: PropTypes.object.isRequired,
         value: PropTypes.any,
-        onChange: PropTypes.func.isRequired
+        onChange: PropTypes.func.isRequired,
+        errorMessage: PropTypes.any,
     };
 
     timeConceptFilter() {
@@ -58,13 +60,17 @@ class ObservationBasedFilterView extends AbstractComponent {
     }
 
     timeRangeFilter() {
-        const {minValue, maxValue} = this.props.value;
-        return <View style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
-            <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
-            <TimePicker timeValue={minValue} onChange={(value) => this.props.onChange({minValue: value})}/>
-            <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
-            <TimePicker timeValue={maxValue} onChange={(value) => this.props.onChange({maxValue: value})}/>
-        </View>;
+        const {minValue, maxValue} = this.props.value || {};
+        return <View>
+            <View style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
+                <Text style={Styles.formLabel}>{this.I18n.t('between')}</Text>
+                <TimePicker timeValue={minValue} onChange={(value) => this.props.onChange({minValue: value})}/>
+                <Text style={Styles.formLabel}>{this.I18n.t('and')}</Text>
+                <TimePicker timeValue={maxValue} onChange={(value) => this.props.onChange({maxValue: value})}/>
+            </View>
+            {this.props.errorMessage &&
+              <Text style={{color: Colors.ValidationError, flex: 0.3}}>{this.I18n.t(this.props.errorMessage)}</Text>}
+        </View>
     }
 
     // typeof dateObject.value === 'string' ? new Date(dateObject.value) : dateObject.value
@@ -124,7 +130,7 @@ class ObservationBasedFilterView extends AbstractComponent {
     }
 
     renderNonCodedFilter() {
-        const {observationBasedFilter, filter, value} = this.props;
+        const {observationBasedFilter, filter, filterConfig, value} = this.props;
         const concept = observationBasedFilter.concept;
 
         switch (concept.datatype) {
@@ -133,19 +139,19 @@ class ObservationBasedFilterView extends AbstractComponent {
             case (Concept.dataType.Id) :
                 return this.textConceptFilter(concept, filter);
             case (Concept.dataType.Numeric) :
-                return filter.widget === CustomFilter.widget.Range ?
+                return filterConfig.widget === CustomFilter.widget.Range ?
                     this.numericConceptFilterWithRange(concept, filter, styles.rangeInput, value) :
                     this.numericConceptFilter(value);
             case(Concept.dataType.Date):
-                return filter.widget === CustomFilter.widget.Range ?
+                return filterConfig.widget === CustomFilter.widget.Range ?
                     this.dateFilterWithRange(filter, value, false)
                     : this.dateConceptFilter(filter, value, false);
             case(Concept.dataType.DateTime):
-                return filter.widget === CustomFilter.widget.Range ?
+                return filterConfig.widget === CustomFilter.widget.Range ?
                     this.dateFilterWithRange(filter, value, true)
                     : this.dateConceptFilter(filter, value, true);
             case(Concept.dataType.Time):
-                return filter.widget === CustomFilter.widget.Range ?
+                return filterConfig.widget === CustomFilter.widget.Range ?
                     this.timeRangeFilter(filter, value) :
                     this.timeConceptFilter(filter, value);
             default:
