@@ -61,9 +61,9 @@ export default class AppliedFilters extends AbstractComponent {
     }
 
     renderCustomFilters() {
-        const readableTime = (dateType, value) =>  (dateType && (dateType == Concept.dataType.Time) && General.toDisplayTime(value))
-              || (dateType && (dateType == Concept.dataType.DateTime) && General.formatDateTime(value))
-              || (dateType && (dateType == Concept.dataType.Date) && General.toDisplayDate(value))
+        const readableTime = (dateType, value) =>  (dateType && (dateType === Concept.dataType.Time) && General.toDisplayTime(value))
+              || (dateType && (dateType === Concept.dataType.DateTime) && General.formatDateTime(value))
+              || (dateType && (dateType === Concept.dataType.Date) && General.toDisplayDate(value))
               || value;
         const filterValue = (value) => [
             this.I18n.t(value.name || value.value || readableTime(value.dateType, value.minValue) || ''),

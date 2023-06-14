@@ -71,7 +71,7 @@ class FiltersActionsV2 {
         return {...state, loading: true};
     }
 
-    static transformFilters = (filledFilterValues, filterConfigs, selectedValues) => {
+    static transformFilters(filledFilterValues, filterConfigs, selectedValues) {
         let selectedFilters = CustomDashboardActions.getDefaultCustomDashboardFilters();
 
         filledFilterValues.forEach(([filterUUID, filterValue]) => {
