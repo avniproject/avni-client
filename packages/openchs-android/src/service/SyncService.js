@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import {EntityApprovalStatusMetaData, EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -159,10 +159,10 @@ class SyncService extends BaseService {
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
-        const allTxEntityMetaData = _.union(this.getMetadataByType(allEntitiesMetaData, "parentOfVirtualTx"), this.getMetadataByType(allEntitiesMetaData, "tx"));
+        const allTxPushEntityMetaData = _.union([EntityApprovalStatusMetaData], this.getMetadataByType(allEntitiesMetaData, "tx"));
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
+            .then(() => this.pushData(allTxPushEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
         if (isOnlyUploadRequired) {
             return uploadData;
