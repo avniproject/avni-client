@@ -145,6 +145,7 @@ class ApprovalDetailsView extends AbstractComponent {
         return _.isEmpty(entity.cancelObservations) ? entity.programExitObservations : entity.cancelObservations;
     }
 
+    // TODO: the value for conditions in this method are interchanged. As for now, it has not caused issues since we are not doing much with the form. But need to fix it to avoid confusion.
     findForm(schema, entity) {
         const service = this.getService(FormMappingService);
         const get = property => _.get(entity, property);
