@@ -152,6 +152,12 @@ class FiltersActionsV2 {
         navigateToDashboardView(ruleInput);
         return newState;
     }
+
+    static clearFilter(state, action, context) {
+        let newState = {...state};
+        newState = {...newState, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        return newState;
+    }
 }
 
 const FilterActionPrefix = 'FilterAV2';
@@ -159,7 +165,8 @@ const FilterActionNames = {
     ON_LOAD: `${FilterActionPrefix}.ON_LOAD`,
     ON_FILTER_UPDATE: `${FilterActionPrefix}.ON_FILTER_UPDATE`,
     BEFORE_APPLY_FILTER: `${FilterActionPrefix}.BEFORE_APPLY_FILTER`,
-    APPLIED_FILTER: `${FilterActionPrefix}.APPLIED_FILTER`
+    APPLIED_FILTER: `${FilterActionPrefix}.APPLIED_FILTER`,
+    CLEAR_FILTER: `${FilterActionPrefix}.CLEAR_FILTER`,
 };
 
 const FilterActionMapV2 = new Map([
@@ -167,6 +174,7 @@ const FilterActionMapV2 = new Map([
     [FilterActionNames.ON_FILTER_UPDATE, FiltersActionsV2.onFilterUpdate],
     [FilterActionNames.BEFORE_APPLY_FILTER, FiltersActionsV2.beforeFilterApply],
     [FilterActionNames.APPLIED_FILTER, FiltersActionsV2.appliedFilter],
+    [FilterActionNames.CLEAR_FILTER, FiltersActionsV2.clearFilter],
 ]);
 
 export {
