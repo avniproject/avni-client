@@ -63,7 +63,7 @@ class FiltersActions {
         const addressLevelService = beans.get(AddressLevelService);
         const lowestSelectedAddressLevels = action.addressLevelState.lowestSelectedAddresses;
         const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(parent, addressLevelService.getLeavesOfParent(parent)), []);
+            .reduce((acc, parent) => acc.concat(addressLevelService.getLeavesOfParent(parent)), []);
         newState.locationSearchCriteria.toggleLowestAddresses(lowestAddressLevels);
         return newState;
     }
