@@ -26,7 +26,7 @@ import FiltersViewV2 from "../filter/FiltersViewV2";
 import ChecklistListingView from "../checklist/ChecklistListingView";
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import Distances from '../primitives/Distances';
-import AppliedFilters from '../filter/AppliedFilters';
+import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -228,14 +228,9 @@ class CustomDashboardView extends AbstractComponent {
                 <View style={{marginBottom: 140}}>
                     {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
                         <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
-                            <AppliedFilters filters={this.state.customDashboardFilters.filters}
-                                            selectedLocations={this.state.customDashboardFilters.selectedLocations}
-                                            selectedPrograms={this.state.customDashboardFilters.selectedPrograms}
-                                            selectedEncounterTypes={this.state.customDashboardFilters.selectedEncounterTypes}
-                                            selectedGeneralEncounterTypes={this.state.customDashboardFilters.selectedGeneralEncounterTypes}
+                            <AppliedFiltersV2 selectedLocations={this.state.customDashboardFilters.selectedLocations}
                                             selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
-                                            selectedGenders={this.state.customDashboardFilters.selectedGenders}
-                                            programs={this.state.customDashboardFilters.programs}/>
+                                            selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
                             <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.buttons}>
                                 <TouchableOpacity
                                   style={CustomDashboardView.styles.filterButton}
