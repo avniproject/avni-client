@@ -79,7 +79,7 @@ class ObservationBasedFilterView extends AbstractComponent {
     }
 
     dateFilterWithRange(pickTime) {
-        const {minValue, maxValue} = this.props.value;
+        const {minValue, maxValue} = this.props.value || {};
         return <DateRangeFilter pickTime={pickTime} onChange={(value) => this.props.onChange(value)} minValue={minValue} maxValue={maxValue}/>;
     }
 
