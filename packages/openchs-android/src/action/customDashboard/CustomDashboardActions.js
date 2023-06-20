@@ -26,12 +26,7 @@ class CustomDashboardActions {
     static getDefaultCustomDashboardFilters() {
         return {
             applied: false,
-            filters: [],
             selectedLocations: [],
-            programs: [],
-            selectedPrograms: [],
-            selectedEncounterTypes: [],
-            selectedGeneralEncounterTypes: [],
             selectedCustomFilters: [],
             selectedGenders: [],
         };
