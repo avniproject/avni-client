@@ -75,8 +75,7 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onClearFilters() {
-        this.dispatchAction(Actions.ON_LOAD, this.props);
-        this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {filterApplied: false});
+        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: this.state.activeDashboardUUID});
         this.refreshCounts();
     }
 

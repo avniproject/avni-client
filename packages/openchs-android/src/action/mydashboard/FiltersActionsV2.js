@@ -3,11 +3,13 @@ import _ from "lodash";
  import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} from 'openchs-models';
 import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
+import CryptoUtils from '../../utility/CryptoUtils';
 
 class FiltersActionsV2 {
     static getInitialState() {
         return {
             dashboardUUID : '',
+            filterConfigsChecksum : '',
             loading: false,
             filters: [],
             filterConfigs: {},
@@ -21,9 +23,10 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        const cachedData = context.get(CustomDashboardCacheService).cachedData(action.dashboardUUID);
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        //TODO use checksum to determine whether cached data can be reused
+        let filterConfigsJSON = JSON.stringify(newState.filterConfigs, Realm.JsonSerializationReplacer);
+        newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
+        const cachedData = context.get(CustomDashboardCacheService).cachedData(action.dashboardUUID, newState.filterConfigsChecksum);
         if(state.dashboardUUID !== action.dashboardUUID) {
             newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: cachedData.filterApplied,
                 selectedValues: cachedData.getSelectedValues(), filterErrors: cachedData.getFilterErrors()};
@@ -153,8 +156,6 @@ class FiltersActionsV2 {
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
         let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
         newState.filterApplied = true;
-        newState.customDashboardFilters = transformedFilters;
-        newState.ruleInput = ruleInputArray;
         const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray);
         context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
 
@@ -168,7 +169,7 @@ class FiltersActionsV2 {
         let filteredErrorsJSON = JSON.stringify(newState.filterErrors, Realm.JsonSerializationReplacer);
         let transformedFiltersJSON = JSON.stringify(transformedFilters, Realm.JsonSerializationReplacer);
         let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray}, Realm.JsonSerializationReplacer);
-        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, new Date(), selectValueJSON,
+        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(), selectValueJSON,
           newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
         return customDashboardCache;
     }

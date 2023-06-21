@@ -7,6 +7,7 @@ import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
+import CryptoUtils from '../../utility/CryptoUtils';
 
 class CustomDashboardActions {
 
@@ -36,7 +37,6 @@ class CustomDashboardActions {
     static onLoad(state, action, context) {
         const dashboardService = context.get(CustomDashboardService);
         const dashboardFilterService = context.get(DashboardFilterService);
-
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
 
         const newState = {...state};
@@ -46,9 +46,11 @@ class CustomDashboardActions {
         const firstDashboardUUID = _.get(_.head(dashboards), 'uuid');
         newState.activeDashboardUUID = firstDashboardUUID;
         newState.prevDashboardUUID = state.activeDashboardUUID;
-        const cachedData = customDashboardCacheService.cachedData(newState.activeDashboardUUID);
-
-        //TODO Use checksum to determine if we should use cached data
+        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
+        let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
+        let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
+        const cachedData = customDashboardCacheService.cachedData(newState.activeDashboardUUID, filterConfigsChecksum);
+        newState.filterConfigsChecksum = cachedData.getChecksum();
         newState.customDashboardFilters = cachedData.getTransformedFilters();
         newState.ruleInput = cachedData.getRuleInput();
         if (firstDashboardUUID) {
@@ -65,9 +67,13 @@ class CustomDashboardActions {
     static onDashboardChange(state, action, context) {
         const dashboardFilterService = context.get(DashboardFilterService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
 
         const newState = {...state};
-        const cachedData = customDashboardCacheService.cachedData(action.dashboardUUID);
+        let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
+        let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
+        const cachedData = customDashboardCacheService.cachedData(action.dashboardUUID, filterConfigsChecksum);
+        newState.filterConfigsChecksum = cachedData.getChecksum();
         newState.activeDashboardUUID = action.dashboardUUID;
         newState.prevDashboardUUID = state.activeDashboardUUID;
         newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context);
