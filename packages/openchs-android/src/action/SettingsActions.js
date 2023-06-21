@@ -106,6 +106,16 @@ class SettingsActions {
         );
     }
 
+    static onCaptureAutoSyncChange(state, action, context) {
+        return SettingsActions._updateUserSettingsAndSave(
+            state,
+            settings => {
+                settings.disableAutoSync = !settings.disableAutoSync;
+            },
+            context
+        );
+    }
+
     static onRuleChange(state, action, context) {
         const ruleToAddRemove = action.value;
         let rulesToRun = state.rulesToRun;
@@ -126,6 +136,7 @@ const SettingsActionsNames = {
     ON_RULE_CHANGE: 'S.ON_RULE_CHANGE',
     ON_CAPTURE_LOCATION_CHANGE: 'S.ON_CAPTURE_LOCATION_CHANGE',
     ON_CAPTURE_AUTO_REFRESH_CHANGE: 'S.ON_CAPTURE_AUTO_REFRESH_CHANGE',
+    ON_CAPTURE_AUTO_SYNC_CHANGE: 'S.ON_CAPTURE_AUTO_SYNC_CHANGE'
 };
 
 const SettingsActionsMap = new Map([
@@ -135,7 +146,8 @@ const SettingsActionsMap = new Map([
     [SettingsActionsNames.ON_LOG_LEVEL_CHANGE, SettingsActions.onLogLevelChange],
     [SettingsActionsNames.ON_RULE_CHANGE, SettingsActions.onRuleChange],
     [SettingsActionsNames.ON_CAPTURE_LOCATION_CHANGE, SettingsActions.onCaptureLocationChange],
-    [SettingsActionsNames.ON_CAPTURE_AUTO_REFRESH_CHANGE, SettingsActions.onCaptureAutoRefreshChange]
+    [SettingsActionsNames.ON_CAPTURE_AUTO_REFRESH_CHANGE, SettingsActions.onCaptureAutoRefreshChange],
+    [SettingsActionsNames.ON_CAPTURE_AUTO_SYNC_CHANGE, SettingsActions.onCaptureAutoSyncChange]
 ]);
 
 export {

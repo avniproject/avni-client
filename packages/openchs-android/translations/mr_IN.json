@@ -360,6 +360,8 @@
     "rolesNotConfigured": "भूमिका कॉन्फिगर केल्या नाहीत",
     "rolesNotConfiguredDescription": "सदस्य जोडण्यासाठी भूमिका कॉन्फिगर करा.",
     "disableAutoRefresh": "डॅशबोर्ड ऑटो रिफ्रेश अक्षम करा",
-    "autoRefresh": "डॅशबोर्ड ऑटो रिफ्रेश"
+    "autoRefresh": "डॅशबोर्ड ऑटो रिफ्रेश",
+    "disableAutoSync": "ऑटो सिंक अक्षम करा",
+    "autoSync": "ऑटो सिंक"
   }
 }

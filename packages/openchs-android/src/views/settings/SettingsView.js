@@ -76,6 +76,7 @@ class SettingsView extends AbstractComponent {
                         }
                         {this.renderUserPropertyToggleButton('location', 'trackLocation', Actions.ON_CAPTURE_LOCATION_CHANGE)}
                         {this.renderUserPropertyToggleButton('autoRefresh', 'disableAutoRefresh', Actions.ON_CAPTURE_AUTO_REFRESH_CHANGE)}
+                        {this.renderUserPropertyToggleButton('autoSync', 'disableAutoSync', Actions.ON_CAPTURE_AUTO_SYNC_CHANGE)}
                     </View>
                 </CHSContent>
             </CHSContainer>

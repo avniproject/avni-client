@@ -225,6 +225,8 @@
     "giveLocationPermissionFromSettings": "Please give location permission to OpenCHS from Settings > Apps > OpenCHS",
     "location": "Location",
     "trackLocation": "Track Location",
+    "autoSync": "Auto Sync",
+    "disableAutoSync": "Disable Auto Sync",
     "visitsBeingScheduled": "Visits Being Scheduled",
     "visitsBeingScheduledForOthers": "Visits Being Scheduled For Others",
     "visitName": "Visit Name",

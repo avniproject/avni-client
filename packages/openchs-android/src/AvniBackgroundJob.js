@@ -14,12 +14,7 @@ const SyncJobSchedule = {
   period: 60,
   persist: true,
   exact: true,
-  job: () => {
-      if (!AppConfig.autoSyncDisabled)
-        Sync.execute();
-      else
-          General.logDebug("AvniBackgroundJob", "Background job is disabled");
-  }
+  job: () => Sync.execute()
 };
 
 const DummySyncJobSchedule = {
