@@ -167,6 +167,13 @@ jobs:
           destination: sourcemap-<< pipeline.parameters.flavor >>-perf-<< pipeline.git.revision >>.js
 
   release_android_live:
+    parameters:
+      keystore_password:
+        type: string
+        default: $KEYSTORE_PASSWORD
+      key_password:
+        type: string
+        default: $KEY_PASSWORD
     docker:
       - image: cimg/android:2022.12-node
     working_directory: ~/avni-client
@@ -211,7 +218,7 @@ jobs:
           path: packages/openchs-android/android/app/build/generated/sourcemap.js
           destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.js
       - run: curl -L https://github.com/google/bundletool/releases/download/1.15.1/bundletool-all-1.15.1.jar > ./bundletool.jar
-      - run: java -jar ./bundletool.jar build-apks --bundle=packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab --output=avniuniversal.apks --mode=universal
+      - run: java -jar ./bundletool.jar build-apks --bundle=packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab --output=avniuniversal.apks --mode=universal --ks=packages/openchs-android/android/app/openchs-release-key.keystore --ks-pass=pass:<< parameters.keystore_password >> --ks-key-alias=openchs-release-key --key-pass=pass:<< parameters.key_password >>
       - store_artifacts:
           path: avniuniversal.apks
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip

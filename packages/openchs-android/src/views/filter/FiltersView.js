@@ -257,8 +257,10 @@ class FilterView extends AbstractComponent {
                                                    onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                     /> : null}
                                 {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.selectedSubjectType.uuid) ?
-                                    <GenderFilter selectedGenders={this.props.selectedGenders}
-                                                  onSelect={(selectedGenders) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGenders})}
+                                    <GenderFilter selectedGenders={this.state.selectedGenders}
+                                                  onSelect={
+                                                    (selectedGender) => this.dispatchAction(FilterActionNames.GENDER_FILTER_CHANGE, {selectedGender})
+                                                    }
                                     /> : null}
                                 {_.isEmpty(this.state.selectedGeneralEncounterTypes) && this.renderProgramEncounterGroup()}
                                 {_.isEmpty(this.state.selectedPrograms) && _.isEmpty(this.state.selectedEncounterTypes) && this.renderEncounterGroup()}

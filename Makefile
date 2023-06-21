@@ -244,6 +244,10 @@ appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 put_db: ## Apply realmdb from ../default.realm
 	adb push $(appdb) /data/data/${app_android_package_name}/files/default.realm
 
+put_db_force:
+	adb push $(appdb) /product/default.realm
+	adb shell "run-as ${app_android_package_name} mv /product/default.realm /data/data/${app_android_package_name}/files/default.realm"
+
 rm_db:
 	rm -rf ../db
 
