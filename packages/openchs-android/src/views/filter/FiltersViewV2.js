@@ -97,11 +97,6 @@ class FiltersViewV2 extends AbstractComponent {
         },
         floatingButtonIcon: {
             color: Colors.TextOnPrimaryColor
-        },
-        filterIcon: {
-            fontSize: 30,
-            color: Colors.AccentColor,
-            alignSelf: 'flex-end'
         }
     });
 
@@ -116,10 +111,6 @@ class FiltersViewV2 extends AbstractComponent {
     UNSAFE_componentWillMount() {
         this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: this.props.dashboardUUID});
         super.UNSAFE_componentWillMount();
-    }
-
-    onClearFilter() {
-        this.dispatchAction(FilterActionNames.CLEAR_FILTER);
     }
 
     onApply() {
@@ -166,13 +157,6 @@ class FiltersViewV2 extends AbstractComponent {
                     <View style={{backgroundColor: Styles.whiteColor}}>
                         <CustomActivityIndicator loading={loading}/>
                         <View style={[FiltersViewV2.styles.container, {width: width * 0.88, alignSelf: 'center'}]}>
-                            <View style={{backgroundColor: Styles.whiteColor, display: "flex", flexDirection: "column"}}>
-                                <TouchableOpacity onPress={() => this.onClearFilter()}>
-                                    <View>
-                                        <AvniIcon name={'filter-remove-outline'} style={FiltersViewV2.styles.filterIcon} type='MaterialCommunityIcons'/>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
                             {filters.map((filter, index) => {
                                 const filterConfig = filterConfigs[filter.uuid];
                                 const filterValue = selectedValues[filter.uuid];

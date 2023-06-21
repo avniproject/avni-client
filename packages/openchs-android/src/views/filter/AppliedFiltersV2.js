@@ -1,9 +1,12 @@
-import {StyleSheet, Text, View} from "react-native";
-import React from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {Fragment} from 'react';
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
 import {Concept} from 'openchs-models';
+import AvniIcon from '../common/AvniIcon';
+import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
+import _ from 'lodash';
 
 export default class AppliedFiltersV2 extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -11,7 +14,18 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             flexDirection: 'column',
             justifyContent: 'flex-start',
         },
+        filterIcon: {
+            zIndex: 1,
+            fontSize: 30,
+            color: Colors.AccentColor,
+            alignSelf: 'flex-end'
+        },
     });
+
+    onClearFilter(postClearAction) {
+        this.dispatchAction(FilterActionNames.CLEAR_FILTER);
+        postClearAction();
+    }
 
     renderContent(label, content, contentSeparator) {
         const separator = _.isNil(contentSeparator) ? '' : contentSeparator;
@@ -68,6 +82,16 @@ export default class AppliedFiltersV2 extends AbstractComponent {
 
     render() {
         return (
+          <Fragment>
+            {this.props.applied && <View style={{zIndex: 1}}>
+                  <TouchableOpacity onPress={() => this.onClearFilter(this.props.postClearAction)}>
+                      <View>
+                          <AvniIcon name={'filter-remove-outline'}
+                                    style={AppliedFiltersV2.styles.filterIcon}
+                                    type='MaterialCommunityIcons'/>
+                      </View>
+                  </TouchableOpacity>
+              </View>}
             <View style={AppliedFiltersV2.styles.container}>
                 <Text>
                     {this.renderFilteredLocations()}
@@ -75,6 +99,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
                 {this.renderCustomFilters()}
                 {this.renderGenderFilters()}
             </View>
+          </Fragment>
         );
     }
 }

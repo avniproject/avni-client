@@ -74,6 +74,12 @@ class CustomDashboardView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    onClearFilters() {
+        this.dispatchAction(Actions.ON_LOAD, this.props);
+        this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {filterApplied: false});
+        this.refreshCounts();
+    }
+
     refreshCounts() {
         this.dispatchAction(Actions.REMOVE_OLDER_COUNTS);
         setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 500);
@@ -202,8 +208,8 @@ class CustomDashboardView extends AbstractComponent {
         TypedTransition.from(this)
             .with({
                 dashboardUUID: activeDashboardUUID,
-                onFilterChosen: (ruleInput) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: ruleInput}),
-                loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters}),
+                onFilterChosen: (ruleInputArray) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: {ruleInputArray: ruleInputArray}, filterApplied: true}),
+                loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters, filterApplied: true}),
             }).to(FiltersViewV2, true);
     }
 
@@ -228,7 +234,9 @@ class CustomDashboardView extends AbstractComponent {
                 <View style={{marginBottom: 140}}>
                     {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
                         <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
-                            <AppliedFiltersV2 selectedLocations={this.state.customDashboardFilters.selectedLocations}
+                            <AppliedFiltersV2 postClearAction={() => this.onClearFilters()}
+                                              applied={this.state.customDashboardFilters.applied}
+                                              selectedLocations={this.state.customDashboardFilters.selectedLocations}
                                             selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
                                             selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
                             <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.buttons}>

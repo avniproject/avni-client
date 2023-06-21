@@ -1,7 +1,8 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
-import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
+ import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} from 'openchs-models';
 import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
+import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -20,9 +21,12 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
+        const cachedData = context.get(CustomDashboardCacheService).cachedData(action.dashboardUUID);
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
+        //TODO use checksum to determine whether cached data can be reused
         if(state.dashboardUUID !== action.dashboardUUID) {
-            newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: false, selectedValues: {}, filterErrors: {}};
+            newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: cachedData.filterApplied,
+                selectedValues: cachedData.getSelectedValues(), filterErrors: cachedData.getFilterErrors()};
         }
         return newState;
     }
@@ -125,7 +129,7 @@ class FiltersActionsV2 {
     };
 
     static appliedFilter(state, action, context) {
-        const {filterConfigs, selectedValues} = state;
+        const {dashboardUUID, filterConfigs, selectedValues} = state;
         const {navigateToDashboardView, setFiltersDataOnDashboardView} = action;
         const newState = {...state};
 
@@ -145,17 +149,36 @@ class FiltersActionsV2 {
         }
 
         const dashboardFilterService = context.get(DashboardFilterService);
-        const ruleInput = filledFilterValues
+        const ruleInputArray = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
+        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
         newState.filterApplied = true;
-        setFiltersDataOnDashboardView(FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues));
-        navigateToDashboardView(ruleInput);
+        newState.customDashboardFilters = transformedFilters;
+        newState.ruleInput = ruleInputArray;
+        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray);
+        context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
+
+        setFiltersDataOnDashboardView(transformedFilters);
+        navigateToDashboardView(ruleInputArray);
         return newState;
+    }
+
+    static createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray) {
+        let selectValueJSON = JSON.stringify(newState.selectedValues, Realm.JsonSerializationReplacer);
+        let filteredErrorsJSON = JSON.stringify(newState.filterErrors, Realm.JsonSerializationReplacer);
+        let transformedFiltersJSON = JSON.stringify(transformedFilters, Realm.JsonSerializationReplacer);
+        let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray}, Realm.JsonSerializationReplacer);
+        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, new Date(), selectValueJSON,
+          newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
+        return customDashboardCache;
     }
 
     static clearFilter(state, action, context) {
         let newState = {...state};
         newState = {...newState, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, newState.dashboardUUID,
+          CustomDashboardActions.getDefaultCustomDashboardFilters(), null);
+        context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
         return newState;
     }
 }
