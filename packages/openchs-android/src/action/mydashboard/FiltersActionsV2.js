@@ -105,6 +105,7 @@ class FiltersActionsV2 {
                     break;
                 case Concept.dataType.Time:
                 case Concept.dataType.DateTime:
+                case Concept.dataType.Numeric:
                     let customDateValue = [{dateType: inputDataType,
                         minValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
                         maxValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
@@ -122,8 +123,14 @@ class FiltersActionsV2 {
                     selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels, (level) => {return level[1]});
                     break;
                 default:
+                    let customConceptValue = [{value: currentFilterValue}];
+                    if(filterConfig.widget == CustomFilter.widget.Range) {
+                        customConceptValue = [{dateType: filterConfig.type,
+                            minValue:  currentFilterValue.minValue,
+                            maxValue: currentFilterValue.maxValue}];
+                    }
                     selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : [{value: currentFilterValue}]};
+                        [filterConfig.observationBasedFilter.concept.name] : customConceptValue};
                     break;
             }
 
