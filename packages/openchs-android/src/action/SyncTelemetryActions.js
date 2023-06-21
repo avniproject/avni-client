@@ -6,7 +6,7 @@ import moment from "moment";
 
 class SyncTelemetryActions {
     static getInitialState() {
-        const syncTelemetry = SyncTelemetry.newInstance(EntityMetaData.model());
+        const syncTelemetry = SyncTelemetry.newInstance(EntityMetaData.allModels());
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
@@ -52,9 +52,9 @@ class SyncTelemetryActions {
         const newState = SyncTelemetryActions.clone(state);
         const syncTelemetry = newState.syncTelemetry;
         const entityStatus = syncTelemetry.getEntityStatus();
-        entitiesToPost.forEach(entities => {
-            const pushEntity = _.find(entityStatus.push, e => e.entity === entities.metaData.entityName);
-            pushEntity.todo = pushEntity.todo + entities.entities.length;
+        entitiesToPost.forEach(entityCollectionOfAType => {
+            const pushEntity = _.find(entityStatus.push, e => e.entity === entityCollectionOfAType.metaData.entityName);
+            pushEntity.todo = pushEntity.todo + entityCollectionOfAType.entities.length;
         });
         syncTelemetry.setEntityStatus(entityStatus);
         return newState;
