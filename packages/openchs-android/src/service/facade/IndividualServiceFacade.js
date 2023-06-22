@@ -10,9 +10,9 @@ class IndividualServiceFacade {
             .getSubjectsInLocation(addressLevel, subjectTypeName).map(_.identity);
     }
 
-    getSubjectByUUID(uuid) {
+    getSubjectByUUIDAndType(uuid, subjectTypeName) {
         return GlobalContext.getInstance().beanRegistry.getService(IndividualService)
-            .findByUUID(uuid);
+            .getSubjectByUUIDAndType(uuid, subjectTypeName).map(_.identity);
     }
 }
 
