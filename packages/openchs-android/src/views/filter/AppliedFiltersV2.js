@@ -15,6 +15,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             justifyContent: 'flex-start',
         },
         filterIcon: {
+            // position: 'absolute',
             zIndex: 1,
             fontSize: 30,
             color: Colors.AccentColor,
@@ -83,15 +84,15 @@ export default class AppliedFiltersV2 extends AbstractComponent {
     render() {
         return (
           <Fragment>
-            {this.props.applied && <View style={{zIndex: 1}}>
-                  <TouchableOpacity onPress={() => this.onClearFilter(this.props.postClearAction)}>
-                      <View>
-                          <AvniIcon name={'filter-remove-outline'}
-                                    style={AppliedFiltersV2.styles.filterIcon}
-                                    type='MaterialCommunityIcons'/>
-                      </View>
-                  </TouchableOpacity>
-              </View>}
+            {this.props.applied && <View>
+              <TouchableOpacity onPress={() => this.onClearFilter(this.props.postClearAction)}>
+                  <View>
+                      <AvniIcon name={'filter-remove-outline'}
+                                style={AppliedFiltersV2.styles.filterIcon}
+                                type='MaterialCommunityIcons'/>
+                  </View>
+              </TouchableOpacity>
+            </View>}
             <View style={AppliedFiltersV2.styles.container}>
                 <Text>
                     {this.renderFilteredLocations()}

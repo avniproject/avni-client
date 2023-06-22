@@ -170,7 +170,7 @@ class FiltersViewV2 extends AbstractComponent {
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
-                                        const selectedAddressesInfo = _.flatten([...new Map(filterValue.levels).values()])
+                                        const selectedAddressesInfo = _.flatten([...new Map(filterValue?.levels).values()])
                                           .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
                                               uuid,
                                               name,
