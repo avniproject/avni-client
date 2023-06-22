@@ -56,15 +56,14 @@ class EntitySyncStatusService extends BaseService {
 
     geAllSyncStatus() {
         const entityQueueService = this.getService(EntityQueueService);
-        const uniqueEntities = [...this.findAllByUniqueEntityName(), {entityName: EntityApprovalStatusMetaData.entityName, loadedSince: EntitySyncStatus.REALLY_OLD_DATE}];
-        const entities = _.map(uniqueEntities, ({entityName, loadedSince}) => {
+        const entities = _.map(this.findAllByUniqueEntityName(), ({entityName, loadedSince}) => {
             const isNeverSynced = loadedSince.getTime() === EntitySyncStatus.REALLY_OLD_DATE.getTime();
             const queuedItemCount = entityQueueService.getQueuedItemCount(entityName);
             return {
                 entityName: entityName,
                 loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
                 queuedCount: queuedItemCount,
-                type: EntityMetaData.findByNameIn(entityName, EntityMetaData.allModels()).type
+                type: EntityMetaData.findByName(entityName).type
             }
         });
         const mediaQueueService = this.getService(MediaQueueService);

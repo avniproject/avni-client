@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityApprovalStatusMetaData, EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -159,10 +159,10 @@ class SyncService extends BaseService {
      * If isOnlyUploadRequired = true, then only perform upload of data to Backend server
      */
     async dataServerSync(allEntitiesMetaData, statusMessageCallBack, onProgressPerEntity, onAfterMediaPush, updateProgressSteps, isSyncResetRequired, userConfirmation, isOnlyUploadRequired) {
-        const allTxPushEntityMetaData = _.union([EntityApprovalStatusMetaData], this.getMetadataByType(allEntitiesMetaData, "tx"));
+        const allTxEntityMetaData = this.getMetadataByType(allEntitiesMetaData, "tx");
         const resetSyncMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "ResetSync");
         const uploadData = Promise.resolve(statusMessageCallBack("uploadLocallySavedData"))
-            .then(() => this.pushData(allTxPushEntityMetaData.slice(), onProgressPerEntity))
+            .then(() => this.pushData(allTxEntityMetaData.slice(), onProgressPerEntity))
             .then(() => onAfterMediaPush("After_Media", 0));
         if (isOnlyUploadRequired) {
             return uploadData;
@@ -180,7 +180,7 @@ class SyncService extends BaseService {
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
-        const filteredTxData = _.union(this.getMetadataByType(filteredMetadata, "virtualTx"), this.getMetadataByType(filteredMetadata, "tx"));
+        const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
         const updatedSyncDetails = this.updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData);
         General.logDebug("SyncService", `Entities to sync ${_.map(updatedSyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
