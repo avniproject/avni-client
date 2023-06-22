@@ -25,7 +25,7 @@ import RadioLabelValue from "../primitives/RadioLabelValue";
 import IndividualService from "../../service/IndividualService";
 import DateRangeFilter from "./DateRangeFilter";
 import TypedTransition from "../../framework/routing/TypedTransition";
-import AvniIcon from '../common/AvniIcon';
+import AddressLevelState from '../../action/common/AddressLevelsState';
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -170,7 +170,16 @@ class FiltersViewV2 extends AbstractComponent {
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
-                                        return <AddressLevels addressLevelState={filterValue}
+                                        const selectedAddressesInfo = _.flatten([...new Map(filterValue.levels).values()])
+                                          .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
+                                              uuid,
+                                              name,
+                                              level,
+                                              type,
+                                              parentUuid,
+                                              isSelected
+                                          }));
+                                        return <AddressLevels addressLevelState={new AddressLevelState(selectedAddressesInfo)}
                                                               fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}
                                                               onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
