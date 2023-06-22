@@ -15,10 +15,10 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             justifyContent: 'flex-start',
         },
         filterIcon: {
-            // position: 'absolute',
             zIndex: 1,
-            fontSize: 30,
-            color: Colors.AccentColor,
+            paddingTop: 2,
+            fontSize: 24,
+            color: Colors.FilterClear,
             alignSelf: 'flex-end'
         },
     });
