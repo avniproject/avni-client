@@ -2,7 +2,6 @@ import AddressLevelService from "../../service/AddressLevelService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
-import {ArrayUtil} from "openchs-models";
 
 class FiltersActions {
 
@@ -157,9 +156,7 @@ class FiltersActions {
     }
 
     static genderFilterChange(state, action) {
-        let selectedGenders = [...state.selectedGenders]
-        ArrayUtil.toggle(selectedGenders, action.selectedGender, (a, b) => a.uuid === b.uuid);
-        return {...state, selectedGenders}
+        return {...state, selectedGenders: action.selectedGenders}
     }
 
     static loadIndicator(state, action) {
