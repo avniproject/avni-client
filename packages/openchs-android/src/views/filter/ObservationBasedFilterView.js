@@ -144,12 +144,12 @@ class ObservationBasedFilterView extends AbstractComponent {
                     this.numericConceptFilter(value);
             case(Concept.dataType.Date):
                 return filterConfig.widget === CustomFilter.widget.Range ?
-                    this.dateFilterWithRange(filter, value, false)
-                    : this.dateConceptFilter(filter, value, false);
+                    this.dateFilterWithRange(false)
+                    : this.dateConceptFilter(false);
             case(Concept.dataType.DateTime):
                 return filterConfig.widget === CustomFilter.widget.Range ?
-                    this.dateFilterWithRange(filter, value, true)
-                    : this.dateConceptFilter(filter, value, true);
+                    this.dateFilterWithRange(true)
+                    : this.dateConceptFilter(true);
             case(Concept.dataType.Time):
                 return filterConfig.widget === CustomFilter.widget.Range ?
                     this.timeRangeFilter(filter, value) :
