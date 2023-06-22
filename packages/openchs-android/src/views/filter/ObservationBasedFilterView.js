@@ -99,18 +99,18 @@ class ObservationBasedFilterView extends AbstractComponent {
                           multiline={false}/>;
     }
 
-    numericConceptFilterWithRange(concept, filter, idx, props, value) {
+    numericConceptFilterWithRange(idx, value) {
         return <View key={idx} style={{flexDirection: 'row', marginRight: 10, alignItems: 'center', flexWrap: 'wrap'}}>
             <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('between')}</Text>
             <TextInput style={[Styles.formBodyText]}
                        underlineColorAndroid={Colors.InputBorderNormal}
-                       value={value}
+                       value={value?.minValue}
                        onChangeText={(value) => this.props.onChange({minValue: value})}
                        multiline={false}/>
             <Text style={[Styles.formLabel, {paddingBottom: 10}]}>{this.I18n.t('and')}</Text>
             <TextInput style={[Styles.formBodyText]}
                        underlineColorAndroid={Colors.InputBorderNormal}
-                       value={value}
+                       value={value?.maxValue}
                        onChangeText={(value) => this.props.onChange({maxValue: value})}
                        multiline={false}/>
         </View>;
@@ -140,7 +140,7 @@ class ObservationBasedFilterView extends AbstractComponent {
                 return this.textConceptFilter(concept, filter);
             case (Concept.dataType.Numeric) :
                 return filterConfig.widget === CustomFilter.widget.Range ?
-                    this.numericConceptFilterWithRange(concept, filter, styles.rangeInput, value) :
+                    this.numericConceptFilterWithRange(concept.uuid, value) :
                     this.numericConceptFilter(value);
             case(Concept.dataType.Date):
                 return filterConfig.widget === CustomFilter.widget.Range ?

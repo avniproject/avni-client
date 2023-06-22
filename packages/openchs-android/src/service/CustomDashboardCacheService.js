@@ -16,7 +16,6 @@ class CustomDashboardCacheService extends BaseService {
 
     cachedData(dashboardUUID, filterConfigsChecksum) {
         const cache = this.findByUUID(dashboardUUID);
-        // const cache = this.findByUUID(null); //TODO remove, this was used to reset cache during development
         if (cache === undefined || cache.getChecksum() !== filterConfigsChecksum) {
             return CustomDashboardCache.createEmptyInstance();
         }

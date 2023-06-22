@@ -139,13 +139,12 @@ class FiltersActionsV2 {
     };
 
     static appliedFilter(state, action, context) {
-        const {dashboardUUID, filterConfigs, selectedValues} = state;
+        //Init data
+        const {filterConfigs, selectedValues} = state;
         const {navigateToDashboardView, setFiltersDataOnDashboardView} = action;
-        const newState = {...state};
-
-        newState.filterErrors = {};
+        const newState = {...state, filterApplied: true, filterErrors: {}};
         const filledFilterValues = _.filter(Object.entries(selectedValues), ([, filterValue]) => !ModelGeneral.isDeepEmpty(filterValue));
-
+        //Check if there are errors in filter values specified
         filledFilterValues.forEach(([filterUUID, filterValue]) => {
             const [success, message] = filterConfigs[filterUUID].validate(filterValue);
             if (!success)
@@ -154,18 +153,16 @@ class FiltersActionsV2 {
         if (Object.keys(newState.filterErrors).length > 0) {
             newState.filterApplied = false;
             newState.loading = false;
-            // setFiltersDataOnDashboardView(CustomDashboardActions.getDefaultCustomDashboardFilters());
             return newState;
         }
-
         const dashboardFilterService = context.get(DashboardFilterService);
+        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
         const ruleInputArray = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
-        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
-        newState.filterApplied = true;
-        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray);
+        //Create and save/update the cache entry
+        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, newState.dashboardUUID, transformedFilters, ruleInputArray);
         context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
-
+        //Invoke callbacks
         setFiltersDataOnDashboardView(transformedFilters);
         navigateToDashboardView(ruleInputArray);
         return newState;
@@ -176,14 +173,14 @@ class FiltersActionsV2 {
         let filteredErrorsJSON = JSON.stringify(newState.filterErrors, Realm.JsonSerializationReplacer);
         let transformedFiltersJSON = JSON.stringify(transformedFilters, Realm.JsonSerializationReplacer);
         let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray}, Realm.JsonSerializationReplacer);
-        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(), selectValueJSON,
-          newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
+        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(),
+          selectValueJSON, newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
         return customDashboardCache;
     }
 
     static clearFilter(state, action, context) {
-        let newState = {...state};
-        newState = {...newState, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        let newState = {...state, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        //Create and save/update the cache
         const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, newState.dashboardUUID,
           CustomDashboardActions.getDefaultCustomDashboardFilters(), null);
         context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);

@@ -19,7 +19,6 @@ class CustomDashboardActions {
             countUpdateTime: null,
             hasFilters: false,
             ruleInput: null,
-            prevDashboardUUID: '',
             activeDashboardUUID: '',
             customDashboardFilters: this.getDefaultCustomDashboardFilters(),
         };
@@ -35,29 +34,13 @@ class CustomDashboardActions {
     }
 
     static onLoad(state, action, context) {
-        const dashboardService = context.get(CustomDashboardService);
-        const dashboardFilterService = context.get(DashboardFilterService);
-        const customDashboardCacheService = context.get(CustomDashboardCacheService);
-
         const newState = {...state};
         const onlyPrimary = action.onlyPrimary;
+        const dashboardService = context.get(CustomDashboardService);
         const dashboards = dashboardService.getDashboards(onlyPrimary);
         newState.dashboards = dashboards;
-        const firstDashboardUUID = _.get(_.head(dashboards), 'uuid');
-        newState.activeDashboardUUID = firstDashboardUUID;
-        newState.prevDashboardUUID = state.activeDashboardUUID;
-        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
-        let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
-        let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = customDashboardCacheService.cachedData(newState.activeDashboardUUID, filterConfigsChecksum);
-        newState.filterConfigsChecksum = cachedData.getChecksum();
-        newState.customDashboardFilters = cachedData.getTransformedFilters();
-        newState.ruleInput = cachedData.getRuleInput();
-        if (firstDashboardUUID) {
-            newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(firstDashboardUUID, context);
-            newState.hasFilters = dashboardFilterService.hasFilters(firstDashboardUUID);
-        }
-        return newState;
+        newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
+        return CustomDashboardActions.loadCurrentDashboardInfo(context, newState);
     }
 
     static getReportsCards(dashboardUUID, context) {
@@ -65,21 +48,25 @@ class CustomDashboardActions {
     }
 
     static onDashboardChange(state, action, context) {
+        const newState = {...state};
+        newState.activeDashboardUUID = action.dashboardUUID;
+        return CustomDashboardActions.loadCurrentDashboardInfo(context, newState);
+    }
+
+    static loadCurrentDashboardInfo(context, newState) {
         const dashboardFilterService = context.get(DashboardFilterService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
-
-        const newState = {...state};
+        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
         let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
         let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = customDashboardCacheService.cachedData(action.dashboardUUID, filterConfigsChecksum);
+        const cachedData = customDashboardCacheService.cachedData(newState.activeDashboardUUID, filterConfigsChecksum);
         newState.filterConfigsChecksum = cachedData.getChecksum();
-        newState.activeDashboardUUID = action.dashboardUUID;
-        newState.prevDashboardUUID = state.activeDashboardUUID;
-        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(action.dashboardUUID, context);
-        newState.hasFilters = dashboardFilterService.hasFilters(action.dashboardUUID);
         newState.customDashboardFilters = cachedData.getTransformedFilters();
         newState.ruleInput = cachedData.getRuleInput();
+        if (newState.activeDashboardUUID) {
+            newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(newState.activeDashboardUUID, context);
+            newState.hasFilters = dashboardFilterService.hasFilters(newState.activeDashboardUUID);
+        }
         return newState;
     }
 
@@ -118,13 +105,9 @@ class CustomDashboardActions {
     }
 
     static refreshCount(state, action, context) {
-        const newState = {...state};
-        newState.prevDashboardUUID = state.activeDashboardUUID;
-        let ruleInput = newState.ruleInput.ruleInputArray;
-        if(action.filterApplied) {
-            ruleInput = action.ruleInput.ruleInputArray;
-        }
         const reportCardSectionMappings = state.reportCardSectionMappings;
+        const newState = {...state};
+        let ruleInput = action.filterApplied ? action.ruleInput.ruleInputArray : newState.ruleInput.ruleInputArray;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();

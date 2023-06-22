@@ -85,7 +85,6 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     onDashboardNamePress(uuid) {
-        //Reset the filters when switching CustomDashboards
         this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: uuid});
         this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
         this.refreshCounts();
