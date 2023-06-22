@@ -6,7 +6,7 @@ import moment from "moment";
 
 class SyncTelemetryActions {
     static getInitialState() {
-        const syncTelemetry = SyncTelemetry.newInstance(EntityMetaData.allModels());
+        const syncTelemetry = SyncTelemetry.newInstance(EntityMetaData.model());
         syncTelemetry.appVersion = DeviceInfo.getVersion();
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
