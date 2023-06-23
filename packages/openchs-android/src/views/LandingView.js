@@ -28,6 +28,7 @@ import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import CustomDashboardService from "../service/customDashboard/CustomDashboardService";
 import NewsService from "../service/news/NewsService";
 import {CustomDashboardActionNames} from "../action/customDashboard/CustomDashboardActions";
+import LocalCacheService from '../service/LocalCacheService';
 
 
 @Path('/landingView')
@@ -45,7 +46,9 @@ class LandingView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD);
+        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+        });
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
@@ -127,11 +130,12 @@ class LandingView extends AbstractComponent {
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
-        const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : subjectTypes[0].registerIcon();
+        const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, this.state.previouslySelectedSubjectTypeUUID);
+        const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
         const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, this.state.register), this.I18n.t("register"),
-            subjectTypes[0] && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), this.state.register] : [];
+            previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), this.state.register] : [];
         const searchMenuItem = !hideSearch ? [this.Icon("magnify", LandingView.barIconStyle, this.state.search), this.I18n.t("search"),
             () => this.dispatchAction(Actions.ON_SEARCH_CLICK), this.state.search] : [];
         const bottomBarIcons = [

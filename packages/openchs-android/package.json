@@ -31,6 +31,7 @@
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.18.2",
     "@react-native-community/datetimepicker": "^6.5.0",
     "@react-native-community/netinfo": "9.3.0",
     "@react-native-community/progress-bar-android": "^1.0.5",
