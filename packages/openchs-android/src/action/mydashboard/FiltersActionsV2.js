@@ -121,7 +121,9 @@ class FiltersActionsV2 {
                     selectedFilters.selectedGenders = currentFilterValue;
                     break;
                 case CustomFilter.type.Address:
-                    selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels, (level) => {return level[1]});
+                    selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels,
+                      (level) => {return level[1]})
+                      .map(addressLevel =>_.pick(addressLevel, ['type', 'name', 'isSelected']));
                     break;
                 default:
                     let customConceptValue = [{value: currentFilterValue}];
