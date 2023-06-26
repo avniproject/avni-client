@@ -60,7 +60,7 @@ class CustomDashboardActions {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
         let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
         let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = customDashboardCacheService.cachedData(newState.activeDashboardUUID, filterConfigsChecksum);
+        const cachedData = customDashboardCacheService.fetchCachedData(newState.activeDashboardUUID, filterConfigsChecksum);
         newState.filterConfigsChecksum = cachedData.getChecksum();
         newState.customDashboardFilters = cachedData.getTransformedFilters();
         newState.ruleInput = cachedData.getRuleInput();

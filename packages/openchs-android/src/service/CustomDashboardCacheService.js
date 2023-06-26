@@ -14,7 +14,7 @@ class CustomDashboardCacheService extends BaseService {
         return CustomDashboardCache.schema.name;
     }
 
-    cachedData(dashboardUUID, filterConfigsChecksum) {
+    fetchCachedData(dashboardUUID, filterConfigsChecksum) {
         const cache = this.findByUUID(dashboardUUID);
         if (cache === undefined || cache.getChecksum() !== filterConfigsChecksum) {
             return CustomDashboardCache.createEmptyInstance();
@@ -27,7 +27,7 @@ class CustomDashboardCacheService extends BaseService {
     }
 
     selectedValues(dashboardUUID) {
-        return this.cachedData(dashboardUUID).getSelectedValues();
+        return this.fetchCachedData(dashboardUUID).getSelectedValues();
     }
 
 }

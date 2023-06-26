@@ -27,7 +27,7 @@ class FiltersActionsV2 {
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
         let filterConfigsJSON = JSON.stringify(newState.filterConfigs, Realm.JsonSerializationReplacer);
         newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = context.get(CustomDashboardCacheService).cachedData(action.dashboardUUID, newState.filterConfigsChecksum);
+        const cachedData = context.get(CustomDashboardCacheService).fetchCachedData(action.dashboardUUID, newState.filterConfigsChecksum);
         if(state.dashboardUUID !== action.dashboardUUID) {
             newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: cachedData.filterApplied,
                 selectedValues: cachedData.getSelectedValues(), filterErrors: cachedData.getFilterErrors()};
@@ -108,8 +108,8 @@ class FiltersActionsV2 {
                 case Concept.dataType.DateTime:
                 case Concept.dataType.Numeric:
                     let customDateValue = [{dateType: inputDataType,
-                        minValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
-                        maxValue: filterConfig.widget == CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
+                        minValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
+                        maxValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
                     selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
                         [filterConfig.observationBasedFilter.concept.name] : customDateValue};
                     break;
@@ -125,7 +125,7 @@ class FiltersActionsV2 {
                     break;
                 default:
                     let customConceptValue = [{value: currentFilterValue}];
-                    if(filterConfig.widget == CustomFilter.widget.Range) {
+                    if(filterConfig.widget === CustomFilter.widget.Range) {
                         customConceptValue = [{dateType: filterConfig.type,
                             minValue:  currentFilterValue.minValue,
                             maxValue: currentFilterValue.maxValue}];
