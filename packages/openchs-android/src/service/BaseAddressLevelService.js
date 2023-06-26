@@ -102,7 +102,8 @@ class BaseAddressLevelService extends BaseService {
         else if (this.isLeaf(_.first(children))) {
             return leavesOnly ? children : [node].concat(children);
         }
-        return _.flatten(children.map(c => this.getChildrenOfNode(c, leavesOnly)));
+        return leavesOnly ? _.flatten(children.map(c => this.getChildrenOfNode(c, leavesOnly)))
+            : [node].concat(_.flatten(children.map(c => this.getChildrenOfNode(c, leavesOnly))));
     }
 
     getDescendantsOfParent(parentUuid, minLevelTypeUUIDs) {
