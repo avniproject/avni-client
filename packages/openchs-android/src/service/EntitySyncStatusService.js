@@ -84,14 +84,13 @@ class EntitySyncStatusService extends BaseService {
     }
 
     setup() {
-        const entityMetaDataModel = EntityMetaData.model();
+        const entityMetaDataModel = EntityMetaData.getEntitiesToBePulled();
         const self = this;
 
         entityMetaDataModel.forEach(function (entity) {
             if (_.isNil(self.get(entity.entityName)) && _.isEmpty(entity.privilegeParam)) {
                 General.logDebug('EntitySyncStatusService', `Setting up base entity sync status for ${entity.entityName}`);
                 try {
-                    //TODO check that this works
                     const entitySyncStatus = EntitySyncStatus.create(entity.entityName, EntitySyncStatus.REALLY_OLD_DATE, General.randomUUID(), '');
                     self.save(entitySyncStatus);
                 } catch (e) {
