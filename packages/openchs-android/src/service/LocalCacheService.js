@@ -51,15 +51,6 @@ class LocalCacheService {
     return LocalCacheService._getData(CacheKeys.SELECTED_SUBJECT_TYPE);
   }
 
-  static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
-    if(!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
-      return SubjectType.create("");
-    }
-    const fallbackSubjectType = allowedSubjectTypes[0];
-    const cachedSubjectType = cachedSubjectTypeUUID && _.find(allowedSubjectTypes, subjectType => subjectType.uuid === cachedSubjectTypeUUID);
-    return cachedSubjectType || fallbackSubjectType || SubjectType.create("");
-  }
-
   static saveCurrentlySelectedSubjectType(subjectType) {
     if(!subjectType || !subjectType.uuid) {
       return false;

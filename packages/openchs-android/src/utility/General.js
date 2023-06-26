@@ -1,6 +1,7 @@
 import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
+import {SubjectType} from 'openchs-models';
 
 let currentLogLevel;
 
@@ -308,6 +309,15 @@ class General {
     static delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+  static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
+    if(!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
+      return SubjectType.create("");
+    }
+    const fallbackSubjectType = allowedSubjectTypes[0];
+    const cachedSubjectType = cachedSubjectTypeUUID && _.find(allowedSubjectTypes, subjectType => subjectType.uuid === cachedSubjectTypeUUID);
+    return cachedSubjectType || fallbackSubjectType || SubjectType.create("");
+  }
 }
 
 export default General;

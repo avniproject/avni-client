@@ -10,6 +10,7 @@ import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import LocalCacheService from '../../service/LocalCacheService';
+import General from '../../utility/General';
 
 function getApplicableEncounterTypes(state) {
     return _.isEmpty(state.selectedGeneralEncounterTypes) ? state.selectedEncounterTypes : state.selectedGeneralEncounterTypes;
@@ -67,7 +68,7 @@ class MyDashboardActions {
         const privilegeService = context.get(PrivilegeService);
         const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
         const allowedSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
-        const subjectType = state.selectedSubjectType || LocalCacheService.getPreviouslySelectedSubjectType(allowedSubjectTypes, action.cachedSubjectTypeUUID);
+        const subjectType = state.selectedSubjectType || General.getPreviouslySelectedSubjectType(allowedSubjectTypes, action.cachedSubjectTypeUUID);
         LocalCacheService.saveCurrentlySelectedSubjectType(subjectType);
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
 

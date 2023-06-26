@@ -16,7 +16,9 @@
     ],
     "transformIgnorePatterns": [
       "!<rootDir>\\/node_modules\\/react-native-i18n/"
-    ]
+    ],
+    "setupFiles": ["<rootDir>/test/jestSetupFile.js"]
+
   },
   "license": "AGPL-3.0",
   "scripts": {
