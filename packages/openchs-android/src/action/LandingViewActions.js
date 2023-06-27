@@ -33,7 +33,7 @@ class LandingViewActions {
             dummy: !state.dummy,
             home: true,
             syncRequired,
-            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID,
+            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || newState.previouslySelectedSubjectTypeUUID,
         };
     }
 

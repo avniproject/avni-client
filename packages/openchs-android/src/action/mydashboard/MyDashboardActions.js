@@ -159,7 +159,7 @@ class MyDashboardActions {
             lastUpdatedOn: lastUpdatedOn,
             ...cachedFilters,
             date: {value: cachedDate && new Date(cachedDate.value) || state.date.value},
-            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID
+            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || state.previouslySelectedSubjectTypeUUID
         };
     }
 
