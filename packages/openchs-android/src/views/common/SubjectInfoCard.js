@@ -122,7 +122,7 @@ class SubjectInfoCard extends AbstractComponent {
                 }}>
                     <View style={{justifyContent: 'flex-end'}}>
                         <Text
-                            style={[{opacity: 0.6}, Styles.textStyle]}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                            style={[{opacity: 0.6}, Styles.textStyle]}>{this.props.individual.subjectAddressText(i18n)}</Text>
                     </View>
                     {!this.props.hideEnrolments &&
                     <View style={{
