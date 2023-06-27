@@ -164,7 +164,7 @@ class FiltersViewV2 extends AbstractComponent {
 
                                 switch (filterConfig.type) {
                                     case CustomFilter.type.Gender:
-                                        return <GenderFilter selectedGenders={filterValue}
+                                        return <GenderFilter selectedGenders={filterValue || []}
                                                              filterLabel={this.I18n.t(filter.name)}
                                                              key={index}
                                                              deprecatedUsage={false}

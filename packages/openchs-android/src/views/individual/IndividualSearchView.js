@@ -129,8 +129,8 @@ class IndividualSearchView extends AbstractComponent {
                                 /> : null}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) &&
                             <GenderFilter
-                                selectedGenders={this.state.selectedGenders}
-                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                                selectedGenders={this.state.selectedGenders || []}
+                                onSelect={(selectedGender) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGender})}
                             />}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) &&
                             <AddressLevels

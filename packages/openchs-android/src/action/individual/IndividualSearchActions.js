@@ -8,7 +8,7 @@ import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import AddressLevelState from "../common/AddressLevelsState";
-import { CustomFilter } from "openchs-models";
+import {ArrayUtil, CustomFilter} from "openchs-models";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -176,7 +176,9 @@ export class IndividualSearchActions {
     }
 
     static genderChange(state, action) {
-        return {...state, selectedGenders: action.selectedGenders};
+        let selectedGenders = state.selectedGenders || [];
+        ArrayUtil.toggle(selectedGenders, action.selectedGender, (l,r) => l.uuid === r.uuid)
+        return {...state, selectedGenders};
     }
 
     static loadIndicator(state, action) {
