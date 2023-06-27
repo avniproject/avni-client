@@ -130,7 +130,7 @@ class LandingView extends AbstractComponent {
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
-        const previouslySelectedSubjectType = General.getPreviouslySelectedSubjectType(subjectTypes, this.state.previouslySelectedSubjectTypeUUID);
+        const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, this.state.previouslySelectedSubjectTypeUUID);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
         const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();

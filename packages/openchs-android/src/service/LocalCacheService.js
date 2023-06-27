@@ -25,10 +25,7 @@ class LocalCacheService {
 
   static async _getData(key) {
     try {
-      const value = await AsyncStorage.getItem(key);
-      if (value !== null) {
-        return value;
-      }
+      return await AsyncStorage.getItem(key);
     } catch (error) {
       General.logDebug('LocalCacheService', `Error while retrieving data with key ${key}`);
       General.logDebug('LocalCacheService', error);
@@ -51,11 +48,20 @@ class LocalCacheService {
     return LocalCacheService._getData(CacheKeys.SELECTED_SUBJECT_TYPE);
   }
 
-  static saveCurrentlySelectedSubjectType(subjectType) {
+  static async saveCurrentlySelectedSubjectType(subjectType) {
     if(!subjectType || !subjectType.uuid) {
       return false;
     }
-    LocalCacheService._storeData(CacheKeys.SELECTED_SUBJECT_TYPE, subjectType.uuid);
+    return await LocalCacheService._storeData(CacheKeys.SELECTED_SUBJECT_TYPE, subjectType.uuid);
+  }
+
+  static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
+    if(!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
+      return SubjectType.create("");
+    }
+    const fallbackSubjectType = allowedSubjectTypes[0];
+    const cachedSubjectType = cachedSubjectTypeUUID && _.find(allowedSubjectTypes, subjectType => subjectType.uuid === cachedSubjectTypeUUID);
+    return cachedSubjectType || fallbackSubjectType || SubjectType.create("");
   }
 }
 

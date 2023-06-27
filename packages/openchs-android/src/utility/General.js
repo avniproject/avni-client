@@ -309,15 +309,6 @@ class General {
     static delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-
-  static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
-    if(!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
-      return SubjectType.create("");
-    }
-    const fallbackSubjectType = allowedSubjectTypes[0];
-    const cachedSubjectType = cachedSubjectTypeUUID && _.find(allowedSubjectTypes, subjectType => subjectType.uuid === cachedSubjectTypeUUID);
-    return cachedSubjectType || fallbackSubjectType || SubjectType.create("");
-  }
 }
 
 export default General;
