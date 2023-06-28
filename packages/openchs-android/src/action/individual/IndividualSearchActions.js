@@ -8,6 +8,7 @@ import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import AddressLevelState from "../common/AddressLevelsState";
+import { CustomFilter } from "openchs-models";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -76,8 +77,24 @@ export class IndividualSearchActions {
             (subjectType) => subjectType.name === action.subjectType);
         newState.searchCriteria.addSubjectTypeCriteria(selectedSubjectType);
         newState.searchCriteria.addVoidedCriteria(state.searchCriteria.includeVoided);
+        IndividualSearchActions.retainSearchCriteriaIfApplicable(selectedSubjectType.uuid, beans.get(CustomFilterService), state, newState);
         return newState;
     };
+
+    static retainSearchCriteriaIfApplicable(selectedSubjectTypeUuid, customFilterService, oldState, newState) {
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Name, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addNameCriteria(oldState.searchCriteria.name);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Age, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addAgeCriteria(oldState.searchCriteria.ageInYears);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Gender, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addGenderCriteria(oldState.searchCriteria.genders);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Address, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.toggleLowestAddresses(oldState.searchCriteria.lowestAddressLevels);
+        }
+    }
 
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
