@@ -104,6 +104,11 @@ class FiltersActionsV2 {
                 case Concept.dataType.Location:
                     //Not supported
                     break;
+                case Concept.dataType.Coded:
+                    const codedConceptAnswers = currentFilterValue.map(answer => answer.name).join(", ");
+                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                        [filterConfig.observationBasedFilter.concept.name] : [{value: codedConceptAnswers}]};
+                    break;
                 case Concept.dataType.Time:
                 case Concept.dataType.DateTime:
                 case Concept.dataType.Numeric:
