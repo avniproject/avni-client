@@ -59,6 +59,7 @@ class FiltersActionsV2 {
             case Concept.dataType.Subject:
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
+            case Concept.dataType.Location :
             case Concept.dataType.Id :
                 updatedValue = value;
                 break;

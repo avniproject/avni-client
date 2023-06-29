@@ -14,6 +14,7 @@ import UserInfoService from "../../service/UserInfoService";
 import PropTypes from "prop-types";
 import _ from 'lodash';
 import DateRangeFilter from "./DateRangeFilter";
+import LocationHierarchyInput from "../form/inputComponents/LocationHierarchyInput";
 
 export function FilterContainer({children}) {
     return <View style={{marginTop: Distances.ScaledVerticalSpacingBetweenFormElements, marginBottom: Distances.ScaledVerticalSpacingBetweenFormElements}}>
@@ -40,7 +41,6 @@ export class FilterContainerWithLabel extends AbstractComponent {
     }
 }
 
-//map concept answers and display them
 class ObservationBasedFilterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
@@ -130,7 +130,7 @@ class ObservationBasedFilterView extends AbstractComponent {
     }
 
     renderNonCodedFilter() {
-        const {observationBasedFilter, filter, filterConfig, value} = this.props;
+        const {observationBasedFilter, filter, filterConfig, value, onChange} = this.props;
         const concept = observationBasedFilter.concept;
 
         switch (concept.datatype) {
@@ -154,6 +154,8 @@ class ObservationBasedFilterView extends AbstractComponent {
                 return filterConfig.widget === CustomFilter.widget.Range ?
                     this.timeRangeFilter(filter, value) :
                     this.timeConceptFilter(filter, value);
+            case(Concept.dataType.Location):
+                return <LocationHierarchyInput concept={concept} onSelect={(lowestSelectedAddress) => onChange(_.first(lowestSelectedAddress.map(x => x.uuid)))} value={{answer: value}}/>;
             default:
                 return <View/>;
         }

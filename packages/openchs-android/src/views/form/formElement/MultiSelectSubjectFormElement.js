@@ -8,11 +8,22 @@ import RadioLabelValue from "../../primitives/RadioLabelValue";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
 import UserInfoService from "../../../service/UserInfoService";
+import PropTypes from "prop-types";
 
 class MultiSelectSubjectFormElement extends SubjectFormElement {
     constructor(props, context) {
         super(props, context);
     }
+
+    static propTypes = {
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+    };
+    static defaultProps = {
+        style: {}
+    };
 
     render() {
         const subjectUUIDs = _.get(this.props.value, 'answer');

@@ -8,12 +8,22 @@ import SubjectFormElement from "./SubjectFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import UserInfoService from "../../../service/UserInfoService";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
+import PropTypes from "prop-types";
 
 class SingleSelectSubjectFormElement extends SubjectFormElement {
-
     constructor(props, context) {
         super(props, context);
     }
+
+    static propTypes = {
+        element: PropTypes.object.isRequired,
+        actionName: PropTypes.string.isRequired,
+        value: PropTypes.object,
+        validationResult: PropTypes.object,
+    };
+    static defaultProps = {
+        style: {}
+    };
 
     render() {
         const subject = _.get(this.props.value, 'answer') ? this.individualService.findByUUID(this.props.value.answer) : null;
