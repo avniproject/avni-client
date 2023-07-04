@@ -78,7 +78,7 @@ class CustomDashboardActions {
         if (reportCard.isStandardTaskType()) {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType());
         } else {
-            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, state.ruleInput);
+            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, state.ruleInput.ruleInputArray);
             const standardReportCardType = reportCard.standardReportCardType;
             const viewName = CustomDashboardActions._getViewName(standardReportCardType);
             if (!_.isNil(result)) {
@@ -108,11 +108,11 @@ class CustomDashboardActions {
     static refreshCount(state, action, context) {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
-        let ruleInput = action.filterApplied ? action.ruleInput.ruleInputArray : newState.ruleInput.ruleInputArray;
+        newState.ruleInput = action.filterApplied ? action.ruleInput : newState.ruleInput;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card, ruleInput);
+            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
         return newState;
