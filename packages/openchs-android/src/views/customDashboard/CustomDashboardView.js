@@ -222,7 +222,8 @@ class CustomDashboardView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge
+        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+        marginBottom: Styles.ContentDistanceFromEdge
     },
     sectionContainer: {
         marginVertical: Styles.ContentDistanceWithinContainer,
