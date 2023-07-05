@@ -5,8 +5,6 @@ import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} fr
 import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
-import AddressLevelService from '../../service/AddressLevelService';
-import LocationHierarchyService from '../../service/LocationHierarchyService';
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -20,10 +18,6 @@ class FiltersActionsV2 {
             selectedValues: {},
             filterApplied: false
         };
-    }
-
-    static isWithinCatchment(locationConcept) {
-        return locationConcept.recordValueByKey(Concept.keys.isWithinCatchment);
     }
 
     static onLoad(state, action, context) {
@@ -86,7 +80,7 @@ class FiltersActionsV2 {
         return {...state, loading: true};
     }
 
-    static transformFilters(filledFilterValues, filterConfigs, selectedValues, context) {
+    static transformFilters(filledFilterValues, filterConfigs, selectedValues) {
         let selectedFilters = CustomDashboardActions.getDefaultCustomDashboardFilters();
 
         filledFilterValues.forEach(([filterUUID, filterValue]) => {
@@ -108,6 +102,7 @@ class FiltersActionsV2 {
                 case Concept.dataType.GroupAffiliation:
                 case Concept.dataType.QuestionGroup:
                 case Concept.dataType.Duration:
+                case Concept.dataType.Location:
                     //Not supported
                     break;
                 case Concept.dataType.Coded:
@@ -130,14 +125,6 @@ class FiltersActionsV2 {
                     break;
                 case CustomFilter.type.Gender:
                     selectedFilters.selectedGenders = currentFilterValue;
-                    break;
-                case Concept.dataType.Location:
-                    let locationConcept = filterConfig.observationBasedFilter.concept;
-                    const addressLevelService = context.get(this.isWithinCatchment(locationConcept) ? AddressLevelService : LocationHierarchyService);
-                    const address = addressLevelService.findByUUID(currentFilterValue);
-                    let locationConceptValue = [{value: address.name}];
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : locationConceptValue};
                     break;
                 case CustomFilter.type.Address:
                     selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels,
@@ -178,7 +165,7 @@ class FiltersActionsV2 {
             return newState;
         }
         const dashboardFilterService = context.get(DashboardFilterService);
-        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues, context);
+        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
         const ruleInputArray = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
         //Create and save/update the cache entry
