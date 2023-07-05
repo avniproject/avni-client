@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
-import React from "react";
+import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
@@ -229,7 +229,7 @@ class CustomDashboardView extends AbstractComponent {
                         {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
                 </SafeAreaView>}
-                <View style={{marginBottom: 280}}>
+                <Fragment>
                     {hasFilters && <View style={{display: "flex", padding: 10}}>
                         <SafeAreaView style={{maxHeight: 160}}>
                             <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
@@ -252,7 +252,7 @@ class CustomDashboardView extends AbstractComponent {
                     <ScrollView>
                         {this.renderCards()}
                     </ScrollView>
-                </View>
+                </Fragment>
             </CHSContainer>
         );
     }
