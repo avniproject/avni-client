@@ -229,21 +229,23 @@ class CustomDashboardView extends AbstractComponent {
                         {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
                 </SafeAreaView>}
-                <View style={{marginBottom: 140}}>
-                    {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
-                        <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
-                            <AppliedFiltersV2 postClearAction={() => this.onClearFilters()}
-                                              applied={this.state.customDashboardFilters.applied}
-                                              selectedLocations={this.state.customDashboardFilters.selectedLocations}
-                                            selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
-                                            selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
-                            <View style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.buttons}>
-                                <TouchableOpacity
-                                  style={CustomDashboardView.styles.filterButton}
-                                  onPress={() => this.onFilterPressed()}>
-                                    <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
-                                </TouchableOpacity>
-                            </View>
+                <View style={{marginBottom: 280}}>
+                    {hasFilters && <View style={{display: "flex", padding: 10}}>
+                        <SafeAreaView style={{maxHeight: 160}}>
+                            <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
+                                <AppliedFiltersV2 postClearAction={() => this.onClearFilters()}
+                                                  applied={this.state.customDashboardFilters.applied}
+                                                  selectedLocations={this.state.customDashboardFilters.selectedLocations}
+                                                selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
+                                                selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
+                            </ScrollView>
+                        </SafeAreaView>
+                        <View style={CustomDashboardView.styles.buttons}>
+                            <TouchableOpacity
+                              style={CustomDashboardView.styles.filterButton}
+                              onPress={() => this.onFilterPressed()}>
+                                <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>}
                     <CustomActivityIndicator loading={loading}/>

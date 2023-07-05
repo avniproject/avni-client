@@ -48,10 +48,11 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             let filteredSelectedLocations = this.props.selectedLocations;
             filteredSelectedLocations = _.filter(filteredSelectedLocations, (locationObj =>  locationObj.isSelected));
             const allUniqueTypes = _.uniqBy(_.map(filteredSelectedLocations, ({type}) => ({type})), 'type');
-            return allUniqueTypes.map((l, index) => this.renderContent(this.I18n.t(l.type),
+            const content = allUniqueTypes.map((l, index) => this.renderContent(this.I18n.t(l.type),
                 _.get(_.groupBy(filteredSelectedLocations, 'type'), l.type, [])
                   .map((locations) => this.I18n.t(locations.name)).join(", "),
                 index === filteredSelectedLocations.length - 1 ? ' ' : ' | '));
+            return <Text>{content}</Text>
         }
     }
 
@@ -94,9 +95,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
               </TouchableOpacity>
             </View>}
             <View style={AppliedFiltersV2.styles.container}>
-                <Text>
-                    {this.renderFilteredLocations()}
-                </Text>
+                {this.renderFilteredLocations()}
                 {this.renderCustomFilters()}
                 {this.renderGenderFilters()}
             </View>
