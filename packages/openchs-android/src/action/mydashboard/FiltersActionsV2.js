@@ -102,8 +102,12 @@ class FiltersActionsV2 {
                 case Concept.dataType.GroupAffiliation:
                 case Concept.dataType.QuestionGroup:
                 case Concept.dataType.Duration:
-                case Concept.dataType.Location:
                     //Not supported
+                    break;
+                case Concept.dataType.Location:
+                    let addressConceptValue = [{value: currentFilterValue.name}];
+                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                        [filterConfig.observationBasedFilter.concept.name] : addressConceptValue};
                     break;
                 case Concept.dataType.Coded:
                     const codedConceptAnswers = currentFilterValue.map(answer => answer.name).join(", ");

@@ -155,7 +155,7 @@ class ObservationBasedFilterView extends AbstractComponent {
                     this.timeRangeFilter(filter, value) :
                     this.timeConceptFilter(filter, value);
             case(Concept.dataType.Location):
-                return <LocationHierarchyInput concept={concept} onSelect={(lowestSelectedAddress) => onChange(_.first(lowestSelectedAddress.map(x => x.uuid)))} value={{answer: value}}/>;
+                return <LocationHierarchyInput concept={concept} onSelect={(lowestSelectedAddress) => onChange(_.first(lowestSelectedAddress.map(x => ({name: x.name, uuid: x.uuid}))))} value={{answer: value?.uuid}}/>;
             default:
                 return <View/>;
         }
