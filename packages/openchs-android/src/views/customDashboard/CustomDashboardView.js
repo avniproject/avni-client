@@ -215,7 +215,8 @@ class CustomDashboardView extends AbstractComponent {
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
-            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground,
+                marginBottom: Styles.ContentDistanceFromEdge}}>
                 <AppHeader title={this.I18n.t(title)}
                            hideBackButton={this.props.hideBackButton}
                            startSync={this.props.startSync}
