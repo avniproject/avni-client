@@ -37,17 +37,19 @@ class GenderFilter extends AbstractComponent {
     }
 
     notifyChange(genderName) {
-        this.props.onSelect(_.find(this.state.genders, (x) => x.name === genderName));
+        if (this.props.deprecatedUsage)
+            this.dispatchAction(Actions.ON_GENDER_SELECT, {genderName});
+        else
+            this.props.onSelect(_.find(this.state.genders, (x) => x.name === genderName));
     }
 
     renderGenders = () => {
-        const locale = this.getService(UserInfoService).getUserSettings().locale || "en";
+        const locale = this.getService(UserInfoService).getUserSettings().locale;
         const {genders} = this.state;
-        const selectedGenders = this.props.selectedGenders;
+        const selectedGenders = this.props.deprecatedUsage ? this.state.selectedGenders : this.props.selectedGenders;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
-        let label = this.props.filterLabel || this.I18n.t('gender');
-        let filterModel = new MultiSelectFilterModel(label, optsFnMap, new Map(), selectedNames);
+        const filterModel = new MultiSelectFilterModel(this.props.filterLabel || this.I18n.t('gender'), optsFnMap, new Map(), selectedNames).selectOption(selectedNames);
         return <View>
             <MultiSelectFilter filter={filterModel}
                                locale={locale}
@@ -57,6 +59,8 @@ class GenderFilter extends AbstractComponent {
     };
 
     render() {
+        if (this.props.deprecatedUsage)
+            this._invokeCallbacks();
         return this.renderGenders();
     }
 }
