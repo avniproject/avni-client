@@ -120,9 +120,9 @@ class IndividualProfile extends AbstractComponent {
     programProfileHeading() {
         return this.props.individual.subjectType.isPerson() ?
             <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text> :
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text> :
             <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
+                style={Styles.programProfileSubheading}>{this.props.individual.subjectAddressText(this.I18n)}</Text>
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -299,12 +299,8 @@ class IndividualProfile extends AbstractComponent {
                         </View>
                         {
                             this.props.individual.subjectType.isPerson() &&
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <Text style={{fontSize: Fonts.Normal, color: textColor}}>
-                                        {this.props.individual.userProfileSubtext1(this.I18n)}, {this.props.individual.userProfileSubtext2(this.I18n)}</Text>
-                                    <Text
-                                        style={[Fonts.LargeRegular, {color: textColor}]}>{this.I18n.t(this.props.individual.lowestAddressLevel.name)}</Text>
-                                </View>
+                            <Text
+                                style={Styles.subjectProfileSubheading}>{this.props.individual.userProfileSubtext1(this.I18n)}, {this.props.individual.userProfileSubtext2(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text>
                         }
                     </View>
                 )}

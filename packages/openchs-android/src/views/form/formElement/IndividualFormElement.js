@@ -11,6 +11,7 @@ import IndividualSearchView from "../../../views/individual/IndividualSearchView
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import _ from 'lodash';
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import { SubjectType } from "openchs-models";
 
 
 class IndividualFormElement extends AbstractFormElement {
@@ -39,7 +40,8 @@ class IndividualFormElement extends AbstractFormElement {
                         formElement: this.props.element,
                         value: individual,
                     });
-                }
+                },
+                allowedSubjectTypes: [SubjectType.types.Person]
             }).to(IndividualSearchView, true);
 
     }

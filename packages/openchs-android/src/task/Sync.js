@@ -8,11 +8,18 @@ import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
 import GlobalContext from "../GlobalContext";
 import UserInfoService from "../service/UserInfoService";
 import AppConfig from "../framework/AppConfig";
+import _ from "lodash";
+import SettingsService from '../service/SettingsService';
 
 class Sync extends BaseTask {
     async execute() {
         try {
             const globalContext = GlobalContext.getInstance();
+            let settings = globalContext.beanRegistry.getService(SettingsService).getSettings();
+            if (_.isNil(settings.userId)) {
+                General.logInfo("Sync", "Skipping sync since idpType not set");
+                return false;
+            }
             let isAutoSyncDisabled = globalContext.beanRegistry.getService(UserInfoService).getUserSettingsObject().disableAutoSync;
             if (isAutoSyncDisabled || AppConfig.autoSyncDisabled) {
                 General.logInfo("Sync", "Skipping auto-sync since it is disabled");
