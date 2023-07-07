@@ -74,6 +74,7 @@ class SubjectInfoCard extends AbstractComponent {
         const enrolledPrograms = _.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 
+      const subjectAddressText = _.replace(this.props.individual.subjectAddressText(i18n),new RegExp(",","g"),",\n");
         return (
             <View style={{
                 flexDirection: 'row',
@@ -122,7 +123,7 @@ class SubjectInfoCard extends AbstractComponent {
                 }}>
                     <View style={{justifyContent: 'flex-end'}}>
                         <Text
-                            style={[{opacity: 0.6}, Styles.textStyle]}>{this.props.individual.subjectAddressText(i18n)}</Text>
+                            style={[{opacity: 0.6, textAlign: 'right'}, Styles.textStyle]}>{subjectAddressText}</Text>
                     </View>
                     {!this.props.hideEnrolments &&
                     <View style={{
