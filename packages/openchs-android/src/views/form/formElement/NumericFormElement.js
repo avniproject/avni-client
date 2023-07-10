@@ -9,6 +9,8 @@ import Styles from "../../primitives/Styles";
 import Colors from "../../primitives/Colors";
 import ValueSelectFormElement from "./ValueSelectFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import General from "../../../utility/General";
+import NumericFormElementHelper from "./NumericFormElementHelper";
 
 class NumericFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,23 +29,21 @@ class NumericFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            value: ""
+            value: "",
+            userEntered: null
         };
     }
 
     componentDidMount() {
         this.setState(() => ({
-            value: _.toString(this.props.value.getValue())
+            value: _.toString(this.props.value.getValue()),
+            userEntered: false
         }));
     }
 
     // for auto-calculated numeric fields to work, and to remove characters or space in between numbers
     static getDerivedStateFromProps(props, state) {
-        if (props.value.getValue() !== _.toNumber(state.value)) {
-            return {
-                value: _.toString(props.value.getValue())
-            }
-        }
+        return NumericFormElementHelper.getDerivedStateFromProps(props, state);
     }
 
     rangeText() {
@@ -67,7 +67,7 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     onInputChange(text, convertToNumber) {
-        this.setState(() => ({value: text}), () => {
+        this.setState(() => ({value: text, userEntered: true}), () => {
             this.dispatchAction(this.props.inputChangeActionName, {
                 formElement: this.props.element,
                 value: text,
@@ -130,10 +130,9 @@ class NumericFormElement extends AbstractFormElement {
     }
 
     render() {
+        // General.logDebugTemp("NumericFormElement", `${this.props.element.name}: ${this.state.value}: ${_.isNumber(this.state.value)}`);
         return _.isNil(this.props.allowedValues) ? this.renderNormalView() : this.renderOptionView()
     }
-
-
 }
 
 export default NumericFormElement;
