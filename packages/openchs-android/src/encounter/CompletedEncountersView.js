@@ -1,4 +1,4 @@
-import {SectionList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";
@@ -40,7 +40,6 @@ class CompletedEncountersView extends AbstractComponent {
         const encountersInfo = _.isEmpty(this.state.selectedEncounterTypes) ? this.state.encountersInfo :
             _.filter(this.state.encountersInfo, e => _.includes(selectedEncounterTypesUuid, e.encounter.encounterType.uuid));
         const chronologicalEncounters = _.orderBy(encountersInfo, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
-        const dataSource = [{title: '', data: chronologicalEncounters}];
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('completedEncounters')}/>
@@ -60,9 +59,9 @@ class CompletedEncountersView extends AbstractComponent {
                     <SearchResultsHeader totalCount={chronologicalEncounters.length}
                                          displayedCount={chronologicalEncounters.length}/>
                 </View>
-                <SectionList
+                <FlatList
                   keyExtractor={(item, index) => item.encounter.uuid}
-                  sections={dataSource}
+                  data={chronologicalEncounters}
                   renderItem={({item: encounter}) =>
                     <View style={styles.container}>
                         <CollapsibleEncounters encountersInfo={encounter}
