@@ -1,5 +1,4 @@
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import ListView from "deprecated-react-native-listview";
+import {SectionList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
 import Reducers from "../reducer";
@@ -41,8 +40,7 @@ class CompletedEncountersView extends AbstractComponent {
         const encountersInfo = _.isEmpty(this.state.selectedEncounterTypes) ? this.state.encountersInfo :
             _.filter(this.state.encountersInfo, e => _.includes(selectedEncounterTypesUuid, e.encounter.encounterType.uuid));
         const chronologicalEncounters = _.orderBy(encountersInfo, ({encounter}) => encounter.encounterDateTime || encounter.cancelDateTime, 'desc');
-        const encountersToDisplay = chronologicalEncounters.slice(0, 50);
-        const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(encountersToDisplay);
+        const dataSource = [{title: '', data: chronologicalEncounters}];
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t('completedEncounters')}/>
@@ -59,27 +57,29 @@ class CompletedEncountersView extends AbstractComponent {
                         paddingLeft: Distances.ScaledContainerHorizontalDistanceFromEdge,
                         paddingRight: DGS.resizeWidth(3)
                     }}>{this.props.params.subjectInfo}</Text>
-                    <SearchResultsHeader totalCount={encountersInfo.length}
-                                         displayedCount={encountersToDisplay.length}/>
+                    <SearchResultsHeader totalCount={chronologicalEncounters.length}
+                                         displayedCount={chronologicalEncounters.length}/>
                 </View>
-                <ListView
-                    enableEmptySections={true}
-                    dataSource={dataSource}
-                    pageSize={1}
-                    initialListSize={1}
-                    removeClippedSubviews={true}
-                    renderRow={(encounter) =>
-                        <View style={styles.container}>
-                            <CollapsibleEncounters encountersInfo={encounter}
-                                                   onToggleAction={Actions.ON_EXPAND_TOGGLE}
-                                                   renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
-                                                   encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
-                                                   cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
-                                                   isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
-                                                   style={styles.textContainer}
-                                                   formType={this.props.params.formType}
-                                                   cancelFormType={this.props.params.cancelFormType}/>
-                        </View>}/>
+                <SectionList
+                  keyExtractor={(item, index) => item.encounter.uuid}
+                  sections={dataSource}
+                  renderItem={({item: encounter}) =>
+                    <View style={styles.container}>
+                        <CollapsibleEncounters encountersInfo={encounter}
+                                               onToggleAction={Actions.ON_EXPAND_TOGGLE}
+                                               renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
+                                               encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
+                                               cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
+                                               isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
+                                               style={styles.textContainer}
+                                               formType={this.props.params.formType}
+                                               cancelFormType={this.props.params.cancelFormType}/>
+                    </View>}
+                  renderSectionHeader={_.noop}
+                  initialNumToRender={10}
+                  updateCellsBatchingPeriod={1500}
+                  maxToRenderPerBatch={20}
+                />
                 <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 <TouchableOpacity
                     onPress={() => TypedTransition.from(this).with({
