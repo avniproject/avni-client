@@ -74,9 +74,9 @@ class CompletedEncountersView extends AbstractComponent {
                                                formType={this.props.params.formType}
                                                cancelFormType={this.props.params.cancelFormType}/>
                     </View>}
-                  initialNumToRender={10}
-                  updateCellsBatchingPeriod={1500}
-                  maxToRenderPerBatch={20}
+                  initialNumToRender={15}
+                  updateCellsBatchingPeriod={500}
+                  maxToRenderPerBatch={30}
                 />
                 <Separator height={50} backgroundColor={Colors.GreyContentBackground}/>
                 <TouchableOpacity
