@@ -74,7 +74,6 @@ class CompletedEncountersView extends AbstractComponent {
                                                formType={this.props.params.formType}
                                                cancelFormType={this.props.params.cancelFormType}/>
                     </View>}
-                  renderSectionHeader={_.noop}
                   initialNumToRender={10}
                   updateCellsBatchingPeriod={1500}
                   maxToRenderPerBatch={20}
