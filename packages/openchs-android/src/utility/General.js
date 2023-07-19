@@ -1,7 +1,6 @@
 import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
-import {SubjectType} from 'openchs-models';
 
 let currentLogLevel;
 
