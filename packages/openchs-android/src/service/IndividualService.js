@@ -673,6 +673,11 @@ class IndividualService extends BaseService {
             .sorted('name');
     }
 
+    getSubjectByUUIDAndType(uuid, subjectTypeName) {
+        return this.getAllNonVoided()
+            .find('uuid = $0 and subjectType.name = $1', uuid, subjectTypeName);
+    }
+
     findAllWithMobileNumber(mobileNumber) {
         return this.getAllNonVoided()
             .filter(ind => _.toString(ind.getMobileNumber()).slice(-10) === _.toString(mobileNumber).slice(-10));
