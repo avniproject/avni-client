@@ -48,7 +48,7 @@ class SelectableItemGroup extends React.Component {
         return _.chunk(labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
                 {rlvPair.map((radioLabelValue) => {
-                        const checked = selectionFn(radioLabelValue.value);
+                        const checked = selectionFn(radioLabelValue.value) || false;
                         return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 2}}
                                      key={radioLabelValue.label}>
                             <SelectableItem displayText={I18n.t(radioLabelValue.label)}
