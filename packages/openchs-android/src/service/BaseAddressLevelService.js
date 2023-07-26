@@ -97,7 +97,7 @@ class BaseAddressLevelService extends BaseService {
         }
         const children = this.getChildrenParent(node.uuid);
         if (_.isEmpty(children)) {
-            return [];
+            return leavesOnly ? [] : [node];
         }
         else if (this.isLeaf(_.first(children))) {
             return leavesOnly ? children : [node].concat(children);
