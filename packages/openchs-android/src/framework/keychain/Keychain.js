@@ -11,12 +11,18 @@ async function getKey() {
         let encodedKey = null;
         if (credentials && credentials.username === CREDENTIAL_USERNAME) {
             let rawDecodedString = base64.decode(credentials.password);
+            console.log("rawDecodedString:::", rawDecodedString);
             key = stringToByteArray(rawDecodedString);
         } else {
             console.log("Creating new credentials for ", CREDENTIAL_USERNAME);
             let rawBuffer = randomBytes(64);
+            console.log("rawBuffer:::", rawBuffer);
             key = Uint8Array.from(rawBuffer); //Getting a Buffer here
+            console.log("key:::", key);
             encodedKey = rawBuffer.toString('base64');
+            console.log("encodedKey:::", encodedKey);
+            let hexEncodedKey = rawBuffer.toString('hex');
+            console.log("hexEncodedKey:::", hexEncodedKey);
             await Keychain.setGenericPassword(CREDENTIAL_USERNAME,  encodedKey);
         }
         //console.log("Key is", Buffer.from(key).toString('hex')); //Needed for realm file decryption

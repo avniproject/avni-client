@@ -44,6 +44,7 @@ async function encryptRealm(setOutput) {
     }
     setOutput("Encrypt start");
     let db = await RealmFactory.getRealm(isEncrypted)
+    console.log("going to get key....");
     const key = await getKey();
     let oldPath = db.path;
     let newPath = `${oldPath}.encrypted`;

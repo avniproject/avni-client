@@ -6,6 +6,8 @@ class RealmFactory {
     static createRealm() {
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const realmConfig = entityMappingConfig.getRealmConfig();
+        delete realmConfig.encryptionKey;
+        console.log("realmConfig:::", realmConfig);
         return new RealmProxy(new Realm(realmConfig), entityMappingConfig);
     }
 
@@ -22,10 +24,12 @@ class RealmFactory {
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const configWithEncryptionKey = entityMappingConfig.getRealmConfig();
         configWithEncryptionKey["encryptionKey"] = key
+        console.log("configWithEncryptionKey:::", configWithEncryptionKey);
         return new RealmProxy(new Realm(configWithEncryptionKey), entityMappingConfig);
     }
 
     static async getRealm(isEncrypted) {
+        console.log("isEncrypted:::", isEncrypted);
         return isEncrypted ? (await this.createRealmWithEncryptionKey()) : this.createRealm();
     }
 }
