@@ -11,6 +11,7 @@ import EncounterService from "../../service/EncounterService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
+import IndividualService from "../../service/IndividualService";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
@@ -84,6 +85,7 @@ class ProgramEncounterCancelActions {
             context.get(EncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         } else {
             const workflowInfo = {workflow: 'Program encounter cancel', programEncounterUuid: newState.programEncounter.uuid};
+            context.get(IndividualService).updateObservations(newState.programEncounter.programEnrolment.individual);
             context.get(ProgramEnrolmentService).updateObservations(newState.programEncounter.programEnrolment, workflowInfo);
             context.get(ProgramEncounterService).saveOrUpdate(newState.programEncounter, action.nextScheduledVisits, action.skipCreatingPendingStatus);
         }
