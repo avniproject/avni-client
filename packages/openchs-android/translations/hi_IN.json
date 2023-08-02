@@ -376,6 +376,8 @@
     "forgot_password_OPT_sent_alert" : "हमने आपके पंजीकृत मोबाइल नंबर पर वन-टाइम पासवर्ड (OTP) भेजा है",
     "forgot_password_first_page_note" : "कृपया अपना यूजर आईडी दर्ज करें, आपका पासवर्ड रीसेट करने के लिए हम आपको वन-टाइम पासवर्ड (OTP) भेजेंगे।",
     "forgot_password_userId_placeholder" : "अपनी यूजर आईडी दर्ज करें",
-    "Send OTP" : "वन-टाइम पासवर्ड (OTP) भेजें"
+    "Send OTP" : "वन-टाइम पासवर्ड (OTP) भेजें",
+    "disableAutoSync": "ऑटो सिंक अक्षम करें",
+    "autoSync": "स्वतः सिंक"
   }
 }

@@ -20,6 +20,7 @@ import RefreshReminder from "./RefreshReminder";
 import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
 import OrganisationConfigService from '../../service/OrganisationConfigService';
+import LocalCacheService from '../../service/LocalCacheService';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -43,7 +44,9 @@ class MyDashboardView extends AbstractComponent {
         if (this.state.fetchFromDB) {
             this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         }
-        setTimeout(() => this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync}), 0);
+        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+          this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync, cachedSubjectTypeUUID});
+        });
     }
 
     onBackCallback() {

@@ -50,6 +50,12 @@ Styles.programProfileSubheading = {
     lineHeight: Styles.smallTextSizeLineHeight
 };
 
+Styles.subjectProfileSubheading = {
+    fontSize: Styles.smallTextSize,
+    color: Styles.blackColor,
+    lineHeight: Styles.smallTextSizeLineHeight
+};
+
 Styles.navbarHelpText = {
     fontSize: 36,
     fontStyle: 'normal',

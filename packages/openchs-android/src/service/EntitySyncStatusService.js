@@ -4,13 +4,14 @@ import {
     Checklist,
     ChecklistItem,
     Encounter,
+    EntityApprovalStatusMetaData,
     EntityMetaData,
     EntitySyncStatus,
+    GroupSubject,
     Individual,
     IndividualRelationship,
     ProgramEncounter,
-    ProgramEnrolment,
-    GroupSubject
+    ProgramEnrolment
 } from 'avni-models';
 import General from '../utility/General';
 import _ from "lodash";
@@ -57,11 +58,11 @@ class EntitySyncStatusService extends BaseService {
         const entityQueueService = this.getService(EntityQueueService);
         const entities = _.map(this.findAllByUniqueEntityName(), ({entityName, loadedSince}) => {
             const isNeverSynced = loadedSince.getTime() === EntitySyncStatus.REALLY_OLD_DATE.getTime();
-
+            const queuedItemCount = entityQueueService.getQueuedItemCount(entityName);
             return {
                 entityName: entityName,
-                loadedSince: isNeverSynced ? 'Never' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
-                queuedCount: entityQueueService.getQueuedItemCount(entityName),
+                loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
+                queuedCount: queuedItemCount,
                 type: EntityMetaData.findByName(entityName).type
             }
         });
@@ -83,14 +84,13 @@ class EntitySyncStatusService extends BaseService {
     }
 
     setup() {
-        const entityMetaDataModel = EntityMetaData.model().filter(({type}) => type !== "parentOfVirtualTx")
+        const entityMetaDataModel = EntityMetaData.getEntitiesToBePulled();
         const self = this;
 
         entityMetaDataModel.forEach(function (entity) {
             if (_.isNil(self.get(entity.entityName)) && _.isEmpty(entity.privilegeParam)) {
                 General.logDebug('EntitySyncStatusService', `Setting up base entity sync status for ${entity.entityName}`);
                 try {
-                    //TODO check that this works
                     const entitySyncStatus = EntitySyncStatus.create(entity.entityName, EntitySyncStatus.REALLY_OLD_DATE, General.randomUUID(), '');
                     self.save(entitySyncStatus);
                 } catch (e) {

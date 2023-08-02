@@ -35,7 +35,8 @@ class IndividualSearchView extends AbstractComponent {
     static propTypes = {
         onIndividualSelection: PropTypes.func.isRequired,
         showHeader: PropTypes.bool,
-        headerMessage: PropTypes.string
+        headerMessage: PropTypes.string,
+        allowedSubjectTypes: PropTypes.array
     };
 
     constructor(props, context) {
@@ -97,7 +98,7 @@ class IndividualSearchView extends AbstractComponent {
                         }}>
                             <CustomActivityIndicator
                                 loading={this.state.loading}/>
-                            {allowedSubjectTypes.length > 1 &&
+                            {allowedSubjectTypes.length > 0 &&
                             <SingleSelectFilter filter={subjectTypeSelectFilter} locale={locale} I18n={this.I18n}
                                                 onSelect={(subjectType) =>
                                                     this.dispatchAction(Actions.ENTER_SUBJECT_TYPE_CRITERIA, {subjectType})}/>
@@ -128,8 +129,8 @@ class IndividualSearchView extends AbstractComponent {
                                 /> : null}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) &&
                             <GenderFilter
-                                selectedGenders={this.state.selectedGenders}
-                                onSelect={(selectedGenders) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGenders})}
+                                selectedGenders={this.state.selectedGenders || []}
+                                onSelect={(selectedGender) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGender})}
                             />}
                             {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Address, subjectTypeUUID) &&
                             <AddressLevels

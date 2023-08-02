@@ -16,6 +16,9 @@
     ],
     "transformIgnorePatterns": [
       "!<rootDir>\\/node_modules\\/react-native-i18n/"
+    ],
+    "setupFiles": [
+      "<rootDir>/test/jestSetupFile.js"
     ]
   },
   "license": "AGPL-3.0",
@@ -31,6 +34,7 @@
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.18.2",
     "@react-native-community/datetimepicker": "^6.5.0",
     "@react-native-community/netinfo": "9.3.0",
     "@react-native-community/progress-bar-android": "^1.0.5",
@@ -51,7 +55,7 @@
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "native-base": "3.4.9",
-    "openchs-models": "1.30.16",
+    "openchs-models": "1.30.47",
     "prop-types": "15.8.1",
     "react": "18.2.0",
     "react-native": "0.69.7",

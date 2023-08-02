@@ -11,7 +11,7 @@ function getFormattedMetadata(metadata, reduceWeightBy) {
 class AllSyncableEntityMetaData {
     static getProgressSteps(mediaUploadRequired, allEntitiesMetaData, queuedEntityNames) {
         let allReferenceDataMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "reference");
-        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx" || entityMetaData.type === "virtualTx");
+        const allTxEntityMetaData = allEntitiesMetaData.filter((entityMetaData) => entityMetaData.type === "tx");
 
         let mediaEntities = [];
         if (mediaUploadRequired) {

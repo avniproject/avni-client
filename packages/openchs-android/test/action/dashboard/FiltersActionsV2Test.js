@@ -16,7 +16,7 @@ it('should update and apply date range filter', function () {
     state = FiltersActionsV2.onLoad(state, {dashboardUUID: "d"}, testContext);
     state = FiltersActionsV2.onFilterUpdate(state, {filter: dashboardFilter, value: {minValue: today}});
     state = FiltersActionsV2.onFilterUpdate(state, {filter: dashboardFilter, value: {maxValue: today}});
-    FiltersActionsV2.appliedFilter(state, {navigateToDashboardView: _.noop}, testContext);
+    FiltersActionsV2.appliedFilter(state, {navigateToDashboardView: _.noop, setFiltersDataOnDashboardView: _.noop}, testContext);
 
     assert.equal(_.isNil(capturedData.ruleInputFileConfig), false);
     assert.equal(_.isNil(capturedData.ruleInputFilterValue), false);

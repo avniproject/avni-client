@@ -2,6 +2,7 @@ import AddressLevelService from "../../service/AddressLevelService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
+import {ArrayUtil} from "openchs-models";
 
 class FiltersActions {
 
@@ -63,7 +64,7 @@ class FiltersActions {
         const addressLevelService = beans.get(AddressLevelService);
         const lowestSelectedAddressLevels = action.addressLevelState.lowestSelectedAddresses;
         const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(parent, addressLevelService.getLeavesOfParent(parent)), []);
+            .reduce((acc, parent) => acc.concat(addressLevelService.getChildrenOfNode(parent, false)), []);
         newState.locationSearchCriteria.toggleLowestAddresses(lowestAddressLevels);
         return newState;
     }
@@ -156,7 +157,9 @@ class FiltersActions {
     }
 
     static genderFilterChange(state, action) {
-        return {...state, selectedGenders: action.selectedGenders}
+        let selectedGenders = [...state.selectedGenders]
+        ArrayUtil.toggle(selectedGenders, action.selectedGender, (a, b) => a.uuid === b.uuid);
+        return {...state, selectedGenders}
     }
 
     static loadIndicator(state, action) {

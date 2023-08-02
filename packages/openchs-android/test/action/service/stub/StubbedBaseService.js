@@ -19,6 +19,11 @@ class StubbedBaseService {
     loadAllNonVoided() {
         return this.serviceData;
     }
+
+    saveOrUpdate(entity, schema) {
+        this.serviceData[entity.uuid] = entity;
+        return entity;
+    }
 }
 
 export default StubbedBaseService;

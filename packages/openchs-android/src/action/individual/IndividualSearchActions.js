@@ -8,6 +8,7 @@ import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import AddressLevelState from "../common/AddressLevelsState";
+import { ArrayUtil, CustomFilter } from "openchs-models";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -30,13 +31,24 @@ export class IndividualSearchActions {
         }
     }
 
-    static onLoad(state, action, context) {
-        const newState = IndividualSearchActions.resetFilters(state);
+    static determineSubjectTypesToDisplay(action, context) {
+        if (!_.isNil(action.memberSubjectType)) {
+            return [action.memberSubjectType];
+        }
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const privilegeService = context.get(PrivilegeService);
         const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        newState.subjectTypes = !_.isNil(action.memberSubjectType) ? [action.memberSubjectType] :
-            _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
+        const viewableSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
+
+        if (!_.isNil(action.allowedSubjectTypes)) {
+            return _.filter(viewableSubjectTypes, subjectType => action.allowedSubjectTypes.includes(subjectType.type));
+        }
+        return viewableSubjectTypes;
+    }
+
+    static onLoad(state, action, context) {
+        const newState = IndividualSearchActions.resetFilters(state);
+        newState.subjectTypes = IndividualSearchActions.determineSubjectTypesToDisplay(action, context);
         const subjectType = newState.subjectTypes[0] || SubjectType.create('');
         newState.searchCriteria.addSubjectTypeCriteria(subjectType);
         if (action.allowedSubjectUUIDs && action.allowedSubjectUUIDs.length > 0) {
@@ -76,8 +88,24 @@ export class IndividualSearchActions {
             (subjectType) => subjectType.name === action.subjectType);
         newState.searchCriteria.addSubjectTypeCriteria(selectedSubjectType);
         newState.searchCriteria.addVoidedCriteria(state.searchCriteria.includeVoided);
+        IndividualSearchActions.retainSearchCriteriaIfApplicable(selectedSubjectType.uuid, beans.get(CustomFilterService), state, newState);
         return newState;
     };
+
+    static retainSearchCriteriaIfApplicable(selectedSubjectTypeUuid, customFilterService, oldState, newState) {
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Name, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addNameCriteria(oldState.searchCriteria.name);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Age, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addAgeCriteria(oldState.searchCriteria.ageInYears);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Gender, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.addGenderCriteria(oldState.searchCriteria.genders);
+        }
+        if (customFilterService.filterTypePresent('searchFilters', CustomFilter.type.Address, selectedSubjectTypeUuid)) {
+            newState.searchCriteria.toggleLowestAddresses(oldState.searchCriteria.lowestAddressLevels);
+        }
+    }
 
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
@@ -85,7 +113,7 @@ export class IndividualSearchActions {
         const addressLevelState = action.values;
         const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
         const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(parent, addressLevelService.getLeavesOfParent(parent)), []);
+            .reduce((acc, parent) => acc.concat(addressLevelService.getChildrenOfNode(parent, false)), []);
         newState.searchCriteria.toggleLowestAddresses(lowestAddressLevels);
         newState.addressLevelState = addressLevelState;
         return newState;
@@ -148,7 +176,9 @@ export class IndividualSearchActions {
     }
 
     static genderChange(state, action) {
-        return {...state, selectedGenders: action.selectedGenders};
+        let selectedGenders = state.selectedGenders || [];
+        ArrayUtil.toggle(selectedGenders, action.selectedGender, (l,r) => l.uuid === r.uuid)
+        return {...state, selectedGenders};
     }
 
     static loadIndicator(state, action) {

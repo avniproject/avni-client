@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
-import React from "react";
+import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
@@ -24,10 +24,30 @@ import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
 import FiltersViewV2 from "../filter/FiltersViewV2";
 import ChecklistListingView from "../checklist/ChecklistListingView";
+import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
+import Distances from '../primitives/Distances';
+import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
     static styles = StyleSheet.create({
+        itemContent: {
+            flexDirection: 'column',
+            borderBottomWidth: 1,
+            borderColor: Colors.InputBorderNormal,
+            backgroundColor: Colors.FilterBar,
+            paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
+            paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
+            elevation: 2,
+            minWidth: '95%',
+            minHeight: 60
+        },
+        buttons: {
+            flexDirection: "row-reverse",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingTop: 8,
+        },
         filterButton: {
             paddingHorizontal: 8,
             paddingVertical: 4,
@@ -54,12 +74,18 @@ class CustomDashboardView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    onClearFilters() {
+        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: this.state.activeDashboardUUID});
+        this.refreshCounts();
+    }
+
     refreshCounts() {
         this.dispatchAction(Actions.REMOVE_OLDER_COUNTS);
         setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 500);
     }
 
     onDashboardNamePress(uuid) {
+        this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: uuid});
         this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
         this.refreshCounts();
     }
@@ -180,7 +206,8 @@ class CustomDashboardView extends AbstractComponent {
         TypedTransition.from(this)
             .with({
                 dashboardUUID: activeDashboardUUID,
-                onFilterChosen: (ruleInput) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: ruleInput})
+                onFilterChosen: (ruleInputArray) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: {ruleInputArray: ruleInputArray}, filterApplied: true}),
+                loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters, filterApplied: true}),
             }).to(FiltersViewV2, true);
     }
 
@@ -188,7 +215,8 @@ class CustomDashboardView extends AbstractComponent {
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
-            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground,
+                marginBottom: Styles.ContentDistanceFromEdge}}>
                 <AppHeader title={this.I18n.t(title)}
                            hideBackButton={this.props.hideBackButton}
                            startSync={this.props.startSync}
@@ -202,19 +230,30 @@ class CustomDashboardView extends AbstractComponent {
                         {this.renderZeroResultsMessageIfNeeded()}
                     </ScrollView>
                 </SafeAreaView>}
-                <View style={{marginBottom: 140}}>
-                    {hasFilters && <View style={{display: "flex", flexDirection: "row-reverse", padding: 10}}>
-                        <TouchableOpacity
-                            style={CustomDashboardView.styles.filterButton}
-                            onPress={() => this.onFilterPressed()}>
-                            <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
-                        </TouchableOpacity>
+                <Fragment>
+                    {hasFilters && <View style={{display: "flex", padding: 10}}>
+                        <SafeAreaView style={{maxHeight: 160}}>
+                            <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
+                                <AppliedFiltersV2 postClearAction={() => this.onClearFilters()}
+                                                  applied={this.state.customDashboardFilters.applied}
+                                                  selectedLocations={this.state.customDashboardFilters.selectedLocations}
+                                                selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
+                                                selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
+                            </ScrollView>
+                        </SafeAreaView>
+                        <View style={CustomDashboardView.styles.buttons}>
+                            <TouchableOpacity
+                              style={CustomDashboardView.styles.filterButton}
+                              onPress={() => this.onFilterPressed()}>
+                                <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>}
                     <CustomActivityIndicator loading={loading}/>
                     <ScrollView>
                         {this.renderCards()}
                     </ScrollView>
-                </View>
+                </Fragment>
             </CHSContainer>
         );
     }
@@ -222,7 +261,8 @@ class CustomDashboardView extends AbstractComponent {
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge
+        marginHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
+        marginBottom: Styles.ContentDistanceFromEdge
     },
     sectionContainer: {
         marginVertical: Styles.ContentDistanceWithinContainer,

@@ -246,6 +246,10 @@ appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 put_db: ## Apply realmdb from ../default.realm
 	adb push $(appdb) /data/data/${app_android_package_name}/files/default.realm
 
+put_db_force:
+	adb push $(appdb) /product/default.realm
+	adb shell "run-as ${app_android_package_name} mv /product/default.realm /data/data/${app_android_package_name}/files/default.realm"
+
 rm_db:
 	rm -rf ../db
 
@@ -264,7 +268,7 @@ openlocation_apk: ## Open location of built apk
 	open packages/openchs-android/android/app/build/outputs/apk
 
 open_location_bundles:
-	open packages/openchs-android/android/app/bundles
+	open packages/openchs-android/android/app/build/outputs/bundle/
 
 # <env>
 clean_packager_cache:

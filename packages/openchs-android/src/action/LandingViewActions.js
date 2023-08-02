@@ -10,6 +10,7 @@ class LandingViewActions {
             menu: false,
             dashboard: false,
             syncRequired: true,
+            previouslySelectedSubjectTypeUUID: null
         };
     }
 
@@ -31,7 +32,8 @@ class LandingViewActions {
             ...newState,
             dummy: !state.dummy,
             home: true,
-            syncRequired
+            syncRequired,
+            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || newState.previouslySelectedSubjectTypeUUID,
         };
     }
 

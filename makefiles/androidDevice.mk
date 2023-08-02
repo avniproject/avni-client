@@ -105,3 +105,11 @@ fill_password:
 	@adb shell input keyevent 61
 	@adb shell input keyevent 61
 	@adb shell input keyevent 66
+
+disable_network:
+	adb shell "svc wifi disable"
+	adb shell "svc data disable"
+
+enable_network:
+	adb shell "svc wifi enable"
+	adb shell "svc data enable"
