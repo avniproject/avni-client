@@ -28,7 +28,7 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "npx jetify && cp patches/Utils.java node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/"
+    "postinstall": "npx jetify"
   },
   "dependencies-comment": [
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
@@ -72,7 +72,7 @@
     "react-native-fs": "2.20.0",
     "react-native-geolocation-service": "5.3.0",
     "react-native-i18n": "^0.1.1",
-    "react-native-image-picker": "4.8.4",
+    "react-native-image-picker": "5.3.1",
     "react-native-image-zoom-viewer": "3.0.1",
     "react-native-immediate-phone-call": "^2.0.0",
     "react-native-keep-awake": "^4.0.0",
@@ -87,7 +87,7 @@
     "react-native-video-player": "0.12.0",
     "react-native-webview": "11.23.0",
     "react-native-zip-archive": "6.0.8",
-    "realm": "11.0.0-rc.1",
+    "realm": "11.8.0",
     "redux": "4.2.0",
     "rn-fetch-blob": "0.13.0-beta-1",
     "rules-config": "github:openchs/rules-config#fe552da405368bfd138e2f38e605c1d307e3ebe4",
