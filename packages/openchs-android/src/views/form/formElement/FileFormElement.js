@@ -16,6 +16,8 @@ import FileSystem from "../../../model/FileSystem";
 import {AlertMessage} from "../../common/AlertMessage";
 import fs from "react-native-fs";
 import {FileFormat} from 'avni-models';
+import DeviceInfo from "react-native-device-info";
+import _ from "lodash";
 
 class FileFormElement extends AbstractFormElement {
 
@@ -24,11 +26,18 @@ class FileFormElement extends AbstractFormElement {
     }
 
     async isPermissionGranted() {
-        const readStoragePermission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-        const writeStoragePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-        const granted = PermissionsAndroid.RESULTS.GRANTED;
-        const permissionRequest = await PermissionsAndroid.requestMultiple([readStoragePermission, writeStoragePermission]);
-        return permissionRequest[readStoragePermission] === granted && permissionRequest[writeStoragePermission] === granted
+        const apiLevel = await DeviceInfo.getApiLevel();
+
+        if (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) return true;
+
+        const permissionRequest = await PermissionsAndroid.requestMultiple(
+            [
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+            ]
+        );
+
+        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     getFileName(name = "") {

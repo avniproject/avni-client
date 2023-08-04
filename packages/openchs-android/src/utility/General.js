@@ -308,6 +308,8 @@ class General {
     static delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    static STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL = 33;
 }
 
 export default General;
