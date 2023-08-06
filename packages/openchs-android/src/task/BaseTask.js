@@ -3,10 +3,10 @@ import AppStore from "../store/AppStore";
 import RealmFactory from "../framework/db/RealmFactory";
 
 export default class BaseTask {
-    initDependencies() {
+    async initDependencies() {
         const globalContext = GlobalContext.getInstance();
         if (!globalContext.isInitialised())
-            globalContext.initialiseGlobalContext(AppStore, RealmFactory);
+            await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
     }
 
     execute() {

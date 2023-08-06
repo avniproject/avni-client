@@ -14,7 +14,7 @@ const SyncJobSchedule = {
   period: 60,
   persist: true,
   exact: true,
-  job: () => Sync.execute()
+  job: async() => await Sync.execute()
 };
 
 const DummySyncJobSchedule = {
@@ -23,7 +23,7 @@ const DummySyncJobSchedule = {
   period: 60,
   persist: true,
   exact: true,
-  job: () => DummySync.execute()
+  job: async() => await DummySync.execute()
 };
 
 const DeleteDraftsJobSchedule = {
@@ -32,7 +32,7 @@ const DeleteDraftsJobSchedule = {
   period: 1 * 24 * 60,
   persist: true,
   exact: true,
-  job: () => DeleteDrafts.execute()
+  job: async() => await DeleteDrafts.execute()
 };
 
 const PruneMediaJobSchedule = {
@@ -41,7 +41,7 @@ const PruneMediaJobSchedule = {
   period: 1 * 24 * 60,
   persist: true,
   exact: true,
-  job: () => PruneMedia.execute()
+  job: async() => await PruneMedia.execute()
 };
 
 //The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
@@ -78,7 +78,7 @@ const Schedule = ({
                     notificationTitle = "Background job",
                     job
                   }) => {
-  let workflow = async() => job();
+  let workflow = async() => await job();
   return WorkManager.setWorker({
     type: 'periodic', //Since we want this to be re-triggered as per repeatInterval specification
     name: jobKey,

@@ -6,6 +6,7 @@ import BeneficiaryModeStartView from "../beneficiaryMode/BeneficiaryModeStartVie
 import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
+import organisationConfigService from "../../service/OrganisationConfigService";
 
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
@@ -38,6 +39,9 @@ class StaticMenuItemFactory {
     }
 
     static getSyncMenus() {
+        if(organisationConfigService.isDbEncryptionEnabled())
+            _.remove(SyncMenus, syncMenu => syncMenu.getUniqueName() === "uploadCatchmentDatabase");
+
         return [...SyncMenus];
     }
 
@@ -46,6 +50,9 @@ class StaticMenuItemFactory {
     }
 
     static getSupportMenus() {
+        if(organisationConfigService.isDbEncryptionEnabled())
+            _.remove(SupportMenus, supportMenu => supportMenu.getUniqueName() === "uploadDatabase");
+
         return [...SupportMenus];
     }
 

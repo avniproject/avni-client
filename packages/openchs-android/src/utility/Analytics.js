@@ -4,7 +4,7 @@ import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
 import RealmFactory from '../framework/db/RealmFactory';
 
-const db = RealmFactory.createRealm();;
+const db = RealmFactory.createRealm();
 const firebaseAnalytics = analytics();
 const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
 

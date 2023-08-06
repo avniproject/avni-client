@@ -2,7 +2,6 @@ import {Alert, Clipboard, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
-import {EntityMetaData} from 'openchs-models';
 import './views';
 import _ from "lodash";
 import {RegisterAndScheduleJobs} from "./AvniBackgroundJob";
@@ -13,23 +12,6 @@ import AppConfig from "./framework/AppConfig";
 import RNRestart from 'react-native-restart';
 import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
-
-let error;
-try {
-    const globalContext = GlobalContext.getInstance();
-    if (!globalContext.isInitialised()) {
-        globalContext.initialiseGlobalContext(AppStore, RealmFactory);
-        globalContext.routes = PathRegistry.routes();
-    }
-
-    const entitySyncStatusService = globalContext.beanRegistry.getService("entitySyncStatusService");
-    entitySyncStatusService.setup();
-
-    RegisterAndScheduleJobs();
-} catch (e) {
-    console.log("App", e);
-    error = e;
-}
 
 class App extends Component {
     static childContextTypes = {
@@ -44,7 +26,7 @@ class App extends Component {
         this.getBean = this.getBean.bind(this);
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
-        this.state = {error};
+        this.state = {error: '', isInitialisationDone: false};
     }
 
     handleError(error, stacktrace) {
@@ -85,18 +67,34 @@ class App extends Component {
         return GlobalContext.getInstance().beanRegistry.getService(name);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         console.log("App", "componentDidMount");
+        try {
+            const globalContext = GlobalContext.getInstance();
+            if (!globalContext.isInitialised()) {
+                await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
+                globalContext.routes = PathRegistry.routes();
+            }
+
+            const entitySyncStatusService = globalContext.beanRegistry.getService("entitySyncStatusService");
+            entitySyncStatusService.setup();
+
+            RegisterAndScheduleJobs();
+            this.setState(state => ({...state, isInitialisationDone: true }));
+        } catch (e) {
+            console.log("App", e);
+            this.setState(state => ({...state, error: e }));
+        }
     }
 
     render() {
         if (this.state.error) {
             return this.renderError();
         }
-        if (!_.isNil(GlobalContext.getInstance().routes)) {
+        if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
         }
-        return (<Text>Something Went Wrong</Text>);
+        return (<Text>Loading...</Text>);
     }
 }
 

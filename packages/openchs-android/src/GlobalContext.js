@@ -24,18 +24,22 @@ class GlobalContext {
         return !_.isNil(this.reduxStore);
     }
 
-    initialiseGlobalContext(appStore, realmFactory) {
-        this.db = realmFactory.createRealm();
+    async initialiseGlobalContext(appStore, realmFactory) {
+        this.db =  await realmFactory.createRealm();
         this.beanRegistry.init(this.db);
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
         const restoreRealmService = this.beanRegistry.getService("backupAndRestoreService");
-        restoreRealmService.subscribeOnRestore(() => this.onDatabaseRecreated(realmFactory));
+        restoreRealmService.subscribeOnRestore(async () => await this.onDatabaseRecreated(realmFactory));
     }
 
-    onDatabaseRecreated(realmFactory) {
+    async onDatabaseRecreated(realmFactory) {
         this.db.close();
-        this.db = realmFactory.createRealm();
+        await this.reinitializeDatabase(realmFactory);
+    }
+
+    async reinitializeDatabase(realmFactory) {
+        this.db = await realmFactory.createRealm();
         this.beanRegistry.updateDatabase(this.db);
     }
 }

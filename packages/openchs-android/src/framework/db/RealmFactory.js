@@ -1,13 +1,16 @@
 import Realm from "realm";
 import {EntityMappingConfig, RealmProxy} from "openchs-models";
-import getKey from "../keychain/Keychain";
+import EncryptionService from "../../service/EncryptionService";
 
 class RealmFactory {
-    static createRealm() {
+    static async createRealm() {
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const realmConfig = entityMappingConfig.getRealmConfig();
-        delete realmConfig.encryptionKey;
-        console.log("realmConfig:::", realmConfig);
+
+        const encryptionKey = await EncryptionService.getEncryptionKey();
+        if(!_.isNil(encryptionKey)) realmConfig.encryptionKey = encryptionKey
+        else delete realmConfig.encryptionKey;
+
         return new RealmProxy(new Realm(realmConfig), entityMappingConfig);
     }
 
@@ -16,21 +19,6 @@ class RealmFactory {
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const realmConfig = entityMappingConfig.getRealmConfig();
         return new Realm(realmConfig);
-    }
-
-    static async createRealmWithEncryptionKey() {
-        console.log('RealmFactory','+++++++++++++++++++++++++ Loading ENCRYPTED db');
-        let key = await getKey();
-        const entityMappingConfig = EntityMappingConfig.getInstance();
-        const configWithEncryptionKey = entityMappingConfig.getRealmConfig();
-        configWithEncryptionKey["encryptionKey"] = key
-        console.log("configWithEncryptionKey:::", configWithEncryptionKey);
-        return new RealmProxy(new Realm(configWithEncryptionKey), entityMappingConfig);
-    }
-
-    static async getRealm(isEncrypted) {
-        console.log("isEncrypted:::", isEncrypted);
-        return isEncrypted ? (await this.createRealmWithEncryptionKey()) : this.createRealm();
     }
 }
 
