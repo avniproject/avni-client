@@ -342,13 +342,13 @@ class MenuView extends AbstractComponent {
                 title: 'functionality', data: functionalityItems
             },
             {
-                title: 'sync', data: this.getMenuItems(StaticMenuItemFactory.getSyncMenus(), configuredMenuItems, MenuItem.SyncGroupName)
+                title: 'sync', data: this.getMenuItems(StaticMenuItemFactory.getSyncMenus(this.context), configuredMenuItems, MenuItem.SyncGroupName)
             },
             {
                 title: 'user', data: this.getMenuItems(StaticMenuItemFactory.getUserMenus(), configuredMenuItems, MenuItem.UserGroupName)
             },
             {
-                title: 'support', data: this.getMenuItems(StaticMenuItemFactory.getSupportMenus(), configuredMenuItems, MenuItem.SupportGroupName)
+                title: 'support', data: this.getMenuItems(StaticMenuItemFactory.getSupportMenus(this.context), configuredMenuItems, MenuItem.SupportGroupName)
             },
             {
                 title: 'dev', data: this.getMenuItems(StaticMenuItemFactory.getDevMenus(), configuredMenuItems, null)

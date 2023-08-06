@@ -6,7 +6,7 @@ import BeneficiaryModeStartView from "../beneficiaryMode/BeneficiaryModeStartVie
 import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
-import organisationConfigService from "../../service/OrganisationConfigService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
@@ -34,13 +34,13 @@ class StaticMenuItemFactory {
     static getFunctionalityMenus(beneficiaryModeStatus) {
         const menus = [...FunctionalityMenus];
         if (!beneficiaryModeStatus)
-            _.remove(menus, (x) => x.uniqueName === "beneficiaryMode");
+            this.removeMenuItem(menus, "beneficiaryMode");
         return menus;
     }
 
-    static getSyncMenus() {
-        if(organisationConfigService.isDbEncryptionEnabled())
-            _.remove(SyncMenus, syncMenu => syncMenu.getUniqueName() === "uploadCatchmentDatabase");
+    static getSyncMenus(context) {
+        if(context.getService(OrganisationConfigService).isDbEncryptionEnabled())
+            this.removeMenuItem(SyncMenus, "uploadCatchmentDatabase");
 
         return [...SyncMenus];
     }
@@ -49,15 +49,19 @@ class StaticMenuItemFactory {
         return [...UserMenus];
     }
 
-    static getSupportMenus() {
-        if(organisationConfigService.isDbEncryptionEnabled())
-            _.remove(SupportMenus, supportMenu => supportMenu.getUniqueName() === "uploadDatabase");
+    static getSupportMenus(context) {
+        if(context.getService(OrganisationConfigService).isDbEncryptionEnabled())
+            this.removeMenuItem(SupportMenus, "uploadDatabase");
 
         return [...SupportMenus];
     }
 
     static getDevMenus() {
         return __DEV__ ? [...DevMenus] : [];
+    }
+
+    static removeMenuItem(menuItemList, menuItemName) {
+        _.remove(menuItemList, menuItem => menuItem.uniqueName === menuItemName);
     }
 }
 
