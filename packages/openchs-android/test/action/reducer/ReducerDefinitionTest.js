@@ -114,6 +114,9 @@ jest.mock("../../../src/utility/Analytics", () => {
     }
 });
 
+jest.mock("react-native-randombytes", () => {
+    return {};
+});
 
 describe("ReducerDefinitionTest", () => {
     it("wiring", () => {
