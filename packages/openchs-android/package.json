@@ -98,6 +98,8 @@
     "@babel/core": "^7.20.0",
     "@babel/plugin-proposal-decorators": "7.18.9",
     "@babel/plugin-proposal-object-rest-spread": "7.18.9",
+    "@babel/plugin-transform-private-methods": "^7.22.5",
+    "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
     "@react-native/metro-config": "^0.72.9",
     "babel-jest": "^29.2.1",
