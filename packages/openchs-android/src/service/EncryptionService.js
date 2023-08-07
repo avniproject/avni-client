@@ -43,6 +43,7 @@ export default class EncryptionService extends BaseService {
         General.logDebug("EncryptionService", "Moving the encrypted copy to the old path");
         await fs.moveFile(newPath, oldPath);
 
+        General.logDebug("EncryptionService", "Reinitializing the db");
         await GlobalContext.getInstance().reinitializeDatabase(RealmFactory);
         General.logDebug("EncryptionService", "Encryption completed");
     }
@@ -103,11 +104,8 @@ export default class EncryptionService extends BaseService {
         try {
             let rawBuffer = randomBytes(64);
             const key = Uint8Array.from(rawBuffer);
-            console.log("key:::", key);
             const encodedKey = rawBuffer.toString('base64');
-            console.log("encodedKey:::", encodedKey);
-            let hexEncodedKey = rawBuffer.toString('hex');
-            console.log("hexEncodedKey:::", hexEncodedKey);
+            // let hexEncodedKey = rawBuffer.toString('hex'); - to decrypt and check in realm studio
             await Keychain.setGenericPassword(CREDENTIAL_USERNAME, encodedKey);
 
             return key;
