@@ -8,9 +8,7 @@ module.exports = function (api) {
     ];
     const plugins = [
         ["@babel/plugin-proposal-decorators", {"legacy": true}],
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-private-methods",
-        "@babel/plugin-proposal-class-properties"
+        "@babel/plugin-proposal-object-rest-spread"
         ]
     ;
 
