@@ -4,6 +4,7 @@ import TestTaskFactory from "../../../model/TestTaskFactory";
 import TestObsFactory from "../../../model/TestObsFactory";
 import TestConceptFactory from "../../../model/TestConceptFactory";
 import {assert} from "chai";
+jest.mock("../../../../src/utility/Analytics", () => {});
 
 function createForm() {
     const form = EntityFactory.createForm('foo');

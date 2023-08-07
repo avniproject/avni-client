@@ -3,6 +3,7 @@ import {ProgramEnrolmentActions} from "../../src/action/program/ProgramEnrolment
 import ProgramEnrolmentState from "../../src/state/ProgramEnrolmentState";
 import TestContext from "./views/testframework/TestContext";
 import {ProgramEnrolment, Individual} from 'avni-models';
+jest.mock("../../src/utility/Analytics", () => {});
 
 describe('ProgramEnrolmentActionsTest', () => {
     it('next without filling enrolmentDateTime', () => {
