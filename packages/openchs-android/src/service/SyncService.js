@@ -18,6 +18,7 @@ import {firebaseEvents, logEvent} from "../utility/Analytics";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
+import EncryptionService from "./EncryptionService";
 import SubjectTypeService from "./SubjectTypeService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
@@ -27,6 +28,7 @@ import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
+import OrganisationConfigService from "./OrganisationConfigService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -54,6 +56,8 @@ class SyncService extends BaseService {
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
         this.subjectTypeService = this.getService(SubjectTypeService);
+        this.encryptionService = this.getService(EncryptionService);
+        this.organisationConfigService = this.getService(OrganisationConfigService);
     }
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
@@ -188,6 +192,7 @@ class SyncService extends BaseService {
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
+            .then(() => this.encryptOrDecryptDbIfRequired())
             .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, updatedSyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, updatedSyncDetails, endDateTime))
@@ -215,6 +220,14 @@ class SyncService extends BaseService {
     updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {
         this.entitySyncStatusService.removeRevokedPrivileges(allEntitiesMetaData);
         updateProgressSteps(allEntitiesMetaData, syncDetails);
+    }
+
+    async encryptOrDecryptDbIfRequired() {
+        const isDbEncryptionEnabled = this.organisationConfigService.isDbEncryptionEnabled();
+        if(isDbEncryptionEnabled)
+            await this.encryptionService.encryptRealm();
+        else
+            await this.encryptionService.decryptRealm();
     }
 
     getRefData(entitiesMetadata, afterEachPagePulled, now) {

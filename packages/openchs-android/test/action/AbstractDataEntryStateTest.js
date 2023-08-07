@@ -6,6 +6,7 @@ import StubbedDataEntryState from "./StubbedDataEntryState";
 import ObservationsHolderActions from '../../src/action/common/ObservationsHolderActions';
 import TestContext from "./views/testframework/TestContext";
 import EntityFactory from "../EntityFactory";
+jest.mock("../../src/utility/Analytics", () => {});
 
 describe('AbstractDataEntryStateTest', () => {
     var formElementGroup;

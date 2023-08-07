@@ -30,6 +30,10 @@ class OrganisationConfigService extends BaseService {
         return !!this.getSettings().saveDrafts;
     }
 
+    isDbEncryptionEnabled() {
+        return !!this.getSettings().enableMobileAppDbEncryption;
+    }
+
     getOTPLength() {
         return this.getSettings().otpLength || 4;
     }

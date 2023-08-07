@@ -6,9 +6,9 @@ import ErrorHandler from "../utility/ErrorHandler";
 import GlobalContext from "../GlobalContext";
 
 class DeleteDrafts extends BaseTask {
-    execute() {
+    async execute() {
         try {
-            this.initDependencies();
+           await this.initDependencies();
 
             General.logInfo("DeleteDrafts", "Starting DeleteDrafts");
             const ttl = 30;

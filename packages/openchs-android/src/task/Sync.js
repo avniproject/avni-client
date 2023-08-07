@@ -25,7 +25,7 @@ class Sync extends BaseTask {
                 General.logInfo("Sync", "Skipping auto-sync since it is disabled");
                 return false;
             }
-            this.initDependencies();
+            await this.initDependencies();
             General.logInfo("Sync", "Starting SyncService");
             General.logInfo("Sync", "Getting SyncService");
             const syncService = globalContext.beanRegistry.getService("syncService");

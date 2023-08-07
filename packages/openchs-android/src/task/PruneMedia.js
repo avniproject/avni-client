@@ -38,10 +38,10 @@ function pruneMedia(db, directory) {
 }
 
 class PruneMedia extends BaseTask {
-    execute() {
+    async execute() {
         try {
             General.logInfo("PruneMedia", "PruneMedia job started");
-            this.initDependencies();
+            await this.initDependencies();
             const globalContext = GlobalContext.getInstance();
             const pruneImageDir = pruneMedia(globalContext.db, FileSystem.getImagesDir());
             const pruneVideoDir = pruneMedia(globalContext.db, FileSystem.getVideosDir());

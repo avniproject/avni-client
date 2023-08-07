@@ -18,10 +18,11 @@ export default class Avni extends Component {
 
     render() {
         if (Config.PLAYGROUND) {
+            console.log("=====================>>>>>>>Rendering Playground app component");
             return <Playground/>;
         }
-
-        const App = require('./App');
+        console.log("=====================>>>>>>>Rendering main app component");
+        const App = require('./App').default;
         return (
             <View style={Avni.styles.container}>
                 <StatusBar backgroundColor={Colors.headerBackgroundColor} barStyle={'default'}/>
