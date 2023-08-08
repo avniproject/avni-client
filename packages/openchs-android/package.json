@@ -40,7 +40,7 @@
     "@react-native-community/progress-bar-android": "^1.0.5",
     "@react-native-firebase/analytics": "15.2.0",
     "@react-native-firebase/app": "15.2.0",
-    "amazon-cognito-identity-js": "3.0.11",
+    "amazon-cognito-identity-js": "6.3.1",
     "avni-health-modules": "^0.0.19",
     "base-64": "1.0.0",
     "bugsnag-react-native": "2.23.10",
