@@ -92,6 +92,11 @@ class QuestionGroup extends AbstractFormElement {
             formIdentifier === formElement.uuid && questionGroupIndex === this.props.questionGroupIndex);
     }
 
+
+    getValidationResultForQuestionGroup(formElement) {
+        return _.find(this.props.validationResults, ({formIdentifier}) => formIdentifier === formElement.uuid);
+    }
+
     getSelectedAnswer(concept, nullReplacement) {
         const observation = this.props.value.findObservation(concept);
         return _.isNil(observation) ? nullReplacement : observation.getValueWrapper();
@@ -264,10 +269,10 @@ class QuestionGroup extends AbstractFormElement {
         const hasOtherTypesThanTextNumericAndNotes = _.some(allGroupQuestions, ({concept}) => !_.includes([Concept.dataType.Text, Concept.dataType.Numeric, Concept.dataType.Notes], concept.datatype));
         return (
             <View>
+                <ValidationErrorMessage
+                    validationResult={this.getValidationResultForQuestionGroup(this.props.element)}/>
                 {hasOtherTypesThanTextNumericAndNotes ?
                     this.renderNormalView(allGroupQuestions) : this.renderGridView(allGroupQuestions)}
-                <ValidationErrorMessage
-                    validationResult={this.getValidationResultForFormElement(this.props.element)}/>
             </View>
         )
     }
