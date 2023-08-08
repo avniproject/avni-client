@@ -3,21 +3,16 @@
 buildscript {
 
     ext {
-        buildToolsVersion = "31.0.0"
+        buildToolsVersion = "33.0.0"
         minSdkVersion = 21
-        compileSdkVersion = 31
-        targetSdkVersion = 31
+        compileSdkVersion = 33
+        targetSdkVersion = 33
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
         kotlinVersion = '1.6.0'
 
-        if (System.properties['os.arch'] == 'aarch64') {
-            // For M1 Users we need to use the NDK 24 which added support for aarch64
-            ndkVersion = '24.0.8215888'
-        } else {
-            // Otherwise we default to the side-by-side NDK version from AGP.
-            ndkVersion = '21.4.7075529'
-        }
+        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
+        ndkVersion = "23.1.7779620"
     }
 
     repositories {
@@ -28,25 +23,17 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
-//        classpath 'com.facebook.react:react-native-gradle-plugin'
+        classpath 'com.android.tools.build:gradle'
         classpath 'com.google.gms:google-services:4.3.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
+        classpath('com.facebook.react:react-native-gradle-plugin')
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
-def REACT_NATIVE_VERSION = "0.59.5"
-
 allprojects {
-    configurations.all {
-        resolutionStrategy {
-            // Remove this override in 0.65+, as a proper fix is included in react-native itself.
-            force "com.facebook.react:react-native:" + REACT_NATIVE_VERSION
-        }
-    }
 
     repositories {
         mavenLocal()
@@ -74,7 +61,7 @@ subprojects {
         project ->
             if (project.hasProperty("android")) {
                 android {
-                    compileSdkVersion = 31
+                    compileSdkVersion = 33
 //                    buildToolsVersion = "29.0.3"
                 }
             }
