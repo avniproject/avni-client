@@ -5,12 +5,11 @@ import _ from 'lodash';
 
 import {Gender} from "openchs-models";
 
-let isEncrypted = false;
 async function executeQuery(queryString, type, setOutput) {
     //waitForNotNULL(getDb)
     console.log("executeQuery", queryString);
     setOutput("Preparing db");
-    let db = await RealmFactory.getRealm(isEncrypted)
+    let db = await RealmFactory.createRealm()
     if(db == null) {
         return -1000;
     }

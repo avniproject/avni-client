@@ -94,7 +94,10 @@ class App extends Component {
         if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
         }
-        return (<Text>Loading...</Text>);
+        return (
+           <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text>Loading...</Text>
+           </View>);
     }
 }
 

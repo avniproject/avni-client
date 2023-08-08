@@ -1,6 +1,7 @@
 import Realm from "realm";
 import {EntityMappingConfig, RealmProxy} from "openchs-models";
 import EncryptionService from "../../service/EncryptionService";
+import _ from "lodash";
 
 class RealmFactory {
     static async createRealm() {
