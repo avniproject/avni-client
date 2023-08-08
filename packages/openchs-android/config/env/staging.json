@@ -1,5 +1,4 @@
 {
   "SERVER_URL": "https://staging.avniproject.org",
-  "ENV": "staging",
-  "PLAYGROUND": true
+  "ENV": "staging"
 }
