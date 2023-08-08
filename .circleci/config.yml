@@ -60,7 +60,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
@@ -100,7 +100,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
             #            - v1-dependencies-{{ checksum "package.json" }}
@@ -140,7 +140,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -184,7 +184,7 @@ jobs:
       versionName: << pipeline.parameters.versionName >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
       - restore_cache:
           keys:
