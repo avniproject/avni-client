@@ -88,7 +88,7 @@ define _upload_release_sourcemap
 		--api-key $$$(bugsnag_env_var_name) \
 		--app-version $(versionName) \
 		--minified-file assets/react/$(flavor)/release/index.android.bundle \
-		--source-map sourcemap.js \
+		--source-map sourcemaps/react/$(flavor)Release/index.android.bundle.map \
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
