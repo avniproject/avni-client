@@ -118,11 +118,12 @@ class IndividualProfile extends AbstractComponent {
 
 
     programProfileHeading() {
+        const fullAddress = this.props.individual.fullAddress(this.I18n);
         return this.props.individual.subjectType.isPerson() ?
             <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text> :
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {fullAddress}</Text> :
             <Text
-                style={Styles.programProfileSubheading}>{this.props.individual.subjectAddressText(this.I18n)}</Text>
+                style={Styles.programProfileSubheading}>{fullAddress}</Text>
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -300,7 +301,7 @@ class IndividualProfile extends AbstractComponent {
                         {
                             this.props.individual.subjectType.isPerson() &&
                             <Text
-                                style={Styles.subjectProfileSubheading}>{this.props.individual.userProfileSubtext1(this.I18n)}, {this.props.individual.userProfileSubtext2(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text>
+                                style={Styles.subjectProfileSubheading}>{this.props.individual.userProfileSubtext1(this.I18n)}, {this.props.individual.userProfileSubtext2(this.I18n)}, {this.props.individual.fullAddress(this.I18n)}</Text>
                         }
                     </View>
                 )}
