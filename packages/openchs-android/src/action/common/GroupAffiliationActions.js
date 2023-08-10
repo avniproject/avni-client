@@ -20,7 +20,6 @@ export default class GroupAffiliationActions {
             (obs) => !_.isNil(_.get(obs, "groupSubject.groupSubject.uuid")) && obs.concept.uuid === formElement.concept.uuid && groupSubject.uuid === obs.groupSubject.groupSubject.uuid);
         const groupSubjectEntity = _.isNil(existingGroupSubjectObs) ? GroupAffiliationActions.createEmptyGroupSubject(groupRole, groupSubject) : existingGroupSubjectObs.groupSubject;
         newState.groupAffiliation.groupSubjectObservations = newState.groupAffiliation.updateGroupSubjectObservations(formElement.concept, groupSubjectEntity);
-        GroupAffiliationActions.injectGroupsToIndividual(newState.groupAffiliation, newState);
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
@@ -37,12 +36,6 @@ export default class GroupAffiliationActions {
         groupSubjectEntity.memberSubject = null;
         groupSubjectEntity.voided = false;
         return groupSubjectEntity;
-    }
-
-    static injectGroupsToIndividual({groupSubjectObservations}, newState) {
-        const individual = newState.getEntity().individual;
-        const groupSubjectsFromObservations = _.map(groupSubjectObservations, ({groupSubject}) => groupSubject);
-        individual.addAffiliatedGroups(groupSubjectsFromObservations);
     }
 
     static _validate(formElement, groupSubjectEntity, previousErrors) {

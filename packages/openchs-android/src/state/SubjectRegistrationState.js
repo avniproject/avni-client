@@ -29,7 +29,9 @@ class SubjectRegistrationState extends AbstractDataEntryState {
 
     getEntityContext() {
         return {
-            group: this.group
+            group: this.group,
+            affiliatedGroups: this.groupAffiliation ?
+              _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : []
         }
     }
 

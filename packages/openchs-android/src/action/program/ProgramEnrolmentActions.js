@@ -66,7 +66,6 @@ export class ProgramEnrolmentActions {
             }
             if (!isProgramEnrolment) {
                 programEnrolmentState.groupAffiliation.removeMemberFromGroup();
-                GroupAffiliationActions.injectGroupsToIndividual(programEnrolmentState.groupAffiliation, programEnrolmentState);
             }
             return QuickFormEditingActions.moveToPage(programEnrolmentState, action, context, ProgramEnrolmentActions);
         } else {
