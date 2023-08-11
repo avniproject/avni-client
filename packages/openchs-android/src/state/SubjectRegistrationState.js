@@ -30,9 +30,13 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     getEntityContext() {
         return {
             group: this.group,
-            affiliatedGroups: this.groupAffiliation ?
-              _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : []
+            affiliatedGroups: this.getAffiliatedGroups()
         }
+    }
+
+    getAffiliatedGroups() {
+        return this.groupAffiliation ?
+          _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : [];
     }
 
     static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context, group) {

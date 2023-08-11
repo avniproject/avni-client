@@ -54,9 +54,13 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getEntityContext() {
         return {
-            affiliatedGroups: this.groupAffiliation ?
-              _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : []
-        };
+            affiliatedGroups: this.getAffiliatedGroups()
+        }
+    }
+
+    getAffiliatedGroups() {
+        return this.groupAffiliation ?
+          _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : [];
     }
 
     get staticFormElementIds() {
