@@ -115,7 +115,6 @@ class MyDashboardView extends AbstractComponent {
     }
 
     render() {
-        let dueChecklist=this.state.dueChecklistWithChecklistItem;
         General.logDebug(this.viewName(), "render");
         const dataSource = this.ds.cloneWithRows(this.renderableVisits());
         const date = this.state.date;
@@ -163,7 +162,7 @@ class MyDashboardView extends AbstractComponent {
                                   renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
                                                                           sectionName={rowData.sectionName}
                                                                           backFunction={() => this.onBackCallback()}
-                                                                          dueChecklist={dueChecklist}/>}/>
+                                                                          dueChecklist={this.state.dueChecklistWithChecklistItem}/>}/>
                         <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
                     </ScrollView>
                     <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
