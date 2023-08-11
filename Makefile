@@ -141,8 +141,22 @@ create_bundle:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
 
-release: release_clean create_apk
-bundle_release: release_clean create_bundle
+metro_config:
+ifeq ($(flavor), lfe)
+	$(shell mv packages/openchs-android/metro.config.lfe.js packages/openchs-android/metro.config.js)
+else
+	$(shell mv packages/openchs-android/metro.config.generic.js packages/openchs-android/metro.config.js)
+endif
+
+reverse_metro_config:
+ifeq ($(flavor), lfe)
+	$(shell mv packages/openchs-android/metro.config.js packages/openchs-android/metro.config.lfe.js)
+else
+	$(shell mv packages/openchs-android/metro.config.js packages/openchs-android/metro.config.generic.js)
+endif
+
+release: release_clean metro_config create_apk reverse_metro_config
+bundle_release: release_clean metro_config create_bundle reverse_metro_config
 release_dev: setup_hosts as_dev release
 
 release_prod_without_clean: as_prod release upload-release-sourcemap
