@@ -1,4 +1,4 @@
-import {Alert, Clipboard, Text, View} from "react-native";
+import {Alert, Clipboard, Text, View, NativeModules} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -12,6 +12,7 @@ import AppConfig from "./framework/AppConfig";
 import RNRestart from 'react-native-restart';
 import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
+const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
     static childContextTypes = {
@@ -70,6 +71,9 @@ class App extends Component {
     async componentDidMount() {
         console.log("App", "componentDidMount");
         try {
+            if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
+
+
             const globalContext = GlobalContext.getInstance();
             if (!globalContext.isInitialised()) {
                 await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
