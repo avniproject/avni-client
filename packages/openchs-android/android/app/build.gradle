@@ -211,7 +211,7 @@ dependencies {
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
-        implementation jscFlavor
+        implementation('org.webkit:android-jsc:+')
     }
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
