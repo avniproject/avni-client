@@ -44,9 +44,18 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
             List<ReactPackage> packages = new PackageList(this).getPackages();
-            ReactPackage tamperCheckPackage = (ReactPackage) returnClassInstanceIfExist("com.openchsclient.TamperCheckPackage");
-            if (tamperCheckPackage != null) packages.add(tamperCheckPackage);
-            return packages;
+            // for some reason, checking for the class in a separate method is throwing ClassNotFoundException,
+            // so moved it here
+            try {
+                Class<?> aClass = Class.forName("com.openchsclient.TamperCheckPackage");
+                ReactPackage tamperCheckPackage = (ReactPackage) aClass.newInstance();
+                if (tamperCheckPackage != null) packages.add(tamperCheckPackage);
+            } catch(Exception e) {
+                Log.i("MainApplication", e.toString());
+            }
+            finally {
+                return packages;
+            }
         }
 
         @Override
@@ -59,16 +68,6 @@ public class MainApplication extends Application implements ReactApplication {
             return BuildConfig.IS_HERMES_ENABLED;
         }
     };
-
-    private Object returnClassInstanceIfExist(String className) {
-        try {
-            Class<?> aClass = Class.forName(className);
-            return aClass.newInstance();
-        } catch(Exception e) {
-            Log.i("MainApplication", e.toString());
-            return null;
-        }
-    }
 
     @Override
     public void onCreate() {
