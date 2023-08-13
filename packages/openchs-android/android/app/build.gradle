@@ -158,7 +158,8 @@ android {
         lfe {
             applicationId "org.lfeteach.openchsclient"
             resValue "string", "app_name", "Teach AP"
-            resValue "string", "sha_app_signature", System.getenv("SHA_APP_SIGNATURE")
+            resValue "string", "sha_app_signature_one", System.getenv("SHA_APP_SIGNATURE_ONE")
+            resValue "string", "sha_app_signature_two", System.getenv("SHA_APP_SIGNATURE_TWO")
             signingConfig signingConfigs.lfe
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }

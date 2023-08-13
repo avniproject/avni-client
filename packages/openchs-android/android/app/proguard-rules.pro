@@ -23,4 +23,4 @@
 #-keep class com.facebook.jni.** { *; }
 -keep class com.facebook.hermes.unicode.** { *; }
 -keep class com.facebook.jni.** { *; }
--keepnames public class com.openchsclient.MyAppPackage implements com.facebook.react.ReactPackage
+-keepnames public class com.openchsclient.TamperCheckPackage implements com.facebook.react.ReactPackage

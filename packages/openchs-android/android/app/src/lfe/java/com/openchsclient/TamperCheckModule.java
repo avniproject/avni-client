@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class TamperCheckModule extends ReactContextBaseJavaModule {
+	public static final String APP_NAME_THAT_REQUIRES_SIGNATURE_VALIDATION = "Teach AP";
 	private ReactContext mReactContext;
 
 	public TamperCheckModule(ReactApplicationContext context) {
@@ -36,15 +37,16 @@ public class TamperCheckModule extends ReactContextBaseJavaModule {
   public void validateAppSignature()  {
 	  try {
 		  String appName = mReactContext.getResources().getString(R.string.app_name);
-		  if(appName.equals("Teach AP")) {
+		  if(appName.equals(APP_NAME_THAT_REQUIRES_SIGNATURE_VALIDATION)) {
 			  Log.i("TamperCheckModule", "Validating app signature");
-			  String shaAppSignature = mReactContext.getResources().getString(R.string.sha_app_signature);
+			  String shaAppSignatureOne = mReactContext.getResources().getString(R.string.sha_app_signature_one);
+			  String shaAppSignatureTwo = mReactContext.getResources().getString(R.string.sha_app_signature_two);
 			  PackageInfo packageInfo = mReactContext.getPackageManager().getPackageInfo(
 					  mReactContext.getPackageName(), PackageManager.GET_SIGNATURES);
 
 			  Signature[] signatures = packageInfo.signatures;
 			  String sha256 = getSHA256(signatures[0]);
-			  if (!shaAppSignature.equalsIgnoreCase(sha256)) {
+			  if (!(shaAppSignatureOne.equalsIgnoreCase(sha256) || shaAppSignatureTwo.equalsIgnoreCase(sha256))) {
 				  Activity currentActivity = getCurrentActivity();
 				  currentActivity.finishAndRemoveTask();
 			  }
@@ -55,7 +57,7 @@ public class TamperCheckModule extends ReactContextBaseJavaModule {
 	  }
 	}
 
-  public static String getSHA256(Signature signature) {
+  private static String getSHA256(Signature signature) {
 	  try {
 		  MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		  byte[] hashText = messageDigest.digest(signature.toByteArray());
@@ -67,7 +69,7 @@ public class TamperCheckModule extends ReactContextBaseJavaModule {
 	  }
 	}
 
-  public static String bytesToHex(byte[] bytes) {
+  private static String bytesToHex(byte[] bytes) {
   	final char[] hexArray = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
 				'9', 'A', 'B', 'C', 'D', 'E', 'F' };
 		char[] hexChars = new char[bytes.length * 2];

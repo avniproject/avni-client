@@ -44,8 +44,8 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
             List<ReactPackage> packages = new PackageList(this).getPackages();
-            ReactPackage myAppPackage = (ReactPackage) returnClassInstanceIfExist("com.openchsclient.MyAppPackage");
-            if (myAppPackage != null) packages.add(myAppPackage);
+            ReactPackage tamperCheckPackage = (ReactPackage) returnClassInstanceIfExist("com.openchsclient.TamperCheckPackage");
+            if (tamperCheckPackage != null) packages.add(tamperCheckPackage);
             return packages;
         }
 
