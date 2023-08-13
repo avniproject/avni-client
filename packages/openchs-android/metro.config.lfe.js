@@ -1,17 +1,34 @@
 var path = require("path");
 
 const jsoMetroPlugin = require("obfuscator-io-metro-plugin")(
-    {
-        // for these option look javascript-obfuscator library options from  above url
-        compact: false,
-        sourceMap: true, // source Map generated after obfuscation is not useful right now so use default value i.e. false
-        controlFlowFlattening: true,
-        controlFlowFlatteningThreshold: 1,
-        numbersToExpressions: true,
+    { // this is the config that will least impact the performance according to this doc: https://www.npmjs.com/package/javascript-obfuscator#javascript-obfuscator-options
+        compact: true,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
+        debugProtection: false,
+        debugProtectionInterval: 0,
+        disableConsoleOutput: false,
+        identifierNamesGenerator: 'hexadecimal',
+        log: false,
+        numbersToExpressions: false,
+        renameGlobals: false,
+        selfDefending: false,
         simplify: true,
+        splitStrings: false,
+        stringArray: true,
+        stringArrayCallsTransform: false,
+        stringArrayCallsTransformThreshold: 0.5,
+        stringArrayEncoding: [],
+        stringArrayIndexShift: true,
+        stringArrayRotate: true,
         stringArrayShuffle: true,
-        splitStrings: true,
-        stringArrayThreshold: 1,
+        stringArrayWrappersCount: 1,
+        stringArrayWrappersChainedCalls: true,
+        stringArrayWrappersParametersMaxCount: 2,
+        stringArrayWrappersType: 'variable',
+        stringArrayThreshold: 0.75,
+        unicodeEscapeSequence: false,
+        sourceMap: true
     },
     {
         runInDev: false /* optional */,
