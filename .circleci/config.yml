@@ -75,8 +75,8 @@ jobs:
 #      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_staging_without_clean
-      - run: make deploy_platform_translations_staging
+      - run: make deps_ci release_staging_without_clean flavor='lfe'
+      - run: make deploy_platform_translations_staging flavor='lfe'
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           paths:

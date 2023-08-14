@@ -61,6 +61,14 @@ ifndef flavor
 	flavor:=generic
 endif
 
+flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
+ifeq ($(flavor), lfe)
+	sourcemap_file_path:=../../../../index.android.bundle.map
+else
+	sourcemap_file_path:=sourcemaps/react/$(flavor)Release/index.android.bundle.map
+endif
+
+
 define _get_from_config
 $(shell node -p "require('./packages/openchs-android/config/flavor_config.json').$(1)")
 endef
@@ -87,8 +95,8 @@ define _upload_release_sourcemap
 	cd packages/openchs-android/android/app/build/generated && npx bugsnag-sourcemaps upload \
 		--api-key $$$(bugsnag_env_var_name) \
 		--app-version $(versionName) \
-		--minified-file assets/react/$(flavor)/release/index.android.bundle \
-		--source-map sourcemaps/react/$(flavor)Release/index.android.bundle.map \
+		--minified-file assets/createBundle$(flavor_folder_uppercase_path)ReleaseJsAndAssets/index.android.bundle \
+		--source-map $(sourcemap_file_path) \
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
@@ -127,8 +135,6 @@ as_prod_dev: ; $(call _create_config,prod_dev)
 release_clean:
 	rm -rf packages/openchs-android/android/app/build
 	mkdir -p packages/openchs-android/android/app/build/generated
-	mkdir -p packages/openchs-android/android/app/build/generated/res/react/release
-	mkdir -p packages/openchs-android/android/app/build/generated/assets/react/release
 	rm -rf packages/openchs-android/default.realm.*
 	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
 	rm -rf packages/openchs-android/android/.gradle
@@ -192,8 +198,11 @@ release_staging_playstore: renew_env release_staging_playstore_without_clean
 release_prod_unsigned_without_clean: as_prod
 	enableSeparateBuildPerCPUArchitecture=false make release
 
-release_staging_without_clean: as_staging
+release_universal_without_clean:
 	enableSeparateBuildPerCPUArchitecture=false make release
+
+release_staging_without_clean: as_staging release_universal_without_clean upload-release-sourcemap
+
 release_staging: renew_env release_staging_without_clean
 
 release_uat_without_clean: as_uat
