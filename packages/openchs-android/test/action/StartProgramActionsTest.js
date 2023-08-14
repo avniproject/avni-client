@@ -7,7 +7,6 @@ import {ProgramEnrolment, ProgramEncounter, EncounterType} from 'avni-models';
 import TestContext from "./views/testframework/TestContext";
 import moment from "moment";
 import _ from "lodash";
-jest.mock("../../src/utility/Analytics", () => {});
 
 describe("ProgramActions", () => {
     let ancEncounterType, serviceData = {}, enrolment, testContext;

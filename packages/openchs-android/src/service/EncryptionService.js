@@ -1,5 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
+import OrganisationConfigService from "./OrganisationConfigService";
 import RealmFactory from "../framework/db/RealmFactory";
 import fs from "react-native-fs";
 
@@ -10,6 +11,7 @@ import {randomBytes} from "react-native-randombytes";
 import GlobalContext from "../GlobalContext";
 import {getGenericPassword} from "react-native-keychain";
 
+
 const CREDENTIAL_USERNAME = "avni-user";
 
 @Service("encryptionService")
@@ -17,6 +19,14 @@ export default class EncryptionService extends BaseService {
 
     constructor(db, context) {
         super(db, context);
+    }
+
+    async encryptOrDecryptDbIfRequired() {
+        const isDbEncryptionEnabled = this.getService(OrganisationConfigService).isDbEncryptionEnabled();
+        if(isDbEncryptionEnabled)
+            await this.encryptRealm();
+        else
+            await this.decryptRealm();
     }
 
     async isAlreadyEncrypted() {

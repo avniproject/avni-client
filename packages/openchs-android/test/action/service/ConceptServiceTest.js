@@ -3,7 +3,6 @@ import _ from "lodash";
 import ConceptService from "../../../src/service/ConceptService";
 import {Concept} from 'avni-models';
 import EntityFactory from "../../EntityFactory";
-jest.mock("../../../src/utility/Analytics", () => {});
 
 function findObsForConcept(observations, conceptName) {
     return _.find(observations, (observation) => observation.concept.name === conceptName)

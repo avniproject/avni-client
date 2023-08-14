@@ -3,7 +3,6 @@ import {IndividualProfileActions as IPA} from "../../src/action/individual/Indiv
 import TestContext from "./views/testframework/TestContext";
 import {Individual} from 'avni-models';
 import EntityFactory from "../EntityFactory";
-jest.mock("../../src/utility/Analytics", () => {});
 
 describe('IndividualProfileActionsTest', () => {
     xit('programEnrolmentFlow', () => {

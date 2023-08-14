@@ -20,7 +20,6 @@ import EncounterActionState from "../../src/state/EncounterActionState";
 import WizardNextActionStub from './WizardNextActionStub';
 import TestContext from "./views/testframework/TestContext";
 import WorkListState from "../../src/state/WorkListState";
-jest.mock("../../src/utility/Analytics", () => {});
 
 let createFormElement = function (dataType, mandatory, conceptUUID) {
     const formElement = new FormElement();

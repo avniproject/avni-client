@@ -3,3 +3,4 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
 jest.mock('react-native-device-info', () => mockRNDeviceInfo);
+jest.mock("../src/utility/Analytics", () => {});
