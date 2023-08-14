@@ -93,3 +93,7 @@ packages/openchs-android/android/fastlane/README.md
 .metro-health-check*
 # testing
 /coverage
+
+#generated out of obfuscation process
+packages/openchs-android/index.android.bundle.map
+packages/openchs-android/.jso/
