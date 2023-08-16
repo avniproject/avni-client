@@ -1,20 +1,17 @@
 import React from 'react';
 import AbstractComponent from '../../framework/view/AbstractComponent';
-import Reducers from '../../reducer';
 import {TaskActionNames as Actions} from '../../action/task/TaskActions';
 import _ from 'lodash';
 import {StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import Styles from '../primitives/Styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PropTypes from 'prop-types';
-import TaskStatusPicker from './TaskStatusPicker';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import CHSNavigator from '../../utility/CHSNavigator';
 import IndividualSearchResultPaginatedView from '../individual/IndividualSearchResultPaginatedView';
 import IndividualService from '../../service/IndividualService';
 import {IconContainer} from './IconContainer';
 import PhoneCall from '../../model/PhoneCall';
-import CustomActivityIndicator from '../CustomActivityIndicator';
 import SubjectRegisterFromTaskView from '../individual/SubjectRegisterFromTaskView';
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import AvniIcon from '../common/AvniIcon';
@@ -42,13 +39,11 @@ class TaskCard extends AbstractComponent {
     };
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.task);
+        super(props, context);
     }
 
     onCallPress(mobileNumber, task) {
-        // RNImmediatePhoneCall.immediatePhoneCall(_.toString(mobileNumber));
-        PhoneCall.makeCall(mobileNumber, this,
-            (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
+        PhoneCall.makeCall(mobileNumber, this);
 
         TypedTransition.from(this).with({
             headerTitle: this.I18n.t('subjectsWithMobileNumber', {number: _.toString(mobileNumber)}),
@@ -162,7 +157,6 @@ class TaskCard extends AbstractComponent {
         const task = this.props.task;
         return (
             <View style={styles.container} key={task.uuid}>
-                <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
                 {task.isCallType() ? this.renderCallType(task) : this.renderOpenSubjectType(task)}
                 {this.renderSubjectDetails(task)}
             </View>
