@@ -25,7 +25,8 @@ class TextFormElement extends AbstractFormElement {
         inputStyle: PropTypes.object,
         allowedValues: PropTypes.array,
         helpText: PropTypes.string,
-        isTableView: PropTypes.bool
+        isTableView: PropTypes.bool,
+        contextMenuHidden: PropTypes.bool
     };
     static defaultProps = {
         style: {}

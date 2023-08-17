@@ -122,11 +122,13 @@ class ResetForgottenPasswordView extends AbstractComponent {
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                                    placeholder={this.I18n.t("enterNewPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
+                                   contextMenuHidden={true}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                                    placeholder={this.I18n.t("confirmNewPassword")} value={this.state.ConfirmnewPassword}
                                    onChangeText={(ConfirmnewPassword) => this.setState({ConfirmnewPassword})}
+                                   contextMenuHidden={true}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TouchableNativeFeedback onPress={() => this.onToggleShowPassword()}>

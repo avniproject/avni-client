@@ -216,6 +216,7 @@ class LoginView extends AbstractComponent {
                                                              actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
                                                              value={new PrimitiveValue(this.state.password)}
                                                              multiline={false}
+                                                             contextMenuHidden={true}
                                             />
                                             <View style={{
                                                 flexDirection: 'column',

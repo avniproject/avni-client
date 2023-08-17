@@ -120,10 +120,12 @@ class ChangePasswordView extends AbstractComponent {
 
                         <TextInput placeholder={this.I18n.t("currentPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
+                                   contextMenuHidden={true}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <TextInput placeholder={this.I18n.t("newPassword")} value={this.state.newPassword}
                                    onChangeText={(newPassword) => this.setState({newPassword})}
+                                   contextMenuHidden={true}
                                    secureTextEntry={!this.state.showPassword}/>
 
                         <View style={{
