@@ -38,12 +38,29 @@ open_playstore_openchs:
 	$(call _kill_app,com.google.android.gms)
 	adb shell am start -a android.intent.action.VIEW -d 'market://details?id=${app_android_package_name}'
 
+metro_config:
+ifeq ($(flavor), lfe)
+	$(shell mv packages/openchs-android/metro.config.lfe.js packages/openchs-android/metro.config.js)
+else
+	$(shell mv packages/openchs-android/metro.config.generic.js packages/openchs-android/metro.config.js)
+endif
+
+reverse_metro_config:
+ifeq ($(flavor), lfe)
+	$(shell mv packages/openchs-android/metro.config.js packages/openchs-android/metro.config.lfe.js)
+else
+	$(shell mv packages/openchs-android/metro.config.js packages/openchs-android/metro.config.generic.js)
+endif
 
 # Run application from the code
 _run_app:
+	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Debug" --appId "$(app_android_package_name)"
+	make reverse_metro_config flavor=$(flavor)
 _run_app_release:
+	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
+	make reverse_metro_config flavor=$(flavor)
 
 run_app: setup_hosts as_dev _run_app
 
