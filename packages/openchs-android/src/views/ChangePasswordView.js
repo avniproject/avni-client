@@ -56,19 +56,21 @@ class ChangePasswordView extends AbstractComponent {
             return {showSpinner: true}
         });
 
-        this.context.getService(AuthService).getAuthProviderService().changePassword(this.state.password, this.state.newPassword).then(
-            () => {
-                this.setState(() => {
-                    showSpinner: false
-                });
-                CHSNavigator.navigateToLandingView(this, true, {tabIndex: 1, menuProps: {startSync: false}})
-            },
-            (error) => {
-                this.setState(() => {
-                    return {errorMessage: error.message, showSpinner: false}
-                });
-            }
-        );
+        this.context.getService(AuthService).getAuthProviderService()
+            .changePassword(this.state.password, this.state.newPassword)
+            .then(
+                () => {
+                    this.setState(() => {
+                        showSpinner: false
+                    });
+                    CHSNavigator.navigateToLandingView(this, true, {tabIndex: 1, menuProps: {startSync: false}})
+                },
+                (error) => {
+                    this.setState(() => {
+                        return {errorMessage: error.message, showSpinner: false}
+                    });
+                }
+            );
     }
 
     spinner() {

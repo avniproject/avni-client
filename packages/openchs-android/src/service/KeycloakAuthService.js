@@ -81,15 +81,23 @@ class KeycloakAuthService extends BaseAuthProviderService {
 
     async changePassword(oldPassword, newPassword) {
         const settings = this.settingsService.getSettings();
-        this.authenticate(settings.userId, oldPassword)
-            .then(async (authResult) => {
-                if (authResult.status === 'LOGIN_SUCCESS') {
-                    const changePasswordEndpoint = `${settings.serverURL}/user/changePassword`;
-                    await putJSON(changePasswordEndpoint, {newPassword})
-                        .catch((e) => e);
-                } else throw new Error('Unable to authenticate user');
-            })
-            .catch(e => e);
+        let authSuccessful = false;
+        try {
+            const authResult = await this.authenticate(settings.userId, oldPassword)
+            authSuccessful = authResult.status === 'LOGIN_SUCCESS';
+            if (authSuccessful) {
+                const changePasswordEndpoint = `${settings.serverURL}/user/changePassword`;
+                try {
+                    return await putJSON(changePasswordEndpoint, {newPassword})
+                } catch (errorResponse) {
+                    let errorText = await errorResponse.text();
+                    errorText = "New password is " + errorText.replaceAll("\"","").replaceAll(":", ",");
+                    throw new Error(errorText);
+                }
+            }
+        } catch(e) {
+            throw authSuccessful ? e : new Error('Current password is invalid. Unable to authenticate user.');
+        }
     }
 
     async logout() {
