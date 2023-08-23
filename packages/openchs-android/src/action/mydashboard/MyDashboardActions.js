@@ -10,7 +10,6 @@ import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import LocalCacheService from '../../service/LocalCacheService';
-import General from '../../utility/General';
 
 function getApplicableEncounterTypes(state) {
     return _.isEmpty(state.selectedGeneralEncounterTypes) ? state.selectedEncounterTypes : state.selectedGeneralEncounterTypes;
@@ -90,6 +89,7 @@ class MyDashboardActions {
 
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
+        const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter);
 
         const [
             allIndividualsWithScheduledVisits,
@@ -98,8 +98,7 @@ class MyDashboardActions {
             allIndividualsWithRecentRegistrations,
             allIndividualsWithRecentEnrolments,
             allIndividuals,
-            dueChecklist,
-            dueChecklistWithChecklistItem
+            dueChecklist
         ] = state.returnEmpty ? [[], [], [], [], [], [], [],[]] : (fetchFromDB ? [
                 MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
@@ -107,10 +106,11 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true),
-                MyDashboardActions.commonIndividuals(individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter), state.individualUUIDs).individual,
-                MyDashboardActions.commonIndividuals(individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter), state.individualUUIDs)
+                MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
+
+        dueChecklistWithChecklistItem.individual = dueChecklist;
 
         const queryResult = {
             scheduled: allIndividualsWithScheduledVisits,

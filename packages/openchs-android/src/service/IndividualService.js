@@ -552,7 +552,8 @@ class IndividualService extends BaseService {
             const individual = enl.individual;
             const enrolmentDateTime = enl.enrolmentDateTime;
             return {
-                individual, visitInfo: {
+                individual,
+                visitInfo: {
                     uuid: individual.uuid,
                     visitName: [],
                     groupingBy: General.formatDate(enrolmentDateTime),
@@ -560,7 +561,7 @@ class IndividualService extends BaseService {
                     allow: true,
                 }
             };
-        })
+        });
         return {
             individual: individualsWithVisitInfo, checklistItemNames
         }

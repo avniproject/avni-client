@@ -13,26 +13,24 @@ class CallService extends BaseService {
         super(db, context);
     }
 
-    callBeneficiary(context, number, immediateCallCb, maskedCallResponseCb, displayIndicatorCb) {
+    callBeneficiary(context, number, immediateCallCb, maskedCallResponseCb) {
         const userSettings = this.getService(UserInfoService).getUserSettings();
         const isCallMaskNeeded = _.get(userSettings, "enableCallMasking", false);
 
         if(isCallMaskNeeded) {
-            displayIndicatorCb(true);
-            this.connectCall(number, maskedCallResponseCb, displayIndicatorCb);
+            this.connectCall(number, maskedCallResponseCb);
         }
         else {
             immediateCallCb();
         }
     }
 
-    connectCall(number, maskedCallResponseCb, displayIndicatorCb) {
+    connectCall(number, maskedCallResponseCb) {
         const serverURL = this.getService(SettingsService).getSettings().serverURL;
 
         post(`${serverURL}/maskedCall?to=${number}`, null, true)
             .then(res => res.json())
             .then(({success, message}) => {
-                displayIndicatorCb(false);
                 if (success) {
                     maskedCallResponseCb("Requested for masked call. Expect a call on your number.");
                 }
@@ -41,7 +39,6 @@ class CallService extends BaseService {
                 }
             })
             .catch(error => {
-                displayIndicatorCb(false);
                 maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
             }
     );

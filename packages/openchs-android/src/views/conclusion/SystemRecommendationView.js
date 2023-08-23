@@ -56,6 +56,7 @@ class SystemRecommendationView extends AbstractComponent {
         workListState: PropTypes.object,
         isRejectedEntity: PropTypes.bool,
         entityApprovalStatus: PropTypes.object,
+        affiliatedGroups: PropTypes.object
     };
 
     static defaultProps = {
@@ -217,7 +218,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
                                                                      title={this.I18n.t('visitsBeingScheduledForOthers')}/>
                                 {!_.isNil(this.props.individual) &&
-                                <GroupAffiliationInformation individual={this.props.individual} I18n={this.I18n}/>}
+                                <GroupAffiliationInformation individual={this.props.individual} affiliatedGroups={this.props.affiliatedGroups} I18n={this.I18n}/>}
                                 <Observations observations={this.props.observations} form={this.props.form}
                                               title={this.I18n.t('observations')}/>
                                 <WizardButtons previous={{

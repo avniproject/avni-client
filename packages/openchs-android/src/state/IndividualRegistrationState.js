@@ -32,8 +32,14 @@ class IndividualRegistrationState extends AbstractDataEntryState {
 
     getEntityContext() {
         return {
-            group: this.group
+            group: this.group,
+            affiliatedGroups: this.getAffiliatedGroups()
         }
+    }
+
+    getAffiliatedGroups() {
+        return this.groupAffiliation ?
+          _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : [];
     }
 
     static createLoadState(form, genders, individual, workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group) {

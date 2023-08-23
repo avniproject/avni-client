@@ -78,12 +78,6 @@ class TaskActions {
         return newState;
     }
 
-    static onToggleProgressIndicator(state, action) {
-        const newState = TaskState.createEmptyState();
-        newState.displayProgressIndicator = action.displayProgressIndicator;
-        return newState;
-    }
-
     static toggleStatusSelector(state, action, context) {
         const newState = TaskState.createEmptyFormOnLoad(action.task);
         const taskTypeUUID = _.get(newState.task, 'taskType.uuid');
@@ -115,7 +109,6 @@ const TaskActionNames = {
     PHONE_NUMBER_CHANGE: `${ActionPrefix}.PHONE_NUMBER_CHANGE`,
     GROUP_QUESTION_VALUE_CHANGE: `${ActionPrefix}.GROUP_QUESTION_VALUE_CHANGE`,
     REPEATABLE_GROUP_QUESTION_VALUE_CHANGE: `${ActionPrefix}.REPEATABLE_GROUP_QUESTION_VALUE_CHANGE`,
-    TOGGLE_PROGRESS_INDICATOR: `${ActionPrefix}.TOGGLE_PROGRESS_INDICATOR`
 };
 
 const TaskActionMap = new Map([
@@ -126,7 +119,6 @@ const TaskActionMap = new Map([
     [TaskActionNames.ON_PREVIOUS, TaskActions.onPrevious],
     [TaskActionNames.ON_NEXT, TaskActions.onNext],
     [TaskActionNames.ON_SAVE, TaskActions.onSave],
-    [TaskActionNames.TOGGLE_PROGRESS_INDICATOR, TaskActions.onToggleProgressIndicator],
     [TaskActionNames.TOGGLE_MULTISELECT_ANSWER, ObservationsHolderActions.toggleMultiSelectAnswer],
     [TaskActionNames.TOGGLE_SINGLESELECT_ANSWER, ObservationsHolderActions.toggleSingleSelectAnswer],
     [TaskActionNames.PRIMITIVE_VALUE_CHANGE, ObservationsHolderActions.onPrimitiveObsUpdateValue],

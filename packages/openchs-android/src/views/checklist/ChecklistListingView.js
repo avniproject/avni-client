@@ -19,10 +19,10 @@ const placeHolderPicker = {label: 'All', value: 'All'};
 @Path("/checklistListingView")
 class ChecklistListingView extends AbstractComponent {
     static propTypes = {
-        results: PropTypes.array.isRequired,
+        results: PropTypes.object.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
         headerTitle: PropTypes.string.isRequired,
-        indicatorActionName: PropTypes.func,
+        indicatorActionName: PropTypes.string,
         backFunction: PropTypes.func,
         iconName: PropTypes.string,
         iconFunction: PropTypes.func,
@@ -85,13 +85,15 @@ class ChecklistListingView extends AbstractComponent {
 
         if (value === 'All') {
             this.setState({
-                filteredResult: this.props.results, selectedFilterPicker: value
+                filteredResult: this.state.results,
+                selectedFilterPicker: value
             });
         } else {
             this.setState({
                 filteredResult: {
                     individual: getFilteredIndividuals(this.state.results.individual, value)
-                }, selectedFilterPicker: value
+                },
+                selectedFilterPicker: value
             });
         }
     }

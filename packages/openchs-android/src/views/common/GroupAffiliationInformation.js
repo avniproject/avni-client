@@ -22,13 +22,13 @@ const styles = {
     }
 };
 
-const GroupAffiliationInformation = ({individual, I18n}) => {
-    return _.isEmpty(_.filter(individual.affiliatedGroups, ({voided, memberSubject}) => voided || !voided && _.isNil(memberSubject))) ?
+const GroupAffiliationInformation = ({individual, affiliatedGroups, I18n}) => {
+    return _.isEmpty(_.filter(affiliatedGroups, ({voided, memberSubject}) => voided || !voided && _.isNil(memberSubject))) ?
         <View/> : (
             <View style={styles.container}>
                 <Text style={[Fonts.Title, {opacity: 0.7}]}>{I18n.t("groupInformation")}</Text>
                 <View style={styles.content}>
-                    {_.map(individual.affiliatedGroups, ({voided, groupSubject, memberSubject}) => {
+                    {_.map(affiliatedGroups, ({voided, groupSubject, memberSubject}) => {
                         const groupInformation = {
                             memberName: individual.nameString,
                             groupSubjectTypeName: groupSubject.subjectTypeName,

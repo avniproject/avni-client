@@ -77,16 +77,16 @@ class IndividualProfile extends AbstractComponent {
 
         if (number && enableMessaging) {
             return (<View>
-              <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
-                  <View>
-                    <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                            style={{fontSize: 30}} color={Colors.TextOnPrimaryColor}/>
-                  </View>
-              </TouchableNativeFeedback>
+                <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
+                    <View>
+                        <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
+                                  style={{fontSize: 30}} color={Colors.TextOnPrimaryColor}/>
+                    </View>
+                </TouchableNativeFeedback>
             </View>);
         } else {
             return (
-              <View/>
+                <View/>
             );
         }
     }
@@ -118,11 +118,12 @@ class IndividualProfile extends AbstractComponent {
 
 
     programProfileHeading() {
+        const fullAddress = this.props.individual.fullAddress(this.I18n);
         return this.props.individual.subjectType.isPerson() ?
             <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text> :
+                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {fullAddress}</Text> :
             <Text
-                style={Styles.programProfileSubheading}>{this.props.individual.subjectAddressText(this.I18n)}</Text>
+                style={Styles.programProfileSubheading}>{fullAddress}</Text>
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
@@ -212,7 +213,8 @@ class IndividualProfile extends AbstractComponent {
 
     renderCommentIcon() {
         const {enableComments} = this.getService(OrganisationConfigService).getSettings();
-        return enableComments ? <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
+        return enableComments ?
+            <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
     }
 
     renderNameDirectly(programAction) {
@@ -230,62 +232,69 @@ class IndividualProfile extends AbstractComponent {
     render() {
         General.logDebug('IndividualProfile', 'render');
         const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
-        const textColor =  this.props.textColor ? this.props.textColor : Styles.blackColor;
+        const textColor = this.props.textColor ? this.props.textColor : Styles.blackColor;
+        let isPerson = this.props.individual.subjectType.isPerson();
+        let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
+        if(isPerson) {
+            headingSuffixesList.unshift(this.props.individual.userProfileSubtext2(this.I18n)); //localized Age
+            headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
+        }
+        let headingSuffix = _.join(headingSuffixesList, ", ")
         return <View style={{backgroundColor: backgroundColor}}>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <>
-                    <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
-                    <View style={{
-                        marginVertical: 10,
-                        marginHorizontal: 10,
-                        backgroundColor: backgroundColor
-                    }}>
-                        <ActionSelector
-                            title={this.I18n.t("enrolInProgram")}
-                            hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
-                            visible={this.state.displayActionSelector}
-                            actions={this.state.programActions}
-                        />
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <View style={{
-                                paddingHorizontal: 20,
-                                justifyContent: 'center',
-                            }}>
-                                <SubjectProfilePicture
-                                    size={DGS.resizeWidth(75)}
-                                    subjectType={this.props.individual.subjectType}
-                                    style={{alignSelf: 'center'}}
-                                    round={true}
-                                    allowEnlargementOnClick={true}
-                                    individual={this.props.individual}
-                                />
-                            </View>
-                            <View style={{flex: 1, paddingHorizontal: 5}}>
-                                <Text
-                                    style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
-                                {this.programProfileHeading()}
-                            </View>
+                        <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
+                        <View style={{
+                            marginVertical: 10,
+                            marginHorizontal: 10,
+                            backgroundColor: backgroundColor
+                        }}>
+                            <ActionSelector
+                                title={this.I18n.t("enrolInProgram")}
+                                hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
+                                visible={this.state.displayActionSelector}
+                                actions={this.state.programActions}
+                            />
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <View style={{
+                                    paddingHorizontal: 20,
+                                    justifyContent: 'center',
+                                }}>
+                                    <SubjectProfilePicture
+                                        size={DGS.resizeWidth(75)}
+                                        subjectType={this.props.individual.subjectType}
+                                        style={{alignSelf: 'center'}}
+                                        round={true}
+                                        allowEnlargementOnClick={true}
+                                        individual={this.props.individual}
+                                    />
+                                </View>
+                                <View style={{flex: 1, paddingHorizontal: 5}}>
+                                    <Text
+                                        style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
+                                    {this.programProfileHeading()}
+                                </View>
 
-                            <View style={{flexDirection: 'column'}}>
-                                {this.renderCommentIcon()}
-                                {this.renderCallButton()}
-                                {this.renderWhatsappButton(this.props.individual.uuid)}
+                                <View style={{flexDirection: 'column'}}>
+                                    {this.renderCommentIcon()}
+                                    {this.renderCallButton()}
+                                    {this.renderWhatsappButton(this.props.individual.uuid)}
+                                </View>
                             </View>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                flexWrap: 'wrap',
-                                paddingVertical: 8,
-                                alignItems: 'center'
-                            }}>
-                            {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderBasedOnProgramActions() :
-                                <View/>}
-                            {this.renderGroupOptions()}
-                        </View>
-                    </View></>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    paddingVertical: 8,
+                                    alignItems: 'center'
+                                }}>
+                                {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderBasedOnProgramActions() :
+                                    <View/>}
+                                {this.renderGroupOptions()}
+                            </View>
+                        </View></>
                 ) :
                 (
                     <View style={this.appendedStyle({
@@ -297,11 +306,7 @@ class IndividualProfile extends AbstractComponent {
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
                         </View>
-                        {
-                            this.props.individual.subjectType.isPerson() &&
-                            <Text
-                                style={Styles.subjectProfileSubheading}>{this.props.individual.userProfileSubtext1(this.I18n)}, {this.props.individual.userProfileSubtext2(this.I18n)}, {this.props.individual.subjectAddressText(this.I18n)}</Text>
-                        }
+                            <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
                     </View>
                 )}
         </View>;

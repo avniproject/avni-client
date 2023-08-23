@@ -74,7 +74,7 @@ class SubjectInfoCard extends AbstractComponent {
         const enrolledPrograms = _.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 
-      const subjectAddressText = _.replace(this.props.individual.subjectAddressText(i18n),new RegExp(",","g"),",\n");
+      const subjectAddressText = _.replace(this.props.individual.lowestTwoLevelAddress(i18n),new RegExp(",","g"),",\n");
         return (
             <View style={{
                 flexDirection: 'row',

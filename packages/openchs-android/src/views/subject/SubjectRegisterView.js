@@ -122,8 +122,11 @@ class SubjectRegisterView extends AbstractComponent {
                 };
                 const registrationTitle = this.I18n.t(this.registrationType) + this.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${this.I18n.t('summaryAndRecommendations')}`;
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject, observations, Actions.SAVE, onSaveCallback, headerMessage,
-                    null, nextScheduledVisits, state.form, state.workListState, null, this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(), this.state.subject.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.subject,
+                  observations, Actions.SAVE, onSaveCallback, headerMessage,
+                    null, nextScheduledVisits, state.form, state.workListState, null,
+                  this.state.saveDrafts, popVerificationVew, state.subject.isRejectedEntity(),
+                  this.state.subject.latestEntityApprovalStatus, undefined, state.getAffiliatedGroups());
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
