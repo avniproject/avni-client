@@ -1,6 +1,7 @@
 import fs from 'react-native-fs';
 import General from "../utility/General";
 import {PermissionsAndroid} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
 export default class FileSystem {
 
@@ -13,20 +14,24 @@ export default class FileSystem {
         General.logDebug("FileSystem", FileSystem.getFileDir());
 
         const grantSuccess = (grant) => {
-            return typeof (grant) === 'boolean'? grant: PermissionsAndroid.RESULTS.GRANTED === grant;
+            return typeof (grant) === 'boolean' ? grant : PermissionsAndroid.RESULTS.GRANTED === grant;
         };
 
-       await (async function requestFileSystemPermission() {
+        await (async function requestFileSystemPermission() {
             try {
-                const grant = await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-                    {
-                        'title': 'Write to external storage',
-                        'message': 'This is required to store files for Avni'
-                    }
-                );
-                if (grantSuccess(grant)) {
-                   await FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
+                let grant;
+                const apiLevel = await DeviceInfo.getApiLevel();
+                if (apiLevel < General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) {
+                    grant = await PermissionsAndroid.request(
+                        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                        {
+                            'title': 'Write to external storage',
+                            'message': 'This is required to store files for Avni'
+                        }
+                    );
+                }
+                if (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL || grantSuccess(grant)) {
+                    await FileSystem.mkdir(FileSystem.getImagesDir(), 'images')
                         .then(() => FileSystem.mkdir(FileSystem.getVideosDir(), 'videos'))
                         .then(() => FileSystem.mkdir(FileSystem.getAudioDir(), 'audios'))
                         .then(() => FileSystem.mkdir(FileSystem.getBackupDir(), 'db'))
@@ -35,11 +40,11 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
                         .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
-                       .then(() => {
-                           const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
-                           const newBasePath = `${fs.ExternalDirectoryPath}/Avni`;
-                           FileSystem.migrateOldData(olderBasePath, newBasePath);
-                       })
+                        .then(() => {
+                            const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
+                            const newBasePath = `${fs.ExternalDirectoryPath}/Avni`;
+                            FileSystem.migrateOldData(olderBasePath, newBasePath);
+                        })
                         .catch(err => General.logError("FileSystem", err));
                 } else {
                     General.logError("FileSystem", "No permissions to write to external storage")
@@ -77,11 +82,11 @@ export default class FileSystem {
         return `${fs.ExternalDirectoryPath}/Avni/media/news`;
     }
 
-    static getBackupDir(){
+    static getBackupDir() {
         return `${fs.ExternalDirectoryPath}/Avni/db/`;
     }
 
-    static getExtensionsDir(){
+    static getExtensionsDir() {
         return `${fs.ExternalDirectoryPath}/Avni/extensions`;
     }
 

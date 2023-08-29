@@ -1,13 +1,15 @@
-import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
+import { StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid } from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import {launchCamera, launchImageLibrary} from "react-native-image-picker";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../../primitives/Colors";
 import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
+import DeviceInfo from 'react-native-device-info';
+import _ from "lodash";
 
 const styles = StyleSheet.create({
     icon: {
@@ -89,7 +91,7 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     async launchCamera(onUpdateObservations) {
-        this.setState({mode: Mode.Camera});
+        this.setState({ mode: Mode.Camera });
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
@@ -106,7 +108,7 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     async launchMediaLibrary(onUpdateObservations) {
-        this.setState({mode: Mode.MediaLibrary});
+        this.setState({ mode: Mode.MediaLibrary });
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
@@ -118,15 +120,23 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     async isPermissionGranted() {
-        const readStoragePermission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-        const writeStoragePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-        const cameraPermission = PermissionsAndroid.PERMISSIONS.CAMERA;
-        const granted = PermissionsAndroid.RESULTS.GRANTED;
+        const apiLevel = await DeviceInfo.getApiLevel();
 
-        const permissionRequest = await PermissionsAndroid.requestMultiple([readStoragePermission, writeStoragePermission, cameraPermission]);
+        const permissionRequest = await PermissionsAndroid.requestMultiple(
+            apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
+                [
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                ]
+                :
+                [
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    PermissionsAndroid.PERMISSIONS.CAMERA
+                ]
+        );
 
-        return permissionRequest[readStoragePermission] === granted && permissionRequest[writeStoragePermission] === granted
-            && permissionRequest[cameraPermission] === granted
+        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     showMedia(mediaUri, onClearAnswer) {
@@ -142,7 +152,7 @@ export default class MediaFormElement extends AbstractFormElement {
 
     showInputOptions(onUpdateObservations) {
         return (
-            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
+            <View style={[styles.contentRow, { justifyContent: 'flex-end' }]}>
                 <TouchableNativeFeedback onPress={() => {
                     this.launchMediaLibrary(onUpdateObservations)
                 }}

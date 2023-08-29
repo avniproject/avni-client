@@ -18,6 +18,8 @@ import AudioRecorderPlayer, {
 import {ValidationResult} from "openchs-models";
 import {AlertMessage} from "../../common/AlertMessage";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import DeviceInfo from "react-native-device-info";
+import _ from "lodash";
 
 class AudioFormElement extends AbstractFormElement {
     static propTypes = {
@@ -43,13 +45,22 @@ class AudioFormElement extends AbstractFormElement {
     }
 
     async isPermissionGranted() {
-        const readStoragePermission = PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-        const writeStoragePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-        const cameraPermission = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO;
-        const granted = PermissionsAndroid.RESULTS.GRANTED;
-        const permissionRequest = await PermissionsAndroid.requestMultiple([readStoragePermission, writeStoragePermission, cameraPermission]);
-        return permissionRequest[readStoragePermission] === granted && permissionRequest[writeStoragePermission] === granted
-            && permissionRequest[cameraPermission] === granted
+        const apiLevel = await DeviceInfo.getApiLevel();
+
+        const permissionRequest = await PermissionsAndroid.requestMultiple(
+            apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
+                [
+                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+                ]
+                :
+                [
+                    PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                    PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+                    PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
+                ]
+        );
+
+        return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
 
     updateValue(value, validationResult = null) {

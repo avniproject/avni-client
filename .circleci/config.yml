@@ -60,7 +60,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
 #            - v1-dependencies-{{ checksum "package.json" }}
@@ -88,8 +88,8 @@ jobs:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
-          destination: sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.js
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.map
 
   release_android_prerelease:
     docker:
@@ -100,7 +100,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
             #            - v1-dependencies-{{ checksum "package.json" }}
@@ -128,8 +128,8 @@ jobs:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
-          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.js
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.map
 
   release_android_perf:
     docker:
@@ -140,7 +140,7 @@ jobs:
       flavor: << pipeline.parameters.flavor >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -163,8 +163,8 @@ jobs:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-perf-<< pipeline.git.revision >>.apk
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
-          destination: sourcemap-<< pipeline.parameters.flavor >>-perf-<< pipeline.git.revision >>.js
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-perf-<< pipeline.git.revision >>.map
 
   release_android_live:
     parameters:
@@ -184,7 +184,7 @@ jobs:
       versionName: << pipeline.parameters.versionName >>
     steps:
       - checkout
-      - run: echo "Building flavor ${flavor}"
+      - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
       - restore_cache:
           keys:
@@ -215,8 +215,8 @@ jobs:
           path: packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.aab
       - store_artifacts:
-          path: packages/openchs-android/android/app/build/generated/sourcemap.js
-          destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.js
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.map
       - run: curl -L https://github.com/google/bundletool/releases/download/1.15.1/bundletool-all-1.15.1.jar > ./bundletool.jar
       - run: java -jar ./bundletool.jar build-apks --bundle=packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab --output=avniuniversal.apks --mode=universal --ks=packages/openchs-android/android/app/openchs-release-key.keystore --ks-pass=pass:<< parameters.keystore_password >> --ks-key-alias=openchs-release-key --key-pass=pass:<< parameters.key_password >>
       - store_artifacts:
