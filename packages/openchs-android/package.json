@@ -38,6 +38,7 @@
     "@react-native-community/datetimepicker": "^6.5.0",
     "@react-native-community/netinfo": "9.3.0",
     "@react-native-community/progress-bar-android": "^1.0.5",
+    "@react-native-cookies/cookies": "^6.2.1",
     "@react-native-firebase/analytics": "15.2.0",
     "@react-native-firebase/app": "15.2.0",
     "amazon-cognito-identity-js": "6.3.1",

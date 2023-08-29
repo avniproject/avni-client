@@ -3,11 +3,12 @@ import _ from 'lodash';
 import AuthenticationError from "../../service/AuthenticationError";
 import ServerError from "../../service/ServerError";
 import GlobalContext from "../../GlobalContext";
-import { IDP_PROVIDERS } from "../../model/IdpProviders";
+import {IDP_PROVIDERS} from "../../model/IdpProviders";
+import CookieManager from "@react-native-cookies/cookies";
 
 const ACCEPTABLE_RESPONSE_STATUSES = [200, 201];
 
-const getAuthToken = async  () => {
+const getAuthToken = async () => {
     const authService = GlobalContext.getInstance().beanRegistry.getService("authService");
     return await authService.getAuthProviderService().getAuthToken();
 };
@@ -19,7 +20,7 @@ const getIdpType = async () => {
 
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
-      if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
+        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
             return Promise.resolve(response);
         }
         if (parseInt(response.status) === 403) {
@@ -31,9 +32,25 @@ const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => 
         }
         return Promise.reject(new ServerError(`Http ${response.status}`, response));
     };
-    return fetchWithoutTimeout ? fetch(endpoint, {"method": method, ...params}).then(processResponse) :
-        fetchWithTimeOut(endpoint, {"method": method, ...params}).then(processResponse);
+    const requestInit = {"method": method, ...params};
+    const doFetch = getXSRFPromise(endpoint).then((xsrfToken) => {
+        requestInit.headers["X-XSRF-TOKEN"] = xsrfToken;
+        return fetchWithoutTimeout ? fetch(endpoint, requestInit)
+            : fetchWithTimeOut(endpoint, requestInit)
+    });
+    return doFetch.then(processResponse);
 };
+
+const getXSRFPromise = function (endpoint) {
+    return CookieManager.get(endpoint).then((cookies) => {
+        const xsrfCookieObject = cookies["XSRF-TOKEN"];
+        if (_.isNil(xsrfCookieObject)) {
+            General.logDebug("requests",`getXSRFPromise: no XSRF cookie found when calling ${endpoint}`);
+            return null;
+        }
+        return xsrfCookieObject.value;
+    });
+}
 
 const fetchWithTimeOut = (url, options, timeout = 60000) => {
     return Promise.race([
@@ -44,12 +61,15 @@ const fetchWithTimeOut = (url, options, timeout = 60000) => {
     ]);
 };
 
-const makeHeader = (type) => new Map([['json', {
-    headers: {
+const makeHeader = function (type) {
+    const jsonRequestHeader = {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-    }
-}], ['text', {headers: {'Accept': 'text/plain', 'Content-Type': 'text/plain'}}]]).get(type);
+    };
+    const textRequestHeader = {'Accept': 'text/plain', 'Content-Type': 'text/plain'};
+    return new Map([['json', {headers: jsonRequestHeader}],
+        ['text', {headers: textRequestHeader}]]).get(type);
+}
 
 const makeRequest = (type, opts = {}) => _.assignIn({...makeHeader(type), ...opts});
 
@@ -64,27 +84,27 @@ const _addAuthIfRequired = async (request, bypassAuth) => {
         _.merge({}, request, {headers: {'AUTH-TOKEN': token}});
 };
 
-let _get = (endpoint, bypassAuth) => {
+const _get = (endpoint, bypassAuth) => {
     General.logDebug('Requests', `GET: ${endpoint}`);
     return _addAuthIfRequired(makeHeader("json"), bypassAuth)
         .then((headers) => fetchFactory(endpoint, "GET", headers))
         .then((response) => response.json(), Promise.reject)
 };
 
-let _getText = (endpoint, bypassAuth) => {
+const _getText = (endpoint, bypassAuth) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return _addAuthIfRequired(makeHeader("text"), bypassAuth)
-        .then((headers) => fetchFactory(endpoint, "GET", headers , true))
+        .then((headers) => fetchFactory(endpoint, "GET", headers, true))
         .then((response) => response.text(), Promise.reject)
 };
 
-let _post = (endpoint, file, fetchWithoutTimeout, bypassAuth = false) => {
+const _post = (endpoint, file, fetchWithoutTimeout, bypassAuth = false) => {
     const params = _addAuthIfRequired(makeRequest("json", {body: JSON.stringify(file)}), bypassAuth);
     General.logDebug('Requests', `POST: ${endpoint}`);
     return params.then((headers) => fetchFactory(endpoint, "POST", headers, fetchWithoutTimeout))
 };
 
-let _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
+const _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
     const params = _addAuthIfRequired(makeRequest("json", {body: JSON.stringify(body)}), bypassAuth);
     General.logDebug('Requests', `PUT: ${endpoint}`);
     return params.then((headers) => {
@@ -92,21 +112,21 @@ let _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
     })
 };
 
-export let post = _post;
+export const post = _post;
 
-export let get = (endpoint, bypassAuth = false) => {
+export const get = (endpoint, bypassAuth = false) => {
     return _getText(endpoint, bypassAuth);
 };
 
-export let getJSON = (endpoint, bypassAuth = false) => {
+export const getJSON = (endpoint, bypassAuth = false) => {
     return _get(endpoint, bypassAuth);
 };
 
-export let putJSON = (endpoint, body, fetchWithoutTimeout = false, bypassAuth = false) => {
+export const putJSON = (endpoint, body, fetchWithoutTimeout = false, bypassAuth = false) => {
     return _put(endpoint, body, fetchWithoutTimeout, bypassAuth)
 };
 
-export let postUrlFormEncoded = (endpoint, body) => {
+export const postUrlFormEncoded = (endpoint, body) => {
     const formBody = new URLSearchParams(body).toString();
     return fetchFactory(endpoint, "POST", {headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': '*/*'}, body: formBody}, true)
 }

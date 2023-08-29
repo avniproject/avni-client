@@ -3,6 +3,7 @@ import {StatusBar, StyleSheet, View} from 'react-native';
 import Playground from "./Playground";
 import Config from './framework/Config';
 import Colors from "./views/primitives/Colors";
+import { LogBox } from 'react-native';
 
 export default class Avni extends Component {
 
@@ -15,8 +16,9 @@ export default class Avni extends Component {
         }
     });
 
-
     render() {
+        LogBox.ignoreAllLogs();
+
         if (Config.PLAYGROUND) {
             console.log("=====================>>>>>>>Rendering Playground app component");
             return <Playground/>;

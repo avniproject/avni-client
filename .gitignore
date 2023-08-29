@@ -97,3 +97,4 @@ packages/openchs-android/android/fastlane/README.md
 #generated out of obfuscation process
 packages/openchs-android/index.android.bundle.map
 packages/openchs-android/.jso/
+/packages/openchs-android/metro.config.js

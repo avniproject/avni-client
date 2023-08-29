@@ -147,8 +147,8 @@ create_bundle:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
 
-release: release_clean metro_config create_apk reverse_metro_config upload-release-sourcemap
-bundle_release: release_clean metro_config create_bundle reverse_metro_config  upload-release-sourcemap
+release: release_clean metro_config create_apk upload-release-sourcemap
+bundle_release: release_clean metro_config create_bundle upload-release-sourcemap
 release_dev: setup_hosts as_dev release
 
 release_prod_without_clean: as_prod release
@@ -322,7 +322,6 @@ run_packager: ##
 	REACT_EDITOR=$([ "$REACT_EDITOR" == "" ] && echo "subl" || echo "$REACT_EDITOR")
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npm start
-	make reverse_metro_config flavor=$(flavor) # on pressing ctrl+c when packager is running, this gets executed
 # </packager>
 
 
