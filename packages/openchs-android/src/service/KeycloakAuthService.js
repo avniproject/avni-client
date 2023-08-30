@@ -90,8 +90,8 @@ class KeycloakAuthService extends BaseAuthProviderService {
                 try {
                     return await putJSON(changePasswordEndpoint, {newPassword})
                 } catch (errorResponse) {
-                    let errorText = await errorResponse.text();
-                    errorText = "New password is " + errorText.replaceAll("\"","").replaceAll(":", ",");
+                    let error = await errorResponse.json();
+                    let errorText = "New password is " + error.message.replaceAll(":", ",");
                     throw new Error(errorText);
                 }
             }
