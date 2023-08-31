@@ -48,7 +48,7 @@ export default class BackupRestoreRealmService extends BaseService {
         let destZipFile = `${FileSystem.getBackupDir()}/${fileName}.zip`;
         let mediaQueueService = this.getService(MediaQueueService);
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
-        this.db.writeCopyTo(destFile);
+        this.db.writeCopyTo({path: destFile});
         zip(destFile, destZipFile)
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");

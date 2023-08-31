@@ -83,7 +83,7 @@ export default class FileSystem {
     }
 
     static getBackupDir() {
-        return `${fs.ExternalDirectoryPath}/Avni/db/`;
+        return `${fs.ExternalDirectoryPath}/Avni/db`;
     }
 
     static getExtensionsDir() {
