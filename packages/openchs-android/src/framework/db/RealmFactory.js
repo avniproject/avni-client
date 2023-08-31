@@ -2,6 +2,7 @@ import Realm from "realm";
 import {EntityMappingConfig, RealmProxy} from "openchs-models";
 import EncryptionService from "../../service/EncryptionService";
 import _ from "lodash";
+import General from "../../utility/General";
 
 class RealmFactory {
     static async createRealm() {
@@ -16,7 +17,7 @@ class RealmFactory {
     }
 
     static createRealmWithoutProxy() {
-        console.log('RealmFactory','----------------------------- Loading PLAIN db');
+        General.logDebug('RealmFactory','----------------------------- Loading PLAIN db');
         const entityMappingConfig = EntityMappingConfig.getInstance();
         const realmConfig = entityMappingConfig.getRealmConfig();
         return new Realm(realmConfig);

@@ -120,7 +120,8 @@ export default class EncryptionService extends BaseService {
 
             return key;
         } catch (error) {
-            console.log("Keychain couldn't be accessed!", error);
+            General.logDebug("EncryptionService", "Keychain couldn't be accessed!");
+            General.logError("EncryptionService", error);
             throw error;
         }
     }

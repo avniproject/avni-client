@@ -133,7 +133,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("RuleEvaluationService", trimmedDecisions);
                 return trimmedDecisions;
             } catch (e) {
-                console.log(`form.uuid: ${form.uuid} entityName: ${entityName}`);
+                General.logDebug("RuleEvaluationService",`form.uuid: ${form.uuid} entityName: ${entityName}`);
                 this.saveFailedRules(e, form.uuid, individualUUID);
             }
         } else {

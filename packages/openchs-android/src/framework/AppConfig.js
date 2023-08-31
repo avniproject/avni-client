@@ -1,6 +1,5 @@
 import Config from "./Config";
 import _ from "lodash";
-import General from "../utility/General";
 
 class AppConfig {
     static inNonDevMode() {

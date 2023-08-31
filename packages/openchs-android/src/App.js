@@ -12,6 +12,7 @@ import AppConfig from "./framework/AppConfig";
 import RNRestart from 'react-native-restart';
 import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
+import General from "./utility/General";
 const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
@@ -45,7 +46,7 @@ class App extends Component {
 
     renderError() {
         const clipboardString = `${this.state.error.message}\nStacktrace:${this.state.stacktrace}`;
-        console.log("App", "renderError", clipboardString);
+        General.logError("App", `renderError: ${clipboardString}`);
 
         if (AppConfig.inNonDevMode()) {
             Alert.alert("App will restart now", this.state.error.message,
@@ -69,7 +70,7 @@ class App extends Component {
     }
 
     async componentDidMount() {
-        console.log("App", "componentDidMount");
+        General.logDebug("App", "componentDidMount");
         try {
             if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
 

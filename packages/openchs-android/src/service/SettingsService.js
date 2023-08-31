@@ -18,10 +18,10 @@ class SettingsService extends BaseService {
 
     init() {
         const dbInScope = this.db;
-        console.log("SettingsService", "Config.ENV", Config.ENV);
+        General.logDebug("SettingsService", `Config.ENV: ${Config.ENV}`);
         this.db.write(() => {
             let settings = this.getSettings();
-            console.log("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
+            General.logDebug("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
             if (_.isNil(settings)) {
                 settings = new Settings();
                 settings.uuid = Settings.UUID;
@@ -46,7 +46,7 @@ class SettingsService extends BaseService {
             dbInScope.create('Settings', settings, true);
         });
         let level = this.getSettings().logLevel;
-        console.log("SettingsService", "Log level", level);
+        General.logDebug("SettingsService", `Log level: ${level}`);
         General.setCurrentLogLevel(level);
         General.logDebug("SettingsService", "General - Test log debug message");
         ModelGeneral.setCurrentLogLevel(level);

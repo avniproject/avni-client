@@ -6,7 +6,7 @@ import AppConfig from "../framework/AppConfig";
 
 export default class ErrorHandler {
     static set(errorCallback) {
-        console.log('ErrorHandler', "Setting global error handler", Config.ENV);
+        General.logDebug('ErrorHandler', `Setting global error handler ${Config.ENV}`);
         ErrorUtils.setGlobalHandler((error, isFatal) => {
             ErrorHandler.postError(error, isFatal, errorCallback);
         });

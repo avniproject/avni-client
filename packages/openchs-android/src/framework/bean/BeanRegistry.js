@@ -1,9 +1,10 @@
 import Registry from '../Registry';
 import _ from 'lodash';
+import General from "../../utility/General";
 
 class BeanRegistry extends Registry {
     init(db) {
-        console.log("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes. ${_.isNil(this._beans)}`);
+        General.logDebug("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes. ${_.isNil(this._beans)}`);
         this._beans = [];
         this._beansMap = Array.from(this._beanClasses).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
@@ -12,9 +13,9 @@ class BeanRegistry extends Registry {
             this._beans.push(beanInstance);
             return map;
         }, new Map());
-        console.log("BeanRegistry", `Beans map created with ${this._beansMap.size} entries for ${this._beans.length} beans`);
+        General.logDebug("BeanRegistry", `Beans map created with ${this._beansMap.size} entries for ${this._beans.length} beans`);
         this._beans.forEach(bean => bean.init());
-        console.log("BeanRegistry", `Initialisation completed ${this._beansMap.size} entries`);
+        General.logDebug("BeanRegistry", `Initialisation completed ${this._beansMap.size} entries`);
     }
 
     updateDatabase(db) {

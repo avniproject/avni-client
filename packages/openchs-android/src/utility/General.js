@@ -1,6 +1,7 @@
 import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
+import AppConfig from "../framework/AppConfig";
 
 let currentLogLevel;
 
@@ -236,6 +237,8 @@ class General {
     }
 
     static logError(source, error) {
+        if (AppConfig.inNonDevMode()) return;
+
         if (General.LogLevel.Error >= General.getCurrentLogLevel()) {
             if (error && error.stack) {
                 console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`, error.stack);
@@ -246,11 +249,15 @@ class General {
     }
 
     static logErrorAsInfo(source, error) {
+        if (AppConfig.inNonDevMode()) return;
+
         if (General.LogLevel.Error >= General.getCurrentLogLevel())
             console.log(`[${source}]`, error.message, JSON.stringify(error));
     }
 
     static log(source, message, level, decorate = false) {
+        if (AppConfig.inNonDevMode()) return;
+
         try {
             const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
             const logMessage = `[${moment().format("h:mm:ss:SSS")}] [${source}][${levelName}] ${General.getDisplayableMessage(message)}`;

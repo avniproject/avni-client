@@ -128,8 +128,7 @@ class FakeDataService extends BaseService {
                 this.saveOrUpdate({uuid: individual.uuid, enrolments: [enrolment]}, Individual.schema.name);
                 this.saveOrUpdate({uuid: enrolment.uuid, encounters: [programEncounter]}, ProgramEnrolment.schema.name);
             } catch (e) {
-                console.log(e);
-                General.logDebug("Failed scheduled :(", e);
+                General.logError("Failed scheduled :(", e);
             } finally {
                 General.logDebug("Finishing completed -- ", i);
             }

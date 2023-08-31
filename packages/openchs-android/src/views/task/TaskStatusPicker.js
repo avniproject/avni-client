@@ -11,6 +11,7 @@ import TaskFormView from "./TaskFormView";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Colors from '../primitives/Colors';
 import {Actions as TaskListActions} from '../../action/task/TaskListActions';
+import General from "../../utility/General";
 class TaskStatusPicker extends AbstractComponent {
 
     static propTypes = {
@@ -49,7 +50,7 @@ class TaskStatusPicker extends AbstractComponent {
 
 
     render() {
-        console.log('rendering task', this.props.task.uuid);
+        General.logDebug('TaskStatusPicker', `rendering task ${this.props.task.uuid}`);
         return (
             <Modal transparent={true}
                    onRequestClose={_.noop}

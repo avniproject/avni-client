@@ -2,6 +2,7 @@ import TaskService from "../../service/task/TaskService";
 import TaskFilter from "../../model/TaskFilter";
 import TaskTypeService from "../../service/task/TaskTypeService";
 import _ from 'lodash';
+import General from "../../utility/General";
 
 const createNewState = function (results, filter) {
     return {results: results, filter: filter, showTaskStatusChangeModal: false};
@@ -45,7 +46,7 @@ class TaskListActions {
         return createNewState(results, taskFilter);
     }
     static onShowTaskStatusChangeModal(state, action, context) {
-        console.log('getting action values', _.keys(action.task));
+        General.logDebug('TaskListActions', 'getting action values ' + _.keys(action.task));
         return {
             ...state,
             showTaskStatusChangeModal: true,
