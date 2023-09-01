@@ -20,7 +20,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class TamperCheckModule extends ReactContextBaseJavaModule {
-	public static final String APP_NAME_THAT_REQUIRES_SIGNATURE_VALIDATION = "Teach AP";
 	private ReactContext mReactContext;
 
 	public TamperCheckModule(ReactApplicationContext context) {
@@ -36,21 +35,18 @@ public class TamperCheckModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void validateAppSignature()  {
 	  try {
-		  String appName = mReactContext.getResources().getString(R.string.app_name);
-		  if(appName.equals(APP_NAME_THAT_REQUIRES_SIGNATURE_VALIDATION)) {
 			  Log.i("TamperCheckModule", "Validating app signature");
-			  String shaAppSignatureOne = mReactContext.getResources().getString(R.string.sha_app_signature_one);
-			  String shaAppSignatureTwo = mReactContext.getResources().getString(R.string.sha_app_signature_two);
+			  String shaAppGoogleSignature = mReactContext.getResources().getString(R.string.sha256_app_google_signature);
+			  String shaAppUploadKeySignature = mReactContext.getResources().getString(R.string.sha256_app_upload_key_signature);
 			  PackageInfo packageInfo = mReactContext.getPackageManager().getPackageInfo(
 					  mReactContext.getPackageName(), PackageManager.GET_SIGNATURES);
 
 			  Signature[] signatures = packageInfo.signatures;
-			  String sha256 = getSHA256(signatures[0]);
-			  if (!(shaAppSignatureOne.equalsIgnoreCase(sha256) || shaAppSignatureTwo.equalsIgnoreCase(sha256))) {
+			  String sha256PackageSignature = getSHA256(signatures[0]);
+			  if (!(shaAppGoogleSignature.equalsIgnoreCase(sha256PackageSignature) || shaAppUploadKeySignature.equalsIgnoreCase(sha256PackageSignature))) {
 				  Activity currentActivity = getCurrentActivity();
 				  currentActivity.finishAndRemoveTask();
 			  }
-		  }
 	  }
 	  catch(Exception exception) {
 		  Log.e("TamperCheckModule", "Exception: " + exception);

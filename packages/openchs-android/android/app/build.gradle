@@ -158,8 +158,8 @@ android {
         lfe {
             applicationId "org.lfeteach.openchsclient"
             resValue "string", "app_name", "Teach AP"
-            resValue "string", "sha_app_signature_one", System.getenv("SHA_APP_SIGNATURE_ONE") ?: "dummy"
-            resValue "string", "sha_app_signature_two", System.getenv("SHA_APP_SIGNATURE_TWO") ?: "dummy"
+            resValue "string", "sha256_app_google_signature", "76b9cbbc73fdbdb5aaeb26b4bfd260a81e338acd63831bcc3b3948d5b22eb0f"
+            resValue "string", "sha256_app_upload_key_signature", "1316b6323d287df02f3a623ee675cbdac123e351e8163e78a3315da3206f609"
             signingConfig signingConfigs.lfe
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
@@ -169,6 +169,9 @@ android {
             signingConfig signingConfigs.sakhi
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
+    }
+    sourceSets {
+        lfe.java.srcDir 'src/common/java'
     }
 }
 
