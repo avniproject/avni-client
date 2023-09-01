@@ -1,10 +1,10 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
-import Realm from "realm";
 import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} from 'openchs-models';
 import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
+const {stringify} = require('flatted');
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -25,7 +25,7 @@ class FiltersActionsV2 {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        let filterConfigsJSON = JSON.stringify(newState.filterConfigs, Realm.JsonSerializationReplacer);
+        let filterConfigsJSON = stringify(newState.filterConfigs);
         newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = context.get(CustomDashboardCacheService).fetchCachedData(action.dashboardUUID, newState.filterConfigsChecksum);
         if(state.dashboardUUID !== action.dashboardUUID) {
@@ -182,10 +182,10 @@ class FiltersActionsV2 {
     }
 
     static createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray) {
-        let selectValueJSON = JSON.stringify(newState.selectedValues, Realm.JsonSerializationReplacer);
-        let filteredErrorsJSON = JSON.stringify(newState.filterErrors, Realm.JsonSerializationReplacer);
-        let transformedFiltersJSON = JSON.stringify(transformedFilters, Realm.JsonSerializationReplacer);
-        let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray}, Realm.JsonSerializationReplacer);
+        let selectValueJSON = stringify(newState.selectedValues);
+        let filteredErrorsJSON = stringify(newState.filterErrors);
+        let transformedFiltersJSON = stringify(transformedFilters);
+        let ruleInputJSON = stringify({ruleInputArray: ruleInputArray});
         const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(),
           selectValueJSON, newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
         return customDashboardCache;

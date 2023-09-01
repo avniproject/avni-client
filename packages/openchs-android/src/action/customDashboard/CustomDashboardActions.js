@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import Realm from "realm";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
@@ -9,6 +8,7 @@ import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
+const {stringify} = require('flatted');
 
 class CustomDashboardActions {
 
@@ -58,7 +58,7 @@ class CustomDashboardActions {
         const dashboardFilterService = context.get(DashboardFilterService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
-        let filterConfigsJSON = JSON.stringify(filterConfigs, Realm.JsonSerializationReplacer);
+        let filterConfigsJSON = stringify(filterConfigs);
         let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = customDashboardCacheService.fetchCachedData(newState.activeDashboardUUID, filterConfigsChecksum);
         newState.filterConfigsChecksum = cachedData.getChecksum();
