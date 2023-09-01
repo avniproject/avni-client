@@ -234,7 +234,8 @@ class CustomDashboardView extends AbstractComponent {
                     {hasFilters && <View style={{display: "flex", padding: 10}}>
                         <SafeAreaView style={{maxHeight: 160}}>
                             <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
-                                <AppliedFiltersV2 postClearAction={() => this.onClearFilters()}
+                                <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
+                                                postClearAction={() => this.onClearFilters()}
                                                   applied={this.state.customDashboardFilters.applied}
                                                   selectedLocations={this.state.customDashboardFilters.selectedLocations}
                                                 selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}

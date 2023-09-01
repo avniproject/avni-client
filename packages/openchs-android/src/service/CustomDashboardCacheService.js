@@ -25,11 +25,6 @@ class CustomDashboardCacheService extends BaseService {
     resetCache(dashboardUUID) {
             return CustomDashboardCache.createEmptyInstance();
     }
-
-    selectedValues(dashboardUUID) {
-        return this.fetchCachedData(dashboardUUID).getSelectedValues();
-    }
-
 }
 
 export default CustomDashboardCacheService;
