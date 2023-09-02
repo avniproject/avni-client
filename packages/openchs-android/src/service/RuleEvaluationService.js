@@ -211,7 +211,6 @@ class RuleEvaluationService extends BaseService {
         }
 
         return workLists;
-
     }
 
     runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context) {

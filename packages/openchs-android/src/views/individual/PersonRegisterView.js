@@ -1,4 +1,4 @@
-import {ToastAndroid, Vibration, View, ScrollView} from "react-native";
+import {ToastAndroid, ScrollView} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
