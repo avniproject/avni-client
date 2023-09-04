@@ -120,23 +120,25 @@ android {
 
     signingConfigs {
         generic {
-
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key.keystore")
             storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("KEY_PASSWORD")
+            enableV1Signing false
         }
         lfe {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-avni-release-key.keystore")
             storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("LFE_KEY_PASSWORD")
+            enableV1Signing false
         }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
             storePassword System.getenv("SAKHI_KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi"
             keyPassword System.getenv("SAKHI_KEY_PASSWORD")
+            enableV1Signing false
         }
     }
     buildTypes {
@@ -158,8 +160,8 @@ android {
         lfe {
             applicationId "org.lfeteach.openchsclient"
             resValue "string", "app_name", "Teach AP"
-            resValue "string", "sha256_app_google_signature", "76b9cbbc73fdbdb5aaeb26b4bfd260a81e338acd63831bcc3b3948d5b22eb0f"
-            resValue "string", "sha256_app_upload_key_signature", "1316b6323d287df02f3a623ee675cbdac123e351e8163e78a3315da3206f609"
+            resValue "string", "sha256_app_google_signature", "76b9cbbc73fdbdb5aaeb26b4bfd260a81e338acd63831bcc3b3948d5b22eb0f3"
+            resValue "string", "sha256_app_upload_key_signature", "1316b6323d287df02f3a623ee675cbdac123e351e8163e78a3315da3206f6092"
             signingConfig signingConfigs.lfe
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
         }
