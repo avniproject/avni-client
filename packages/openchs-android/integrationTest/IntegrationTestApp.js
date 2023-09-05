@@ -49,13 +49,23 @@ class IntegrationTestApp extends Component {
         LogBox.ignoreAllLogs();
 
         if (this.state.isInitialisationDone) {
-            return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-                <Button title="Run Test" onPress={() => new PersonRegisterActionsIntegrationTest().last_page_of_registration_should_show_worklist_correctly()}/>
+            return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "black"}}>
+                <Button title="Run Test" onPress={() => new PersonRegisterActionsIntegrationTest().last_page_of_registration_should_show_worklist_correctly(IntegrationTestContext)}/>
             </View>;
         }
-        return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', color: "white", backgroundColor: "black"}}>
             <Text>Loading...</Text>
         </View>;
+    }
+}
+
+class IntegrationTestContext {
+    static starting(testArguments) {
+        console.log("Starting", testArguments.callee.name);
+    }
+
+    static ending(testArguments) {
+        console.log("Ending", testArguments.callee.name);
     }
 }
 

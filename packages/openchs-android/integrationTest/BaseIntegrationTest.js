@@ -1,5 +1,10 @@
 import GlobalContext from "../src/GlobalContext";
 import EntityService from "../src/service/EntityService";
+import RuleEvaluationService from "../src/service/RuleEvaluationService";
+import ProgramConfigService from "../src/service/ProgramConfigService";
+import MessageService from "../src/service/MessageService";
+import RuleService from "../src/service/RuleService";
+import PrivilegeService from "../src/service/PrivilegeService";
 
 class BaseIntegrationTest {
     getService(nameOrType) {
@@ -10,13 +15,37 @@ class BaseIntegrationTest {
         return GlobalContext.getInstance().beanRegistry.getService(EntityService);
     }
 
-    saveEntity(entity, entityClass) {
-        this.getEntityService().save(entity, entityClass.schema.name);
-        return this.getEntityService().findByUUID(entity.uuid, entityClass.schema.name);
-    }
-
     dispatch(actionName, ...params) {
         return GlobalContext.getInstance().reduxStore.dispatch(actionName, params);
+    }
+
+    executeInWrite(codeBlock) {
+        GlobalContext.getInstance().db.write(() => {
+            codeBlock(new TestDb(GlobalContext.getInstance().db));
+        });
+    }
+
+    getState(reducerKey) {
+        return GlobalContext.getInstance().reduxStore.getState()[reducerKey];
+    }
+
+    initialDataSetupComplete() {
+        // SyncComponent.reset
+        this.getService(RuleEvaluationService).init();
+        this.getService(ProgramConfigService).init();
+        this.getService(MessageService).init();
+        this.getService(RuleService).init();
+        this.getService(PrivilegeService).deleteRevokedEntities();
+    }
+}
+
+class TestDb {
+    constructor(db) {
+        this.db = db;
+    }
+
+    create(clazz, entity) {
+        return this.db.create(clazz.schema.name, entity);
     }
 }
 
