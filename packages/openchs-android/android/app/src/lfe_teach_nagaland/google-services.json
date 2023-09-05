@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:563311205451:android:66eaeb31c9129707d581ce",
+        "mobilesdk_app_id": "1:563311205451:android:77a8881189fea21bd581ce",
         "android_client_info": {
-          "package_name": "com.openchsclient.lfeteach.nagaland"
+          "package_name": "com.openchsclient"
         }
       },
       "oauth_client": [
