@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "563311205451",
+    "project_id": "lfe-teach-nagaland",
+    "storage_bucket": "lfe-teach-nagaland.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:563311205451:android:66eaeb31c9129707d581ce",
+        "android_client_info": {
+          "package_name": "com.openchsclient.lfeteach.nagaland"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "563311205451-pff9fh3pn98hscrf77benjtmjnakoq4m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMKmQ8LFIWLG4Y3kJbsjRDignMheBSMFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "563311205451-pff9fh3pn98hscrf77benjtmjnakoq4m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

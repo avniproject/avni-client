@@ -92,6 +92,12 @@ android {
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
             keyPassword System.getenv("LFE_KEY_PASSWORD")
         }
+        lfeTeachNagaland {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-nagaland-release-key.keystore")
+            storePassword System.getenv("LFE_TEACH_NAGALAND_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteachnagaland"
+            keyPassword System.getenv("LFE_TEACH_NAGALAND_KEY_PASSWORD")
+        }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
             storePassword System.getenv("SAKHI_KEYSTORE_PASSWORD")
@@ -120,6 +126,12 @@ android {
             resValue "string", "app_name", "Teach AP"
             signingConfig signingConfigs.lfe
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
+        }
+        lfeTeachNagaland {
+            applicationId "com.openchsclient.lfeteach.nagaland"
+            resValue "string", "app_name", "TEACH Nagaland"
+            signingConfig signingConfigs.lfeTeachNagaland
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_TEACH_NAGALAND_BUGSNAG_API_KEY") ?: "dummy"]
         }
         sakhi {
             applicationId "org.sakhi.openchsclient"
