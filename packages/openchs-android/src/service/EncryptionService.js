@@ -11,7 +11,6 @@ import {randomBytes} from "react-native-randombytes";
 import GlobalContext from "../GlobalContext";
 import {getGenericPassword} from "react-native-keychain";
 
-
 const CREDENTIAL_USERNAME = "avni-user";
 
 @Service("encryptionService")

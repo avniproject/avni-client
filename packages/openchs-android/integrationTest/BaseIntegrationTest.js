@@ -37,6 +37,11 @@ class BaseIntegrationTest {
         this.getService(RuleService).init();
         this.getService(PrivilegeService).deleteRevokedEntities();
     }
+
+    setup() {
+        GlobalContext.getInstance().db.realmDb.deleteAll();
+        return this;
+    }
 }
 
 class TestDb {

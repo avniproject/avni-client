@@ -6,7 +6,6 @@ import AuthenticationError, {NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
 import ErrorHandler from "../utility/ErrorHandler";
 import UserInfoService from "./UserInfoService";
-import AuthService from "./AuthService";
 import BaseAuthProviderService from "./BaseAuthProviderService";
 
 @Service("cognitoAuthService")

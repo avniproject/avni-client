@@ -8,6 +8,7 @@ import StubbedAuthService from "./StubbedAuthService";
 import CognitoAuthService from "./CognitoAuthService";
 import KeycloakAuthService from "./KeycloakAuthService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
+import General from "../utility/General";
 
 @Service("authService")
 class AuthService extends BaseService {
@@ -42,11 +43,12 @@ class AuthService extends BaseService {
         const settings = this.settingsService.getSettings();
         const serverURL = settings.serverURL;
         const url = `${serverURL}/idp-details`;
-        return getJSON(url, true).then(( authDetails ) => {
+        return getJSON(url, true).then(( idpDetails ) => {
             let newSettings = settings.clone();
-            newSettings.idpType = authDetails.idpType;
-            newSettings = _.merge(newSettings, this._updateCognitoSettings(authDetails.cognito));
-            newSettings = _.merge(newSettings, this._updateKeycloakSettings(authDetails.keycloak));
+            newSettings.idpType = idpDetails.idpType;
+            newSettings = _.merge(newSettings, this._updateCognitoSettings(idpDetails.cognito));
+            newSettings = _.merge(newSettings, this._updateKeycloakSettings(idpDetails.keycloak));
+            General.logDebug("AuthService", newSettings);
             this.settingsService.saveOrUpdate(newSettings);
             return newSettings;
         });

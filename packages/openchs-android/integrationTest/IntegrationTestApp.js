@@ -50,7 +50,11 @@ class IntegrationTestApp extends Component {
 
         if (this.state.isInitialisationDone) {
             return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "black"}}>
-                <Button title="Run Test" onPress={() => new PersonRegisterActionsIntegrationTest().last_page_of_registration_should_show_worklist_correctly(IntegrationTestContext)}/>
+                <Button title="Run Test" onPress={() => {
+                    const personRegisterActionsIntegrationTest = new PersonRegisterActionsIntegrationTest();
+                    // personRegisterActionsIntegrationTest.setup().person_registration_should_show_worklist_correctly(IntegrationTestContext);
+                    personRegisterActionsIntegrationTest.setup().person_registration_via_add_member_should_show_worklist_correctly(IntegrationTestContext);
+                }}/>
             </View>;
         }
         return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', color: "white", backgroundColor: "black"}}>
