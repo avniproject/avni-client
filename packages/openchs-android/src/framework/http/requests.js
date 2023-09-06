@@ -20,14 +20,15 @@ const getIdpType = async () => {
 
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
-        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(parseInt(response.status)) > -1) {
+        let responseCode = parseInt(response.status);
+        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(responseCode) > -1) {
             return Promise.resolve(response);
         }
-        if (parseInt(response.status) === 403) {
+        if (responseCode === 403 || responseCode === 401) {
             General.logError("requests", response);
-            return Promise.reject(new AuthenticationError('Http 403', response));
+            return Promise.reject(new AuthenticationError('Http ' + responseCode, response));
         }
-        if (parseInt(response.status) === 400) {
+        if (responseCode === 400) {
             return Promise.reject(response);
         }
         return Promise.reject(new ServerError(`Http ${response.status}`, response));
