@@ -56,6 +56,7 @@ ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 4 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 AVNI_HOST?=$(ip)
 sha:=$(shell git rev-parse --short=4 HEAD)
+flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
 
 ifndef flavor
 	flavor:=generic
@@ -96,7 +97,7 @@ define _upload_release_sourcemap
 		--api-key $$$(bugsnag_env_var_name) \
 		--app-version $(versionName) \
 		--minified-file assets/createBundle$(flavor_folder_uppercase_path)ReleaseJsAndAssets/index.android.bundle \
-		--source-map $(sourcemap_file_path) \
+		--source-map sourcemaps/react/$(flavor)Release/index.android.bundle.map \
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
