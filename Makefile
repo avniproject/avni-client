@@ -56,11 +56,11 @@ ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 4 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 AVNI_HOST?=$(ip)
 sha:=$(shell git rev-parse --short=4 HEAD)
-flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
 
 ifndef flavor
 	flavor:=generic
 endif
+flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
 
 flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
 ifeq ($(flavor), lfe)
