@@ -117,15 +117,13 @@ class FiltersActionsV2 {
                 case Concept.dataType.Time:
                 case Concept.dataType.DateTime:
                 case Concept.dataType.Numeric:
+                case Concept.dataType.Date:
+                    const keyValue = _.get(filterConfig, 'observationBasedFilter.concept.name', filterConfig.type);
                     let customDateValue = [{dateType: inputDataType,
                         minValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
                         maxValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
                     selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : customDateValue};
-                    break;
-                case Concept.dataType.Date:
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.type] : [{dateType: inputDataType, minValue: currentFilterValue}]};
+                        [keyValue] : customDateValue};
                     break;
                 case CustomFilter.type.Gender:
                     selectedFilters.selectedGenders = currentFilterValue;
