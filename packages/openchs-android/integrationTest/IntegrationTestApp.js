@@ -6,6 +6,7 @@ import GlobalContext from "../src/GlobalContext";
 import AppStore from "../src/store/AppStore";
 import RealmFactory from "../src/framework/db/RealmFactory";
 import PersonRegisterActionsIntegrationTest from "./PersonRegisterActionsIntegrationTest";
+import RNRestart from 'react-native-restart';
 
 class IntegrationTestApp extends Component {
     static childContextTypes = {
@@ -36,25 +37,22 @@ class IntegrationTestApp extends Component {
     async componentDidMount() {
         const globalContext = GlobalContext.getInstance();
         if (!globalContext.isInitialised()) {
-            console.log("IntegrationTestApp", "componentDidMount");
             await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
-            console.log("IntegrationTestApp", "componentDidMount2");
         }
-        console.log("IntegrationTestApp", "componentDidMount4");
         this.setState(state => ({...state, isInitialisationDone: true}));
     }
 
     render() {
-        console.log("IntegrationTestApp", `render. ${this.state.isInitialisationDone}, ${GlobalContext.getInstance().routes}`);
         LogBox.ignoreAllLogs();
 
         if (this.state.isInitialisationDone) {
-            return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: "black"}}>
+            return <View style={{flex: 1, alignItems: 'center', justifyContent: "space-around", backgroundColor: "black", flexDirection: "row"}}>
                 <Button title="Run Test" onPress={() => {
                     const personRegisterActionsIntegrationTest = new PersonRegisterActionsIntegrationTest();
                     // personRegisterActionsIntegrationTest.setup().person_registration_should_show_worklist_correctly(IntegrationTestContext);
                     personRegisterActionsIntegrationTest.setup().person_registration_via_add_member_should_show_worklist_correctly(IntegrationTestContext);
                 }}/>
+                <Button title="Restart Test App" onPress={() => RNRestart.Restart()}/>
             </View>;
         }
         return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', color: "white", backgroundColor: "black"}}>

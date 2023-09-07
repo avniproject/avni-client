@@ -1,15 +1,18 @@
 import {Individual} from 'openchs-models';
 import General from "../../../src/utility/General";
+import moment from "moment";
 
 class TestSubjectFactory {
-    static createWithDefaults({subjectType, firstName, lastName, address}) {
-        const individual = new Individual();
-        individual.uuid = General.randomUUID();
-        individual.subjectType = subjectType;
-        individual.firstName = firstName;
-        individual.lastName = lastName;
-        individual.lowestAddressLevel = address;
-        return individual;
+    static createWithDefaults({subjectType, firstName, lastName, address, registrationDate = moment().toDate()}) {
+        const subject = new Individual();
+        subject.uuid = General.randomUUID();
+        subject.subjectType = subjectType;
+        subject.firstName = firstName;
+        subject.lastName = lastName;
+        subject.name = firstName;
+        subject.lowestAddressLevel = address;
+        subject.registrationDate = registrationDate;
+        return subject;
     }
 }
 

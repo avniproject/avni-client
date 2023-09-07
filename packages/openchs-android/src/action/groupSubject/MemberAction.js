@@ -220,8 +220,6 @@ export class MemberAction {
         }
         return newState;
     }
-
-
 }
 
 const ActionPrefix = 'AddNewMember';

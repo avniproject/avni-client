@@ -98,3 +98,4 @@ packages/openchs-android/android/fastlane/README.md
 packages/openchs-android/index.android.bundle.map
 packages/openchs-android/.jso/
 /packages/openchs-android/metro.config.js
+/fillLogin.sh
