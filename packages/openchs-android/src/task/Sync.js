@@ -7,9 +7,9 @@ import ErrorHandler from "../utility/ErrorHandler";
 import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
 import GlobalContext from "../GlobalContext";
 import UserInfoService from "../service/UserInfoService";
-import AppConfig from "../framework/AppConfig";
 import _ from "lodash";
 import SettingsService from '../service/SettingsService';
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 class Sync extends BaseTask {
     async execute() {
@@ -21,7 +21,7 @@ class Sync extends BaseTask {
                 return false;
             }
             let isAutoSyncDisabled = globalContext.beanRegistry.getService(UserInfoService).getUserSettingsObject().disableAutoSync;
-            if (isAutoSyncDisabled || AppConfig.autoSyncDisabled) {
+            if (isAutoSyncDisabled || EnvironmentConfig.autoSyncDisabled) {
                 General.logInfo("Sync", "Skipping auto-sync since it is disabled");
                 return false;
             }

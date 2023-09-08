@@ -2,7 +2,7 @@ import StackTrace from 'stacktrace-js';
 import bugsnag from './bugsnag';
 import Config from '../framework/Config';
 import General from "./General";
-import AppConfig from "../framework/AppConfig";
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 export default class ErrorHandler {
     static set(errorCallback) {
@@ -37,7 +37,7 @@ export default class ErrorHandler {
                 errorCallback(error, JSON.stringify(frameArray));
             });
 
-        if (AppConfig.inNonDevMode()) {
+        if (EnvironmentConfig.inNonDevMode()) {
             bugsnag.notify(error);
         }
     }

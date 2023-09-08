@@ -2,10 +2,11 @@ import {UserInfo} from 'openchs-models';
 import analytics from '@react-native-firebase/analytics';
 import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 let db;
 const firebaseAnalytics = analytics();
-const logAnalytics = Config.ENV === 'prod' || Config.debugFirebaseAnalyticsEvents === true;
+const logAnalytics = EnvironmentConfig.logAnalytics();
 
 export const initAnalytics = async (initialisedDatabase) => {
     db = initialisedDatabase;

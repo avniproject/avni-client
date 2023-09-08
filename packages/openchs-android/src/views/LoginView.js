@@ -32,6 +32,7 @@ import TypedTransition from '../framework/routing/TypedTransition';
 import SetPasswordView from './SetPasswordView';
 import LandingView from './LandingView';
 import { IDP_PROVIDERS } from "../model/IdpProviders";
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -296,7 +297,7 @@ class LoginView extends AbstractComponent {
                                 paddingLeft: 16
                             }}>
                                 <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
-                                {Config.ENV !== 'prod' &&
+                                {!EnvironmentConfig.isProd() &&
                                     <Text style={{
                                         fontSize: Styles.normalTextSize,
                                         fontStyle: 'normal',

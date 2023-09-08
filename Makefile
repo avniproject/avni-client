@@ -37,12 +37,12 @@ build-tools:
 # </setup>
 
 # <clean>
-clean: clean_env ##
+clean: clean_env
 # </clean>
 renew_env: clean_all deps
 # <deps>
-deps: build_env apply_patch ##
-deps_ci: build_env_ci apply_patch ##
+deps: build_env apply_patch
+deps_ci: build_env_ci apply_patch
 
 ignore_deps_changes:
 	git checkout package-lock.json
@@ -86,7 +86,7 @@ setup_hosts:
 test-android: setup_hosts as_dev
 	$(call test,android)
 
-test: test-android  ##
+test: test-android  ## run unit tests
 # </test>
 
 # <bugsnag>
@@ -128,16 +128,20 @@ as_staging: ; $(call _create_config,staging)
 as_staging_dev: ; $(call _create_config,staging_dev)
 as_uat: ; $(call _create_config,uat)
 as_prerelease: ; $(call _create_config,prerelease)
+as_prerelease_dev: ; $(call _create_config,prerelease_dev)
 as_perf: ; $(call _create_config,perf)
 as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 
-release_clean:
+release_clean: ## If you get dex errors
 	rm -rf packages/openchs-android/android/app/build
 	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
 	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
 	rm -rf packages/openchs-android/android/.gradle
+
+metro_clean: ## If you get react-native-keychain error
+	watchman watch-del './packages/openchs-android' ; watchman watch-project './packages/openchs-android'
 
 create_apk:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
@@ -204,7 +208,7 @@ release_perf_without_clean: as_perf
 	enableSeparateBuildPerCPUArchitecture=false make release
 release_perf: renew_env release_perf_without_clean
 
-release-offline: ##
+release-offline:
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 # </release>
 
@@ -268,7 +272,7 @@ open_db_only:
 	$(call _open_resource,../db/default.realm)
 # </db>
 
-local_deploy_apk: ##
+local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
 openlocation_apk: ## Open location of built apk
@@ -283,7 +287,7 @@ clean_packager_cache:
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
 
-clean_env: release_clean ##
+clean_env: release_clean metro_clean
 	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
@@ -295,11 +299,11 @@ remove_package_locks:
 clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
 
-setup_env: ##
+setup_env:
 	npm install -g jest@20.0.1
 	npm install -g jest-cli@20.0.1
 
-build_env: ##
+build_env:
 	export NODE_OPTIONS=--max_old_space_size=4096
 	cd packages/openchs-android && npm install --legacy-peer-deps
 
@@ -313,12 +317,12 @@ build: build_env build_app
 # </env>
 
 
-build_env_ci: ##
+build_env_ci:
 	export NODE_OPTIONS=--max_old_space_size=2048
 	cd packages/openchs-android && npm install --legacy-peer-deps
 
 # <packager>
-run_packager: ##
+run_packager:
 	REACT_EDITOR=$([ "$REACT_EDITOR" == "" ] && echo "subl" || echo "$REACT_EDITOR")
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npm start
@@ -333,7 +337,7 @@ run_app_debug: setup_hosts
 
 
 # <crash>
-analyse_crash: ##
+analyse_crash:
 	cd packages/unminifiy && npm start ../openchs-android/android/app/build/generated/sourcemap.js $(line) $(column)
 
 analyse_stacktrace:

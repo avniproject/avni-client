@@ -6,13 +6,13 @@ define _install_apk
 	adb install packages/openchs-android/android/app/build/outputs/apk/release/$1
 endef
 
-uninstall_apk: ##
+uninstall_apk:
 	-adb uninstall ${app_android_package_name}
 
 clear_app_data:
 	-adb shell pm clear ${app_android_package_name}
 
-install_universal_apk: ##
+install_universal_apk:
 	$(call _install_apk,app-release.apk)
 	$(call _start_app)
 
@@ -62,6 +62,7 @@ run_app_staging_dev: as_staging_dev _run_app
 run_app_uat: as_uat _run_app
 run_app_perf: as_perf _run_app
 run_app_prerelease: as_prerelease _run_app
+run_app_prerelease_dev: as_prerelease_dev _run_app
 run_app_prod: as_prod _run_app
 run_app_prod_dev: as_prod_dev _run_app
 

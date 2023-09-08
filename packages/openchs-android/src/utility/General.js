@@ -1,7 +1,7 @@
 import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
-import AppConfig from "../framework/AppConfig";
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 let currentLogLevel;
 
@@ -237,7 +237,7 @@ class General {
     }
 
     static logError(source, error) {
-        if (AppConfig.inNonDevMode()) return;
+        if (EnvironmentConfig.inNonDevMode()) return;
 
         if (General.LogLevel.Error >= General.getCurrentLogLevel()) {
             if (error && error.stack) {
@@ -249,14 +249,14 @@ class General {
     }
 
     static logErrorAsInfo(source, error) {
-        if (AppConfig.inNonDevMode()) return;
+        if (EnvironmentConfig.inNonDevMode()) return;
 
         if (General.LogLevel.Error >= General.getCurrentLogLevel())
             console.log(`[${source}]`, error.message, JSON.stringify(error));
     }
 
     static log(source, message, level, decorate = false) {
-        if (AppConfig.inNonDevMode()) return;
+        if (EnvironmentConfig.inNonDevMode()) return;
 
         try {
             const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;

@@ -1,4 +1,4 @@
-import {Alert, Clipboard, Text, View, NativeModules} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -8,11 +8,12 @@ import {RegisterAndScheduleJobs} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
 import GlobalContext from "./GlobalContext";
-import AppConfig from "./framework/AppConfig";
 import RNRestart from 'react-native-restart';
 import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
 import General from "./utility/General";
+import EnvironmentConfig from "./framework/EnvironmentConfig";
+
 const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
@@ -48,7 +49,7 @@ class App extends Component {
         const clipboardString = `${this.state.error.message}\nStacktrace:${this.state.stacktrace}`;
         General.logError("App", `renderError: ${clipboardString}`);
 
-        if (AppConfig.inNonDevMode()) {
+        if (EnvironmentConfig.inNonDevMode()) {
             Alert.alert("App will restart now", this.state.error.message,
                 [
                     {
