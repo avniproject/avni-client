@@ -4,7 +4,8 @@ import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} fr
 import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
-const {stringify} = require('flatted');
+
+import {serialize} from '@ungap/structured-clone';
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -25,7 +26,7 @@ class FiltersActionsV2 {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        let filterConfigsJSON = stringify(newState.filterConfigs);
+        let filterConfigsJSON = JSON.stringify(serialize(newState.filterConfigs));
         newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = context.get(CustomDashboardCacheService).fetchCachedData(action.dashboardUUID, newState.filterConfigsChecksum);
         if(state.dashboardUUID !== action.dashboardUUID) {
@@ -180,10 +181,10 @@ class FiltersActionsV2 {
     }
 
     static createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray) {
-        let selectValueJSON = stringify(newState.selectedValues);
-        let filteredErrorsJSON = stringify(newState.filterErrors);
-        let transformedFiltersJSON = stringify(transformedFilters);
-        let ruleInputJSON = stringify({ruleInputArray: ruleInputArray});
+        let selectValueJSON = JSON.stringify(serialize(newState.selectedValues));
+        let filteredErrorsJSON = JSON.stringify(serialize(newState.filterErrors));
+        let transformedFiltersJSON = JSON.stringify(serialize(transformedFilters));
+        let ruleInputJSON = JSON.stringify(serialize({ruleInputArray: ruleInputArray}));
         const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(),
           selectValueJSON, newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
         return customDashboardCache;

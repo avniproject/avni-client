@@ -63,7 +63,6 @@ export default class AppliedFiltersV2 extends AbstractComponent {
 
     renderCustomFilters() {
         const readableTime = (dateType, value) => {
-            value = new Date(value);
             return (dateType && (dateType === Concept.dataType.Time) && General.toDisplayTime(value))
             || (dateType && (dateType === Concept.dataType.DateTime) && General.formatDateTime(value))
             || (dateType && (dateType === Concept.dataType.Date) && General.toDisplayDate(value))
