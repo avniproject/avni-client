@@ -8,7 +8,7 @@ import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
-const {stringify} = require('flatted');
+import {serialize} from '@ungap/structured-clone';
 
 class CustomDashboardActions {
 
@@ -58,7 +58,7 @@ class CustomDashboardActions {
         const dashboardFilterService = context.get(DashboardFilterService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
-        let filterConfigsJSON = stringify(filterConfigs);
+        let filterConfigsJSON = JSON.stringify(serialize(filterConfigs));
         let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = customDashboardCacheService.fetchCachedData(newState.activeDashboardUUID, filterConfigsChecksum);
         newState.filterConfigsChecksum = cachedData.getChecksum();
