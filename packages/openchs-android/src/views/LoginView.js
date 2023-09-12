@@ -218,6 +218,12 @@ class LoginView extends AbstractComponent {
                                                              value={new PrimitiveValue(this.state.password)}
                                                              multiline={false}
                                                              contextMenuHidden={true}
+                                                             onFocus={() => {
+                                                                 General.clearClipboard();
+                                                             }}
+                                                             onBlur={() => {
+                                                                 General.clearClipboard();
+                                                             }}
                                             />
                                             <View style={{
                                                 flexDirection: 'column',

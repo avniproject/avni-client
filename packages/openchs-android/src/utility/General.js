@@ -2,6 +2,7 @@ import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import Clipboard from '@react-native-community/clipboard';
 
 let currentLogLevel;
 
@@ -317,6 +318,10 @@ class General {
     }
 
     static STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL = 33;
+
+    static clearClipboard() {
+        Clipboard.setString('');
+    }
 }
 
 export default General;

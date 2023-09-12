@@ -11,6 +11,7 @@ import themes from "./primitives/themes";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
+import General from "../utility/General";
 
 @Path('/resetForgottenPasswordView')
 class ResetForgottenPasswordView extends AbstractComponent {
@@ -123,13 +124,27 @@ class ResetForgottenPasswordView extends AbstractComponent {
                                    placeholder={this.I18n.t("enterNewPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
                                    contextMenuHidden={true}
-                                   secureTextEntry={!this.state.showPassword}/>
+                                   onFocus={() => {
+                                       General.clearClipboard();
+                                   }}
+                                   onBlur={() => {
+                                       General.clearClipboard();
+                                   }}
+                                   secureTextEntry={!this.state.showPassword}
+                        />
 
                         <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                                    placeholder={this.I18n.t("confirmNewPassword")} value={this.state.ConfirmnewPassword}
                                    onChangeText={(ConfirmnewPassword) => this.setState({ConfirmnewPassword})}
                                    contextMenuHidden={true}
-                                   secureTextEntry={!this.state.showPassword}/>
+                                   onFocus={() => {
+                                       General.clearClipboard();
+                                   }}
+                                   onBlur={() => {
+                                       General.clearClipboard();
+                                   }}
+                                   secureTextEntry={!this.state.showPassword}
+                        />
 
                         <TouchableNativeFeedback onPress={() => this.onToggleShowPassword()}>
                             <View style={{flexDirection: 'row', alignItems: 'center', paddingTop:10}}>

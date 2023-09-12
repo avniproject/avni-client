@@ -10,6 +10,7 @@ import CHSContent from "./common/CHSContent";
 import AuthService from "../service/AuthService";
 import Colors from "./primitives/Colors";
 import DBRestoreProgress from "./DBRestoreProgress";
+import General from "../utility/General";
 
 @Path('/setPasswordView')
 class SetPasswordView extends AbstractComponent {
@@ -101,7 +102,15 @@ class SetPasswordView extends AbstractComponent {
 
                         <TextInput placeholder={this.I18n.t("password")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
-                                   secureTextEntry={!this.state.showPassword}/>
+                                   secureTextEntry={!this.state.showPassword}
+                                   contextMenuHidden={true}
+                                   onFocus={() => {
+                                       General.clearClipboard();
+                                   }}
+                                   onBlur={() => {
+                                       General.clearClipboard();
+                                   }}
+                        />
                         <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
                             return {showPassword: !oldState.showPassword}
                         })}>
