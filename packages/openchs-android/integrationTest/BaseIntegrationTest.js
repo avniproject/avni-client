@@ -6,28 +6,7 @@ import MessageService from "../src/service/MessageService";
 import RuleService from "../src/service/RuleService";
 import PrivilegeService from "../src/service/PrivilegeService";
 
-const TesterProxyHandler = {
-    setContext: function (context) {
-        this.context = context;
-        return this;
-    },
-
-    get: function (target, name) {
-        // console.log("TesterProxyHandler", name);
-        if (typeof name !== 'symbol' && !isNaN(name) && !isNaN(parseInt(name))) {
-            return target.getAt(Number.parseInt(name));
-        } else if (name === "length") {
-            return target.getLength();
-        }
-        return Reflect.get(...arguments);
-    }
-}
-
 class BaseIntegrationTest {
-    tester(context) {
-        return new Proxy(this, TesterProxyHandler.setContext(context));
-    }
-
     getService(nameOrType) {
         return GlobalContext.getInstance().beanRegistry.getService(nameOrType);
     }
