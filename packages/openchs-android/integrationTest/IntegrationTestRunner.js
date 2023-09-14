@@ -44,13 +44,15 @@ export class IntegrationTests {
     }
 }
 
+const nonTestMethods = ["constructor", "setup", "teardown"];
+
 class IntegrationTestRunner {
     integrationTests;
 
     constructor(...testClasses) {
         this.integrationTests = new IntegrationTests();
         testClasses.forEach((testClass) => {
-            const testMethods = Object.getOwnPropertyNames(testClass.prototype).filter((method) => method !== "constructor");
+            const testMethods = Object.getOwnPropertyNames(testClass.prototype).filter((method) => !nonTestMethods.includes(method));
             testMethods.forEach((testMethod) => {
                 const integrationTestMethod = new IntegrationTestMethod(testClass, testMethod);
                 this.integrationTests.push(integrationTestMethod);
@@ -62,11 +64,17 @@ class IntegrationTestRunner {
         this.integrationTests.testMethods.forEach((testMethod) => {
             console.log("IntegrationTestRunner", "Running", testMethod.toString());
             try {
-                new testMethod.testClass()[testMethod.methodName]();
+                const testObject = new testMethod.testClass();
+                if (_.isFunction(testObject.setup))
+                    testObject.setup();
+                testObject[testMethod.methodName]();
+                if (_.isFunction(testObject.tearDown))
+                    testObject.tearDown();
                 testMethod.success();
             } catch (error) {
-                console.error("IntegrationTestRunner", testMethod.toString(), error);
+                console.error("IntegrationTestRunner", testMethod.toString(), error, error.stack);
                 testMethod.failure(error);
+                throw error;
             } finally {
                 notify(this.integrationTests.clone());
             }

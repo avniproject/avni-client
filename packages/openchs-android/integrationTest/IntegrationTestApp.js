@@ -46,7 +46,7 @@ class IntegrationTestApp extends Component {
         super(props, context);
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest);
+        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, PersonRegisterActionsIntegrationTest);
         this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.integrationTests};
     }
 
