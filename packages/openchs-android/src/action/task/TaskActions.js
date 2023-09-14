@@ -22,7 +22,7 @@ class TaskActions {
         const taskStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         task.setTaskStatus(taskStatus);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(task.taskType);
-        if(!formMapping.form) {
+        if(!_.get(formMapping, "form")) {
             return TaskState.createOnLoadStateForEmptyForm(task, null);
         }
         const form = formMapping.form;
@@ -54,7 +54,7 @@ class TaskActions {
           .map(({name, uuid}) => ({label: name, value: uuid}));
         const newStatus = context.get(EntityService).findByUUID(action.statusUUID, TaskStatus.schema.name);
         const formMapping = context.get(FormMappingService).getTaskFormMapping(newState.task.taskType);
-        if (newStatus.isTerminal && formMapping.uuid) {
+        if (newStatus.isTerminal && _.get(formMapping, "uuid")) {
             action.moveToDetailsPage(newState.task.uuid, newStatus.uuid)
         } else {
             newState.task.setTaskStatus(newStatus);

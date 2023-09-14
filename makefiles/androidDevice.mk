@@ -122,3 +122,6 @@ disable_network:
 enable_network:
 	adb shell "svc wifi enable"
 	adb shell "svc data enable"
+
+reboot_device:
+	adb shell am broadcast -a android.intent.action.BOOT_COMPLETED

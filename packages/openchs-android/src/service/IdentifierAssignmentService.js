@@ -43,8 +43,8 @@ class IdentifierAssignmentService extends BaseService {
             .forEach(fe => {
                 const nextIdentifier = this.getNextIdentifier(fe.recordValueByKey(FormElement.keys.IdSourceUUID));
                 observationHolder.addOrUpdateObservation(fe.concept, {
-                    uuid: nextIdentifier.uuid,
-                    value: nextIdentifier.identifier
+                    uuid: _.get(nextIdentifier, "uuid"),
+                    value: _.get(nextIdentifier, "identifier")
                 });
             });
         return observationHolder;

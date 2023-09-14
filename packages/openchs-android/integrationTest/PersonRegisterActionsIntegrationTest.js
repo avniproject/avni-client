@@ -8,6 +8,8 @@ import TestSubjectTypeFactory from "../test/model/TestSubjectTypeFactory";
 import TestAddressLevelFactory from "../test/model/TestAddressLevelFactory";
 import {Actions} from "../src/action/individual/PersonRegisterActions";
 import {AddNewMemberActions} from "../src/action/groupSubject/MemberAction";
+import {IndividualEncounterViewActions} from "../src/action/individual/EncounterActions";
+import {PersonRegisterActions} from "../src/action/individual/PersonRegisterActions";
 import TestGenderFactory from "../test/model/TestGenderFactory";
 import TestFormMappingFactory from "../test/model/form/TestFormMappingFactory";
 import Reducers from "../src/reducer";
@@ -16,6 +18,7 @@ import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import WorklistsFactory from "../src/model/WorklistsFactory";
 import TestSettingsFactory from "../test/model/user/TestSettingsFactory";
 import {assert} from 'chai';
+import _ from 'lodash';
 
 const rule = `({params, imports}) => {
     const workLists = params.workLists;
@@ -116,6 +119,9 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
         const workItems = state.workListState.workLists.currentWorkList.workItems;
         assert.equal("ENCOUNTER", workItems[1].type);
         assert.equal("Covid Survey", workItems[1].parameters.encounterType);
+
+        this.dispatch({type: PersonRegisterActions.SAVE, decisions: [], checklists: [], nextScheduledVisits: [], cb: _.noop});
+        this.dispatch({type: IndividualEncounterViewActions.ON_ENCOUNTER_LANDING_LOAD, pageNumber: 0, editing: true, workLists: [], cb: _.noop});
         context.ending(arguments);
     }
 }

@@ -69,10 +69,10 @@ class General {
     }
 
     static formatDateTime(date) {
-      const hour = General.toTwoChars(date.getHours());
-      const minutes = General.toTwoChars(date.getMinutes());
+        const hour = General.toTwoChars(date.getHours());
+        const minutes = General.toTwoChars(date.getMinutes());
 
-      return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
+        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
     }
 
     static to12HourDateTimeFormat(dateTime) {
@@ -87,11 +87,11 @@ class General {
         return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
     }
 
-    static toISOFormatTime(hour, minute){
-        return moment({hour: hour, minute:minute}).format("HH:mm");
+    static toISOFormatTime(hour, minute) {
+        return moment({hour: hour, minute: minute}).format("HH:mm");
     }
 
-    static toDisplayTime(isoFormatTime){
+    static toDisplayTime(isoFormatTime) {
         const time = this.toTimeObject(isoFormatTime);
         return moment(time).format("LT");
     }
@@ -100,9 +100,9 @@ class General {
         return moment(date).format("HH:mm")
     }
 
-  static toDisplayDateAsTime12H(date) {
-    return moment(date).format("hh:mm a")
-  }
+    static toDisplayDateAsTime12H(date) {
+        return moment(date).format("hh:mm a")
+    }
 
     static toTimeObject(isoFormatTime) {
         const timeArray = _.split(isoFormatTime, ':');
@@ -148,7 +148,7 @@ class General {
     static assignDateFields(dateFields, source, dest) {
         if (!_.isNil(dateFields)) {
             dateFields.forEach((fieldName) => {
-                dest[fieldName] = _.isNil(source[fieldName])? null: new Date(source[fieldName]);
+                dest[fieldName] = _.isNil(source[fieldName]) ? null : new Date(source[fieldName]);
             });
         }
     }
@@ -189,7 +189,7 @@ class General {
 
     static objectsShallowEquals(a: Object, b: Object): Boolean {
         return _.isNil(a) === _.isNil(b)
-            && _.isEmpty(_.xor(_.keys(a),_.keys(b)))
+            && _.isEmpty(_.xor(_.keys(a), _.keys(b)))
             && _.every(_.keys(a), key => a[key] === b[key]);
     }
 
@@ -301,10 +301,10 @@ class General {
     static isEmptyOrBlank(value) {
         return _.overSome([_.isNil, _.isNaN])(value) ? true :
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
-                    _.isEmpty(value);
+                _.isEmpty(value);
     }
 
-    static dlog(str,...values) {
+    static dlog(str, ...values) {
         console.log(_.pad(str, 40, '-'));
         console.log(...values);
     }
@@ -322,6 +322,26 @@ class General {
     static clearClipboard() {
         Clipboard.setString('');
     }
+
+    //picked from: https://stackoverflow.com/questions/13861254/json-stringify-deep-objects/57193345#57193345
+    static stringify(val, depth = 1, onGetObjID) {
+        depth = isNaN(+depth) ? 1 : depth;
+        const recursMap = new Map();
+        return JSON.stringify(_build(recursMap, onGetObjID, val, depth), null);
+    }
+}
+
+function _build(recursMap, onGetObjID, val, depth, o, a, r) { // (JSON.stringify() has it's own rules, which we respect here by using it for property iteration)
+    return !val || typeof val != 'object' ? val
+        : (r = recursMap.has(val), recursMap.set(val, true), a = Array.isArray(val),
+            r ? (o = onGetObjID && onGetObjID(val) || null) : JSON.stringify(val, function (k, v) {
+                if (a || depth > 0) {
+                    if (!k) return (a = Array.isArray(v), val = v);
+                    !o && (o = a ? [] : {});
+                    o[k] = _build(recursMap, onGetObjID, v, a ? depth : depth - 1);
+                }
+            }),
+            o === void 0 ? (a ? [] : {}) : o);
 }
 
 export default General;

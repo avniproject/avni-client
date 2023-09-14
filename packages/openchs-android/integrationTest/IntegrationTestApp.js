@@ -7,6 +7,7 @@ import AppStore from "../src/store/AppStore";
 import RealmFactory from "../src/framework/db/RealmFactory";
 import PersonRegisterActionsIntegrationTest from "./PersonRegisterActionsIntegrationTest";
 import RNRestart from 'react-native-restart';
+import DatabaseTest from "./DatabaseTest";
 
 class IntegrationTestApp extends Component {
     static childContextTypes = {
@@ -50,7 +51,9 @@ class IntegrationTestApp extends Component {
                 <Button title="Run Test" onPress={() => {
                     const personRegisterActionsIntegrationTest = new PersonRegisterActionsIntegrationTest();
                     // personRegisterActionsIntegrationTest.setup().person_registration_should_show_worklist_correctly(IntegrationTestContext);
-                    personRegisterActionsIntegrationTest.setup().person_registration_via_add_member_should_show_worklist_correctly(IntegrationTestContext);
+                    // personRegisterActionsIntegrationTest.setup().person_registration_via_add_member_should_show_worklist_correctly(IntegrationTestContext);
+                    const databaseTest = new DatabaseTest();
+                    databaseTest.shouldReturnFirstElementAsNilIfCollectionIsEmpty();
                 }}/>
                 <Button title="Restart Test App" onPress={() => RNRestart.Restart()}/>
             </View>;

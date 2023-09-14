@@ -15,10 +15,10 @@ export default class TypedTransition {
     }
 
     to(viewClass, isTyped, replace) {
-        General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}`);
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const route = TypedTransition.createRoute(viewClass, this.queryParams, isTyped);
+        General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}. To: ${route.path} Param Keys: ${General.stringify(this.queryParams, 3)}`);
         if (replace) {
             this.navigator.replace(route);
         } else {
@@ -73,9 +73,10 @@ export default class TypedTransition {
             this._popN(currentRoutes.length - newRouteStack.length);
             return;
         }
+        General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Final before push: ${newRouteStack.length},
+        To/ParamKeys: ${_.join(toBePushed.map((x) => `${x.path}, ${General.stringify(x.queryParams, 3)}`), ";\n")}`);
         newRouteStack.push(...toBePushed);
         this.navigator.immediatelyResetRouteStack(_.uniq(newRouteStack));
-        General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Final: ${newRouteStack.length}`);
     }
 
     _popN(n) {
