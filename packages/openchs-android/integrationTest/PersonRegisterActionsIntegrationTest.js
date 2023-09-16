@@ -1,5 +1,5 @@
 import TestConceptFactory from "../test/model/TestConceptFactory";
-import {AddressLevel, Concept, Form, FormMapping, Gender, OrganisationConfig, Settings, SubjectType, WorkList, WorkLists} from "openchs-models";
+import {AddressLevel, Concept, FormElement, FormElementGroup, Form, FormMapping, Gender, Individual, OrganisationConfig, Settings, SubjectType, WorkList, WorkLists} from "openchs-models";
 import BaseIntegrationTest from "./BaseIntegrationTest";
 import TestFormFactory from "../test/model/form/TestFormFactory";
 import TestFormElementGroupFactory from "../test/model/form/TestFormElementGroupFactory";
@@ -13,6 +13,10 @@ import Reducers from "../src/reducer";
 import TestOrganisationConfigFactory from "../test/model/TestOrganisationConfigFactory";
 import TestSettingsFactory from "../test/model/user/TestSettingsFactory";
 import {assert} from 'chai';
+import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
+import TestObsFactory from "../test/model/TestObsFactory";
+import General from "../src/utility/General";
+import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
 
 const rule = `({params, imports}) => {
     const workLists = params.workLists;
@@ -53,8 +57,8 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
         this.executeInWrite((db) => {
             subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Family Member'}));
             const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
-            const formElementGroup = TestFormElementGroupFactory.create({form: form});
-            TestFormElementFactory.create({concept: this.concept, displayOrder: 1, formElementGroup: formElementGroup});
+            const formElementGroup = db.create(TestFormElementGroupFactory.create({form: form}));
+            db.create(TestFormElementFactory.create({concept: this.concept, displayOrder: 1, formElementGroup: formElementGroup}));
             db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: subjectType, form: form}))
             db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({worklistUpdationRule: rule}));
         });
@@ -63,8 +67,8 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
 
         const workLists = new WorkLists(new WorkList(subjectType.name).withRegistration(subjectType.name));
         this.dispatch({type: Actions.ON_LOAD, isDraftEntity: false, workLists: workLists});
-        this.dispatch({type: Actions.REGISTRATION_ENTER_FIRST_NAME, value: "foo"});
-        this.dispatch({type: Actions.REGISTRATION_ENTER_LAST_NAME, value: "bar"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_FIRST_NAME, value: "baz"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_LAST_NAME, value: "kal"});
         this.dispatch({type: Actions.REGISTRATION_ENTER_GENDER, value: this.gender});
         this.dispatch({type: Actions.REGISTRATION_ENTER_DOB, value: new Date()});
         this.dispatch({type: Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, value: this.addressLevel});
@@ -73,6 +77,43 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
         const workItems = state.workListState.workLists.currentWorkList.workItems;
         assert.equal("ENCOUNTER", workItems[1].type);
         assert.equal("Covid Survey", workItems[1].parameters.encounterType);
+    }
+
+    unique_field_in_form() {
+        let subjectType;
+        let formElement;
+        this.executeInWrite((db) => {
+            subjectType = TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'});
+            const form = TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile});
+            const formElementGroup = db.create(FormElementGroup, TestFormElementGroupFactory.create({form: form}));
+            // formElement = TestFormElementFactory.create({
+            //     concept: this.concept,
+            //     displayOrder: 1,
+            //     formElementGroup: formElementGroup,
+            //     mandatory: true,
+            //     keyValues: [TestKeyValueFactory.create({key: "unique", value: "true"})]
+            // });
+            // db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: subjectType, form: form}))
+            // db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({worklistUpdationRule: rule}));
+            //
+            // db.create(Individual, TestSubjectFactory.createWithDefaults({subjectType: subjectType, address: this.addressLevel, firstName: "foo", lastName: "bar", observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})]}));
+        });
+
+        this.initialDataSetupComplete();
+        formElement = this.getEntity(FormElement, formElement.uuid);
+
+        const workLists = new WorkLists(new WorkList(subjectType.name).withRegistration(subjectType.name));
+        this.dispatch({type: Actions.ON_LOAD, isDraftEntity: false, workLists: workLists});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_FIRST_NAME, value: "baz"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_LAST_NAME, value: "kal"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_GENDER, value: this.gender});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_DOB, value: new Date()});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, value: this.addressLevel});
+        this.dispatch({type: Actions.NEXT, completed: () => {}});
+        this.dispatch({type: Actions.PRIMITIVE_VALUE_CHANGE, formElement: formElement, value: ""});
+        this.dispatch({type: Actions.NEXT, completed: () => {}});
+        const state = this.getState(Reducers.reducerKeys.personRegister);
+        this.log(`Dispatched action completed: ${General.stringify(state.validationResults, 2)}`);
     }
 }
 

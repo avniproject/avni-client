@@ -5,6 +5,8 @@ import ProgramConfigService from "../src/service/ProgramConfigService";
 import MessageService from "../src/service/MessageService";
 import RuleService from "../src/service/RuleService";
 import PrivilegeService from "../src/service/PrivilegeService";
+import General from "../src/utility/General";
+import _ from "lodash";
 
 class BaseIntegrationTest {
     getService(nameOrType) {
@@ -44,6 +46,14 @@ class BaseIntegrationTest {
         });
         return this;
     }
+
+    log(...params) {
+        console["debug"]("\x1b[43m\x1b[30m%s\x1b[0m", ...params);
+    }
+
+    getEntity(type, uuid) {
+        return this.getEntityService().findByUUID(uuid, type.schema.name);
+    }
 }
 
 class TestDb {
@@ -51,8 +61,8 @@ class TestDb {
         this.db = db;
     }
 
-    create(clazz, entity) {
-        return this.db.create(clazz.schema.name, entity);
+    create(clazz, entity, overwrite = false) {
+        return this.db.create(clazz.schema.name, entity, overwrite);
     }
 }
 

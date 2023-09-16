@@ -8,13 +8,16 @@ import RealmFactory from "../src/framework/db/RealmFactory";
 import PersonRegisterActionsIntegrationTest from "./PersonRegisterActionsIntegrationTest";
 import RNRestart from 'react-native-restart';
 import DatabaseTest from "./DatabaseTest";
-import IntegrationTestRunner, {IntegrationTests} from "./IntegrationTestRunner";
+import IntegrationTestRunner, {TestSuite} from "./IntegrationTestRunner";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const styles = StyleSheet.create({
     item: {
-        backgroundColor: '#f9c2ff',
-        padding: 20,
+        padding: 10,
         marginVertical: 8,
+        display: "flex",
+        flexDirection: "row",
+        flex: 1
     },
     success: {
         backgroundColor: 'green',
@@ -27,11 +30,13 @@ const styles = StyleSheet.create({
         marginVertical: 8
     },
     header: {
-        fontSize: 32,
+        fontSize: 20,
         backgroundColor: '#fff',
     },
     title: {
-        fontSize: 24,
+        fontSize: 14,
+        backgroundColor: '#f9c2ff',
+        flex: 0.8
     },
 });
 
@@ -68,6 +73,11 @@ class IntegrationTestApp extends Component {
             await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
         }
         this.setState(state => ({...state, isInitialisationDone: true}));
+        // setTimeout(() => this.integrationTestRunner.run((x) => this.testRunObserver(x)), 100);
+    }
+
+    testRunObserver(integrationTests) {
+        this.setState({integrationTests: integrationTests});
     }
 
     render() {
@@ -87,6 +97,8 @@ class IntegrationTestApp extends Component {
                         const itemStyle = _.isNil(item.successful) ? styles.item : (item.successful ? styles.success : styles.failure);
                         return <View style={itemStyle}>
                             <Text style={styles.title}>{item.methodName}</Text>
+                            <Button title={"Run"} onPress={() => this.integrationTestRunner.runMethod((x) => this.testRunObserver(x), item)}/>
+                            <Button title={"Run & Throw"} onPress={() => this.integrationTestRunner.runMethod((x) => this.testRunObserver(x), item, true)}/>
                         </View>
                     }
                     }
@@ -94,10 +106,10 @@ class IntegrationTestApp extends Component {
                         <Text style={styles.header}>{title}</Text>
                     )}
                 />
-                <Button title="Run Test" onPress={() => {
-                    this.integrationTestRunner.run((x) => this.setState({integrationTests: x}));
+                <Button title="Run All" onPress={() => {
+                    this.integrationTestRunner.run((x) => this.testRunObserver(x));
                 }}/>
-                <Button title="Restart Test App" onPress={() => RNRestart.Restart()}/>
+                <Button title="Restart App" onPress={() => RNRestart.Restart()}/>
             </View>;
         }
         return <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', color: "white", backgroundColor: "black"}}>
