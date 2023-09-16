@@ -41,6 +41,10 @@ export class TestSuite {
         this.testMethods.push(testMethod);
     }
 
+    getMethods(testClass) {
+        return this.testMethods.filter((x) => x.testClass.name === testClass.name);
+    }
+
     clone() {
         const integrationTests = new TestSuite();
         integrationTests.testMethods = [...this.testMethods];
@@ -51,21 +55,29 @@ export class TestSuite {
 const nonTestMethods = ["constructor", "setup", "teardown"];
 
 class IntegrationTestRunner {
-    integrationTests;
+    testSuite;
 
     constructor(...testClasses) {
-        this.integrationTests = new TestSuite();
+        this.testSuite = new TestSuite();
         testClasses.forEach((testClass) => {
             const testMethods = Object.getOwnPropertyNames(testClass.prototype).filter((method) => !nonTestMethods.includes(method));
             testMethods.forEach((testMethod) => {
                 const integrationTestMethod = new IntegrationTestMethod(testClass, testMethod);
-                this.integrationTests.push(integrationTestMethod);
+                this.testSuite.push(integrationTestMethod);
             });
         });
     }
 
     run(notify, throwError = false) {
-        this.integrationTests.testMethods.forEach((testMethod: IntegrationTestMethod) => {
+        this.runMethods(this.testSuite.testMethods, notify, throwError);
+    }
+
+    runClass(notify, testClass, throwError = false) {
+        this.runMethods(this.testSuite.getMethods(testClass), notify, throwError);
+    }
+
+    runMethods(testMethods, notify, throwError) {
+        testMethods.forEach((testMethod: IntegrationTestMethod) => {
             if (!testMethod.ignored())
                 this.runMethod(notify, testMethod, throwError);
         });
@@ -87,8 +99,8 @@ class IntegrationTestRunner {
             if (throwError)
                 throw error;
         } finally {
-            this.integrationTests = this.integrationTests.clone();
-            notify(this.integrationTests);
+            this.testSuite = this.testSuite.clone();
+            notify(this.testSuite);
         }
     }
 }

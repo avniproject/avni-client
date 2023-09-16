@@ -143,10 +143,12 @@ class AbstractDataEntryState {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
-        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations , (a,b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
+        const databaseValidations = this.validationResults.filter((x) => x.validationType === ValidationResult.ValidationTypes.Database);
+        const allValidationResults = _.unionWith(validationResults, formElementGroupValidations, databaseValidations,
+            (a, b) => a.formIdentifier === b.formIdentifier && a.questionGroupIndex === b.questionGroupIndex);
         this._updateOldFormElementGroupValidations(allValidationResults, context);
 
-        if(EnvironmentConfig.goToLastPageOnNext()) {
+        if (EnvironmentConfig.goToLastPageOnNext()) {
             while (!this.wizard.isLastPage()) {
                 this.moveNext();
             }
@@ -249,12 +251,12 @@ class AbstractDataEntryState {
         _.forEach(applicableScheduledVisits, (applicableScheduledVisit) => {
             const parameters = _.merge({}, this.getWorkContext(), applicableScheduledVisit, {programEnrolmentUUID: getProgramUUIDFromVisit(applicableScheduledVisit)});
             const sameVisitTypeExists = workLists.currentWorkList.workItems.find(
-                    (workItem) => {
-                        const {programEnrolmentUUID, encounterType} = workItem.parameters;
-                        return programEnrolmentUUID === parameters.programEnrolmentUUID && encounterType === parameters.encounterType;
-                    });
+                (workItem) => {
+                    const {programEnrolmentUUID, encounterType} = workItem.parameters;
+                    return programEnrolmentUUID === parameters.programEnrolmentUUID && encounterType === parameters.encounterType;
+                });
             if (sameVisitTypeExists) return;
-            const workItemType = WorkItem.type[parameters.programEnrolmentUUID? 'PROGRAM_ENCOUNTER' : 'ENCOUNTER'];
+            const workItemType = WorkItem.type[parameters.programEnrolmentUUID ? 'PROGRAM_ENCOUNTER' : 'ENCOUNTER'];
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), workItemType, parameters));
         });
         return workLists;

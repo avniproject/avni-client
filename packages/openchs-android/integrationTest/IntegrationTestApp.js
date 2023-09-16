@@ -11,32 +11,40 @@ import DatabaseTest from "./DatabaseTest";
 import IntegrationTestRunner, {TestSuite} from "./IntegrationTestRunner";
 import Icon from "react-native-vector-icons/FontAwesome";
 
+const itemCommonStyle = {
+    padding: 10,
+    marginVertical: 8,
+    display: "flex",
+    flexDirection: "row",
+    flex: 1
+}
+
 const styles = StyleSheet.create({
     item: {
-        padding: 10,
-        marginVertical: 8,
-        display: "flex",
-        flexDirection: "row",
-        flex: 1
+        ...itemCommonStyle
     },
     success: {
         backgroundColor: 'green',
-        padding: 20,
-        marginVertical: 8
+        ...itemCommonStyle
     },
     failure: {
         backgroundColor: 'red',
-        padding: 20,
-        marginVertical: 8
+        ...itemCommonStyle
     },
     header: {
-        fontSize: 20,
         backgroundColor: '#fff',
+        flexDirection: "row",
+        flex: 1,
+        justifyContent: "space-between"
+    },
+    headerText: {
+        fontSize: 20,
+        paddingLeft: 10
     },
     title: {
         fontSize: 14,
         backgroundColor: '#f9c2ff',
-        flex: 0.8
+        flex: 0.9
     },
 });
 
@@ -52,7 +60,7 @@ class IntegrationTestApp extends Component {
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
         this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, PersonRegisterActionsIntegrationTest);
-        this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.integrationTests};
+        this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.testSuite};
     }
 
     getChildContext = () => ({
@@ -82,8 +90,8 @@ class IntegrationTestApp extends Component {
 
     render() {
         const {integrationTests} = this.state;
-        const dataSource = _.map(_.groupBy(integrationTests.testMethods, (x) => x.className), (testMethods, className) => {
-            return {title: className, data: testMethods};
+        const dataSource = _.map(_.groupBy(integrationTests.testMethods, (x) => x.testClass.name), (testMethods, testClassName) => {
+            return {title: testClassName, data: testMethods, testClass: testMethods[0].testClass};
         });
 
         LogBox.ignoreAllLogs();
@@ -93,7 +101,6 @@ class IntegrationTestApp extends Component {
                     sections={dataSource}
                     keyExtractor={(x) => x.toString()}
                     renderItem={({item}) => {
-                        console.log("IntegrationTestApp", item);
                         const itemStyle = _.isNil(item.successful) ? styles.item : (item.successful ? styles.success : styles.failure);
                         return <View style={itemStyle}>
                             <Text style={styles.title}>{item.methodName}</Text>
@@ -102,8 +109,14 @@ class IntegrationTestApp extends Component {
                         </View>
                     }
                     }
-                    renderSectionHeader={({section: {title}}) => (
-                        <Text style={styles.header}>{title}</Text>
+                    renderSectionHeader={({section: {title, testClass}}) => (
+                        <View style={styles.header}>
+                            <Text style={styles.headerText}>{title}</Text>
+                            <View style={{display: "flex", flexDirection: "row"}}>
+                                <Button title={"Run"} onPress={() => this.integrationTestRunner.runClass((x) => this.testRunObserver(x), testClass)}/>
+                                <Button title={"Run & Throw"} onPress={() => this.integrationTestRunner.runClass((x) => this.testRunObserver(x), testClass, true)}/>
+                            </View>
+                        </View>
                     )}
                 />
                 <Button title="Run All" onPress={() => {

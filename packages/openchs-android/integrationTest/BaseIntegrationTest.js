@@ -61,7 +61,8 @@ class TestDb {
         this.db = db;
     }
 
-    create(clazz, entity, overwrite = false) {
+    create(clazz, entity, overwrite = true) {
+        console["debug"]("Creating object of type", clazz.schema.name, " with overwrite:", overwrite);
         return this.db.create(clazz.schema.name, entity, overwrite);
     }
 }

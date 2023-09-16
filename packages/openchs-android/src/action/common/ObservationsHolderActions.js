@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {Concept, Duration, FormElementGroup, ValidationResult} from 'avni-models';
+import {Concept, Duration, FormElementGroup, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
 
@@ -63,7 +63,11 @@ class ObservationsHolderActions {
 
     static addPreviousValidationErrors(ruleValidationErrors, validationResult, previousErrors) {
         const validationResultsThatNeedToBePreserved = previousErrors.filter(({validationType}) => (validationType !== ValidationResult.ValidationTypes.Rule));
-        const validationResultsThatNeedToBePreservedExcludingCurrentValidationResult = validationResultsThatNeedToBePreserved.filter(({formIdentifier, success, questionGroupIndex}) => (validationResult.formIdentifier !== formIdentifier && !success && (_.isNil(questionGroupIndex) || questionGroupIndex !== validationResult.questionGroupIndex)))
+        const validationResultsThatNeedToBePreservedExcludingCurrentValidationResult = validationResultsThatNeedToBePreserved.filter(({
+                                                                                                                                          formIdentifier,
+                                                                                                                                          success,
+                                                                                                                                          questionGroupIndex
+                                                                                                                                      }) => (validationResult.formIdentifier !== formIdentifier && !success && (_.isNil(questionGroupIndex) || questionGroupIndex !== validationResult.questionGroupIndex)))
         return [...ObservationsHolderActions.checkValidationResult(ruleValidationErrors, validationResult), ...validationResultsThatNeedToBePreservedExcludingCurrentValidationResult]
     }
 
@@ -237,7 +241,9 @@ class ObservationsHolderActions {
         const allEntitiesOfSameType = state.getEntityResultSetByType(context);
         const entitiesWithDuplicateObservations = allEntitiesOfSameType.filtered('uuid <> $0', currentEntity.uuid).filtered(observationFilter);
         const subjectTypeName = _.get(currentEntity, 'individual.subjectType.name');
-        return entitiesWithDuplicateObservations.length === 0 ? new ValidationResult(true, formElement.uuid, null) : new ValidationResult(false, formElement.uuid, 'duplicateValue', {subjectTypeName});
+        return entitiesWithDuplicateObservations.length === 0 ?
+            new ValidationResult(true, formElement.uuid, null, null, null, ValidationResult.ValidationTypes.Database) :
+            new ValidationResult(false, formElement.uuid, 'duplicateValue', {subjectTypeName}, null, ValidationResult.ValidationTypes.Database);
     }
 
     static _getObservationFilterQueryByConceptType(concept, value) {
