@@ -186,8 +186,11 @@ release_prod_all_flavors: bundle_clean
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
 
-release_prod_unsigned_without_clean: as_prod
-	enableSeparateBuildPerCPUArchitecture=false make release
+release_prod_universal_without_clean:
+	enableSeparateBuildPerCPUArchitecture=false make release_prod
+
+release_prod_universal:
+	enableSeparateBuildPerCPUArchitecture=false make release_prod
 
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
