@@ -120,29 +120,29 @@ android {
 
     signingConfigs {
         generic {
-            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key.keystore")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
-            keyPassword System.getenv("KEY_PASSWORD")
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}generic-release-key.keystore")
+            storePassword System.getenv("GENERIC_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("GENERIC_KEY_ALIAS")}"
+            keyPassword System.getenv("GENERIC_KEY_PASSWORD")
             enableV1Signing false
         }
         lfe {
-            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-avni-release-key.keystore")
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfe-release-key.keystore")
             storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}openchs-release-key"
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("LFE_KEY_ALIAS")}"
             keyPassword System.getenv("LFE_KEY_PASSWORD")
             enableV1Signing false
         }
         lfeTeachNagaland {
-            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-nagaland-release-key.keystore")
-            storePassword System.getenv("LFE_TEACH_NAGALAND_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteachnagaland"
-            keyPassword System.getenv("LFE_TEACH_NAGALAND_KEY_PASSWORD")
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeTeachNagaland-release-key.keystore")
+            storePassword System.getenv("LFETEACHNAGALAND_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("LFETEACHNAGALAND_KEY_ALIAS")}"
+            keyPassword System.getenv("LFETEACHNAGALAND_KEY_PASSWORD")
         }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
             storePassword System.getenv("SAKHI_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi"
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("SAKHI_KEY_ALIAS")}"
             keyPassword System.getenv("SAKHI_KEY_PASSWORD")
             enableV1Signing false
         }
