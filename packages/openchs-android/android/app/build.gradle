@@ -121,9 +121,9 @@ android {
     signingConfigs {
         generic {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}generic-release-key.keystore")
-            storePassword System.getenv("GENERIC_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("GENERIC_KEY_ALIAS")}"
-            keyPassword System.getenv("GENERIC_KEY_PASSWORD")
+            storePassword System.getenv("generic_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("generic_KEY_ALIAS")}"
+            keyPassword System.getenv("generic_KEY_PASSWORD")
             enableV1Signing false
         }
         lfe {
