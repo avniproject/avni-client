@@ -4,7 +4,7 @@ parameters:
     type: enum
     default: "generic"
     enum: ["generic", "lfe", "sakhi", "lfeTeachNagaland"]
-    description: Flavor of the binary to generate. Must be one of "generic", "lfe" or "sakhi"
+    description: Flavor of the binary to generate. Must be one of "generic", "lfe", "lfeTeachNagaland" or "sakhi"
   versionCode:
     type: string
     default: "1"
@@ -187,7 +187,6 @@ jobs:
       versionName: << pipeline.parameters.versionName >>
     steps:
       - checkout
-      - run: echo "Job params << parameters.keystore_password >> << parameters.key_password >> << parameters.key_alias >>"
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
       - restore_cache:

@@ -62,7 +62,7 @@ ifndef flavor
 endif
 flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
 
-flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
+#flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
 ifeq ($(flavor), lfe)
 	sourcemap_file_path:=../../../../index.android.bundle.map
 else
