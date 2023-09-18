@@ -128,22 +128,22 @@ android {
         }
         lfe {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfe-release-key.keystore")
-            storePassword System.getenv("LFE_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("LFE_KEY_ALIAS")}"
-            keyPassword System.getenv("LFE_KEY_PASSWORD")
+            storePassword System.getenv("lfe_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("lfe_KEY_ALIAS")}"
+            keyPassword System.getenv("lfe_KEY_PASSWORD")
             enableV1Signing false
         }
         lfeTeachNagaland {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeTeachNagaland-release-key.keystore")
-            storePassword System.getenv("LFETEACHNAGALAND_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("LFETEACHNAGALAND_KEY_ALIAS")}"
-            keyPassword System.getenv("LFETEACHNAGALAND_KEY_PASSWORD")
+            storePassword System.getenv("lfeTeachNagaland_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("lfeTeachNagaland_KEY_ALIAS")}"
+            keyPassword System.getenv("lfeTeachNagaland_KEY_PASSWORD")
         }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
-            storePassword System.getenv("SAKHI_KEYSTORE_PASSWORD")
-            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("SAKHI_KEY_ALIAS")}"
-            keyPassword System.getenv("SAKHI_KEY_PASSWORD")
+            storePassword System.getenv("sakhi_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("sakhi_KEY_ALIAS")}"
+            keyPassword System.getenv("sakhi_KEY_PASSWORD")
             enableV1Signing false
         }
     }
