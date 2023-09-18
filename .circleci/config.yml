@@ -170,13 +170,13 @@ jobs:
     parameters:
       keystore_password:
         type: string
-        default: "echo $<< pipeline.parameters.flavor >>_KEYSTORE_PASSWORD | tr a-z A-Z"
+        default: "echo \$<< pipeline.parameters.flavor >>_KEYSTORE_PASSWORD | tr a-z A-Z"
       key_password:
         type: string
-        default: "echo $<< pipeline.parameters.flavor >>_KEY_PASSWORD | tr a-z A-Z"
+        default: "echo \$<< pipeline.parameters.flavor >>_KEY_PASSWORD | tr a-z A-Z"
       key_alias:
         type: string
-        default: "echo $<< pipeline.parameters.flavor >>_KEY_ALIAS | tr a-z A-Z"
+        default: "echo \$<< pipeline.parameters.flavor >>_KEY_ALIAS | tr a-z A-Z"
     docker:
       - image: cimg/android:2022.12-node
     working_directory: ~/avni-client
