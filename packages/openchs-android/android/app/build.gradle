@@ -139,6 +139,12 @@ android {
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("lfeTeachNagaland_KEY_ALIAS")}"
             keyPassword System.getenv("lfeTeachNagaland_KEY_PASSWORD")
         }
+        lfeTeachNagaland {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteach-nagaland-release-key.keystore")
+            storePassword System.getenv("LFE_TEACH_NAGALAND_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeteachnagaland"
+            keyPassword System.getenv("LFE_TEACH_NAGALAND_KEY_PASSWORD")
+        }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
             storePassword System.getenv("sakhi_KEYSTORE_PASSWORD")

@@ -62,7 +62,6 @@ ifndef flavor
 endif
 flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
 
-#flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) tolower(substr($$0,2))}')
 ifeq ($(flavor), lfe)
 	sourcemap_file_path:=../../../../index.android.bundle.map
 else
@@ -156,10 +155,10 @@ release: release_clean metro_config create_apk upload-release-sourcemap
 bundle_release: release_clean metro_config create_bundle upload-release-sourcemap
 release_dev: setup_hosts as_dev release
 
-release_prod_without_clean: as_prod release
+release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod: renew_env release_prod_without_clean
 
-bundle_release_prod_without_clean: as_prod bundle_release
+bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
 bundle_release_prod: renew_env bundle_release_prod_without_clean
 
 bundle_clean:
