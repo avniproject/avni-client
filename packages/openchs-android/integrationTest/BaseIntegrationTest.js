@@ -54,6 +54,10 @@ class BaseIntegrationTest {
     getEntity(type, uuid) {
         return this.getEntityService().findByUUID(uuid, type.schema.name);
     }
+
+    getAllEntities(type) {
+        return this.getEntityService().findAll(type.schema.name);
+    }
 }
 
 class TestDb {

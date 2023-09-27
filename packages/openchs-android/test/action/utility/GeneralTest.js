@@ -61,10 +61,4 @@ describe('General', () => {
         assert.equal(date.getHours(), 5);
         assert.equal(date.getMinutes(), 23);
     });
-
-    it('should stringify', function () {
-        assert.equal(undefined, General.stringify(undefined));
-        assert.equal("null", General.stringify(null));
-        assert.equal("{}", General.stringify({}));
-    });
 });

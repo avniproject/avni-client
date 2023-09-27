@@ -51,12 +51,12 @@ class AbstractComponent extends Component {
     dispatchAction(action, params) {
         const type = action instanceof Function ? action.Id : action;
         if (General.canLog(General.LogLevel.Debug)) {
-            General.logDebug(`${this.constructor.name}::AC`, `Dispatching action: ${JSON.stringify(type)} with action keys ${_.keys(params)}`);
+            General.logDebugTemp(`${this.constructor.name}::AC`, `Dispatching action: ${JSON.stringify(type)} with action keys ${_.keys(params)}`);
         }
         const dispatchResult = this.context.getStore().dispatch({type, ...params});
         if (General.canLog(General.LogLevel.Debug)) {
             const nextState = this.getContextState(this.topLevelStateVariable);
-            General.logDebug(`${this.constructor.name}::AC`, `Dispatched action completed: ${JSON.stringify(type)} ${_.keys(nextState)}`);
+            General.logDebugTemp(`${this.constructor.name}::AC`, `Dispatched action completed: ${JSON.stringify(type)} ${_.keys(nextState)}`);
         }
         return dispatchResult;
     }

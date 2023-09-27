@@ -1,8 +1,9 @@
-import {Duration, Observation, Concept} from 'avni-models';
+import {Concept, Duration, Observation} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import Clipboard from '@react-native-community/clipboard';
+import {JSONStringify} from "./JsonStringify";
 
 let currentLogLevel;
 
@@ -323,25 +324,9 @@ class General {
         Clipboard.setString('');
     }
 
-    //picked from: https://stackoverflow.com/questions/13861254/json-stringify-deep-objects/57193345#57193345
-    static stringify(val, depth = 1, onGetObjID) {
-        depth = isNaN(+depth) ? 1 : depth;
-        const recursMap = new Map();
-        return JSON.stringify(_build(recursMap, onGetObjID, val, depth), null);
+    static isDebugEnabled() {
+        return currentLogLevel === General.LogLevel.Debug;
     }
-}
-
-function _build(recursMap, onGetObjID, val, depth, o, a, r) { // (JSON.stringify() has it's own rules, which we respect here by using it for property iteration)
-    return !val || typeof val != 'object' ? val
-        : (r = recursMap.has(val), recursMap.set(val, true), a = Array.isArray(val),
-            r ? (o = onGetObjID && onGetObjID(val) || null) : JSON.stringify(val, function (k, v) {
-                if (a || depth > 0) {
-                    if (!k) return (a = Array.isArray(v), val = v);
-                    !o && (o = a ? [] : {});
-                    o[k] = _build(recursMap, onGetObjID, v, a ? depth : depth - 1);
-                }
-            }),
-            o === void 0 ? (a ? [] : {}) : o);
 }
 
 export default General;

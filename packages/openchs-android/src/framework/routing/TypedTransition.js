@@ -2,6 +2,7 @@ import invariant from "invariant";
 import _ from "lodash";
 import General from "../../utility/General";
 import {Keyboard} from 'react-native';
+import {JSONStringify} from "../../utility/JsonStringify";
 
 // navigator commands are async in their actual effect of their execution. so if you run more than one navigator action one after other the output is indeterminate
 export default class TypedTransition {
@@ -18,7 +19,9 @@ export default class TypedTransition {
         this.safeDismissKeyboard();
         invariant(viewClass.path, 'Parameter `viewClass` should have a function called `path`');
         const route = TypedTransition.createRoute(viewClass, this.queryParams, isTyped);
-        General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}. To: ${route.path} Param Keys: ${General.stringify(this.queryParams, 3)}`);
+        if (General.isDebugEnabled()) {
+            General.logDebug('TypedTransition', `Route size: ${this.navigator.getCurrentRoutes().length}. To: ${route.path} Param Keys: ${JSONStringify(this.queryParams, 2)}`);
+        }
         if (replace) {
             this.navigator.replace(route);
         } else {
@@ -74,7 +77,7 @@ export default class TypedTransition {
             return;
         }
         General.logDebug('TypedTransition', `Initial: ${currentRoutes.length}, Final before push: ${newRouteStack.length},
-        To/ParamKeys: ${_.join(toBePushed.map((x) => `${x.path}, ${General.stringify(x.queryParams, 3)}`), ";\n")}`);
+        To/ParamKeys: ${_.join(toBePushed.map((x) => `${x.path}, ${JSONStringify(x.queryParams, 2)}`), ";\n")}`);
         newRouteStack.push(...toBePushed);
         this.navigator.immediatelyResetRouteStack(_.uniq(newRouteStack));
     }
