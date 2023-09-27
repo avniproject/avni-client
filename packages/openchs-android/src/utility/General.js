@@ -3,7 +3,6 @@ import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import Clipboard from '@react-native-community/clipboard';
-import {JSONStringify} from "./JsonStringify";
 
 let currentLogLevel;
 

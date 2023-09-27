@@ -7,7 +7,7 @@ import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent} from "../../utility/Analytics";
-import moment from "moment";
+import {JSONStringify} from "../../utility/JsonStringify";
 
 class AbstractComponent extends Component {
     static contextTypes = {
@@ -51,12 +51,12 @@ class AbstractComponent extends Component {
     dispatchAction(action, params) {
         const type = action instanceof Function ? action.Id : action;
         if (General.canLog(General.LogLevel.Debug)) {
-            General.logDebugTemp(`${this.constructor.name}::AC`, `Dispatching action: ${JSON.stringify(type)} with action keys ${_.keys(params)}`);
+            General.logDebug(`${this.constructor.name}::AC`, `Dispatching action: ${JSON.stringify(type)} with params ${JSONStringify(params)}`);
         }
         const dispatchResult = this.context.getStore().dispatch({type, ...params});
         if (General.canLog(General.LogLevel.Debug)) {
             const nextState = this.getContextState(this.topLevelStateVariable);
-            General.logDebugTemp(`${this.constructor.name}::AC`, `Dispatched action completed: ${JSON.stringify(type)} ${_.keys(nextState)}`);
+            General.logDebug(`${this.constructor.name}::AC`, `Dispatched action completed: ${JSON.stringify(type)} ${JSONStringify(nextState)}`);
         }
         return dispatchResult;
     }
