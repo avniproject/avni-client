@@ -44,7 +44,9 @@ class SyncActions {
     static onUpdate(state, action, context) {
         return {
             ...state,
-            progress: action.progress
+            progress: action.progress,
+            numberOfPagesProcessedForCurrentEntity: action.numberOfPagesProcessedForCurrentEntity,
+            totalNumberOfPagesForCurrentEntity: action.totalNumberOfPagesForCurrentEntity,
         }
     }
 

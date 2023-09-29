@@ -62,8 +62,8 @@ class SyncService extends BaseService {
         const progressBarStatus = new ProgressbarStatus(trackProgress,
             AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
-        const onProgressPerEntity = (entityType, numOfPages) => {
-            progressBarStatus.onComplete(entityType, numOfPages);
+        const onProgressPerEntity = (entityType, totalNumberOfPages, currentPageNumber) => {
+            progressBarStatus.onComplete(entityType, totalNumberOfPages, currentPageNumber);
         };
         const onAfterMediaPush = (entityType, numOfPages) => progressBarStatus.onComplete(entityType, numOfPages);
 
