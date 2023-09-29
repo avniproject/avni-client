@@ -17,7 +17,9 @@ class ProgressBarView extends AbstractComponent {
         progress: PropTypes.number,
         message: PropTypes.string,
         syncing: PropTypes.bool.isRequired,
-        notifyUserOnCompletion: PropTypes.bool.isRequired
+        notifyUserOnCompletion: PropTypes.bool.isRequired,
+        currentPageNumber: PropTypes.number,
+        totalNumberOfPages: PropTypes.number
     };
 
     constructor(props, context) {
@@ -61,6 +63,10 @@ class ProgressBarView extends AbstractComponent {
     render() {
         if (!this.props.syncing) return null;
 
+        const {message, currentPageNumber, totalNumberOfPages} = this.props;
+        const currentEntityProgressMessage = _.isNil(currentPageNumber) ? "" : ` (${currentPageNumber + 1}/${totalNumberOfPages})`;
+        const displayMessage = `${this.I18n.t(message)}${currentEntityProgressMessage}`;
+
         return (
             <Modal animationType={'fade'}
                    transparent={true}
@@ -76,7 +82,7 @@ class ProgressBarView extends AbstractComponent {
                                 {this.props.progress < 1 ?
                                     (<View>
                                         <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                            {this.I18n.t(_.isNil(this.props.message) ? "doingNothing" : this.props.message)}
+                                            {_.isNil(this.props.message) ? this.I18n.t("doingNothing") : displayMessage}
                                         </Text>
                                         <ProgressBar styleAttr="Horizontal" progress={this.props.progress}
                                                             indeterminate={false} color="white"/>

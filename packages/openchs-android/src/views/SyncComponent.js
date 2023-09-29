@@ -57,8 +57,8 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
     }
 
-    progressBarUpdate(progress) {
-        this.dispatchAction(SyncActions.ON_UPDATE, {progress})
+    progressBarUpdate(progress, totalNumberOfPagesForCurrentEntity, numberOfPagesProcessedForCurrentEntity) {
+        this.dispatchAction(SyncActions.ON_UPDATE, {progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity})
     }
 
     messageCallBack(message) {
@@ -176,7 +176,7 @@ class SyncComponent extends AbstractComponent {
             await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
             syncService.sync(
                 EntityMetaData.model(),
-                (progress) => this.progressBarUpdate(progress),
+                (progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity) => this.progressBarUpdate(progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity),
                 (message) => this.messageCallBack(message),
                 connectionInfo,
                 this.state.startTime,
@@ -193,6 +193,8 @@ class SyncComponent extends AbstractComponent {
     renderSyncModal() {
         return <ProgressBarView
             progress={this.state.progress}
+            currentPageNumber={this.state.numberOfPagesProcessedForCurrentEntity}
+            totalNumberOfPages={this.state.totalNumberOfPagesForCurrentEntity}
             message={this.state.message}
             syncing={this.state.syncing}
             onPress={this._postSync.bind(this)}

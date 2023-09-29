@@ -82,16 +82,24 @@ class ConventionalRestClient {
     }
 
     fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage) {
-        const processResponse = (resp) => {
+        //Response from controller do not have the page number in the response
+        const processResponse = (resp, pageNumber) => {
             onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
-            afterGetOfEntity(entityMetadata.entityName, resp["page"]["totalPages"])
+
+            const pageElement = resp["page"];
+            const contentElement = resp["content"];
+            if (!_.isNil(pageElement)) {
+                afterGetOfEntity(entityMetadata.entityName, pageElement["totalPages"], pageElement["number"]);
+            } else if (!_.isNil(contentElement)) {
+                afterGetOfEntity(entityMetadata.entityName, pageElement["totalPages"], pageNumber);
+            }
         };
 
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
         return getJSON(endpoint()).then((response) => {
             //first page
             const page = response["page"];
-            processResponse(response);
+            processResponse(response, 0);
             onGetOfFirstPage(entityMetadata.entityName, page);
 
             //rest pages
@@ -99,7 +107,7 @@ class ConventionalRestClient {
             _.range(1, page.totalPages, 1)
                 .forEach((pageNumber) => chainedRequests.push(chainedRequests.get(
                     endpoint(pageNumber),
-                    (resp) => processResponse(resp))));
+                    (resp) => processResponse(resp, pageNumber))));
 
             return chainedRequests.fire();
         });
