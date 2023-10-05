@@ -84,7 +84,7 @@ class IndividualSearchView extends AbstractComponent {
         const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), ({name}) => this.I18n.t(name));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.searchCriteria.subjectType);
         const locale = this.getService(UserInfoService).getUserSettings().locale;
-
+        const genderFilterPresent = this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID);
         return (
             <CHSContainer>
                 <AppHeader title={this.I18n.t('search')} hideBackButton={this.props.hideBackButton}
@@ -127,7 +127,7 @@ class IndividualSearchView extends AbstractComponent {
                                                selectedCustomFilters={this.state.selectedCustomFilters}
                                                onSelect={(selectedCustomFilters) => this.dispatchAction(Actions.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                 /> : null}
-                            {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, subjectTypeUUID) &&
+                            {genderFilterPresent &&
                             <GenderFilter
                                 selectedGenders={this.state.selectedGenders || []}
                                 onSelect={(selectedGender) => this.dispatchAction(Actions.GENDER_CHANGE, {selectedGender})}

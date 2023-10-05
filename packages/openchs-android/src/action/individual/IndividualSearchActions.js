@@ -13,16 +13,18 @@ import { ArrayUtil, CustomFilter } from "openchs-models";
 export class IndividualSearchActions {
     static clone(state) {
         return {
+            ...state,
             searchCriteria: state.searchCriteria.clone(),
             subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone())),
             selectedCustomFilters: {...state.selectedCustomFilters},
             genders: {...state.genders},
-            addressLevelState: state.addressLevelState.clone(),
+            addressLevelState: state.addressLevelState.clone()
         };
     }
 
     static resetFilters(state) {
         return {
+            ...state,
             searchCriteria: IndividualSearchCriteria.empty(),
             subjectTypes: state.subjectTypes.map((subjectType => subjectType.clone())),
             selectedCustomFilters: {},
@@ -176,9 +178,9 @@ export class IndividualSearchActions {
     }
 
     static genderChange(state, action) {
-        let selectedGenders = state.selectedGenders || [];
-        ArrayUtil.toggle(selectedGenders, action.selectedGender, (l,r) => l.uuid === r.uuid)
-        return {...state, selectedGenders};
+        const selectedGenders = state.selectedGenders || [];
+        ArrayUtil.toggle(selectedGenders, action.selectedGender, (l,r) => l.uuid === r.uuid);
+        return {...state, selectedGenders: [...selectedGenders]};
     }
 
     static loadIndicator(state, action) {
