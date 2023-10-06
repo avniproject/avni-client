@@ -31,8 +31,10 @@ import SyncService from '../service/SyncService';
 import TypedTransition from '../framework/routing/TypedTransition';
 import SetPasswordView from './SetPasswordView';
 import LandingView from './LandingView';
-import { IDP_PROVIDERS } from "../model/IdpProviders";
+import {IDP_PROVIDERS} from "../model/IdpProviders";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import {EntityMappingConfig} from "openchs-models";
+import EntityService from "../service/EntityService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -190,11 +192,11 @@ class LoginView extends AbstractComponent {
                             <View style={{
                                 flexDirection: 'column',
                                 justifyContent: 'center',
-                                minHeight: height*0.8,
+                                minHeight: height * 0.8,
                                 paddingHorizontal: 48
                             }}>
                                 <Image source={{uri: `asset:/logo.png`}}
-                                       style={{height: 120, width: 120, alignSelf: 'center', }} resizeMode={'center'}/>
+                                       style={{height: 120, width: 120, alignSelf: 'center',}} resizeMode={'center'}/>
                                 {this.renderMultiUserLoginFailure()}
                                 <Text style={{
                                     color: Colors.ValidationError,
@@ -234,54 +236,54 @@ class LoginView extends AbstractComponent {
                                                     onPress={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}>
                                                     <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
                                                         <CheckBox
-                                                          accessible={true}
-                                                          accessibilityLabel={this.I18n.t("Show password")}
-                                                          onChange={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
-                                                          isChecked={this.state.showPassword}/>
+                                                            accessible={true}
+                                                            accessibilityLabel={this.I18n.t("Show password")}
+                                                            onChange={() => this.dispatchAction(Actions.ON_TOGGLE_SHOW_PASSWORD)}
+                                                            isChecked={this.state.showPassword}/>
                                                         <Text
                                                             style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Show password')}</Text>
                                                     </View>
                                                 </TouchableNativeFeedback>
                                                 {(this.state.idpType === IDP_PROVIDERS.COGNITO ||
                                                     (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO))
-                                                      && <TouchableNativeFeedback onPress={() => {
-                                                        this.forgotPassword();
-                                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                        <View style={{paddingTop: 7}}>
-                                                            <Text style={{
-                                                                color: Styles.accentColor,
-                                                                fontSize: 16
-                                                            }}>{this.I18n.t('Forgot Password')}</Text>
-                                                        </View>
-                                                    </TouchableNativeFeedback>
+                                                && <TouchableNativeFeedback onPress={() => {
+                                                    this.forgotPassword();
+                                                }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                    <View style={{paddingTop: 7}}>
+                                                        <Text style={{
+                                                            color: Styles.accentColor,
+                                                            fontSize: 16
+                                                        }}>{this.I18n.t('Forgot Password')}</Text>
+                                                    </View>
+                                                </TouchableNativeFeedback>
                                                 }
                                             </View>
                                             {this.spinner()}
                                         </View>
                                         : null}
                                     {this.state.idpType === IDP_PROVIDERS.BOTH &&
-                                        <TouchableNativeFeedback
-                                            onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
-                                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-                                                <CheckBox
-                                                    accessible={true}
-                                                    accessibilityLabel={"Use Keycloak"}
-                                                    onChange={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}
-                                                    isChecked={this.state.userSelectedIdp === IDP_PROVIDERS.KEYCLOAK}/>
-                                                <Text
-                                                    style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
-                                            </View>
-                                        </TouchableNativeFeedback>}
+                                    <TouchableNativeFeedback
+                                        onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
+                                        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                                            <CheckBox
+                                                accessible={true}
+                                                accessibilityLabel={"Use Keycloak"}
+                                                onChange={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}
+                                                isChecked={this.state.userSelectedIdp === IDP_PROVIDERS.KEYCLOAK}/>
+                                            <Text
+                                                style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>}
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                                     {_.get(this, 'props.params.allowSkipLogin') &&
-                                        <TouchableNativeFeedback onPress={() => {
-                                            this.cancelLogin();
-                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                            <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                                <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
-                                            </View>
-                                        </TouchableNativeFeedback>
+                                    <TouchableNativeFeedback onPress={() => {
+                                        this.cancelLogin();
+                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                        <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
+                                            <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                        </View>
+                                    </TouchableNativeFeedback>
                                     }
                                     <TouchableNativeFeedback onPress={this.safeLogin}
                                                              background={TouchableNativeFeedback.SelectableBackground()}>
@@ -299,17 +301,29 @@ class LoginView extends AbstractComponent {
                                 flexDirection: 'column',
                                 justifyContent: 'flex-end',
                                 alignItems: 'center',
-                                minHeight: height*0.15,
+                                minHeight: height * 0.15,
                                 paddingLeft: 16
                             }}>
                                 <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
                                 {!EnvironmentConfig.isProd() &&
+                                <>
                                     <Text style={{
                                         fontSize: Styles.normalTextSize,
                                         fontStyle: 'normal',
                                         color: Styles.blackColor,
                                         marginVertical: 0,
                                     }}>{Config.ENV}</Text>
+                                    <Text style={Styles.textList}>Actual Schema Version : <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
+                                    <Text style={Styles.textList}>Code Schema Version: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                </>
                                 }
                             </View>
                         </View>

@@ -42,6 +42,8 @@ import StaticMenuItemFactory from "./menu/StaticMenuItemFactory";
 import {MenuItem} from 'openchs-models';
 import StaticMenuItem from "./menu/StaticMenuItem";
 import AvniIcon from "./common/AvniIcon";
+import EntityService from "../service/EntityService";
+import EnvironmentConfig from "../framework/EnvironmentConfig";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -390,7 +392,12 @@ class MenuView extends AbstractComponent {
                                         style={{
                                             color: 'black',
                                             fontSize: Styles.normalTextSize
-                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                        }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
+                                    {!EnvironmentConfig.isProd() && <Text style={Styles.textList}>Code Schema Version: <Text
+                                        style={{
+                                            color: 'black',
+                                            fontSize: Styles.normalTextSize
+                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>}
                                     <Text style={Styles.textList}>BuildVersion: <Text
                                         style={{
                                             color: 'black',

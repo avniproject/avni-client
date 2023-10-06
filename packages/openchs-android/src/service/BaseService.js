@@ -185,6 +185,10 @@ class BaseService {
     static orFilterCriteria(entities, path) {
         return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
+
+    getActualSchemaVersion() {
+        return this.db.schemaVersion;
+    }
 }
 
 export default BaseService;
