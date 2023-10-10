@@ -5,7 +5,7 @@ import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions'
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import CryptoUtils from '../../utility/CryptoUtils';
 
-import {serialize} from '@ungap/structured-clone';
+import General from "../../utility/General";
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -26,7 +26,7 @@ class FiltersActionsV2 {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
         let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        let filterConfigsJSON = JSON.stringify(serialize(newState.filterConfigs));
+        let filterConfigsJSON = JSON.stringify(newState.filterConfigs);
         newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = context.get(CustomDashboardCacheService).fetchCachedData(action.dashboardUUID, newState.filterConfigsChecksum);
         if(state.dashboardUUID !== action.dashboardUUID) {
@@ -57,6 +57,8 @@ class FiltersActionsV2 {
                 break;
 
             case CustomFilter.type.Address:
+                updatedValue = General.deepOmit(value, 'locationMappings'); //including locationMappings causes cyclical reference errors during JSON.stringify
+                break;
             case Concept.dataType.Subject:
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
@@ -136,13 +138,15 @@ class FiltersActionsV2 {
                     break;
                 default:
                     let customConceptValue = [{value: currentFilterValue}];
-                    if(filterConfig.widget === CustomFilter.widget.Range) {
-                        customConceptValue = [{dateType: filterConfig.type,
+                    if(_.get(filterConfig, 'widget') === CustomFilter.widget.Range) {
+                        customConceptValue = [{dateType: _.get(filterConfig, 'type'),
                             minValue:  currentFilterValue.minValue,
                             maxValue: currentFilterValue.maxValue}];
                     }
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : customConceptValue};
+                    if (!_.isEmpty(_.get(filterConfig, 'observationBasedFilter.concept.name'))) {
+                        selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
+                            [_.get(filterConfig, 'observationBasedFilter.concept.name')] : customConceptValue};
+                    }
                     break;
             }
 
@@ -158,7 +162,7 @@ class FiltersActionsV2 {
         const filledFilterValues = _.filter(Object.entries(selectedValues), ([, filterValue]) => !ModelGeneral.isDeepEmpty(filterValue));
         //Check if there are errors in filter values specified
         filledFilterValues.forEach(([filterUUID, filterValue]) => {
-            const [success, message] = filterConfigs[filterUUID].validate(filterValue);
+            const [success, message] = filterConfigs[filterUUID].validate && filterConfigs[filterUUID].validate(filterValue) || [false, `validate for filterConfig ${filterUUID} not found`];
             if (!success)
                 newState.filterErrors[filterUUID] = message;
         });
@@ -181,10 +185,10 @@ class FiltersActionsV2 {
     }
 
     static createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray) {
-        let selectValueJSON = JSON.stringify(serialize(newState.selectedValues));
-        let filteredErrorsJSON = JSON.stringify(serialize(newState.filterErrors));
-        let transformedFiltersJSON = JSON.stringify(serialize(transformedFilters));
-        let ruleInputJSON = JSON.stringify(serialize({ruleInputArray: ruleInputArray}));
+        let selectValueJSON = JSON.stringify(newState.selectedValues);
+        let filteredErrorsJSON = JSON.stringify(newState.filterErrors);
+        let transformedFiltersJSON = JSON.stringify(transformedFilters);
+        let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray});
         const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(),
           selectValueJSON, newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
         return customDashboardCache;
