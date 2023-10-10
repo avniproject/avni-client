@@ -7,11 +7,10 @@ import Styles from "./primitives/Styles";
 import {Checkbox as CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
 import CHSContent from "./common/CHSContent";
-import themes from "./primitives/themes";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
-import General from "../utility/General";
+import {SecureTextInput} from "./common/SecureTextInput";
 
 @Path('/resetForgottenPasswordView')
 class ResetForgottenPasswordView extends AbstractComponent {
@@ -120,29 +119,15 @@ class ResetForgottenPasswordView extends AbstractComponent {
                                    placeholder={this.I18n.t("enterOTP")} value={this.state.verificationCode} keyboardType={"numeric"}
                                    onChangeText={(verificationCode) => this.setState({verificationCode})}/>
 
-                        <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                        <SecureTextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                                    placeholder={this.I18n.t("enterNewPassword")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
-                                   contextMenuHidden={true}
-                                   onFocus={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   onBlur={() => {
-                                       General.clearClipboard();
-                                   }}
                                    secureTextEntry={!this.state.showPassword}
                         />
 
-                        <TextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
+                        <SecureTextInput style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                                    placeholder={this.I18n.t("confirmNewPassword")} value={this.state.ConfirmnewPassword}
                                    onChangeText={(ConfirmnewPassword) => this.setState({ConfirmnewPassword})}
-                                   contextMenuHidden={true}
-                                   onFocus={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   onBlur={() => {
-                                       General.clearClipboard();
-                                   }}
                                    secureTextEntry={!this.state.showPassword}
                         />
 

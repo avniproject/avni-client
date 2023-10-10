@@ -10,6 +10,7 @@ import Colors from "../../primitives/Colors";
 import ValueSelectFormElement from "./ValueSelectFormElement";
 import {HelpText} from "../../common/HelpText";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import {SecureTextInput} from "../../common/SecureTextInput";
 
 class TextFormElement extends AbstractFormElement {
     static propTypes = {
@@ -25,10 +26,12 @@ class TextFormElement extends AbstractFormElement {
         inputStyle: PropTypes.object,
         allowedValues: PropTypes.array,
         helpText: PropTypes.string,
-        isTableView: PropTypes.bool
+        isTableView: PropTypes.bool,
+        isSecureInput: PropTypes.bool
     };
     static defaultProps = {
-        style: {}
+        style: {},
+        isSecureInput: false
     };
 
     constructor(props, context) {
@@ -60,13 +63,26 @@ class TextFormElement extends AbstractFormElement {
                     <HelpText t={this.I18n.t} text={this.props.helpText}/>
                 </View>
                 <View style={inputStyle}>
-                    <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
-                               underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
-                               value={_.isNil(this.props.value) ? "" : this.props.value.answer}
-                               onChangeText={(text) => this.onInputChange(text)} multiline={this.props.multiline}
-                               numberOfLines={this.props.multiline ? 4 : 1}
-                               keyboardType={this.props.keyboardType || 'default'}/>
-                    <ValidationErrorMessage validationResult={this.props.validationResult}/>
+                    {this.props.isSecureInput === true ?
+                        <SecureTextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
+                                   underlineColorAndroid={this.borderColor} secureTextEntry={this.props.secureTextEntry}
+                                   value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                                   onChangeText={(text) => this.onInputChange(text)} multiline={this.props.multiline}
+                                   numberOfLines={this.props.multiline ? 4 : 1}
+                                   keyboardType={this.props.keyboardType || 'default'}
+                        />
+                        :
+                        <TextInput {...this.props} style={[Styles.formBodyText, this.props.style]}
+                                         underlineColorAndroid={this.borderColor}
+                                         secureTextEntry={this.props.secureTextEntry}
+                                         value={_.isNil(this.props.value) ? "" : this.props.value.answer}
+                                         onChangeText={(text) => this.onInputChange(text)}
+                                         multiline={this.props.multiline}
+                                         numberOfLines={this.props.multiline ? 4 : 1}
+                                         keyboardType={this.props.keyboardType || 'default'}
+                        />
+                    }
+                        <ValidationErrorMessage validationResult={this.props.validationResult}/>
                 </View>
             </View>);
     }

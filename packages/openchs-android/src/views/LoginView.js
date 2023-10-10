@@ -217,13 +217,7 @@ class LoginView extends AbstractComponent {
                                                              actionName={Actions.ON_PASSWORD_CHANGE} validationResult={null}
                                                              value={new PrimitiveValue(this.state.password)}
                                                              multiline={false}
-                                                             contextMenuHidden={true}
-                                                             onFocus={() => {
-                                                                 General.clearClipboard();
-                                                             }}
-                                                             onBlur={() => {
-                                                                 General.clearClipboard();
-                                                             }}
+                                                             isSecureInput={true}
                                             />
                                             <View style={{
                                                 flexDirection: 'column',

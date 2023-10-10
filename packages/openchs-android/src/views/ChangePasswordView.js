@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Text, View, TextInput, TouchableNativeFeedback} from "react-native";
+import {Text, View, TouchableNativeFeedback} from "react-native";
 import Styles from "./primitives/Styles";
 import {Checkbox as CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
@@ -11,6 +11,7 @@ import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import Colors from "./primitives/Colors";
 import General from "../utility/General";
+import {SecureTextInput} from "./common/SecureTextInput";
 
 @Path('/changePasswordView')
 class ChangePasswordView extends AbstractComponent {
@@ -120,27 +121,15 @@ class ChangePasswordView extends AbstractComponent {
                             justifyContent: 'center'
                         }}>{this.errorMessage()}</Text>
 
-                        <TextInput placeholder={this.I18n.t("currentPassword")} value={this.state.password}
-                                   onChangeText={(password) => this.setState({password})}
-                                   contextMenuHidden={true}
-                                   onFocus={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   onBlur={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   secureTextEntry={!this.state.showPassword}/>
+                        <SecureTextInput placeholder={this.I18n.t("currentPassword")} value={this.state.password}
+                                         onChangeText={(password) => this.setState({password})}
+                                         secureTextEntry={!this.state.showPassword}
+                        />
 
-                        <TextInput placeholder={this.I18n.t("newPassword")} value={this.state.newPassword}
-                                   onChangeText={(newPassword) => this.setState({newPassword})}
-                                   contextMenuHidden={true}
-                                   onFocus={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   onBlur={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   secureTextEntry={!this.state.showPassword}/>
+                        <SecureTextInput placeholder={this.I18n.t("newPassword")} value={this.state.newPassword}
+                                         onChangeText={(newPassword) => this.setState({newPassword})}
+                                         secureTextEntry={!this.state.showPassword}
+                        />
 
                         <View style={{
                             flexDirection: 'row',
