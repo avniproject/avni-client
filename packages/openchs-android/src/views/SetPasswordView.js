@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Path from "../framework/routing/Path";
-import {Text, TextInput, TouchableNativeFeedback, View} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
 import Styles from "./primitives/Styles";
 import {Checkbox as CheckBox, Spinner} from "native-base";
 import CHSContainer from "./common/CHSContainer";
@@ -10,7 +10,7 @@ import CHSContent from "./common/CHSContent";
 import AuthService from "../service/AuthService";
 import Colors from "./primitives/Colors";
 import DBRestoreProgress from "./DBRestoreProgress";
-import General from "../utility/General";
+import {SecureTextInput} from "./common/SecureTextInput";
 
 @Path('/setPasswordView')
 class SetPasswordView extends AbstractComponent {
@@ -100,16 +100,9 @@ class SetPasswordView extends AbstractComponent {
                             justifyContent: 'center'
                         }}>{this.errorMessage()}</Text>
 
-                        <TextInput placeholder={this.I18n.t("password")} value={this.state.password}
+                        <SecureTextInput placeholder={this.I18n.t("password")} value={this.state.password}
                                    onChangeText={(password) => this.setState({password})}
                                    secureTextEntry={!this.state.showPassword}
-                                   contextMenuHidden={true}
-                                   onFocus={() => {
-                                       General.clearClipboard();
-                                   }}
-                                   onBlur={() => {
-                                       General.clearClipboard();
-                                   }}
                         />
                         <TouchableNativeFeedback onPress={() => this.setState((oldState) => {
                             return {showPassword: !oldState.showPassword}
