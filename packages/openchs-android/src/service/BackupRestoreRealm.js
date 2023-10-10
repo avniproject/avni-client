@@ -26,8 +26,8 @@ export default class BackupRestoreRealmService extends BaseService {
         super(db, context);
     }
 
-    subscribeOnRestore(notify) {
-        this.notify = notify;
+    subscribeOnRestore(dumpFileRestoreCompleted) {
+        this.dumpFileRestoreCompleted = dumpFileRestoreCompleted;
     }
 
     isDatabaseEverSynced() {
@@ -122,7 +122,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Refreshing application context");
                             cb(92, "restoringDb");
                         })
-                        .then(() => this.notify())
+                        .then(() => this.dumpFileRestoreCompleted())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Removing downloaded files");
                             cb(94, "restoringDb");

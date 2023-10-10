@@ -20,3 +20,5 @@ src/framework/Config.js
 config/env/dev.json
 android/fastlane/metadata/android/en-GB/changelogs
 /android/app/src/main/assets/index.android.bundle
+
+.watchman*
