@@ -16,6 +16,7 @@ import SubjectTypeService from "./SubjectTypeService";
 import IndividualService from "./IndividualService";
 import SubjectMigrationService from "./SubjectMigrationService";
 import FormMappingService from "./FormMappingService";
+import UserInfoService from './UserInfoService';
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -85,6 +86,7 @@ export default class BackupRestoreRealmService extends BaseService {
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
         const prevSettings = settingsService.getSettings().clone();
+        const prevUserInfo = UserInfo.fromResource({username: prevSettings.userId, organisationName: 'dummy', name: prevSettings.userId});
 
         General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
@@ -142,6 +144,11 @@ export default class BackupRestoreRealmService extends BaseService {
                         .then(() => {
                             this._deleteUserInfoAndIdAssignment();
                             General.logDebug("BackupRestoreRealmService", "Deleted user info and id assignment");
+                        })
+                        .then(() => {
+                            this._restoreUserInfo(prevUserInfo);
+                            General.logDebug("BackupRestoreRealmService", "Restoring prev userInfo to ensure we have user details" +
+                              " immediately after fast sync restore");
                         })
                         .then(() => {
                             this._deleteUserGroups();
@@ -215,6 +222,10 @@ export default class BackupRestoreRealmService extends BaseService {
 
     _restoreSettings(prevSettings) {
         this.getService(SettingsService).saveOrUpdate(prevSettings);
+    }
+
+    _restoreUserInfo(prevUserInfo) {
+        this.getService(UserInfoService).saveOrUpdate(prevUserInfo);
     }
 
     resetSyncForSubjectType(subjectType, db) {
