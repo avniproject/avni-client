@@ -2,7 +2,6 @@ import {Duration, Observation, Concept} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
-import Clipboard from '@react-native-clipboard/clipboard';
 
 let currentLogLevel;
 
@@ -318,13 +317,6 @@ class General {
     }
 
     static STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL = 33;
-
-    static async clearClipboard() {
-        const clipboardText = await Clipboard.getString()
-        if (!_.isEmpty(clipboardText)) {
-            Clipboard.setString('');
-        }
-    }
 
     //from https://stackoverflow.com/questions/39085399/lodash-remove-items-recursively
     static deepOmit(obj, keysToOmit) {
