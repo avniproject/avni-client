@@ -12,14 +12,13 @@ export const SecureTextInput = (props) => {
         <TextInput
             {...props}
             contextMenuHidden={true}
-            onFocus={() => {
-                General.clearClipboard();
-            }}
-            onBlur={() => {
-                General.clearClipboard();
-            }}
+            onFocus={() => General.clearClipboard()}
+            onBlur={() => General.clearClipboard()}
+            onPressIn={() => General.clearClipboard()}
             onSelectionChange={onSelectionChange}
             selection={inputTextSelection}
+            keyboardType={props.secureTextEntry ? 'default' : 'visible-password'}   // hides additional options like clipboard when password is shown (on some devices)
+            autoCapitalize={'none'}
         />
     )
 }
