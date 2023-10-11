@@ -98,7 +98,7 @@ class SelectableItemGroup extends React.Component {
             this.props.onPress(radioLabelValue.value, radioLabelValue.label);
         }
         return (
-            <Text style={Styles.formLabel}>{radioLabelValue.label}</Text>
+            <Text style={Styles.formLabel}>{this.props.I18n.t(radioLabelValue.label)}</Text>
         )
     }
 
