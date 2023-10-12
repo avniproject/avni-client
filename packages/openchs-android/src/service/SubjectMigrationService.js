@@ -47,8 +47,11 @@ class SubjectMigrationService extends BaseService {
         const length = this.findAll().filtered('hasMigrated = false').length;
         for (let i = 0; i < length; i++) {
             const subjectMigration = this.findAll().filtered('hasMigrated = false limit(1)')[0];
-            this.migrateSubjectIfRequired(subjectMigration);
-            notifyProgress("SubjectMigration", length, i);
+            const handle = setTimeout(() => {
+                this.migrateSubjectIfRequired(subjectMigration);
+                notifyProgress("SubjectMigration", length, i);
+                clearTimeout(handle);
+            }, 1);
         }
     }
 
