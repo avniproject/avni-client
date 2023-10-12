@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, Individual} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -60,7 +60,7 @@ class SyncService extends BaseService {
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
         General.logDebug("SyncService", "sync");
         const progressBarStatus = new ProgressbarStatus(trackProgress,
-                    AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
+            AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
         const onProgressPerEntity = (entityType, totalNumberOfPages, currentPageNumber) => {
             progressBarStatus.onComplete(entityType, totalNumberOfPages, currentPageNumber);
@@ -131,8 +131,8 @@ class SyncService extends BaseService {
 
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
-        const entitySyncStatus = this.entitySyncStatusService.findAll().map(_.identity);
-        return post(`${url}/v2/syncDetails`, entitySyncStatus, true)
+        const entitySyncStatuses = this.entitySyncStatusService.findAll().map(_.identity);
+        return post(`${url}/v2/syncDetails`, entitySyncStatuses, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,
@@ -141,7 +141,7 @@ class SyncService extends BaseService {
             }));
     }
 
-    updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData) {
+    retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData) {
         const entityMetadataEntityNames = _.map(allEntitiesMetaData, 'entityName');
         return _.filter(syncDetails, (syncDetail) =>
             entityMetadataEntityNames.includes(syncDetail.entityName)
@@ -183,18 +183,19 @@ class SyncService extends BaseService {
         const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
-        const updatedSyncDetails = this.updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData);
-        General.logDebug("SyncService", `Entities to sync ${_.map(updatedSyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
-        this.entitySyncStatusService.updateAsPerSyncDetails(updatedSyncDetails);
+        const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
+        General.logDebug("SyncService", `Entities to sync ${_.map(currentVersionEntitySyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
+        this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
+        let syncDetailsWithPrivileges;
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
-            .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, updatedSyncDetails))
+            .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
-            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, updatedSyncDetails, endDateTime))
-            .then(() => this.getService(SubjectMigrationService).migrateSubjects())
-            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, updatedSyncDetails, endDateTime))
+            .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
+            .then(() => this.getService(SubjectMigrationService).migrateSubjects(onProgressPerEntity))
+            .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
@@ -215,8 +216,9 @@ class SyncService extends BaseService {
     }
 
     updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {
-        this.entitySyncStatusService.removeRevokedPrivileges(allEntitiesMetaData);
+        let syncDetailsWithPrivileges = this.entitySyncStatusService.removeRevokedPrivileges(allEntitiesMetaData, syncDetails);
         updateProgressSteps(allEntitiesMetaData, syncDetails);
+        return syncDetailsWithPrivileges;
     }
 
     getRefData(entitiesMetadata, afterEachPagePulled, now) {
@@ -306,13 +308,14 @@ class SyncService extends BaseService {
             this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
         }
 
+        General.logDebugTemp("SyncService", `${entityMetaData.entityName} ${entityMetaData.syncStatus.entityTypeUuid}`);
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
         entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
-        General.logDebug("SyncService", `Creating entity create functions for ${entitySyncStatus}`);
+        General.logDebug("SyncService", `Creating entity create functions for ${currentEntitySyncStatus}`);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
             entityName: entityMetaData.entityName,
