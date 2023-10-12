@@ -108,14 +108,18 @@ class EntitySyncStatusService extends BaseService {
         })
     }
 
-    removeRevokedPrivileges(entityMetaDataModel) {
+    removeRevokedPrivileges(entityMetaDataModel, syncDetails) {
         const hasAllPrivileges = this.getService(PrivilegeService).hasAllPrivileges();
         if (hasAllPrivileges) return;
         const privilegeEntities = entityMetaDataModel.filter(entity => entity.privilegeParam);
+        const syncDetailsWithPrivilege = [...syncDetails];
         privilegeEntities.forEach(entity => {
             const {privilegeEntity, privilegeName, privilegeParam} = entity;
-            this.deleteRevokedEntries(entity, this.getService(PrivilegeService).getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam));
+            const revokedEntityTypeUuids = this.getService(PrivilegeService).getRevokedEntityTypeUuidList(privilegeEntity, privilegeName, privilegeParam);
+            this.deleteRevokedEntries(entity, revokedEntityTypeUuids);
+            _.remove(syncDetailsWithPrivilege, (x) => x.entityName === entity.entityName && _.some(revokedEntityTypeUuids, (y) => y === x.entityTypeUuid))
         })
+        return syncDetailsWithPrivilege;
     }
 
     deleteEntries(criteriaQuery) {
