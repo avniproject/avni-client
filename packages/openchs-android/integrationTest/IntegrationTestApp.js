@@ -9,8 +9,8 @@ import PersonRegisterActionsIntegrationTest from "./PersonRegisterActionsIntegra
 import RNRestart from 'react-native-restart';
 import DatabaseTest from "./DatabaseTest";
 import IntegrationTestRunner, {TestSuite} from "./IntegrationTestRunner";
-import Icon from "react-native-vector-icons/FontAwesome";
 import UtilTest from "./UtilTest";
+import UserInfoServiceTest from "./UserInfoServiceTest";
 
 const itemCommonStyle = {
     padding: 10,
@@ -60,7 +60,7 @@ class IntegrationTestApp extends Component {
         super(props, context);
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, PersonRegisterActionsIntegrationTest, UtilTest);
+        this.integrationTestRunner = new IntegrationTestRunner(UserInfoServiceTest, DatabaseTest, PersonRegisterActionsIntegrationTest, UtilTest);
         this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.testSuite};
     }
 
