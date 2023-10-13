@@ -7,6 +7,7 @@ import IndividualService from "../IndividualService";
 import CommentService from "../comment/CommentService";
 import _ from "lodash";
 import TaskService from "../task/TaskService";
+import General from "../../utility/General";
 
 function getApprovalStatusForType(type) {
     const typeToStatusMap = {
@@ -105,6 +106,7 @@ class ReportCardService extends BaseService {
     }
 
     getReportCardCount(reportCard, ruleInputArray) {
+        General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :
@@ -123,6 +125,7 @@ class ReportCardService extends BaseService {
     }
 
     getReportCardResult(reportCard, ruleInputArray) {
+        General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) : {
