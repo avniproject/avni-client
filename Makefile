@@ -386,6 +386,14 @@ username:=
 password:=
 
 auth:
+ifndef username
+	@echo "Provde the variable username"
+	exit 1
+endif
+ifndef password
+	@echo "Provde the variable password"
+	exit 1
+endif
 	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) $(password))))
 
 get-token: auth
