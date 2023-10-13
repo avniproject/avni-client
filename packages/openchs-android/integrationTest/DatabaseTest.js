@@ -1,4 +1,4 @@
-import {Encounter, Form, FormElementGroup, FormElement, Concept} from 'openchs-models';
+import {Encounter, Form, Comment, FormElementGroup, FormElement, Concept} from 'openchs-models';
 import GlobalContext from "../src/GlobalContext";
 import {assert} from "chai";
 import TestFormFactory from "../test/model/form/TestFormFactory";
@@ -8,6 +8,7 @@ import General from "../src/utility/General";
 import TestFormElementFactory from "../test/model/form/TestFormElementFactory";
 import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
 import TestConceptFactory from "../test/model/TestConceptFactory";
+import TestCommentFactory from "../test/model/comment/TestCommentFactory";
 
 class DatabaseTest extends BaseIntegrationTest {
     shouldReturnFirstElementAsNilIfCollectionIsEmpty() {
@@ -88,6 +89,12 @@ class DatabaseTest extends BaseIntegrationTest {
             }));
         });
         assert.equal(this.getEntity(FormElement, formElement.uuid).uuid, formElement.uuid);
+    }
+
+    is_object_relationship_optional() {
+        this.executeInWrite((db) => {
+            db.create(Comment, TestCommentFactory.create({}));
+        });
     }
 }
 
