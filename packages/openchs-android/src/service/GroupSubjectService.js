@@ -66,6 +66,14 @@ class GroupSubjectService extends BaseService {
             .filtered('TRUEPREDICATE DISTINCT(groupSubject.uuid)')
     }
 
+    populateGroupsThatTheIndividualIsAMemberOf(memberSubject, groupAffiliationState) {
+        _.forEach(this.getAllGroups(memberSubject), groupSubject => {
+            if (!_.isNil(groupSubject)) {
+                groupAffiliationState.groupSubjectObservations.push({groupSubject})
+            }
+        })
+    }
+
     getFirstGroupForMember(memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID) {
         const groupSubject = this.getAllNonVoided()
             .filtered('memberSubject.uuid = $0 and groupSubject.subjectType.uuid = $1 and groupRole.uuid = $2', memberSubjectUUID, groupSubjectTypeUUID, groupSubjectRoleUUID).map(_.identity);

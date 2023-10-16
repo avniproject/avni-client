@@ -620,11 +620,21 @@ class IndividualService extends BaseService {
     }
 
 
-    voidUnVoidIndividual(individualUUID, setVoided) {
+    voidUnVoidIndividual(individualUUID, setVoided, groupAffiliation) {
         const individual = this.findByUUID(individualUUID);
         let individualClone = individual.cloneForEdit();
         individualClone.voided = setVoided;
-        this.register(individualClone);
+        const groupSubjectObservations = this.updateGroupSubjectVoidedStatus(groupAffiliation, setVoided);
+        this.register(individualClone, [], undefined, groupSubjectObservations);
+    }
+
+    updateGroupSubjectVoidedStatus(groupAffiliation, setVoided) {
+        const groupSubjectObservations = groupAffiliation.groupSubjectObservations.map(grpSubject => {
+            const clonedGrpSubject = {groupSubject: grpSubject.groupSubject.cloneForEdit()};
+            clonedGrpSubject.groupSubject.voided = setVoided;
+            return clonedGrpSubject;
+        }) || [];
+        return groupSubjectObservations;
     }
 
     determineSubjectForVisitToBeScheduled(individual, nextScheduledVisit) {

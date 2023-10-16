@@ -9,13 +9,15 @@ import _ from 'lodash';
 import SubjectProgramEligibilityService from "../../service/program/SubjectProgramEligibilityService";
 import EntityService from "../../service/EntityService";
 import FormMappingService from "../../service/FormMappingService";
+import GroupAffiliationState from '../../state/GroupAffiliationState';
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
         return {
             expand: false,
             subjectProgramEligibilityStatuses: [],
-            displayIndicator: false
+            displayIndicator: false,
+            groupAffiliationState: new GroupAffiliationState()
         };
     }
 
@@ -26,6 +28,9 @@ class IndividualRegistrationDetailsActions {
         const groupSubjects = context.get(GroupSubjectService).getGroupSubjects(individual);
         const subjectSummary = context.get(RuleEvaluationService).getSubjectSummary(individual, Individual.schema.name, context);
         const subjectProgramEligibilityStatuses = IndividualRegistrationDetailsActions.getSubjectProgramEligibilityStatuses(individual, context);
+        const groupAffiliationState = new GroupAffiliationState();
+        context.get(GroupSubjectService).populateGroupsThatTheIndividualIsAMemberOf(individual, groupAffiliationState);
+
         return {
             ...state,
             individual,
@@ -36,7 +41,8 @@ class IndividualRegistrationDetailsActions {
             expandMembers: false,
             subjectSummary,
             isRelationshipTypePresent: individualRelationGenderMappings.length > 0,
-            subjectProgramEligibilityStatuses
+            subjectProgramEligibilityStatuses,
+            groupAffiliation: groupAffiliationState
         };
     }
 
@@ -53,7 +59,7 @@ class IndividualRegistrationDetailsActions {
 
     static voidUnVoidIndividual(state, action, beans) {
         const individualService = beans.get(IndividualService);
-        individualService.voidUnVoidIndividual(action.individualUUID, action.setVoided);
+        individualService.voidUnVoidIndividual(action.individualUUID, action.setVoided, state.groupAffiliation);
         action.cb();
         return IndividualRegistrationDetailsActions.onLoad(state, action, beans);
     }
