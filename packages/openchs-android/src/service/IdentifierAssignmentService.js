@@ -16,7 +16,7 @@ class IdentifierAssignmentService extends BaseService {
 
     getFreeIdentifiers(identifierSourceUUID) {
         return this.findAll()
-            .filtered('voided = false AND individual = null AND programEnrolment = null')
+            .filtered('voided = false AND individual = null AND programEnrolment = null and used = false')
             .filtered('identifierSource.uuid = $0', identifierSourceUUID)
             .sorted("assignmentOrder", false);
     }
@@ -74,6 +74,7 @@ class IdentifierAssignmentService extends BaseService {
                 if (!_.isNil(identifierAssignment)) {
                     identifierAssignment.individual = individual;
                     identifierAssignment.programEnrolment = programEnrolment;
+                    identifierAssignment.used = true;
                     identifiersToBeSaved.push(identifierAssignment);
                     entityQueueItems.push(EntityQueue.create(identifierAssignment, IdentifierAssignment.schema.name));
                 } else {
