@@ -187,12 +187,13 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             label: 'remove',
             fn: (groupSubject) => this.onMemberRemove(groupSubject)
         });
+        const nonVoidedMembersGroupSubjects = _.filter(groupSubjects, (groupSubject) => !groupSubject.memberSubject.voided);
         return (
             <View style={styles.container}>
                 <TouchableOpacity
                     onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expandMembers'})}>
                     <ObservationsSectionTitle contextActions={this.addMemberActions()}
-                                              title={`${this.I18n.t('members')} (${groupSubjects.length})`}
+                                              title={`${this.I18n.t('members')} (${nonVoidedMembersGroupSubjects.length})`}
                                               titleStyle={Styles.cardTitle}/>
                     <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                         {this.state.expandMembers === false ?
@@ -201,9 +202,9 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     </View>
                 </TouchableOpacity>
                 <View style={{marginTop: 3}}>
-                    {this.state.expandMembers === true && groupSubjects.length > 0 ?
+                    {this.state.expandMembers === true && nonVoidedMembersGroupSubjects.length > 0 ?
                         <View style={styles.memberCard}>
-                            <Members groupSubjects={groupSubjects}
+                            <Members groupSubjects={nonVoidedMembersGroupSubjects}
                                      onMemberSelection={(memberSubjectUUID) => this.onSubjectSelection(memberSubjectUUID)}
                                      actions={applicableActions}
                                      editAllowed={editAllowed}
