@@ -8,6 +8,15 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import SettingsService from "../service/SettingsService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 
+function restoreDump(context, action, source, successCb) {
+    const restoreService = context.get(BackupRestoreRealmService);
+    restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
+        if (failed) action.checkForRetry(failureMessage, source);
+        else if (percentProgress === 100) successCb(source);
+        else action.onLoginProgress(percentProgress, message);
+    });
+}
+
 class LoginActions {
     static getInitialState() {
         return {
@@ -82,19 +91,10 @@ class LoginActions {
         const doRestoreDump = backupRestoreRealmService.isDatabaseNeverSynced();
         General.logInfo("LoginActions", `Dump restore can be done = ${doRestoreDump}`);
         if (doRestoreDump) {
-            LoginActions.restoreDump(context, action, source, successCb);
+            restoreDump(context, action, source, successCb);
         } else {
             successCb(source);
         }
-    }
-
-    static restoreDump(context, action, source, successCb) {
-        let restoreService = context.get(BackupRestoreRealmService);
-        restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
-            if (failed) action.checkForRetry(failureMessage, source);
-            else if (percentProgress === 100) successCb(source);
-            else action.onLoginProgress(percentProgress, message);
-        });
     }
 
     static onStateChange(state, action) {
@@ -117,14 +117,16 @@ class LoginActions {
 
     static onDumpRestoreRetry(state, action, context) {
         let newState = _.assignIn({}, state, {percentProgress: 0});
-        LoginActions.restoreDump(context, action, action.source);
+        //restore dump calls dispatch internally
+        setTimeout(() => {
+            restoreDump(context, action, action.source);
+        }, 1);
         return newState;
     }
 
     static onUserToggleIdp(state) {
         return _.assignIn({}, state, {userSelectedIdp: state.userSelectedIdp === IDP_PROVIDERS.COGNITO ? IDP_PROVIDERS.KEYCLOAK: IDP_PROVIDERS.COGNITO});
     }
-
 }
 
 const LoginActionsNames = {

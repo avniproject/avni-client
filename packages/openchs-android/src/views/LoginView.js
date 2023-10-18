@@ -360,7 +360,7 @@ class LoginView extends AbstractComponent {
     }
 
     onLoginProgress(percentProgress, message) {
-        General.logDebug('LoginView', message);
+        General.logDebug('LoginView', `onLoginProgress ${message}`);
         this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: percentProgress, message: message});
     }
 
