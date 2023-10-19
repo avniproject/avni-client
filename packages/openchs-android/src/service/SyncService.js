@@ -190,7 +190,7 @@ class SyncService extends BaseService {
 
         let syncDetailsWithPrivileges;
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getTxData(userInfoData, onProgressPerEntity, updatedSyncDetails, endDateTime))
+            .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
