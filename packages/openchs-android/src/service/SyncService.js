@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry} from 'openchs-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, UserInfo} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -180,15 +180,17 @@ class SyncService extends BaseService {
 
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
-        const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
+        const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
         const updatedSyncDetails = this.updateSyncDetailsBasedOnEntityMetadata(syncDetails, allEntitiesMetaData);
         General.logDebug("SyncService", `Entities to sync ${_.map(updatedSyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
         this.entitySyncStatusService.updateAsPerSyncDetails(updatedSyncDetails);
 
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
+            .then(() => this.getTxData(userInfoData, onProgressPerEntity, updatedSyncDetails, endDateTime))
+            .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, updatedSyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
