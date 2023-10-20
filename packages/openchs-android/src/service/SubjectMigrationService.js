@@ -41,17 +41,20 @@ class SubjectMigrationService extends BaseService {
     }
 
     migrateSubjects(notifyProgress) {
-        if (this.getCount(Individual.schema.name) === 0)
-            return;
-
         const length = this.findAll().filtered('hasMigrated = false').length;
+        const individualCount = this.getCount(Individual.schema.name);
+        const nothingToMigrate = individualCount === 0;
         for (let i = 0; i < length; i++) {
             const subjectMigration = this.findAll().filtered('hasMigrated = false limit(1)')[0];
-            const handle = setTimeout(() => {
+            if (nothingToMigrate) {
+                this.markMigrated(subjectMigration);
+            } else {
                 this.migrateSubjectIfRequired(subjectMigration);
+            }
+            const handle = setTimeout(() => {
                 notifyProgress("SubjectMigration", length, i);
                 clearTimeout(handle);
-            }, 1);
+            }, 50);
         }
     }
 
@@ -195,14 +198,14 @@ class SubjectMigrationService extends BaseService {
         const addressLevelService = this.getService(AddressLevelService);
         const userInfoService = this.getService(UserInfoService);
         const subjectType = this.getService(SubjectTypeService).findByUUID(subjectMigration.subjectTypeUUID);
-        const syncConcept1Values = userInfoService.getSyncConcept1Values(subjectType);
-        const syncConcept2Values = userInfoService.getSyncConcept2Values(subjectType);
+        const userSyncConcept1Values = userInfoService.getSyncConcept1Values(subjectType);
+        const userSyncConcept2Values = userInfoService.getSyncConcept2Values(subjectType);
         const oldAddressExists = addressLevelService.existsByUuid(subjectMigration.oldAddressLevelUUID);
         const newAddressExists = addressLevelService.existsByUuid(subjectMigration.newAddressLevelUUID);
-        const oldSyncConcept1ValueExists = _.includes(syncConcept1Values, subjectMigration.oldSyncConcept1Value);
-        const newSyncConcept1ValueExists =_.includes(syncConcept1Values, subjectMigration.newSyncConcept1Value);
-        const oldSyncConcept2ValueExists = _.includes(syncConcept2Values, subjectMigration.oldSyncConcept2Value);
-        const newSyncConcept2ValueExists = _.includes(syncConcept2Values, subjectMigration.newSyncConcept2Value);
+        const oldSyncConcept1ValueExists = _.includes(userSyncConcept1Values, subjectMigration.oldSyncConcept1Value);
+        const newSyncConcept1ValueExists =_.includes(userSyncConcept1Values, subjectMigration.newSyncConcept1Value);
+        const oldSyncConcept2ValueExists = _.includes(userSyncConcept2Values, subjectMigration.oldSyncConcept2Value);
+        const newSyncConcept2ValueExists = _.includes(userSyncConcept2Values, subjectMigration.newSyncConcept2Value);
 
         if ((oldAddressExists && !newAddressExists) ||
             (oldSyncConcept1ValueExists && !newSyncConcept1ValueExists) ||
@@ -211,6 +214,10 @@ class SubjectMigrationService extends BaseService {
             this.removeEntitiesFor(subjectMigration);
         }
 
+        this.markMigrated(subjectMigration);
+    }
+
+    markMigrated(subjectMigration) {
         const db = this.db;
         db.write(() => {
             subjectMigration.hasMigrated = true;
