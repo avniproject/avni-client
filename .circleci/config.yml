@@ -15,7 +15,7 @@ parameters:
     description: Version name for the binary for external display on the play store. Is of the format 3.37.2.
 
 orbs:
-  aws-cli: circleci/aws-cli@4.0
+  aws-cli: circleci/aws-cli@4.1.1
   aws-s3: circleci/aws-s3@4.0
 
 jobs:
