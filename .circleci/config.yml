@@ -106,11 +106,11 @@ jobs:
       - run: make deps_ci release_prerelease_dev_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prerelease/
+          to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
       - run: make deps_ci release_prerelease_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prerelease_dev/
+          to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
       - run: make deploy_platform_translations_prerelease
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
@@ -220,10 +220,10 @@ jobs:
           region: 'ap-south-1'
       - aws-s3/copy:
           from: avniuniversal.apks
-          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prod/
+          to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod/
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prod_dev/
+          to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod_dev/
 
 workflows:
   version: 2
