@@ -13,6 +13,11 @@ parameters:
     type: string
     default: "1.0.0"
     description: Version name for the binary for external display on the play store. Is of the format 3.37.2.
+
+orbs:
+  aws-cli: circleci/aws-cli@4.0
+  aws-s3: circleci/aws-s3@4.0
+
 jobs:
   install_deps:
     docker:
@@ -103,19 +108,24 @@ jobs:
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
-            #            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
             - v1-dependencies-
-      #      - run: sudo apt --only-upgrade install software-properties-common
-      #      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
-      #      - run: sudo apt update
-      #      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
+      - aws-cli/setup:
+          role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
+          region: 'ap-south-1'
+      - run: make deps_ci release_prerelease_dev_without_clean
+      - aws-s3/copy:
+          from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prerelease/
       - run: make deps_ci release_prerelease_without_clean
+      - aws-s3/copy:
+          from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prerelease_dev/
       - run: make deploy_platform_translations_prerelease
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
@@ -207,6 +217,7 @@ jobs:
 #          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
 #          destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.apk
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
+      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_dev_without_clean
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
           paths:
@@ -226,6 +237,16 @@ jobs:
       - store_artifacts:
           path: avniuniversal.apks
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
+      - aws-cli/setup:
+          role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
+          region: 'ap-south-1'
+      - aws-s3/copy:
+          from: avniuniversal.apks
+          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prod/
+      - aws-s3/copy:
+          from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          to: s3://samanvay/openchs/<< pipeline.number >>-${CIRCLECI_JOB_ID}-<< pipeline.git.revision >>/prod_dev/
+
 workflows:
   version: 2
   test_all:

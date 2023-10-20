@@ -208,6 +208,11 @@ release_uat: renew_env release_uat_without_clean
 release_prerelease_without_clean: as_prerelease
 	$(call _create_config,prerelease)
 	enableSeparateBuildPerCPUArchitecture=false make release
+
+release_prerelease_dev_without_clean: as_prerelease_dev
+	$(call _create_config,prerelease_dev)
+	enableSeparateBuildPerCPUArchitecture=false make release
+
 release_prerelease: renew_env release_prerelease_without_clean
 
 release_perf_without_clean: as_perf
