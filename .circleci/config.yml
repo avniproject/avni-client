@@ -253,12 +253,16 @@ workflows:
           requires:
             - test_android
       - release_android_prerelease:
+          context:
+            - CIRCLECI_OIDC_AWS
           requires:
             - hold_prerelease
       - release_android_perf:
           requires:
             - hold_perf
       - release_android_live:
+          context:
+            - CIRCLECI_OIDC_AWS
           requires:
             - hold_live
 
