@@ -25,17 +25,8 @@ jobs:
     working_directory: ~/avni-client
     steps:
       - checkout
-      #      - restore_cache:
-      #          keys:
-      #          - v1-dependencies-{{ checksum "package.json" }}
-      #          - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-      #          - v1-dependencies-
       - run: sudo apt-get install make
       - run: make deps_ci
-#      - save_cache:
-#          paths:
-#            - node_modules
-#          key: v1-dependencies-{{ checksum "package.json" }}
       - save_cache:
           paths:
             - packages/openchs-android/node_modules
@@ -49,7 +40,6 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v1-dependencies-
       - run: sudo apt-get install make
@@ -68,16 +58,11 @@ jobs:
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - restore_cache:
           keys:
-#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
             - v1-dependencies-
-#      - run: sudo apt --only-upgrade install software-properties-common
-#      - run: sudo apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main'
-#      - run: sudo apt update
-#      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci release_staging_without_clean
@@ -201,21 +186,14 @@ jobs:
       - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
       - restore_cache:
           keys:
-#            - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
             - v1-dependencies-
-#      - run: sudo apt update
-#      - run: sudo apt install openjdk-11-jdk make
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
       - run: make deps_ci
-#      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_without_clean
-#      - store_artifacts:
-#          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-#          destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.apk
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_dev_without_clean
       - save_cache:
@@ -255,10 +233,6 @@ workflows:
       - test_android:
           requires:
             - install_deps
-#      - hold_staging:
-#          type: approval
-#          requires:
-#            - test_android
       - hold_prerelease:
           type: approval
           requires:
@@ -277,7 +251,6 @@ workflows:
               ignore:
                 - /^dependabot.*/
           requires:
-#            - hold_staging
             - test_android
       - release_android_prerelease:
           requires:
