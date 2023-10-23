@@ -27,10 +27,18 @@ class RuleService extends BaseService {
             motherCalculations: motherCalculations,
             models: models
         };
-        eval(RuleDependency.getCode(ruleDependency));
+        rulesConfig = eval(this.trimRuleDependencyCode(ruleDependency));
         /**********/
         this.allRules = {...rulesConfig};
         General.logDebug("RuleService", "\n>>>>>>>>>RULES LOADED<<<<<<<<<\n")
+    }
+
+    trimRuleDependencyCode(ruleDependency) {
+        let ruleDependencyCodeString = RuleDependency.getCode(ruleDependency)
+        if (ruleDependencyCodeString && ruleDependencyCodeString.trim().startsWith('var')) {
+            ruleDependencyCodeString = ruleDependencyCodeString.trim().substring(3);
+        }
+        return ruleDependencyCodeString;
     }
 
     getApplicableRules(ruledEntity, ruleType, ruledEntityType) {

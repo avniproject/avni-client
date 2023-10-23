@@ -151,8 +151,9 @@ class RuleEvaluationService extends BaseService {
     getRuleServiceLibraryInterfaceForSharingModules() {
         return {
             log: console.log,
-            common: common,
-            motherCalculations: motherCalculations
+            common,
+            motherCalculations,
+            models
         };
     }
 
