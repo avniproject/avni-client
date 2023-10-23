@@ -159,6 +159,8 @@ release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod_dev_without_clean: as_prod_dev release
 release_prod: renew_env release_prod_without_clean
 
+release_prod_dev_without_clean: as_prod_dev release upload-release-sourcemap
+
 bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
 bundle_release_prod: renew_env bundle_release_prod_without_clean
 
@@ -374,6 +376,7 @@ upload-prod-apk-unsigned: ; $(call _upload_apk,prod)
 upload-staging-apk: ; $(call _upload_apk,staging)
 upload-prerelease-apk: ; $(call _upload_apk,prerelease)
 upload-uat-apk: ; $(call _upload_apk,uat)
+upload-prod_dev-apk: ; $(call _upload_apk,prod_dev)
 
 define _inpremise_upload_prod_apk
 	@aws s3 cp --acl public-read packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk s3://samanvay/openchs/$(orgname)/apks/prod-$(sha)-$(dat).apk;

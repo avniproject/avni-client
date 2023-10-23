@@ -4,7 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, Individual} from 'openchs-models';
+import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, Individual, UserInfo} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -180,8 +180,9 @@ class SyncService extends BaseService {
 
         const entitiesWithoutSubjectMigrationAndResetSync = _.filter(allEntitiesMetaData, ({entityName}) => !_.includes(['ResetSync', 'SubjectMigration'], entityName));
         const filteredMetadata = _.filter(entitiesWithoutSubjectMigrationAndResetSync, ({entityName}) => _.find(syncDetails, sd => sd.entityName === entityName));
-        const filteredRefData = this.getMetadataByType(filteredMetadata, "reference");
+        const referenceEntityMetadata = this.getMetadataByType(filteredMetadata, "reference");
         const filteredTxData = this.getMetadataByType(filteredMetadata, "tx");
+        const userInfoData = _.filter(filteredMetadata, ({entityName}) => entityName === "UserInfo");
         const subjectMigrationMetadata = _.filter(allEntitiesMetaData, ({entityName}) => entityName === "SubjectMigration");
         const currentVersionEntitySyncDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
         General.logDebug("SyncService", `Entities to sync ${_.map(currentVersionEntitySyncDetails, ({entityName, entityTypeUuid}) => [entityName, entityTypeUuid])}`);
@@ -189,7 +190,8 @@ class SyncService extends BaseService {
 
         let syncDetailsWithPrivileges;
         return Promise.resolve(statusMessageCallBack("downloadForms"))
-            .then(() => this.getRefData(filteredRefData, onProgressPerEntity, now))
+            .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
+            .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
@@ -308,7 +310,7 @@ class SyncService extends BaseService {
             this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
         }
 
-        General.logDebugTemp("SyncService", `${entityMetaData.entityName} ${entityMetaData.syncStatus.entityTypeUuid}`);
+        General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;

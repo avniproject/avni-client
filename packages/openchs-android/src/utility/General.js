@@ -2,7 +2,6 @@ import {Concept, Duration, Observation} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
-import Clipboard from '@react-native-community/clipboard';
 
 let currentLogLevel;
 
