@@ -110,7 +110,8 @@ class EntitySyncStatusService extends BaseService {
 
     removeRevokedPrivileges(entityMetaDataModel, syncDetails) {
         const hasAllPrivileges = this.getService(PrivilegeService).hasAllPrivileges();
-        if (hasAllPrivileges) return;
+        if (hasAllPrivileges) return [...syncDetails];
+
         const privilegeEntities = entityMetaDataModel.filter(entity => entity.privilegeParam);
         const syncDetailsWithPrivilege = [...syncDetails];
         privilegeEntities.forEach(entity => {
