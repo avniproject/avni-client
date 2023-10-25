@@ -208,9 +208,18 @@ class SyncComponent extends AbstractComponent {
             alignSelf: 'center',
             fontSize: 30
         });
+        const syncDisabledIcon = this.props.icon("sync-circle", {
+            color: Colors.DisabledButtonColor,
+            alignSelf: 'center',
+            fontSize: 30
+        });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
-        return !this.state.syncing && totalPending > 0 ? <Badge icon={icon} number={totalPending}/> : icon;
+        if(this.state.backgroundSyncInProgress) {
+            return syncDisabledIcon;
+        } else {
+            return !this.state.syncing && totalPending > 0 ? <Badge icon={icon} number={totalPending}/> : icon;
+        }
     }
 
     render() {
@@ -218,7 +227,8 @@ class SyncComponent extends AbstractComponent {
             <View>
                 {this.renderSyncModal()}
                 <TouchableNativeFeedback
-                    onPress={() => this.sync()}>
+                    onPress={() => this.sync()}
+                    disabled={this.state.backgroundSyncInProgress}>
                     <View style={{
                         flexDirection: 'column',
                         justifyContent: 'center',

@@ -10,7 +10,8 @@ class SyncActions {
             progress: 0,
             message: '',
             syncMessage: '',
-            startSync: false
+            startSync: false,
+            backgroundSyncInProgress: false
         };
     }
 
@@ -50,6 +51,13 @@ class SyncActions {
         }
     }
 
+    static onBackgroundSyncStatusChange(state, action, context) {
+        return {
+            ...state,
+            backgroundSyncInProgress: action.backgroundSyncInProgress
+        }
+    }
+
     static onMessageCallback(state, action, context) {
         return {
             ...state,
@@ -66,7 +74,8 @@ const SyncActionNames = {
     ON_ERROR: `${ActionPrefix}.ON_ERROR`,
     ON_CONNECTION_CHANGE: `${ActionPrefix}.ON_CONNECTION_CHANGE`,
     ON_UPDATE: `${ActionPrefix}.ON_UPDATE`,
-    ON_MESSAGE_CALLBACK: `${ActionPrefix}.ON_MESSAGE_CALLBACK`
+    ON_MESSAGE_CALLBACK: `${ActionPrefix}.ON_MESSAGE_CALLBACK`,
+    ON_BACKGROUND_SYNC_STATUS_CHANGE: `${ActionPrefix}.ON_BACKGROUND_SYNC_STATUS_CHANGE`
 };
 
 const SyncActionMap = new Map([
@@ -76,6 +85,7 @@ const SyncActionMap = new Map([
     [SyncActionNames.ON_CONNECTION_CHANGE, SyncActions.onConnectionChange],
     [SyncActionNames.ON_UPDATE, SyncActions.onUpdate],
     [SyncActionNames.ON_MESSAGE_CALLBACK, SyncActions.onMessageCallback],
+    [SyncActionNames.ON_BACKGROUND_SYNC_STATUS_CHANGE, SyncActions.onBackgroundSyncStatusChange],
 ]);
 
 export {

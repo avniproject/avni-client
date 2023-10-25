@@ -75,7 +75,10 @@ class SyncService extends BaseService {
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
-            .then(() => this.downloadNewsImages());
+            .then(() => this.downloadNewsImages())
+          .then(() => {
+              return isOnlyUploadRequired;
+          });
 
         // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
