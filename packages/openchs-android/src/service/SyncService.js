@@ -28,6 +28,9 @@ import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
+import ProgramConfigService from './ProgramConfigService';
+import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
+import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -351,6 +354,29 @@ class SyncService extends BaseService {
         this.ruleEvaluationService.init();
         this.messageService.init();
         this.ruleService.init();
+    }
+
+    resetServicesAfterFullSyncCompletion(updatedSyncSource) {
+        if (updatedSyncSource !== SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB) {
+            General.logInfo("Sync", "Full Sync completed, performing reset")
+            setTimeout(() => this.reset(), 1);
+            this.getService(SettingsService).initLanguages();
+            General.logInfo("Sync", 'Full Sync completed, reset completed');
+        }
+    }
+
+    reset() {
+        this.context.getService(RuleEvaluationService).init();
+        this.context.getService(ProgramConfigService).init();
+        this.context.getService(MessageService).init();
+        this.context.getService(RuleService).init();
+        this.dispatchAction('RESET');
+        this.context.getService(PrivilegeService).deleteRevokedEntities();
+        //To load subjectType after sync
+        this.dispatchAction(IndividualSearchActions.ON_LOAD);
+
+        //To re-render LandingView after sync
+        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
     }
 }
 
