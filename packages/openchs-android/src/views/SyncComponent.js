@@ -1,11 +1,5 @@
 import AbstractComponent from "../framework/view/AbstractComponent";
 import Colors from "./primitives/Colors";
-import RuleEvaluationService from "../service/RuleEvaluationService";
-import ProgramConfigService from "../service/ProgramConfigService";
-import MessageService from "../service/MessageService";
-import RuleService from "../service/RuleService";
-import {IndividualSearchActionNames as IndividualSearchActions} from "../action/individual/IndividualSearchActions";
-import {LandingViewActionsNames as LandingViewActions} from "../action/LandingViewActions";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
@@ -22,8 +16,6 @@ import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
-import SettingsService from "../service/SettingsService";
-import PrivilegeService from "../service/PrivilegeService";
 import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 
@@ -43,20 +35,6 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncActions.PRE_SYNC);
     }
 
-    reset() {
-        this.context.getService(RuleEvaluationService).init();
-        this.context.getService(ProgramConfigService).init();
-        this.context.getService(MessageService).init();
-        this.context.getService(RuleService).init();
-        this.dispatchAction('RESET');
-        this.context.getService(PrivilegeService).deleteRevokedEntities();
-        //To load subjectType after sync
-        this.dispatchAction(IndividualSearchActions.ON_LOAD);
-
-        //To re-render LandingView after sync
-        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
-    }
-
     progressBarUpdate(progress, totalNumberOfPagesForCurrentEntity, numberOfPagesProcessedForCurrentEntity) {
         this.dispatchAction(SyncActions.ON_UPDATE, {progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity})
     }
@@ -68,9 +46,7 @@ class SyncComponent extends AbstractComponent {
     _postSync() {
         this.setState({syncStarted: false});
         this.dispatchAction(SyncActions.POST_SYNC);
-        setTimeout(() => this.reset(), 1);
-
-        this.context.getService(SettingsService).initLanguages();
+        this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.BACKGROUND_JOB);
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 

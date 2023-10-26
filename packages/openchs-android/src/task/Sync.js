@@ -11,23 +11,17 @@ import _ from "lodash";
 import SettingsService from '../service/SettingsService';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import {SyncActionNames as SyncActions} from '../action/SyncActions';
-import RuleEvaluationService from '../service/RuleEvaluationService';
-import ProgramConfigService from '../service/ProgramConfigService';
-import MessageService from '../service/MessageService';
-import RuleService from '../service/RuleService';
-import PrivilegeService from '../service/PrivilegeService';
-import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
-import {LandingViewActions} from '../action/LandingViewActions';
 import moment from 'moment';
+
+function dispatchAction(action, params) {
+    const type = action instanceof Function ? action.Id : action;
+    if (General.canLog(General.LogLevel.Debug))
+        General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(type)}`);
+    return GlobalContext.getInstance().reduxStore.dispatch({type, ...params});
+}
 
 class Sync extends BaseTask {
     async execute() {
-        const dispatchAction = (action, params) => {
-            const type = action instanceof Function ? action.Id : action;
-            if (General.canLog(General.LogLevel.Debug))
-                General.logDebug('BaseService', `Dispatching action: ${JSON.stringify(type)}`);
-            return GlobalContext.getInstance().reduxStore.dispatch({type, ...params});
-        }
 
         try {
             General.logInfo("Sync", "Starting background sync");
@@ -63,7 +57,7 @@ class Sync extends BaseTask {
               },
               (message) => {
               }, connectionInfo, Date.now(), SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, null)
-              .then(this.performPostBackgroundSyncActions(dispatchAction, globalContext))
+              .then(this.performPostBackgroundSyncActions(globalContext))
               .catch((e) => {
                   ErrorHandler.postScheduledJobError(e);
               });
@@ -81,27 +75,11 @@ class Sync extends BaseTask {
         return _.isEmpty(lastSynced) || moment(lastSynced[0].syncEndTime).add(30, 'minutes').isBefore(moment());
     }
 
-    performPostBackgroundSyncActions(dispatchAction, globalContext) {
+    performPostBackgroundSyncActions(globalContext) {
         return (updatedSyncSource) => {
-            General.logInfo("Sync", "Sync completed")
+            General.logInfo("Sync", "Background Sync completed")
             dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: false});
-            if (updatedSyncSource === SyncService.syncSources.BACKGROUND_JOB) {
-                General.logInfo("Background Sync", "Full Background Sync completed, performing reset")
-                setTimeout(() => {
-                    globalContext.beanRegistry.getService(RuleEvaluationService).init();
-                    globalContext.beanRegistry.getService(ProgramConfigService).init();
-                    globalContext.beanRegistry.getService(MessageService).init();
-                    globalContext.beanRegistry.getService(RuleService).init();
-                    globalContext.beanRegistry.getService(PrivilegeService).deleteRevokedEntities();
-                    //To load subjectType after sync
-                    globalContext.beanRegistry.getService(IndividualSearchActions.ON_LOAD);
-
-                    //To re-render LandingView after sync
-                    dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
-                }, 1);
-                globalContext.beanRegistry.getService(SettingsService).initLanguages();
-                General.logInfo("Background Sync", 'Background Sync completed, reset completed');
-            }
+            globalContext.beanRegistry.getService(SyncService).resetServicesAfterFullSyncCompletion(updatedSyncSource);
         };
     }
 }
