@@ -15,6 +15,12 @@ export default class SyncTelemetryService extends BaseService {
         return !_.isEmpty(results);
     }
 
+    getAllCompletedSyncsSortedByDescSyncEndTime() {
+        return this.db.objects(SyncTelemetry.schema.name)
+          .filtered("syncStatus = $0", "complete")
+          .sorted('syncEndTime', true);
+    }
+
     getAllCompletedFullSyncsSortedByDescSyncEndTime() {
         return this.db.objects(SyncTelemetry.schema.name)
           .filtered("syncStatus = $0 AND syncSource <> $1", "complete", SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB)

@@ -18,6 +18,7 @@ import RuleService from '../service/RuleService';
 import PrivilegeService from '../service/PrivilegeService';
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActions} from '../action/LandingViewActions';
+import moment from 'moment';
 
 class Sync extends BaseTask {
     async execute() {
@@ -42,6 +43,12 @@ class Sync extends BaseTask {
                 return false;
             }
             await this.initDependencies();
+
+            if(!this.wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext)) {
+                General.logInfo("Sync", 'Skipping auto-sync since we had recently synced within the last half an hour');
+                return false;
+            }
+
             General.logInfo("Sync", "Starting SyncService");
             General.logInfo("Sync", "Getting SyncService");
             const syncService = globalContext.beanRegistry.getService("syncService");
@@ -66,6 +73,12 @@ class Sync extends BaseTask {
             }
             ErrorHandler.postScheduledJobError(e);
         }
+    }
+
+    wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext) {
+        const syncTelemetryService = globalContext.beanRegistry.getService("syncTelemetryService");
+        const lastSynced = syncTelemetryService.getAllCompletedSyncsSortedByDescSyncEndTime();
+        return _.isEmpty(lastSynced) || moment(lastSynced[0].syncEndTime).add(30, 'minutes').isBefore(moment());
     }
 
     performPostBackgroundSyncActions(dispatchAction, globalContext) {
