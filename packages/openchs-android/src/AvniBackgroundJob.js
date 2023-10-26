@@ -72,8 +72,8 @@ export const ScheduleSyncJob = function () {
 
 const Schedule = ({
                     jobKey,
-                    timeout = 2000,
-                    period,
+                    timeout = 10, //maximum value is 10 minutes
+                    period = 15, //minimum value is 15 minutes
                     notificationText = "Running in background...",
                     notificationTitle = "Background job",
                     job
