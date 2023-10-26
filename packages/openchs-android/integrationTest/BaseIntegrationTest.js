@@ -41,6 +41,7 @@ class BaseIntegrationTest {
     }
 
     setup() {
+        this.log("Setup Called");
         GlobalContext.getInstance().db.write(() => {
             GlobalContext.getInstance().db.realmDb.deleteAll();
         });

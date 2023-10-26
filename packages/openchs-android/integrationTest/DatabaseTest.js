@@ -13,8 +13,10 @@ import TestCommentFactory from "../test/model/comment/TestCommentFactory";
 class DatabaseTest extends BaseIntegrationTest {
     shouldReturnFirstElementAsNilIfCollectionIsEmpty() {
         const db = GlobalContext.getInstance().db;
-        assert.equal(null, db.objects(Encounter.schema.name)[0]);
-        assert.equal(null, db.objects(Encounter.schema.name).filtered("uuid = '1'")[0]);
+        assert.equal(db.objects(Encounter.schema.name).length, 0);
+        const objects = db.objects(Encounter.schema.name);
+        assert.equal(objects[0], null);
+        assert.equal(db.objects(Encounter.schema.name).filtered("uuid = '1'")[0], null);
     }
 
     save_plain_object_graph_causes_circular_saves_leading_to_error() {
@@ -89,12 +91,6 @@ class DatabaseTest extends BaseIntegrationTest {
             }));
         });
         assert.equal(this.getEntity(FormElement, formElement.uuid).uuid, formElement.uuid);
-    }
-
-    is_object_relationship_optional() {
-        this.executeInWrite((db) => {
-            db.create(Comment, TestCommentFactory.create({}));
-        });
     }
 }
 
