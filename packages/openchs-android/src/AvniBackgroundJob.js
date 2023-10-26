@@ -10,8 +10,8 @@ const SYNC_JOB_KEY = "syncJob"; //Should be used for both SyncJobSchedule and Du
 
 const SyncJobSchedule = {
   jobKey: SYNC_JOB_KEY,
-  timeout: 10,
-  period: 60,
+  timeout: 10 * 60 * 1000, //milliseconds
+  period: 60, // minutes
   persist: true,
   exact: true,
   job: async() => await Sync.execute()
@@ -19,8 +19,8 @@ const SyncJobSchedule = {
 
 const DummySyncJobSchedule = {
   jobKey: SYNC_JOB_KEY,
-  timeout: 10,
-  period: 60,
+  timeout: 1 * 60 * 1000, //milliseconds
+  period: 60, // minutes
   persist: true,
   exact: true,
   job: async() => await DummySync.execute()
@@ -28,8 +28,8 @@ const DummySyncJobSchedule = {
 
 const DeleteDraftsJobSchedule = {
   jobKey: "deleteDraftsJob",
-  timeout: 10,
-  period: 1 * 24 * 60,
+  timeout: 1 * 60 * 1000, //milliseconds
+  period: 1 * 24 * 60, // minutes
   persist: true,
   exact: true,
   job: async() => await DeleteDrafts.execute()
@@ -37,8 +37,8 @@ const DeleteDraftsJobSchedule = {
 
 const PruneMediaJobSchedule = {
   jobKey: "pruneMediaJob",
-  timeout: 10,
-  period: 1 * 24 * 60,
+  timeout: 1 * 60 * 1000, //milliseconds
+  period: 1 * 24 * 60, // minutes
   persist: true,
   exact: true,
   job: async() => await PruneMedia.execute()
