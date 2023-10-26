@@ -119,7 +119,7 @@ class LoginActions {
         let newState = _.assignIn({}, state, {percentProgress: 0});
         //restore dump calls dispatch internally
         setTimeout(() => {
-            restoreDump(context, action, action.source);
+            restoreDump(context, action, action.source, action.successCb);
         }, 1);
         return newState;
     }

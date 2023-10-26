@@ -1,4 +1,4 @@
-import {EntityMetaData, EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups, UserSubjectAssignment} from 'avni-models';
+import {EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups, UserSubjectAssignment} from 'openchs-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
