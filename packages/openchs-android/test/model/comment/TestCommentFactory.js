@@ -1,4 +1,3 @@
-import _ from "lodash";
 import General from "../../../src/utility/General";
 import {Comment} from 'openchs-models';
 
