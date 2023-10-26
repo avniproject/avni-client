@@ -378,6 +378,7 @@
     "forgot_password_userId_placeholder" : "अपनी यूजर आईडी दर्ज करें",
     "Send OTP" : "वन-टाइम पासवर्ड (OTP) भेजें",
     "disableAutoSync": "ऑटो सिंक अक्षम करें",
-    "autoSync": "स्वतः सिंक"
+    "autoSync": "ऑटो सिंक",
+    "backgroundSyncInProgress": "ऑटो सिंक प्रगति पर है| कृपया कुछ देर बाद प्रयास करें।"
   }
 }
