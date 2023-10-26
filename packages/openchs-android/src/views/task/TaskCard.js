@@ -16,6 +16,7 @@ import SubjectRegisterFromTaskView from '../individual/SubjectRegisterFromTaskVi
 import {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import AvniIcon from '../common/AvniIcon';
 import General from '../../utility/General';
+import {Actions as TaskListActions} from '../../action/task/TaskListActions';
 
 const CardSecondRow = function ({task, I18n}) {
     return (
@@ -71,6 +72,7 @@ class TaskCard extends AbstractComponent {
     onDateChange(event, date, task) {
         if (event.type !== "dismissed") {
             this.dispatchAction(Actions.ON_RE_SCHEDULED, {task, date});
+            this.dispatchAction(TaskListActions.ON_REFRESH);
         }
     }
     renderSubjectDetails(task) {
