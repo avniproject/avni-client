@@ -7,13 +7,12 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"  android:required="false"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"  android:required="false"/>
-    <uses-permission android:name="android.hardware.telephony" android:required="false"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <uses-permission tools:node="remove" android:name="android.permission.READ_PHONE_STATE"  android:required="false"/>
-    <uses-permission android:name="android.permission.CALL_PHONE"  android:required="false"/>
+    <uses-permission tools:node="remove" android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.VIBRATE"/>
 
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
