@@ -288,7 +288,7 @@ class RuleEvaluationService extends BaseService {
                     params: {summaries: [], individual, context, services: this.services},
                     imports: getImports()
                 });
-                summaries = this.validateSummaries(summaries, subjectType.uuid);
+                summaries = this.validateSummaries(summaries, subjectType.uuid, this.getIndividualUUID(individual, entityName));
                 return _.map(summaries, (summary) => {
                     const concept = this.conceptService.conceptFor(summary.name);
                     return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
@@ -356,7 +356,7 @@ class RuleEvaluationService extends BaseService {
                 params: {summaries: [], programEnrolment: enrolment, services: this.services},
                 imports: getImports()
             });
-            summaries = this.validateSummaries(summaries, enrolment.uuid);
+            summaries = this.validateSummaries(summaries, enrolment.uuid, enrolment.individual.uuid);
             const summaryObservations = _.map(summaries, (summary) => {
                 const concept = this.conceptService.conceptFor(summary.name);
                 return Observation.create(concept, concept.getValueWrapperFor(summary.value), summary.abnormal);
