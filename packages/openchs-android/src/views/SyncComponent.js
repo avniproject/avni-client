@@ -46,7 +46,7 @@ class SyncComponent extends AbstractComponent {
     _postSync() {
         this.setState({syncStarted: false});
         this.dispatchAction(SyncActions.POST_SYNC);
-        this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.BACKGROUND_JOB);
+        this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.SYNC_BUTTON);
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 

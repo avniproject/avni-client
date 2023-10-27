@@ -80,7 +80,7 @@ class SyncService extends BaseService {
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages())
           .then(() => {
-              return isOnlyUploadRequired;
+              return updatedSyncSource;
           });
 
         // Even blank dataServerSync with no data in or out takes quite a while.
