@@ -1,27 +1,27 @@
-import {StyleSheet, TouchableOpacity, View} from "react-native";
-import ListView from "deprecated-react-native-listview";
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import ListView from 'deprecated-react-native-listview';
 import PropTypes from 'prop-types';
-import React from "react";
-import {Text} from "native-base";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import moment from "moment";
-import Observations from "../common/Observations";
-import CHSNavigator from "../../utility/CHSNavigator";
-import ContextAction from "../viewmodel/ContextAction";
-import Fonts from "../primitives/Fonts";
+import React from 'react';
+import {Text} from 'native-base';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import moment from 'moment';
+import Observations from '../common/Observations';
+import CHSNavigator from '../../utility/CHSNavigator';
+import ContextAction from '../viewmodel/ContextAction';
+import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
-import FormMappingService from "../../service/FormMappingService";
-import EncounterService from "../../service/EncounterService";
-import Styles from "../primitives/Styles";
-import Colors from "../primitives/Colors";
-import General from "../../utility/General";
-import Distances from "../primitives/Distances";
-import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
-import TypedTransition from "../../framework/routing/TypedTransition";
-import CompletedEncountersView from "../../encounter/CompletedEncountersView";
-import CollapsibleEncounters from "./CollapsibleEncounters";
-import PrivilegeService from "../../service/PrivilegeService";
-import ListViewHelper from "../../utility/ListViewHelper";
+import FormMappingService from '../../service/FormMappingService';
+import EncounterService from '../../service/EncounterService';
+import Styles from '../primitives/Styles';
+import Colors from '../primitives/Colors';
+import General from '../../utility/General';
+import Distances from '../primitives/Distances';
+import ObservationsSectionOptions from '../common/ObservationsSectionOptions';
+import TypedTransition from '../../framework/routing/TypedTransition';
+import CompletedEncountersView from '../../encounter/CompletedEncountersView';
+import CollapsibleEncounters from './CollapsibleEncounters';
+import PrivilegeService from '../../service/PrivilegeService';
+import ListViewHelper from '../../utility/ListViewHelper';
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -77,8 +77,8 @@ class PreviousEncounters extends AbstractComponent {
         return this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
-    addScheduledEncounterActions(encounter, actionName, textColor, actions) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
+    addScheduledEncounterActions(encounter, actionName, textColor, actions, isDraftEncounter) {
+        if (isDraftEncounter || !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
             actions.push(new ContextAction(actionName, () => this.editEncounter(encounter), textColor));
         }
         return actions;
@@ -89,9 +89,7 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     addDeleteDraftAction(encounter, actionName, textColor, actions) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
-            actions.push(new ContextAction(actionName, () => this.deleteDraft(encounter), textColor));
-        }
+        actions.push(new ContextAction(actionName, () => this.deleteDraft(encounter), textColor));
         return actions;
     }
 
@@ -116,11 +114,11 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     cancelledVisitBadge(encounter) {
-        return encounter.isCancelled() ? this.badge(this.I18n.t('cancelled'), Colors.CancelledVisitColor) : <View/>
+        return encounter.isCancelled() ? this.badge(this.I18n.t('cancelled'), Colors.CancelledVisitColor) : <View/>;
     }
 
     renderStatus(encounter) {
-        return encounter.isScheduled() ? this.scheduledVisitBadge(encounter) : this.cancelledVisitBadge(encounter)
+        return encounter.isScheduled() ? this.scheduledVisitBadge(encounter) : this.cancelledVisitBadge(encounter);
     }
 
     renderNormalView(encounter) {
@@ -130,7 +128,7 @@ class PreviousEncounters extends AbstractComponent {
         if (containsDrafts) {
             this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
         }
-        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions);
+        this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
         return <View>
             <TouchableOpacity
                 onPress={() => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
@@ -146,7 +144,7 @@ class PreviousEncounters extends AbstractComponent {
                         primaryAction={this.cancelVisitAction(encounter, Colors.ValidationError)}/>
                 </View>
             </TouchableOpacity>
-        </View>
+        </View>;
     }
 
     renderTitleAndDetails(encounter) {
@@ -186,7 +184,7 @@ class PreviousEncounters extends AbstractComponent {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={styles.viewAllText}>{`${this.I18n.t('viewAll')} (${this.props.encounters.length})`}</Text>
             </View>
-        </TouchableOpacity>
+        </TouchableOpacity>;
     }
 
     render() {
