@@ -31,6 +31,7 @@ import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import ProgramConfigService from './ProgramConfigService';
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
+import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -359,24 +360,26 @@ class SyncService extends BaseService {
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
         if (updatedSyncSource !== SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB) {
             General.logInfo("Sync", "Full Sync completed, performing reset")
-            setTimeout(() => this.reset(), 1);
+            setTimeout(() => this.reset(false), 1);
             this.getService(SettingsService).initLanguages();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
     }
 
-    reset() {
+    reset(syncRequired: false) {
         this.context.getService(RuleEvaluationService).init();
         this.context.getService(ProgramConfigService).init();
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
-        this.context.getService(PrivilegeService).deleteRevokedEntities();
+        this.context.getService(PrivilegeService).deleteRevokedEntities(); //Invoking this in MenuView.deleteData as well
+
         //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD); //Invoking this after full sync reset as well
 
         //To re-render LandingView after sync
-        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired: false});
+        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired});
     }
 }
 

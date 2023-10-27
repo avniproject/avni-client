@@ -127,25 +127,10 @@ class MenuView extends AbstractComponent {
         TypedTransition.from(this).to(SettingsView);
     }
 
-    reset() {
-        this.context.getService(RuleEvaluationService).init();
-        this.context.getService(ProgramConfigService).init();
-        this.context.getService(MessageService).init();
-        this.context.getService(RuleService).init();
-        this.dispatchAction('RESET');
-
-        //To load subjectType after sync
-        this.dispatchAction(IndividualSearchActions.ON_LOAD);
-        this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-
-        //To re-render LandingView after sync
-        this.dispatchAction(LandingViewActions.ON_LOAD);
-    }
-
     deleteData() {
         this.getService(AuthService).getAuthProviderService().logout()
             .then(() => this.getService(SyncService).clearData())
-            .then(() => this.reset())
+            .then(() => this.getService(SyncService).reset(true))
             .then(() => CHSNavigator.navigateToLoginView(this, false));
     }
 
