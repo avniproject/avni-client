@@ -65,7 +65,7 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_staging_without_clean
+      - run: make deps_ci release_staging_dev_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -76,7 +76,7 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.apk
+          destination: << pipeline.parameters.flavor >>-staging_dev-<< pipeline.git.revision >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
           destination: sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.map
@@ -107,6 +107,9 @@ jobs:
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
       - run: make deps_ci release_prerelease_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
@@ -224,6 +227,9 @@ jobs:
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod_dev/
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          destination: << pipeline.parameters.flavor >>-live_dev-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
 
 workflows:
   version: 2

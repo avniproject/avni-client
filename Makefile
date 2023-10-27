@@ -200,6 +200,9 @@ release_prod_universal:
 release_staging_without_clean: as_staging
 	enableSeparateBuildPerCPUArchitecture=false make release
 
+release_staging_dev_without_clean: as_staging_dev
+	enableSeparateBuildPerCPUArchitecture=false make release
+
 release_staging: renew_env release_staging_without_clean
 
 release_uat_without_clean: as_uat
