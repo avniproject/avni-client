@@ -1,7 +1,6 @@
 import BaseService from './BaseService.js'
 import Service from '../framework/bean/Service';
 import _ from "lodash";
-import {ProgramConfig} from 'avni-models';
 import {programConfig} from 'avni-health-modules';
 
 @Service("programConfigService")
@@ -19,12 +18,6 @@ class ProgramConfigService extends BaseService {
 
     findDashboardButtons(program) {
         return _.get(this.configForProgram(program), ['programDashboardButtons']);
-    }
-
-    atRiskConcepts() {
-        const programConfigs = _.defaultTo(this.findAll(ProgramConfig.schema.name), []);
-        return programConfigs
-            .reduce((acc, pc) => acc.concat(pc.atRiskConcepts.map(_.identity)), []);
     }
 }
 

@@ -42,10 +42,7 @@ class FamilyFolderActions {
     static onListLoad(state, action, context) {
         const familyService = context.get(FamilyService);
         const methodMap = new Map([
-            ["all", familyService.allFamiliesIn],
-            // ["withHighRiskMember", familyService.allOverdueVisitsIn],
-            // ["mother", familyService.allCompletedVisitsIn],
-            // ["child", familyService.allHighRiskPatients]
+            ["all", familyService.allFamiliesIn]
         ]);
         const allFamilies = methodMap.get(action.listType)(action.address, new Date(), new Date())
             .map(({uuid}) => familyService.findByUUID(uuid));

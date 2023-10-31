@@ -28,7 +28,6 @@ import {getUnderlyingRealmCollection} from "openchs-models";
 class IndividualService extends BaseService {
     constructor(db, context) {
         super(db, context);
-        this.allHighRiskPatients = this.allHighRiskPatients.bind(this);
         this.allCompletedVisitsIn = this.allCompletedVisitsIn.bind(this);
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
@@ -365,10 +364,6 @@ class IndividualService extends BaseService {
         return this._uniqIndividualsFrom(encounters);
     }
 
-    totalOverdueVisits(program, addressLevel, encounterType) {
-        return this.overdueVisits(program, addressLevel, encounterType).length;
-    }
-
     allCompletedVisitsIn(date, queryAdditions) {
         let fromDate = moment(date).startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
@@ -570,55 +565,6 @@ class IndividualService extends BaseService {
     totalCompletedVisits(program, addressLevel, encounterType, fromDate, tillDate) {
         return this.completedVisits(program, addressLevel, encounterType, tillDate).length;
     }
-
-    allHighRiskPatients(addressLevel) {
-        const HIGH_RISK_CONCEPTS = ["High Risk Conditions", "Adolescent Vulnerabilities"];
-        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name);
-        if (!_.isNil(addressLevel))
-            allEnrolments = allEnrolments.filtered('individual.lowestAddressLevel.uuid = $0', addressLevel.uuid);
-        return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
-            .some((concept) => !_.isEmpty(enrolment.findObservation(concept))))
-            .map((enrolment) => {
-                return _.assignIn({}, enrolment.individual, {addressUUID: enrolment.individual.lowestAddressLevel.uuid});
-            });
-    }
-
-    allHighRiskPatientCount() {
-        return this.allHighRiskPatients().length;
-    }
-
-    highRiskPatients(program, addressLevel) {
-        const HIGH_RISK_CONCEPTS = ["High Risk Conditions", "Adolescent Vulnerabilities"];
-        let allEnrolments = this.db.objects(ProgramEnrolment.schema.name)
-            .filtered("program.uuid = $0 " +
-                "AND individual.lowestAddressLevel.uuid = $1 ",
-                program.uuid,
-                addressLevel.uuid);
-        return allEnrolments.filter((enrolment) => HIGH_RISK_CONCEPTS
-            .some((concept) => !_.isEmpty(enrolment.findObservationInEntireEnrolment(concept))))
-            .map((enrolment) => enrolment.individual);
-    }
-
-    atRiskFilter(atRiskConcepts) {
-        return (individuals) => individuals.filter((individual) => {
-            const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
-            return ind.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
-                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name)))
-        });
-    }
-
-    notAtRiskFilter(atRiskConcepts) {
-        return (individuals) => individuals.filter((individual) => {
-            const ind = _.isNil(individual.visitInfo) ? individual : individual.individual;
-            return !ind.nonVoidedEnrolments().some((enrolment) => atRiskConcepts.length === 0 || atRiskConcepts
-                .some(concept => enrolment.observationExistsInEntireEnrolment(concept.name)))
-        });
-    }
-
-    totalHighRisk(program, addressLevel) {
-        return this.highRiskPatients(program, addressLevel).length;
-    }
-
 
     voidUnVoidIndividual(individualUUID, setVoided, groupAffiliation) {
         const individual = this.findByUUID(individualUUID);

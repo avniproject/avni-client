@@ -1,5 +1,5 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
-import {ProgramConfig, ProgramEnrolment, ObservationsHolder, Concept} from 'avni-models';
+import {ProgramEnrolment, ObservationsHolder, Concept} from 'avni-models';
 import _ from 'lodash';
 import ConceptService from "../service/ConceptService";
 import IndividualService from "../service/IndividualService";
@@ -60,7 +60,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getAffiliatedGroups() {
         return this.groupAffiliation ?
-          _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : [];
+            _.map(this.groupAffiliation.groupSubjectObservations, ({groupSubject}) => groupSubject) : [];
     }
 
     get staticFormElementIds() {
@@ -138,12 +138,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const programConfig = ruleService
-            .findByKey("program.uuid", this.enrolment.program.uuid, ProgramConfig.schema.name);
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name,
-                [..._.get(programConfig, "visitSchedule", [])]
-                    .map(k => _.assignIn({}, k)));
+            const nextScheduledVisits = ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name, []);
             return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.enrolment.individual, nextScheduledVisits);
         } else {
             return null;
