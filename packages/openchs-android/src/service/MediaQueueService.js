@@ -61,7 +61,7 @@ class MediaQueueService extends BaseService {
     }
 
     popItem(mediaQueueItem) {
-        General.logDebug("MediaQueueService", `Deleting Media QueueItem ${mediaQueueItem.uuid}`);
+        General.logDebug("MediaQueueService", `Deleting Media QueueItem ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
         const itemToBeDeleted = this.findByUUID(mediaQueueItem.uuid, MediaQueue.schema.name);
         this.db.write(() => this.db.delete(itemToBeDeleted));
     }
@@ -98,7 +98,7 @@ class MediaQueueService extends BaseService {
     }
 
     getUploadUrlForFile(file) {
-        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`);
+        return get(`${this.getServerUrl()}/media/uploadUrl/${file}`, false, false);
     }
 
     mediaExists(mediaQueueItem) {
@@ -106,11 +106,34 @@ class MediaQueueService extends BaseService {
     }
 
     uploadToUrl(url, mediaQueueItem) {
-        General.logDebug("MediaQueueService", `Uploading media to ${url}`)
+        General.logDebug("MediaQueueService", `Uploading media to ${url}`);
         const contentType = mime.lookup(mediaQueueItem.fileName);
-        return RNFetchBlob.fetch('PUT', url, {
-            "Content-Type": contentType,
-        }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
+        const uploadTask = RNFetchBlob
+            .fetch('PUT', url, {
+                "Content-Type": contentType,
+            }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
+
+        let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName)
+        uploadTask
+            .then(() => {
+                General.logDebug('MediaQueueService', `Upload of ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName} done`);
+            })
+            .finally(() => clearTimeout(jobTimeoutHandler));
+
+        uploadTask.uploadProgress({interval: 1000},(sent, total) => {
+            General.logDebug('MediaQueueService', `${mediaQueueItem.fileName} uploadProgress ${sent}/${total}`);
+            clearTimeout(jobTimeoutHandler);
+            jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName);
+        });
+        return uploadTask;
+    }
+
+    cancelUploadIfNoProgress(lastProgressTime, uploadTask, fileName) {
+        const UPLOAD_PROGRESS_TIMEOUT_MS = 60000;
+        return setTimeout(() => {
+            General.logDebug("MediaQueueService", `Canceling upload of ${fileName}. No progress since ${lastProgressTime}`);
+            uploadTask.cancel();
+        }, UPLOAD_PROGRESS_TIMEOUT_MS);
     }
 
     foregroundUpload(url, fullFilePath, cb) {
@@ -176,9 +199,14 @@ class MediaQueueService extends BaseService {
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then(() => this.popItem(mediaQueueItem))
             .catch((error) => {
-                General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid}`);
+                General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
                 General.logError("MediaQueueService", error);
-            });//Ignore errors, but log them;
+                if (error.message === 'canceled') {
+                    return Promise.reject(new Error("syncTimeoutError"))
+                } else {
+                    return Promise.reject(error);
+                }
+            });
     }
 
     isMediaUploadRequired() {
@@ -190,13 +218,21 @@ class MediaQueueService extends BaseService {
         // Return only once everything is complete. Errors are logged in console only
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
-        return Promise.all(
+        return Promise.allSettled(
             _.map(mediaQueueItems,
                 (mediaQueueItem) => {
                     return this.uploadMediaQueueItem(mediaQueueItem)
                 }
             )
-        );
+        ).then(results => {
+                if (_.filter(results, result =>
+                   result.status === 'rejected'
+                ).length > 0) {
+                    return Promise.reject(new Error("syncTimeoutError"));
+                } else {
+                    return Promise.resolve();
+                }
+            });
     }
 }
 
