@@ -41,6 +41,7 @@ import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
+import MessageService from './MessageService';
 
 function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
@@ -76,6 +77,7 @@ class RuleEvaluationService extends BaseService {
         this.entityRulesMap.forEach((entityRule, key) => {
             entityRule.setFunctions(entityRule.ruleFile);
         });
+        this.I18n = this.getService(MessageService).getI18n();
         this.formMappingService = this.getService(FormMappingService);
         this.conceptService = this.getService(ConceptService);
         this.groupSubjectService = this.getService(GroupSubjectService);
@@ -656,13 +658,19 @@ class RuleEvaluationService extends BaseService {
         return true;
     }
 
-    executeDashboardCardRule(rule, ruleInput) {
-        const ruleFunc = eval(rule);
-        const result = ruleFunc({
-            params: {db: this.db, ruleInput: ruleInput},
-            imports: {lodash, moment}
-        });
-        return result;
+    executeDashboardCardRule(reportCard, ruleInput) {
+        try {
+            const ruleFunc = eval(reportCard.query);
+            const result = ruleFunc({
+                params: {db: this.db, ruleInput: ruleInput},
+                imports: {lodash, moment}
+            });
+            return result;
+        } catch (error) {
+            General.logError("Rule-Failure", `DashboardCard report card rule failed for uuid: ${reportCard.uuid}, name: ${reportCard.name}`);
+            General.logError("Rule-Failure", error);
+            return {primaryValue: this.I18n.t("Error"), lineListFunction: _.noop()};
+        }
     }
 
     isOldStyleQueryResult(queryResult) {
@@ -670,8 +678,8 @@ class RuleEvaluationService extends BaseService {
         return queryResult.length !== undefined;
     }
 
-    getDashboardCardCount(rule, ruleInput) {
-        const queryResult = this.executeDashboardCardRule(rule, ruleInput);
+    getDashboardCardCount(reportCard, ruleInput) {
+        const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
         } else {
@@ -683,8 +691,8 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getDashboardCardQueryResult(rule, ruleInput) {
-        const queryResult = this.executeDashboardCardRule(rule, ruleInput);
+    getDashboardCardQueryResult(reportCard, ruleInput) {
+        const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {//The result can either be an array or a RealmResultsProxy. We are looking for existence of the length key.
             return queryResult;
         } else {
