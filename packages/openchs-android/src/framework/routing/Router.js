@@ -60,7 +60,10 @@ export default class Router extends Component {
     configureScene(route) {
         if (route.sceneConfig) return route.sceneConfig;
 
-        return Navigator.SceneConfigs.PushFromRight;
+        return {
+            ...Navigator.SceneConfigs.PushFromRight,
+            defaultTransitionVelocity: 15
+        };
     }
 
     renderScene(route, nav) {
