@@ -6,6 +6,12 @@ import IndividualRelationGenderMappingService from "./IndividualRelationGenderMa
 import General from "../../utility/General";
 import {AlertMessage} from "../../views/common/AlertMessage";
 
+function logAlertAndThrowError(applicableRelationshipTypes, title, message) {
+    General.logDebug("IndividualRelationshipTypeService", applicableRelationshipTypes);
+    AlertMessage(title, message);
+    throw Error(title);
+}
+
 @Service("individualRelationshipTypeService")
 class IndividualRelationshipService extends BaseService {
     constructor(db, context) {
@@ -26,21 +32,23 @@ class IndividualRelationshipService extends BaseService {
         const relationshipTypes = this.db.objects(IndividualRelationshipType.schema.name)
             .filtered(`voided=false`)
             .filtered(`individualAIsToBRelation.uuid="${individualRelative.relation.uuid}" OR individualBIsToARelation.uuid="${individualRelative.relation.uuid}"`);
-        if (relationshipTypes.length === 1) {
-            return relationshipTypes[0];
-        }
         General.logDebug("IndividualRelationshipTypeService", "Attempting to determine relationshipType based on gender");
         const possibleRelationsWithIndividual = this.getService(IndividualRelationGenderMappingService).getRelationsForGender(individualRelative.individual.gender);
         const applicableRelationshipTypes = relationshipTypes
             .filter(rt => this.isRelationshipTypeApplicable(rt, possibleRelationsWithIndividual, individualRelative.relation));
         if (applicableRelationshipTypes.length === 1) {
             return applicableRelationshipTypes[0];
-        }
-        General.logDebug("IndividualRelationshipTypeService", applicableRelationshipTypes);
-        AlertMessage(`Non determinate relationshipType`, `Please create relationshipType for "${individualRelative.relation.name}"`);
-        throw Error(`Non determinate relationshipType`);
-    }
+        } else if (applicableRelationshipTypes.length < 1) {
+            logAlertAndThrowError(applicableRelationshipTypes,
+              `Unsupported Relationship Type`,
+              `If needed, create relationshipType "${individualRelative.relation.name}" for individual with gender "${individualRelative.individual.gender.name}"`);
 
+        } else if (applicableRelationshipTypes.length > 1) {
+            logAlertAndThrowError(applicableRelationshipTypes,
+              `Non determinate Relationship Type`,
+              `Please delete or correct relationshipTypes "${individualRelative.relation.name}" for individual with gender "${individualRelative.individual.gender.name}"`);
+        }
+    }
 }
 
 export default IndividualRelationshipService;
