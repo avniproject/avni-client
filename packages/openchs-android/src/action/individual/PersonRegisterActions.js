@@ -16,6 +16,7 @@ import GroupAffiliationState from "../../state/GroupAffiliationState";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
+import General from '../../utility/General';
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -183,18 +184,23 @@ export class PersonRegisterActions {
     }
 
     static onSave(state, action, context) {
-        const newState = state.clone();
-        context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
-        const {member, headOfHousehold, individualRelative} = newState.household;
-        if (!_.isNil(member)) {
-            member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
-            const addRelative = member.groupSubject.isHousehold() && !headOfHousehold;
-            individualRelative.relative = newState.individual;
-            context.get(GroupSubjectService).addMember(member, addRelative, individualRelative);
+        try {
+            const newState = state.clone();
+            context.get(IndividualService).register(newState.individual, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
+            const {member, headOfHousehold, individualRelative} = newState.household;
+            if (!_.isNil(member)) {
+                member.memberSubject = context.get(IndividualService).findByUUID(newState.individual.uuid);
+                const addRelative = member.groupSubject.isHousehold() && !headOfHousehold;
+                individualRelative.relative = newState.individual;
+                context.get(GroupSubjectService).addMember(member, addRelative, individualRelative);
+            }
+            action.cb();
+            context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.individual.uuid);
+            return newState;
+        } catch (error) {
+            General.logError('PersonRegisterActions.onSave', error);
+            return state.clone();
         }
-        action.cb();
-        context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.individual.uuid);
-        return newState;
     }
 
     static getDraftIndividual(action, context) {

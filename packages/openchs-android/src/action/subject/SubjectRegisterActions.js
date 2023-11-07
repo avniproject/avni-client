@@ -17,6 +17,7 @@ import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
+import General from '../../utility/General';
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
@@ -132,16 +133,21 @@ export class SubjectRegisterActions {
     }
 
     static onSave(state, action, context) {
-        const newState = state.clone();
-        context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
-        const {member} = newState.household;
-        if (!_.isNil(member)) {
-            member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
-            context.get(GroupSubjectService).addMember(member, false);
+        try {
+            const newState = state.clone();
+            context.get(IndividualService).register(newState.subject, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
+            const {member} = newState.household;
+            if (!_.isNil(member)) {
+                member.memberSubject = context.get(IndividualService).findByUUID(newState.subject.uuid);
+                context.get(GroupSubjectService).addMember(member, false);
+            }
+            action.cb();
+            context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.subject.uuid);
+            return newState;
+        } catch (error) {
+            General.logError('SubjectRegisterActions.onSave', error);
+            return state.clone();
         }
-        action.cb();
-        context.get(DraftSubjectService).deleteDraftSubjectByUUID(newState.subject.uuid);
-        return newState;
     }
 
     static enterTotalMembers(state, action) {

@@ -4,6 +4,7 @@ import {  ValidationResult, IndividualRelation, IndividualRelative  } from 'avni
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
 import _ from "lodash";
+import General from '../../utility/General';
 
 
 export class PersonAddRelativeActions {
@@ -62,15 +63,20 @@ export class PersonAddRelativeActions {
     }
 
     static onSave(state, action, context) {
-        const newState = PersonAddRelativeActions.clone(state);
-        const existingRelatives = context.get(IndividualRelationshipService).getRelatives(newState.individualRelative.individual);
-        const validationResults = newState.individualRelative.validate(existingRelatives);
-        PersonAddRelativeActions.handleValidationResults(newState, validationResults);
-        if (_.isEmpty(newState.validationResults)) {
-            context.get(IndividualRelationshipService).addRelative(newState.individualRelative);
-            action.cb();
+        try {
+            const newState = PersonAddRelativeActions.clone(state);
+            const existingRelatives = context.get(IndividualRelationshipService).getRelatives(newState.individualRelative.individual);
+            const validationResults = newState.individualRelative.validate(existingRelatives);
+            PersonAddRelativeActions.handleValidationResults(newState, validationResults);
+            if (_.isEmpty(newState.validationResults)) {
+                context.get(IndividualRelationshipService).addRelative(newState.individualRelative);
+                action.cb();
+            }
+            return newState;
+        } catch (error) {
+            General.logError('PersonAddRelativeActions.onSave', error);
+            return PersonAddRelativeActions.clone(state);
         }
-        return newState;
     }
 }
 

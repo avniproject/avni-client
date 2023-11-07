@@ -4,6 +4,7 @@ import {IndividualRelation, IndividualRelative, ValidationResult} from 'avni-mod
 import EntityService from "../../service/EntityService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
+import General from '../../utility/General';
 
 export class MemberAction {
 
@@ -145,14 +146,19 @@ export class MemberAction {
     }
 
     static onSave(state, action, context) {
-        const newState = MemberAction.clone(state);
-        const groupRole = state.member.groupRole;
-        MemberAction.checkValidationErrors(newState, MemberAction.validateRelative(newState, context));
-        if (_.isEmpty(newState.validationResults)) {
-            context.get(GroupSubjectService).addMember(newState.member, groupRole.isHouseholdMember, newState.individualRelative);
-            action.cb();
+        try {
+            const newState = MemberAction.clone(state);
+            const groupRole = state.member.groupRole;
+            MemberAction.checkValidationErrors(newState, MemberAction.validateRelative(newState, context));
+            if (_.isEmpty(newState.validationResults)) {
+                context.get(GroupSubjectService).addMember(newState.member, groupRole.isHouseholdMember, newState.individualRelative);
+                action.cb();
+            }
+            return newState;
+        } catch (error) {
+            General.logError('MemberAction.onSave', error);
+            return MemberAction.clone(state);
         }
-        return newState;
     }
 
     static validateRelative(state, context) {
