@@ -92,10 +92,10 @@ const _get = (endpoint, bypassAuth) => {
         .then((response) => response.json(), Promise.reject)
 };
 
-const _getText = (endpoint, bypassAuth) => {
+const _getText = (endpoint, bypassAuth, fetchWithoutTimeout) => {
     General.logDebug('Requests', `Calling getText: ${endpoint}`);
     return _addAuthIfRequired(makeHeader("text"), bypassAuth)
-        .then((headers) => fetchFactory(endpoint, "GET", headers, true))
+        .then((headers) => fetchFactory(endpoint, "GET", headers, fetchWithoutTimeout))
         .then((response) => response.text(), Promise.reject)
 };
 
@@ -115,8 +115,8 @@ const _put = (endpoint, body, fetchWithoutTimeout, bypassAuth = false) => {
 
 export const post = _post;
 
-export const get = (endpoint, bypassAuth = false) => {
-    return _getText(endpoint, bypassAuth);
+export const get = (endpoint, bypassAuth = false, fetchWithoutTimeout = true) => {
+    return _getText(endpoint, bypassAuth, fetchWithoutTimeout);
 };
 
 export const getJSON = (endpoint, bypassAuth = false) => {

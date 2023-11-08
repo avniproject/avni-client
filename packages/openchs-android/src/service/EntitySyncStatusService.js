@@ -59,11 +59,12 @@ class EntitySyncStatusService extends BaseService {
         const entities = _.map(this.findAllByUniqueEntityName(), ({entityName, loadedSince}) => {
             const isNeverSynced = loadedSince.getTime() === EntitySyncStatus.REALLY_OLD_DATE.getTime();
             const queuedItemCount = entityQueueService.getQueuedItemCount(entityName);
+            const emd = EntityMetaData.findByName(entityName);
             return {
                 entityName: entityName,
                 loadedSince: isNeverSynced ? 'Never or Not Applicable' : moment(loadedSince).format("DD-MM-YYYY HH:MM:SS"),
                 queuedCount: queuedItemCount,
-                type: EntityMetaData.findByName(entityName).type
+                type: emd && emd.type
             }
         });
         const mediaQueueService = this.getService(MediaQueueService);

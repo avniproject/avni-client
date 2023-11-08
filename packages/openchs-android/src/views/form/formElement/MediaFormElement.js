@@ -127,6 +127,7 @@ export default class MediaFormElement extends AbstractFormElement {
                 [
                     PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
                     PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+                    PermissionsAndroid.PERMISSIONS.CAMERA
                 ]
                 :
                 [
