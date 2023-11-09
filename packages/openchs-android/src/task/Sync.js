@@ -66,6 +66,8 @@ class Sync extends BaseTask {
                 return;
             }
             ErrorHandler.postScheduledJobError(e);
+        } finally {
+            dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: false});
         }
     }
 
@@ -78,7 +80,6 @@ class Sync extends BaseTask {
     performPostBackgroundSyncActions(globalContext) {
         return (updatedSyncSource) => {
             General.logInfo("Sync", "Background Sync completed")
-            dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: false});
             globalContext.beanRegistry.getService(SyncService).resetServicesAfterFullSyncCompletion(updatedSyncSource);
         };
     }
