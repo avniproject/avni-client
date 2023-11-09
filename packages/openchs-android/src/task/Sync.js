@@ -74,7 +74,7 @@ class Sync extends BaseTask {
     wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext) {
         const syncTelemetryService = globalContext.beanRegistry.getService("syncTelemetryService");
         const lastSynced = syncTelemetryService.getAllCompletedSyncsSortedByDescSyncEndTime();
-        return _.isEmpty(lastSynced) || moment(lastSynced[0].syncEndTime).add(30, 'minutes').isBefore(moment());
+        return !_.isEmpty(lastSynced) && moment(lastSynced[0].syncEndTime).add(30, 'minutes').isBefore(moment());
     }
 
     performPostBackgroundSyncActions(globalContext) {
