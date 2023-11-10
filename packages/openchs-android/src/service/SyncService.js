@@ -109,8 +109,8 @@ class SyncService extends BaseService {
     }
 
     wasLastCompletedFullSyncDoneMoreThan12HoursAgo() {
-        let lastSynced = this.getService("syncTelemetryService").getAllCompletedFullSyncsSortedByDescSyncEndTime();
-        return !_.isEmpty(lastSynced) && moment(lastSynced[0].syncEndTime).add(12, 'hours').isBefore(moment());
+        let lastSynced = this.getService("syncTelemetryService").getLatestCompletedFullSync();
+        return !_.isEmpty(lastSynced) && moment(lastSynced.syncEndTime).add(12, 'hours').isBefore(moment());
     }
 
     logSyncCompleteEvent(syncStartTime) {

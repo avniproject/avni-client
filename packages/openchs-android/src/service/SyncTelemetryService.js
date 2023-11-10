@@ -15,15 +15,15 @@ export default class SyncTelemetryService extends BaseService {
         return !_.isEmpty(results);
     }
 
-    getAllCompletedSyncsSortedByDescSyncEndTime() {
+    getLatestCompletedSync() {
         return this.db.objects(SyncTelemetry.schema.name)
           .filtered("syncStatus = $0", "complete")
-          .sorted('syncEndTime', true);
+          .sorted('syncEndTime', true)[0];
     }
 
-    getAllCompletedFullSyncsSortedByDescSyncEndTime() {
+    getLatestCompletedFullSync() {
         return this.db.objects(SyncTelemetry.schema.name)
           .filtered("syncStatus = $0 AND syncSource <> $1", "complete", SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB)
-          .sorted('syncEndTime', true);
+          .sorted('syncEndTime', true)[0];
     }
 }
