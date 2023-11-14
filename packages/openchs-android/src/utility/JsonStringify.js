@@ -42,7 +42,7 @@ const duckCheckNativeRealmCollection = function (obj) {
 
 const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, objectKey) {
     if (depth === 0)
-        return undefined;
+        return "BELOW_DEPTH";
     // Boolean and Number behave in a same way and String we need to add extra quotes
     if (restOfDataTypes(obj)) {
         const passQuotes = isString(obj) ? `"` : '';
