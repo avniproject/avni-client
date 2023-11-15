@@ -8,6 +8,7 @@ import CommentService from "../comment/CommentService";
 import _ from "lodash";
 import TaskService from "../task/TaskService";
 import General from "../../utility/General";
+import {JSONStringify} from "../../utility/JsonStringify";
 
 function getApprovalStatusForType(type) {
     const typeToStatusMap = {
@@ -29,8 +30,8 @@ class ReportCardService extends BaseService {
         return ReportCard.schema.name;
     }
 
-    getCountForApprovalCardsType(type, filterValuePairs) {
-        const {result} = this.getResultForApprovalCardsType(type, filterValuePairs);
+    getCountForApprovalCardsType(type) {
+        const {result} = this.getResultForApprovalCardsType(type);
         return {
             primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
             secondaryValue: null,
@@ -38,7 +39,7 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForApprovalCardsType(type, filterValuePairs) {
+    getResultForApprovalCardsType(type) {
         const approvalStatus = getApprovalStatusForType(type);
         return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(approvalStatus);
     }
@@ -107,6 +108,7 @@ class ReportCardService extends BaseService {
 
     getReportCardCount(reportCard, ruleInputArray) {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
+        General.logDebugTemp("ReportCardService", JSONStringify(ruleInputArray, 5));
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :

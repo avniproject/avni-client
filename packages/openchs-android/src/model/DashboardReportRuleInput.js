@@ -1,4 +1,4 @@
-// These classes are created to document the contract with the rules. Objects has been used in place of arrays to allow for flexibility in contract in the future.
+// Objects has been used in place of arrays to allow for flexibility in contract in the future.
 
 export class DashboardReportFilterRuleInput {
     type;
@@ -10,7 +10,7 @@ export class DashboardReportFilterRuleInput {
 }
 
 class DashboardReportRuleInput {
-    filterValues;
+    filterValues; // array of DashboardReportFilterRuleInput
 
     constructor(filterValues) {
         this.filterValues = filterValues;

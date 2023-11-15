@@ -38,7 +38,7 @@ class Sync extends BaseTask {
             }
             await this.initDependencies();
 
-            if(!this.wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext)) {
+            if (!this.wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext)) {
                 General.logInfo("Sync", 'Skipping auto-sync since we had recently synced within the last half an hour');
                 return false;
             }
@@ -66,19 +66,20 @@ class Sync extends BaseTask {
                 return;
             }
             ErrorHandler.postScheduledJobError(e);
+        } finally {
+            dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: false});
         }
     }
 
     wasLastCompletedSyncDoneMoreThanHalfAnHourAgo(globalContext) {
         const syncTelemetryService = globalContext.beanRegistry.getService("syncTelemetryService");
-        const lastSynced = syncTelemetryService.getAllCompletedSyncsSortedByDescSyncEndTime();
-        return _.isEmpty(lastSynced) || moment(lastSynced[0].syncEndTime).add(30, 'minutes').isBefore(moment());
+        const latestCompletedSync = syncTelemetryService.getLatestCompletedSync();
+        return _.isEmpty(latestCompletedSync) || moment(latestCompletedSync.syncEndTime).add(30, 'minutes').isBefore(moment());
     }
 
     performPostBackgroundSyncActions(globalContext) {
         return (updatedSyncSource) => {
             General.logInfo("Sync", "Background Sync completed")
-            dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: false});
             globalContext.beanRegistry.getService(SyncService).resetServicesAfterFullSyncCompletion(updatedSyncSource);
         };
     }
