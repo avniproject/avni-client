@@ -3,16 +3,32 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import {
     ApprovalStatus,
+    BaseEntity,
     ChecklistItem,
+    CustomFilter,
     Encounter,
     EntityApprovalStatus,
     EntityQueue,
     Individual,
     ProgramEncounter,
-    ProgramEnrolment,
-} from "avni-models";
+    ProgramEnrolment
+} from "openchs-models";
 import _ from 'lodash';
-import {BaseEntity} from 'openchs-models';
+import {DashboardReportFilter} from "../model/DashboardReportFilters";
+import AddressLevel from "../views/common/AddressLevel";
+
+const locationBasedQueries = new Map();
+locationBasedQueries.set(Individual.schema.name, "lowestAddressLevel.uuid = $0");
+locationBasedQueries.set(ProgramEnrolment.schema.name, "individual.lowestAddressLevel.uuid = $0");
+locationBasedQueries.set(ProgramEncounter.schema.name, "programEnrolment.individual.lowestAddressLevel.uuid = $0");
+locationBasedQueries.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid = $0");
+locationBasedQueries.set(ChecklistItem.schema.name, "checklist.programEnrolment.individual.lowestAddressLevel.uuid = $0");
+
+function getEntityApprovalStatuses(service, schema, status) {
+    return service.getAll(schema)
+        .filtered(service.getVoidedQuery(schema))
+        .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status);
+}
 
 @Service("entityApprovalStatusService")
 class EntityApprovalStatusService extends BaseService {
@@ -36,13 +52,26 @@ class EntityApprovalStatusService extends BaseService {
         return savedStatus;
     }
 
+    getAllEntitiesForReports(approvalStatus_status, reportFilters) {
+        const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema();
+        const result = _.map(applicableEntitiesSchema, (schema) => {
+            let entities = getEntityApprovalStatuses(this, schema, approvalStatus_status);
+            const addressFilter = _.find(reportFilters, (x: DashboardReportFilter) => x.type === CustomFilter.type.Address);
+            if (!_.isNil(addressFilter)) {
+                addressFilter.filterValue.forEach((x: AddressLevel) => {
+                    entities = entities.filtered(locationBasedQueries.get(schema), x.uuid);
+                });
+            }
+            return {title: schema, data: entities};
+        });
+        return {status: approvalStatus_status, result};
+    }
+
     getAllEntitiesWithStatus(status, schema, filterQuery) {
         const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema().filter(entity => _.isEmpty(schema) ? true : entity === schema);
         const result = _.map(applicableEntitiesSchema, (schema) => {
-            const entities = this.getAll(schema)
-                .filtered(this.getVoidedQuery(schema))
-                .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status)
-                .filtered(_.isEmpty(filterQuery) ? 'uuid <> null' : filterQuery)
+            let entities = getEntityApprovalStatuses(this, schema, status);
+            entities = _.isEmpty(filterQuery) ? entities : entities.filtered(filterQuery);
             return {title: schema, data: entities};
         });
         return {status, result};
@@ -95,13 +124,17 @@ class EntityApprovalStatusService extends BaseService {
 
     _getEntityTypeUuid(entity, schema) {
         switch (schema) {
-            case(Individual.schema.name) : return _.get(entity, 'subjectType.uuid');
-            case(ProgramEnrolment.schema.name) : return _.get(entity, 'program.uuid');
+            case(Individual.schema.name) :
+                return _.get(entity, 'subjectType.uuid');
+            case(ProgramEnrolment.schema.name) :
+                return _.get(entity, 'program.uuid');
             case(Encounter.schema.name) :
             case(ProgramEncounter.schema.name) :
                 return _.get(entity, 'encounterType.uuid');
-            case(ChecklistItem.name): return _.get(entity, 'checklist.programEnrolment.program.uuid');
-            default : return null;
+            case(ChecklistItem.name):
+                return _.get(entity, 'checklist.programEnrolment.program.uuid');
+            default :
+                return null;
         }
     }
 

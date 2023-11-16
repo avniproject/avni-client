@@ -1,6 +1,6 @@
 // Objects has been used in place of arrays to allow for flexibility in contract in the future.
 
-export class DashboardReportFilterRuleInput {
+export class DashboardReportFilter {
     type;
     dataType;
     subjectType;
@@ -9,12 +9,12 @@ export class DashboardReportFilterRuleInput {
     filterValue;
 }
 
-class DashboardReportRuleInput {
-    filterValues; // array of DashboardReportFilterRuleInput
+class DashboardReportFilters {
+    filterValues; // array of DashboardReportFilter
 
     constructor(filterValues) {
         this.filterValues = filterValues;
     }
 }
 
-export default DashboardReportRuleInput;
+export default DashboardReportFilters;

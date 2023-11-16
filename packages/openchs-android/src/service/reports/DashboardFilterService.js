@@ -11,7 +11,7 @@ import {
     Program,
     SubjectType
 } from 'openchs-models';
-import {DashboardReportFilterRuleInput} from "../../model/DashboardReportRuleInput";
+import {DashboardReportFilter} from "../../model/DashboardReportFilters";
 import _ from "lodash";
 
 @Service("dashboardFilterService")
@@ -53,7 +53,7 @@ class DashboardFilterService extends BaseService {
     }
 
     toRuleInputObject(filterConfig, filterValue) {
-        const ruleInput = new DashboardReportFilterRuleInput();
+        const ruleInput = new DashboardReportFilter();
         ruleInput.type = filterConfig.type;
         ruleInput.dataType = filterConfig.widget;
 

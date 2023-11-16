@@ -30,8 +30,8 @@ class ReportCardService extends BaseService {
         return ReportCard.schema.name;
     }
 
-    getCountForApprovalCardsType(type) {
-        const {result} = this.getResultForApprovalCardsType(type);
+    getCountForApprovalCardsType(type, reportFilters) {
+        const {result} = this.getResultForApprovalCardsType(type, reportFilters);
         return {
             primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
             secondaryValue: null,
@@ -39,9 +39,9 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForApprovalCardsType(type) {
-        const approvalStatus = getApprovalStatusForType(type);
-        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(approvalStatus);
+    getResultForApprovalCardsType(type, reportFilters) {
+        const approvalStatus_status = getApprovalStatusForType(type);
+        return this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters);
     }
 
     getCountForCommentCardType() {
@@ -106,15 +106,15 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getReportCardCount(reportCard, ruleInputArray) {
+    getReportCardCount(reportCard, reportFilters) {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
-        General.logDebugTemp("ReportCardService", JSONStringify(ruleInputArray, 5));
+        General.logDebugTemp("ReportCardService", JSONStringify(reportFilters, 5));
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :
-                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard, ruleInputArray);
+                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard, reportFilters);
             case standardReportCardType.isApprovalType() :
-                return this.getCountForApprovalCardsType(standardReportCardType.name);
+                return this.getCountForApprovalCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isDefaultType() :
                 return this.getCountForDefaultCardsType(standardReportCardType.name);
             case standardReportCardType.isCommentType() :
@@ -126,16 +126,16 @@ class ReportCardService extends BaseService {
         }
     }
 
-    getReportCardResult(reportCard, ruleInputArray) {
+    getReportCardResult(reportCard, reportFilters) {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) : {
-                const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard, ruleInputArray);
-                return {status: null, result}
+                const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard, reportFilters);
+                return {status: null, result};
             }
             case standardReportCardType.isApprovalType() :
-                return this.getResultForApprovalCardsType(standardReportCardType.name);
+                return this.getResultForApprovalCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name);
             case standardReportCardType.isCommentType() : {

@@ -1,5 +1,6 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
 import {
+    ApprovalStatus,
     EntityApprovalStatus,
     AddressLevel,
     Concept,
@@ -29,21 +30,26 @@ import TestFormMappingFactory from "../test/model/form/TestFormMappingFactory";
 import TestOrganisationConfigFactory from "../test/model/TestOrganisationConfigFactory";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
-import TestEntityApprovalStatusFactory from "../test/model/TestEntityApprovalStatusFactory";
 import ReportCardService from "../src/service/customDashboard/ReportCardService";
 import TestStandardReportCardTypeFactory from "../test/model/reportNDashboard/TestStandardReportCardTypeFactory";
 import TestReportCardFactory from "../test/model/reportNDashboard/TestReportCardFactory";
-import TestDashboardReportRuleInputFactory from "../test/model/reportNDashboard/TestDashboardReportRuleInputFactory";
-import TestDashboardReportFilterRuleInputFactory from "../test/model/reportNDashboard/TestDashboardReportFilterRuleInputFactory";
+import TestDashboardReportFilterFactory from "../test/model/reportNDashboard/TestDashboardReportFilterFactory";
+import {assert} from "chai";
+import General from "../src/utility/General";
+import TestEntityApprovalStatusFactory from "../test/model/approval/TestEntityApprovalStatusFactory";
+import TestApprovalStatusFactory from "../test/model/approval/TestApprovalStatusFactory";
 
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
-    approvedCard; subjectType;
+    approvedCard;
+    subjectType;
+    addressLevel2;
 
     setup() {
         super.setup();
         this.executeInWrite((db) => {
             this.concept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
             this.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+            this.addressLevel2 = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
             this.gender = db.create(Gender, TestGenderFactory.createWithDefaults({name: "Male"}));
             db.create(Settings, TestSettingsFactory.createWithDefaults({}));
 
@@ -60,8 +66,22 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             }));
             db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: this.subjectType, form: form}));
             db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));
-            const subject = db.create(Individual, TestSubjectFactory.createWithDefaults({subjectType: this.subjectType, address: this.addressLevel, firstName: "foo", lastName: "bar", observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})]}));
-            db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({entityType: EntityApprovalStatus.entityType.Subject, entityUUID: subject.uuid, entityTypeUuid: this.subjectType.uuid}));
+            const approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
+            const subjectUuid = General.randomUUID();
+            const entityApprovalStatus = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.Subject,
+                entityUUID: subjectUuid,
+                entityTypeUuid: this.subjectType.uuid,
+                approvalStatus: approvalStatus
+            }));
+            db.create(Individual, TestSubjectFactory.createWithDefaults({
+                subjectType: this.subjectType,
+                address: this.addressLevel,
+                firstName: "foo",
+                lastName: "bar",
+                observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})],
+                approvalStatuses: [entityApprovalStatus]
+            }));
 
             const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "foo", standardReportCardType: approvedCardType}));
@@ -69,8 +89,12 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     }
 
     getResultForApprovalCardsType() {
-        const dashboardReportRuleInput = TestDashboardReportRuleInputFactory.create({filterValues: [TestDashboardReportFilterRuleInputFactory.create({type: CustomFilter.type.Concept, filterValue: [this.addressLevel]})]});
-        this.getService(ReportCardService).getReportCardCount(this.approvedCard, dashboardReportRuleInput);
+        const reportCardService = this.getService(ReportCardService);
+        assert.equal(1, reportCardService.getReportCardCount(this.approvedCard, []).primaryValue);
+        let filterValues = [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel]})];
+        assert.equal(1, reportCardService.getReportCardCount(this.approvedCard, filterValues).primaryValue);
+        filterValues = [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]})];
+        assert.equal(0, reportCardService.getReportCardCount(this.approvedCard, filterValues).primaryValue);
     }
 }
 

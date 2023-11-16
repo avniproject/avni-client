@@ -3,9 +3,18 @@ import General from "../../../src/utility/General";
 import moment from "moment";
 
 class TestSubjectFactory {
-    static createWithDefaults({subjectType, firstName, lastName, address, registrationDate = moment().toDate(), observations = []}) {
+    static createWithDefaults({
+                                  uuid = General.randomUUID(),
+                                  subjectType,
+                                  firstName,
+                                  lastName,
+                                  address,
+                                  registrationDate = moment().toDate(),
+                                  observations = [],
+                                  approvalStatuses = []
+                              }) {
         const subject = new Individual();
-        subject.uuid = General.randomUUID();
+        subject.uuid = uuid;
         subject.subjectType = subjectType;
         subject.firstName = firstName;
         subject.lastName = lastName;
@@ -13,6 +22,8 @@ class TestSubjectFactory {
         subject.lowestAddressLevel = address;
         subject.registrationDate = registrationDate;
         subject.observations = observations;
+        subject.approvalStatuses = approvalStatuses;
+        subject.setLatestEntityApprovalStatus(subject.latestEntityApprovalStatus);
         return subject;
     }
 }
