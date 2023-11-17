@@ -44,15 +44,11 @@ import TestEncounterFactory from "../test/model/txn/TestEncounterFactory";
 import TestEncounterTypeFactory from "../test/model/TestEncounterTypeFactory";
 import moment from "moment";
 
-function getCount(reportCardService, card, reportFilters) {
-    return reportCardService.getReportCardCount(card, reportFilters).primaryValue
+function getCount(test, card, reportFilters) {
+    return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
 }
 
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
-    approvedCard;
-    subjectType;
-    addressLevel2;
-
     setup() {
         super.setup();
         this.executeInWrite((db) => {
@@ -79,7 +75,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
             const pendingStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Pending}));
             const subjectId = General.randomUUID();
-            const encounterId = General.randomUUID();
+            const encounterId1 = General.randomUUID();
+            const encounterId2 = General.randomUUID();
 
             const subjectEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
@@ -89,7 +86,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             }));
             const encEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Encounter,
-                entityUUID: encounterId,
+                entityUUID: encounterId1,
                 entityTypeUuid: encounterType.uuid,
                 approvalStatus: pendingStatus
             }));
@@ -102,38 +99,57 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: [subjectEAS]
             }));
 
-            db.create(Encounter, TestEncounterFactory.create({
-                uuid: encounterId,
+            subject.addEncounter(db.create(Encounter, TestEncounterFactory.create({
+                uuid: encounterId1,
                 earliestVisitDateTime: moment().add(-2, "day").toDate(),
                 maxVisitDateTime: moment().add(2, "day").toDate(),
                 encounterType: encounterType,
                 approvalStatuses: [encEAS],
                 subject: subject
-            }));
+            })));
+
+            subject.addEncounter(db.create(Encounter, TestEncounterFactory.create({
+                uuid: encounterId2,
+                earliestVisitDateTime: moment().add(-10, "day").toDate(),
+                maxVisitDateTime: moment().add(-5, "day").toDate(),
+                encounterType: encounterType,
+                approvalStatuses: [],
+                subject: subject
+            })));
 
             const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));
             const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.ScheduledVisits}));
-            this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "a", standardReportCardType: approvedCardType}));
-            this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "b", standardReportCardType: scheduledVisitsCardType}));
+            const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OverdueVisits}));
+            this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
+            this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
+            this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
         });
+
+        this.reportCardService = this.getService(ReportCardService);
+        this.addressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel]});
+        this.address2Selected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]});
+        this.twoAddressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel, this.addressLevel2]});
     }
 
     getResultForApprovalCardsType() {
-        const reportCardService = this.getService(ReportCardService);
-        assert.equal(1, getCount(reportCardService, this.approvedCard, []));
-        let filterValues = [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel]})];
-        assert.equal(1, getCount(reportCardService, this.approvedCard, filterValues));
-        filterValues = [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]})];
-        assert.equal(0, getCount(reportCardService, this.approvedCard, filterValues));
-        filterValues = [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel, this.addressLevel2]})];
-        assert.equal(1, getCount(reportCardService, this.approvedCard, filterValues));
+        assert.equal(1, getCount(this, this.approvedCard, []));
+        assert.equal(1, getCount(this, this.approvedCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.approvedCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.approvedCard, [this.twoAddressSelected]));
     }
 
-    getCountForDefaultCardsType() {
-        const reportCardService = this.getService(ReportCardService);
-        assert.equal(1, getCount(reportCardService, this.scheduledVisitsCard, []));
-        assert.equal(1, getCount(reportCardService, this.scheduledVisitsCard, [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel]})]));
-        assert.equal(0, getCount(reportCardService, this.scheduledVisitsCard, [TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]})]));
+    getCountForDefaultCardsType_forScheduledVisits() {
+        assert.equal(1, getCount(this, this.scheduledVisitsCard, []));
+        assert.equal(1, getCount(this, this.scheduledVisitsCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.scheduledVisitsCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.scheduledVisitsCard, [this.twoAddressSelected]));
+    }
+
+    getCountForDefaultCardsType_forOverdueVisits() {
+        assert.equal(1, getCount(this, this.overdueVisitsCard, []));
+        assert.equal(1, getCount(this, this.overdueVisitsCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.overdueVisitsCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.overdueVisitsCard, [this.twoAddressSelected]));
     }
 }
 

@@ -289,7 +289,7 @@ class IndividualService extends BaseService {
         return this.withScheduledVisits(program, addressLevel, encounterType).length;
     }
 
-    allOverdueVisitsIn(date, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
+    allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const privilegeService = this.getService(PrivilegeService);
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
@@ -395,7 +395,7 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyCompletedVisitsIn(date, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
+    recentlyCompletedVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         const programEncounters = queryProgramEncounter ? this.db.objects(ProgramEncounter.schema.name)
@@ -449,7 +449,7 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyRegistered(date, addressQuery, programs = [], encounterTypes = []) {
+    recentlyRegistered(date, reportFilters, addressQuery, programs = [], encounterTypes = []) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         let individuals = this.db.objects(Individual.schema.name)
@@ -484,7 +484,7 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyEnrolled(date, queryAdditions) {
+    recentlyEnrolled(date, reportFilters, queryAdditions) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
         return [...this.db.objects(ProgramEnrolment.schema.name)
@@ -535,10 +535,10 @@ class IndividualService extends BaseService {
         if (!this.showDueChecklistOnDashboard) {
             return {individual: [], checklistItemNames: []}
         }
-        return this.dueChecklists(date, queryAdditions);
+        return this.dueChecklists(date, [], queryAdditions);
     }
 
-    dueChecklists = (date, queryAdditions) => {
+    dueChecklists = (date, reportFilters, queryAdditions) => {
         const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child')
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
