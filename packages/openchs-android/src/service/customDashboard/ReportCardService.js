@@ -68,7 +68,7 @@ class ReportCardService extends BaseService {
         return this.getService(TaskService).getIncompleteTasks(taskTypeType);
     }
 
-    getResultForDefaultCardsType(type) {
+    getResultForDefaultCardsType(type, reportFilters) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
             [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
@@ -80,14 +80,14 @@ class ReportCardService extends BaseService {
             [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
         ]);
         const resultFunc = typeToMethodMap.get(type);
-        const result = type === StandardReportCardType.type.Total ? resultFunc() : resultFunc(new Date());
+        const result = type === StandardReportCardType.type.Total ? resultFunc(reportFilters) : resultFunc(new Date(), reportFilters);
         const sortedResult = type === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {status: type, result: sortedResult}
     }
 
-    getCountForDefaultCardsType(type) {
+    getCountForDefaultCardsType(type, reportFilters) {
         return {
-            primaryValue: this.getResultForDefaultCardsType(type).result.length,
+            primaryValue: this.getResultForDefaultCardsType(type, reportFilters).result.length,
             secondaryValue: null,
             clickable: true
         };
@@ -116,7 +116,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isApprovalType() :
                 return this.getCountForApprovalCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isDefaultType() :
-                return this.getCountForDefaultCardsType(standardReportCardType.name);
+                return this.getCountForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() :
                 return this.getCountForCommentCardType();
             case standardReportCardType.isTaskType() :

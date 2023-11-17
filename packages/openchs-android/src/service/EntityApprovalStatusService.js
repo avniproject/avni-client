@@ -16,13 +16,7 @@ import {
 import _ from 'lodash';
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
 import AddressLevel from "../views/common/AddressLevel";
-
-const locationBasedQueries = new Map();
-locationBasedQueries.set(Individual.schema.name, "lowestAddressLevel.uuid = $0");
-locationBasedQueries.set(ProgramEnrolment.schema.name, "individual.lowestAddressLevel.uuid = $0");
-locationBasedQueries.set(ProgramEncounter.schema.name, "programEnrolment.individual.lowestAddressLevel.uuid = $0");
-locationBasedQueries.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid = $0");
-locationBasedQueries.set(ChecklistItem.schema.name, "checklist.programEnrolment.individual.lowestAddressLevel.uuid = $0");
+import RealmQueryService from "./query/RealmQueryService";
 
 function getEntityApprovalStatuses(service, schema, status) {
     return service.getAll(schema)
@@ -56,12 +50,8 @@ class EntityApprovalStatusService extends BaseService {
         const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema();
         const result = _.map(applicableEntitiesSchema, (schema) => {
             let entities = getEntityApprovalStatuses(this, schema, approvalStatus_status);
-            const addressFilter = _.find(reportFilters, (x: DashboardReportFilter) => x.type === CustomFilter.type.Address);
-            if (!_.isNil(addressFilter)) {
-                addressFilter.filterValue.forEach((x: AddressLevel) => {
-                    entities = entities.filtered(locationBasedQueries.get(schema), x.uuid);
-                });
-            }
+            const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+            entities = RealmQueryService.filterBasedOnAddress(schema, entities, addressFilter)
             return {title: schema, data: entities};
         });
         return {status: approvalStatus_status, result};

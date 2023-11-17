@@ -10,6 +10,7 @@ import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import LocalCacheService from '../../service/LocalCacheService';
+import RealmQueryService from "../../service/query/RealmQueryService";
 
 function getApplicableEncounterTypes(state) {
     return _.isEmpty(state.selectedGeneralEncounterTypes) ? state.selectedEncounterTypes : state.selectedGeneralEncounterTypes;
@@ -49,10 +50,6 @@ class MyDashboardActions {
     static applyFilters(filters) {
         return (individuals) => [...filters.values()]
             .reduce((acc, f) => f.compositeFn(acc), individuals);
-    }
-
-    static orQuery(array) {
-        return array.length > 0 ? '( ' + array.join(' OR ') + ' )' : ''
     }
 
     static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs, isTotal = false) => {
@@ -100,7 +97,7 @@ class MyDashboardActions {
             allIndividuals,
             dueChecklist
         ] = state.returnEmpty ? [[], [], [], [], [], [], [],[]] : (fetchFromDB ? [
-                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, [], encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
@@ -283,55 +280,55 @@ class MyDashboardActions {
         }
 
         const restIndividualFilters = [
-            MyDashboardActions.orQuery(programQuery('$enrolment.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('$enrolment.encounters.encounterType.uuid')),
+            RealmQueryService.orQuery(programQuery('$enrolment.program.uuid')),
+            RealmQueryService.orQuery(visitQuery('$enrolment.encounters.encounterType.uuid')),
             validEnrolmentQuery('$enrolment')
         ].filter(Boolean).join(" AND ");
 
         const buildEnrolmentSubQueryForIndividual = () => _.isEmpty(restIndividualFilters) ? '' :
             'SUBQUERY(enrolments, $enrolment, ' + restIndividualFilters + ' ).@count > 0';
 
-        const encounterQuery = () => _.isEmpty(MyDashboardActions.orQuery(generalVisitQueryFromIndividual)) ? '' :
-          'SUBQUERY(encounters, $encounter, ' + MyDashboardActions.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
+        const encounterQuery = () => _.isEmpty(RealmQueryService.orQuery(generalVisitQueryFromIndividual)) ? '' :
+          'SUBQUERY(encounters, $encounter, ' + RealmQueryService.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
 
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
-            MyDashboardActions.orQuery(genderQuery('gender.name')),
-            MyDashboardActions.orQuery(locationQuery('lowestAddressLevel.uuid')),
+            RealmQueryService.orQuery(genderQuery('gender.name')),
+            RealmQueryService.orQuery(locationQuery('lowestAddressLevel.uuid')),
             encounterQuery(),
             buildEnrolmentSubQueryForIndividual()
         ].filter(Boolean).join(" AND ");
 
         const encountersFilters = [
             subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
-            MyDashboardActions.orQuery(genderQuery('programEnrolment.individual.gender.name')),
-            MyDashboardActions.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(programQuery('programEnrolment.program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('encounterType.uuid')),
+            RealmQueryService.orQuery(genderQuery('programEnrolment.individual.gender.name')),
+            RealmQueryService.orQuery(locationQuery('programEnrolment.individual.lowestAddressLevel.uuid')),
+            RealmQueryService.orQuery(programQuery('programEnrolment.program.uuid')),
+            RealmQueryService.orQuery(visitQuery('encounterType.uuid')),
             validEnrolmentQuery("programEnrolment")
         ].filter(Boolean).join(" AND ");
 
         const generalEncountersFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
-            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
-            MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(generalVisitQuery('encounterType.uuid'))
+            RealmQueryService.orQuery(genderQuery('individual.gender.name')),
+            RealmQueryService.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
+            RealmQueryService.orQuery(generalVisitQuery('encounterType.uuid'))
         ].filter(Boolean).join(" AND ");
 
         const enrolmentFilters = [
             subjectTypeQuery('individual.subjectType.uuid'),
-            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
-            MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(programQuery('program.uuid')),
-            MyDashboardActions.orQuery(visitQuery('encounters.encounterType.uuid')),
+            RealmQueryService.orQuery(genderQuery('individual.gender.name')),
+            RealmQueryService.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
+            RealmQueryService.orQuery(programQuery('program.uuid')),
+            RealmQueryService.orQuery(visitQuery('encounters.encounterType.uuid')),
             'voided = false and programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
         const dueChecklistFilter = [
             subjectTypeQuery('individual.subjectType.uuid'),
-            MyDashboardActions.orQuery(genderQuery('individual.gender.name')),
-            MyDashboardActions.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
-            MyDashboardActions.orQuery(programQuery('program.uuid')),
+            RealmQueryService.orQuery(genderQuery('individual.gender.name')),
+            RealmQueryService.orQuery(locationQuery('individual.lowestAddressLevel.uuid')),
+            RealmQueryService.orQuery(programQuery('program.uuid')),
             'programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
