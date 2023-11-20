@@ -13,6 +13,7 @@ import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
 import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
+import Config from './framework/Config';
 
 const {TamperCheckModule} = NativeModules;
 
@@ -49,7 +50,7 @@ class App extends Component {
         const clipboardString = `${this.state.error.message}\nStacktrace:${this.state.stacktrace}`;
         General.logError("App", `renderError: ${clipboardString}`);
 
-        if (EnvironmentConfig.inNonDevMode()) {
+        if (EnvironmentConfig.inNonDevMode() && !Config.allowServerURLConfig) {
             Alert.alert("App will restart now", this.state.error.message,
                 [
                     {
