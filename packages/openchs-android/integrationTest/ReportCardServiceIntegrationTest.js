@@ -17,7 +17,10 @@ import {
     Settings,
     SubjectType,
     CustomFilter,
-    ReportCard
+    ReportCard,
+    Program,
+    ProgramEnrolment,
+    ProgramEncounter
 } from "openchs-models";
 import TestConceptFactory from "../test/model/TestConceptFactory";
 import TestAddressLevelFactory from "../test/model/TestAddressLevelFactory";
@@ -43,6 +46,7 @@ import TestApprovalStatusFactory from "../test/model/approval/TestApprovalStatus
 import TestEncounterFactory from "../test/model/txn/TestEncounterFactory";
 import TestEncounterTypeFactory from "../test/model/TestEncounterTypeFactory";
 import moment from "moment";
+import TestProgramFactory from '../test/model/TestProgramFactory';
 
 function getCount(test, card, reportFilters) {
     return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
@@ -59,6 +63,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             db.create(Settings, TestSettingsFactory.createWithDefaults({}));
 
             this.subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
+            const program = db.create(Program, TestProgramFactory.create({name: 'Mother'}));
+            const programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Delivery"}));
             const encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
             const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
             const formElementGroup = db.create(FormElementGroup, TestFormElementGroupFactory.create({form: form}));
@@ -77,6 +83,10 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const subjectId = General.randomUUID();
             const encounterId1 = General.randomUUID();
             const encounterId2 = General.randomUUID();
+
+            //TODO add programEnrolment and programEncounters
+            // const programEncounterId1 = General.randomUUID();
+            // const programEncounterId2 = General.randomUUID();
 
             const subjectEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,

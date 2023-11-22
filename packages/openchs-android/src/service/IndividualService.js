@@ -183,20 +183,20 @@ class IndividualService extends BaseService {
         let programEncounters = [];
         if (queryProgramEncounter) {
             programEncounters = this.db.objects(ProgramEncounter.schema.name)
-                .filtered('earliestVisitDateTime <= $0 ' +
-                    'AND maxVisitDateTime >= $1 ' +
-                    'AND encounterDateTime = null ' +
-                    'AND cancelDateTime = null ' +
-                    'AND programEnrolment.programExitDateTime = null ' +
-                    'AND programEnrolment.voided = false ' +
-                    'AND programEnrolment.individual.voided = false ' +
-                    'AND voided = false ',
-                    dateMidnight,
-                    dateMorning);
-            if (!_.isEmpty(programEncounterCriteria))
+              .filtered('earliestVisitDateTime <= $0 ' +
+                'AND maxVisitDateTime >= $1 ' +
+                'AND encounterDateTime = null ' +
+                'AND cancelDateTime = null ' +
+                'AND programEnrolment.programExitDateTime = null ' +
+                'AND programEnrolment.voided = false ' +
+                'AND programEnrolment.individual.voided = false ' +
+                'AND voided = false ',
+                dateMidnight,
+                dateMorning);
+            if (!_.isEmpty(programEncounterCriteria)) {
                 programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
-            if (!_.isNil(addressFilter))
-                programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
+            }
+            programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -232,10 +232,10 @@ class IndividualService extends BaseService {
                     'AND voided = false ',
                     dateMidnight,
                     dateMorning);
-            if (!_.isEmpty(encounterCriteria))
+            if (!_.isEmpty(encounterCriteria)) {
                 encounters = encounters.filtered(`${encounterCriteria}`);
-            if (!_.isNil(addressFilter))
-                encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
+            }
+            encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -294,17 +294,26 @@ class IndividualService extends BaseService {
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
-        const programEncounters = queryProgramEncounter ? this.db.objects(ProgramEncounter.schema.name)
-            .filtered('maxVisitDateTime < $0 ' +
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+
+        let programEncounters = [];
+        if (queryProgramEncounter) {
+            programEncounters = this.db.objects(ProgramEncounter.schema.name)
+              .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
                 'AND programEnrolment.programExitDateTime = null ' +
                 'AND programEnrolment.voided = false ' +
                 'AND programEnrolment.individual.voided = false ' +
                 'AND voided = false ',
-                dateMorning)
-            .filtered((_.isEmpty(programEncounterCriteria) ? 'uuid != null' : `${programEncounterCriteria}`))
-            .map((enc) => {
+                dateMorning);
+
+            if (!_.isEmpty(programEncounterCriteria)) {
+                programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
+            }
+            programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
+
+            programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
@@ -323,36 +332,45 @@ class IndividualService extends BaseService {
                         allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
-            }) : [];
+            });
+        }
 
         const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
-        const encounters = queryGeneralEncounter ? this.db.objects(Encounter.schema.name)
-            .filtered('maxVisitDateTime < $0 ' +
+        let encounters = [];
+        if(queryGeneralEncounter) {
+            encounters = this.db.objects(Encounter.schema.name)
+              .filtered('maxVisitDateTime < $0 ' +
                 'AND cancelDateTime = null ' +
                 'AND encounterDateTime = null ' +
                 'AND individual.voided = false ' +
                 'AND voided = false ',
-                dateMorning)
-            .filtered((_.isEmpty(encounterCriteria) ? 'uuid != null' : `${encounterCriteria}`))
-            .map((enc) => {
-                const individual = enc.individual;
-                const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
-                const maxVisitDateTime = enc.maxVisitDateTime;
-                return {
-                    individual,
-                    visitInfo: {
-                        uuid: individual.uuid,
-                        visitName: [{
-                            visit: [visitName, General.formatDate(maxVisitDateTime)],
-                            encounter: enc,
-                            color: '#d0011b',
-                        }],
-                        groupingBy: General.formatDate(maxVisitDateTime),
-                        sortingBy: maxVisitDateTime,
-                        allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
-                    }
-                };
-            }) : [];
+                dateMorning);
+
+            if(!_.isEmpty(encounterCriteria)) {
+                encounters =  encounters.filtered(`${encounterCriteria}`);
+            }
+            encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
+
+            encounters = encounters.map((enc) => {
+                  const individual = enc.individual;
+                  const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
+                  const maxVisitDateTime = enc.maxVisitDateTime;
+                  return {
+                      individual,
+                      visitInfo: {
+                          uuid: individual.uuid,
+                          visitName: [{
+                              visit: [visitName, General.formatDate(maxVisitDateTime)],
+                              encounter: enc,
+                              color: '#d0011b',
+                          }],
+                          groupingBy: General.formatDate(maxVisitDateTime),
+                          sortingBy: maxVisitDateTime,
+                          allow: !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                      }
+                  };
+              })
+        };
         const allEncounters = [...
             [...programEncounters, ...encounters]
                 .reduce(this._uniqIndividualWithVisitName, new Map())
