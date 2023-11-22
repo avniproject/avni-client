@@ -194,7 +194,7 @@ class IndividualService extends BaseService {
                     dateMidnight,
                     dateMorning);
             if (!_.isEmpty(programEncounterCriteria))
-                programEncounters = programEncounters.filtered(programEncounterCriteria);
+                programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
             if (!_.isNil(addressFilter))
                 programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
 
@@ -233,7 +233,7 @@ class IndividualService extends BaseService {
                     dateMidnight,
                     dateMorning);
             if (!_.isEmpty(encounterCriteria))
-                encounters = encounters.filtered(encounterCriteria);
+                encounters = encounters.filtered(`${encounterCriteria}`);
             if (!_.isNil(addressFilter))
                 encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
 
