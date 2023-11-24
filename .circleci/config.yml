@@ -46,6 +46,38 @@ jobs:
       - run: make deps_ci
       - run: make ci test-android
 
+  release_android_no_env:
+    docker:
+      - image: cimg/android:2022.12-node
+    working_directory: ~/avni-client
+    resource_class: large
+    steps:
+      - checkout
+      - run: echo "Building with no_env"
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+            - v1-dependencies-
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: sudo npm i -g react-native-cli
+      - run: make deps_ci release_no_env_universal_without_clean
+      - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
+          destination: no_env-<< pipeline.git.revision >>.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/genericRelease/index.android.bundle.map
+          destination: sourcemap-no_env-<< pipeline.git.revision >>.map
+
   release_android_staging:
     docker:
       - image: cimg/android:2022.12-node
@@ -251,6 +283,10 @@ workflows:
           type: approval
           requires:
             - test_android
+      - hold_no_env:
+          type: approval
+          requires:
+            - test_android
       - release_android_staging:
           filters:
             branches:
@@ -258,6 +294,13 @@ workflows:
                 - /^dependabot.*/
           requires:
             - test_android
+      - release_android_no_env:
+          filters:
+            branches:
+              ignore:
+                - /^dependabot.*/
+          requires:
+            - hold_no_env
       - release_android_prerelease:
           context:
             - CIRCLECI_OIDC_AWS
