@@ -487,14 +487,19 @@ class IndividualService extends BaseService {
     recentlyRegistered(date, reportFilters, addressQuery, programs = [], encounterTypes = []) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+
         let individuals = this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
                 tillDate,
-                fromDate)
-            .filtered((_.isEmpty(addressQuery) ? 'uuid != null' : `${addressQuery}`))
-            .map((individual) => individual);
+                fromDate);
+        if(!_.isEmpty(addressQuery)) {
+            individuals = individuals.filtered(`${addressQuery}`);
+        }
+        individuals = RealmQueryService.filterBasedOnAddress(Individual.schema.name, individuals, addressFilter);
+        individuals = individuals.map((individual) => individual);
 
         if (encounterTypes.length > 0 && programs.length > 0) {
             individuals = _.filter(individuals, (individual) => individual.hasProgramEncounterOfType(encounterTypes));
