@@ -206,12 +206,14 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const latestVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestVisits}));
             const latestRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestRegistrations}));
             const latestEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestEnrolments}));
+            const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Total}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
             this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
             this.latestVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestVisitsCard", standardReportCardType: latestVisitsCardType}));
             this.latestRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestRegistrationsCard", standardReportCardType: latestRegistrationsCardType}));
             this.latestEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestEnrolmentsCard", standardReportCardType: latestEnrolmentsCardType}));
+            this.totalCard = db.create(ReportCard, TestReportCardFactory.create({name: "totalCard", standardReportCardType: totalCardType}));
         });
 
         this.reportCardService = this.getService(ReportCardService);
@@ -260,6 +262,13 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.latestEnrolmentsCard, [this.addressSelected]));
         assert.equal(0, getCount(this, this.latestEnrolmentsCard, [this.address2Selected]));
         assert.equal(1, getCount(this, this.latestEnrolmentsCard, [this.twoAddressSelected]));
+    }
+
+    getCountForDefaultCardsType_forTotal() {
+        assert.equal(2, getCount(this, this.totalCard, []));
+        assert.equal(1, getCount(this, this.totalCard, [this.addressSelected]));
+        assert.equal(1, getCount(this, this.totalCard, [this.address2Selected]));
+        assert.equal(2, getCount(this, this.totalCard, [this.twoAddressSelected]));
     }
 }
 

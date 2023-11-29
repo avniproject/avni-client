@@ -80,7 +80,7 @@ class ReportCardService extends BaseService {
             [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
         ]);
         const resultFunc = typeToMethodMap.get(type);
-        const result = type === StandardReportCardType.type.Total ? resultFunc(reportFilters) : resultFunc(new Date(), reportFilters);
+        const result = type === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(new Date(), reportFilters);
         const sortedResult = type === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {status: type, result: sortedResult}
     }

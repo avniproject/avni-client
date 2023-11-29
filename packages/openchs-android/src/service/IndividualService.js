@@ -157,19 +157,22 @@ class IndividualService extends BaseService {
         return individualsWithVisits;
     }
 
-    allInWithFilters = (ignored, queryAdditions, programs = [], encounterTypes = []) => {
+    allInWithFilters = (ignored, reportFilters, queryAdditions, programs = [], encounterTypes = []) => {
         if (!this.hideTotalForProgram() || (_.isEmpty(programs) && _.isEmpty(encounterTypes))) {
-            return this.allIn(ignored, queryAdditions);
+            return this.allIn(ignored, reportFilters, queryAdditions);
         }
         return null;
     }
 
-    allIn = (ignored, queryAdditions) => {
-
-        return this.db.objects(Individual.schema.name)
-            .filtered('voided = false ')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .sorted('name');
+    allIn = (ignored, reportFilters, queryAdditions) => {
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        let individuals = this.db.objects(Individual.schema.name)
+          .filtered('voided = false ');
+        if (!_.isEmpty(queryAdditions)) {
+            individuals = individuals.filtered(`${queryAdditions}`);
+        }
+        individuals = RealmQueryService.filterBasedOnAddress(Individual.schema.name, individuals, addressFilter);
+        return  individuals.sorted('name');
     }
 
     allScheduledVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
