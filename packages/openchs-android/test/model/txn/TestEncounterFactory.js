@@ -10,7 +10,8 @@ class TestEncounterFactory {
                       maxVisitDateTime,
                       subject: subject,
                       observations = [],
-                      approvalStatuses = []
+                      approvalStatuses = [],
+                      latestEntityApprovalStatus
                   }) {
         const encounter = new Encounter();
         encounter.uuid = uuid;
@@ -21,7 +22,7 @@ class TestEncounterFactory {
         encounter.approvalStatuses = approvalStatuses;
         encounter.earliestVisitDateTime = earliestVisitDateTime;
         encounter.maxVisitDateTime = maxVisitDateTime;
-        encounter.setLatestEntityApprovalStatus(encounter.latestEntityApprovalStatus);
+        encounter.setLatestEntityApprovalStatus(latestEntityApprovalStatus);
         return encounter;
     }
 }

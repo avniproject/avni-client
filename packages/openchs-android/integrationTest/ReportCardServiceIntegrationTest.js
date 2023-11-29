@@ -104,6 +104,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatus: pendingStatus
             }));
             const subject = db.create(Individual, TestSubjectFactory.createWithDefaults({
+                uuid: subjectId,
                 subjectType: this.subjectType,
                 address: this.addressLevel,
                 firstName: "foo",
@@ -118,6 +119,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 maxVisitDateTime: moment().add(2, "day").toDate(),
                 encounterType: encounterType,
                 approvalStatuses: [encEAS],
+                latestEntityApprovalStatus: null,
                 subject: subject
             })));
 
@@ -127,6 +129,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 maxVisitDateTime: moment().add(-5, "day").toDate(),
                 encounterType: encounterType,
                 approvalStatuses: [],
+                latestEntityApprovalStatus: null,
                 subject: subject
             })));
 
@@ -155,8 +158,9 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             programEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId1,
-                earliestVisitDateTime: moment().add(-2, "day").toDate(),
-                maxVisitDateTime: moment().add(2, "day").toDate(),
+                encounterDateTime:  moment().add(-2, "day").toDate(),
+                earliestVisitDateTime: moment().add(-10, "day").toDate(),
+                maxVisitDateTime: moment().add(-5, "day").toDate(),
                 encounterType: programEncounterType,
                 programEnrolment: programEnrolment,
                 approvalStatuses: [],
@@ -165,6 +169,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             programEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId2,
+                encounterDateTime: moment().toDate(),
                 earliestVisitDateTime: moment().add(-2, "day").toDate(),
                 maxVisitDateTime: moment().add(2, "day").toDate(),
                 encounterType: programEncounterType,
@@ -176,9 +181,11 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));
             const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.ScheduledVisits}));
             const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OverdueVisits}));
+            const latestVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestVisits}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
             this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
+            this.latestVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestVisitsCard", standardReportCardType: latestVisitsCardType}));
         });
 
         this.reportCardService = this.getService(ReportCardService);
@@ -206,6 +213,13 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.overdueVisitsCard, [this.addressSelected]));
         assert.equal(0, getCount(this, this.overdueVisitsCard, [this.address2Selected]));
         assert.equal(1, getCount(this, this.overdueVisitsCard, [this.twoAddressSelected]));
+    }
+
+    getCountForDefaultCardsType_forLatestVisits() {
+        assert.equal(1, getCount(this, this.latestVisitsCard, []));
+        assert.equal(1, getCount(this, this.latestVisitsCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.latestVisitsCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.latestVisitsCard, [this.twoAddressSelected]));
     }
 }
 
