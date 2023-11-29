@@ -93,14 +93,14 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForChecklistCardType(type) {
+    getResultForChecklistCardType(type, reportFilters) {
         const individualService = this.getService(IndividualService);
-        return {status: type, result: individualService.dueChecklists()};
+        return {status: type, result: individualService.dueChecklists(undefined, reportFilters)};
     }
 
-    getCountForChecklistCardType(type) {
+    getCountForChecklistCardType(type, reportFilters) {
         return {
-            primaryValue: this.getResultForChecklistCardType(type).result.individual.length,
+            primaryValue: this.getResultForChecklistCardType(type, reportFilters).result.individual.length,
             secondaryValue: null,
             clickable: true
         };
@@ -122,7 +122,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isTaskType() :
                 return this.getCountForTaskCardType(standardReportCardType.getTaskTypeType());
             case standardReportCardType.isChecklistType() :
-                return this.getCountForChecklistCardType(standardReportCardType.name);
+                return this.getCountForChecklistCardType(standardReportCardType.name, reportFilters);
         }
     }
 
@@ -137,12 +137,12 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isApprovalType() :
                 return this.getResultForApprovalCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isDefaultType() :
-                return this.getResultForDefaultCardsType(standardReportCardType.name);
+                return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() : {
                 return {status: null, result: this.getResultForCommentCardType()};
             }
             case standardReportCardType.isChecklistType() :
-                return this.getResultForChecklistCardType(standardReportCardType.name);
+                return this.getResultForChecklistCardType(standardReportCardType.name, reportFilters);
         }
     }
 

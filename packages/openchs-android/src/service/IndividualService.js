@@ -588,10 +588,14 @@ class IndividualService extends BaseService {
         return this.dueChecklists(date, [], queryAdditions);
     }
 
-    dueChecklists = (date, reportFilters, queryAdditions) => {
-        const childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
-            .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child')
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`));
+    dueChecklists = (ignored, reportFilters, queryAdditions) => {
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        let childEnrolments = this.db.objects(ProgramEnrolment.schema.name)
+            .filtered('voided = false ' + 'AND individual.voided = false ' + 'AND program.name = $0', 'Child');
+        if(!_.isEmpty(queryAdditions)) {
+            childEnrolments = childEnrolments.filtered(`${queryAdditions}`);
+        }
+        childEnrolments = RealmQueryService.filterBasedOnAddress(ProgramEnrolment.schema.name, childEnrolments, addressFilter);
         const checklistItemNames = [];
         const enrolmentsWithDueChecklist = childEnrolments.filter(enrolment => {
             let stateArray = [];

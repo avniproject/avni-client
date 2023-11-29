@@ -1,26 +1,29 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
 import {
-    EncounterType,
-    Encounter,
-    ApprovalStatus,
-    EntityApprovalStatus,
     AddressLevel,
+    ApprovalStatus,
+    Checklist,
+    ChecklistDetail,
+    ChecklistItem,
     Concept,
+    CustomFilter,
+    Encounter,
+    EncounterType,
+    EntityApprovalStatus,
     Form,
-    StandardReportCardType,
     FormElement,
     FormElementGroup,
     FormMapping,
     Gender,
     Individual,
     OrganisationConfig,
-    Settings,
-    SubjectType,
-    CustomFilter,
-    ReportCard,
     Program,
+    ProgramEncounter,
     ProgramEnrolment,
-    ProgramEncounter
+    ReportCard,
+    Settings,
+    StandardReportCardType,
+    SubjectType
 } from "openchs-models";
 import TestConceptFactory from "../test/model/TestConceptFactory";
 import TestAddressLevelFactory from "../test/model/TestAddressLevelFactory";
@@ -49,12 +52,61 @@ import moment from "moment";
 import TestProgramFactory from '../test/model/TestProgramFactory';
 import TestProgramEnrolmentFactory from '../test/model/txn/TestProgramEnrolmentFactory';
 import TestProgramEncounterFactory from '../test/model/txn/TestProgramEncounterFactory';
+import _ from 'lodash';
 
 function getCount(test, card, reportFilters) {
     return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
 }
 
+function createChecklist(programEnrolment, db, withDue = true) {
+    const checklistConcept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
+    const checklistDetail = db.create(ChecklistDetail, {
+        uuid: General.randomUUID(),
+        name: 'ck-detail',
+        items: [],
+        voided: false})
+    const checklist = {
+        uuid: General.randomUUID(),
+        items: [
+            {
+                uuid: General.randomUUID(),
+                detail: {
+                    uuid: General.randomUUID(),
+                    concept: checklistConcept,
+                    stateConfig: [{
+                        state: "Due",
+                        from: {key: "key1", value: 1},
+                        to: {key: "key2", value: 2},
+                        color: "red",
+                        displayOrder: 3,
+                        start: -1,
+                        end: +1
+                    }],
+                    checklistDetail: checklistDetail,
+                }
+            }]
+    }
+    let checklistToBeCreated = Checklist.create();
+    checklistToBeCreated.uuid = _.isNil(checklist.uuid) ? checklistToBeCreated.uuid : checklist.uuid;
+    checklistToBeCreated.baseDate = withDue ? moment().toDate() : moment().add(-2, "day").toDate();
+    checklistToBeCreated.detail = checklistDetail;
+    const savedChecklist = db.create(Checklist, checklistToBeCreated, true);
+    const checklistItems = checklist.items.map((item) => {
+        const checklistItem = ChecklistItem.create({
+            uuid: item.uuid,
+            checklist: savedChecklist,
+            detail: item.detail
+        });
+        const savedChecklistItem = db.create(ChecklistItem, checklistItem, true);
+        return savedChecklistItem;
+    });
+    checklistItems.forEach(ci => savedChecklist.items.push(ci));
+    programEnrolment.addChecklist(savedChecklist);
+    savedChecklist.programEnrolment = programEnrolment;
+}
+
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
+
     setup() {
         super.setup();
         this.executeInWrite((db) => {
@@ -65,8 +117,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             db.create(Settings, TestSettingsFactory.createWithDefaults({}));
 
             this.subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
-            const program = db.create(Program, TestProgramFactory.create({name: 'Mother'}));
-            const programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Delivery"}));
+            const program = db.create(Program, TestProgramFactory.create({name: 'Child'}));
+            const programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Birth form"}));
             const encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
             const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
             const formElementGroup = db.create(FormElementGroup, TestFormElementGroupFactory.create({form: form}));
@@ -145,6 +197,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: []
             }));
 
+            createChecklist( programEnrolment1, db);
+
             const subject2 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject2Id,
                 subjectType: this.subjectType,
@@ -178,6 +232,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: [enrolmentEAS]
             }));
 
+            createChecklist(programEnrolment2, db, false);
+
             programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId1,
                 encounterDateTime:  moment().add(-2, "day").toDate(),
@@ -207,6 +263,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const latestRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestRegistrations}));
             const latestEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestEnrolments}));
             const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Total}));
+            const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.DueChecklist}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
             this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
@@ -214,6 +271,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             this.latestRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestRegistrationsCard", standardReportCardType: latestRegistrationsCardType}));
             this.latestEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestEnrolmentsCard", standardReportCardType: latestEnrolmentsCardType}));
             this.totalCard = db.create(ReportCard, TestReportCardFactory.create({name: "totalCard", standardReportCardType: totalCardType}));
+            this.dueChecklistCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: dueChecklistCardType}));
         });
 
         this.reportCardService = this.getService(ReportCardService);
@@ -221,6 +279,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         this.address2Selected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]});
         this.twoAddressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel, this.addressLevel2]});
     }
+
+
 
     getResultForApprovalCardsType() {
         assert.equal(1, getCount(this, this.approvedCard, []));
@@ -269,6 +329,13 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.totalCard, [this.addressSelected]));
         assert.equal(1, getCount(this, this.totalCard, [this.address2Selected]));
         assert.equal(2, getCount(this, this.totalCard, [this.twoAddressSelected]));
+    }
+
+    getCountForDefaultCardsType_forDueChecklist() {
+        assert.equal(1, getCount(this, this.dueChecklistCard, []));
+        assert.equal(1, getCount(this, this.dueChecklistCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.dueChecklistCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.dueChecklistCard, [this.twoAddressSelected]));
     }
 }
 
