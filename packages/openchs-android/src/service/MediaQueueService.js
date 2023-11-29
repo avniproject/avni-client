@@ -218,21 +218,20 @@ class MediaQueueService extends BaseService {
         // Return only once every media queue item upload succeeds or fails.
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
-        return Promise.allSettled(
-            _.map(mediaQueueItems,
-                (mediaQueueItem) => {
-                    return this.uploadMediaQueueItem(mediaQueueItem)
-                }
-            )
-        ).then(results => {
-                if (_.filter(results, result =>
-                   result.status === 'rejected'
-                ).length > 0) {
-                    return Promise.reject(new Error("syncTimeoutError"));
+        const chunkedMediaQueueItems = _.chunk(mediaQueueItems, 2);
+        let current = Promise.resolve();
+        for (const mediaQueueItemsChunk of chunkedMediaQueueItems) {
+            current = current.then(() => Promise.allSettled(
+                _.map(mediaQueueItemsChunk, (mediaQueueItem) => this.uploadMediaQueueItem(mediaQueueItem))
+            )).then((results) => {
+                if (_.some(results, result => result.status === 'rejected')) {
+                    return Promise.reject(new Error("Media queue error"));
                 } else {
                     return Promise.resolve();
                 }
             });
+        }
+        return current;
     }
 }
 
