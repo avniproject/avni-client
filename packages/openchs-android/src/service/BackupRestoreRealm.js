@@ -55,7 +55,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
             })
-            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, `adhoc-dump-as-zip-${General.randomUUID()}`))
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, `adhoc-dump-as-zip-${_.get(this.getService(UserInfoService).getUserInfo(), 'username')}-${General.randomUUID()}`))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
                 General.logDebug("BackupRestoreRealmService", `Upload in progress ${written}/${total}`);
                 cb(10 + (97 - 10) * (written / total), "backupUploading");
