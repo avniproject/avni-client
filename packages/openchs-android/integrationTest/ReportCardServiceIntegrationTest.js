@@ -47,6 +47,8 @@ import TestEncounterFactory from "../test/model/txn/TestEncounterFactory";
 import TestEncounterTypeFactory from "../test/model/TestEncounterTypeFactory";
 import moment from "moment";
 import TestProgramFactory from '../test/model/TestProgramFactory';
+import TestProgramEnrolmentFactory from '../test/model/txn/TestProgramEnrolmentFactory';
+import TestProgramEncounterFactory from '../test/model/txn/TestProgramEncounterFactory';
 
 function getCount(test, card, reportFilters) {
     return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
@@ -79,14 +81,15 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: this.subjectType, form: form}));
             db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));
             const approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
+            const enrolmentApprovalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
             const pendingStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Pending}));
+            const programEncRejectedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Rejected}));
             const subjectId = General.randomUUID();
             const encounterId1 = General.randomUUID();
             const encounterId2 = General.randomUUID();
-
-            //TODO add programEnrolment and programEncounters
-            // const programEncounterId1 = General.randomUUID();
-            // const programEncounterId2 = General.randomUUID();
+            const programEnrolmentId1 = General.randomUUID();
+            const programEncounterId1 = General.randomUUID();
+            const programEncounterId2 = General.randomUUID();
 
             const subjectEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
@@ -125,6 +128,49 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 encounterType: encounterType,
                 approvalStatuses: [],
                 subject: subject
+            })));
+
+            const enrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
+                entityUUID: programEnrolmentId1,
+                entityTypeUuid: program.uuid,
+                approvalStatus: enrolmentApprovalStatus
+            }));
+            const programEnc2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.ProgramEncounter,
+                entityUUID: programEncounterId2,
+                entityTypeUuid: programEncounterType.uuid,
+                approvalStatus: programEncRejectedStatus
+            }));
+
+            const programEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: programEnrolmentId1,
+                program,
+                subject,
+                enrolmentDateTime: moment().add(-10, "day").toDate(),
+                latestEntityApprovalStatus: null,
+                observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})],
+                approvalStatuses: [enrolmentEAS]
+            }));
+
+            programEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: programEncounterId1,
+                earliestVisitDateTime: moment().add(-2, "day").toDate(),
+                maxVisitDateTime: moment().add(2, "day").toDate(),
+                encounterType: programEncounterType,
+                programEnrolment: programEnrolment,
+                approvalStatuses: [],
+                latestEntityApprovalStatus: null
+            })));
+
+            programEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: programEncounterId2,
+                earliestVisitDateTime: moment().add(-2, "day").toDate(),
+                maxVisitDateTime: moment().add(2, "day").toDate(),
+                encounterType: programEncounterType,
+                programEnrolment: programEnrolment,
+                approvalStatuses: [programEnc2EAS],
+                latestEntityApprovalStatus: programEnc2EAS
             })));
 
             const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));

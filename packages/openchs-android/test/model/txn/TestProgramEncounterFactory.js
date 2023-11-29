@@ -1,4 +1,4 @@
-import General from "../../src/utility/General";
+import General from "../../../src/utility/General";
 import {ProgramEncounter} from 'openchs-models';
 
 class TestProgramEncounterFactory {
@@ -10,9 +10,9 @@ class TestProgramEncounterFactory {
                       encounterDateTime,
                       earliestVisitDateTime,
                       maxVisitDateTime,
-                      subject: subject,
                       observations = [],
-                      approvalStatuses = []
+                      approvalStatuses = [],
+                      latestEntityApprovalStatus
                   }) {
         const programEncounter = new ProgramEncounter();
         programEncounter.uuid = uuid;
@@ -21,12 +21,11 @@ class TestProgramEncounterFactory {
         programEncounter.encounterType = encounterType;
         programEncounter.programEnrolment = programEnrolment;
         programEncounter.encounterDateTime = encounterDateTime;
-        programEncounter.individual = subject;
         programEncounter.observations = observations;
         programEncounter.approvalStatuses = approvalStatuses;
         programEncounter.earliestVisitDateTime = earliestVisitDateTime;
         programEncounter.maxVisitDateTime = maxVisitDateTime;
-        programEncounter.setLatestEntityApprovalStatus(programEncounter.latestEntityApprovalStatus);
+        programEncounter.setLatestEntityApprovalStatus(latestEntityApprovalStatus);
         return programEncounter;
     }
 }
