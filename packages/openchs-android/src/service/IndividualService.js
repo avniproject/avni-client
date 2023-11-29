@@ -506,8 +506,7 @@ class IndividualService extends BaseService {
         } else if (encounterTypes.length > 0) {
             individuals = _.filter(individuals, (individual) => individual.hasEncounterOfType(encounterTypes));
         }
-
-        return [...individuals.map((individual) => {
+        individuals = individuals.map((individual) => {
             const registrationDate = individual.registrationDate;
             return {
                 individual,
@@ -519,7 +518,9 @@ class IndividualService extends BaseService {
                     allow: true,
                 }
             };
-        }).reduce(this._uniqIndividualWithVisitName, new Map())
+        });
+        return [...individuals
+          .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
@@ -527,28 +528,34 @@ class IndividualService extends BaseService {
     recentlyEnrolled(date, reportFilters, queryAdditions) {
         let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
         let tillDate = moment(date).endOf('day').toDate();
-        return [...this.db.objects(ProgramEnrolment.schema.name)
-            .filtered('voided = false ' +
-                'AND individual.voided = false ' +
-                'AND enrolmentDateTime <= $0 ' +
-                'AND enrolmentDateTime >= $1 ',
-                tillDate,
-                fromDate)
-            .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
-            .map((enc) => {
-                const individual = enc.individual;
-                const enrolmentDateTime = enc.enrolmentDateTime;
-                return {
-                    individual,
-                    visitInfo: {
-                        uuid: individual.uuid,
-                        visitName: [],
-                        groupingBy: General.formatDate(enrolmentDateTime),
-                        sortingBy: enrolmentDateTime,
-                        allow: true,
-                    }
-                };
-            })
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        let enrolments = this.db.objects(ProgramEnrolment.schema.name)
+          .filtered('voided = false ' +
+            'AND individual.voided = false ' +
+            'AND enrolmentDateTime <= $0 ' +
+            'AND enrolmentDateTime >= $1 ',
+            tillDate,
+            fromDate);
+
+        if(!_.isEmpty(queryAdditions)) {
+            enrolments = enrolments.filtered(`${queryAdditions}`);
+        }
+        enrolments = RealmQueryService.filterBasedOnAddress(ProgramEnrolment.schema.name, enrolments, addressFilter);
+        enrolments = enrolments.map((enc) => {
+              const individual = enc.individual;
+              const enrolmentDateTime = enc.enrolmentDateTime;
+              return {
+                  individual,
+                  visitInfo: {
+                      uuid: individual.uuid,
+                      visitName: [],
+                      groupingBy: General.formatDate(enrolmentDateTime),
+                      sortingBy: enrolmentDateTime,
+                      allow: true,
+                  }
+              };
+          });
+        return [...enrolments
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
             .map(_.identity);
