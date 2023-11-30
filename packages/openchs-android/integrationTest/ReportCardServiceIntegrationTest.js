@@ -145,7 +145,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const programEncounterId1 = General.randomUUID();
             const programEncounterId2 = General.randomUUID();
 
-            const subjectEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+            const subject1EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
                 entityUUID: subject1Id,
                 entityTypeUuid: this.subjectType.uuid,
@@ -164,7 +164,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 firstName: "foo",
                 lastName: "bar",
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})],
-                approvalStatuses: [subjectEAS]
+                approvalStatuses: [subject1EAS]
             }));
 
             subject1.addEncounter(db.create(Encounter, TestEncounterFactory.create({
@@ -199,6 +199,12 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             createChecklist( programEnrolment1, db);
 
+            const subject2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.Subject,
+                entityUUID: subject2Id,
+                entityTypeUuid: this.subjectType.uuid,
+                approvalStatus: pendingStatus
+            }));
             const subject2 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject2Id,
                 subjectType: this.subjectType,
@@ -206,7 +212,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 firstName: "foo2",
                 lastName: "bar2",
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEF"))})],
-                approvalStatuses: []
+                approvalStatuses: [subject2EAS]
             }));
 
             const enrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
@@ -257,6 +263,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             })));
 
             const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));
+            const pendingCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.PendingApproval}));
             const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.ScheduledVisits}));
             const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OverdueVisits}));
             const latestVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestVisits}));
@@ -265,6 +272,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Total}));
             const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.DueChecklist}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
+            this.pendingCard = db.create(ReportCard, TestReportCardFactory.create({name: "pendingCard", standardReportCardType: pendingCardType}));
             this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
             this.latestVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestVisitsCard", standardReportCardType: latestVisitsCardType}));
@@ -287,6 +295,13 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.approvedCard, [this.addressSelected]));
         assert.equal(0, getCount(this, this.approvedCard, [this.address2Selected]));
         assert.equal(1, getCount(this, this.approvedCard, [this.twoAddressSelected]));
+    }
+
+    getResultForPendingCardsType() {
+        assert.equal(1, getCount(this, this.pendingCard, []));
+        assert.equal(0, getCount(this, this.pendingCard, [this.addressSelected]));
+        assert.equal(1, getCount(this, this.pendingCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.pendingCard, [this.twoAddressSelected]));
     }
 
     getCountForDefaultCardsType_forScheduledVisits() {
