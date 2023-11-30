@@ -12,7 +12,8 @@ import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import * as mime from 'react-native-mime-types';
-import Time from "moment";
+import moment from "moment";
+import I18n from 'i18n-js';
 const PARALLEL_UPLOAD_COUNT = 1;
 
 @Service("mediaQueueService")
@@ -221,8 +222,8 @@ class MediaQueueService extends BaseService {
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
         const chunkedMediaQueueItems = _.chunk(mediaQueueItems, PARALLEL_UPLOAD_COUNT);
-        General.logInfo("MediaQueueService", "Upload batch size " + PARALLEL_UPLOAD_COUNT);
-        let startTime = Time.now();
+        General.logInfo("MediaQueueService", `Upload batch size ${PARALLEL_UPLOAD_COUNT}`);
+        let startTime = moment.now();
         let current = Promise.resolve();
         let count = 0;
         for (const mediaQueueItemsChunk of chunkedMediaQueueItems) {
@@ -234,15 +235,15 @@ class MediaQueueService extends BaseService {
                 } else {
                     count += PARALLEL_UPLOAD_COUNT
                     if(statusMessageCallback) {
-                        statusMessageCallback("Uploading saved media files (" + count + "/" + mediaQueueItems.length+")")
+                        statusMessageCallback(`${I18n.t("uploadMedia")} (${count}/${mediaQueueItems.length})`)
                     }
 
-                    General.logInfo("MediaQueueService","MediaUpload: Time taken " + (Time.now() - startTime));
+                    General.logInfo("MediaQueueService",`MediaUpload: Time taken ${(moment.now() - startTime)}`);
                     return Promise.resolve();
                 }
             });
         }
-        current.then(() => { General.logInfo("MediaQueueService","MediaUpload:Total time taken " + (Time.now() - startTime))})
+        current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
         return current;
     }
 }
