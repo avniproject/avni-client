@@ -12,6 +12,8 @@ import EncounterService from "./EncounterService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import * as mime from 'react-native-mime-types';
+import Time from "moment";
+const PARALLEL_UPLOAD_COUNT = 1;
 
 @Service("mediaQueueService")
 class MediaQueueService extends BaseService {
@@ -213,24 +215,34 @@ class MediaQueueService extends BaseService {
         return this.findAll().length > 0;
     }
 
-    uploadMedia() {
+    uploadMedia(statusMessageCallback) {
         // Parallel push to S3 ensures maximal usage of existing bandwidth.
         // Return only once every media queue item upload succeeds or fails.
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
-        const chunkedMediaQueueItems = _.chunk(mediaQueueItems, 2);
+        const chunkedMediaQueueItems = _.chunk(mediaQueueItems, PARALLEL_UPLOAD_COUNT);
+        General.logInfo("MediaQueueService", "Upload batch size " + PARALLEL_UPLOAD_COUNT);
+        let startTime = Time.now();
         let current = Promise.resolve();
+        let count = 0;
         for (const mediaQueueItemsChunk of chunkedMediaQueueItems) {
             current = current.then(() => Promise.allSettled(
                 _.map(mediaQueueItemsChunk, (mediaQueueItem) => this.uploadMediaQueueItem(mediaQueueItem))
             )).then((results) => {
                 if (_.some(results, result => result.status === 'rejected')) {
-                    return Promise.reject(new Error("Media queue error"));
+                    return Promise.reject(new Error("syncTimeoutError"));
                 } else {
+                    count += PARALLEL_UPLOAD_COUNT
+                    if(statusMessageCallback) {
+                        statusMessageCallback("Uploading saved media files (" + count + "/" + mediaQueueItems.length+")")
+                    }
+
+                    General.logInfo("MediaQueueService","MediaUpload: Time taken " + (Time.now() - startTime));
                     return Promise.resolve();
                 }
             });
         }
+        current.then(() => { General.logInfo("MediaQueueService","MediaUpload:Total time taken " + (Time.now() - startTime))})
         return current;
     }
 }

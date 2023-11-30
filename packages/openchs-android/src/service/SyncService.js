@@ -120,7 +120,7 @@ class SyncService extends BaseService {
 
     mediaSync(statusMessageCallBack) {
         return Promise.resolve(statusMessageCallBack("uploadMedia"))
-            .then(() => this.mediaQueueService.uploadMedia());
+            .then(() => this.mediaQueueService.uploadMedia(statusMessageCallBack));
     }
 
     telemetrySync(allEntitiesMetaData, onProgressPerEntity) {
