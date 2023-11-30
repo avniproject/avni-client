@@ -2,6 +2,8 @@ import {Concept, Duration, Observation} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import 'react-native-get-random-values';
+import { v4 as uuidv4 } from 'uuid';
 
 let currentLogLevel;
 
@@ -178,12 +180,8 @@ class General {
         return dest;
     }
 
-    //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     static randomUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+        return uuidv4();
     }
 
     static objectsShallowEquals(a: Object, b: Object): Boolean {
