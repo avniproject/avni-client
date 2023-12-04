@@ -1,14 +1,7 @@
 import EntityService from "../../service/EntityService";
 import {Family} from 'avni-models';
-import _ from 'lodash';
 
 class FamilyDashboardActions {
-
-    static cloneEntity(entity) {
-        if (!_.isNil(entity))
-            return entity.cloneForEdit();
-    }
-
     static getInitialState() {
         return {};
     }

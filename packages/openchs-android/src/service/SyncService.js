@@ -360,7 +360,7 @@ class SyncService extends BaseService {
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
         if (updatedSyncSource !== SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB) {
             General.logInfo("Sync", "Full Sync completed, performing reset")
-            setTimeout(() => this.reset(false), 1);
+            this.reset(false);
             this.getService(SettingsService).initLanguages();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
@@ -368,7 +368,6 @@ class SyncService extends BaseService {
 
     reset(syncRequired: false) {
         this.context.getService(RuleEvaluationService).init();
-        this.context.getService(ProgramConfigService).init();
         this.context.getService(MessageService).init();
         this.context.getService(RuleService).init();
         this.dispatchAction('RESET');
