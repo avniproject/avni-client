@@ -18,6 +18,8 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
+import LocalCacheService from "../service/LocalCacheService";
+import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -44,9 +46,12 @@ class SyncComponent extends AbstractComponent {
     }
 
     _postSync() {
-        this.setState({syncStarted: false});
-        this.dispatchAction(SyncActions.POST_SYNC);
         this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.SYNC_BUTTON);
+        this.dispatchAction(SyncActions.POST_SYNC);
+        this.setState({syncStarted: false});
+        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+        });
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
