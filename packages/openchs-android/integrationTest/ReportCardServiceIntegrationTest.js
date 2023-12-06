@@ -1,41 +1,19 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
 import {
-    AddressLevel,
-    ApprovalStatus,
-    Checklist,
-    ChecklistDetail,
-    ChecklistItem,
-    Concept,
+    ApprovalStatus, Concept,
     CustomFilter,
     Encounter,
     EncounterType,
     EntityApprovalStatus,
-    Form,
-    FormElement,
-    FormElementGroup,
-    FormMapping,
-    Gender,
     Individual,
-    OrganisationConfig,
     Program,
     ProgramEncounter,
     ProgramEnrolment,
     ReportCard,
-    Settings,
     StandardReportCardType,
     SubjectType
 } from "openchs-models";
-import TestConceptFactory from "../test/model/TestConceptFactory";
-import TestAddressLevelFactory from "../test/model/TestAddressLevelFactory";
-import TestGenderFactory from "../test/model/TestGenderFactory";
-import TestSettingsFactory from "../test/model/user/TestSettingsFactory";
 import TestSubjectTypeFactory from "../test/model/TestSubjectTypeFactory";
-import TestFormFactory from "../test/model/form/TestFormFactory";
-import TestFormElementGroupFactory from "../test/model/form/TestFormElementGroupFactory";
-import TestFormElementFactory from "../test/model/form/TestFormElementFactory";
-import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
-import TestFormMappingFactory from "../test/model/form/TestFormMappingFactory";
-import TestOrganisationConfigFactory from "../test/model/TestOrganisationConfigFactory";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
 import ReportCardService from "../src/service/customDashboard/ReportCardService";
@@ -52,90 +30,30 @@ import moment from "moment";
 import TestProgramFactory from '../test/model/TestProgramFactory';
 import TestProgramEnrolmentFactory from '../test/model/txn/TestProgramEnrolmentFactory';
 import TestProgramEncounterFactory from '../test/model/txn/TestProgramEncounterFactory';
-import _ from 'lodash';
+import TestChecklistService from "./service/TestChecklistService";
+import TestOrganisationService from "./service/TestOrganisationService";
+import TestConceptFactory from "../test/model/TestConceptFactory";
 
 function getCount(test, card, reportFilters) {
     return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
 }
 
-function createChecklist(programEnrolment, db, withDue = true) {
-    const checklistConcept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
-    const checklistDetail = db.create(ChecklistDetail, {
-        uuid: General.randomUUID(),
-        name: 'ck-detail',
-        items: [],
-        voided: false})
-    const checklist = {
-        uuid: General.randomUUID(),
-        items: [
-            {
-                uuid: General.randomUUID(),
-                detail: {
-                    uuid: General.randomUUID(),
-                    concept: checklistConcept,
-                    stateConfig: [{
-                        state: "Due",
-                        from: {key: "key1", value: 1},
-                        to: {key: "key2", value: 2},
-                        color: "red",
-                        displayOrder: 3,
-                        start: -1,
-                        end: +1
-                    }],
-                    checklistDetail: checklistDetail,
-                }
-            }]
-    }
-    let checklistToBeCreated = Checklist.create();
-    checklistToBeCreated.uuid = _.isNil(checklist.uuid) ? checklistToBeCreated.uuid : checklist.uuid;
-    checklistToBeCreated.baseDate = withDue ? moment().toDate() : moment().add(-2, "day").toDate();
-    checklistToBeCreated.detail = checklistDetail;
-    const savedChecklist = db.create(Checklist, checklistToBeCreated, true);
-    const checklistItems = checklist.items.map((item) => {
-        const checklistItem = ChecklistItem.create({
-            uuid: item.uuid,
-            checklist: savedChecklist,
-            detail: item.detail
-        });
-        const savedChecklistItem = db.create(ChecklistItem, checklistItem, true);
-        return savedChecklistItem;
-    });
-    checklistItems.forEach(ci => savedChecklist.items.push(ci));
-    programEnrolment.addChecklist(savedChecklist);
-    savedChecklist.programEnrolment = programEnrolment;
-}
-
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
-
     setup() {
         super.setup();
         this.executeInWrite((db) => {
+            this.organisationData = TestOrganisationService.setupOrganisation(db);
             this.concept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
-            this.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
-            this.addressLevel2 = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
-            this.gender = db.create(Gender, TestGenderFactory.createWithDefaults({name: "Male"}));
-            db.create(Settings, TestSettingsFactory.createWithDefaults({}));
 
             this.subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
             const program = db.create(Program, TestProgramFactory.create({name: 'Child'}));
             const programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Birth form"}));
             const encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
-            const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
-            const formElementGroup = db.create(FormElementGroup, TestFormElementGroupFactory.create({form: form}));
-            db.create(FormElement, TestFormElementFactory.create({
-                uuid: "FOO",
-                concept: this.concept,
-                displayOrder: 1,
-                formElementGroup: formElementGroup,
-                mandatory: true,
-                keyValues: [TestKeyValueFactory.create({key: "unique", value: "true"})]
-            }));
-            db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: this.subjectType, form: form}));
-            db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));
             const approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
             const enrolmentApprovalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
             const pendingStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Pending}));
             const programEncRejectedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Rejected}));
+
             const subject1Id = General.randomUUID();
             const subject2Id = General.randomUUID();
             const encounterId1 = General.randomUUID();
@@ -160,7 +78,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject1Id,
                 subjectType: this.subjectType,
-                address: this.addressLevel,
+                address: this.organisationData.addressLevel,
                 firstName: "foo",
                 lastName: "bar",
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})],
@@ -197,7 +115,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: []
             }));
 
-            createChecklist( programEnrolment1, db);
+            TestChecklistService.createChecklist( programEnrolment1, db);
 
             const subject2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
@@ -208,7 +126,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const subject2 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject2Id,
                 subjectType: this.subjectType,
-                address: this.addressLevel2,
+                address: this.organisationData.addressLevel2,
                 firstName: "foo2",
                 lastName: "bar2",
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEF"))})],
@@ -238,7 +156,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: [enrolmentEAS]
             }));
 
-            createChecklist(programEnrolment2, db, false);
+            TestChecklistService.createChecklist(programEnrolment2, db, false);
 
             programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId1,
@@ -283,12 +201,10 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         });
 
         this.reportCardService = this.getService(ReportCardService);
-        this.addressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel]});
-        this.address2Selected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel2]});
-        this.twoAddressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.addressLevel, this.addressLevel2]});
+        this.addressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel]});
+        this.address2Selected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel2]});
+        this.twoAddressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel, this.organisationData.addressLevel2]});
     }
-
-
 
     getResultForApprovalCardsType() {
         assert.equal(1, getCount(this, this.approvedCard, []));
