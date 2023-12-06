@@ -11,8 +11,7 @@ class TestMetadataService {
         metadata.program = db.create(Program, TestProgramFactory.create({name: 'Child'}));
         metadata.programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Birth form"}));
         metadata.encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
-        metadata.approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
-        metadata.enrolmentApprovalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
+        metadata.approvedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
         metadata.pendingStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Pending}));
         metadata.rejectedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Rejected}));
         return metadata;

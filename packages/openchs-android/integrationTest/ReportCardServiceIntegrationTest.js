@@ -1,19 +1,5 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
-import {
-    ApprovalStatus, Concept,
-    CustomFilter,
-    Encounter,
-    EncounterType,
-    EntityApprovalStatus,
-    Individual,
-    Program,
-    ProgramEncounter,
-    ProgramEnrolment,
-    ReportCard,
-    StandardReportCardType,
-    SubjectType
-} from "openchs-models";
-import TestSubjectTypeFactory from "../test/model/TestSubjectTypeFactory";
+import {Concept, CustomFilter, Encounter, EntityApprovalStatus, Individual, ProgramEncounter, ProgramEnrolment, ReportCard, StandardReportCardType} from "openchs-models";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
 import ReportCardService from "../src/service/customDashboard/ReportCardService";
@@ -23,11 +9,8 @@ import TestDashboardReportFilterFactory from "../test/model/reportNDashboard/Tes
 import {assert} from "chai";
 import General from "../src/utility/General";
 import TestEntityApprovalStatusFactory from "../test/model/approval/TestEntityApprovalStatusFactory";
-import TestApprovalStatusFactory from "../test/model/approval/TestApprovalStatusFactory";
 import TestEncounterFactory from "../test/model/txn/TestEncounterFactory";
-import TestEncounterTypeFactory from "../test/model/TestEncounterTypeFactory";
 import moment from "moment";
-import TestProgramFactory from '../test/model/TestProgramFactory';
 import TestProgramEnrolmentFactory from '../test/model/txn/TestProgramEnrolmentFactory';
 import TestProgramEncounterFactory from '../test/model/txn/TestProgramEncounterFactory';
 import TestChecklistService from "./service/TestChecklistService";
@@ -60,7 +43,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 entityType: EntityApprovalStatus.entityType.Subject,
                 entityUUID: subject1Id,
                 entityTypeUuid: this.metadata.subjectType.uuid,
-                approvalStatus: this.metadata.approvalStatus
+                approvalStatus: this.metadata.approvedStatus
             }));
             const encEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Encounter,
@@ -130,7 +113,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
                 entityUUID: programEnrolmentId2,
                 entityTypeUuid: this.metadata.program.uuid,
-                approvalStatus: this.metadata.enrolmentApprovalStatus
+                approvalStatus: this.metadata.approvedStatus
             }));
             const programEnc2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.ProgramEncounter,

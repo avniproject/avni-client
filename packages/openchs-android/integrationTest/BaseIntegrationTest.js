@@ -48,6 +48,10 @@ class BaseIntegrationTest {
         return this;
     }
 
+    logQueries() {
+        GlobalContext.getInstance().db.setLogQueries(true);
+    }
+
     log(...params) {
         console["debug"]("\x1b[43m\x1b[30m%s\x1b[0m", ...params);
     }

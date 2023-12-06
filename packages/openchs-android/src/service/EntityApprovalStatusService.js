@@ -46,6 +46,18 @@ class EntityApprovalStatusService extends BaseService {
         return savedStatus;
     }
 
+    getAllSubjects(approvalStatus_status, reportFilters) {
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        let entities = RealmQueryService.filterBasedOnAddress(Individual.schema.name, this.getAll(Individual.schema.name), addressFilter);
+        entities = entities.filtered(`((latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false) 
+                    or (enrolments.latestEntityApprovalStatus.approvalStatus.status = $1 and enrolments.voided = false) 
+                    or (encounters.latestEntityApprovalStatus.approvalStatus.status = $2 and encounters.voided = false)
+                    or (enrolments.encounters.latestEntityApprovalStatus.approvalStatus.status = $3 and enrolments.encounters.voided = false)
+                    or (enrolments.checklists.items.latestEntityApprovalStatus.approvalStatus.status = $4 and enrolments.voided = false)) SORT(firstName ASC)`,
+                approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status);
+        return entities;
+    }
+
     getAllEntitiesForReports(approvalStatus_status, reportFilters) {
         const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema();
         const result = _.map(applicableEntitiesSchema, (schema) => {

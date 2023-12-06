@@ -108,7 +108,6 @@ class ReportCardService extends BaseService {
 
     getReportCardCount(reportCard, reportFilters) {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
-        General.logDebugTemp("ReportCardService", JSONStringify(reportFilters, 5));
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :
@@ -151,7 +150,6 @@ class ReportCardService extends BaseService {
         const {schema, filterQuery} = schemaAndQueryFilter;
         return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, schema, filterQuery)
     }
-
 }
 
 export default ReportCardService
