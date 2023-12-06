@@ -33,6 +33,7 @@ import TestProgramEncounterFactory from '../test/model/txn/TestProgramEncounterF
 import TestChecklistService from "./service/TestChecklistService";
 import TestOrganisationService from "./service/TestOrganisationService";
 import TestConceptFactory from "../test/model/TestConceptFactory";
+import TestMetadataService from "./service/TestMetadataService";
 
 function getCount(test, card, reportFilters) {
     return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
@@ -44,15 +45,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         this.executeInWrite((db) => {
             this.organisationData = TestOrganisationService.setupOrganisation(db);
             this.concept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
-
-            this.subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
-            const program = db.create(Program, TestProgramFactory.create({name: 'Child'}));
-            const programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Birth form"}));
-            const encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
-            const approvalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
-            const enrolmentApprovalStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
-            const pendingStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Pending}));
-            const programEncRejectedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({status: ApprovalStatus.statuses.Rejected}));
+            this.metadata = TestMetadataService.create(db);
 
             const subject1Id = General.randomUUID();
             const subject2Id = General.randomUUID();
@@ -66,18 +59,18 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const subject1EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
                 entityUUID: subject1Id,
-                entityTypeUuid: this.subjectType.uuid,
-                approvalStatus: approvalStatus
+                entityTypeUuid: this.metadata.subjectType.uuid,
+                approvalStatus: this.metadata.approvalStatus
             }));
             const encEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Encounter,
                 entityUUID: encounterId1,
-                entityTypeUuid: encounterType.uuid,
-                approvalStatus: pendingStatus
+                entityTypeUuid: this.metadata.encounterType.uuid,
+                approvalStatus: this.metadata.pendingStatus
             }));
             const subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject1Id,
-                subjectType: this.subjectType,
+                subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel,
                 firstName: "foo",
                 lastName: "bar",
@@ -89,7 +82,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 uuid: encounterId1,
                 earliestVisitDateTime: moment().add(-2, "day").toDate(),
                 maxVisitDateTime: moment().add(2, "day").toDate(),
-                encounterType: encounterType,
+                encounterType: this.metadata.encounterType,
                 approvalStatuses: [encEAS],
                 latestEntityApprovalStatus: null,
                 subject: subject1
@@ -99,7 +92,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 uuid: encounterId2,
                 earliestVisitDateTime: moment().add(-10, "day").toDate(),
                 maxVisitDateTime: moment().add(-5, "day").toDate(),
-                encounterType: encounterType,
+                encounterType: this.metadata.encounterType,
                 approvalStatuses: [],
                 latestEntityApprovalStatus: null,
                 subject: subject1
@@ -107,7 +100,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             const programEnrolment1 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
                 uuid: programEnrolmentId1,
-                program,
+                program: this.metadata.program,
                 subject: subject1,
                 enrolmentDateTime: moment().toDate(),
                 latestEntityApprovalStatus: null,
@@ -115,17 +108,17 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: []
             }));
 
-            TestChecklistService.createChecklist( programEnrolment1, db);
+            TestChecklistService.createChecklist(programEnrolment1, db);
 
             const subject2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
                 entityUUID: subject2Id,
-                entityTypeUuid: this.subjectType.uuid,
-                approvalStatus: pendingStatus
+                entityTypeUuid: this.metadata.subjectType.uuid,
+                approvalStatus: this.metadata.pendingStatus
             }));
             const subject2 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject2Id,
-                subjectType: this.subjectType,
+                subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel2,
                 firstName: "foo2",
                 lastName: "bar2",
@@ -136,19 +129,19 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const enrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
                 entityUUID: programEnrolmentId2,
-                entityTypeUuid: program.uuid,
-                approvalStatus: enrolmentApprovalStatus
+                entityTypeUuid: this.metadata.program.uuid,
+                approvalStatus: this.metadata.enrolmentApprovalStatus
             }));
             const programEnc2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.ProgramEncounter,
                 entityUUID: programEncounterId2,
-                entityTypeUuid: programEncounterType.uuid,
-                approvalStatus: programEncRejectedStatus
+                entityTypeUuid: this.metadata.programEncounterType.uuid,
+                approvalStatus: this.metadata.rejectedStatus
             }));
 
             const programEnrolment2 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
                 uuid: programEnrolmentId2,
-                program,
+                program: this.metadata.program,
                 subject: subject2,
                 enrolmentDateTime: moment().add(-10, "day").toDate(),
                 latestEntityApprovalStatus: null,
@@ -160,10 +153,10 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId1,
-                encounterDateTime:  moment().add(-2, "day").toDate(),
+                encounterDateTime: moment().add(-2, "day").toDate(),
                 earliestVisitDateTime: moment().add(-10, "day").toDate(),
                 maxVisitDateTime: moment().add(-5, "day").toDate(),
-                encounterType: programEncounterType,
+                encounterType: this.metadata.programEncounterType,
                 programEnrolment: programEnrolment2,
                 approvalStatuses: [],
                 latestEntityApprovalStatus: null
@@ -174,7 +167,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 encounterDateTime: moment().toDate(),
                 earliestVisitDateTime: moment().add(-2, "day").toDate(),
                 maxVisitDateTime: moment().add(2, "day").toDate(),
-                encounterType: programEncounterType,
+                encounterType: this.metadata.programEncounterType,
                 programEnrolment: programEnrolment2,
                 approvalStatuses: [programEnc2EAS],
                 latestEntityApprovalStatus: programEnc2EAS
@@ -191,11 +184,20 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.DueChecklist}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
             this.pendingCard = db.create(ReportCard, TestReportCardFactory.create({name: "pendingCard", standardReportCardType: pendingCardType}));
-            this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "scheduledVisitsCard", standardReportCardType: scheduledVisitsCardType}));
+            this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "scheduledVisitsCard",
+                standardReportCardType: scheduledVisitsCardType
+            }));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
             this.latestVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestVisitsCard", standardReportCardType: latestVisitsCardType}));
-            this.latestRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestRegistrationsCard", standardReportCardType: latestRegistrationsCardType}));
-            this.latestEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestEnrolmentsCard", standardReportCardType: latestEnrolmentsCardType}));
+            this.latestRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "latestRegistrationsCard",
+                standardReportCardType: latestRegistrationsCardType
+            }));
+            this.latestEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "latestEnrolmentsCard",
+                standardReportCardType: latestEnrolmentsCardType
+            }));
             this.totalCard = db.create(ReportCard, TestReportCardFactory.create({name: "totalCard", standardReportCardType: totalCardType}));
             this.dueChecklistCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: dueChecklistCardType}));
         });
@@ -203,7 +205,10 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         this.reportCardService = this.getService(ReportCardService);
         this.addressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel]});
         this.address2Selected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel2]});
-        this.twoAddressSelected = TestDashboardReportFilterFactory.create({type: CustomFilter.type.Address, filterValue: [this.organisationData.addressLevel, this.organisationData.addressLevel2]});
+        this.twoAddressSelected = TestDashboardReportFilterFactory.create({
+            type: CustomFilter.type.Address,
+            filterValue: [this.organisationData.addressLevel, this.organisationData.addressLevel2]
+        });
     }
 
     getResultForApprovalCardsType() {
