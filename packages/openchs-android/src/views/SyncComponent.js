@@ -49,9 +49,6 @@ class SyncComponent extends AbstractComponent {
         this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.SYNC_BUTTON);
         this.dispatchAction(SyncActions.POST_SYNC);
         this.setState({syncStarted: false});
-        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
-            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
-        });
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
