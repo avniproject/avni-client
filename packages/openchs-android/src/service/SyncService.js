@@ -28,10 +28,11 @@ import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
-import ProgramConfigService from './ProgramConfigService';
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
-import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
+import {LandingViewActionsNames as Actions, LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
+import {CustomDashboardActionNames} from '../action/customDashboard/CustomDashboardActions';
+import LocalCacheService from "./LocalCacheService";
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -373,12 +374,15 @@ class SyncService extends BaseService {
         this.dispatchAction('RESET');
         this.context.getService(PrivilegeService).deleteRevokedEntities(); //Invoking this in MenuView.deleteData as well
 
-        //To load subjectType after sync
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
-        this.dispatchAction(MyDashboardActionNames.ON_LOAD); //Invoking this after full sync reset as well
-
-        //To re-render LandingView after sync
+        this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired});
+        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+        });
+        this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {onlyPrimary: false});
+        this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
+        setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
     }
 }
 
