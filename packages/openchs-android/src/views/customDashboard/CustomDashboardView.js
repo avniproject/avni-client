@@ -27,6 +27,7 @@ import ChecklistListingView from "../checklist/ChecklistListingView";
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import Distances from '../primitives/Distances';
 import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
+import General from "../../utility/General";
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -212,6 +213,7 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     render() {
+        General.logDebug("CustomDashboardView", "render");
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
