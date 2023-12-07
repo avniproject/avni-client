@@ -14,6 +14,7 @@ import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import * as mime from 'react-native-mime-types';
 import moment from "moment";
 import I18n from 'i18n-js';
+import bugsnag from "../utility/bugsnag";
 const PARALLEL_UPLOAD_COUNT = 1;
 
 @Service("mediaQueueService")
@@ -204,11 +205,7 @@ class MediaQueueService extends BaseService {
             .catch((error) => {
                 General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
                 General.logError("MediaQueueService", error);
-                if (error.message === 'canceled') {
-                    return Promise.reject(new Error("syncTimeoutError"))
-                } else {
-                    return Promise.reject(error);
-                }
+                return Promise.reject(error);
             });
     }
 
@@ -217,8 +214,8 @@ class MediaQueueService extends BaseService {
     }
 
     uploadMedia(statusMessageCallback) {
-        // Parallel push to S3 ensures maximal usage of existing bandwidth.
-        // Return only once every media queue item upload succeeds or fails.
+        // Chunked push to S3 to minimize sync failures on low bandwidth.
+        // Stops on first chunk with error or when all chunks are processed successfully
         const mediaQueueItems = _.map(this.findAll(), (mediaQueueItem) => mediaQueueItem.clone());
         General.logDebug("MediaQueueService", `Number of media queue items: ${mediaQueueItems.length}`);
         const chunkedMediaQueueItems = _.chunk(mediaQueueItems, PARALLEL_UPLOAD_COUNT);
@@ -227,21 +224,22 @@ class MediaQueueService extends BaseService {
         let current = Promise.resolve();
         let count = 0;
         for (const mediaQueueItemsChunk of chunkedMediaQueueItems) {
-            current = current.then(() => Promise.allSettled(
-                _.map(mediaQueueItemsChunk, (mediaQueueItem) => this.uploadMediaQueueItem(mediaQueueItem))
-            )).then((results) => {
-                if (_.some(results, result => result.status === 'rejected')) {
-                    return Promise.reject(new Error("syncTimeoutError"));
-                } else {
-                    count += PARALLEL_UPLOAD_COUNT
-                    if(statusMessageCallback) {
-                        statusMessageCallback(`${I18n.t("uploadMedia")} (${count}/${mediaQueueItems.length})`)
+            current = current.then(() => Promise.all(
+                _.map(mediaQueueItemsChunk, (mediaQueueItem) => {
+                    if (statusMessageCallback) {
+                        statusMessageCallback(`${I18n.t("uploadMedia")} (${count}/${mediaQueueItems.length})`);
                     }
-
-                    General.logInfo("MediaQueueService",`MediaUpload: Time taken ${(moment.now() - startTime)}`);
-                    return Promise.resolve();
-                }
-            });
+                    return this.uploadMediaQueueItem(mediaQueueItem);
+                })
+            )).then(() => {
+                count += PARALLEL_UPLOAD_COUNT
+                General.logInfo("MediaQueueService", `MediaUpload: Time taken ${(moment.now() - startTime)}`);
+                return Promise.resolve();
+            }).catch((error) => {
+                // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
+                bugsnag.notify(error);
+                return Promise.reject(new Error("syncTimeoutError"));
+            })
         }
         current.then(() => { General.logInfo("MediaQueueService",`MediaUpload:Total time taken ${(moment.now() - startTime)}`)})
         return current;
