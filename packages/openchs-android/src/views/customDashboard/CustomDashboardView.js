@@ -176,16 +176,16 @@ class CustomDashboardView extends AbstractComponent {
                     indicatorActionName: Actions.LOAD_INDICATOR
                 }).to(TaskListView);
             },
-            onApprovalItemsResults: (results, count, status, viewName) => TypedTransition.from(this).with({
+            onApprovalItemsResults: (results, status, viewName, approvalStatus_status) => TypedTransition.from(this).with({
+                approvalStatus_status: approvalStatus_status,
                 indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: status || 'subjectsList',
                 results: results,
-                totalSearchResultsCount: count,
                 reportCardUUID,
                 listType: _.lowerCase(status),
                 backFunction: this.onBackPress.bind(this),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
-                onApprovalSelection: (source, entity, schema) => CHSNavigator.navigateToApprovalDetailsView(source, entity, schema),
+                onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),
             }).to(this.getViewByName(viewName), true)
         }), 0);
     }

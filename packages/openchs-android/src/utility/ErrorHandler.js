@@ -32,7 +32,7 @@ export default class ErrorHandler {
                 const frameArray = x.map((row) => Object.defineProperty(row, 'fileName', {
                     value: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
                 }));
-                General.logDebug('ErrorHandler', `Notifying Bugsnag ${error}`);
+                General.logDebug('ErrorHandler', `Notifying Bugsnag (if release stage) ${error}`);
                 bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
                 errorCallback(error, JSON.stringify(frameArray));
             });

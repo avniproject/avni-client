@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {ReportCard, StandardReportCardType, ApprovalStatus} from "avni-models";
+import {ReportCard, StandardReportCardType, ApprovalStatus} from "openchs-models";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
@@ -8,20 +8,9 @@ import CommentService from "../comment/CommentService";
 import _ from "lodash";
 import TaskService from "../task/TaskService";
 import General from "../../utility/General";
-import {JSONStringify} from "../../utility/JsonStringify";
-
-function getApprovalStatusForType(type) {
-    const typeToStatusMap = {
-        [StandardReportCardType.type.PendingApproval]: ApprovalStatus.statuses.Pending,
-        [StandardReportCardType.type.Approved]: ApprovalStatus.statuses.Approved,
-        [StandardReportCardType.type.Rejected]: ApprovalStatus.statuses.Rejected,
-    };
-    return typeToStatusMap[type];
-}
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
-
     constructor(db, context) {
         super(db, context);
     }
@@ -30,8 +19,8 @@ class ReportCardService extends BaseService {
         return ReportCard.schema.name;
     }
 
-    getCountForApprovalCardsType(type, reportFilters) {
-        const approvalStatus_status = getApprovalStatusForType(type);
+    getCountForApprovalCardsType(standardReportCardType, reportFilters) {
+        const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
         const {result} = this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters)
         return {
             primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
@@ -40,8 +29,8 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForApprovalCardsType(type, reportFilters) {
-        const approvalStatus_status = getApprovalStatusForType(type);
+    getResultForApprovalCardsType(standardReportCardType, reportFilters) {
+        const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
         return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters);
     }
 
@@ -114,7 +103,7 @@ class ReportCardService extends BaseService {
             case _.isNil(standardReportCardType) :
                 return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard, reportFilters);
             case standardReportCardType.isApprovalType() :
-                return this.getCountForApprovalCardsType(standardReportCardType.name, reportFilters);
+                return this.getCountForApprovalCardsType(standardReportCardType, reportFilters);
             case standardReportCardType.isDefaultType() :
                 return this.getCountForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() :
@@ -135,7 +124,7 @@ class ReportCardService extends BaseService {
                 return {status: null, result};
             }
             case standardReportCardType.isApprovalType() :
-                return {status: null, result: this.getResultForApprovalCardsType(standardReportCardType.name, reportFilters)};
+                return {status: null, result: this.getResultForApprovalCardsType(standardReportCardType, reportFilters)};
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() : {

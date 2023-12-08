@@ -14,6 +14,7 @@ import UserInfoServiceTest from "./UserInfoServiceTest";
 import RealmProxyTest from "./RealmProxyTest";
 import ReportCardServiceIntegrationTest from "./ReportCardServiceIntegrationTest";
 import EntityApprovalServiceTest from "./EntityApprovalServiceTest";
+import IndividualIntegrationTest from "./model/IndividualIntegrationTest";
 
 const itemCommonStyle = {
     padding: 10,
@@ -63,7 +64,7 @@ class IntegrationTestApp extends Component {
         super(props, context);
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, DatabaseTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest);
+        this.integrationTestRunner = new IntegrationTestRunner(IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, DatabaseTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest);
         this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.testSuite};
     }
 

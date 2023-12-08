@@ -81,7 +81,7 @@ class CustomDashboardActions {
             const standardReportCardType = reportCard.standardReportCardType;
             const viewName = CustomDashboardActions._getViewName(standardReportCardType);
             if (!_.isNil(result)) {
-                setTimeout(() => action.onApprovalItemsResults(result, result.length, status, viewName), 0);
+                setTimeout(() => action.onApprovalItemsResults(result, status, viewName, standardReportCardType && standardReportCardType.getApprovalStatusForType()), 0);
             }
         }
         return newState;

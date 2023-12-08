@@ -32,7 +32,7 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 entityTypeUuid: this.metadata.subjectType.uuid,
                 approvalStatus: this.metadata.approvedStatus
             }));
-            const subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+            db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject1Id,
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel,
@@ -48,7 +48,7 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 entityTypeUuid: this.metadata.subjectType.uuid,
                 approvalStatus: this.metadata.approvedStatus
             }));
-            const subject2 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+            db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject2Id,
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel2,
@@ -58,7 +58,7 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 approvalStatuses: [subject2EAS]
             }));
 
-            const subject3 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+            this.subject3 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject3Id,
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel2,
@@ -73,22 +73,22 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 entityTypeUuid: this.metadata.program.uuid,
                 approvalStatus: this.metadata.approvedStatus
             }));
-            const programEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+            const enrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
                 uuid: enrolmentId,
                 program: this.metadata.program,
-                subject: subject3,
+                subject: this.subject3,
                 enrolmentDateTime: moment().add(-10, "day").toDate(),
                 latestEntityApprovalStatus: null,
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEFPRG"))})],
                 approvalStatuses: [enrolmentEAS]
             }));
+            this.subject3.addEnrolment(enrolment);
         });
 
         this.service = this.getService(EntityApprovalStatusService);
     }
 
     getSubjectEASes() {
-        this.logQueries();
         const subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null);
         assert.equal(subjects.length, 3);
         assert.equal(subjects[0].firstName, "ABC");

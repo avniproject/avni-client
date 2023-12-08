@@ -23,7 +23,6 @@ class TestProgramEnrolmentFactory {
     programEnrolment.enrolmentDateTime = enrolmentDateTime;
     programEnrolment.approvalStatuses = approvalStatuses;
     programEnrolment.setLatestEntityApprovalStatus(latestEntityApprovalStatus);
-
     return programEnrolment;
   }
 }

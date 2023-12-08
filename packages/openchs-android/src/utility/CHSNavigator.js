@@ -89,8 +89,8 @@ class CHSNavigator {
         }
     }
 
-    static navigateToApprovalDetailsView(source, entity, schema) {
-        TypedTransition.from(source).with({entity, schema}).to(ApprovalDetailsView, true);
+    static navigateToApprovalDetailsView(source, entity) {
+        TypedTransition.from(source).with({entity}).to(ApprovalDetailsView, true);
     }
 
     static navigateToPhoneNumberVerificationView(source, next, observation, onSuccess, onSkip) {
