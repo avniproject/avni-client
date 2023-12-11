@@ -65,7 +65,7 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 firstName: "EFG",
                 lastName: "bar2",
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEF"))})],
-                approvalStatuses: [subject2EAS]
+                approvalStatuses: []
             }));
             const enrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
@@ -94,6 +94,13 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
         assert.equal(subjects[0].firstName, "ABC");
         assert.equal(subjects[1].firstName, "EFG");
         assert.equal(subjects[2].firstName, "XYZ");
+    }
+
+    getSubjectsEASesForAnEntityType() {
+        const subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, this.metadata.subjectTypeFormMapping);
+        assert.equal(subjects.length, 2);
+        assert.equal(subjects[0].firstName, "ABC");
+        assert.equal(subjects[1].firstName, "XYZ");
     }
 }
 

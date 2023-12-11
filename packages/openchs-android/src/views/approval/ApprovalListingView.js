@@ -15,7 +15,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import FormMappingService from "../../service/FormMappingService";
 import SubjectApprovalView from "./SubjectApprovalView";
 
-const placeHolderPicker = {label: 'All', value: {schema: null, filterQuery: null}};
+const placeHolderPicker = {label: 'All', value: null};
 
 @Path('/approvalListingView')
 class ApprovalListingView extends AbstractComponent {
@@ -25,12 +25,13 @@ class ApprovalListingView extends AbstractComponent {
         headerTitle: PropTypes.string.isRequired,
         backFunction: PropTypes.func.isRequired,
         reportCardUUID: PropTypes.string.isRequired,
-        approvalStatus_status: PropTypes.string.isRequired
+        approvalStatus_status: PropTypes.string.isRequired,
+        reportsFilter: PropTypes.object
     };
 
     constructor(props, context) {
         super(props, context);
-        this.state = {results: this.props.results, selectedFilterPicker: placeHolderPicker, allFilterItems: []};
+        this.state = {subjects: props.results, selectedFilterPicker: placeHolderPicker, allFilterItems: []};
     }
 
     viewName() {
@@ -42,33 +43,35 @@ class ApprovalListingView extends AbstractComponent {
             setTimeout(() => {
                 this.dispatchAction(this.props.indicatorActionName, {loading: false});
                 const options = this.getService(FormMappingService).getAllWithEnableApproval()
-                    .map((fm) => ({label: fm.form.name, value: fm.getSchemaAndFilterQuery()}));
+                    .map((fm) => ({label: fm.form.name, value: fm}));
                 const optionsWithAll = [placeHolderPicker, ...options];
                 this.setState({allFilterItems: optionsWithAll});
             }, 0);
         }
     }
 
-    onFilterChange({value}) {
-        const schemaAndQueryFilter = value;
-        const reportCard = this.getService(EntityService).findByUUID(this.props.reportCardUUID, ReportCard.schema.name);
-        const {result} = this.getService(ReportCardService).getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter);
-        this.setState({results: result, selectedFilterPicker: schemaAndQueryFilter});
+    onFilterChange(filterItem) {
+        const {reportCardUUID, reportsFilter} = this.props;
+        const reportCard = this.getService(EntityService).findByUUID(reportCardUUID, ReportCard.schema.name);
+        const subjects = this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportsFilter, filterItem.value);
+        this.setState({subjects: subjects, formMapping: filterItem.value});
     }
 
     openFilterPicker(value) {
         this.setState({filterPickerOpened: value});
     }
 
-    renderFilter(title) {
-        const {allFilterItems, filterPickerOpened, selectedFilterPicker, results} = this.state;
+    renderFilter() {
+        const {allFilterItems, filterPickerOpened, formMapping, subjects} = this.state;
+
         return (
             <View style={styles.filterContainer}>
                 <View>
-                    <Text style={{color: Colors.DetailsTextColor}}>{`Total ${results.length} subjects`}</Text>
+                    <Text style={{color: Colors.DetailsTextColor}}>{`Total ${subjects.length} subjects`}</Text>
                 </View>
                 <View style={{marginTop: 10}}>
                     <DropDownPicker
+                        itemKey={"label"}
                         items={allFilterItems}
                         open={filterPickerOpened}
                         setOpen={(value) => this.openFilterPicker(value)}
@@ -77,7 +80,7 @@ class ApprovalListingView extends AbstractComponent {
                         dropDownStyle={{backgroundColor: '#fafafa'}}
                         arrowColor={Colors.DefaultPrimaryColor}
                         onSelectItem={this.onFilterChange.bind(this)}
-                        value={selectedFilterPicker}
+                        value={formMapping}
                         customArrowUp={() => <Icon name={'caret-up'} size={18}/>}
                         customArrowDown={() => <Icon name={'caret-down'} size={18}/>}
                     />
@@ -96,9 +99,9 @@ class ApprovalListingView extends AbstractComponent {
         return (
             <CHSContainer theme={{iconFamily: 'MaterialIcons'}} style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t(title)} func={this.onBackPress.bind(this)}/>
-                {this.renderFilter(this.I18n.t(title))}
+                {this.renderFilter()}
                 <FlatList
-                    data={getUnderlyingRealmCollection(this.state.results)}
+                    data={getUnderlyingRealmCollection(this.state.subjects)}
                     keyExtractor={(item) => item.uuid}
                     renderItem={(x) =>
                         <SubjectApprovalView subject={new Individual(x.item)} approvalStatus_status={this.props.approvalStatus_status}

@@ -176,7 +176,8 @@ class CustomDashboardView extends AbstractComponent {
                     indicatorActionName: Actions.LOAD_INDICATOR
                 }).to(TaskListView);
             },
-            onApprovalItemsResults: (results, status, viewName, approvalStatus_status) => TypedTransition.from(this).with({
+            onApprovalItemsResults: (results, status, viewName, approvalStatus_status, reportFilters) => TypedTransition.from(this).with({
+                reportFilters: reportFilters,
                 approvalStatus_status: approvalStatus_status,
                 indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: status || 'subjectsList',

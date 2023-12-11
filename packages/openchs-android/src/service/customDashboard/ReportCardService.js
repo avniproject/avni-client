@@ -21,7 +21,7 @@ class ReportCardService extends BaseService {
 
     getCountForApprovalCardsType(standardReportCardType, reportFilters) {
         const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
-        const {result} = this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters)
+        const {result} = this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters);
         return {
             primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
             secondaryValue: null,
@@ -29,9 +29,9 @@ class ReportCardService extends BaseService {
         };
     }
 
-    getResultForApprovalCardsType(standardReportCardType, reportFilters) {
+    getResultForApprovalCardsType(standardReportCardType, reportFilters, formMapping) {
         const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
-        return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters);
+        return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters, formMapping);
     }
 
     getCountForCommentCardType() {
@@ -133,12 +133,6 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isChecklistType() :
                 return this.getResultForChecklistCardType(standardReportCardType.name, reportFilters);
         }
-    }
-
-    getStandardReportCardResultForEntity(reportCard, schemaAndQueryFilter) {
-        const status = getApprovalStatusForType(reportCard.standardReportCardType.name);
-        const {schema, filterQuery} = schemaAndQueryFilter;
-        return this.getService(EntityApprovalStatusService).getAllEntitiesWithStatus(status, schema, filterQuery)
     }
 }
 

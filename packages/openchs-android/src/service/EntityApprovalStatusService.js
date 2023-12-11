@@ -5,23 +5,26 @@ import {
     ApprovalStatus,
     BaseEntity,
     ChecklistItem,
-    CustomFilter,
     Encounter,
     EntityApprovalStatus,
-    EntityQueue,
+    EntityQueue, Form,
     Individual,
     ProgramEncounter,
     ProgramEnrolment
 } from "openchs-models";
 import _ from 'lodash';
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
-import AddressLevel from "../views/common/AddressLevel";
 import RealmQueryService from "./query/RealmQueryService";
 
 function getEntityApprovalStatuses(service, schema, status) {
     return service.getAll(schema)
         .filtered(service.getVoidedQuery(schema))
         .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status);
+}
+
+function getEntityTypeFilter(formMapping, forFormType, entitiesName) {
+    const prefix = _.isEmpty(entitiesName) ? "" : `${entitiesName}.`;
+    return (_.isNil(formMapping) || formMapping.form.formType === forFormType) ? `${prefix}uuid <> null` : `uuid = null`;
 }
 
 @Service("entityApprovalStatusService")
@@ -46,15 +49,15 @@ class EntityApprovalStatusService extends BaseService {
         return savedStatus;
     }
 
-    getAllSubjects(approvalStatus_status, reportFilters) {
+    getAllSubjects(approvalStatus_status, reportFilters, formMapping) {
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
         let entities = RealmQueryService.filterBasedOnAddress(Individual.schema.name, this.getAll(Individual.schema.name), addressFilter);
-        entities = entities.filtered(`((latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false) 
-                    or (enrolments.latestEntityApprovalStatus.approvalStatus.status = $1 and enrolments.voided = false) 
-                    or (encounters.latestEntityApprovalStatus.approvalStatus.status = $2 and encounters.voided = false)
-                    or (enrolments.encounters.latestEntityApprovalStatus.approvalStatus.status = $3 and enrolments.encounters.voided = false)
+        entities = entities.filtered(`((latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.IndividualProfile)}) 
+                    or (enrolments.latestEntityApprovalStatus.approvalStatus.status = $1 and enrolments.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.ProgramEnrolment)})  
+                    or (encounters.latestEntityApprovalStatus.approvalStatus.status = $2 and encounters.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.Encounter)})
+                    or (enrolments.encounters.latestEntityApprovalStatus.approvalStatus.status = $3 and enrolments.encounters.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.ProgramEncounter)})
                     or (enrolments.checklists.items.latestEntityApprovalStatus.approvalStatus.status = $4 and enrolments.voided = false)) SORT(firstName ASC)`,
-                approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status);
+            approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status);
         return entities;
     }
 

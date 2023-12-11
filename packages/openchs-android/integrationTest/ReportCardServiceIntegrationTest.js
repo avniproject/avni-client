@@ -19,7 +19,8 @@ import TestConceptFactory from "../test/model/TestConceptFactory";
 import TestMetadataService from "./service/TestMetadataService";
 
 function getCount(test, card, reportFilters) {
-    return test.reportCardService.getReportCardCount(card, reportFilters).primaryValue
+    let reportCardCount = test.reportCardService.getReportCardCount(card, reportFilters);
+    return reportCardCount.primaryValue;
 }
 
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
@@ -195,10 +196,10 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     }
 
     getResultForApprovalCardsType() {
-        assert.equal(1, getCount(this, this.approvedCard, []));
+        assert.equal(2, getCount(this, this.approvedCard, []));
         assert.equal(1, getCount(this, this.approvedCard, [this.addressSelected]));
-        assert.equal(0, getCount(this, this.approvedCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.approvedCard, [this.twoAddressSelected]));
+        assert.equal(1, getCount(this, this.approvedCard, [this.address2Selected]));
+        assert.equal(2, getCount(this, this.approvedCard, [this.twoAddressSelected]));
     }
 
     getResultForPendingCardsType() {

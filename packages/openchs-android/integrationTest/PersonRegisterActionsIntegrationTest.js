@@ -30,6 +30,7 @@ import {assert} from 'chai';
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
 import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
+import TestMetadataService from "./service/TestMetadataService";
 
 const rule = `({params, imports}) => {
     const workLists = params.workLists;
@@ -68,9 +69,7 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
     person_registration_should_show_worklist_correctly() {
         let subjectType;
         this.executeInWrite((db) => {
-            subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Family Member'}));
-            const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
-            db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: subjectType, form: form}))
+            subjectType = TestMetadataService.createSubjectType(db, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Family Member'})).subjectType;
             db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({worklistUpdationRule: rule}));
         });
 

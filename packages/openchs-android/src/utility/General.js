@@ -4,6 +4,7 @@ import moment from "moment";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
+import {JSONStringify} from "./JsonStringify";
 
 let currentLogLevel;
 
@@ -224,6 +225,10 @@ class General {
 
     static logDebugTemp(source, message) {
         General.log(source, message, General.LogLevel.Debug, true);
+    }
+
+    static logDebugTempJson(source, message) {
+        General.logDebugTemp(source, JSONStringify(message));
     }
 
     static logInfo(source, message) {

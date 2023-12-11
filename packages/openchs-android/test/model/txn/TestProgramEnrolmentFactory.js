@@ -10,8 +10,7 @@ class TestProgramEnrolmentFactory {
                   encounters = [],
                   checklists = [],
                   observations = [],
-                  approvalStatuses = [],
-                  latestEntityApprovalStatus
+                  approvalStatuses = []
                 }) {
     const programEnrolment = new ProgramEnrolment();
     programEnrolment.uuid = uuid;
@@ -22,7 +21,7 @@ class TestProgramEnrolmentFactory {
     programEnrolment.observations = observations;
     programEnrolment.enrolmentDateTime = enrolmentDateTime;
     programEnrolment.approvalStatuses = approvalStatuses;
-    programEnrolment.setLatestEntityApprovalStatus(latestEntityApprovalStatus);
+    programEnrolment.setLatestEntityApprovalStatus(programEnrolment.latestEntityApprovalStatus);
     return programEnrolment;
   }
 }
