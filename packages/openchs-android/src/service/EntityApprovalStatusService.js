@@ -15,6 +15,7 @@ import {
 import _ from 'lodash';
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
 import RealmQueryService from "./query/RealmQueryService";
+import GlobalContext from "../GlobalContext";
 
 function getEntityApprovalStatuses(service, schema, status) {
     return service.getAll(schema)
@@ -22,9 +23,15 @@ function getEntityApprovalStatuses(service, schema, status) {
         .filtered(`latestEntityApprovalStatus.approvalStatus.status = $0`, status);
 }
 
-function getEntityTypeFilter(formMapping, forFormType, entitiesName) {
-    const prefix = _.isEmpty(entitiesName) ? "" : `${entitiesName}.`;
-    return (_.isNil(formMapping) || formMapping.form.formType === forFormType) ? `${prefix}uuid <> null` : `uuid = null`;
+function getEntityTypeQuery(formMapping, matchingFormTypes, entityTypePath, formMappingEntityTypeUUIDPath) {
+    if (_.isNil(formMapping)) return "uuid <> null";
+    if (matchingFormTypes.includes(formMapping.form.formType)) return `${entityTypePath}.uuid = "${_.get(formMapping, formMappingEntityTypeUUIDPath)}"`;
+    return "uuid = null";
+}
+
+function getChecklistItemQuery(formMapping) {
+    if (_.isNil(formMapping) || formMapping.form.formType === Form.formTypes.ChecklistItem) return "$checklistItem.uuid <> null";
+    return "$checklistItem.uuid = null";
 }
 
 @Service("entityApprovalStatusService")
@@ -50,13 +57,31 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     getAllSubjects(approvalStatus_status, reportFilters, formMapping) {
+        GlobalContext.getInstance().db.setLogQueries(true);
+        const {
+            IndividualProfile,
+            ProgramEnrolment,
+            ProgramExit,
+            Encounter,
+            ProgramEncounter,
+            ProgramEncounterCancellation,
+            IndividualEncounterCancellation
+        } = Form.formTypes;
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
         let entities = RealmQueryService.filterBasedOnAddress(Individual.schema.name, this.getAll(Individual.schema.name), addressFilter);
-        entities = entities.filtered(`((latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.IndividualProfile)}) 
-                    or (enrolments.latestEntityApprovalStatus.approvalStatus.status = $1 and enrolments.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.ProgramEnrolment)})  
-                    or (encounters.latestEntityApprovalStatus.approvalStatus.status = $2 and encounters.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.Encounter)})
-                    or (enrolments.encounters.latestEntityApprovalStatus.approvalStatus.status = $3 and enrolments.encounters.voided = false and ${getEntityTypeFilter(formMapping, Form.formTypes.ProgramEncounter)})
-                    or (enrolments.checklists.items.latestEntityApprovalStatus.approvalStatus.status = $4 and enrolments.voided = false)) SORT(firstName ASC)`,
+        // limitation, only with program encounter, if a program encounter's enrolment is voided and encounter is non-voided, then it would still select that subject. cannot check parent's fields in subquery
+        entities = entities.filtered(
+            `(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false and ${getEntityTypeQuery(formMapping, [IndividualProfile], "subjectType", "subjectType.uuid")}) 
+        
+            or (voided = false and subquery(enrolments, $enrolment, $enrolment.latestEntityApprovalStatus.approvalStatus.status = $1 and $enrolment.voided = false and ${getEntityTypeQuery(formMapping, [ProgramEnrolment, ProgramExit], "$enrolment.program", "entityUUID")}).@count > 0)
+              
+            or (voided = false and subquery(encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $2 and $encounter.voided = false and ${getEntityTypeQuery(formMapping, [Encounter, IndividualEncounterCancellation], "$encounter.encounterType", "observationsTypeEntityUUID")}).@count > 0)
+            
+            or (voided = false and subquery(enrolments.encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $3 and $encounter.voided = false and ${getEntityTypeQuery(formMapping, [ProgramEncounter, ProgramEncounterCancellation], "$encounter.encounterType", "observationsTypeEntityUUID")}).@count > 0)
+            
+            or (voided = false and subquery(enrolments.checklists.items, $checklistItem, $checklistItem.latestEntityApprovalStatus.approvalStatus.status = $4 and ${getChecklistItemQuery(formMapping)}).@count > 0) 
+            
+            SORT(firstName ASC)`,
             approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status, approvalStatus_status);
         return entities;
     }

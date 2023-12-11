@@ -1,5 +1,5 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
-import {Concept, EntityApprovalStatus, Individual, ProgramEnrolment} from "openchs-models";
+import {Concept, EntityApprovalStatus, Individual, Program, ProgramEnrolment} from "openchs-models";
 import TestEntityApprovalStatusFactory from "../test/model/approval/TestEntityApprovalStatusFactory";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
@@ -12,6 +12,7 @@ import TestConceptFactory from "../test/model/TestConceptFactory";
 import {JSONStringify} from "../src/utility/JsonStringify";
 import TestProgramEnrolmentFactory from "../test/model/txn/TestProgramEnrolmentFactory";
 import moment from "moment/moment";
+import TestProgramFactory from "../test/model/TestProgramFactory";
 
 class EntityApprovalServiceTest extends BaseIntegrationTest {
     setup(): this {
@@ -32,7 +33,7 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
                 entityTypeUuid: this.metadata.subjectType.uuid,
                 approvalStatus: this.metadata.approvedStatus
             }));
-            db.create(Individual, TestSubjectFactory.createWithDefaults({
+            this.subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject1Id,
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel,
@@ -97,10 +98,33 @@ class EntityApprovalServiceTest extends BaseIntegrationTest {
     }
 
     getSubjectsEASesForAnEntityType() {
-        const subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, this.metadata.subjectTypeFormMapping);
+        let subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, this.metadata.subjectTypeFormMapping);
         assert.equal(subjects.length, 2);
         assert.equal(subjects[0].firstName, "ABC");
         assert.equal(subjects[1].firstName, "XYZ");
+
+        subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, this.metadata.programEnrolmentFormMapping);
+        assert.equal(subjects.length, 1);
+        subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, this.metadata.programExitFormMapping);
+        assert.equal(subjects.length, 1);
+
+        let program2, program2FormMappings;
+        this.executeInWrite((db) => {
+            program2 = db.create(Program, TestProgramFactory.create({name: 'Mother'}));
+            program2FormMappings = TestMetadataService.createProgramForms(db, this.metadata.subjectType, program2);
+
+            const enrolment2 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: program2,
+                subject: this.subject3,
+                enrolmentDateTime: moment().add(-10, "day").toDate(),
+                latestEntityApprovalStatus: null,
+                observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEFPRG"))})]
+            }));
+            this.subject3.addEnrolment(enrolment2);
+        });
+        subjects = this.service.getAllSubjects(this.metadata.approvedStatus.status, null, program2FormMappings.programEnrolmentFormMapping);
+        assert.equal(subjects.length, 0);
     }
 }
 
