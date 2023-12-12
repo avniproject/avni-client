@@ -1,7 +1,6 @@
 import _ from "lodash";
-import {Concept, Duration, FormElementGroup, ValidationResult} from 'openchs-models';
+import {Concept, Duration, FormElementGroup, Observation, ValidationResult} from 'openchs-models';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
-import General from "../../utility/General";
 
 class ObservationsHolderActions {
     static updateFormElements(formElementGroup, state, context) {
@@ -36,7 +35,10 @@ class ObservationsHolderActions {
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
-        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
+        newState.observationsHolder.updatePrimitiveCodedObs(_.filter(newState.filteredFormElements, (fe) => {
+            const observation = newState.observationsHolder.findObservation(fe.concept);
+            return !(_.isNil(observation) || observation.valueJSON.answerSource === Observation.AnswerSource.Manual);
+        }), formElementStatuses);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         let validationResult = action.formElement.validate(value);
         if (action.validationResult && validationResult.success) {
@@ -88,7 +90,10 @@ class ObservationsHolderActions {
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
-        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
+        newState.observationsHolder.updatePrimitiveCodedObs(_.filter(newState.filteredFormElements, (fe) => {
+            const observation = newState.observationsHolder.findObservation(fe.concept);
+            return !(_.isNil(observation) || observation.valueJSON.answerSource === Observation.AnswerSource.Manual);
+        }), formElementStatuses);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
@@ -111,7 +116,10 @@ class ObservationsHolderActions {
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
         const validationResult = action.formElement.validate(_.isNil(observation) ? null : observation.getValueWrapper());
-        newState.observationsHolder.updatePrimitiveCodedObs(newState.filteredFormElements, formElementStatuses);
+        newState.observationsHolder.updatePrimitiveCodedObs(_.filter(newState.filteredFormElements, (fe) => {
+            const observation = newState.observationsHolder.findObservation(fe.concept);
+            return !(_.isNil(observation) || observation.valueJSON.answerSource === Observation.AnswerSource.Manual);
+        }), formElementStatuses);
         newState.handleValidationResults(ObservationsHolderActions.addPreviousValidationErrors(ruleValidationErrors, validationResult, newState.validationResults), context);
         newState.removeHiddenFormValidationResults(hiddenFormElementStatus);
         return newState;
