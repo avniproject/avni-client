@@ -5,6 +5,7 @@ import ApprovalDetailsCard from "./ApprovalDetailsCard";
 import React from "react";
 import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
+import Separator from "../primitives/Separator";
 
 class SubjectApprovalView extends AbstractComponent {
     static propTypes = {
@@ -17,18 +18,19 @@ class SubjectApprovalView extends AbstractComponent {
         const {subject, approvalStatus_status} = this.props;
         const nameToDisplay = subject.nameString;
 
-        return <TouchableNativeFeedback key={subject.uuid}
-                                 background={TouchableNativeFeedback.SelectableBackground()}>
-            <View style={styles.cardContainer}>
-                <View style={{flexDirection: 'row'}}>
-                    <View style={styles.leftContainer}>
-                        <Text style={Styles.textStyle}>{nameToDisplay}</Text>
-                    </View>
+        return <View style={styles.cardContainer} key={subject.uuid}>
+            <View style={{flexDirection: 'row'}}>
+                <View style={styles.leftContainer}>
+                    <Text style={Styles.textStyle}>{nameToDisplay}</Text>
                 </View>
-                {subject.getMemberEntitiesWithLatestStatus(approvalStatus_status).map((x) =>
-                    <ApprovalDetailsCard key={x.uuid} approvableEntity={x} onApprovalSelection={() => this.props.onApprovalSelection(x)}/>)}
             </View>
-        </TouchableNativeFeedback>;
+            {subject.getMemberEntitiesWithLatestStatus(approvalStatus_status).map((x) => {
+                return <>
+                    <ApprovalDetailsCard key={x.uuid} approvableEntity={x} onApprovalSelection={() => this.props.onApprovalSelection(x)}/>
+                    <Separator backgroundColor={Colors.InputBorderNormal}/>
+                </>
+            })}
+        </View>;
     }
 }
 

@@ -30,11 +30,11 @@ class ApprovalDetailsCard extends AbstractComponent {
     render() {
         const {approvableEntity, onApprovalSelection} = this.props;
         const hrs = moment().diff(approvableEntity.latestEntityApprovalStatus.statusDateTime, 'hours');
-        const cardHeight = approvableEntity.isRejectedEntity() ? 125 : 90;
+        const cardHeight = approvableEntity.isRejectedEntity() ? 100 : 50;
         return (
             <TouchableNativeFeedback onPress={() => onApprovalSelection(approvableEntity)}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
-                <View style={[styles.container, {minHeight: cardHeight}]}>
+                <View style={[styles.container, {backgroundColor: "lightgrey", minHeight: cardHeight}]}>
                     <View style={styles.leftContainer}>
                         <Text style={styles.requestTextStyle}>{this.I18n.t('requestName', {entityName: approvableEntity.getEntityTypeName()})}</Text>
                         {this.renderRejectionComment(approvableEntity)}
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         paddingVertical: Styles.ContainerHorizontalDistanceFromEdge,
-        marginBottom: -20
     },
     leftContainer: {
         flexDirection: 'column',
