@@ -42,7 +42,7 @@ class ReportCardService extends BaseService {
 
     getResultForApprovalCardsType(type, reportFilters) {
         const approvalStatus_status = getApprovalStatusForType(type);
-        return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters);
+        return this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters);
     }
 
     getCountForCommentCardType() {
@@ -135,8 +135,11 @@ class ReportCardService extends BaseService {
                 const result = this.getService(RuleEvaluationService).getDashboardCardQueryResult(reportCard, reportFilters);
                 return {status: null, result};
             }
-            case standardReportCardType.isApprovalType() :
-                return {status: null, result: this.getResultForApprovalCardsType(standardReportCardType.name, reportFilters)};
+            case standardReportCardType.isApprovalType() : {
+
+                const {result} = this.getResultForApprovalCardsType(standardReportCardType.name, reportFilters);
+                return {status: null, result};
+            }
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() : {
