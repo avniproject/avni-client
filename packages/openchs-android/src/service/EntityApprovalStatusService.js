@@ -69,7 +69,6 @@ class EntityApprovalStatusService extends BaseService {
         } = Form.formTypes;
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
         let entities = RealmQueryService.filterBasedOnAddress(Individual.schema.name, this.getAll(Individual.schema.name), addressFilter);
-        // limitation, only with program encounter, if a program encounter's enrolment is voided and encounter is non-voided, then it would still select that subject. cannot check parent's fields in subquery
         entities = entities.filtered(
             `(latestEntityApprovalStatus.approvalStatus.status = $0 and voided = false and ${getEntityTypeQuery(formMapping, [IndividualProfile], "subjectType", "subjectType.uuid")}) 
         
@@ -77,7 +76,7 @@ class EntityApprovalStatusService extends BaseService {
               
             or (voided = false and subquery(encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $2 and $encounter.voided = false and ${getEntityTypeQuery(formMapping, [Encounter, IndividualEncounterCancellation], "$encounter.encounterType", "observationsTypeEntityUUID")}).@count > 0)
             
-            or (voided = false and subquery(enrolments.encounters, $encounter, $encounter.latestEntityApprovalStatus.approvalStatus.status = $3 and $encounter.voided = false and ${getEntityTypeQuery(formMapping, [ProgramEncounter, ProgramEncounterCancellation], "$encounter.encounterType", "observationsTypeEntityUUID")}).@count > 0)
+            or (voided = false and subquery(enrolments.encounters, $encounter, $encounter.programEnrolment.voided = false and $encounter.latestEntityApprovalStatus.approvalStatus.status = $3 and $encounter.voided = false and ${getEntityTypeQuery(formMapping, [ProgramEncounter, ProgramEncounterCancellation], "$encounter.encounterType", "observationsTypeEntityUUID")}).@count > 0)
             
             or (voided = false and subquery(enrolments.checklists.items, $checklistItem, $checklistItem.latestEntityApprovalStatus.approvalStatus.status = $4 and ${getChecklistItemQuery(formMapping)}).@count > 0) 
             
