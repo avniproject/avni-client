@@ -57,7 +57,6 @@ class EntityApprovalStatusService extends BaseService {
     }
 
     getAllSubjects(approvalStatus_status, reportFilters, formMapping) {
-        GlobalContext.getInstance().db.setLogQueries(true);
         const {
             IndividualProfile,
             ProgramEnrolment,
