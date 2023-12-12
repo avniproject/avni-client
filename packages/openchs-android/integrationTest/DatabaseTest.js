@@ -8,7 +8,6 @@ import General from "../src/utility/General";
 import TestFormElementFactory from "../test/model/form/TestFormElementFactory";
 import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
 import TestConceptFactory from "../test/model/TestConceptFactory";
-import TestCommentFactory from "../test/model/comment/TestCommentFactory";
 
 class DatabaseTest extends BaseIntegrationTest {
     shouldReturnFirstElementAsNilIfCollectionIsEmpty() {

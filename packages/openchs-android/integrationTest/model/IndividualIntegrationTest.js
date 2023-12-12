@@ -10,6 +10,7 @@ import TestObsFactory from "../../test/model/TestObsFactory";
 import TestProgramEnrolmentFactory from "../../test/model/txn/TestProgramEnrolmentFactory";
 import moment from "moment";
 import {assert} from "chai";
+import TestProgramFactory from "../../test/model/TestProgramFactory";
 
 class IndividualIntegrationTest extends BaseIntegrationTest {
     setup(): this {
@@ -22,9 +23,11 @@ class IndividualIntegrationTest extends BaseIntegrationTest {
     }
 
     getMemberEntitiesWithLatestStatus() {
+        const enrolment1Id = General.randomUUID();
+        let program2Enrolment;
         this.executeInWrite((db) => {
             const subject1Id = General.randomUUID();
-            const enrolmentId = General.randomUUID();
+            const enrolment2Id = General.randomUUID();
 
             const subject1EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.Subject,
@@ -41,32 +44,65 @@ class IndividualIntegrationTest extends BaseIntegrationTest {
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})],
                 approvalStatuses: [subject1EAS]
             }));
-            const enrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+            const enrolment1EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
                 entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
-                entityUUID: enrolmentId,
+                entityUUID: enrolment1Id,
                 entityTypeUuid: this.metadata.program.uuid,
                 approvalStatus: this.metadata.approvedStatus
             }));
-            const enrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
-                uuid: enrolmentId,
+            const enrolment1 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: enrolment1Id,
                 program: this.metadata.program,
                 subject: this.subject,
                 enrolmentDateTime: moment().add(-10, "day").toDate(),
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEFPRG"))})],
-                approvalStatuses: [enrolmentEAS]
+                approvalStatuses: [enrolment1EAS]
             }));
-            this.subject.addEnrolment(enrolment);
+            const enrolment2EAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
+                entityUUID: enrolment2Id,
+                entityTypeUuid: this.metadata.program.uuid,
+                approvalStatus: this.metadata.approvedStatus
+            }));
+            const enrolment2 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: enrolment2Id,
+                program: this.metadata.program,
+                subject: this.subject,
+                enrolmentDateTime: moment().add(-20, "day").toDate(),
+                observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("dfds"))})],
+                approvalStatuses: [enrolment2EAS]
+            }));
+            this.subject.addEnrolment(enrolment1);
+            this.subject.addEnrolment(enrolment2);
+
+            const program2Data = TestMetadataService.createProgram(db, this.metadata.subjectType, TestProgramFactory.create({name: "program 2"}));
+            const program2EnrolmentId = General.randomUUID();
+            const program2EnrolmentEAS = db.create(EntityApprovalStatus, TestEntityApprovalStatusFactory.create({
+                entityType: EntityApprovalStatus.entityType.ProgramEnrolment,
+                entityUUID: program2EnrolmentId,
+                entityTypeUuid: program2Data.program.uuid,
+                approvalStatus: this.metadata.approvedStatus
+            }));
+            program2Enrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: program2Data.program,
+                subject: this.subject,
+                enrolmentDateTime: moment().add(-20, "day").toDate(),
+                observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("dfds"))})],
+                approvalStatuses: [program2EnrolmentEAS]
+            }));
+            this.subject.addEnrolment(program2Enrolment);
         });
-        assert.equal(this.subject.getMemberEntitiesWithLatestStatus(this.metadata.approvedStatus.status).length, 2);
+        const entities = this.subject.getMemberEntitiesWithLatestStatus(this.metadata.approvedStatus.status);
+        assert.equal(entities.length, 3);
+        assert.equal(true, _.some(entities, (x) => x.uuid === enrolment1Id));
+        assert.equal(true, _.some(entities, (x) => x.uuid === program2Enrolment.uuid));
     }
 
     getMemberEntitiesWithLatestStatus_WithoutApprovalStatuses() {
         this.executeInWrite((db) => {
-            const subject1Id = General.randomUUID();
-            const enrolmentId = General.randomUUID();
-
             this.subject = db.create(Individual, TestSubjectFactory.createWithDefaults({
-                uuid: subject1Id,
+                uuid: General.randomUUID(),
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel,
                 firstName: "XYZ",
@@ -74,7 +110,7 @@ class IndividualIntegrationTest extends BaseIntegrationTest {
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})]
             }));
             const enrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
-                uuid: enrolmentId,
+                uuid: General.randomUUID(),
                 program: this.metadata.program,
                 subject: this.subject,
                 enrolmentDateTime: moment().add(-10, "day").toDate(),

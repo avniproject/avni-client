@@ -15,7 +15,6 @@ import {
 import _ from 'lodash';
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
 import RealmQueryService from "./query/RealmQueryService";
-import GlobalContext from "../GlobalContext";
 
 function getEntityApprovalStatuses(service, schema, status) {
     return service.getAll(schema)

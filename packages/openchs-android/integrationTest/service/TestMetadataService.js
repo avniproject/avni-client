@@ -13,11 +13,7 @@ class TestMetadataService {
         metadata.subjectType = returnData.subjectType;
         metadata.subjectTypeFormMapping = returnData.formMapping;
 
-        metadata.program = db.create(Program, TestProgramFactory.create({name: 'Child'}));
-        returnData = TestMetadataService.createProgramForms(db, metadata.subjectType, metadata.program);
-        metadata.programEnrolmentFormMapping = returnData.programEnrolmentFormMapping;
-        metadata.programExitFormMapping = returnData.programExitFormMapping;
-
+        Object.assign(metadata, TestMetadataService.createProgram(db, metadata.subjectType, TestProgramFactory.create({name: 'Child'})));
         metadata.programEncounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Birth form"}));
         metadata.encounterType = db.create(EncounterType, TestEncounterTypeFactory.create({name: "Bar"}));
         metadata.approvedStatus = db.create(ApprovalStatus, TestApprovalStatusFactory.create({}));
@@ -29,6 +25,13 @@ class TestMetadataService {
     static createSubjectType(db, subjectType) {
         const savedSubjectType = db.create(SubjectType, subjectType);
         return {subjectType: savedSubjectType, ...TestMetadataService.createSubjectTypeForm(db, savedSubjectType)};
+    }
+
+    static createProgram(db, subjectType, program) {
+        const returnData = {};
+        returnData.program = db.create(Program, program);
+        Object.assign(returnData, TestMetadataService.createProgramForms(db, subjectType, program));
+        return returnData;
     }
 
     static createSubjectTypeForm(db, subjectType) {
