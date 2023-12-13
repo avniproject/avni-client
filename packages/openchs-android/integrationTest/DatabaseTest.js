@@ -1,4 +1,4 @@
-import {Encounter, Form, Comment, FormElementGroup, FormElement, Concept} from 'openchs-models';
+import {Concept, Encounter, Form, Format, FormElement, FormElementGroup, SubjectType} from 'openchs-models';
 import GlobalContext from "../src/GlobalContext";
 import {assert} from "chai";
 import TestFormFactory from "../test/model/form/TestFormFactory";
@@ -8,6 +8,8 @@ import General from "../src/utility/General";
 import TestFormElementFactory from "../test/model/form/TestFormElementFactory";
 import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
 import TestConceptFactory from "../test/model/TestConceptFactory";
+import TestSubjectTypeFactory from "../test/model/TestSubjectTypeFactory";
+import TestFormatFactory from "../test/model/TestFormatFactory";
 
 class DatabaseTest extends BaseIntegrationTest {
     shouldReturnFirstElementAsNilIfCollectionIsEmpty() {
@@ -90,6 +92,23 @@ class DatabaseTest extends BaseIntegrationTest {
             }));
         });
         assert.equal(this.getEntity(FormElement, formElement.uuid).uuid, formElement.uuid);
+    }
+
+    embedded_value_objects_doesnt_create_orphan_data() {
+        const regex = "/^(https?:\/\/)?(\d{1,3}\.){3}\d{1,3}:\d{1,5}$/";
+        let subjectTypeId;
+        const format = TestFormatFactory.create(regex, "foo");
+        this.executeInWrite((db) => {
+            const subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({validFirstNameFormat: format}));
+            subjectTypeId = subjectType.uuid;
+        });
+        this.executeInWrite((db) => {
+            const subjectType = this.getEntity(SubjectType, subjectTypeId);
+            subjectType.validFirstNameFormat = format;
+            General.logDebugTemp("DatabaseTest", subjectType.validFirstNameFormat.that._id);
+        });
+        const number = GlobalContext.getInstance().db.objects(SubjectType.schema.name).filtered(`validFirstNameFormat.descriptionKey = "foo"`).length;
+        assert.equal(number, 1);
     }
 }
 

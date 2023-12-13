@@ -15,6 +15,7 @@ import RealmProxyTest from "./RealmProxyTest";
 import ReportCardServiceIntegrationTest from "./ReportCardServiceIntegrationTest";
 import EntityApprovalServiceTest from "./EntityApprovalServiceTest";
 import IndividualIntegrationTest from "./model/IndividualIntegrationTest";
+import General from "../src/utility/General";
 
 const itemCommonStyle = {
     padding: 10,
@@ -64,7 +65,7 @@ class IntegrationTestApp extends Component {
         super(props, context);
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, DatabaseTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest);
+        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest);
         this.state = {isInitialisationDone: false, integrationTests: this.integrationTestRunner.testSuite};
     }
 
@@ -81,6 +82,7 @@ class IntegrationTestApp extends Component {
     }
 
     async componentDidMount() {
+        General.setCurrentLogLevel(General.LogLevel.Debug);
         const globalContext = GlobalContext.getInstance();
         if (!globalContext.isInitialised()) {
             await globalContext.initialiseGlobalContext(AppStore, RealmFactory);
