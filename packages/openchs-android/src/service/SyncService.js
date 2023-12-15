@@ -397,9 +397,8 @@ class SyncService extends BaseService {
 
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
         this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired});
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
-            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+            this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired, cachedSubjectTypeUUID});
         });
         this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {onlyPrimary: false});
         this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
