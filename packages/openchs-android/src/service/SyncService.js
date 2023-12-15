@@ -35,7 +35,7 @@ import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
-import {LandingViewActionsNames as Actions, LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
+import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
 import {CustomDashboardActionNames} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
