@@ -199,7 +199,7 @@ class MyDashboardActions {
             allIndividuals = methodMap.get(listType)(state.date.value, [], state.dueChecklistFilter)
         }
         else
-            allIndividuals = methodMap.get(listType)(state.date.value, filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
+            allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
 
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
         const totalToDisplay = listType === 'total' ? commonIndividuals : _.orderBy(commonIndividuals, ({visitInfo}) => visitInfo.sortingBy, 'desc');
