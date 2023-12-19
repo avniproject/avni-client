@@ -79,13 +79,6 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         return this.wizard.isFirstPage() ? validationKeys : [];
     }
 
-    static hasEnrolmentOrItsUsageChanged(state, action) {
-        return _.isNil(state) ||
-            _.isNil(state.enrolment) ||
-            state.enrolment.uuid !== action.enrolment.uuid ||
-            state.usage !== action.usage;
-    }
-
     validateEntity(context) {
         let validationResults;
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {

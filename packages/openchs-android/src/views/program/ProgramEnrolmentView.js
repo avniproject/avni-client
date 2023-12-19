@@ -56,14 +56,13 @@ class ProgramEnrolmentView extends AbstractComponent {
             enrolment: this.props.enrolment,
             usage: ProgramEnrolmentView.usageContext.usage,
             workLists: this.props.workLists,
-            forceLoad: this.props.editing,
             pageNumber: this.props.pageNumber,
         });
         return super.UNSAFE_componentWillMount();
     }
 
     onBack() {
-        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage, forceLoad: true});
+        this.dispatchAction(Actions.ON_LOAD, {enrolment: this.props.enrolment, usage: ProgramEnrolmentView.usageContext.usage});
         this.goBack();
     }
 
