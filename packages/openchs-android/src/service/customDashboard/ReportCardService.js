@@ -34,16 +34,16 @@ class ReportCardService extends BaseService {
         return this.getService(EntityApprovalStatusService).getAllSubjects(approvalStatus_status, reportFilters, formMapping);
     }
 
-    getCountForCommentCardType() {
+    getCountForCommentCardType(reportFilters) {
         return {
-            primaryValue: this.getResultForCommentCardType().length,
+            primaryValue: this.getResultForCommentCardType(reportFilters).length,
             secondaryValue: null,
             clickable: true
         };
     }
 
-    getResultForCommentCardType() {
-        return this.getService(CommentService).getAllOpenCommentThreads();
+    getResultForCommentCardType(reportFilters) {
+        return this.getService(CommentService).getAllOpenCommentThreads(reportFilters);
     }
 
     getCountForTaskCardType(taskTypeType) {
@@ -107,9 +107,9 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isDefaultType() :
                 return this.getCountForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() :
-                return this.getCountForCommentCardType();
+                return this.getCountForCommentCardType(reportFilters);
             case standardReportCardType.isTaskType() :
-                return this.getCountForTaskCardType(standardReportCardType.getTaskTypeType());
+                return this.getCountForTaskCardType(standardReportCardType.getTaskTypeType(), reportFilters);
             case standardReportCardType.isChecklistType() :
                 return this.getCountForChecklistCardType(standardReportCardType.name, reportFilters);
         }
@@ -128,7 +128,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
             case standardReportCardType.isCommentType() : {
-                return {status: null, result: this.getResultForCommentCardType()};
+                return {status: null, result: this.getResultForCommentCardType(reportFilters)};
             }
             case standardReportCardType.isChecklistType() :
                 return this.getResultForChecklistCardType(standardReportCardType.name, reportFilters);

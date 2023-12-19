@@ -1,8 +1,10 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Comment, EntityQueue, Individual, CommentThread} from "avni-models";
+import {Comment, EntityQueue, Individual, CommentThread} from "openchs-models";
 import EntityService from "../EntityService";
 import General from "../../utility/General";
+import {DashboardReportFilter} from "../../model/DashboardReportFilters";
+import RealmQueryService from "../query/RealmQueryService";
 
 @Service("commentService")
 class CommentService extends BaseService {
@@ -42,9 +44,10 @@ class CommentService extends BaseService {
             .sorted('createdDateTime');
     }
 
-    getAllOpenCommentThreads() {
-        return this.getAllNonVoided()
-            .filtered('commentThread.status = $0', CommentThread.threadStatus.Open)
+    getAllOpenCommentThreads(filters) {
+        const addressFilter = DashboardReportFilter.getAddressFilter(filters);
+        const entities = RealmQueryService.filterBasedOnAddress(Comment.schema.name, this.getAllNonVoided(), addressFilter);
+        return entities.filtered('commentThread.status = $0', CommentThread.threadStatus.Open)
             .filtered('TRUEPREDICATE sort(createdDateTime asc) Distinct(commentThread.uuid)')
             .sorted('createdDateTime', true);
     }

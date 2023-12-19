@@ -1,5 +1,17 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
-import {Concept, CustomFilter, Encounter, EntityApprovalStatus, Individual, ProgramEncounter, ProgramEnrolment, ReportCard, StandardReportCardType} from "openchs-models";
+import {
+    CommentThread,
+    Concept,
+    CustomFilter,
+    Encounter,
+    EntityApprovalStatus,
+    Individual,
+    ProgramEncounter,
+    ProgramEnrolment,
+    ReportCard,
+    StandardReportCardType,
+    Comment
+} from "openchs-models";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
 import ReportCardService from "../src/service/customDashboard/ReportCardService";
@@ -17,6 +29,8 @@ import TestChecklistService from "./service/TestChecklistService";
 import TestOrganisationService from "./service/TestOrganisationService";
 import TestConceptFactory from "../test/model/TestConceptFactory";
 import TestMetadataService from "./service/TestMetadataService";
+import TestCommentFactory from "../test/model/comment/TestCommentFactory";
+import TestCommentThreadFactory from "../test/model/comment/TestCommentThreadFactory";
 
 function getCount(test, card, reportFilters) {
     let reportCardCount = test.reportCardService.getReportCardCount(card, reportFilters);
@@ -52,7 +66,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 entityTypeUuid: this.metadata.encounterType.uuid,
                 approvalStatus: this.metadata.pendingStatus
             }));
-            const subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+            this.subject1 = db.create(Individual, TestSubjectFactory.createWithDefaults({
                 uuid: subject1Id,
                 subjectType: this.metadata.subjectType,
                 address: this.organisationData.addressLevel,
@@ -62,30 +76,30 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 approvalStatuses: [subject1EAS]
             }));
 
-            subject1.addEncounter(db.create(Encounter, TestEncounterFactory.create({
+            this.subject1.addEncounter(db.create(Encounter, TestEncounterFactory.create({
                 uuid: encounterId1,
                 earliestVisitDateTime: moment().add(-2, "day").toDate(),
                 maxVisitDateTime: moment().add(2, "day").toDate(),
                 encounterType: this.metadata.encounterType,
                 approvalStatuses: [encEAS],
                 latestEntityApprovalStatus: null,
-                subject: subject1
+                subject: this.subject1
             })));
 
-            subject1.addEncounter(db.create(Encounter, TestEncounterFactory.create({
+            this.subject1.addEncounter(db.create(Encounter, TestEncounterFactory.create({
                 uuid: encounterId2,
                 earliestVisitDateTime: moment().add(-10, "day").toDate(),
                 maxVisitDateTime: moment().add(-5, "day").toDate(),
                 encounterType: this.metadata.encounterType,
                 approvalStatuses: [],
                 latestEntityApprovalStatus: null,
-                subject: subject1
+                subject: this.subject1
             })));
 
             const programEnrolment1 = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
                 uuid: programEnrolmentId1,
                 program: this.metadata.program,
-                subject: subject1,
+                subject: this.subject1,
                 enrolmentDateTime: moment().toDate(),
                 latestEntityApprovalStatus: null,
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABCPRG"))})],
@@ -193,6 +207,21 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             type: CustomFilter.type.Address,
             filterValue: [this.organisationData.addressLevel, this.organisationData.addressLevel2]
         });
+    }
+
+    getCountForCommentCardType() {
+        let commentCard;
+        this.executeInWrite((db) => {
+            const commentCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Comments}));
+            commentCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: commentCardType}));
+
+            const commentThread = db.create(CommentThread, TestCommentThreadFactory.create({}));
+            const comment = db.create(Comment, TestCommentFactory.create({commentThread: commentThread, subject: this.subject1}));
+        });
+        assert.equal(1, getCount(this, commentCard, []));
+        assert.equal(1, getCount(this, commentCard, [this.addressSelected]));
+        this.logQueries();
+        assert.equal(0, getCount(this, commentCard, [this.address2Selected]));
     }
 
     getResultForApprovalCardsType() {
