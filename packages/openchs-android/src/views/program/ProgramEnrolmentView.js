@@ -91,7 +91,7 @@ class ProgramEnrolmentView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         this.displayMessage(this.props.message);
-        return <ProgramFormComponent editing={this.state.isNewEnrolment}
+        return <ProgramFormComponent editing={this.state.isNewEntity}
                                      state={this.state}
                                      context={ProgramEnrolmentView.usageContext}
                                      backFunction={() => this.onAppHeaderBack()}

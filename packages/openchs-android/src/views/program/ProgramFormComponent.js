@@ -32,7 +32,7 @@ class ProgramFormComponent extends AbstractComponent {
         context: PropTypes.object.isRequired,
         state: PropTypes.object.isRequired,
         backFunction: PropTypes.func.isRequired,
-        editing: PropTypes.bool
+        editing: PropTypes.bool.isRequired
     };
 
     constructor(props, context) {
