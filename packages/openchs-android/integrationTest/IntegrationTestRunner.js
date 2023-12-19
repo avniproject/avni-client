@@ -1,56 +1,6 @@
-class IntegrationTestMethod {
-    testClass;
-    methodName;
-    successful;
-
-    constructor(testClass, methodName) {
-        this.testClass = testClass;
-        this.methodName = methodName;
-    }
-
-    toString() {
-        return `${this.className}.${this.methodName}`;
-    }
-
-    get className() {
-        return this.testClass.name;
-    }
-
-    success() {
-        this.successful = true;
-    }
-
-    ignored() {
-        return this.methodName.startsWith("ignore");
-    }
-
-    failure(error) {
-        this.successful = false;
-        this.error = error;
-    }
-}
-
-export class TestSuite {
-    testMethods;
-
-    constructor() {
-        this.testMethods = [];
-    }
-
-    push(testMethod) {
-        this.testMethods.push(testMethod);
-    }
-
-    getMethods(testClass) {
-        return this.testMethods.filter((x) => x.testClass.name === testClass.name);
-    }
-
-    clone() {
-        const integrationTests = new TestSuite();
-        integrationTests.testMethods = [...this.testMethods];
-        return integrationTests;
-    }
-}
+import _ from 'lodash';
+import {IntegrationTestMethod} from "./IntegrationTestMethod";
+import {TestSuite} from "./TestSuite";
 
 const nonTestMethods = ["constructor", "setup", "teardown"];
 
@@ -60,9 +10,9 @@ class IntegrationTestRunner {
     constructor(...testClasses) {
         this.testSuite = new TestSuite();
         testClasses.forEach((testClass) => {
-            const testMethods = Object.getOwnPropertyNames(testClass.prototype).filter((method) => !nonTestMethods.includes(method));
-            testMethods.forEach((testMethod) => {
-                const integrationTestMethod = new IntegrationTestMethod(testClass, testMethod);
+            const testMethodNames = Object.getOwnPropertyNames(testClass.prototype).filter((method) => !nonTestMethods.includes(method));
+            testMethodNames.forEach((testMethodName) => {
+                const integrationTestMethod = new IntegrationTestMethod(testClass, testMethodName);
                 this.testSuite.push(integrationTestMethod);
             });
         });

@@ -78,6 +78,8 @@ const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, 
         return `{` + removeComma(objStr) + `}`;
     } else if (!_.isNil(objectMap.get(obj))) {
         return "<object_repeated>";
+    } else {
+        return obj;
     }
 };
 

@@ -105,7 +105,6 @@ class DatabaseTest extends BaseIntegrationTest {
         this.executeInWrite((db) => {
             const subjectType = this.getEntity(SubjectType, subjectTypeId);
             subjectType.validFirstNameFormat = format;
-            General.logDebugTemp("DatabaseTest", subjectType.validFirstNameFormat.that._id);
         });
         const number = GlobalContext.getInstance().db.objects(SubjectType.schema.name).filtered(`validFirstNameFormat.descriptionKey = "foo"`).length;
         assert.equal(number, 1);
