@@ -46,16 +46,16 @@ class ReportCardService extends BaseService {
         return this.getService(CommentService).getAllOpenCommentThreads(reportFilters);
     }
 
-    getCountForTaskCardType(taskTypeType) {
+    getCountForTaskCardType(taskTypeType, reportFilters) {
         return {
-            primaryValue: this.getResultForTaskCardType(taskTypeType).length,
+            primaryValue: this.getResultForTaskCardType(taskTypeType, reportFilters).length,
             secondaryValue: null,
             clickable: true
         };
     }
 
-    getResultForTaskCardType(taskTypeType) {
-        return this.getService(TaskService).getIncompleteTasks(taskTypeType);
+    getResultForTaskCardType(taskTypeType, filters) {
+        return this.getService(TaskService).getIncompleteTasks(taskTypeType, filters);
     }
 
     getResultForDefaultCardsType(type, reportFilters) {
@@ -127,9 +127,8 @@ class ReportCardService extends BaseService {
                 return {status: null, result: this.getResultForApprovalCardsType(standardReportCardType, reportFilters)};
             case standardReportCardType.isDefaultType() :
                 return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
-            case standardReportCardType.isCommentType() : {
+            case standardReportCardType.isCommentType() :
                 return {status: null, result: this.getResultForCommentCardType(reportFilters)};
-            }
             case standardReportCardType.isChecklistType() :
                 return this.getResultForChecklistCardType(standardReportCardType.name, reportFilters);
         }

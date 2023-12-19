@@ -1,4 +1,4 @@
-import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment, Comment} from "openchs-models";
+import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment, Comment, Task} from "openchs-models";
 import _ from "lodash";
 import AddressLevel from "../../views/common/AddressLevel";
 
@@ -9,6 +9,7 @@ locationBasedQueries.set(ProgramEncounter.schema.name, "programEnrolment.individ
 locationBasedQueries.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid = ");
 locationBasedQueries.set(ChecklistItem.schema.name, "checklist.programEnrolment.individual.lowestAddressLevel.uuid = ");
 locationBasedQueries.set(Comment.schema.name, "subject.lowestAddressLevel.uuid = ");
+locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ");
 
 class RealmQueryService {
     static orQuery(array) {

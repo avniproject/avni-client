@@ -1,10 +1,11 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
 import {EntityQueue, ObservationsHolder, Task} from 'openchs-models';
-import General from "../../utility/General";
 import _ from 'lodash';
 import TaskFilter from "../../model/TaskFilter";
 import moment from 'moment';
+import {DashboardReportFilter} from "../../model/DashboardReportFilters";
+import RealmQueryService from "../query/RealmQueryService";
 
 const getIncompleteTasks = function(taskService, taskTypeName) {
     return taskService.getAllNonVoided()
@@ -21,8 +22,10 @@ class TaskService extends BaseService {
         return Task.schema.name;
     }
 
-    getIncompleteTasks(taskTypeName) {
-        return getIncompleteTasks(this, taskTypeName).sorted('scheduledOn', true);
+    getIncompleteTasks(taskTypeName, filters) {
+        const addressFilter = DashboardReportFilter.getAddressFilter(filters);
+        let entities = RealmQueryService.filterBasedOnAddress(Task.schema.name, getIncompleteTasks(this, taskTypeName), addressFilter);
+        return entities.sorted('scheduledOn', true);
     }
 
     getFilteredTasks(taskFilter: TaskFilter) {
