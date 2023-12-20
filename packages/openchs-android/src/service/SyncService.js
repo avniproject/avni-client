@@ -4,7 +4,13 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
-import {EntityMetaData, EntitySyncStatus, RuleFailureTelemetry, SyncTelemetry, Individual, UserInfo} from 'openchs-models';
+import {
+    EntityMetaData,
+    EntitySyncStatus,
+    RuleFailureTelemetry,
+    SyncTelemetry,
+    IgnorableSyncError
+} from 'openchs-models';
 import EntityQueueService from "./EntityQueueService";
 import MessageService from "./MessageService";
 import RuleEvaluationService from "./RuleEvaluationService";
@@ -29,10 +35,25 @@ import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
 import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
-import {LandingViewActionsNames as Actions, LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
+import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
 import {CustomDashboardActionNames} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
+
+function transformResourceToEntity(entityMetaData, entityResources) {
+    return (acc, resource) => {
+        try {
+            return acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]);
+        } catch (error) {
+            if(error instanceof IgnorableSyncError) {
+                General.logError("SyncService", error);
+            } else {
+                throw error;
+            }
+        }
+        return acc; // since error is IgnorableSyncError, return accumulator as is
+    }
+}
 
 @Service("syncService")
 class SyncService extends BaseService {
@@ -288,7 +309,7 @@ class SyncService extends BaseService {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
 
-        const entities = entityResources.reduce((acc, resource) => acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]), []);
+        const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
         let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
         if (entityMetaData.nameTranslated) {
@@ -376,9 +397,8 @@ class SyncService extends BaseService {
 
         this.dispatchAction(IndividualSearchActions.ON_LOAD);
         this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-        this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired});
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
-            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+            this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired, cachedSubjectTypeUUID});
         });
         this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {onlyPrimary: false});
         this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
