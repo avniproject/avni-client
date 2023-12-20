@@ -169,11 +169,12 @@ class CustomDashboardView extends AbstractComponent {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
             reportCardUUID,
-            goToTaskLists: (taskTypeType) => {
+            goToTaskLists: (taskTypeType, reportFilters) => {
                 TypedTransition.from(this).with({
                     taskTypeType: taskTypeType,
                     backFunction: this.onBackPress.bind(this),
-                    indicatorActionName: Actions.LOAD_INDICATOR
+                    indicatorActionName: Actions.LOAD_INDICATOR,
+                    reportFilters: reportFilters
                 }).to(TaskListView);
             },
             onApprovalItemsResults: (results, status, viewName, approvalStatus_status, reportFilters) => TypedTransition.from(this).with({

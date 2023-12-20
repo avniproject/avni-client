@@ -28,8 +28,9 @@ class TaskService extends BaseService {
         return entities.sorted('scheduledOn', true);
     }
 
-    getFilteredTasks(taskFilter: TaskFilter) {
-        let tasks = getIncompleteTasks(this, taskFilter.taskType.type);
+    getFilteredTasks(taskFilter: TaskFilter, reportFilters) {
+        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        let tasks = RealmQueryService.filterBasedOnAddress(Task.schema.name, getIncompleteTasks(this, taskFilter.taskType.type), addressFilter);
         if (taskFilter.taskStatuses.length > 0)
             tasks = tasks.filtered(BaseService.orFilterCriteria(taskFilter.taskStatuses, "taskStatus.uuid"));
 

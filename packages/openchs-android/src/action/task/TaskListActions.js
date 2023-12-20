@@ -22,7 +22,7 @@ class TaskListActions {
         const taskTypes = taskTypeService.findAllByTaskType(action.filter.taskType.type);
         newState.filter.taskType = taskTypes[0];
 
-        newState.results = taskService.getFilteredTasks(newState.filter);
+        newState.results = taskService.getFilteredTasks(newState.filter, action.reportFilters);
         return newState;
     }
 

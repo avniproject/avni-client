@@ -75,7 +75,7 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
         if (reportCard.isStandardTaskType()) {
-            action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType());
+            action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), state.ruleInput.ruleInputArray);
         } else {
             const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, state.ruleInput.ruleInputArray);
             const standardReportCardType = reportCard.standardReportCardType;

@@ -1,5 +1,6 @@
 import BaseIntegrationTest from "./BaseIntegrationTest";
 import {
+    Comment,
     CommentThread,
     Concept,
     CustomFilter,
@@ -10,7 +11,9 @@ import {
     ProgramEnrolment,
     ReportCard,
     StandardReportCardType,
-    Comment, TaskType, Task, TaskStatus
+    Task,
+    TaskStatus,
+    TaskType
 } from "openchs-models";
 import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
@@ -34,6 +37,8 @@ import TestCommentThreadFactory from "../test/model/comment/TestCommentThreadFac
 import TestTaskTypeFactory from "../test/model/TestTaskTypeFactory";
 import TestTaskFactory from "../test/model/TestTaskFactory";
 import TestTaskStatusFactory from "../test/model/TestTaskStatusFactory";
+import TaskService from "../src/service/task/TaskService";
+import TaskFilter from "../src/model/TaskFilter";
 
 function getCount(test, card, reportFilters) {
     let reportCardCount = test.reportCardService.getReportCardCount(card, reportFilters);
@@ -227,17 +232,31 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     }
 
     getCountForTaskCardType() {
-        let taskTypeCard;
+        let callTaskTypeCard, openSubjectTaskTypeCard;
         this.executeInWrite((db) => {
-            const taskTypeCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.CallTasks}));
-            taskTypeCard = db.create(ReportCard, TestReportCardFactory.create({name: "callTaskTypeCard", standardReportCardType: taskTypeCardType}));
-            const taskType = db.create(TaskType, TestTaskTypeFactory.create());
-            const taskStatus = db.create(TaskStatus, TestTaskStatusFactory.create({taskType: taskType}));
-            db.create(Task, TestTaskFactory.create({taskType: taskType, taskStatus: taskStatus, subject: this.subject1}));
+            const callTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.CallTasks}));
+            const openSubjectTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OpenSubjectTasks}));
+            callTaskTypeCard = db.create(ReportCard, TestReportCardFactory.create({name: "callTaskTypeCard", standardReportCardType: callTaskCardType}));
+            openSubjectTaskTypeCard = db.create(ReportCard, TestReportCardFactory.create({name: "callTaskTypeCard", standardReportCardType: openSubjectTaskCardType}));
+            const callTaskType = db.create(TaskType, TestTaskTypeFactory.create({type: TaskType.TaskTypeName.Call}));
+            const openSubjectTaskType = db.create(TaskType, TestTaskTypeFactory.create({type: TaskType.TaskTypeName.OpenSubject}));
+            const callTaskStatus = db.create(TaskStatus, TestTaskStatusFactory.create({taskType: callTaskType}));
+            const openSubjectTaskStatus = db.create(TaskStatus, TestTaskStatusFactory.create({taskType: openSubjectTaskType}));
+            db.create(Task, TestTaskFactory.create({taskType: callTaskType, taskStatus: callTaskStatus, subject: this.subject1}));
+            db.create(Task, TestTaskFactory.create({taskType: openSubjectTaskType, taskStatus: openSubjectTaskStatus, subject: this.subject1}));
         });
-        assert.equal(1, getCount(this, taskTypeCard, []));
-        assert.equal(1, getCount(this, taskTypeCard, [this.addressSelected]));
-        assert.equal(0, getCount(this, taskTypeCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, callTaskTypeCard, []));
+        assert.equal(1, getCount(this, callTaskTypeCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, callTaskTypeCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, openSubjectTaskTypeCard, []));
+        assert.equal(1, getCount(this, openSubjectTaskTypeCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, openSubjectTaskTypeCard, [this.address2Selected]));
+
+        const taskService = this.getService(TaskService);
+        const taskFilter = TaskFilter.createNoCriteriaFilter(TaskType.TaskTypeName.Call);
+        assert.equal(1, taskService.getFilteredTasks(taskFilter, []).length);
+        assert.equal(1, taskService.getFilteredTasks(taskFilter, [this.addressSelected]).length);
+        assert.equal(0, taskService.getFilteredTasks(taskFilter, [this.address2Selected]).length);
     }
 
     getResultForApprovalCardsType() {

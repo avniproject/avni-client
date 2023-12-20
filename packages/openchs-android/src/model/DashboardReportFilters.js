@@ -12,6 +12,7 @@ export class DashboardReportFilter {
     filterValue;
 
     static getAddressFilter(reportFilters) {
+        if (_.isNil(reportFilters)) return null;
         return _.find(reportFilters, (x: DashboardReportFilter) => x.type === CustomFilter.type.Address);
     }
 }

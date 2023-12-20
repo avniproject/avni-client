@@ -64,7 +64,8 @@ class TaskListView extends AbstractComponent {
     static paramTypes = {
         backFunction: PropTypes.func,
         taskTypeType: PropTypes.string.isRequired,
-        indicatorActionName: PropTypes.string
+        indicatorActionName: PropTypes.string,
+        reportFilters: PropTypes.object
     };
 
     constructor(props, context) {
@@ -79,7 +80,7 @@ class TaskListView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         setTimeout(() => {
             super.UNSAFE_componentWillMount();
-            this.dispatchAction(Actions.ON_LOAD, {filter: TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType)});
+            this.dispatchAction(Actions.ON_LOAD, {filter: TaskFilter.createNoCriteriaFilter(this.props.params.taskTypeType), reportFilters: this.props.params.reportFilters});
             this.dispatchAction(this.props.params.indicatorActionName, {loading: false});
         }, 0);
     }
