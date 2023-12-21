@@ -17,6 +17,7 @@ import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
 import General from '../../utility/General';
+import moment from 'moment';
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -67,7 +68,7 @@ export class PersonRegisterActions {
 
     static enterRegistrationDate(state, action) {
         const newState = state.clone();
-        newState.individual.registrationDate = new Date(action.value);
+        newState.individual.registrationDate = moment(new Date(action.value)).startOf('day').toDate();
         newState.handleValidationResult(newState.individual.validateRegistrationDate());
         return newState;
     }
