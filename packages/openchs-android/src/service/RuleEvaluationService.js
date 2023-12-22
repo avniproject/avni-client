@@ -141,7 +141,7 @@ class RuleEvaluationService extends BaseService {
             }
         } else {
             const decisionsMap = rulesFromTheBundle.reduce((decisions, rule) => {
-                const d = this.runRuleAndSaveFailure(rule, entityName, entity, decisions, new Date(), context);
+                const d = this.runRuleAndSaveFailure(rule, entityName, entity, decisions, new Date(), context, entityContext);
                 return this.validateDecisions(d, rule.uuid, this.getIndividualUUID(entity, entityName));
             }, defaultDecisions);
             const trimmedDecisions = trimDecisionsMap(decisionsMap);
@@ -219,15 +219,15 @@ class RuleEvaluationService extends BaseService {
         return workLists;
     }
 
-    runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context) {
+    runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context, entityContext) {
         try {
             if (entityName === 'WorkList') {
                 ruleTypeValue = entity;
-                return rule.fn.exec(entity, context)
+                return rule.fn.exec(entity, context, entityContext)
             } else {
                 return _.isNil(context) ?
-                    rule.fn.exec(entity, ruleTypeValue, config) :
-                    rule.fn.exec(entity, ruleTypeValue, context, config);
+                    rule.fn.exec(entity, ruleTypeValue, config, entityContext) :
+                    rule.fn.exec(entity, ruleTypeValue, context, config, entityContext);
             }
         } catch (error) {
             General.logDebug("Rule-Failure", `Rule failed: ${rule.name}, uuid: ${rule.uuid}`);
@@ -407,7 +407,7 @@ class RuleEvaluationService extends BaseService {
             }
         } else if (!_.isEmpty(rulesFromTheBundle)) {
             const validationErrors = rulesFromTheBundle.reduce(
-                (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors),
+                (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors, null, null, entityContext),
                 defaultValidationErrors
             );
             General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
@@ -439,7 +439,7 @@ class RuleEvaluationService extends BaseService {
             const nextVisits = rulesFromTheBundle
                 .reduce((schedule, rule) => {
                     General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
-                    return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig);
+                    return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig, entityContext);
                 }, scheduledVisits);
             General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
             return nextVisits;
@@ -541,7 +541,7 @@ class RuleEvaluationService extends BaseService {
         const rulesFromTheBundle = this.getAllRuleItemsFor(formElementGroup.form, "ViewFilter", "Form");
         const mapOfBundleFormElementStatuses = (!_.isEmpty(rulesFromTheBundle)) ?
             rulesFromTheBundle
-                .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date()))
+                .map(r => this.runRuleAndSaveFailure(r, entityName, entity, formElementGroup, new Date(), null, null, entityContext))
                 .reduce((all, curr) => all.concat(curr), [])
                 .reduce(this.updateMapUsingKeyPattern(), new Map()) : new Map();
         const allFEGFormElements = formElementGroup.getFormElements();
