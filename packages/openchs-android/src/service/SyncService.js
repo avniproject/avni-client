@@ -46,6 +46,7 @@ function transformResourceToEntity(entityMetaData, entityResources) {
             return acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]);
         } catch (error) {
             if(error instanceof IgnorableSyncError) {
+                resource.excludeFromPersist = true;
                 General.logError("SyncService", error);
             } else {
                 throw error;
@@ -310,6 +311,10 @@ class SyncService extends BaseService {
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
+        const initialLength = entityResources.length;
+        //Filtering out the entityResources which were not converted into entities due to IgnorableSyncErrors
+        entityResources = _.filter(entityResources, (resource) => !resource.excludeFromPersist);
+        General.logDebug("SyncService", `Before filter entityResources length: ${initialLength}, after filter entityResources length: ${entityResources.length}, entities length  ${entities.length}`);
         General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
         let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
         if (entityMetaData.nameTranslated) {
