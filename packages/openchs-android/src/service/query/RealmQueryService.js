@@ -1,6 +1,7 @@
 import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment} from "openchs-models";
 import _ from "lodash";
 import AddressLevel from "../../views/common/AddressLevel";
+import General from "../../utility/General";
 
 const locationBasedQueries = new Map();
 locationBasedQueries.set(Individual.schema.name, "lowestAddressLevel.uuid = ");
@@ -15,7 +16,7 @@ class RealmQueryService {
     }
 
     static filterBasedOnAddress(schema, entitiesResult, addressFilter) {
-        if (!_.isNil(addressFilter)) {
+        if (!_.isNil(addressFilter) && !_.isNil(addressFilter.filterValue) && addressFilter.filterValue.length > 0) {
             const joinedQuery = addressFilter.filterValue.map((x: AddressLevel) => locationBasedQueries.get(schema) + `"${x.uuid}"`);
             return entitiesResult.filtered(RealmQueryService.orQuery(joinedQuery));
         }
