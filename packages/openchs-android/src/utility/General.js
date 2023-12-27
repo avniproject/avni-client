@@ -200,8 +200,14 @@ class General {
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
+    static toISTDate(x) {
+        if (x.toString().includes("18:30:00"))
+            return moment(x).add(330, "m").toDate();
+        return x;
+    }
+
     static datesAreSame(a, b) {
-        return moment(a).isSame(moment(b), 'day');
+        return moment(General.toISTDate(a)).isSame(moment(General.toISTDate(b)), 'day');
     }
 
     static dateAIsAfterB(a, b) {

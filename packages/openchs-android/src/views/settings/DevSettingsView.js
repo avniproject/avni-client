@@ -18,6 +18,7 @@ import RuleEvaluationService from "../../service/RuleEvaluationService";
 import {Rule} from 'openchs-models';
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import UserInfoService from "../../service/UserInfoService";
+import moment from "moment";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -92,6 +93,10 @@ class DevSettingsView extends AbstractComponent {
                 <View style={{marginTop: 20}}>
                     <Text>Server URL:</Text>
                     <TextInput value={settings.serverURL} onChangeText={(text) => this.dispatchAction(Actions.ON_SERVER_URL_CHANGE, {value: text})}/>
+                </View>
+                <View style={{marginBottom: 20}}>
+                    <Text>Current App Time:</Text>
+                    <Text>{moment().format("DD MMM YYYY hh:mm a")}</Text>
                 </View>
             </View>);
         }
