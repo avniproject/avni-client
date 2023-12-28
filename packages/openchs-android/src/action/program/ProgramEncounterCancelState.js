@@ -62,7 +62,7 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType());
+        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.getEntity(), this.getEntityType()).filter((x) => this.isAlreadyScheduled(this.programEncounter.programEnrolment, x));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.getEntity().individual, nextScheduledVisits);
     }
 

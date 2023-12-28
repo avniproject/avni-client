@@ -105,11 +105,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         const nextScheduledVisits = ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [])
-            .filter((x) => {
-                return !_.some(this.programEncounter.programEnrolment.everScheduledEncountersOfType(x.encounterType), (y) => {
-                    return General.datesAreSame(x.earliestDate, y.earliestVisitDateTime) && General.datesAreSame(x.maxDate, y.maxVisitDateTime) && x.name === y.name;
-                });
-            })
+            .filter((x) => !this.isAlreadyScheduled(this.programEncounter.programEnrolment, x))
             .map(k => _.assignIn({}, k));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.programEncounter.individual, nextScheduledVisits);
     }
