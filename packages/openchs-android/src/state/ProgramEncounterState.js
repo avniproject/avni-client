@@ -1,17 +1,13 @@
 import AbstractDataEntryState from "./AbstractDataEntryState";
 import Wizard from "./Wizard";
-import {
-    AbstractEncounter,
-    ObservationsHolder,
-    ProgramEncounter,
-    StaticFormElementGroup
-} from "avni-models";
+import {AbstractEncounter, ObservationsHolder, ProgramEncounter, StaticFormElementGroup} from "avni-models";
 import ConceptService from "../service/ConceptService";
 import _ from 'lodash';
 import IndividualService from "../service/IndividualService";
 import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import TimerState from "./TimerState";
+import General from "../utility/General";
 
 class ProgramEncounterState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow) {
@@ -109,6 +105,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         const nextScheduledVisits = ruleService.getNextScheduledVisits(this.programEncounter, ProgramEncounter.schema.name, [])
+            .filter((x) => !this.isAlreadyScheduled(this.programEncounter.programEnrolment, x))
             .map(k => _.assignIn({}, k));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.programEncounter.individual, nextScheduledVisits);
     }

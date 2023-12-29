@@ -350,6 +350,15 @@ class AbstractDataEntryState {
     getEntityResultSetByType(context) {
         return []
     }
+
+    isAlreadyScheduled(programEnrolment, newlyScheduledEncounter) {
+        //paranoid code
+        if (_.isNil(programEnrolment) || _.isNil(programEnrolment.everScheduledEncountersOfType)) return false;
+
+        return _.some(programEnrolment.everScheduledEncountersOfType(newlyScheduledEncounter.encounterType), (alreadyScheduledEncounter) => {
+            return General.datesAreSame(newlyScheduledEncounter.earliestDate, alreadyScheduledEncounter.earliestVisitDateTime) && General.datesAreSame(newlyScheduledEncounter.maxDate, alreadyScheduledEncounter.maxVisitDateTime) && newlyScheduledEncounter.name === alreadyScheduledEncounter.name;
+        });
+    }
 }
 
 export default AbstractDataEntryState;
