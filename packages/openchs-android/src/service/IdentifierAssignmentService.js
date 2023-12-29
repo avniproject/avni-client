@@ -32,7 +32,7 @@ class IdentifierAssignmentService extends BaseService {
     haveEnoughIdentifiers(form) {
         if (_.isNil(form)) return true;
         const formElements = form.getFormElementsOfType(Concept.dataType.Id);
-        const idSources = _.uniq(_.map(formElements, (fe) => fe.recordValueByKey(FormElement.keys.IdSourceUUID)));
+        const idSources = _.uniq(_.map(formElements, (fe) => fe.getIdSourceUUID()));
         const totalFreeIds = _.sum(_.map(idSources, (idSource) => this.getFreeIdentifiers(idSource).length));
         return totalFreeIds >= _.size(formElements);
     }
@@ -41,7 +41,7 @@ class IdentifierAssignmentService extends BaseService {
         if (_.isNil(form)) return observationHolder;
         _.filter(form.getFormElementsOfType(Concept.dataType.Id), fe => _.isNil(observationHolder.findObservation(fe.concept)))
             .forEach(fe => {
-                const nextIdentifier = this.getNextIdentifier(fe.recordValueByKey(FormElement.keys.IdSourceUUID));
+                const nextIdentifier = this.getNextIdentifier(fe.getIdSourceUUID());
                 observationHolder.addOrUpdateObservation(fe.concept, {
                     uuid: _.get(nextIdentifier, "uuid"),
                     value: _.get(nextIdentifier, "identifier")
@@ -50,10 +50,10 @@ class IdentifierAssignmentService extends BaseService {
         return observationHolder;
     }
 
-    getIdentifierByIdAndSource(id, identifierSource) {
+    getIdentifierByIdAndSource(id, identifierSourceUUID) {
         return this.getAll()
             .filtered('identifier = $0', id)
-            .filtered('identifierSource.uuid = $0', identifierSource)[0];
+            .filtered('identifierSource.uuid = $0', identifierSourceUUID)[0];
     }
 
     assignPopulatedIdentifiersFromObservations(form, observations, individual, programEnrolment) {
@@ -65,13 +65,16 @@ class IdentifierAssignmentService extends BaseService {
         _.each(form.getFormElementsOfType(Concept.dataType.Id), (formElement) => {
             let observation = observationsHolder.findObservation(formElement.concept);
             if (observation) {
-                const uuid = observation.getValueWrapper().uuid;
-                if (!uuid) {
+                const idSourceUUID = formElement.getIdSourceUUID();
+                if (_.isNil(idSourceUUID)) {
+                    General.logDebug("IdentifierAssignmentService", `No idSource found for form element: ${formElement.name}`);
                     return;
                 }
-                const identifierAssignment = this.findByUUID(uuid);
+                const id = observation.getValueWrapper().value;
+                const identifierAssignment = this.getIdentifierByIdAndSource(id, idSourceUUID);
 
                 if (!_.isNil(identifierAssignment)) {
+                    General.logDebug("IdentifierAssignmentService", `Found assigned id ${id} from source ${idSourceUUID}`);
                     identifierAssignment.individual = individual;
                     identifierAssignment.programEnrolment = programEnrolment;
                     identifierAssignment.used = true;
@@ -79,7 +82,7 @@ class IdentifierAssignmentService extends BaseService {
                     entityQueueItems.push(EntityQueue.create(identifierAssignment, IdentifierAssignment.schema.name));
                 } else {
                     // in case identifiers are not there in db like in case of data migration
-                    General.logDebug(`Identifier ${id} not found`);
+                    General.logDebug(`Identifier ${id} not found in id source ${idSourceUUID}`);
                 }
             }
         });
