@@ -5,9 +5,6 @@ apply plugin: 'com.google.gms.google-services'
 googleServices {
     disableVersionCheck = true
 }
-
-import com.android.build.OutputFile
-
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -174,6 +171,8 @@ android {
         lfeTeachNagaland {
             applicationId "com.openchsclient.lfeteach.nagaland"
             resValue "string", "app_name", "TEACH Nagaland"
+            resValue "string", "sha256_app_google_signature", "80e6b34b2026ce180ca8d6f09a885031082d0acf64eb6bd0492f36121d064ebf"
+            resValue "string", "sha256_app_upload_key_signature", "ac19586277b021dcba5097f7e47d7473bab41bf0369fb771a2bff581734561fc"
             signingConfig signingConfigs.lfeTeachNagaland
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_TEACH_NAGALAND_BUGSNAG_API_KEY") ?: "dummy"]
         }
