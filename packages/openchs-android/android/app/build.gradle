@@ -135,6 +135,7 @@ android {
             storePassword System.getenv("lfeTeachNagaland_KEYSTORE_PASSWORD")
             keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("lfeTeachNagaland_KEY_ALIAS")}"
             keyPassword System.getenv("lfeTeachNagaland_KEY_PASSWORD")
+            enableV1Signing false
         }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
@@ -184,7 +185,9 @@ android {
         }
     }
     sourceSets {
+        // Required to enable TamperChecking, init this only for flavours which need Security Tamper Check enabled
         lfe.java.srcDir 'src/common/java'
+        lfeTeachNagaland.java.srcDir 'src/common/java'
     }
 }
 
