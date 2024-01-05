@@ -102,6 +102,16 @@ class ProgramEncounterService extends BaseService {
         return programEncounter;
     }
 
+    updateObservations(programEncounter) {
+        ObservationsHolder.convertObsForSave(programEncounter.observations);
+        ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
+        const db = this.db;
+        this.db.write(() => {
+            db.create(ProgramEncounter.schema.name, programEncounter, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+        });
+    }
+
     findDueEncounter({encounterTypeUUID, enrolmentUUID, encounterTypeName, encounterName}) {
         return this.filtered('encounterType.name == $0 OR encounterType.uuid == $1', encounterTypeName, encounterTypeUUID)
             .filtered(_.isEmpty(encounterName) ? 'uuid != null' : 'name = $0', encounterName)

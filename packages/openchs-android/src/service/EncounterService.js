@@ -98,6 +98,16 @@ class EncounterService extends BaseService {
         return encounter;
     }
 
+    updateObservations(encounter) {
+        ObservationsHolder.convertObsForSave(encounter.observations);
+        ObservationsHolder.convertObsForSave(encounter.cancelObservations);
+        const db = this.db;
+        this.db.write(() => {
+            db.create(Encounter.schema.name, encounter, true);
+            db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
+        });
+    }
+
     findDueEncounter({encounterTypeUUID, individualUUID, encounterTypeName}) {
         return this.filtered('encounterType.name == $0 OR encounterType.uuid == $1', encounterTypeName, encounterTypeUUID)
             .filtered('individual.uuid == $0', individualUUID)
