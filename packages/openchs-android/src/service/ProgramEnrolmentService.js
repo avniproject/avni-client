@@ -59,7 +59,8 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     updateObservations(programEnrolment, workflowInfo) {
-        this.checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo);
+        if (!_.isNil(workflowInfo))
+            this.checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo);
         const db = this.db;
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);

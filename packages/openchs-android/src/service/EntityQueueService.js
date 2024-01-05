@@ -3,6 +3,7 @@ import BaseService from "./BaseService";
 import {EntityQueue, MediaQueue, EntityMetaData} from 'openchs-models';
 import _ from "lodash";
 import bugsnag from "../utility/bugsnag";
+import General from "../utility/General";
 
 @Service("entityQueueService")
 class EntityQueueService extends BaseService {
@@ -21,6 +22,7 @@ class EntityQueueService extends BaseService {
             .filtered("entity = $0", entityMetaData.entityName)
             .sorted("savedAt")
             .slice(), 'entityUUID');
+        General.logDebugTemp("EntityQueueService1", `${entityMetaData.schemaName}: ${items.length}, ${entityMetaData.entityName}`);
 
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
         const getEntityResource = (item) => {

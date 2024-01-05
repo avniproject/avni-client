@@ -169,16 +169,16 @@ class MediaQueueService extends BaseService {
         }
         switch (mediaQueueItem.entityName) {
             case Individual.schema.name:
-                this.getService(IndividualService).register(entity);
+                this.getService(IndividualService).updateObservations(entity);
                 break;
             case Encounter.schema.name:
-                this.getService(EncounterService).saveOrUpdate(entity);
+                this.getService(EncounterService).updateObservations(entity);
                 break;
             case ProgramEncounter.schema.name:
-                this.getService(ProgramEncounterService).saveOrUpdate(entity);
+                this.getService(ProgramEncounterService).updateObservations(entity);
                 break;
             case ProgramEnrolment.schema.name:
-                Promise.resolve(this.getService(ProgramEnrolmentService).enrol(entity));
+                this.getService(ProgramEnrolmentService).updateObservations(entity);
                 break;
         }
     }
@@ -201,7 +201,6 @@ class MediaQueueService extends BaseService {
             })
             .then(() => this.uploadToUrl(uploadUrl, mediaQueueItem))
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
-            .then(() => this.popItem(mediaQueueItem))
             .catch((error) => {
                 General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
                 General.logError("MediaQueueService", error);
