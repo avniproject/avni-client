@@ -26,6 +26,15 @@
       "env_var_name": "LFE_TEACH_NAGALAND_BUGSNAG_API_KEY"
     }
   },
+  "lfeTeachNagalandSecurity": {
+    "server_url": "https://app.security.lfe.avniproject.org",
+    "package_name": "com.openchsclient.lfeteach.nagaland",
+    "prod_admin_password_env_var_name": "LFE_PROD_ADMIN_PASSWORD",
+    "bugsnag": {
+      "project_name": "lfe-teach-nagaland",
+      "env_var_name": "LFE_TEACH_NAGALAND_BUGSNAG_API_KEY"
+    }
+  },
   "sakhi": {
     "server_url": "https://server.avniproject.org",
     "package_name": "org.sakhi.openchsclient",

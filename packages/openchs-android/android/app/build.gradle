@@ -137,6 +137,13 @@ android {
             keyPassword System.getenv("lfeTeachNagaland_KEY_PASSWORD")
             enableV1Signing false
         }
+        lfeTeachNagalandSecurity {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}lfeTeachNagaland-release-key.keystore")
+            storePassword System.getenv("lfeTeachNagaland_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("lfeTeachNagaland_KEY_ALIAS")}"
+            keyPassword System.getenv("lfeTeachNagaland_KEY_PASSWORD")
+            enableV1Signing false
+        }
         sakhi {
             storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}sakhi-release-key.keystore")
             storePassword System.getenv("sakhi_KEYSTORE_PASSWORD")
@@ -177,6 +184,14 @@ android {
             signingConfig signingConfigs.lfeTeachNagaland
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_TEACH_NAGALAND_BUGSNAG_API_KEY") ?: "dummy"]
         }
+        lfeTeachNagalandSecurity {
+            applicationId "com.openchsclient.lfeteach.nagaland"
+            resValue "string", "app_name", "TEACH Nagaland"
+            resValue "string", "sha256_app_google_signature", "80e6b34b2026ce180ca8d6f09a885031082d0acf64eb6bd0492f36121d064ebf"
+            resValue "string", "sha256_app_upload_key_signature", "ac19586277b021dcba5097f7e47d7473bab41bf0369fb771a2bff581734561fc"
+            signingConfig signingConfigs.lfeTeachNagaland
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("LFE_TEACH_NAGALAND_BUGSNAG_API_KEY") ?: "dummy"]
+        }
         sakhi {
             applicationId "org.sakhi.openchsclient"
             resValue "string", "app_name", "Sakhi 2.0"
@@ -188,6 +203,7 @@ android {
         // Required to enable TamperChecking, init this only for flavours which need Security Tamper Check enabled
         lfe.java.srcDir 'src/common/java'
         lfeTeachNagaland.java.srcDir 'src/common/java'
+        lfeTeachNagalandSecurity.java.srcDir 'src/common/java'
     }
 }
 
