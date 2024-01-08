@@ -345,6 +345,14 @@ class General {
 
         return omitFromObject(obj); // return the inner function result
     }
+
+    static logDebugStackTrace() {
+        General.logDebug("General", General.stackTrace());
+    }
+
+    static stackTrace() {
+        return new Error().stack;
+    }
 }
 
 export default General;
