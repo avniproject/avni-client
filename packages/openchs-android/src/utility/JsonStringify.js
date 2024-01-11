@@ -40,6 +40,10 @@ const duckCheckNativeRealmCollection = function (obj) {
         && !_.isNil(_.get(obj, "snapshot")));
 }
 
+function duckCheckForError(obj) {
+    return obj.stack && obj.message;
+}
+
 const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, objectKey) {
     if (depth === 0)
         return "BELOW_DEPTH";
@@ -75,6 +79,11 @@ const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, 
             const eachValue = obj[eachKey];
             objStr += `"${eachKey}":${JSONStringifyInternal(eachValue, depth - 1, objectMap, arrayWidth, eachKey)},`;
         });
+        if (duckCheckForError(obj)) {
+            objStr += `message:${obj.message},`;
+            objStr += `stack:${obj.stack},`;
+        }
+
         return `{` + removeComma(objStr) + `}`;
     } else if (!_.isNil(objectMap.get(obj))) {
         return "<object_repeated>";
