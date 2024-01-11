@@ -22,7 +22,6 @@ class EntityQueueService extends BaseService {
             .filtered("entity = $0", entityMetaData.entityName)
             .sorted("savedAt")
             .slice(), 'entityUUID');
-        General.logDebugTemp("EntityQueueService1", `${entityMetaData.schemaName}: ${items.length}, ${entityMetaData.entityName}`);
 
         const getEntity = ({entityUUID, entity}) => this.findByKey("uuid", entityUUID, entity);
         const getEntityResource = (item) => {

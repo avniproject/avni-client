@@ -69,15 +69,15 @@ class ApprovalDetailsView extends AbstractComponent {
 
     renderEntityDate(entity, I18n) {
         const schemaToDatePropertyMap = {
-            [Individual.schema.name]: {label: I18n.t('registeredOn'), dateProperty: 'registrationDate'},
-            [ProgramEnrolment.schema.name]: {label: `${I18n.t('enrolmentDate')}: `, dateProperty: 'enrolmentDateTime'},
-            [Encounter.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
-            [ProgramEncounter.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
-            [ChecklistItem.schema.name]: {label: `${I18n.t('encounterDate')}: `, dateProperty: 'completionDate'}
+            [Individual.schema.name]: {messageKey: I18n.t('registeredOn'), dateProperty: 'registrationDate'},
+            [ProgramEnrolment.schema.name]: {messageKey: `${I18n.t('enrolmentDate')}: `, dateProperty: 'enrolmentDateTime'},
+            [Encounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
+            [ProgramEncounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
+            [ChecklistItem.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'completionDate'}
         };
-        const {label, dateProperty} = schemaToDatePropertyMap[entity.getSchemaName()];
+        const {messageKey, dateProperty} = schemaToDatePropertyMap[entity.getSchemaName()];
         return <Text
-            style={styles.entityDateStyle}>{`${I18n.t(label)}${General.toDisplayDate(entity[dateProperty])}`}</Text>
+            style={styles.entityDateStyle}>{`${I18n.t(messageKey, {date: General.toDisplayDate(entity[dateProperty]), user: entity["createdBy"]})}`}</Text>;
     }
 
     renderEditButton(entity) {

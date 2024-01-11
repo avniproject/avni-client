@@ -89,7 +89,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     getHeaderMessage(enrolment) {
         return (
             <View>
-                <Text>{`${this.I18n.t("enrolledOn")} ${moment(enrolment.enrolmentDateTime).format("DD-MM-YYYY")}`}</Text>
+                <Text>{`${this.I18n.t("enrolledOn", {date: General.toDisplayDate(enrolment.enrolmentDateTime), user: enrolment.createdBy})}`}</Text>
                 {!_.isNil(this.state.enrolment.programExitDateTime) &&
                 <Text>{`${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`}</Text>}
                 <Text>{`${this.I18n.t("programName")} ${this.I18n.t(_.get(enrolment, 'program.displayName'))}`}</Text>

@@ -297,7 +297,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                         {this.I18n.t("registrationInformation")}
                     </Text>
                     <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
-                        {`${this.I18n.t("registeredOn")}${General.toDisplayDate(this.state.individual.registrationDate)}`}
+                        {`${this.I18n.t("registeredOn", {date: General.toDisplayDate(this.state.individual.registrationDate), user: this.state.individual.createdBy})}`}
                     </Text>
                 </View>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
