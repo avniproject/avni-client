@@ -25,7 +25,7 @@ class DraftEncounterService extends BaseService {
         const cleanIndividualFromDB = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         draftEncounter.individual = cleanIndividualFromDB;
 
-        ObservationsHolder.convertObsForSave(encounter.observations);
+        ObservationsHolder.convertObsForSave(draftEncounter.observations);
 
         return this.db.write(() => {
             return db.create(DraftEncounter.schema.name, draftEncounter, true);
