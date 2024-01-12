@@ -150,6 +150,7 @@ class PreviousEncounters extends AbstractComponent {
     renderTitleAndDetails(encounter) {
         const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
         const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
+        const encounterDateMessage = `${General.toDisplayDate(primaryDate)} ${this.I18n.t("by", {user: encounter.createdBy})}`
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
                 color: Colors.SecondaryText
@@ -160,7 +161,7 @@ class PreviousEncounters extends AbstractComponent {
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
-                    <Text style={{fontSize: Fonts.Small}}>{General.toDisplayDate(primaryDate)}</Text>
+                    <Text style={{fontSize: Fonts.Small}}>{encounterDateMessage}</Text>
                     {secondaryDate}
                 </View>
                 {this.renderStatus(encounter)}

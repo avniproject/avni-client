@@ -69,7 +69,7 @@ class ApprovalDetailsView extends AbstractComponent {
 
     renderEntityDate(entity, I18n) {
         const schemaToDatePropertyMap = {
-            [Individual.schema.name]: {messageKey: I18n.t('registeredOn'), dateProperty: 'registrationDate'},
+            [Individual.schema.name]: {messageKey: I18n.t('registeredOnV2'), dateProperty: 'registrationDate'},
             [ProgramEnrolment.schema.name]: {messageKey: `${I18n.t('enrolmentDate')}: `, dateProperty: 'enrolmentDateTime'},
             [Encounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
             [ProgramEncounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
