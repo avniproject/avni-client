@@ -132,12 +132,12 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
 
     getNextScheduledVisits(ruleService, context) {
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
-            const nextScheduledVisits = ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name, []);
+            const nextScheduledVisits = ruleService.getNextScheduledVisits(this.enrolment, ProgramEnrolment.schema.name, [])
+                .filter((x) => !this.isAlreadyScheduled(this.enrolment, x));
             return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.enrolment.individual, nextScheduledVisits);
         } else {
             return null;
         }
-
     }
 
     static isInitialised(programEnrolmentState) {
