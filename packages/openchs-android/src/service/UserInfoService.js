@@ -51,6 +51,16 @@ class UserInfoService extends BaseService {
     saveOrUpdate(entity) {
         return super.saveOrUpdate(entity, UserInfo.schema.name);
     }
+
+    getCreatedBy(entity, I18n) {
+        return this.getUserName(entity.createdByUUID, entity.createdBy, I18n);
+    }
+
+    getUserName(userUUID, userName, I18n) {
+        const userInfo = this.getUserInfo();
+        if (userUUID === userInfo.userUUID) return I18n.t("you");
+        return userName;
+    }
 }
 
 export default UserInfoService;

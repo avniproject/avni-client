@@ -31,6 +31,7 @@ import _ from 'lodash';
 import Fonts from "../primitives/Fonts";
 import FormMappingService from "../../service/FormMappingService";
 import {ScrollView} from "native-base";
+import UserInfoService from "../../service/UserInfoService";
 
 @Path('/approvalDetailsView')
 class ApprovalDetailsView extends AbstractComponent {
@@ -68,16 +69,19 @@ class ApprovalDetailsView extends AbstractComponent {
     }
 
     renderEntityDate(entity, I18n) {
+        const createdBy = this.getService(UserInfoService).getCreatedBy(entity, this.I18n);
+        const createdByMessage = _.isNil(createdBy) ? "" : I18n.t("by", {user: createdBy});
         const schemaToDatePropertyMap = {
-            [Individual.schema.name]: {messageKey: I18n.t('registeredOnV2'), dateProperty: 'registrationDate'},
+            [Individual.schema.name]: {messageKey: I18n.t('registeredOn'), dateProperty: 'registrationDate'},
             [ProgramEnrolment.schema.name]: {messageKey: `${I18n.t('enrolmentDate')}: `, dateProperty: 'enrolmentDateTime'},
             [Encounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
             [ProgramEncounter.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'encounterDateTime'},
             [ChecklistItem.schema.name]: {messageKey: `${I18n.t('encounterDate')}: `, dateProperty: 'completionDate'}
         };
         const {messageKey, dateProperty} = schemaToDatePropertyMap[entity.getSchemaName()];
+
         return <Text
-            style={styles.entityDateStyle}>{`${I18n.t(messageKey, {date: General.toDisplayDate(entity[dateProperty]), user: entity["createdBy"]})}`}</Text>;
+            style={styles.entityDateStyle}>{`${I18n.t(messageKey)}: ${General.toDisplayDate(entity[dateProperty])} ${createdByMessage}`}</Text>;
     }
 
     renderEditButton(entity) {

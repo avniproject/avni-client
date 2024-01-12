@@ -22,6 +22,7 @@ import CompletedEncountersView from '../../encounter/CompletedEncountersView';
 import CollapsibleEncounters from './CollapsibleEncounters';
 import PrivilegeService from '../../service/PrivilegeService';
 import ListViewHelper from '../../utility/ListViewHelper';
+import UserInfoService from "../../service/UserInfoService";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -148,9 +149,11 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     renderTitleAndDetails(encounter) {
+        const filledBy = this.getService(UserInfoService).getUserName(encounter.filledByUUID, encounter.filledBy, this.I18n);
         const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
         const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
-        const encounterDateMessage = `${General.toDisplayDate(primaryDate)} ${this.I18n.t("by", {user: encounter.createdBy})}`
+        const filledByMessage = _.isNil(filledBy) ? "" : `${this.I18n.t("by", {user: filledBy})}`;
+        const encounterDateMessage = `${General.toDisplayDate(primaryDate)} ${filledByMessage}`;
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
                 color: Colors.SecondaryText

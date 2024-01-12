@@ -25,6 +25,7 @@ import Distances from "../primitives/Distances";
 import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import Separator from "../primitives/Separator";
+import UserInfoService from "../../service/UserInfoService";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -87,9 +88,11 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     getHeaderMessage(enrolment) {
+        const createdBy = this.getService(UserInfoService).getCreatedBy(enrolment, this.I18n);
+        const createdByMessage = _.isNil(createdBy) ? "" : this.I18n.t("by", {user: createdBy});
         return (
             <View>
-                <Text>{`${this.I18n.t("enrolledOnV2", {date: General.toDisplayDate(enrolment.enrolmentDateTime), user: enrolment.createdBy})}`}</Text>
+                <Text>{`${this.I18n.t("enrolledOn")} ${General.toDisplayDate(enrolment.enrolmentDateTime)}. ${createdByMessage}`}</Text>
                 {!_.isNil(this.state.enrolment.programExitDateTime) &&
                 <Text>{`${this.I18n.t("exitedOn")} ${moment(enrolment.programExitDateTime).format("DD-MM-YYYY")}`}</Text>}
                 <Text>{`${this.I18n.t("programName")} ${this.I18n.t(_.get(enrolment, 'program.displayName'))}`}</Text>
