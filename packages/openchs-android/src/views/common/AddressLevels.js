@@ -28,8 +28,13 @@ class AddressLevels extends AbstractComponent {
         minLevelTypeUUIDs: PropTypes.array,
         maxLevelTypeUUID: PropTypes.string,
         isOutsideCatchment: PropTypes.bool,
-        fieldLabel: PropTypes.string
+        fieldLabel: PropTypes.string,
+        userHintText: PropTypes.string
     };
+
+    static defaultProps = {
+        userHintText: ""
+    }
 
     viewName() {
         return 'AddressLevels';
@@ -119,6 +124,7 @@ class AddressLevels extends AbstractComponent {
 
         General.logDebug(this.viewName(), 'render');
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const userHint = ` ${this.props.userHintText}`;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
             _.size(levels) > this.getMaxInlineDisplayCount() ?
                 <AutocompleteSearchWithLabel
@@ -142,7 +148,10 @@ class AddressLevels extends AbstractComponent {
                 marginBottom: Styles.VerticalSpacingBetweenFormElements,
             }}>
                 {this.props.skipLabel ? null :
-                    <Text style={Styles.formLabel}>{this.props.fieldLabel || this.I18n.t('Address')}{mandatoryText}</Text>}
+                    <>
+                        <Text style={Styles.formLabel}>{this.props.fieldLabel || this.I18n.t('Address')}{mandatoryText}</Text>
+                        <Text style={Styles.helpText}>{userHint}</Text>
+                    </>}
                 <View style={{
                     borderWidth: 1,
                     borderStyle: 'dashed',

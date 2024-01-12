@@ -183,7 +183,8 @@ class FiltersViewV2 extends AbstractComponent {
                                                               fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}
                                                               onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
-                                                              multiSelect={true}/>;
+                                                              multiSelect={true}
+                                                              userHintText={this.I18n.t('addressFilterBehaviorHint')}/>;
                                     case CustomFilter.type.RegistrationDate:
                                     case CustomFilter.type.EnrolmentDate:
                                     case CustomFilter.type.ProgramEncounterDate:

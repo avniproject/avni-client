@@ -301,6 +301,7 @@
     "autoRefresh": "ડેશબોર્ડ ઓટો રિફ્રેશ",
     "trackLocation": "ટ્રૅક સ્થાન",
     "disableAutoSync": "સ્વતઃ સમન્વયન અક્ષમ કરો",
-    "autoSync": "સ્વતઃ સમન્વયન"
+    "autoSync": "સ્વતઃ સમન્વયન",
+    "addressFilterBehaviorHint": "(યોગ્ય સ્તર પસંદ કરો કે જેમાં વિષય નોંધાયેલ છે)"
   }
 }

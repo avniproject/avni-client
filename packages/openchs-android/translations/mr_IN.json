@@ -298,6 +298,7 @@
     "disableAutoRefresh": "डॅशबोर्ड ऑटो रिफ्रेश अक्षम करा",
     "autoRefresh": "डॅशबोर्ड ऑटो रिफ्रेश",
     "disableAutoSync": "ऑटो सिंक अक्षम करा",
-    "autoSync": "ऑटो सिंक"
+    "autoSync": "ऑटो सिंक",
+    "addressFilterBehaviorHint": "(कोणत्या विषयावर नोंदणी केली आहे ते अचूक स्तर निवडा)"
   }
 }
