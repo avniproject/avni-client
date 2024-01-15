@@ -28,13 +28,13 @@ const renderNumber = function (countResult, textColor) {
 const cardGap = 16;
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
-    const {name, uuid, textColor, iconName} = reportCard;
+    const {name, itemKey, textColor, iconName} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const cardColor = reportCard.cardColor || '#ffffff';
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(uuid)} disabled={!get(countResult, 'clickable')}>
-            <View key={uuid}
+        <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!get(countResult, 'clickable')}>
+            <View key={itemKey}
                   style={[styles.container, {
                       marginTop: cardGap,
                       marginLeft: index % 2 !== 0 ? cardGap : 0,

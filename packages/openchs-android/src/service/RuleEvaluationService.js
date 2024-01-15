@@ -706,6 +706,15 @@ class RuleEvaluationService extends BaseService {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
+        } else if (reportCard.nested) {
+                return _.map(queryResult.reportCards, (reportCardResultsItr, index) => ({
+                    textColor: reportCard.textColor,
+                    cardColor: reportCard.cardColor,
+                    ...reportCardResultsItr,
+                    clickable: _.isFunction(reportCardResultsItr.lineListFunction),
+                    itemKey: reportCard.getCardId(index),
+                    reportCardUUID: reportCard.uuid
+                }) );
         } else {
             return {
                 primaryValue: queryResult.primaryValue,

@@ -73,7 +73,8 @@ class CustomDashboardActions {
     // This action is responsible for loading data for multiple views. If any of the views have to be updated then this mega action has to be invoked and duplicating the callback implementation on the action. We have to break this action into smaller actions for each view. Starting with task here, which is why it invokes a different callback and the service doesn't handle task.
     static onCardPress(state, action, context) {
         const newState = {...state};
-        const reportCard = context.get(EntityService).findByUUID(action.reportCardUUID, ReportCard.schema.name);
+        const rcUUID = action.reportCardUUID.substring(0, action.reportCardUUID.indexOf('#'));
+        const reportCard = context.get(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
         if (reportCard.isStandardTaskType()) {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), state.ruleInput.ruleInputArray);
         } else {
@@ -112,7 +113,19 @@ class CustomDashboardActions {
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            newState.cardToCountResultMap[rcm.card.uuid] = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
+            const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
+            //todo, set counts for rcm.card.uuid with #identifier suffix if needed
+            if(rcm.card.nested) {
+                _.map(countQueryResponse, (reportCard, index) => {
+                    const itemKey = rcm.card.getCardId(index);
+                    newState.cardToCountResultMap[itemKey] = {
+                        ...reportCard,
+                        itemKey
+                    };
+                });
+            } else {
+                newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
+            }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
         return newState;
@@ -122,8 +135,12 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCardSectionMappings = state.reportCardSectionMappings;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
+        //todo, remove counts for rcm.card.uuid with #identifier suffix if needed
         reportCardSectionMappings.forEach(rcm => {
-            newState.cardToCountResultMap[rcm.card.uuid]= null;
+            const keysOfReportCard= _.keys(newState.cardToCountResultMap).filter((itemKey) => itemKey.startsWith(rcm.card.uuid));
+            _.forEach(keysOfReportCard, (itemKey) => {
+                newState.cardToCountResultMap[itemKey]= null;
+            });
         });
         return newState;
     }

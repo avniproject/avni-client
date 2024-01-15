@@ -110,12 +110,18 @@ class CustomDashboardView extends AbstractComponent {
     }
 
     renderCards() {
+        const splitNestedCards = (cardIter) => {
+            const repeatTimes = cardIter.nested ? cardIter.initCountOfCards: 1;
+            return Array(repeatTimes).fill(cardIter).map((card, i) => ({ ...card, itemKey:  card.getCardId(i)}));
+        }
         const activeDashboardSectionMappings = _.filter(this.state.reportCardSectionMappings, ({dashboardSection}) => this.state.activeDashboardUUID === dashboardSection.dashboard.uuid);
         const sectionWiseData = _.chain(activeDashboardSectionMappings)
             .groupBy(({dashboardSection}) => dashboardSection.uuid)
             .map((groupedData, sectionUUID) => {
                 const section = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
-                const cards = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
+                const cardsWithNestedContent = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
+                //todo split nested cardsWithNestedContent into separate ones
+                const cards = _.flatMap(cardsWithNestedContent, splitNestedCards);
                 return {section, cards};
             })
             .sortBy('section.displayOrder')
@@ -129,13 +135,14 @@ class CustomDashboardView extends AbstractComponent {
                         this.renderSectionName(section.name, section.description, section.viewType, cards)}
                         <View style={styles.cardContainer}>
                             {_.map(cards, (card, index) => (
+                              //todo, use explicit key instead of card.uuid
                                 <CustomDashboardCard
-                                    key={card.uuid}
+                                    key={card.itemKey} //card.uuid
                                     reportCard={card}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
                                     viewType={section.viewType}
-                                    countResult={this.state.cardToCountResultMap[card.uuid]}
+                                    countResult={this.state.cardToCountResultMap[card.itemKey]} //card.uuid
                                     countUpdateTime={this.state.countUpdateTime}
                                 />
                             ))}
