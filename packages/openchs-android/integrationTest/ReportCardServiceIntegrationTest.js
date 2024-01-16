@@ -45,6 +45,12 @@ function getCount(test, card, reportFilters) {
     return reportCardCount.primaryValue;
 }
 
+//todo handle for nested reportCards
+function getNestedCardCount(test, card, reportFilters) {
+    let reportCardCount = test.reportCardService.getReportCardCount(card, reportFilters);
+    return reportCardCount.primaryValue;
+}
+
 class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     setup() {
         super.setup();

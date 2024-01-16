@@ -42,6 +42,7 @@ import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 import MessageService from './MessageService';
+import {JSONStringify} from '../utility/JsonStringify';
 
 function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
@@ -707,14 +708,16 @@ class RuleEvaluationService extends BaseService {
         if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
         } else if (reportCard.nested) {
-                return _.map(queryResult.reportCards, (reportCardResultsItr, index) => ({
+            return _.map(queryResult.reportCards, (reportCardResultsItr, index) => {
+                return {
                     textColor: reportCard.textColor,
-                    cardColor: reportCard.cardColor,
-                    ...reportCardResultsItr,
-                    clickable: _.isFunction(reportCardResultsItr.lineListFunction),
-                    itemKey: reportCard.getCardId(index),
-                    reportCardUUID: reportCard.uuid
-                }) );
+                      cardColor: reportCard.cardColor,
+                ...reportCardResultsItr,
+                  clickable: _.isFunction(reportCardResultsItr.lineListFunction),
+                  itemKey: reportCard.getCardId(index),
+                  reportCardUUID: reportCard.uuid
+                };
+            });
         } else {
             return {
                 primaryValue: queryResult.primaryValue,
@@ -728,6 +731,10 @@ class RuleEvaluationService extends BaseService {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (this.isOldStyleQueryResult(queryResult)) {//The result can either be an array or a RealmResultsProxy. We are looking for existence of the length key.
             return queryResult;
+        } else if (reportCard.nested) {
+            return _.flatMap(queryResult.reportCards, (reportCardResultsItr, index) => (
+              reportCard.itemKey === reportCard.getCardId(index) && _.isFunction(reportCardResultsItr.lineListFunction) ? reportCardResultsItr.lineListFunction() : []
+            ));
         } else {
             return _.isFunction(queryResult.lineListFunction) ? queryResult.lineListFunction() : null;
         }

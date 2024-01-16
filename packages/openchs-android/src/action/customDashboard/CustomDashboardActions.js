@@ -73,8 +73,10 @@ class CustomDashboardActions {
     // This action is responsible for loading data for multiple views. If any of the views have to be updated then this mega action has to be invoked and duplicating the callback implementation on the action. We have to break this action into smaller actions for each view. Starting with task here, which is why it invokes a different callback and the service doesn't handle task.
     static onCardPress(state, action, context) {
         const newState = {...state};
+        const itemKey = action.reportCardUUID;
         const rcUUID = action.reportCardUUID.substring(0, action.reportCardUUID.indexOf('#'));
         const reportCard = context.get(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
+        reportCard.itemKey = itemKey;
         if (reportCard.isStandardTaskType()) {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), state.ruleInput.ruleInputArray);
         } else {
