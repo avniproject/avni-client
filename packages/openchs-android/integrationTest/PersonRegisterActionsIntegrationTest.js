@@ -31,6 +31,8 @@ import TestSubjectFactory from "../test/model/txn/TestSubjectFactory";
 import TestObsFactory from "../test/model/TestObsFactory";
 import TestKeyValueFactory from "../test/model/TestKeyValueFactory";
 import TestMetadataService from "./service/TestMetadataService";
+import {clearTestState} from "realm";
+import General from "../src/utility/General";
 
 const rule = `({params, imports}) => {
     const workLists = params.workLists;
@@ -51,6 +53,12 @@ const rule = `({params, imports}) => {
     }
     return workLists;
 };`;
+
+const formElementRule = `'use strict';
+({params, imports}) => {  
+  return new imports.rulesConfig.FormElementStatus(params.formElement.uuid, true, "20", [], []);
+};
+`;
 
 class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
     concept; addressLevel; gender;
@@ -104,7 +112,7 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
                 keyValues: [TestKeyValueFactory.create({key: "unique", value: "true"})]
             }));
             db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: subjectType, form: form}));
-            db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({worklistUpdationRule: rule}));
+            db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));
 
             db.create(Individual, TestSubjectFactory.createWithDefaults({subjectType: subjectType, address: this.addressLevel, firstName: "foo", lastName: "bar", observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})]}));
         });
@@ -135,6 +143,44 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
         assert.equal(this.getState(Reducers.reducerKeys.personRegister).validationResults.length, 0);
         this.dispatch({type: Actions.NEXT, completed: () => {}});
         assert.equal(this.getState(Reducers.reducerKeys.personRegister).validationResults.length, 0);
+    }
+
+    rule_generated_field_edited_by_user() {
+        function getValue(test) {
+            return test.getState(Reducers.reducerKeys.personRegister).individual.observations[0].valueJSON.value;
+        }
+
+        let subjectType, formElement;
+        this.executeInWrite((db) => {
+            subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
+            const form = db.create(Form, TestFormFactory.createWithDefaults({formType: Form.formTypes.IndividualProfile}));
+            const formElementGroup = db.create(FormElementGroup, TestFormElementGroupFactory.create({form: form}));
+            formElement = db.create(FormElement, TestFormElementFactory.create({
+                uuid: "FOO",
+                concept: this.concept,
+                displayOrder: 1,
+                formElementGroup: formElementGroup,
+                rule: formElementRule
+            }));
+            db.create(FormMapping, TestFormMappingFactory.createWithDefaults({subjectType: subjectType, form: form}));
+            db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));
+
+            db.create(Individual, TestSubjectFactory.createWithDefaults({subjectType: subjectType, address: this.addressLevel, firstName: "foo", lastName: "bar", observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABC"))})]}));
+        });
+
+        this.initialDataSetupComplete();
+
+        const workLists = new WorkLists(new WorkList(subjectType.name).withRegistration(subjectType.name));
+        this.dispatch({type: Actions.ON_LOAD, isDraftEntity: false, workLists: workLists});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_FIRST_NAME, value: "baz"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_LAST_NAME, value: "kal"});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_GENDER, value: this.gender});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_DOB, value: new Date()});
+        this.dispatch({type: Actions.REGISTRATION_ENTER_ADDRESS_LEVEL, value: this.addressLevel});
+        this.dispatch({type: Actions.NEXT, completed: () => {}});
+        this.dispatch({type: Actions.PRIMITIVE_VALUE_CHANGE, formElement: formElement, value: ""});
+        General.logDebugTempJson("", getValue(this));
+        // assert.equal(this.getState(Reducers.reducerKeys.personRegister), 0);
     }
 }
 

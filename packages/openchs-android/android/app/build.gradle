@@ -201,7 +201,9 @@ dependencies {
     implementation project(':@react-native-firebase_analytics')
     implementation project(':react-native-immediate-phone-call')
     implementation project(':amazon-cognito-identity-js')
-    implementation project(':rn-fetch-blob')
+    implementation (project(':rn-fetch-blob')) {
+        exclude group: 'com.squareup.okhttp3'
+    }
     implementation project(':react-native-image-picker')
     implementation project(':react-native-fs')
     implementation(project(':react-native-video')) {

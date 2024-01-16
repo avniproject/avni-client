@@ -94,7 +94,7 @@ class IndividualIntegrationTest extends BaseIntegrationTest {
             this.subject.addEnrolment(program2Enrolment);
         });
         const entities = this.subject.getMemberEntitiesWithLatestStatus(this.metadata.approvedStatus.status);
-        assert.equal(entities.length, 3);
+        assert.equal(entities.length, 4);
         assert.equal(true, _.some(entities, (x) => x.uuid === enrolment1Id));
         assert.equal(true, _.some(entities, (x) => x.uuid === program2Enrolment.uuid));
     }
