@@ -54,8 +54,8 @@ class BaseService {
         return this.db.objects(schema);
     }
 
-    findOnly(schema) {
-        const all = this.findAll(schema);
+    findOnly(schema = this.getSchema()) {
+        const all = this.loadAll(schema);
         return all.length === 0 ? null : all[0];
     }
 
@@ -119,19 +119,23 @@ class BaseService {
         return this.db.objects(schema);
     }
 
+    loadAll(schema = this.getSchema()) {
+        return this.getAll(schema).map(_.identity);
+    }
+
     getCount(schema) {
         return this.getAll(schema).length;
     }
 
     /**
-    Loads all objects without materialising them into model. Ideal for displaying large list or for further filtering
+     Loads all objects without materialising them into model. Ideal for displaying large list or for further filtering
      **/
     getAllNonVoided(schema = this.getSchema()) {
         return this.db.objects(schema).filtered("voided = false");
     }
 
     /**
-    Loads all objects and also materialises them into model.
+     Loads all objects and also materialises them into model.
      **/
     loadAllNonVoided(schema = this.getSchema()) {
         return this.getAllNonVoided(schema).map(_.identity);

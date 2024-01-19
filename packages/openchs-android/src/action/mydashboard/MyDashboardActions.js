@@ -1,5 +1,3 @@
-import EntityService from "../../service/EntityService";
-import {DashboardCache, Privilege, SubjectType} from "avni-models";
 import _ from 'lodash';
 import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
@@ -9,13 +7,92 @@ import PrivilegeService from "../../service/PrivilegeService";
 import UserInfoService from "../../service/UserInfoService";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
-import LocalCacheService from '../../service/LocalCacheService';
 import RealmQueryService from "../../service/query/RealmQueryService";
+import SubjectTypeService from "../../service/SubjectTypeService";
+import {DashboardCacheFilter} from "openchs-models";
+import General from "../../utility/General";
 
-function getApplicableEncounterTypes(state) {
-    return _.isEmpty(state.selectedGeneralEncounterTypes) ? state.selectedEncounterTypes : state.selectedGeneralEncounterTypes;
+function getApplicableEncounterTypes(holder) {
+    return _.isEmpty(holder.selectedGeneralEncounterTypes) ? holder.selectedEncounterTypes : holder.selectedGeneralEncounterTypes;
 }
 
+function updateCacheWithPostSyncValues(context) {
+    const dashboardCacheService = context.get(DashboardCacheService);
+    const subjectTypeService = context.get(SubjectTypeService);
+    const oneSyncCompleted = !_.isNil(subjectTypeService.findOnly());
+    if (oneSyncCompleted) {
+        const dashboardCache = dashboardCacheService.getCache();
+        const subjectTypes = subjectTypeService.getAllowedSubjectTypes();
+
+        const dashboardCacheFilter = dashboardCache.getFilter();
+        const subjectTypeQuery = (path) => [`${path} = "${subjectTypes[0].uuid}"`];
+        const initialValues = {
+            individualFilters: subjectTypeQuery('subjectType.uuid'),
+            encountersFilters: subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
+            enrolmentFilters: subjectTypeQuery('individual.subjectType.uuid'),
+            generalEncountersFilters: subjectTypeQuery('individual.subjectType.uuid'),
+            dueChecklistFilter: subjectTypeQuery('individual.subjectType.uuid'),
+            selectedLocations: [],
+            selectedSubjectTypeUUID: subjectTypes[0].uuid,
+            selectedPrograms: [],
+            selectedEncounterTypes: [],
+            selectedGeneralEncounterTypes: [],
+            selectedCustomFilters: [],
+            selectedGenders: [],
+            filterDate: new Date()
+        };
+        DashboardCacheFilter.overwriteFields(initialValues, dashboardCacheFilter, false);
+        dashboardCacheService.updateFilter(dashboardCacheFilter);
+    }
+}
+
+// Update from state
+function updateCachedFilter(from, context) {
+    const dashboardCacheService = context.get(DashboardCacheService);
+    const dashboardCache = dashboardCacheService.getCache();
+    const dashboardCacheFilter = dashboardCache.getFilter();
+    DashboardCacheFilter.overwriteFields(from, dashboardCacheFilter, true);
+    dashboardCacheService.updateFilter(dashboardCacheFilter);
+}
+
+function updateCachedFilterFields(from, context) {
+    const dashboardCacheService = context.get(DashboardCacheService);
+    const dashboardCache = dashboardCacheService.getCache();
+    const dashboardCacheFilter = dashboardCache.getFilter();
+    Object.keys(from).forEach((field) => {
+        dashboardCacheFilter[field] = from[field];
+    });
+    dashboardCacheService.updateFilter(dashboardCacheFilter);
+}
+
+function getResultCounts(queryResult, subjectType, context) {
+    const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
+    const dashboardCacheService = context.get(DashboardCacheService);
+    const dashboardCache = dashboardCacheService.getCache();
+    const privilegeService = context.get(PrivilegeService);
+    const displayProgramTab = privilegeService.displayProgramTab(subjectType);
+    return readCachedData ? MyDashboardActions.getRowCount(dashboardCache.getCard(), displayProgramTab) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0), displayProgramTab);
+}
+
+/*
+    Dashboard Cache stores the information related to filters and card counts. The view looks at only state and doesn't know about the cache.
+    These scenarios have to be supported:
+    1. initial load when cache and state is empty
+    2. user changes filter
+    3. re-launch of app when cache is present
+    4. reload (called after sync, or update of data) which means new data that cache may not have updated counts for
+
+    Cache should contain only user input and some queried output. It should store master data etc.
+
+    1. onLoad and cache
+        - initialise cache with defaults for user input
+        - update cache with some query output fields
+    2. onLoad, state and cache
+        -- any information present in cache if required in state can be used from there instead of reinitialising
+    3. filling of filter
+        -- create new state
+        -- update cache with new state
+ */
 class MyDashboardActions {
     static getInitialState(context) {
         return {
@@ -42,51 +119,30 @@ class MyDashboardActions {
             fetchFromDB: !context.get(UserInfoService).getUserSettings().disableAutoRefresh,
             selectedCustomFilters: [],
             selectedGenders: [],
-            loading: false,
-            previouslySelectedSubjectTypeUUID: null,
+            loading: false
         };
     }
 
-    static applyFilters(filters) {
-        return (individuals) => [...filters.values()]
-            .reduce((acc, f) => f.compositeFn(acc), individuals);
-    }
-
     static commonIndividuals = (otherFilteredIndividuals, customFilteredIndividualsUUIDs, isTotal = false) => {
-        const getIndividualUUID  = (indInfo) => isTotal ? indInfo.uuid : indInfo.individual.uuid;
+        const getIndividualUUID = (indInfo) => isTotal ? indInfo.uuid : indInfo.individual.uuid;
         return ((_.isEmpty(customFilteredIndividualsUUIDs) || _.isEmpty(otherFilteredIndividuals)) ?
             otherFilteredIndividuals : otherFilteredIndividuals.filter(iInfo => _.includes(customFilteredIndividualsUUIDs, getIndividualUUID(iInfo))));
     };
 
     static onLoad(state, action, context) {
+        updateCacheWithPostSyncValues(context);
+
         const individualService = context.get(IndividualService);
-        const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
-        const privilegeService = context.get(PrivilegeService);
-        const allowedSubjectTypeUUIDs = privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypes = _.filter(context.get(EntityService).findAllByCriteria('voided = false', SubjectType.schema.name), subjectType => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUUIDs, subjectType.uuid));
-        const subjectType = state.selectedSubjectType || LocalCacheService.getPreviouslySelectedSubjectType(allowedSubjectTypes, action.cachedSubjectTypeUUID);
-        LocalCacheService.saveCurrentlySelectedSubjectType(subjectType);
+        const dashboardCacheService = context.get(DashboardCacheService);
+        const dashboardCache = dashboardCacheService.getCache();
+        const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
 
-        let individualFilters, encountersFilters, enrolmentFilters, generalEncountersFilters, dueChecklistFilter;
-        if (_.isEmpty(state.individualFilters)) {
-            const subjectTypeQuery = (path) => [`${path} = "${subjectType.uuid}"`];
-            individualFilters = subjectTypeQuery('subjectType.uuid');
-            encountersFilters = subjectTypeQuery('programEnrolment.individual.subjectType.uuid');
-            enrolmentFilters = subjectTypeQuery('individual.subjectType.uuid');
-            generalEncountersFilters = subjectTypeQuery('individual.subjectType.uuid');
-            dueChecklistFilter = subjectTypeQuery('individual.subjectType.uuid');
-        } else {
-            individualFilters = state.individualFilters;
-            encountersFilters = state.encountersFilters;
-            enrolmentFilters = state.enrolmentFilters;
-            generalEncountersFilters = state.generalEncountersFilters;
-            dueChecklistFilter = state.dueChecklistFilter;
-        }
+        General.logDebugTemp("MyDashboardActions", dashboardCacheFilter.selectedSubjectTypeUUID);
 
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
-        const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(state.date.value, dueChecklistFilter);
+        const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
 
         const [
             allIndividualsWithScheduledVisits,
@@ -96,13 +152,13 @@ class MyDashboardActions {
             allIndividualsWithRecentEnrolments,
             allIndividuals,
             dueChecklist
-        ] = state.returnEmpty ? [[], [], [], [], [], [], [],[]] : (fetchFromDB ? [
-                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(state.date.value, [], encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(state.date.value, [], encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(state.date.value, [], encountersFilters, generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(state.date.value, [], individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(state.date.value, [], enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(state.date.value, [], individualFilters, state.selectedPrograms, getApplicableEncounterTypes(state)), state.individualUUIDs, true),
+        ] = state.returnEmpty ? [[], [], [], [], [], [], [], []] : (fetchFromDB ? [
+                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
                 MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
@@ -121,58 +177,36 @@ class MyDashboardActions {
         };
 
         if (state.returnEmpty || fetchFromDB) {
-            const updatedOn = new Date();
-            const cardJSON = _.mapValues(queryResult, v => v && v.length || 0);
-            const filterJSON = DashboardCache.getFilterJSONFromState(state);
-            filterJSON.selectedAddressesInfo = _.flatten([...new Map(state.addressLevelState.levels).values()])
-                .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
-                    uuid,
-                    name,
-                    level,
-                    type,
-                    parentUuid,
-                    isSelected
-                }));
-            const dashboardCache = DashboardCache.create(updatedOn, JSON.stringify(cardJSON), JSON.stringify(filterJSON));
-            context.get(DashboardCacheService).saveOrUpdate(dashboardCache);
+            const card = _.mapValues(queryResult, v => v && v.length || 0);
+            dashboardCacheService.updateCard(card);
         }
 
-        const {counts, lastUpdatedOn, cachedFilters} = MyDashboardActions.getResultCounts(queryResult, subjectType, context);
-        const cachedDate = cachedFilters.date;
+        const subjectType = context.get(SubjectTypeService).findByUUID(dashboardCacheFilter.selectedSubjectTypeUUID);
+        const counts = getResultCounts(queryResult, subjectType, context);
 
         return {
             ...state,
             ...queryResult,
             visits: counts,
             selectedSubjectType: subjectType,
-            individualFilters,
-            encountersFilters,
-            generalEncountersFilters,
-            enrolmentFilters,
-            dueChecklistFilter,
+            individualFilters: dashboardCacheFilter.individualFilters,
+            encountersFilters: dashboardCacheFilter.encountersFilters,
+            generalEncountersFilters: dashboardCacheFilter.generalEncountersFilters,
+            enrolmentFilters: dashboardCacheFilter.enrolmentFilters,
+            dueChecklistFilter: dashboardCacheFilter.dueChecklistFilter,
             itemsToDisplay: [],
             fetchFromDB: false,
             loading: false,
-            lastUpdatedOn: lastUpdatedOn,
-            ...cachedFilters,
-            date: {value: cachedDate && new Date(cachedDate.value) || state.date.value},
-            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || state.previouslySelectedSubjectTypeUUID
+            addressLevelState: new AddressLevelState(dashboardCacheFilter.selectedAddressesInfo),
+            selectedAddressesInfo: dashboardCacheFilter.selectedAddressesInfo,
+            selectedLocations: dashboardCacheFilter.selectedLocations,
+            selectedCustomFilters: dashboardCacheFilter.selectedCustomFilters,
+            selectedGenders: dashboardCacheFilter.selectedGenders,
+            selectedPrograms: dashboardCacheFilter.selectedPrograms,
+            selectedEncounterTypes: dashboardCacheFilter.selectedEncounterTypes,
+            selectedGeneralEncounterTypes: dashboardCacheFilter.selectedGeneralEncounterTypes,
+            date: {value: dashboardCacheFilter.filterDate}
         };
-    }
-
-    static getResultCounts(queryResult, subjectType, context) {
-        const readCachedData = context.get(UserInfoService).getUserSettings().disableAutoRefresh;
-        const cachedData = context.get(DashboardCacheService).cachedData();
-        const privilegeService = context.get(PrivilegeService);
-        const displayProgramTab = privilegeService.displayProgramTab(subjectType);
-        const counts = readCachedData ? MyDashboardActions.getRowCount(cachedData.getCardJSON(), displayProgramTab) : MyDashboardActions.getRowCount(_.mapValues(queryResult, v => v && v.length || 0), displayProgramTab);
-        const lastUpdatedOn = cachedData.updatedAt;
-        const filterJSON = cachedData.getFilterJSON();
-        const cachedFilters = readCachedData ? filterJSON : {};
-        const addressLevelState = new AddressLevelState(cachedFilters.selectedAddressesInfo);
-        cachedFilters.addressLevelState = addressLevelState;
-        cachedFilters.selectedLocations = addressLevelState.selectedAddresses;
-        return {counts, lastUpdatedOn, cachedFilters: readCachedData ? cachedFilters : {}}
     }
 
     static onListLoad(state, action, context) {
@@ -197,8 +231,7 @@ class MyDashboardActions {
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state));
         else if (listType === "dueChecklist") {
             allIndividuals = methodMap.get(listType)(state.date.value, [], state.dueChecklistFilter)
-        }
-        else
+        } else
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
 
         const commonIndividuals = MyDashboardActions.commonIndividuals(allIndividuals, state.individualUUIDs, listType === 'total');
@@ -215,9 +248,9 @@ class MyDashboardActions {
     }
 
     static onDate(state, action, context) {
-        return MyDashboardActions.onLoad({...state, date: {value: action.value}, fetchFromDB: true}, action, context);
+        updateCachedFilterFields({filterDate: action.value}, context);
+        return MyDashboardActions.onLoad({...state, fetchFromDB: true}, action, context);
     }
-
 
     static resetList(state) {
         return {
@@ -228,11 +261,6 @@ class MyDashboardActions {
 
     static cloneFilters(filters) {
         return [...filters.entries()].reduce((acc, [l, f]) => acc.set(l, f.clone()), new Map());
-    }
-
-    static addFilter(state, action, context) {
-        const newFilters = MyDashboardActions.cloneFilters(state.filters.set(action.filter.label, action.filter));
-        return {...state, filters: newFilters};
     }
 
     static shouldQueryGeneralEncounter(state) {
@@ -289,7 +317,7 @@ class MyDashboardActions {
             'SUBQUERY(enrolments, $enrolment, ' + restIndividualFilters + ' ).@count > 0';
 
         const encounterQuery = () => _.isEmpty(RealmQueryService.orQuery(generalVisitQueryFromIndividual)) ? '' :
-          'SUBQUERY(encounters, $encounter, ' + RealmQueryService.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
+            'SUBQUERY(encounters, $encounter, ' + RealmQueryService.orQuery(generalVisitQueryFromIndividual) + ' ).@count > 0';
 
         const individualFilters = [
             subjectTypeQuery('subjectType.uuid'),
@@ -332,7 +360,6 @@ class MyDashboardActions {
             'programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
-        LocalCacheService.saveCurrentlySelectedSubjectType(action.selectedSubjectType);
         const newState = {
             ...state,
             filters: newFilters,
@@ -359,6 +386,17 @@ class MyDashboardActions {
             selectedGenders: action.selectedGenders
         };
         const selectedFilterTypes = MyDashboardActions.getSelectedFilterTypes(newState);
+        updateCachedFilter(newState, context);
+        const selectedAddressesInfo = _.flatten([...new Map(newState.addressLevelState.levels).values()])
+            .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
+                uuid,
+                name,
+                level,
+                type,
+                parentUuid,
+                isSelected
+            }));
+        updateCachedFilterFields({selectedAddressesInfo, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
         const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;
@@ -374,7 +412,7 @@ class MyDashboardActions {
             ...selectedCustomFilters
         };
         return _.chain(selectedValueFilterTypeMap)
-            .pickBy((v,k) => !_.isEmpty(v))
+            .pickBy((v, k) => !_.isEmpty(v))
             .keys()
             .join(', ')
             .value();

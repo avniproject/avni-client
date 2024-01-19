@@ -20,7 +20,6 @@ import RefreshReminder from "./RefreshReminder";
 import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
 import OrganisationConfigService from '../../service/OrganisationConfigService';
-import LocalCacheService from '../../service/LocalCacheService';
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
@@ -44,9 +43,7 @@ class MyDashboardView extends AbstractComponent {
         if (this.state.fetchFromDB) {
             this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         }
-        LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
-          this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync, cachedSubjectTypeUUID});
-        });
+        this.dispatchAction(Actions.ON_LOAD, {fetchFromDB: this.props.startSync});
     }
 
     onBackCallback() {
@@ -85,7 +82,7 @@ class MyDashboardView extends AbstractComponent {
                                 opacity: 0.8,
                                 alignSelf: 'center',
                                 fontSize: 30
-                            }} name='refresh' type={"MaterialIcons"} />
+                            }} name='refresh' type={"MaterialIcons"}/>
                         </View>
                     </TouchableNativeFeedback> : <View/>}
             </View>
@@ -150,22 +147,22 @@ class MyDashboardView extends AbstractComponent {
                                           filterDate: date
                                       })}/>
                 </View>
-                    <CustomActivityIndicator
-                        loading={this.state.loading}/>
-                    <ScrollView>
-                        <ListView enableEmptySections={true}
-                                style={{marginBottom: 190}}
-                                  dataSource={dataSource}
-                                  initialListSize={1}
-                                  removeClippedSubviews={true}
-                                  renderHeader={() => this.renderHeader()}
-                                  renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
-                                                                          sectionName={rowData.sectionName}
-                                                                          backFunction={() => this.onBackCallback()}
-                                                                          dueChecklist={this.state.dueChecklistWithChecklistItem}/>}/>
-                        <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
-                    </ScrollView>
-                    <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                <CustomActivityIndicator
+                    loading={this.state.loading}/>
+                <ScrollView>
+                    <ListView enableEmptySections={true}
+                              style={{marginBottom: 190}}
+                              dataSource={dataSource}
+                              initialListSize={1}
+                              removeClippedSubviews={true}
+                              renderHeader={() => this.renderHeader()}
+                              renderRow={(rowData) => <StatusCountRow visits={rowData.visits}
+                                                                      sectionName={rowData.sectionName}
+                                                                      backFunction={() => this.onBackCallback()}
+                                                                      dueChecklist={this.state.dueChecklistWithChecklistItem}/>}/>
+                    <Separator height={10} backgroundColor={Colors.GreyContentBackground}/>
+                </ScrollView>
+                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
             </CHSContainer>
         );
     }

@@ -1,11 +1,10 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {DashboardCache} from "avni-models";
-
+import {DashboardCache} from "openchs-models";
+import _ from 'lodash';
 
 @Service('dashboardCacheService')
 class DashboardCacheService extends BaseService {
-
     constructor(db, props) {
         super(db, props);
     }
@@ -14,20 +13,56 @@ class DashboardCacheService extends BaseService {
         return DashboardCache.schema.name;
     }
 
-    cachedData() {
-        const cache = this.findAll();
-        if (cache === undefined || cache.length === 0) return DashboardCache.createEmptyInstance();
-        return cache[0];
+    getCache() {
+        const cache = this.findOnly();
+        if (_.isNil(cache)) {
+            this.saveOrUpdate(DashboardCache.createEmptyInstance());
+        }
+        return this.findOnly();
     }
 
-    cardJSON() {
-        return this.cachedData().getCardJSON();
+    hasCache() {
+        return !_.isNil(this.findOnly());
     }
 
-    filterJSON(){
-        return this.cachedData().getFilterJSON();
+    static getFilterJSONFromState(state) {
+        return {
+            date: state.date,
+            selectedPrograms: state.selectedPrograms,
+            selectedEncounterTypes: state.selectedEncounterTypes,
+            selectedGeneralEncounterTypes: state.selectedGeneralEncounterTypes,
+            selectedCustomFilters: state.selectedCustomFilters,
+            selectedGenders: state.selectedGenders,
+            programs: state.programs,
+            individualFilters: state.individualFilters,
+            encountersFilters: state.encountersFilters,
+            enrolmentFilters: state.enrolmentFilters,
+            generalEncountersFilters: state.generalEncountersFilters,
+            selectedSubjectTypeUUID: state.subjectType.uuid
+        };
     }
 
+    updateCard(card) {
+        this.db.write(() => {
+            const dashboardCache = this.getCache();
+            dashboardCache.setCard(card);
+        });
+    }
+
+    updateFilter(filter) {
+        this.db.write(() => {
+            const dashboardCache = this.getCache();
+            dashboardCache.setFilter(filter);
+        });
+    }
+
+    clear() {
+        const db = this.db;
+        this.db.write(() => {
+            const dashboardCache = this.findOnly();
+            db.delete(dashboardCache);
+        });
+    }
 }
 
 export default DashboardCacheService;

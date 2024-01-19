@@ -26,7 +26,7 @@ class RefreshReminder extends AbstractComponent {
             .filtered("entity <> 'UserInfo'")
             .sorted("savedAt", true).slice();
         const dashboardCacheService = this.getService(DashboardCacheService);
-        const lastRefreshTime = dashboardCacheService.cachedData().updatedAt;
+        const lastRefreshTime = dashboardCacheService.getCache().getFilter().filterDate;
         return moment(lastRefreshTime).add(40, 'seconds').isBefore(lastSynced[0].loadedSince) ||
             (allEntityQueueItems.length > 0 && moment(lastRefreshTime).isBefore(allEntityQueueItems[0].savedAt));
     }

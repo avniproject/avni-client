@@ -18,8 +18,6 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
-import LocalCacheService from "../service/LocalCacheService";
-import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
