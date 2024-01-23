@@ -19,31 +19,33 @@ function getApplicableEncounterTypes(holder) {
 function updateCacheWithPostSyncValues(context) {
     const dashboardCacheService = context.get(DashboardCacheService);
     const subjectTypeService = context.get(SubjectTypeService);
-    const oneSyncCompleted = !_.isNil(subjectTypeService.findOnly());
+    const subjectTypes = subjectTypeService.getAllowedSubjectTypes();
+    const oneSyncCompleted = subjectTypes.length !== 0;
+    let toUpdateValues = {
+        selectedLocations: [],
+        selectedPrograms: [],
+        selectedEncounterTypes: [],
+        selectedGeneralEncounterTypes: [],
+        selectedCustomFilters: [],
+        selectedGenders: [],
+        filterDate: new Date()
+    };
+    const dashboardCache = dashboardCacheService.getCache();
+    const dashboardCacheFilter = dashboardCache.getFilter();
     if (oneSyncCompleted) {
-        const dashboardCache = dashboardCacheService.getCache();
-        const subjectTypes = subjectTypeService.getAllowedSubjectTypes();
-
-        const dashboardCacheFilter = dashboardCache.getFilter();
         const subjectTypeQuery = (path) => [`${path} = "${subjectTypes[0].uuid}"`];
-        const initialValues = {
+        toUpdateValues = {
             individualFilters: subjectTypeQuery('subjectType.uuid'),
             encountersFilters: subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
             enrolmentFilters: subjectTypeQuery('individual.subjectType.uuid'),
             generalEncountersFilters: subjectTypeQuery('individual.subjectType.uuid'),
             dueChecklistFilter: subjectTypeQuery('individual.subjectType.uuid'),
-            selectedLocations: [],
             selectedSubjectTypeUUID: subjectTypes[0].uuid,
-            selectedPrograms: [],
-            selectedEncounterTypes: [],
-            selectedGeneralEncounterTypes: [],
-            selectedCustomFilters: [],
-            selectedGenders: [],
-            filterDate: new Date()
+            ...toUpdateValues
         };
-        DashboardCacheFilter.overwriteFields(initialValues, dashboardCacheFilter, false);
-        dashboardCacheService.updateFilter(dashboardCacheFilter);
     }
+    DashboardCacheFilter.overwriteFields(toUpdateValues, dashboardCacheFilter, false);
+    dashboardCacheService.updateFilter(dashboardCacheFilter);
 }
 
 // Update from state
@@ -137,8 +139,6 @@ class MyDashboardActions {
         const dashboardCache = dashboardCacheService.getCache();
         const dashboardCacheFilter = dashboardCache.getFilter();
         const fetchFromDB = action.fetchFromDB || state.fetchFromDB;
-
-        General.logDebugTemp("MyDashboardActions", dashboardCacheFilter.selectedSubjectTypeUUID);
 
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
