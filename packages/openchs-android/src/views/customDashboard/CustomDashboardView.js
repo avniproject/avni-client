@@ -120,7 +120,6 @@ class CustomDashboardView extends AbstractComponent {
             .map((groupedData, sectionUUID) => {
                 const section = this.getService(EntityService).findByUUID(sectionUUID, DashboardSection.schema.name);
                 const cardsWithNestedContent = _.map(_.sortBy(groupedData, 'displayOrder'), ({card}) => card);
-                //todo split nested cardsWithNestedContent into separate ones
                 const cards = _.flatMap(cardsWithNestedContent, splitNestedCards);
                 return {section, cards};
             })
@@ -135,14 +134,13 @@ class CustomDashboardView extends AbstractComponent {
                         this.renderSectionName(section.name, section.description, section.viewType, cards)}
                         <View style={styles.cardContainer}>
                             {_.map(cards, (card, index) => (
-                              //todo, use explicit key instead of card.uuid
                                 <CustomDashboardCard
-                                    key={card.itemKey} //card.uuid
+                                    key={card.itemKey}
                                     reportCard={card}
                                     onCardPress={this.onCardPress.bind(this)}
                                     index={index}
                                     viewType={section.viewType}
-                                    countResult={this.state.cardToCountResultMap[card.itemKey]} //card.uuid
+                                    countResult={this.state.cardToCountResultMap[card.itemKey]}
                                     countUpdateTime={this.state.countUpdateTime}
                                 />
                             ))}

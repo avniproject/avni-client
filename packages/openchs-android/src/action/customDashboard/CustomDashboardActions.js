@@ -116,7 +116,6 @@ class CustomDashboardActions {
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
             const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
-            //todo, set counts for rcm.card.uuid with #identifier suffix if needed
             if(rcm.card.nested) {
                 _.map(countQueryResponse, (reportCard, index) => {
                     const itemKey = rcm.card.getCardId(index);
@@ -137,7 +136,6 @@ class CustomDashboardActions {
         const newState = {...state};
         const reportCardSectionMappings = state.reportCardSectionMappings;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
-        //todo, remove counts for rcm.card.uuid with #identifier suffix if needed
         reportCardSectionMappings.forEach(rcm => {
             const keysOfReportCard= _.keys(newState.cardToCountResultMap).filter((itemKey) => itemKey.startsWith(rcm.card.uuid));
             _.forEach(keysOfReportCard, (itemKey) => {
