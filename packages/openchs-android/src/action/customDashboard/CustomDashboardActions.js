@@ -124,6 +124,8 @@ class CustomDashboardActions {
                         itemKey
                     };
                 });
+                countQueryResponse && countQueryResponse.length != rcm.card.countOfCards && General.logWarn('CustomDashboardActions',
+                  `${rcm.card.name} query returned different number of nested cards(${countQueryResponse.length}) than expected(${rcm.card.countOfCards})`);
             } else {
                 newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
             }
