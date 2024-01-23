@@ -111,7 +111,7 @@ class CustomDashboardView extends AbstractComponent {
 
     renderCards() {
         const splitNestedCards = (cardIter) => {
-            const repeatTimes = cardIter.nested ? cardIter.initCountOfCards: 1;
+            const repeatTimes = cardIter.nested ? cardIter.countOfCards: 1;
             return Array(repeatTimes).fill(cardIter).map((card, i) => ({ ...card, itemKey:  card.getCardId(i)}));
         }
         const activeDashboardSectionMappings = _.filter(this.state.reportCardSectionMappings, ({dashboardSection}) => this.state.activeDashboardUUID === dashboardSection.dashboard.uuid);
