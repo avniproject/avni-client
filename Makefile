@@ -133,8 +133,13 @@ as_perf: ; $(call _create_config,perf)
 as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 as_no_env: ; $(call _create_config,no_env)
+<<<<<<< HEAD
 as_prod_lfe_dev: ; $(call _create_config,prod_lfe_dev)
 
+=======
+as_gramin_staging: ; $(call _create_config,gramin_staging)
+as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
+>>>>>>> 48c92698 (#1267 | Gramin staging apk generation)
 release_clean: ## If you get dex errors
 	rm -rf packages/openchs-android/android/app/build
 	mkdir -p packages/openchs-android/android/app/build/generated
@@ -213,6 +218,14 @@ release_staging_dev_without_clean: as_staging_dev
 	enableSeparateBuildPerCPUArchitecture=false make release
 
 release_staging: renew_env release_staging_without_clean
+
+release_gramin_staging_without_clean: as_gramin_staging
+	enableSeparateBuildPerCPUArchitecture=false flavor=gramin make release
+
+release_gramin_staging_dev_without_clean: as_gramin_staging_dev
+	enableSeparateBuildPerCPUArchitecture=false flavor=gramin make release
+
+release_gramin_staging: renew_env release_gramin_staging_without_clean
 
 release_uat_without_clean: as_uat
 	$(call _create_config,uat)
@@ -461,7 +474,7 @@ endif
 deploy_platform_translations_staging:
 	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
 
-deploy_platform_translations_gramin_staging:
+deploy_platform_translations_rwb_staging:
 	make deploy_translations server=https://staging.rwb.avniproject.org port=443 username=admin password=$(RWB_STAGING_ADMIN_PASSWORD)
 
 deploy_platform_translations_uat:
