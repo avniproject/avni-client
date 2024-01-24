@@ -469,7 +469,7 @@ endif
 deploy_platform_translations_staging:
 	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
 
-deploy_platform_translations_rwb_staging:
+deploy_platform_translations_gramin_staging:
 	make deploy_translations server=https://staging.rwb.avniproject.org port=443 username=admin password=$(RWB_STAGING_ADMIN_PASSWORD)
 
 deploy_platform_translations_uat:
