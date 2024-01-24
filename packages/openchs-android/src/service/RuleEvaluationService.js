@@ -710,12 +710,11 @@ class RuleEvaluationService extends BaseService {
         } else if (reportCard.nested) {
             return _.map(queryResult.reportCards, (reportCardResultsItr, index) => {
                 return {
-                    textColor: reportCard.textColor,
-                      cardColor: reportCard.cardColor,
-                ...reportCardResultsItr,
-                  clickable: _.isFunction(reportCardResultsItr.lineListFunction),
-                  itemKey: reportCard.getCardId(index),
-                  reportCardUUID: reportCard.uuid
+                    cardColor: reportCard.colour,
+                    ...reportCardResultsItr,
+                    clickable: _.isFunction(reportCardResultsItr.lineListFunction),
+                    itemKey: reportCard.getCardId(index),
+                    reportCardUUID: reportCard.uuid
                 };
             });
         } else {

@@ -7,15 +7,19 @@ import {get} from 'lodash';
 
 export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
     const {name, colour, itemKey} = reportCard;
-    const renderNumber = () => {
+    const cardName = (countResult && countResult.cardName) || name;
+    const textColor = (countResult && countResult.textColor) || '#ffffff';
+    const cardColor = (countResult && countResult.cardColor) || colour || '#0000ff';
+
+    const renderNumber = (textColor) => {
         return (_.isNil(get(countResult, 'primaryValue')) ?
-                <ActivityIndicator size="large" color="#0000ff" style={{paddingVertical: 25}}/> :
+                <ActivityIndicator size="large" color={textColor} style={{paddingVertical: 25}}/> :
                 <CountResult
                     direction={'column'}
                     primary={countResult.primaryValue}
                     secondary={countResult.secondaryValue}
-                    primaryStyle={styles.primaryTextStyle}
-                    secondaryStyle={styles.secondaryTextStyle}
+                    primaryStyle={[styles.primaryTextStyle, {color: textColor}]}
+                    secondaryStyle={[styles.secondaryTextStyle, {color: textColor}]}
                 />
         )
     };
@@ -25,11 +29,11 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
             <View key={itemKey} style={styles.container}>
                 <View style={styles.rowContainer}>
                     <View style={styles.nameContainer}>
-                        <Text style={styles.nameTextStyle}>{I18n.t(name)}</Text>
+                        <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
                     </View>
-                    <View style={[styles.numberContainer, {backgroundColor: colour}]}>
+                    <View style={[styles.numberContainer, {backgroundColor: cardColor}]}>
                         <View style={{alignSelf: 'center'}}>
-                            {renderNumber()}
+                            {renderNumber(textColor)}
                         </View>
                     </View>
                 </View>

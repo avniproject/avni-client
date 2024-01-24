@@ -28,9 +28,11 @@ const renderNumber = function (countResult, textColor) {
 const cardGap = 16;
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
-    const {name, itemKey, textColor, iconName} = reportCard;
+    const {name, colour, itemKey, iconName} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
-    const cardColor = reportCard.cardColor || '#ffffff';
+    const cardName = (countResult && countResult.cardName) || name;
+    const textColor = (countResult && countResult.textColor) || '#ffffff';
+    const cardColor = (countResult && countResult.cardColor) || colour || '#ffffff';
 
     return (
         <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!get(countResult, 'clickable')}>
@@ -46,7 +48,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                         <View style={{height: 30, marginBottom: 10}}>
                             {renderNumber(countResult, textColor)}
                         </View>
-                        <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(name)}</Text>
+                        <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(cardName)}</Text>
                     </View>
                     {iconName && renderIcon(iconName, textColor)}
                 </View>
