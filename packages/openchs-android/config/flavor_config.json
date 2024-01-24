@@ -34,5 +34,14 @@
       "project_name": "avni-client",
       "env_var_name": "OPENCHS_CLIENT_BUGSNAG_API_KEY"
     }
+  },
+  "gramin": {
+    "server_url": "https://app.rwb.avniproject.org",
+    "package_name": "com.openchsclient.gramin",
+    "prod_admin_password_env_var_name": "GRAMIN_PROD_ADMIN_PASSWORD",
+    "bugsnag": {
+      "project_name": "avni-client",
+      "env_var_name": "GRAMIN_BUGSNAG_API_KEY"
+    }
   }
 }
