@@ -146,6 +146,13 @@ android {
             keyPassword System.getenv("sakhi_KEY_PASSWORD")
             enableV1Signing false
         }
+        gramin {
+            storeFile file("${System.getenv("KEY_STORE_PREFIX") ?: ""}gramin-release-key.keystore")
+            storePassword System.getenv("gramin_KEYSTORE_PASSWORD")
+            keyAlias "${System.getenv("KEY_STORE_PREFIX") ?: ""}${System.getenv("gramin_KEY_ALIAS")}"
+            keyPassword System.getenv("gramin_KEY_PASSWORD")
+            enableV1Signing false
+        }
     }
     buildTypes {
         release {
@@ -182,6 +189,12 @@ android {
             resValue "string", "app_name", "Sakhi 2.0"
             signingConfig signingConfigs.sakhi
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
+        }
+        gramin {
+            applicationId "com.openchsclient.gramin"
+            resValue "string", "app_name", "Avni Gramin"
+            signingConfig signingConfigs.sakhi
+            manifestPlaceholders = [bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy"]
         }
     }
     sourceSets {
