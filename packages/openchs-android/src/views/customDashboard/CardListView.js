@@ -18,8 +18,8 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
                     direction={'column'}
                     primary={countResult.primaryValue}
                     secondary={countResult.secondaryValue}
-                    primaryStyle={[styles.primaryTextStyle, {color: textColor}]}
-                    secondaryStyle={[styles.secondaryTextStyle, {color: textColor}]}
+                    primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasError && styles.cardPrimaryTextErrorStyle]}
+                    secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasError && styles.cardSecondaryTextErrorStyle]}
                 />
         )
     };
@@ -77,6 +77,14 @@ const styles = StyleSheet.create({
     },
     secondaryTextStyle: {
         fontSize: 23,
+        fontStyle: 'normal',
+    },
+    cardPrimaryTextErrorStyle: {
+        fontSize: 11,
+        fontStyle: 'normal',
+    },
+    cardSecondaryTextErrorStyle: {
+        fontSize: 9,
         fontStyle: 'normal',
     }
 });

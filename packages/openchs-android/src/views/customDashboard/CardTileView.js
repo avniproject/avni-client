@@ -19,8 +19,8 @@ const renderNumber = function (countResult, textColor) {
                 direction={'row'}
                 primary={countResult.primaryValue}
                 secondary={countResult.secondaryValue}
-                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}]}
-                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}]}
+                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasError && styles.cardPrimaryTextErrorStyle]}
+                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasError && styles.cardSecondaryTextErrorStyle]}
             />
     )
 };
@@ -87,5 +87,13 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-end',
         flex: 1
+    },
+    cardPrimaryTextErrorStyle: {
+        fontSize: 11,
+        fontStyle: 'normal',
+    },
+    cardSecondaryTextErrorStyle: {
+        fontSize: 8,
+        fontStyle: 'normal',
     }
 });
