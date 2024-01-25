@@ -19,8 +19,8 @@ const renderNumber = function (countResult, textColor) {
                 direction={'row'}
                 primary={countResult.primaryValue}
                 secondary={countResult.secondaryValue}
-                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasError && styles.cardPrimaryTextErrorStyle]}
-                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasError && styles.cardSecondaryTextErrorStyle]}
+                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
+                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
             />
     )
 };

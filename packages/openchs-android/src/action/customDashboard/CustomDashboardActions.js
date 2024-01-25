@@ -131,10 +131,9 @@ class CustomDashboardActions {
                     Array(rcm.card.countOfCards).fill(rcm.card).map((reportCard, index) => {
                         const itemKey = reportCard.getCardId(index);
                         newState.cardToCountResultMap[itemKey] = {
-                            hasError: true,
+                            hasErrorMsg: true,
                             primaryValue: I18n.t("Error"),
                             secondaryValue: `Configured number of cards don\'t match with the number of cards in the rule`,
-                            // secondaryValue: null,
                             lineListFunction: _.noop(),
                             itemKey
                         };
