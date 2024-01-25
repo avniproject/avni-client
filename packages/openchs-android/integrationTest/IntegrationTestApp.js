@@ -19,6 +19,7 @@ import General from "../src/utility/General";
 import Icon from "react-native-vector-icons/Entypo";
 import _ from 'lodash';
 import {JSONStringify} from "../src/utility/JsonStringify";
+import PruneMediaIntegrationTest from "./PruneMediaIntegrationTest";
 
 const itemCommonStyle = {
     padding: 10,
@@ -84,7 +85,7 @@ class IntegrationTestApp extends Component {
         LogBox.ignoreAllLogs();
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest);
+        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest, PruneMediaIntegrationTest);
         this.state = {isInitialisationDone: false, testSuite: this.integrationTestRunner.testSuite, expandedTestClasses: []};
     }
 
@@ -147,7 +148,8 @@ class IntegrationTestApp extends Component {
                         const itemStyle = testMethod.hasRun() ? (testMethod.isSuccessful() ? styles.success : styles.failure) : styles.item;
                         return expanded ?
                             <View style={{...itemStyle, marginLeft: 50}}>
-                                <Text style={styles.title}>{testMethod.methodName}</Text>
+                                <Text style={styles.title}
+                                      onPress={() => this.integrationTestRunner.runMethod((x) => this.testRunObserver(x), testMethod, true)}>{testMethod.methodName}</Text>
                                 <Button title={"Run"} onPress={() => this.integrationTestRunner.runMethod((x) => this.testRunObserver(x), testMethod)}/>
                                 <Button title={"Run & Throw"} onPress={() => this.integrationTestRunner.runMethod((x) => this.testRunObserver(x), testMethod, true)}/>
                             </View> : null;

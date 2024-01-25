@@ -1,12 +1,13 @@
 import General from "../../../src/utility/General";
 import {ProgramEnrolment} from 'openchs-models';
+import moment from "moment/moment";
 
 class TestProgramEnrolmentFactory {
   static create({
                   uuid = General.randomUUID(),
                   program,
                   subject,
-                  enrolmentDateTime,
+                  enrolmentDateTime = moment().toDate(),
                   encounters = [],
                   checklists = [],
                   observations = [],

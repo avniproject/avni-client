@@ -1,15 +1,25 @@
-import {Concept, Observation, RealmConfig} from 'avni-models';
+import {Concept} from 'avni-models';
 import fs from 'react-native-fs';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
 import GlobalContext from "../GlobalContext";
+import {MetaDataService} from "openchs-models";
 
-const imageObservationDoesNotExist = (db) => (image) => {
-    return db.objects(Observation.schema.name).filtered(
-        `(concept.datatype == "${Concept.dataType.Image}" OR  concept.datatype == "${Concept.dataType.Video}" OR  concept.datatype == "${Concept.dataType.Audio}") and valueJSON contains[c] "${image}"`)
-        .length === 0;
+export const imageObservationDoesNotExist = (db) => (media) => {
+    return MetaDataService.everyObservationField((observationField, schemaName) => {
+        const obsParentEntities = db.objects(schemaName).filtered(
+            `(${observationField}.concept.datatype == "${Concept.dataType.Image}" OR  ${observationField}.concept.datatype == "${Concept.dataType.Video}" OR ${observationField}.concept.datatype == "${Concept.dataType.Audio}") and ${observationField}.valueJSON contains[c] "${media}"`);
+        if (obsParentEntities.length === 0) return true;
+
+        return obsParentEntities.every((parentEntity) => {
+            const observations = parentEntity[observationField];
+            return observations.every((obs) => {
+                if (!obs.concept.isMediaConcept() || !obs.valueJSON.includes(media)) return true;
+            });
+        });
+    });
 };
 
 const deleteFile = (file) => {

@@ -9,7 +9,6 @@ import TestMetadataService from "./service/TestMetadataService";
 import EntityApprovalStatusService from "../src/service/EntityApprovalStatusService";
 import {assert} from "chai";
 import TestConceptFactory from "../test/model/TestConceptFactory";
-import {JSONStringify} from "../src/utility/JsonStringify";
 import TestProgramEnrolmentFactory from "../test/model/txn/TestProgramEnrolmentFactory";
 import moment from "moment/moment";
 import TestProgramFactory from "../test/model/TestProgramFactory";

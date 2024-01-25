@@ -22,9 +22,13 @@ class BaseIntegrationTest {
     }
 
     executeInWrite(codeBlock) {
-        GlobalContext.getInstance().db.write(() => {
+        this.getDb().write(() => {
             codeBlock(new TestDb(GlobalContext.getInstance().db));
         });
+    }
+
+    getDb() {
+        return GlobalContext.getInstance().db;
     }
 
     getState(reducerKey) {
@@ -42,14 +46,14 @@ class BaseIntegrationTest {
 
     setup() {
         this.log("Setup Called");
-        GlobalContext.getInstance().db.write(() => {
+        this.getDb().write(() => {
             GlobalContext.getInstance().db.realmDb.deleteAll();
         });
         return this;
     }
 
     logQueries() {
-        GlobalContext.getInstance().db.setLogQueries(true);
+        this.getDb().setLogQueries(true);
     }
 
     log(...params) {

@@ -28,7 +28,6 @@ import UserInfoService from "./UserInfoService";
 
 @Service('SubjectMigrationService')
 class SubjectMigrationService extends BaseService {
-
     constructor(db, beanStore) {
         super(db, beanStore);
     }
@@ -152,25 +151,10 @@ class SubjectMigrationService extends BaseService {
                     if (_.isNil(checklist)) {
                         return;
                     }
-
-                    // CHECKLIST children (checklist items)
-                    _.forEach(checklist.items, (checklistItem) => {
-                        // CHECKLIST ITEM
-                        if (_.isNil(checklistItem)) {
-                            return;
-                        }
-
-                        // CHECKLIST ITEM children (others)
-                        db.delete(checklistItem.observations);
-                        db.delete(checklistItem.approvalStatuses);
-                    });
                     db.delete(checklist.items);
                 });
-                db.delete(enrolment.checklists);
-
                 // ENROLMENT children (others)
-                db.delete(enrolment.observations);
-                db.delete(enrolment.programExitObservations);
+                db.delete(enrolment.checklists);
                 db.delete(enrolment.approvalStatuses);
             });
             db.delete(subject.enrolments);
