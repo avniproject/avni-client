@@ -124,18 +124,18 @@ class ChangePasswordView extends AbstractComponent {
                         <SecureTextInput placeholder={this.I18n.t("currentPassword")} value={this.state.password}
                                          onChangeText={(password) => this.setState({password})}
                                          secureTextEntry={!this.state.showPassword}
+                                         style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                         />
 
                         <SecureTextInput placeholder={this.I18n.t("newPassword")} value={this.state.newPassword}
                                          onChangeText={(newPassword) => this.setState({newPassword})}
                                          secureTextEntry={!this.state.showPassword}
+                                         style={{borderBottomColor:'#cccccc',borderBottomWidth: 1 }}
                         />
 
                         <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
+                            flexDirection: 'column',
                             paddingBottom: 16,
-                            alignItems: 'center',
                             paddingTop: 8
                         }}>
                                     <TouchableNativeFeedback onPress={() => {
@@ -151,7 +151,7 @@ class ChangePasswordView extends AbstractComponent {
                                     <TouchableNativeFeedback onPress={() => {
                                         this.forgotPassword()
                                     }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                                        <View style={{flexDirection: 'row'}}>
                                             <Text style={{
                                                 color: Styles.accentColor,
                                                 fontSize: 16
