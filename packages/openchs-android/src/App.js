@@ -95,7 +95,6 @@ class App extends Component {
             if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
 
             const isThisProdLFEAppRunningOnRootedDevice = EnvironmentConfig.isProdAndLFE() && JailMonkey.isJailBroken();
-
             if(isThisProdLFEAppRunningOnRootedDevice) {
                 this.setState(state => ({...state, isDeviceRooted: isThisProdLFEAppRunningOnRootedDevice}));
                 return;
