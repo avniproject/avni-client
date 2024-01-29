@@ -694,7 +694,12 @@ class RuleEvaluationService extends BaseService {
             General.logError("Rule-Failure", error);
             this.saveFailedRules(error, reportCard.uuid, '',
               'ReportCard', reportCard.uuid, null, null);
-            return {primaryValue: this.I18n.t("Error"), lineListFunction: _.noop()};
+            return {
+                hasErrorMsg: true,
+                primaryValue: this.I18n.t("Error"),
+                secondaryValue: 'Query execution error',
+                lineListFunction: _.noop()
+            };
         }
     }
 
@@ -705,6 +710,9 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardCount(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
+        if(queryResult.hasErrorMsg) {
+            return this.createErrorResponse(reportCard, queryResult);
+        }
         if (this.isOldStyleQueryResult(queryResult)) {
             return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
         } else if (reportCard.nested) {
@@ -719,6 +727,27 @@ class RuleEvaluationService extends BaseService {
             });
         } else {
             return {
+                primaryValue: queryResult.primaryValue,
+                secondaryValue: queryResult.secondaryValue,
+                clickable: _.isFunction(queryResult.lineListFunction)
+            };
+        }
+    }
+
+    createErrorResponse(reportCard, queryResult) {
+        if (reportCard.nested) {
+            return _.times(reportCard.countOfCards, (index) => {
+                return {
+                    hasErrorMsg: queryResult.hasErrorMsg,
+                    primaryValue: queryResult.primaryValue,
+                    secondaryValue: queryResult.secondaryValue,
+                    itemKey: reportCard.getCardId(index),
+                    clickable: _.isFunction(queryResult.lineListFunction)
+                };
+            });
+        } else {
+            return {
+                hasErrorMsg: queryResult.hasErrorMsg,
                 primaryValue: queryResult.primaryValue,
                 secondaryValue: queryResult.secondaryValue,
                 clickable: _.isFunction(queryResult.lineListFunction)
