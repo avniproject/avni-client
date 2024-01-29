@@ -118,33 +118,29 @@ class CustomDashboardActions {
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
             const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
-            if(countQueryResponse.hasErrorMsg) {
-                newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
-            } else {
-                if(rcm.card.nested) {
-                    if(countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
-                        _.map(countQueryResponse, (reportCard, index) => {
-                            const itemKey = rcm.card.getCardId(index);
-                            newState.cardToCountResultMap[itemKey] = {
-                                ...reportCard,
-                                itemKey
-                            };
-                        });
-                    } else if(countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
-                        Array(rcm.card.countOfCards).fill(rcm.card).map((reportCard, index) => {
-                            const itemKey = reportCard.getCardId(index);
-                            newState.cardToCountResultMap[itemKey] = {
-                                hasErrorMsg: true,
-                                primaryValue: I18n.t("Error"),
-                                secondaryValue: `Configured number of cards don\'t match with the number of cards in the rule`,
-                                lineListFunction: _.noop(),
-                                itemKey
-                            };
-                        });
-                    }
-                } else {
-                    newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
+            if(rcm.card.nested) {
+                if(countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
+                    _.map(countQueryResponse, (reportCard, index) => {
+                        const itemKey = rcm.card.getCardId(index);
+                        newState.cardToCountResultMap[itemKey] = {
+                            ...reportCard,
+                            itemKey
+                        };
+                    });
+                } else if(countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
+                    Array(rcm.card.countOfCards).fill(rcm.card).map((reportCard, index) => {
+                        const itemKey = reportCard.getCardId(index);
+                        newState.cardToCountResultMap[itemKey] = {
+                            hasErrorMsg: true,
+                            primaryValue: I18n.t("Error"),
+                            secondaryValue: `Configured number of cards don\'t match with the number of cards in the rule`,
+                            lineListFunction: _.noop(),
+                            itemKey
+                        };
+                    });
                 }
+            } else {
+                newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
