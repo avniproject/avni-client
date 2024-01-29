@@ -1,4 +1,4 @@
-import {Alert, Clipboard, NativeModules, Text, View} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View, BackHandler} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -14,6 +14,7 @@ import RealmFactory from "./framework/db/RealmFactory";
 import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
 import Config from './framework/Config';
+import JailMonkey from 'jail-monkey';
 
 const {TamperCheckModule} = NativeModules;
 
@@ -30,7 +31,7 @@ class App extends Component {
         this.getBean = this.getBean.bind(this);
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
-        this.state = {error: '', isInitialisationDone: false};
+        this.state = {error: '', isInitialisationDone: false, isDeviceRooted: false};
     }
 
     handleError(error, stacktrace) {
@@ -67,6 +68,23 @@ class App extends Component {
         return <View/>;
     }
 
+    renderRootedDeviceErrorMessageAndExitApplication() {
+        const clipboardString = `This is a Rooted Device. Exiting Avni application due to security considerations.`;
+        General.logError("App", `renderError: ${clipboardString}`);
+        Alert.alert("App will exit now", clipboardString,
+          [
+              {
+                  text: "Ok",
+                  onPress: () => {
+                      BackHandler.exitApp();
+                  }
+              }
+          ],
+          {cancelable: false}
+        );
+        return <View/>;
+    }
+
     getBean(name) {
         return GlobalContext.getInstance().beanRegistry.getService(name);
     }
@@ -76,6 +94,8 @@ class App extends Component {
         try {
             if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
 
+            const isThisProdLFEAppRunningOnRootedDevice = EnvironmentConfig.isProdAndLFE() && JailMonkey.isJailBroken();
+            this.setState(state => ({...state, isDeviceRooted: isThisProdLFEAppRunningOnRootedDevice}));
 
             const globalContext = GlobalContext.getInstance();
             if (!globalContext.isInitialised()) {
@@ -95,6 +115,9 @@ class App extends Component {
     }
 
     render() {
+        if(this.state.isDeviceRooted) {
+            return this.renderRootedDeviceErrorMessageAndExitApplication();
+        }
         if (this.state.error) {
             return this.renderError();
         }

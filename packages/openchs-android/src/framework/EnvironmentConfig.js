@@ -30,6 +30,11 @@ class EnvironmentConfig {
     static logAnalytics() {
         return EnvironmentConfig.isProd() || Config.debugFirebaseAnalyticsEvents === true
     }
+
+    static isProdAndLFE() {
+        return EnvironmentConfig.isProd() && Config.SERVER_URL.includes('.lfe.');
+        //return true;
+    }
 }
 
 export default EnvironmentConfig;
