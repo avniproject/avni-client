@@ -95,7 +95,11 @@ class App extends Component {
             if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
 
             const isThisProdLFEAppRunningOnRootedDevice = EnvironmentConfig.isProdAndLFE() && JailMonkey.isJailBroken();
-            this.setState(state => ({...state, isDeviceRooted: isThisProdLFEAppRunningOnRootedDevice}));
+
+            if(isThisProdLFEAppRunningOnRootedDevice) {
+                this.setState(state => ({...state, isDeviceRooted: isThisProdLFEAppRunningOnRootedDevice}));
+                return;
+            }
 
             const globalContext = GlobalContext.getInstance();
             if (!globalContext.isInitialised()) {
