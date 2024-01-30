@@ -75,7 +75,7 @@ class CustomDashboardActions {
     static onCardPress(state, action, context) {
         const newState = {...state};
         const itemKey = action.reportCardUUID;
-        const rcUUID = action.reportCardUUID.substring(0, action.reportCardUUID.indexOf('#'));
+        const rcUUID = context.get(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(action.reportCardUUID);
         const reportCard = context.get(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
         reportCard.itemKey = itemKey;
         if (reportCard.isStandardTaskType()) {
@@ -120,7 +120,7 @@ class CustomDashboardActions {
             const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
             if(rcm.card.nested) {
                 if(countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
-                    _.map(countQueryResponse, (reportCard, index) => {
+                    _.forEach(countQueryResponse, (reportCard, index) => {
                         const itemKey = rcm.card.getCardId(index);
                         newState.cardToCountResultMap[itemKey] = {
                             ...reportCard,
@@ -128,7 +128,7 @@ class CustomDashboardActions {
                         };
                     });
                 } else if(countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
-                    Array(rcm.card.countOfCards).fill(rcm.card).map((reportCard, index) => {
+                    Array(rcm.card.countOfCards).fill(rcm.card).forEach((reportCard, index) => {
                         const itemKey = reportCard.getCardId(index);
                         newState.cardToCountResultMap[itemKey] = {
                             hasErrorMsg: true,

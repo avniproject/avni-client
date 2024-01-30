@@ -52,7 +52,7 @@ class ApprovalListingView extends AbstractComponent {
 
     onFilterChange(filterItem) {
         const {reportCardUUID, reportsFilter} = this.props;
-        const rcUUID = reportCardUUID.substring(0, reportCardUUID.indexOf('#'));
+        const rcUUID = this.getService(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(reportCardUUID);
         const reportCard = this.getService(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
         const subjects = this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportsFilter, filterItem.value);
         this.setState({subjects: subjects, formMapping: filterItem.value});

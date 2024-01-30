@@ -133,6 +133,20 @@ class ReportCardService extends BaseService {
                 return this.getResultForChecklistCardType(standardReportCardType.name, reportFilters);
         }
     }
+
+    /**
+     * This is a utility method to be used whenever we need to fetch the ReportCard RealmDB entity,
+     * using a CustomDashboard ReportCard UUID.
+     * This is because, we would have set / overwritten the reportCardUUID field to a string value,
+     * made up by concatenating ReportCard V4_UUID + '#' + index of the Nested Report Card.
+     *
+     * @param reportCardUUID
+     * @returns {string} Strips off the trailing '#' and Index value and returns just the plain V4 UUID value
+     */
+    getPlainUUIDFromCompositeReportCardUUID(reportCardUUID) {
+        return reportCardUUID && (typeof reportCardUUID === 'string' || reportCardUUID instanceof String)
+          ? reportCardUUID.substring(0, reportCardUUID.indexOf('#')) : null;
+    }
 }
 
 export default ReportCardService
