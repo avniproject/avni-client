@@ -31,9 +31,13 @@ class EnvironmentConfig {
         return EnvironmentConfig.isProd() || Config.debugFirebaseAnalyticsEvents === true
     }
 
-    static isProdAndLFE() {
-        return EnvironmentConfig.isProd() && Config.SERVER_URL.includes('.lfe.');
-        //return true;
+    static disallowedAppRunOnRootDevices() {
+        const isAppRunDisallowedOnRootDevices = Config.DISABLE_APP_RUN_ON_ROOTED_DEVICES;
+        return !_.isNil(isAppRunDisallowedOnRootDevices) && isAppRunDisallowedOnRootDevices;
+    }
+
+    static isProdAndDisallowedOnRootDevices() {
+        return EnvironmentConfig.isProd() && EnvironmentConfig.disallowedAppRunOnRootDevices();
     }
 }
 
