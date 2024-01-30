@@ -65,6 +65,7 @@ run_app_prerelease: as_prerelease _run_app
 run_app_prerelease_dev: as_prerelease_dev _run_app
 run_app_prod: as_prod _run_app
 run_app_prod_dev: as_prod_dev _run_app
+run_app_prod_lfe_dev: as_prod_lfe_dev _run_app
 
 stop_app:
 	adb shell am force-stop ${app_android_package_name}
