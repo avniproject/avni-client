@@ -94,16 +94,6 @@ class EntityApprovalStatusService extends BaseService {
         return {status: approvalStatus_status, result};
     }
 
-    getAllEntitiesWithStatus(status, schema, filterQuery) {
-        const applicableEntitiesSchema = EntityApprovalStatus.getApprovalEntitiesSchema().filter(entity => _.isEmpty(schema) ? true : entity === schema);
-        const result = _.map(applicableEntitiesSchema, (schema) => {
-            let entities = getEntityApprovalStatuses(this, schema, status);
-            entities = _.isEmpty(filterQuery) ? entities : entities.filtered(filterQuery);
-            return {title: schema, data: entities};
-        });
-        return {status, result};
-    }
-
     getVoidedQuery(schema) {
         switch (schema) {
             case Individual.schema.name:
