@@ -45,7 +45,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                   }]}>
                 <View style={{flexDirection: 'row'}}>
                     <View style={styles.leftContainer}>
-                        <View style={{height: 30, marginBottom: 10}}>
+                        <View style={{alignItems: 'flex-start', margin: 5, height: 45, width: 100}}>
                             {renderNumber(countResult, textColor)}
                         </View>
                         <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(cardName)}</Text>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         paddingHorizontal: 20,
-        paddingVertical: 10
+        paddingVertical: 5
     },
     leftContainer: {
         flexDirection: 'column',
