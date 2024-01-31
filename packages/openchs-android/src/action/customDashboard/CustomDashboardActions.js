@@ -133,7 +133,7 @@ class CustomDashboardActions {
                         newState.cardToCountResultMap[itemKey] = {
                             hasErrorMsg: true,
                             primaryValue: I18n.t("Error"),
-                            secondaryValue: `Configured number of cards don\'t match with the number of cards in the rule`,
+                            secondaryValue: I18n.t("nestedReportCardsCountMismatch"),
                             lineListFunction: _.noop(),
                             itemKey
                         };

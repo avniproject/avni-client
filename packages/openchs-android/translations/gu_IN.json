@@ -301,6 +301,8 @@
     "trackLocation": "ટ્રૅક સ્થાન",
     "disableAutoSync": "સ્વતઃ સમન્વયન અક્ષમ કરો",
     "autoSync": "સ્વતઃ સમન્વયન",
-    "addressFilterBehaviorHint": "(યોગ્ય સ્તર પસંદ કરો કે જેમાં વિષય નોંધાયેલ છે)"
+    "addressFilterBehaviorHint": "(યોગ્ય સ્તર પસંદ કરો કે જેમાં વિષય નોંધાયેલ છે)",
+    "queryExecutionError" : "નિયમ અમલમાં ભૂલ",
+    "nestedReportCardsCountMismatch" : "કાર્ડની રૂપરેખાંકિત સંખ્યા નિયમમાંના કાર્ડની સંખ્યા સાથે મેળ ખાતી નથી"
   }
 }

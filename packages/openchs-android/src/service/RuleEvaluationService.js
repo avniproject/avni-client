@@ -697,7 +697,7 @@ class RuleEvaluationService extends BaseService {
             return {
                 hasErrorMsg: true,
                 primaryValue: this.I18n.t("Error"),
-                secondaryValue: 'Query execution error',
+                secondaryValue: this.I18n.t("queryExecutionError"),
                 lineListFunction: _.noop()
             };
         }

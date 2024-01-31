@@ -495,6 +495,8 @@
     "enterNewPasswordFor" : "Enter new password for {{userName}}",
     "enterOTP" : "Enter OTP",
     "backgroundSyncInProgress" : "Auto sync is in progress. Please try again after sometime.",
-    "addressFilterBehaviorHint": "(Choose exact level at which subject is registered)"
+    "addressFilterBehaviorHint" : "(Choose exact level at which subject is registered)",
+    "queryExecutionError" : "Query rule execution error",
+    "nestedReportCardsCountMismatch" : "Configured number of cards don't match with the number of cards in the rule"
   }
 }

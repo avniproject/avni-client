@@ -11,7 +11,7 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
     const textColor = (countResult && countResult.textColor) || '#ffffff';
     const cardColor = (countResult && countResult.cardColor) || colour || '#0000ff';
 
-    const renderNumber = (textColor) => {
+    const renderNumber = () => {
         return (_.isNil(get(countResult, 'primaryValue')) ?
                 <ActivityIndicator size="large" color={textColor} style={{paddingVertical: 25}}/> :
                 <CountResult
@@ -33,7 +33,7 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
                     </View>
                     <View style={[styles.numberContainer, {backgroundColor: cardColor}]}>
                         <View style={{alignSelf: 'center'}}>
-                            {renderNumber(textColor)}
+                            {renderNumber()}
                         </View>
                     </View>
                 </View>
