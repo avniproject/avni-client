@@ -3,7 +3,7 @@ parameters:
   flavor:
     type: enum
     default: "generic"
-    enum: ["generic", "lfe", "sakhi", "lfeTeachNagaland"]
+    enum: ["generic", "lfe", "sakhi", "lfeTeachNagaland", "gramin"]
     description: Flavor of the binary to generate. Must be one of "generic", "lfe", "lfeTeachNagaland" or "sakhi"
   versionCode:
     type: string
@@ -112,6 +112,41 @@ jobs:
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
           destination: sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.map
+
+  release_android_gramin_staging:
+    docker:
+      - image: cimg/android:2022.12-node
+    working_directory: ~/avni-client
+    resource_class: large
+    environment:
+      flavor: gramin
+    steps:
+      - checkout
+      - run: echo "Building flavor gramin"
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+            - v1-dependencies-
+      - run: sudo chmod a+x packages/openchs-android/android/gradlew
+      - run: sudo npm i -g react-native-cli
+      - run: make deps_ci release_gramin_staging_dev_without_clean
+      - run: make deploy_platform_translations_gramin_staging
+      - save_cache:
+          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+          paths:
+            - ~/.gradle
+            - ~/.m2
+            - ~/avni-client/packages/openchs-android/android/app/.gradle
+            - ~/avni-client/packages/openchs-android/android/.gradle
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/gramin/release/app-gramin-release.apk
+          destination: gramin-staging_dev-<< pipeline.git.revision >>.apk
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/generated/sourcemaps/react/graminRelease/index.android.bundle.map
+          destination: sourcemap-gramin-staging-<< pipeline.git.revision >>.map
 
   release_android_prerelease:
     docker:
@@ -271,6 +306,10 @@ workflows:
       - test_android:
           requires:
             - install_deps
+      - hold_gramin_staging:
+          type: approval
+          requires:
+            - test_android
       - hold_prerelease:
           type: approval
           requires:
@@ -294,6 +333,13 @@ workflows:
                 - /^dependabot.*/
           requires:
             - test_android
+      - release_android_gramin_staging:
+          filters:
+            branches:
+              ignore:
+                - /^dependabot.*/
+          requires:
+            - hold_gramin_staging
       - release_android_no_env:
           filters:
             branches:
