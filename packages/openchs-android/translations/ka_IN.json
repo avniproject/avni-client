@@ -311,6 +311,6 @@
     "autoSync": "ಸ್ವಯಂ ಸಿಂಕ್",
     "addressFilterBehaviorHint": "(ಯಾವ ವಿಷಯವನ್ನು ನೋಂದಾಯಿಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ನಿಖರವಾದ ಮಟ್ಟವನ್ನು ಆರಿಸಿ)",
     "queryExecutionError" : "ನಿಯಮ ಕಾರ್ಯಗತಗೊಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
-    "nestedReportCardsCountMismatch" : "ನಿಯಮದಲ್ಲಿರುವ ಕಾರ್ಡ್ಗಳ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾದ ಕಾರ್ಡ್ಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ"
+    "nestedReportCardsCountMismatch" : "ಕಾರ್ಡ್ಗಳ ಸಂಖ್ಯೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ"
   }
 }
