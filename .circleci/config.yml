@@ -113,11 +113,7 @@ jobs:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
           destination: sourcemap-<< pipeline.parameters.flavor >>-staging-<< pipeline.git.revision >>.map
 
-<<<<<<< HEAD
   release_android_gramin_staging:
-=======
-  release_android_rwb_staging:
->>>>>>> 48c92698 (#1267 | Gramin staging apk generation)
     docker:
       - image: cimg/android:2022.12-node
     working_directory: ~/avni-client
@@ -136,8 +132,8 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_rwb_staging_dev_without_clean
-      - run: make deploy_platform_translations_rwb_staging
+      - run: make deps_ci release_gramin_staging_dev_without_clean
+      - run: make deploy_platform_translations_gramin_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           paths:
@@ -337,7 +333,7 @@ workflows:
                 - /^dependabot.*/
           requires:
             - test_android
-      - release_android_rwb_staging:
+      - release_android_gramin_staging:
           filters:
             branches:
               ignore:
