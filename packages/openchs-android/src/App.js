@@ -103,7 +103,7 @@ class App extends Component {
         }
         return (
            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text>Upgrading data, Please do not close the screen.</Text>
+            <Text>Upgrading data, Please do not close the App.</Text>
            </View>);
     }
 }
