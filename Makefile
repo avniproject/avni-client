@@ -428,7 +428,7 @@ ifndef password
 	@echo "Provde the variable password"
 	exit 1
 endif
-	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) $(password))))
+	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) '$(password)')))
 
 get-token: auth
 	@echo
