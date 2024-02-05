@@ -133,6 +133,8 @@ as_perf: ; $(call _create_config,perf)
 as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 as_no_env: ; $(call _create_config,no_env)
+as_prod_lfe_dev: ; $(call _create_config,prod_lfe_dev)
+
 as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
 release_clean: ## If you get dex errors

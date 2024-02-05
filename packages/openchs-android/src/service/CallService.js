@@ -17,10 +17,9 @@ class CallService extends BaseService {
         const userSettings = this.getService(UserInfoService).getUserSettings();
         const isCallMaskNeeded = _.get(userSettings, "enableCallMasking", false);
 
-        if(isCallMaskNeeded) {
+        if (isCallMaskNeeded) {
             this.connectCall(number, maskedCallResponseCb);
-        }
-        else {
+        } else {
             immediateCallCb();
         }
     }
@@ -33,15 +32,14 @@ class CallService extends BaseService {
             .then(({success, message}) => {
                 if (success) {
                     maskedCallResponseCb("Requested for masked call. Expect a call on your number.");
-                }
-                else {
+                } else {
                     maskedCallResponseCb(`Cannot perform masked call at this time. ${message}`);
                 }
             })
             .catch(error => {
-                maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
-            }
-    );
+                    maskedCallResponseCb("Cannot perform masked call at this time. (Internet connection unavailable/System error)")
+                }
+            );
     }
 }
 

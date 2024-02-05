@@ -8,7 +8,7 @@ import {
     Privilege,
     ProgramEncounter,
     ProgramEnrolment
-} from "avni-models";
+} from "openchs-models";
 import _ from 'lodash';
 import moment from 'moment';
 import MediaQueueService from "./MediaQueueService";
@@ -22,7 +22,7 @@ import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import OrganisationConfigService from './OrganisationConfigService';
-import {getUnderlyingRealmCollection} from "openchs-models";
+import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
 
@@ -701,8 +701,12 @@ class IndividualService extends BaseService {
     }
 
     findAllWithMobileNumber(mobileNumber) {
-        return this.getAllNonVoided()
-            .filter(ind => _.toString(ind.getMobileNumber()).slice(-10) === _.toString(mobileNumber).slice(-10));
+        const toMatchMobileNumber = _.toString(mobileNumber).slice(-10);
+        const probableSubjects = this.getAllNonVoided()
+            .filtered(`(observations.concept.keyValues.key = "${KeyValue.PrimaryContactKey}" or observations.concept.keyValues.key = "${KeyValue.ContactNumberKey}") and (observations.valueJSON CONTAINS "${toMatchMobileNumber}")`);
+        return probableSubjects.filter((subject) => {
+            return _.toString(subject.getMobileNumber()).slice(-10) === toMatchMobileNumber;
+        });
     }
 
     getAllBySubjectType(subjectType) {
