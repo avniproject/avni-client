@@ -53,6 +53,7 @@
     "i18n-js": "3.9.2",
     "immutable": "4.1.0",
     "invariant": "2.2.4",
+    "jail-monkey": "^2.8.0",
     "jwt-decode": "^3.1.2",
     "lodash": "4.17.21",
     "moment": "2.29.4",

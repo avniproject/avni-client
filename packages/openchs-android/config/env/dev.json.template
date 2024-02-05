@@ -4,5 +4,6 @@
   "CLIENT_ID": "dummy",
   "goToLastPageOnNext": false,
   "debugFirebaseAnalyticsEvents": false,
-  "PLAYGROUND": false
+  "PLAYGROUND": false,
+  "DISABLE_APP_RUN_ON_ROOTED_DEVICES": false
 }

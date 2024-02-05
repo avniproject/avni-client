@@ -74,6 +74,7 @@ $(shell node -p "require('./packages/openchs-android/config/flavor_config.json')
 endef
 
 flavor_server_url:=$(call _get_from_config,$(flavor).server_url)
+flavor_disable_app_run_on_rooted_devices:=$(call _get_from_config,$(flavor).disable_app_run_on_rooted_devices)
 bugsnag_env_var_name:=$(call _get_from_config,$(flavor).bugsnag.env_var_name)
 bugsnag_project_name:=$(call _get_from_config,$(flavor).bugsnag.project_name)
 app_android_package_name:=$(call _get_from_config,$(flavor).package_name)
@@ -117,7 +118,7 @@ endif
 define _create_config
 	@echo "Creating config for $1"
 	@if [ $(1) = "prod" ]; then \
-		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)'});" > packages/openchs-android/src/framework/Config.js; \
+		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)', DISABLE_APP_RUN_ON_ROOTED_DEVICES: '$(flavor_disable_app_run_on_rooted_devices)'});" > packages/openchs-android/src/framework/Config.js; \
 	else \
 	 	echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js; \
 	fi
