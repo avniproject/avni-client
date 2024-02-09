@@ -109,10 +109,7 @@ class IndividualService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             ObservationsHolder.convertObsForSave(individual.observations);
-            db.create(Individual.schema.name, {
-                uuid: individual.uuid,
-                observations: individual.observations
-            }, Realm.UpdateMode.Modified);
+            db.create(Individual.schema.name, individual, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
         });
     }
