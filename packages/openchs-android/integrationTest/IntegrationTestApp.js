@@ -13,6 +13,7 @@ import UtilTest from "./UtilTest";
 import UserInfoServiceTest from "./UserInfoServiceTest";
 import RealmProxyTest from "./RealmProxyTest";
 import ReportCardServiceIntegrationTest from "./ReportCardServiceIntegrationTest";
+import RealmDBOperationsCascadeTest from "./RealmDBOperationsCascadeTest";
 import EntityApprovalServiceTest from "./EntityApprovalServiceTest";
 import IndividualIntegrationTest from "./model/IndividualIntegrationTest";
 import General from "../src/utility/General";
@@ -85,7 +86,7 @@ class IntegrationTestApp extends Component {
         LogBox.ignoreAllLogs();
         FileSystem.init();
         this.getBean = this.getBean.bind(this);
-        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest, PruneMediaIntegrationTest);
+        this.integrationTestRunner = new IntegrationTestRunner(DatabaseTest, IndividualIntegrationTest, EntityApprovalServiceTest, ReportCardServiceIntegrationTest, UserInfoServiceTest, PersonRegisterActionsIntegrationTest, UtilTest, RealmProxyTest, PruneMediaIntegrationTest, RealmDBOperationsCascadeTest);
         this.state = {isInitialisationDone: false, testSuite: this.integrationTestRunner.testSuite, expandedTestClasses: []};
     }
 
