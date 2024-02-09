@@ -50,8 +50,16 @@ function conceptNameShouldRemainSameOnEntityObservationSave(baseIntegrationTest,
 
             //Init subjectType and concept
             const subjectType = db.create(SubjectType, TestSubjectTypeFactory.createWithDefaults({type: SubjectType.types.Person, name: 'Beneficiary'}));
-            const originalConcept = db.create(Concept, TestConceptFactory.createWithDefaults({name: originalConceptName, dataType: Concept.dataType.Text}), updateMode);
+            const originalConcept = db.create(Concept, TestConceptFactory.createWithDefaults({
+                name: originalConceptName,
+                dataType: Concept.dataType.Text, keyValues: [{key: "subjectTypeUUID", value: "c47088d6-ac67-4e4d-b5af-158468a83202"}]
+            }), updateMode);
+            assert.isNotNull(originalConcept);
             const savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+
+            assert.equal(originalConcept.keyValues.length, 1);
+            assert.equal(originalConcept.keyValues[0].key, "subjectTypeUUID");
+            assert.equal(originalConcept.keyValues[0].getValue(), 'c47088d6-ac67-4e4d-b5af-158468a83202');
 
             //Clone and modify the concept name
             const originalConceptClone = originalConcept.cloneForReference();
@@ -68,13 +76,19 @@ function conceptNameShouldRemainSameOnEntityObservationSave(baseIntegrationTest,
                 approvalStatuses: []
             }), updateMode);
 
+            assert.isNotNull(individual);
             //Fetch the concept from db again
             const modifiedConcept = db.objectForPrimaryKey(Concept, originalConcept.uuid);
 
             //Concept name would have changed
             assert.equal(modifiedConceptName, modifiedConcept.name);
+
+            //Concept should not have lost its key and value
+            assert.equal(modifiedConcept.keyValues[0].key, "subjectTypeUUID");
+            assert.equal(modifiedConcept.keyValues[0].getValue(), 'c47088d6-ac67-4e4d-b5af-158468a83202');
         } catch (error) {
-            assert.fail(error.message);
+            throw error;
+            // assert.fail(error.message);
         }
     });
 }
