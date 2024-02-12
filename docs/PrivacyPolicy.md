@@ -6,7 +6,7 @@ This privacy policy has been compiled to better serve those who are concerned wi
 
 Avni is a work application that you will use to service your community members or customers (customers from there on). We do not collect any personal information about you. We get and keep the information that you manually provide to us about whom you service. We only store the fact that you provided that information. We get and keep location information if you or your employer has enabled that configuration.
 
-Implementers that choose to collect PII data, can setup Avni to be complian with domestic and other applicable international laws such as Information Technology Act, 2000 and corresponding IT Rules 2021, Digital Personal Data Protection (DPDP) Act, 2023.
+Implementers that choose to collect PII data, can setup Avni to be compliant with domestic and other applicable international laws such as Information Technology Act, 2000 and corresponding IT Rules 2021, Digital Personal Data Protection (DPDP) Act, 2023.
 
 **When do we collect information?**
 
