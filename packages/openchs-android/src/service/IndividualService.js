@@ -25,6 +25,7 @@ import OrganisationConfigService from './OrganisationConfigService';
 import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilters";
+import AddressLevelService from './AddressLevelService';
 
 @Service("individualService")
 class IndividualService extends BaseService {
@@ -91,6 +92,7 @@ class IndividualService extends BaseService {
         const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
         const formMappingService = this.getService(FormMappingService);
+        individual.lowestAddressLevel = this.getService(AddressLevelService).findByUUID(individual.lowestAddressLevel.uuid);
         const registrationForm = formMappingService.findRegistrationForm(individual.subjectType);
         const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
         this.db.write(() => {
