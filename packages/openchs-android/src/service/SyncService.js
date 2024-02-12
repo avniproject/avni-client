@@ -309,6 +309,7 @@ class SyncService extends BaseService {
     persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
+        const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
@@ -350,7 +351,7 @@ class SyncService extends BaseService {
         entitySyncStatus.entityName = entityMetaData.entityName;
         entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
         entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
-        entitySyncStatus.loadedSince = new Date(_.last(entityResources).lastModifiedDateTime);
+        entitySyncStatus.loadedSince = new Date(loadedSince);
         General.logDebug("SyncService", `Creating entity create functions for ${currentEntitySyncStatus}`);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
         this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
