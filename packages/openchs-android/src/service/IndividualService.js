@@ -112,7 +112,7 @@ class IndividualService extends BaseService {
             db.create(Individual.schema.name, {
                 uuid: individual.uuid,
                 observations: individual.observations
-            }, true);
+            }, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
         });
     }

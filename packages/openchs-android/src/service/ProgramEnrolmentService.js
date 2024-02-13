@@ -67,7 +67,7 @@ class ProgramEnrolmentService extends BaseService {
             db.create(ProgramEnrolment.schema.name, {
                 uuid: programEnrolment.uuid,
                 observations: programEnrolment.observations
-            }, true);
+            }, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
