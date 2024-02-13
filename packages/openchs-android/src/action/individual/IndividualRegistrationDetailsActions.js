@@ -10,6 +10,7 @@ import SubjectProgramEligibilityService from "../../service/program/SubjectProgr
 import EntityService from "../../service/EntityService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupAffiliationState from '../../state/GroupAffiliationState';
+import {EditFormRuleResponse} from "rules-config";
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -17,7 +18,8 @@ class IndividualRegistrationDetailsActions {
             expand: false,
             subjectProgramEligibilityStatuses: [],
             displayIndicator: false,
-            groupAffiliationState: new GroupAffiliationState()
+            groupAffiliationState: new GroupAffiliationState(),
+            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
         };
     }
 
@@ -42,8 +44,20 @@ class IndividualRegistrationDetailsActions {
             subjectSummary,
             isRelationshipTypePresent: individualRelationGenderMappings.length > 0,
             subjectProgramEligibilityStatuses,
-            groupAffiliation: groupAffiliationState
+            groupAffiliation: groupAffiliationState,
+            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
         };
+    }
+
+    static onEditStart(state, action, context) {
+        const registrationForm = context.get(FormMappingService).findRegistrationForm(state.individual.subjectType);
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(registrationForm, state.individual, 'Individual');
+        const newState = {...state};
+        if (editFormRuleResponse.isEditAllowed())
+            action.formEditAllowed();
+        else
+            newState.editFormRuleResponse = editFormRuleResponse;
+        return newState;
     }
 
     static onDeleteRelative(state, action, context) {
@@ -130,7 +144,6 @@ class IndividualRegistrationDetailsActions {
             }
         });
     }
-
 }
 
 const IndividualRegistrationDetailsActionsNames = {
@@ -140,6 +153,7 @@ const IndividualRegistrationDetailsActionsNames = {
     ON_TOGGLE: "IRDA.ON_TOGGLE",
     ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK: "IRDA.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK",
     ON_DISPLAY_INDICATOR_TOGGLE: "IRDA.ON_DISPLAY_INDICATOR_TOGGLE",
+    ON_EDIT_START: "IRDA.ON_EDIT_START"
 };
 
 const IndividualRegistrationDetailsActionsMap = new Map([
@@ -149,6 +163,7 @@ const IndividualRegistrationDetailsActionsMap = new Map([
     [IndividualRegistrationDetailsActionsNames.ON_TOGGLE, IndividualRegistrationDetailsActions.onToggle],
     [IndividualRegistrationDetailsActionsNames.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK, IndividualRegistrationDetailsActions.onSubjectProgramEligibilityCheck],
     [IndividualRegistrationDetailsActionsNames.ON_DISPLAY_INDICATOR_TOGGLE, IndividualRegistrationDetailsActions.onDisplayIndicatorToggle],
+    [IndividualRegistrationDetailsActionsNames.ON_EDIT_START, IndividualRegistrationDetailsActions.onEditStart],
 ]);
 
 export {

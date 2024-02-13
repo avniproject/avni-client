@@ -42,7 +42,10 @@ import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 import MessageService from './MessageService';
-import {JSONStringify} from '../utility/JsonStringify';
+import {Groups} from "openchs-models";
+import {JSONStringify} from "../utility/JsonStringify";
+import UserInfoService from "./UserInfoService";
+import {EditFormRuleResponse} from "rules-config";
 
 function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
@@ -88,7 +91,7 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getIndividualUUID = (entity, entityName) => {
+    getIndividualUUID(entity, entityName) {
         switch (entityName) {
             case 'Individual':
                 return entity.uuid;
@@ -136,9 +139,9 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("RuleEvaluationService", trimmedDecisions);
                 return trimmedDecisions;
             } catch (e) {
-                General.logDebug("RuleEvaluationService",`form.uuid: ${form.uuid} entityName: ${entityName}`);
+                General.logDebug("RuleEvaluationService", `form.uuid: ${form.uuid} entityName: ${entityName}`);
                 this.saveFailedRules(e, form.uuid, individualUUID,
-                  'Decision', form.uuid, entityName, entity.uuid);
+                    'Decision', form.uuid, entityName, entity.uuid);
             }
         } else {
             const decisionsMap = rulesFromTheBundle.reduce((decisions, rule) => {
@@ -185,7 +188,7 @@ class RuleEvaluationService extends BaseService {
             return true;
         } catch (error) {
             this.saveFailedRules(error, ruleUUID, individualUUID,
-             'Validation', ruleUUID, 'Individual', individualUUID);
+                'Validation', ruleUUID, 'Individual', individualUUID);
             return false;
         }
     }
@@ -210,7 +213,7 @@ class RuleEvaluationService extends BaseService {
             } catch (e) {
                 General.logDebug("Rule-Failure", `New worklist updation rule failed  ${orgConfig.uuid} `);
                 this.saveFailedRules(e, orgConfig.uuid, this.getIndividualUUID(workLists, "WorkList"),
-                  'WorkListUpdation', orgConfig.uuid, entityName, context.entity.uuid);
+                    'WorkListUpdation', orgConfig.uuid, entityName, context.entity.uuid);
             }
         } else {
             const additionalRules = this.getService(RuleService).getRulesByType('WorkListUpdation');
@@ -218,6 +221,27 @@ class RuleEvaluationService extends BaseService {
         }
 
         return workLists;
+    }
+
+    runEditFormRule(form, entity, entityName) {
+        const user = this.getService(UserInfoService).getUserInfo();
+        const userGroups = this.getService(EntityService).loadAll(Groups.schema.name);
+        if (_.isEmpty(form.editFormRule)) {
+            return EditFormRuleResponse.createEditAllowedResponse();
+        } else {
+            try {
+                const ruleFunc = eval(form.editFormRule);
+                const ruleResponse = ruleFunc({
+                    params: {entity, form, services: this.services, user, myUserGroups: userGroups},
+                    imports: getImports()
+                });
+                return EditFormRuleResponse.createEditRuleResponse(ruleResponse);
+            } catch (e) {
+                General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
+                return EditFormRuleResponse.createEditAllowedResponse();
+            }
+        }
     }
 
     runRuleAndSaveFailure(rule, entityName, entity, ruleTypeValue, config, context, entityContext) {
@@ -233,7 +257,7 @@ class RuleEvaluationService extends BaseService {
         } catch (error) {
             General.logDebug("Rule-Failure", `Rule failed: ${rule.name}, uuid: ${rule.uuid}`);
             this.saveFailedRules(error, rule.uuid, this.getIndividualUUID(entity, entityName),
-              'Decision', rule.uuid, entityName, entity.uuid);
+                'Decision', rule.uuid, entityName, entity.uuid);
             return ruleTypeValue;
         }
     }
@@ -277,7 +301,7 @@ class RuleEvaluationService extends BaseService {
             return this.entityRulesMap.get(entityName).getEnrolmentSummary(enrolment, context);
         } catch (error) {
             this.saveFailedRules(error, '', this.getIndividualUUID(enrolment, entityName),
-              'EnrolmentSummary', enrolment.program.uuid, entityName, enrolment.uuid);
+                'EnrolmentSummary', enrolment.program.uuid, entityName, enrolment.uuid);
             return [];
         }
     }
@@ -312,7 +336,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("Rule-Failure",
                     `Subject Summary Rule failed for: ${subjectType.name} Subject type`);
                 this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, entityName),
-                  'SubjectSummary', subjectType.uuid, entityName, individual.uuid);
+                    'SubjectSummary', subjectType.uuid, entityName, individual.uuid);
                 return [];
             }
         }
@@ -344,7 +368,7 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("Rule-Failure",
                 `Subject Program Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
             this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(individual, 'Individual'),
-              'EnrolmentEligibilityCheck', subjectType.uuid, 'Individual', individual.uuid);
+                'EnrolmentEligibilityCheck', subjectType.uuid, 'Individual', individual.uuid);
             throw Error(e.message);
         }
     }
@@ -383,7 +407,7 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("Rule-Failure",
                 `New Enrolment Summary Rule failed for: ${enrolment.program.name} program`);
             this.saveFailedRules(e, program.uuid, this.getIndividualUUID(enrolment, entityName),
-              'EnrolmentSummary', program.uuid, entityName, enrolment.uuid);
+                'EnrolmentSummary', program.uuid, entityName, enrolment.uuid);
             return [];
         }
     }
@@ -404,7 +428,7 @@ class RuleEvaluationService extends BaseService {
                 console.log(e);
                 General.logDebug("Rule-Failure", `Validation failed for: ${form.name} form name`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName),
-                  'Validation', form.uuid, entityName, entity.uuid);
+                    'Validation', form.uuid, entityName, entity.uuid);
             }
         } else if (!_.isEmpty(rulesFromTheBundle)) {
             const validationErrors = rulesFromTheBundle.reduce(
@@ -463,7 +487,7 @@ class RuleEvaluationService extends BaseService {
             } catch (e) {
                 General.logDebug("Rule-Failure", `New checklist rule failed for form: ${form.uuid}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName),
-                  'Checklist', form.uuid, entityName, entity.uuid);
+                    'Checklist', form.uuid, entityName, entity.uuid);
             }
         } else {
             const allChecklists = this.getAllRuleItemsFor(form, "Checklists", "Form")
@@ -500,7 +524,7 @@ class RuleEvaluationService extends BaseService {
         } catch (e) {
             General.logDebug("Rule-Failure", `New form element group rule failed for: ${formElementGroup.uuid}`);
             this.saveFailedRules(e, formElementGroup.uuid, this.getIndividualUUID(entity, entityName),
-              'FormElementGroup', formElementGroup.uuid, entityName, entity.uuid);
+                'FormElementGroup', formElementGroup.uuid, entityName, entity.uuid);
         }
     }
 
@@ -588,7 +612,7 @@ class RuleEvaluationService extends BaseService {
         } catch (e) {
             General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
             this.saveFailedRules(e, formElement.uuid, this.getIndividualUUID(entity, entityName),
-              'FormElement', formElement.uuid, entityName, entity.uuid);
+                'FormElement', formElement.uuid, entityName, entity.uuid);
             return null;
         }
     }
@@ -630,7 +654,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("Rule-Faiure", e);
                 General.logDebug("Rule-Failure", `New encounter eligibility failed for: ${encounterType.name} encounter name`);
                 this.saveFailedRules(e, encounterType.uuid, individual.uuid,
-                  'EncounterEligibilityCheck', encounterType.uuid, 'Individual', individual.uuid);
+                    'EncounterEligibilityCheck', encounterType.uuid, 'Individual', individual.uuid);
             }
         } else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', {individual}, true);
@@ -653,7 +677,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("Rule-Failure", e);
                 General.logDebug("Rule-Failure", `New enrolment eligibility failed for: ${program.name} program name`);
                 this.saveFailedRules(e, program.uuid, individual.uuid,
-                  'EnrolmentEligibilityCheck', program.uuid, 'Individual', individual.uuid);
+                    'EnrolmentEligibilityCheck', program.uuid, 'Individual', individual.uuid);
             }
         } else if (!_.isEmpty(rulesFromTheBundle)) {
             return this.runRuleAndSaveFailure(_.last(rulesFromTheBundle), 'Encounter', {individual}, true);
@@ -674,7 +698,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("Rule-Failure", e);
                 General.logDebug("Rule-Failure", `Manual enrolment eligibility failed for: ${program.name} program name`);
                 this.saveFailedRules(e, program.uuid, subject.uuid,
-                  'ManualEnrolmentEligibilityCheckRule', program.uuid, 'Individual', subject.uuid);
+                    'ManualEnrolmentEligibilityCheckRule', program.uuid, 'Individual', subject.uuid);
             }
         }
 
@@ -693,7 +717,7 @@ class RuleEvaluationService extends BaseService {
             General.logError("Rule-Failure", `DashboardCard report card rule failed for uuid: ${reportCard.uuid}, name: ${reportCard.name}`);
             General.logError("Rule-Failure", error);
             this.saveFailedRules(error, reportCard.uuid, '',
-              'ReportCard', reportCard.uuid, null, null);
+                'ReportCard', reportCard.uuid, null, null);
             return {
                 hasErrorMsg: true,
                 primaryValue: this.I18n.t("Error"),
@@ -710,7 +734,7 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardCount(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
-        if(queryResult.hasErrorMsg) {
+        if (queryResult.hasErrorMsg) {
             return this.createErrorResponse(reportCard, queryResult);
         }
         if (this.isOldStyleQueryResult(queryResult)) {
@@ -761,7 +785,7 @@ class RuleEvaluationService extends BaseService {
             return queryResult;
         } else if (reportCard.nested) {
             return _.flatMap(queryResult.reportCards, (reportCardResultsItr, index) => (
-              reportCard.itemKey === reportCard.getCardId(index) && _.isFunction(reportCardResultsItr.lineListFunction) ? reportCardResultsItr.lineListFunction() : []
+                reportCard.itemKey === reportCard.getCardId(index) && _.isFunction(reportCardResultsItr.lineListFunction) ? reportCardResultsItr.lineListFunction() : []
             ));
         } else {
             return _.isFunction(queryResult.lineListFunction) ? queryResult.lineListFunction() : null;

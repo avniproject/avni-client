@@ -235,7 +235,7 @@ class IndividualProfile extends AbstractComponent {
         const textColor = this.props.textColor ? this.props.textColor : Styles.blackColor;
         let isPerson = this.props.individual.subjectType.isPerson();
         let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
-        if(isPerson) {
+        if (isPerson) {
             headingSuffixesList.unshift(this.props.individual.userProfileSubtext2(this.I18n)); //localized Age
             headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
         }
@@ -306,7 +306,7 @@ class IndividualProfile extends AbstractComponent {
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                             <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
                         </View>
-                            <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
+                        <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
                     </View>
                 )}
         </View>;
@@ -315,8 +315,6 @@ class IndividualProfile extends AbstractComponent {
     launchChooseProgram() {
         this.dispatchAction(Actions.LAUNCH_ACTION_SELECTOR);
     }
-
-
 }
 
 export default IndividualProfile;

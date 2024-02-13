@@ -1,4 +1,4 @@
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Alert, StyleSheet, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -39,7 +39,6 @@ import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
-import I18n from "i18n-js";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -128,14 +127,18 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     editProfile() {
         logEvent(firebaseEvents.EDIT_SUBJECT);
-        CHSNavigator.navigateToRegisterView(this, {
-            workLists: new WorkLists(
-                new WorkList(`${this.state.individual.subjectType.name} `,
-                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                        {
-                            uuid: this.state.individual.uuid,
-                            subjectTypeName: this.state.individual.subjectType.name
-                        })]))
+        this.dispatchAction(Actions.ON_EDIT_START, {
+            formEditAllowed: () => {
+                CHSNavigator.navigateToRegisterView(this, {
+                    workLists: new WorkLists(
+                        new WorkList(`${this.state.individual.subjectType.name} `,
+                            [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                                {
+                                    uuid: this.state.individual.uuid,
+                                    subjectTypeName: this.state.individual.subjectType.name
+                                })]))
+                });
+            }
         });
     }
 
@@ -345,29 +348,31 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), 'render');
         const displayGeneralEncounterInfo = this.props.params.displayGeneralInfoInProfileTab;
-        const relativesFeatureToggle = this.state.individual.isPerson() && this.state.isRelationshipTypePresent;
-        const groupSubjectToggle = this.state.individual.subjectType.isGroup();
+        const {individual, editFormRuleResponse, isRelationshipTypePresent, displayIndicator, subjectProgramEligibilityStatuses} = this.state;
+        const relativesFeatureToggle = individual.isPerson() && isRelationshipTypePresent;
+        const groupSubjectToggle = individual.subjectType.isGroup();
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
                     <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
-                    <CustomActivityIndicator loading={this.state.displayIndicator}/>
+                    <CustomActivityIndicator loading={displayIndicator}/>
                     <SubjectProgramEligibilityWidget
-                        subject={this.state.individual}
-                        subjectProgramEligibilityStatuses={this.state.subjectProgramEligibilityStatuses}
+                        subject={individual}
+                        subjectProgramEligibilityStatuses={subjectProgramEligibilityStatuses}
                         onSubjectProgramEligibilityPress={(subjectProgramEligibilityStatuses) => this.dispatchAsyncAction(Actions.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK, {subjectProgramEligibilityStatuses})}
                         onManualProgramEligibilityPress={_.noop}
                         onDisplayIndicatorToggle={(display) => this.dispatchAction(Actions.ON_DISPLAY_INDICATOR_TOGGLE, {display})}
                     />
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
                     <View style={styles.container}>
-                        {this.state.individual.voided ? this.renderVoided() : this.renderProfile()}
+                        {individual.voided ? this.renderVoided() : this.renderProfile()}
                     </View>
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                {editFormRuleResponse.isEditDisallowed() && ToastAndroid.show(editFormRuleResponse.getMessageKey(), ToastAndroid.SHORT)}
             </View>
         );
     }
