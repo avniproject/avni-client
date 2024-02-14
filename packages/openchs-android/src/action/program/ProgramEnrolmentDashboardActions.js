@@ -1,13 +1,5 @@
 import EntityService from "../../service/EntityService";
-import {
-    Encounter,
-    NullProgramEnrolment,
-    ProgramEncounter,
-    ProgramEnrolment,
-    WorkItem,
-    WorkList,
-    WorkLists
-} from 'avni-models';
+import {Encounter, NullProgramEnrolment, ProgramEncounter, ProgramEnrolment, WorkItem, WorkList, WorkLists} from 'avni-models';
 import _ from 'lodash';
 import EntityTypeChoiceState from "../common/EntityTypeChoiceState";
 import FormMappingService from "../../service/FormMappingService";
@@ -22,6 +14,7 @@ import UserInfoService from "../../service/UserInfoService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import IndividualService from "../../service/IndividualService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
+import {EditFormRuleResponse} from "rules-config";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -41,7 +34,8 @@ class ProgramEnrolmentDashboardActions {
             encounterTypes: [],
             displayActionSelector: false,
             expandEnrolmentInfo: false,
-            completedEncounters: []
+            completedEncounters: [],
+            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
         };
     }
 
@@ -78,19 +72,10 @@ class ProgramEnrolmentDashboardActions {
 
     static clone(state) {
         return {
+            ...state,
             programEncounterTypeState: state.programEncounterTypeState.clone(),
-            enrolment: state.enrolment,
             encounter: state.encounter.cloneForEdit(),
-            encounterTypes: state.encounterTypes.slice(),
-            displayActionSelector: state.displayActionSelector,
-            programsAvailable: state.programsAvailable,
-            showCount: state.showCount,
-            dashboardButtons: state.dashboardButtons,
-            enrolmentSummary: state.enrolmentSummary,
-            hideExit: state.hideExit,
-            hideEnrol: state.hideEnrol,
-            expandEnrolmentInfo: state.expandEnrolmentInfo,
-            completedEncounters: state.completedEncounters,
+            encounterTypes: state.encounterTypes.slice()
         };
     }
 
@@ -106,9 +91,7 @@ class ProgramEnrolmentDashboardActions {
         const enrolment = ProgramEnrolmentDashboardActions._getEnrolment(newState, context, individualUUID, enrolmentUUID);
         newState.completedEncounters = _.filter(enrolment.nonVoidedEncounters(), (encounter) => encounter.encounterDateTime || encounter.cancelDateTime)
             .map(encounter => ({encounter, expand: false}));
-        let onEnrolmentChange = ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
-
-        return onEnrolmentChange;
+        return ProgramEnrolmentDashboardActions._onEnrolmentChange(newState, context, enrolment);
     }
 
     static onLanding(state, action, context) {
@@ -166,9 +149,6 @@ class ProgramEnrolmentDashboardActions {
         return newState;
     }
 
-    //Program Encounter Type
-
-    //Encounter Type
     static launchChooseEncounterType(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         newState.encounterTypeState.launchChooseEntityType();
@@ -193,12 +173,20 @@ class ProgramEnrolmentDashboardActions {
         return newState;
     }
 
-    //Encounter Type
-
     static onEditEnrolment(state, action, context) {
         logEvent(firebaseEvents.EDIT_ENROLMENT);
         const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
-        let workLists = new WorkLists(
+
+        const form = context.get(FormMappingService).findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType);
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, enrolment, 'ProgramEnrolment');
+
+        if (!editFormRuleResponse.isEditAllowed()) {
+            const newState = {...state};
+            newState.editFormRuleResponse = editFormRuleResponse;
+            return newState;
+        }
+
+        const workLists = new WorkLists(
             new WorkList('Enrolment',
                 [new WorkItem(General.randomUUID(),
                     WorkItem.type.PROGRAM_ENROLMENT,
@@ -207,13 +195,22 @@ class ProgramEnrolmentDashboardActions {
                         programName: enrolment.program.name,
                     })
                 ]));
-        action.cb(enrolment, workLists);
+        action.continueEnrolmentEdit(enrolment, workLists);
         return state;
     }
 
     static onEditEnrolmentExit(state, action, context) {
         logEvent(firebaseEvents.EDIT_PROGRAM_EXIT);
         const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
+
+        const form = context.get(FormMappingService).findFormForProgramExit(enrolment.program, enrolment.individual.subjectType);
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, enrolment, 'ProgramEnrolment');
+        if (!editFormRuleResponse.isEditAllowed()) {
+            const newState = {...state};
+            newState.editFormRuleResponse = editFormRuleResponse;
+            return newState;
+        }
+
         const workLists = new WorkLists(
             new WorkList('Exit',
                 [new WorkItem(General.randomUUID(),
@@ -223,7 +220,7 @@ class ProgramEnrolmentDashboardActions {
                         programName: enrolment.program.name,
                     })
                 ]));
-        action.cb(enrolment, workLists);
+        action.continueEditExit(enrolment, workLists);
         return state;
     }
 

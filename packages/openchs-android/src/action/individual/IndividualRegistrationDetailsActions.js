@@ -44,8 +44,7 @@ class IndividualRegistrationDetailsActions {
             subjectSummary,
             isRelationshipTypePresent: individualRelationGenderMappings.length > 0,
             subjectProgramEligibilityStatuses,
-            groupAffiliation: groupAffiliationState,
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            groupAffiliation: groupAffiliationState
         };
     }
 
@@ -54,7 +53,7 @@ class IndividualRegistrationDetailsActions {
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(registrationForm, state.individual, 'Individual');
         const newState = {...state};
         if (editFormRuleResponse.isEditAllowed())
-            action.formEditAllowed();
+            action.continueRegistrationEdit();
         else
             newState.editFormRuleResponse = editFormRuleResponse;
         return newState;

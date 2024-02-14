@@ -1,4 +1,4 @@
-import {Alert, ScrollView, TouchableOpacity, View} from "react-native";
+import {Alert, ScrollView, ToastAndroid, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -67,13 +67,13 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     editEnrolment(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true, pageNumber)
+            continueEnrolmentEdit: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true, pageNumber)
         });
     }
 
     editExit(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT_EXIT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true, pageNumber)
+            continueEditExit: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true, pageNumber)
         });
     }
 
@@ -256,6 +256,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                                 primaryAction={this.getPrimaryEnrolmentContextAction(hasExitPrivilege)}/>
                 </View>
             </TouchableOpacity>
+            {this.state.editFormRuleResponse.isEditDisallowed() && ToastAndroid.show(this.state.editFormRuleResponse.getMessageKey(), ToastAndroid.SHORT)}
         </View>);
     }
 

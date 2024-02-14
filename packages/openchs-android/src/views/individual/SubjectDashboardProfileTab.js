@@ -128,7 +128,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     editProfile() {
         logEvent(firebaseEvents.EDIT_SUBJECT);
         this.dispatchAction(Actions.ON_EDIT_START, {
-            formEditAllowed: () => {
+            continueRegistrationEdit: () => {
                 CHSNavigator.navigateToRegisterView(this, {
                     workLists: new WorkLists(
                         new WorkList(`${this.state.individual.subjectType.name} `,
