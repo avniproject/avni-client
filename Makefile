@@ -135,6 +135,7 @@ as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 as_no_env: ; $(call _create_config,no_env)
 as_prod_lfe_dev: ; $(call _create_config,prod_lfe_dev)
+as_prod_rwb_dev: ; $(call _create_config,prod_rwb_dev)
 
 as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
@@ -429,7 +430,7 @@ ifndef password
 	@echo "Provde the variable password"
 	exit 1
 endif
-	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) $(password))))
+	$(if $(password),$(eval token:=$(shell node packages/openchs-android/scripts/token.js '$(server):$(port)' $(username) '$(password)')))
 
 get-token: auth
 	@echo
