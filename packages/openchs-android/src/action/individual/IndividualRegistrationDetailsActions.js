@@ -59,6 +59,10 @@ class IndividualRegistrationDetailsActions {
         return newState;
     }
 
+    static onEditErrorShown(state) {
+        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+    }
+
     static onDeleteRelative(state, action, context) {
         context.get(IndividualRelationshipService).deleteRelative(action.individualRelative);
         const relatives = context.get(IndividualRelationshipService).getRelatives(state.individual);
@@ -152,7 +156,8 @@ const IndividualRegistrationDetailsActionsNames = {
     ON_TOGGLE: "IRDA.ON_TOGGLE",
     ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK: "IRDA.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK",
     ON_DISPLAY_INDICATOR_TOGGLE: "IRDA.ON_DISPLAY_INDICATOR_TOGGLE",
-    ON_EDIT_START: "IRDA.ON_EDIT_START"
+    ON_EDIT_START: "IRDA.ON_EDIT_START",
+    ON_EDIT_ERROR_SHOWN: "IRDA.ON_EDIT_ERROR_SHOWN"
 };
 
 const IndividualRegistrationDetailsActionsMap = new Map([
@@ -163,6 +168,7 @@ const IndividualRegistrationDetailsActionsMap = new Map([
     [IndividualRegistrationDetailsActionsNames.ON_SUBJECT_PROGRAM_ELIGIBILITY_CHECK, IndividualRegistrationDetailsActions.onSubjectProgramEligibilityCheck],
     [IndividualRegistrationDetailsActionsNames.ON_DISPLAY_INDICATOR_TOGGLE, IndividualRegistrationDetailsActions.onDisplayIndicatorToggle],
     [IndividualRegistrationDetailsActionsNames.ON_EDIT_START, IndividualRegistrationDetailsActions.onEditStart],
+    [IndividualRegistrationDetailsActionsNames.ON_EDIT_ERROR_SHOWN, IndividualRegistrationDetailsActions.onEditErrorShown],
 ]);
 
 export {

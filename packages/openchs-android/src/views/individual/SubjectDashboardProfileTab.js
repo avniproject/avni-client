@@ -39,6 +39,7 @@ import SubjectProgramEligibilityWidget from "./SubjectProgramEligibilityWidget";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
+import AvniToast from "../common/AvniToast";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -372,7 +373,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
-                {editFormRuleResponse.isEditDisallowed() && ToastAndroid.show(editFormRuleResponse.getMessageKey(), ToastAndroid.SHORT)}
+                {editFormRuleResponse.isEditDisallowed() &&
+                    <AvniToast message={this.I18n.t(editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>
         );
     }

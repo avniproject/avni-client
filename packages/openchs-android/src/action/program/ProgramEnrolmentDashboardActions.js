@@ -199,6 +199,10 @@ class ProgramEnrolmentDashboardActions {
         return state;
     }
 
+    static onEditErrorShown(state) {
+        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+    }
+
     static onEditEnrolmentExit(state, action, context) {
         logEvent(firebaseEvents.EDIT_PROGRAM_EXIT);
         const enrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
@@ -324,7 +328,8 @@ const ProgramEnrolmentDashboardActionsNames = {
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
     ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
-    ON_PROGRAM_REJOIN: "PEDA.ON_PROGRAM_REJOIN"
+    ON_PROGRAM_REJOIN: "PEDA.ON_PROGRAM_REJOIN",
+    ON_EDIT_ERROR_SHOWN: "PEDA.ON_EDIT_ERROR_SHOWN"
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -339,6 +344,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_EXIT_ENROLMENT, ProgramEnrolmentDashboardActions.onExitEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT_EXIT, ProgramEnrolmentDashboardActions.onEditEnrolmentExit],
+    [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ERROR_SHOWN, ProgramEnrolmentDashboardActions.onEditErrorShown],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_CHANGE, ProgramEnrolmentDashboardActions.onEnrolmentChange],
     [ProgramEnrolmentDashboardActionsNames.LAUNCH_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.launchEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
