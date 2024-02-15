@@ -103,7 +103,7 @@ class EncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(encounter.cancelObservations);
         const db = this.db;
         this.db.write(() => {
-            db.create(Encounter.schema.name, encounter, Realm.UpdateMode.Modified);
+            db.create(Encounter.schema.name, {uuid: encounter.uuid, observations: encounter.observations, cancelObservations: encounter.cancelObservations}, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
         });
     }

@@ -64,7 +64,11 @@ class ProgramEnrolmentService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
-            db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
+            db.create(ProgramEnrolment.schema.name, {
+                uuid: programEnrolment.uuid,
+                observations: programEnrolment.observations,
+                programExitObservations: programEnrolment.programExitObservations
+            }, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
