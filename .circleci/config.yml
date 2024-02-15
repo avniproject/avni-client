@@ -290,7 +290,7 @@ jobs:
       - aws-s3/copy:
           from: avniuniversal.apks
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod/
-      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_<< pipeline.parameters.flavor >>_dev_universal_without_clean
+      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod_dev/
