@@ -46,7 +46,11 @@ class ResetSyncService extends BaseService {
         const isAllDataDeleteRequired = _.some(notMigratedSyncReset, resetSnc => _.isNil(resetSnc.subjectTypeUUID));
         if (isAllDataDeleteRequired) {
             General.logDebug('ResetSyncService', `Deleting all data and resetting the sync`);
-            const allEntities = _.filter(EntityMappingConfig.getInstance().getEntities(), entity => !_.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
+            const allEntities = _.filter(EntityMappingConfig.getInstance().getEntities(),
+              entity => {
+                  return !(entity.schema.embedded ||
+                    _.includes([Settings.schema.name, UserInfo.schema.name, ResetSync.schema.name], entity.schema.name));
+              });
             this.clearDataIn(allEntities);
             this.entitySyncStatusService.setup();
             _.forEach(notMigratedSyncReset, resetSync => this._updateHasMigrated(resetSync));

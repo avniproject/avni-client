@@ -56,7 +56,7 @@ class SystemRecommendationView extends AbstractComponent {
         workListState: PropTypes.object,
         isRejectedEntity: PropTypes.bool,
         entityApprovalStatus: PropTypes.object,
-        affiliatedGroups: PropTypes.object
+        affiliatedGroups: PropTypes.array
     };
 
     static defaultProps = {

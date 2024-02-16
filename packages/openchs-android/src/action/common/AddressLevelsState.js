@@ -3,17 +3,9 @@ import _ from 'lodash';
 class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
-            .reduce((acc, {locationMappings, uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
-                acc[type] = _.defaultTo(acc[type], []).concat([{
-                    uuid,
-                    name,
-                    level,
-                    type,
-                    parentUuid,
-                    typeUuid,
-                    isSelected,
-                    locationMappings
-                }]);
+            .reduce((acc, addrLevel) => {
+                addrLevel.isSelected = addrLevel.isSelected || false;
+                acc[addrLevel.type] = _.defaultTo(acc[addrLevel.type], []).concat([addrLevel]);
                 return acc;
             }, {}));
         this.levels = unsortedLevels.map(([levelType, levels]) => {

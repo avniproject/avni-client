@@ -78,6 +78,10 @@ class TestDb {
         console["debug"]("Creating object of type", clazz.schema.name, " with overwrite:", overwrite);
         return this.db.create(clazz.schema.name, entity, overwrite);
     }
+
+    objectForPrimaryKey(clazz, key) {
+        return this.db.objectForPrimaryKey(clazz.schema.name, key);
+    }
 }
 
 export default BaseIntegrationTest;

@@ -107,7 +107,7 @@ class ProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
         const db = this.db;
         this.db.write(() => {
-            db.create(ProgramEncounter.schema.name, programEncounter, true);
+            db.create(ProgramEncounter.schema.name, {uuid: programEncounter.uuid, observations: programEncounter.observations, cancelObservations: programEncounter.cancelObservations}, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         });
     }
