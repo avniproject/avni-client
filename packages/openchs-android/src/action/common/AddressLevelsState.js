@@ -90,7 +90,8 @@ class AddressLevelsState {
     }
 
     removeLevels(levels) {
-        return new AddressLevelsState(_.differenceBy(this._asList(), levels, (a) => a.uuid));
+        const allChildren = this.findAllChildrenFromCurrentLevels(levels);
+        return new AddressLevelsState(_.differenceBy(this._asList(), allChildren, (a) => a.uuid));
     }
 
     removeUnwantedLevels() {
@@ -118,6 +119,15 @@ class AddressLevelsState {
 
     get selectedAddressLevelUUIDs() {
         return _.map(this.selectedAddresses, ({uuid}) => uuid);
+    }
+
+    findAllChildrenFromCurrentLevels(levels = []) {
+        if(_.isEmpty(levels)) {
+            return levels;
+        }
+        const parentUUIDs = _.defaultTo(levels.map(p => p.uuid), []);
+        const children = this._asList().filter(l => _.includes(parentUUIDs, l.parentUuid));
+        return _.concat(levels, this.findAllChildrenFromCurrentLevels(children));
     }
 }
 
