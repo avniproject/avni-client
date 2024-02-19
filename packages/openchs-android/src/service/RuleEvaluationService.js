@@ -51,6 +51,17 @@ function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
 }
 
+function executeLineListFunction(lineListFunction, reportCard, saveFailedRules) {
+    try {
+        return lineListFunction();
+    } catch (e) {
+        General.logDebug("Rule-Failure", `LineList function failed for ReportCard: ${reportCard.name}, ${reportCard.uuid}`);
+        General.logDebug("Rule-Failure", e);
+        saveFailedRules(e, reportCard.uuid, '', 'ReportCard', reportCard.uuid, null, null);
+        return [];
+    }
+}
+
 @Service("ruleEvaluationService")
 class RuleEvaluationService extends BaseService {
     constructor(db, context) {
@@ -707,10 +718,12 @@ class RuleEvaluationService extends BaseService {
 
     executeDashboardCardRule(reportCard, ruleInput) {
         try {
+            const user = this.getService(UserInfoService).getUserInfo();
+            const userGroups = this.getService(EntityService).loadAll(Groups.schema.name);
             const ruleFunc = eval(reportCard.query);
             const result = ruleFunc({
-                params: {db: this.db, ruleInput: ruleInput},
-                imports: {lodash, moment}
+                params: {db: this.db, ruleInput: ruleInput, user: user, myUserGroups: userGroups},
+                imports: getImports()
             });
             return result;
         } catch (error) {
@@ -784,11 +797,10 @@ class RuleEvaluationService extends BaseService {
         if (this.isOldStyleQueryResult(queryResult)) {//The result can either be an array or a RealmResultsProxy. We are looking for existence of the length key.
             return queryResult;
         } else if (reportCard.nested) {
-            return _.flatMap(queryResult.reportCards, (reportCardResultsItr, index) => (
-                reportCard.itemKey === reportCard.getCardId(index) && _.isFunction(reportCardResultsItr.lineListFunction) ? reportCardResultsItr.lineListFunction() : []
-            ));
+            const selectedCardItem = queryResult.reportCards.find((x, index) => reportCard.itemKey === reportCard.getCardId(index));
+            return executeLineListFunction(selectedCardItem.lineListFunction, reportCard, this.saveFailedRules);
         } else {
-            return _.isFunction(queryResult.lineListFunction) ? queryResult.lineListFunction() : null;
+            return _.isFunction(queryResult.lineListFunction) ? executeLineListFunction(queryResult.lineListFunction, reportCard, this.saveFailedRules) : null;
         }
     }
 
