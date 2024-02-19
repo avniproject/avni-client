@@ -4,6 +4,7 @@ import EntityService from "../../service/EntityService";
 import {Family, Gender} from 'avni-models';
 import FamilyRegistrationState from "../../state/FamilyRegistrationState";
 import _ from 'lodash';
+import AddressLevelService from '../../service/AddressLevelService';
 
 export class FamilyRegisterActions {
     static getInitialState(context) {
@@ -33,9 +34,9 @@ export class FamilyRegisterActions {
     }
 
 
-    static enterFamilyAddressLevel(state, action) {
+    static enterFamilyAddressLevel(state, action, context) {
         const newState = state.clone();
-        newState.family.lowestAddressLevel = action.value;
+        newState.family.lowestAddressLevel = action.value && context.get(AddressLevelService).findByUUID(action.value.uuid);
         newState.handleValidationResult(newState.family.validateAddress());
         return newState;
     }

@@ -18,6 +18,7 @@ import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
 import General from '../../utility/General';
 import moment from 'moment';
+import AddressLevelService from '../../service/AddressLevelService';
 
 export class PersonRegisterActions {
     static getInitialState(context) {
@@ -160,9 +161,9 @@ export class PersonRegisterActions {
         return newState;
     }
 
-    static enterIndividualAddressLevel(state, action) {
+    static enterIndividualAddressLevel(state, action, context) {
         const newState = state.clone();
-        newState.individual.lowestAddressLevel = action.value;
+        newState.individual.lowestAddressLevel = action.value && context.get(AddressLevelService).findByUUID(action.value.uuid);
         newState.handleValidationResult(newState.individual.validateAddress());
         return newState;
     }
