@@ -366,6 +366,7 @@
     "disableAutoSync": "ऑटो सिंक अक्षम करें",
     "autoSync": "ऑटो सिंक",
     "backgroundSyncInProgress": "ऑटो सिंक प्रगति पर है| कृपया कुछ देर बाद प्रयास करें।",
-    "addressFilterBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)"
+    "addressFilterBehaviorHint": "(वही लोकेशन जहाँ सब्जेक्ट रजिस्टर्ड है)",
+    "addressFilterImplicitBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)"
   }
 }

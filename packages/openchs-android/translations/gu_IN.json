@@ -299,6 +299,7 @@
     "trackLocation": "ટ્રૅક સ્થાન",
     "disableAutoSync": "સ્વતઃ સમન્વયન અક્ષમ કરો",
     "autoSync": "સ્વતઃ સમન્વયન",
-    "addressFilterBehaviorHint": "(પસંદગીમાં નિમ્ન સ્તરનો ગર્ભિત સમાવેશ થાય છે)"
+    "addressFilterBehaviorHint": "(યોગ્ય સ્તર પસંદ કરો કે જેમાં વિષય નોંધાયેલ છે)",
+    "addressFilterImplicitBehaviorHint": "(પસંદગીમાં નિમ્ન સ્તરનો ગર્ભિત સમાવેશ થાય છે)"
   }
 }

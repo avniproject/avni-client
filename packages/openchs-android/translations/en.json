@@ -493,6 +493,7 @@
     "enterNewPasswordFor" : "Enter new password for {{userName}}",
     "enterOTP" : "Enter OTP",
     "backgroundSyncInProgress" : "Auto sync is in progress. Please try again after sometime.",
-    "addressFilterBehaviorHint": "(Selection includes lower levels implicitly)"
+    "addressFilterBehaviorHint": "(Choose exact level at which subject is registered)",
+    "addressFilterImplicitBehaviorHint": "(Selection includes lower levels implicitly)"
   }
 }

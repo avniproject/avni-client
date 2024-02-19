@@ -13,7 +13,6 @@ import {
 } from 'openchs-models';
 import {DashboardReportFilter} from "../../model/DashboardReportFilters";
 import _ from "lodash";
-import General from "../../utility/General";
 import AddressLevelService from "../AddressLevelService";
 import GlobalContext from "../../GlobalContext";
 
