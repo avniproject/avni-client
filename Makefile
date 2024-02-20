@@ -135,6 +135,7 @@ as_prod_dev: ; $(call _create_config,prod_dev)
 as_no_env: ; $(call _create_config,no_env)
 as_prod_lfe_dev: ; $(call _create_config,prod_lfe_dev)
 as_prod_gramin_dev: ; $(call _create_config,prod_gramin_dev)
+as_staging_gramin_dev: ; $(call _create_config,staging_gramin_dev)
 
 as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)

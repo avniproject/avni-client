@@ -26,7 +26,7 @@ class ApprovalListingView extends AbstractComponent {
         backFunction: PropTypes.func.isRequired,
         reportCardUUID: PropTypes.string.isRequired,
         approvalStatus_status: PropTypes.string.isRequired,
-        reportsFilter: PropTypes.object
+        reportFilters: PropTypes.object
     };
 
     constructor(props, context) {
@@ -51,9 +51,9 @@ class ApprovalListingView extends AbstractComponent {
     }
 
     onFilterChange(filterItem) {
-        const {reportCardUUID, reportsFilter} = this.props;
+        const {reportCardUUID, reportFilters} = this.props;
         const reportCard = this.getService(EntityService).findByUUID(reportCardUUID, ReportCard.schema.name);
-        const subjects = this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportsFilter, filterItem.value);
+        const subjects = this.getService(ReportCardService).getResultForApprovalCardsType(reportCard.standardReportCardType, reportFilters, filterItem.value);
         this.setState({subjects: subjects, formMapping: filterItem.value});
     }
 

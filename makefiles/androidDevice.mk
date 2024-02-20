@@ -67,7 +67,8 @@ run_app_prod: as_prod _run_app
 run_app_prod_dev: as_prod_dev _run_app
 run_app_no_env: as_no_env _run_app
 run_app_prod_lfe_dev: as_prod_lfe_dev _run_app
-run_app_prod_rwb_dev: as_prod_rwb_dev _run_app
+run_app_prod_gramin_dev: as_prod_gramin_dev _run_app
+run_app_staging_gramin_dev: as_staging_gramin_dev _run_app
 
 stop_app:
 	adb shell am force-stop ${app_android_package_name}
