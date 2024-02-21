@@ -121,8 +121,11 @@ export default class BackupRestoreRealmService extends BaseService {
                             return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
                         })
                         .then(() => {
-                            General.logDebug("BackupRestoreRealmService", "Refreshing application context");
-                            cb(92, "restoringDb");
+                            cb(91, "restoringDb");
+                        })
+                        .then(() => {
+                            General.logDebug("BackupRestoreRealmService", "Migrating database");
+                            cb(92, "migratingDb");
                         })
                         .then(() => this.dumpFileRestoreCompleted())
                         .then(() => {

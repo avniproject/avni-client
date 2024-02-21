@@ -138,7 +138,8 @@ class IndividualSearchView extends AbstractComponent {
                                 onSelect={(addressLevelState) =>
                                     this.dispatchAction(Actions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, {values: addressLevelState})
                                 }
-                                multiSelect={true}/>}
+                                multiSelect={true}
+                                userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/>}
                             <>
                                 <Text style={Styles.formLabel}>{this.I18n.t("includeVoided")}</Text>
                                 <Checkbox.Group accessibilityLabel={this.I18n.t("includeVoided")}

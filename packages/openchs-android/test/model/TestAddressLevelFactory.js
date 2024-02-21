@@ -1,10 +1,13 @@
 import {LocationMapping, AddressLevel} from "openchs-models";
 import General from "../../src/utility/General";
+import _ from 'lodash';
 
 class TestAddressLevelFactory {
-  static createWithDefaults({parent, level}) {
+  static createWithDefaults({parent, level, name}) {
     const addressLevel = new AddressLevel();
-    addressLevel.uuid = addressLevel.name = General.randomUUID();
+    addressLevel.uuid = General.randomUUID();
+    addressLevel.name = _.defaultTo(name, addressLevel.uuid);
+    addressLevel.type = level+'_level';
     addressLevel.level = level;
     if (!_.isNil(parent)) {
         const locationMapping = new LocationMapping();

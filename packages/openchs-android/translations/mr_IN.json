@@ -301,5 +301,6 @@
     "addressFilterBehaviorHint": "(कोणत्या विषयावर नोंदणी केली आहे ते अचूक स्तर निवडा)",
     "queryExecutionError" : "नियम अंमलबजावणी त्रुटी",
     "nestedReportCardsCountMismatch" : "कॉन्फिगर केलेली कार्डची संख्या नियमातील कार्डांच्या संख्येशी जुळत नाही"
+    "addressFilterImplicitBehaviorHint": "(निवडीत खालच्या स्तरांचा समावेश होतो)"
   }
 }
