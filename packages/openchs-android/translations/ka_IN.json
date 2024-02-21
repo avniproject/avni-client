@@ -312,5 +312,6 @@
     "addressFilterBehaviorHint": "(ಯಾವ ವಿಷಯವನ್ನು ನೋಂದಾಯಿಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ನಿಖರವಾದ ಮಟ್ಟವನ್ನು ಆರಿಸಿ)",
     "queryExecutionError" : "ನಿಯಮ ಕಾರ್ಯಗತಗೊಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
     "nestedReportCardsCountMismatch" : "ಕಾರ್ಡ್ಗಳ ಸಂಖ್ಯೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ"
+    "addressFilterImplicitBehaviorHint": "(ಆಯ್ಕೆಯು ಕೆಳ ಹಂತಗಳನ್ನು ಸೂಚ್ಯವಾಗಿ ಒಳಗೊಂಡಿರುತ್ತದೆ)"
   }
 }

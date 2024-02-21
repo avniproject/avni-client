@@ -4,7 +4,7 @@ class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
             .reduce((acc, {locationMappings, uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
-                acc[type] = _.defaultTo(acc[type], []).concat([{
+                acc[level] = _.defaultTo(acc[level], []).concat([{
                     uuid,
                     name,
                     level,
@@ -16,7 +16,9 @@ class AddressLevelsState {
                 }]);
                 return acc;
             }, {}));
-        this.levels = unsortedLevels.map(([levelType, levels]) => {
+        const levelTypeOrderedUnsortedLevels = _.orderBy(unsortedLevels, ([level, value]) => level, ['desc']);
+        this.levels = levelTypeOrderedUnsortedLevels.map(([levelNum, levels]) => {
+            const levelType = levels[0].type;
             const other = _.find(levels, (level) => _.startsWith(level.name, "Other"));
             if(!_.isNil(other)) {
                 const levelsExcludingOther = _.filter(levels, (level) => level.name !== other.name);
@@ -88,7 +90,8 @@ class AddressLevelsState {
     }
 
     removeLevels(levels) {
-        return new AddressLevelsState(_.differenceBy(this._asList(), levels, (a) => a.uuid));
+        const allChildren = this.findAllChildrenFromCurrentLevels(levels);
+        return new AddressLevelsState(_.differenceBy(this._asList(), allChildren, (a) => a.uuid));
     }
 
     removeUnwantedLevels() {
@@ -116,6 +119,15 @@ class AddressLevelsState {
 
     get selectedAddressLevelUUIDs() {
         return _.map(this.selectedAddresses, ({uuid}) => uuid);
+    }
+
+    findAllChildrenFromCurrentLevels(levels = []) {
+        if(_.isEmpty(levels)) {
+            return levels;
+        }
+        const parentUUIDs = _.defaultTo(levels.map(p => p.uuid), []);
+        const children = this._asList().filter(l => _.includes(parentUUIDs, l.parentUuid));
+        return _.concat(levels, this.findAllChildrenFromCurrentLevels(children));
     }
 }
 

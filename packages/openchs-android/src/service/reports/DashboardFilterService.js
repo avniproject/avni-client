@@ -13,6 +13,9 @@ import {
 } from 'openchs-models';
 import {DashboardReportFilter} from "../../model/DashboardReportFilters";
 import _ from "lodash";
+import AddressLevelService from "../AddressLevelService";
+import GlobalContext from "../../GlobalContext";
+
 
 @Service("dashboardFilterService")
 class DashboardFilterService extends BaseService {
@@ -71,7 +74,16 @@ class DashboardFilterService extends BaseService {
             };
         }
         if (filterConfig.type === CustomFilter.type.Address) {
-            ruleInput.filterValue = filterValue.selectedAddresses;
+            if (_.isEmpty(filterValue.selectedAddresses)) {
+                ruleInput.filterValue = filterValue.selectedAddresses;
+            } else {
+                const addressLevelService = GlobalContext.getInstance().beanRegistry.getService(AddressLevelService);
+                const allChildrenOfLowestSelectedLocations = filterValue.selectedAddresses
+                    .filter(location => location.level === _.get(_.minBy(filterValue.selectedAddresses, 'level'), 'level'))
+                    .reduce((acc, parent) => acc.concat(addressLevelService.getChildrenOfNode(parent, false)), []);
+                ruleInput.filterValue = allChildrenOfLowestSelectedLocations
+                    .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid', 'typeUuid']));
+            }
         }
         else
             ruleInput.filterValue = filterValue;

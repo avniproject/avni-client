@@ -135,7 +135,8 @@ as_prod: ; $(call _create_config,prod)
 as_prod_dev: ; $(call _create_config,prod_dev)
 as_no_env: ; $(call _create_config,no_env)
 as_prod_lfe_dev: ; $(call _create_config,prod_lfe_dev)
-as_prod_rwb_dev: ; $(call _create_config,prod_rwb_dev)
+as_prod_gramin_dev: ; $(call _create_config,prod_gramin_dev)
+as_staging_gramin_dev: ; $(call _create_config,staging_gramin_dev)
 
 as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
@@ -165,7 +166,10 @@ release_prod_without_clean: as_prod release upload-release-sourcemap
 release_prod_dev_without_clean: as_prod_dev release
 release_prod: renew_env release_prod_without_clean
 
-release_prod_dev_without_clean: as_prod_dev release upload-release-sourcemap
+release_prod_generic_dev_without_clean: release_prod_dev_without_clean
+release_prod_lfe_dev_without_clean: as_prod_lfe_dev release
+release_prod_lfeTeachNagaland_dev_without_clean: as_prod_lfe_dev release
+release_prod_gramin_dev_without_clean: as_prod_gramin_dev release
 
 bundle_release_prod_without_clean: as_prod bundle_release upload-release-sourcemap
 bundle_release_prod: renew_env bundle_release_prod_without_clean
@@ -195,7 +199,7 @@ release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
 
 release_prod_dev_universal_without_clean:
-	enableSeparateBuildPerCPUArchitecture=false make release_prod_dev_without_clean
+	enableSeparateBuildPerCPUArchitecture=false make release_prod_$(flavor)_dev_without_clean
 
 release_prod_universal_without_clean:
 	enableSeparateBuildPerCPUArchitecture=false make release_prod_without_clean

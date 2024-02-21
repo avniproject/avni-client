@@ -304,5 +304,6 @@
     "addressFilterBehaviorHint": "(યોગ્ય સ્તર પસંદ કરો કે જેમાં વિષય નોંધાયેલ છે)",
     "queryExecutionError" : "નિયમ અમલમાં ભૂલ",
     "nestedReportCardsCountMismatch" : "કાર્ડની રૂપરેખાંકિત સંખ્યા નિયમમાંના કાર્ડની સંખ્યા સાથે મેળ ખાતી નથી"
+    "addressFilterImplicitBehaviorHint": "(પસંદગીમાં નિમ્ન સ્તરનો ગર્ભિત સમાવેશ થાય છે)"
   }
 }

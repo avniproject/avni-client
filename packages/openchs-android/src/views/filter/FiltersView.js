@@ -272,7 +272,8 @@ class FilterView extends AbstractComponent {
                                                 addressLevelState: addressLevelState
                                             })
                                         }}
-                                        multiSelect={true}/> : null}
+                                        multiSelect={true}
+                                        userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/> : null}
                                 {!_.isEmpty(bottomLevelFilters) ?
                                     <CustomFilters filters={bottomLevelFilters}
                                                    selectedCustomFilters={this.props.selectedCustomFilters}
