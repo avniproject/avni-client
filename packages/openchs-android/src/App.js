@@ -1,4 +1,4 @@
-import {Alert, Clipboard, NativeModules, Text, View, BackHandler} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View, BackHandler, Image} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -72,15 +72,15 @@ class App extends Component {
         const clipboardString = `This is a Rooted Device. Exiting Avni application due to security considerations.`;
         General.logError("App", `renderError: ${clipboardString}`);
         Alert.alert("App will exit now", clipboardString,
-          [
-              {
-                  text: "Ok",
-                  onPress: () => {
-                      BackHandler.exitApp();
-                  }
-              }
-          ],
-          {cancelable: false}
+            [
+                {
+                    text: "Ok",
+                    onPress: () => {
+                        BackHandler.exitApp();
+                    }
+                }
+            ],
+            {cancelable: false}
         );
         return <View/>;
     }
@@ -92,10 +92,10 @@ class App extends Component {
     async componentDidMount() {
         General.logDebug("App", "componentDidMount");
         try {
-            if(!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
+            if (!_.isNil(TamperCheckModule)) TamperCheckModule.validateAppSignature();
 
             const isThisProdLFEAppRunningOnRootedDevice = EnvironmentConfig.isProdAndDisallowedOnRootDevices() && JailMonkey.isJailBroken();
-            if(isThisProdLFEAppRunningOnRootedDevice) {
+            if (isThisProdLFEAppRunningOnRootedDevice) {
                 this.setState(state => ({...state, isDeviceRooted: isThisProdLFEAppRunningOnRootedDevice}));
                 return;
             }
@@ -110,15 +110,15 @@ class App extends Component {
             entitySyncStatusService.setup();
 
             RegisterAndScheduleJobs();
-            this.setState(state => ({...state, isInitialisationDone: true }));
+            this.setState(state => ({...state, isInitialisationDone: true}));
         } catch (e) {
             console.log("App", e);
-            this.setState(state => ({...state, error: e }));
+            this.setState(state => ({...state, error: e}));
         }
     }
 
     render() {
-        if(this.state.isDeviceRooted) {
+        if (this.state.isDeviceRooted) {
             return this.renderRootedDeviceErrorMessageAndExitApplication();
         }
         if (this.state.error) {
@@ -128,9 +128,11 @@ class App extends Component {
             return GlobalContext.getInstance().routes
         }
         return (
-           <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text>Upgrading data, Please do not close the App.</Text>
-           </View>);
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                <Image source={{uri: `asset:/logo.png`}}
+                       style={{height: 120, width: 120, alignSelf: 'center'}} resizeMode={'center'}/>
+                <Text>Upgrading data, Please do not close the App.</Text>
+            </View>);
     }
 }
 
