@@ -13,6 +13,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import ActionSelector from "../common/ActionSelector";
 import PrivilegeService from "../../service/PrivilegeService";
 import NewFormButton from "../common/NewFormButton";
+import AvniToast from "../common/AvniToast";
 
 class SubjectDashboardGeneralTab extends AbstractComponent {
     static propTypes = {
@@ -96,11 +97,15 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     emptyTitle={this.I18n.t('noEncounters')}
                                     expandCollapseView={true}
                                     subjectInfo={this.state.individual.name}
-                                    onToggleAction={Actions.ON_TOGGLE}/>);
+                                    onToggleAction={Actions.ON_TOGGLE}
+                                    onEdit={({encounter, ...others}) => this.dispatchAction(Actions.ON_EDIT_ENCOUNTER, {
+                                        encounter: encounter,
+                                        onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, ...others})
+                                    })}
+        />);
     }
 
     render() {
-
         return (
             <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
                 <ActionSelector
@@ -116,6 +121,8 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     {this.renderCompletedVisits()}
                 </View>
                 <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                {this.state.editFormRuleResponse.isEditDisallowed() &&
+                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>
         );
     }

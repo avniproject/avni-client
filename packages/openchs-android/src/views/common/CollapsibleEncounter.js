@@ -9,8 +9,7 @@ import Observations from "./Observations";
 import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
 
-class CollapsibleEncounters extends AbstractComponent {
-
+class CollapsibleEncounter extends AbstractComponent {
     static propTypes = {
         encountersInfo: PropTypes.any.isRequired,
         onToggleAction: PropTypes.string.isRequired,
@@ -69,4 +68,4 @@ class CollapsibleEncounters extends AbstractComponent {
     }
 }
 
-export default CollapsibleEncounters
+export default CollapsibleEncounter

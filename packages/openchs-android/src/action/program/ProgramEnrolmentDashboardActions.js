@@ -15,6 +15,7 @@ import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import IndividualService from "../../service/IndividualService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {EditFormRuleResponse} from "rules-config";
+import {Form} from "openchs-models";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -199,6 +200,22 @@ class ProgramEnrolmentDashboardActions {
         return state;
     }
 
+    static onEditProgramEncounter(state, action, context) {
+        logEvent(firebaseEvents.EDIT_PROGRAM_ENCOUNTER);
+        const formType = action.cancel ? Form.formTypes.ProgramEncounterCancellation : Form.formTypes.ProgramEncounter;
+        const form = context.get(FormMappingService).findFormForEncounterType(action.encounter.encounterType, formType, state.enrolment.individual.subjectType);
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, action.encounter, 'ProgramEncounter');
+
+        if (editFormRuleResponse.isEditAllowed()) {
+            action.onProgramEncounterEditAllowed();
+            return state;
+        } else {
+            const newState = {...state};
+            newState.editFormRuleResponse = editFormRuleResponse;
+            return newState;
+        }
+    }
+
     static onEditErrorShown(state) {
         return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
     }
@@ -319,6 +336,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     ON_LANDING: 'PEDA.ON_LANDING',
     ON_FOCUS: 'PEDA.ON_FOCUS',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
+    ON_EDIT_PROGRAM_ENCOUNTER: 'PEDA.ON_EDIT_PROGRAM_ENCOUNTER',
     ON_EDIT_ENROLMENT_EXIT: 'PEDA.ON_EDIT_ENROLMENT_EXIT',
     ON_EXIT_ENROLMENT: 'PEDA.ON_EXIT_ENROLMENT',
     ON_ENROLMENT_CHANGE: 'PEDA.ON_ENROLMENT_CHANGE',
@@ -342,6 +360,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],
+    [ProgramEnrolmentDashboardActionsNames.ON_EDIT_PROGRAM_ENCOUNTER, ProgramEnrolmentDashboardActions.onEditProgramEncounter],
     [ProgramEnrolmentDashboardActionsNames.ON_EXIT_ENROLMENT, ProgramEnrolmentDashboardActions.onExitEnrolment],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT_EXIT, ProgramEnrolmentDashboardActions.onEditEnrolmentExit],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ERROR_SHOWN, ProgramEnrolmentDashboardActions.onEditErrorShown],

@@ -1,4 +1,4 @@
-import {Alert, ScrollView, ToastAndroid, TouchableOpacity, View} from "react-native";
+import {Alert, ScrollView, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -179,6 +179,11 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     expandCollapseView={true}
                                     onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
+                                    onEdit={({encounter, ...others}) => this.dispatchAction(Actions.ON_EDIT_PROGRAM_ENCOUNTER, {
+                                        encounter: encounter,
+                                        cancel: others.cancel,
+                                        onProgramEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, ...others})
+                                    })}
         />);
     }
 

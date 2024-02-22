@@ -19,7 +19,7 @@ import Distances from '../primitives/Distances';
 import ObservationsSectionOptions from '../common/ObservationsSectionOptions';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import CompletedEncountersView from '../../encounter/CompletedEncountersView';
-import CollapsibleEncounters from './CollapsibleEncounters';
+import CollapsibleEncounter from './CollapsibleEncounter';
 import PrivilegeService from '../../service/PrivilegeService';
 import ListViewHelper from '../../utility/ListViewHelper';
 import UserInfoService from "../../service/UserInfoService";
@@ -42,7 +42,12 @@ class PreviousEncounters extends AbstractComponent {
         onToggleAction: PropTypes.string,
         containsDrafts: PropTypes.bool,
         deleteDraft: PropTypes.func,
-        hideIfEmpty: PropTypes.bool
+        hideIfEmpty: PropTypes.bool,
+        onEdit: PropTypes.func
+    };
+
+    static defaultProps = {
+        onEdit: _.noop
     };
 
     constructor(props, context) {
@@ -54,10 +59,11 @@ class PreviousEncounters extends AbstractComponent {
         encounter = encounter.cloneForEdit();
         const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        CHSNavigator.navigateToEncounterView(this, {encounter, editing});
+        this.props.onEdit({encounter, editing});
     }
 
     cancelEncounter(encounter) {
+        this.props.onEdit({encounter, cancel: true});
         CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true});
     }
 
@@ -229,14 +235,14 @@ class PreviousEncounters extends AbstractComponent {
                 removeClippedSubviews={true}
                 renderRow={(encounter) => <View style={styles.container}>
                     {this.props.expandCollapseView ?
-                        <CollapsibleEncounters encountersInfo={encounter}
-                                               onToggleAction={this.props.onToggleAction}
-                                               renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
-                                               encounterActions={() => this.encounterActions(encounter.encounter)}
-                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
-                                               formType={this.props.formType}
-                                               cancelFormType={this.props.cancelFormType}
-                                               isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
+                        <CollapsibleEncounter encountersInfo={encounter}
+                                              onToggleAction={this.props.onToggleAction}
+                                              renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
+                                              encounterActions={() => this.encounterActions(encounter.encounter)}
+                                              cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
+                                              formType={this.props.formType}
+                                              cancelFormType={this.props.cancelFormType}
+                                              isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
                         />
                         : this.renderNormalView(encounter)}
                 </View>}
