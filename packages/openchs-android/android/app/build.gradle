@@ -92,7 +92,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode System.getenv("versionCode") ? 4 * 1048576 + System.getenv("versionCode").toInteger() : 1
+        versionCode System.getenv("versionCode") ? 8 * 1048576 + System.getenv("versionCode").toInteger() : 1
         //Our convention of versionCode from now in is to form the number from digits in versionName. E.g. for versionName 2.6.1, the versionCode should be 261. This is to avoid conflicts of versionCodes between different branches.
         // Major.Minor.Patch. We should not change major version every release, just change the minor. Each number allows for two digits
         // https://medium.com/@maxirosson/versioning-android-apps-d6ec171cfd82
