@@ -27,7 +27,6 @@ class GlobalContext {
 
     async initialiseGlobalContext(appStore, realmFactory) {
         this.db =  await realmFactory.createRealm();
-        this.db.realmDb.compact();
         this.beanRegistry.init(this.db);
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
