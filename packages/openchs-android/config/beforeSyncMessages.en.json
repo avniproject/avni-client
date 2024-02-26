@@ -40,7 +40,6 @@
   "restoreCheckDb": "Finding pre-existing database",
   "restoreDownloadPreparedDb": "Downloading prepared database",
   "restoringDb": "Restoring database",
-  "migratingDb": "Restoring database (Updating database to current version)",
   "restoreComplete": "Restore complete",
   "restoreFailed": "Restore failed, will sync from server",
   "restoreFailedTitle": "Fast sync failed",

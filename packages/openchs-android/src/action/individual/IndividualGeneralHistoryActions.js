@@ -18,7 +18,8 @@ export class IndividualGeneralHistoryActions {
             encounters: [],
             encounterTypes: [],
             displayActionSelector: false,
-            draftEncounters: []
+            draftEncounters: [],
+            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
         };
     }
 
@@ -66,6 +67,7 @@ export class IndividualGeneralHistoryActions {
             programsAvailable: state.programsAvailable,
             showCount: state.showCount,
             encounterTypes: state.encounterTypes.slice(),
+            editFormRuleResponse: state.editFormRuleResponse
         };
     }
 

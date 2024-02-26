@@ -17,6 +17,7 @@ import IndividualService from "./IndividualService";
 import SubjectMigrationService from "./SubjectMigrationService";
 import FormMappingService from "./FormMappingService";
 import UserInfoService from './UserInfoService';
+import moment from "moment";
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -77,8 +78,6 @@ export default class BackupRestoreRealmService extends BaseService {
             });
     }
 
-
-
     restore(cb) {
         let settingsService = this.getService(SettingsService);
         let mediaService = this.getService(MediaService);
@@ -125,7 +124,7 @@ export default class BackupRestoreRealmService extends BaseService {
                         })
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Migrating database");
-                            cb(92, "migratingDb");
+                            cb(92, `Upgrading database. May take upto 5 minutes on slow devices. Start Time: ${moment().format("hh:mm")}`);
                         })
                         .then(() => this.dumpFileRestoreCompleted())
                         .then(() => {
