@@ -1,32 +1,32 @@
 import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import _ from 'lodash';
-import RuleEvaluationService from "../../service/RuleEvaluationService";
 import ChecklistItemState from "../../state/ChecklistItemState";
-import {ChecklistItem} from "avni-models";
 import ChecklistService from "../../service/ChecklistService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+import {ChecklistItem} from "openchs-models";
+
+function filterFormElements(formElementGroup, context, checklistItem) {
+    const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(checklistItem, ChecklistItem.schema.name, formElementGroup);
+    return formElementGroup.filterElements(formElementStatuses);
+}
 
 class ChecklistItemActions {
     static getInitialState() {
         return {};
     }
 
-    static filterFormElements(formElementGroup, context, checklistItem) {
-        let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(checklistItem, ChecklistItem.schema.name, formElementGroup);
-        return formElementGroup.filterElements(formElementStatuses);
-    };
-
     static onLoad(state, action, context) {
         const form = action.checklistItem.detail.form;
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
-        }]), (formElementGroup) => ChecklistItemActions.filterFormElements(formElementGroup, context, action.checklistItem).length !== 0);
+        }]), (formElementGroup) => filterFormElements(formElementGroup, context, action.checklistItem).length !== 0);
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
             return ChecklistItemState.createOnLoadStateForEmptyForm(action.checklistItem, form, false);
         }
 
-        let filteredElements = ChecklistItemActions.filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.checklistItem);
+        let filteredElements = filterFormElements(firstGroupWithAtLeastOneVisibleElement, context, action.checklistItem);
 
         return ChecklistItemState.createOnLoad(action.checklistItem, form, false, firstGroupWithAtLeastOneVisibleElement, filteredElements);
     }
