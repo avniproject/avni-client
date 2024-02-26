@@ -141,7 +141,8 @@ class AddressLevels extends AbstractComponent {
                     validationError={this.props.validationError}
                     levelType={levelType}
                     multiSelect={this.props.multiSelect}
-                    levels={levels}/>);
+                    levels={levels}
+                    mandatory={this.props.mandatory}/>);
         return (
             <View style={{
                 marginTop: Styles.VerticalSpacingBetweenFormElements,

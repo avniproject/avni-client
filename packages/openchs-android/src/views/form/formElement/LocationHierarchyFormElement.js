@@ -12,7 +12,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         element: PropTypes.object.isRequired,
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
-        validationResult: PropTypes.object,
+        validationResult: PropTypes.object
     };
 
     onSelect(lowestSelectedAddresses) {
@@ -29,7 +29,7 @@ class LocationHierarchyFormElement extends AbstractFormElement {
         return (
             <View style={{flexDirection: 'column', justifyContent: 'flex-start'}}>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                <LocationHierarchyInput concept={this.props.element.concept} value={this.props.value} onSelect={(selectedAddresses) => this.onSelect(selectedAddresses)}/>
+                <LocationHierarchyInput concept={this.props.element.concept} mandatory={this.props.element.mandatory} value={this.props.value} onSelect={(selectedAddresses) => this.onSelect(selectedAddresses)}/>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>)
     }

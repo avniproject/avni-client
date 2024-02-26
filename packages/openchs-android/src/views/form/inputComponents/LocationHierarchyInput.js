@@ -17,7 +17,8 @@ class LocationHierarchyInput extends AbstractComponent {
     static propTypes = {
         concept: PropTypes.object.isRequired,
         value: PropTypes.object,
-        onSelect: PropTypes.func
+        onSelect: PropTypes.func,
+        mandatory: PropTypes.boolean
     };
 
     isWithinCatchment() {
@@ -46,6 +47,7 @@ class LocationHierarchyInput extends AbstractComponent {
             minLevelTypeUUIDs={this.minLevelTypeUUIDs()}
             maxLevelTypeUUID={this.maxLevelTypeUUID()}
             isOutsideCatchment={!this.isWithinCatchment()}
+            mandatory={this.props.mandatory}
         />
     }
 }
