@@ -15,8 +15,9 @@ import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
 import Config from './framework/Config';
 import JailMonkey from 'jail-monkey';
-
 const {TamperCheckModule} = NativeModules;
+import KeepAwake from 'react-native-keep-awake';
+import moment from "moment";
 
 class App extends Component {
     static childContextTypes = {
@@ -127,11 +128,13 @@ class App extends Component {
         if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
         }
+        const message = `Upgrading database. Please do not close the App. May take upto 5 minutes on slow devices. Start Time: ${moment().format("hh:mm")}`
         return (
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                 <Image source={{uri: `asset:/logo.png`}}
                        style={{height: 120, width: 120, alignSelf: 'center'}} resizeMode={'center'}/>
-                <Text>Upgrading data, Please do not close the App.</Text>
+                <KeepAwake/>
+                <Text>{message}</Text>
             </View>);
     }
 }
