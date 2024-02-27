@@ -202,12 +202,13 @@ class ProgramEnrolmentDashboardActions {
 
     static onEditProgramEncounter(state, action, context) {
         logEvent(firebaseEvents.EDIT_PROGRAM_ENCOUNTER);
-        const formType = action.cancel ? Form.formTypes.ProgramEncounterCancellation : Form.formTypes.ProgramEncounter;
-        const form = context.get(FormMappingService).findFormForEncounterType(action.encounter.encounterType, formType, state.enrolment.individual.subjectType);
-        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, action.encounter, 'ProgramEncounter');
+        const {encounter} = action;
+        const formType = encounter.isCancelled() ? Form.formTypes.ProgramEncounterCancellation : Form.formTypes.ProgramEncounter;
+        const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType, formType, state.enrolment.individual.subjectType);
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, encounter, 'ProgramEncounter');
 
         if (editFormRuleResponse.isEditAllowed()) {
-            action.onProgramEncounterEditAllowed();
+            action.onEncounterEditAllowed();
             return state;
         } else {
             const newState = {...state};

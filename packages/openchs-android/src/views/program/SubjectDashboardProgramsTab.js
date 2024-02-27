@@ -160,7 +160,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     title={this.I18n.t('visitsPlanned')}
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
-                                    expandCollapseView={false}/>);
+                                    expandCollapseView={false}
+                                    onEditEncounterActionName={Actions.ON_EDIT_PROGRAM_ENCOUNTER}
+        />);
     }
 
     renderCompletedVisits() {
@@ -179,11 +181,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     expandCollapseView={true}
                                     onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
-                                    onEdit={({encounter, ...others}) => this.dispatchAction(Actions.ON_EDIT_PROGRAM_ENCOUNTER, {
-                                        encounter: encounter,
-                                        cancel: others.cancel,
-                                        onProgramEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, ...others})
-                                    })}
+                                    onEditEncounterActionName={Actions.ON_EDIT_PROGRAM_ENCOUNTER}
         />);
     }
 

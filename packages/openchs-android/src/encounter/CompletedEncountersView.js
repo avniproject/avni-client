@@ -17,10 +17,10 @@ import TypedTransition from "../framework/routing/TypedTransition";
 import CollapsibleEncounter from "../views/common/CollapsibleEncounter";
 import DGS from "../views/primitives/DynamicGlobalStyles";
 import Separator from "../views/primitives/Separator";
+import AvniToast from "../views/common/AvniToast";
 
 @Path('/CompletedEncountersView')
 class CompletedEncountersView extends AbstractComponent {
-
     viewName() {
         return 'CompletedEncountersView';
     }
@@ -72,7 +72,9 @@ class CompletedEncountersView extends AbstractComponent {
                                               isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
                                               style={styles.textContainer}
                                               formType={this.props.params.formType}
-                                              cancelFormType={this.props.params.cancelFormType}/>
+                                              cancelFormType={this.props.params.cancelFormType}
+                                              formElementGroupEditAction={Actions.ON_EDIT_ENCOUNTER_VIA_FORM_ELEMENT_GROUP}
+                        />
                     </View>}
                   initialNumToRender={15}
                   updateCellsBatchingPeriod={500}
@@ -90,6 +92,8 @@ class CompletedEncountersView extends AbstractComponent {
                         <Icon name={'equalizer'} size={25} style={{color: Colors.headerIconColor}}/>
                     </View>
                 </TouchableOpacity>
+                {this.state.editFormRuleResponse.isEditDisallowed() &&
+                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ENCOUNTER_VIA_FORM_ELEMENT_GROUP_ERROR_SHOWN)}/>}
             </CHSContainer>
         );
     }

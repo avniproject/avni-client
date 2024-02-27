@@ -98,10 +98,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     expandCollapseView={true}
                                     subjectInfo={this.state.individual.name}
                                     onToggleAction={Actions.ON_TOGGLE}
-                                    onEdit={({encounter, ...others}) => this.dispatchAction(Actions.ON_EDIT_ENCOUNTER, {
-                                        encounter: encounter,
-                                        onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, ...others})
-                                    })}
+                                    onEditEncounterActionName={Actions.ON_EDIT_ENCOUNTER}
         />);
     }
 
