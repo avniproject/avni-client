@@ -146,15 +146,19 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     editSubjectByFEG(pageNumber) {
         logEvent(firebaseEvents.EDIT_SUBJECT);
         const canMoveToNextView = _.get(this.state.individual.validateRegistrationDate(), "success");
-        CHSNavigator.navigateToRegisterView(this, {
-            workLists: new WorkLists(
-                new WorkList(`${this.state.individual.subjectType.name} `,
-                    [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
-                        {
-                            uuid: this.state.individual.uuid,
-                            subjectTypeName: this.state.individual.subjectType.name,
-                        })]))
-        }, pageNumber, canMoveToNextView);
+        this.dispatchAction(Actions.ON_EDIT_START, {
+            continueRegistrationEdit: () => {
+                CHSNavigator.navigateToRegisterView(this, {
+                    workLists: new WorkLists(
+                        new WorkList(`${this.state.individual.subjectType.name} `,
+                            [new WorkItem(General.randomUUID(), WorkItem.type.REGISTRATION,
+                                {
+                                    uuid: this.state.individual.uuid,
+                                    subjectTypeName: this.state.individual.subjectType.name,
+                                })]))
+                }, pageNumber, canMoveToNextView);
+            }
+        });
     }
 
     onSubjectSelection(individualUUID) {
