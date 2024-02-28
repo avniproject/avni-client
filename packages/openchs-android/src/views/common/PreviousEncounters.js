@@ -66,10 +66,13 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     cancelEncounter(encounter) {
-        this.dispatchAction(this.props.onEditEncounterActionName, {
-            encounter,
-            onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true})
-        });
+        if (_.isNil(this.props.onEditEncounterActionName))
+            CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true})
+        else
+            this.dispatchAction(this.props.onEditEncounterActionName, {
+                encounter,
+                onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true})
+            });
     }
 
     cancelVisitAction(encounter, textColor) {
