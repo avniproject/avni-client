@@ -17,7 +17,7 @@ class StubbedRuleEvaluationService {
     }
 
     getNextScheduledVisits() {
-        return null;
+        return [];
     }
 
     updateWorkLists(workLists, context) {
