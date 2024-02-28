@@ -140,7 +140,8 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, [], this.getEntityContext());
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.individual, Individual.schema.name, [], this.getEntityContext())
+          .filter((x) => !this.isAlreadyScheduled(this.individual, x));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.individual, nextScheduledVisits);
     }
 

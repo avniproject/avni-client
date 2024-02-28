@@ -162,7 +162,8 @@ class SubjectRegistrationState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, [], this.getEntityContext());
+        const nextScheduledVisits =  ruleService.getNextScheduledVisits(this.subject, Individual.schema.name, [], this.getEntityContext())
+          .filter((x) => !this.isAlreadyScheduled(this.subject, x));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.subject, nextScheduledVisits);
     }
 

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
-import {BaseEntity, SubjectType, ValidationResult, WorkItem, WorkLists} from "avni-models";
+import {BaseEntity, SubjectType, ValidationResult, WorkItem, WorkLists, Individual, ProgramEnrolment} from "avni-models";
 import General from "../utility/General";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
@@ -351,11 +351,19 @@ class AbstractDataEntryState {
         return []
     }
 
-    isAlreadyScheduled(programEnrolment, newlyScheduledEncounter) {
+    /**
+     * @param entity, should be one of individual or programEnrolment
+     * @param newlyScheduledEncounter, the encounter that has to be checked for already being present
+     * @returns {boolean} indicating whether the entity already has an encounter same as newlyScheduledEncounter scheduled for it
+     */
+    isAlreadyScheduled(entity, newlyScheduledEncounter) {
         //paranoid code
-        if (_.isNil(programEnrolment) || _.isNil(programEnrolment.everScheduledEncountersOfType)) return false;
+        if (_.isNil(entity)
+          || _.isEmpty(entity.getSchemaName())
+          || (entity.getSchemaName() !== Individual.schema.name && entity.getSchemaName() !== ProgramEnrolment.schema.name)
+          || _.isNil(entity.everScheduledEncountersOfType)) return false;
 
-        return _.some(programEnrolment.everScheduledEncountersOfType(newlyScheduledEncounter.encounterType), (alreadyScheduledEncounter) => {
+        return _.some(entity.everScheduledEncountersOfType(newlyScheduledEncounter.encounterType), (alreadyScheduledEncounter) => {
             return General.datesAreSame(newlyScheduledEncounter.earliestDate, alreadyScheduledEncounter.earliestVisitDateTime) && General.datesAreSame(newlyScheduledEncounter.maxDate, alreadyScheduledEncounter.maxVisitDateTime) && newlyScheduledEncounter.name === alreadyScheduledEncounter.name;
         });
     }

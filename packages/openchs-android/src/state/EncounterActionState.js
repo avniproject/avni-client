@@ -109,7 +109,8 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     getNextScheduledVisits(ruleService, context) {
-        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, []);
+        const nextScheduledVisits = ruleService.getNextScheduledVisits(this.encounter, Encounter.schema.name, [])
+          .filter((x) => !this.isAlreadyScheduled(this.encounter.individual, x));
         return context.get(IndividualService).validateAndInjectOtherSubjectForScheduledVisit(this.encounter.individual, nextScheduledVisits);
     }
 
