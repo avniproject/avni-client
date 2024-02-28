@@ -56,10 +56,13 @@ class PreviousEncounters extends AbstractComponent {
         encounter = encounter.cloneForEdit();
         const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        this.dispatchAction(this.props.onEditEncounterActionName, {
-            encounter,
-            onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, editing})
-        });
+        if (_.isNil(this.props.onEditEncounterActionName))
+            CHSNavigator.navigateToEncounterView(this, {encounter, editing});
+        else
+            this.dispatchAction(this.props.onEditEncounterActionName, {
+                encounter,
+                onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, editing})
+            });
     }
 
     cancelEncounter(encounter) {

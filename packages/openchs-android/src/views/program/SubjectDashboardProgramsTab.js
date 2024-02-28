@@ -161,7 +161,6 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
                                     expandCollapseView={false}
-                                    onEditEncounterActionName={Actions.ON_EDIT_PROGRAM_ENCOUNTER}
         />);
     }
 

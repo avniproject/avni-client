@@ -60,7 +60,6 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     deleteDraft={(encounterUUID) => this.deleteDraft(encounterUUID)}
                                     hideIfEmpty={true}
                                     subjectInfo={this.state.individual.name}
-                                    onEditEncounterActionName={Actions.ON_EDIT_ENCOUNTER}
         />);
     }
 
@@ -81,7 +80,6 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
                                     expandCollapseView={false}
                                     subjectInfo={this.state.individual.name}
-                                    onEditEncounterActionName={Actions.ON_EDIT_ENCOUNTER}
         />);
     }
 
