@@ -59,7 +59,9 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     containsDrafts={true}
                                     deleteDraft={(encounterUUID) => this.deleteDraft(encounterUUID)}
                                     hideIfEmpty={true}
-                                    subjectInfo={this.state.individual.name}/>);
+                                    subjectInfo={this.state.individual.name}
+                                    onEditEncounterActionName={Actions.ON_EDIT_ENCOUNTER}
+        />);
     }
 
     renderPlannedVisits() {
@@ -78,7 +80,9 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     title={this.I18n.t('visitsPlanned')}
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
                                     expandCollapseView={false}
-                                    subjectInfo={this.state.individual.name}/>);
+                                    subjectInfo={this.state.individual.name}
+                                    onEditEncounterActionName={Actions.ON_EDIT_ENCOUNTER}
+        />);
     }
 
     renderCompletedVisits() {
