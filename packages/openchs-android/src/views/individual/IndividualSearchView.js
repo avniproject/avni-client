@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, KeyboardAvoidingView} from "react-native";
+import {ScrollView, Text, TouchableOpacity, View} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
@@ -11,7 +11,7 @@ import {IndividualSearchActionNames as Actions} from "../../action/individual/In
 import General from "../../utility/General";
 import StaticFormElement from "../viewmodel/StaticFormElement";
 import TextFormElement from "../form/formElement/TextFormElement";
-import {PrimitiveValue, CustomFilter, Privilege} from 'avni-models';
+import {PrimitiveValue, CustomFilter, Privilege} from 'openchs-models';
 import CHSContent from "../common/CHSContent";
 import Styles from "../primitives/Styles";
 import AppHeader from "../common/AppHeader";
@@ -25,7 +25,6 @@ import GenderFilter from "../filter/GenderFilter";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PrivilegeService from "../../service/PrivilegeService";
 import _ from "lodash";
-import {ScrollView} from "react-native";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import {Checkbox} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
@@ -52,7 +51,6 @@ class IndividualSearchView extends AbstractComponent {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         super.UNSAFE_componentWillMount();
     }
-
 
     searchIndividual() {
         if (this.customFilterService.errorNotPresent(this.state.selectedCustomFilters, this.state.searchCriteria.subjectType.uuid)) {

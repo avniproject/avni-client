@@ -10,8 +10,8 @@ import { IDP_PROVIDERS } from "../model/IdpProviders";
 
 function restoreDump(context, action, source, successCb) {
     const restoreService = context.get(BackupRestoreRealmService);
-    restoreService.restore((percentProgress, message, failed = false, failureMessage) => {
-        if (failed) action.checkForRetry(failureMessage, source);
+    restoreService.restore((percentProgress, message, failed = false, error) => {
+        if (failed) action.checkForRetry(error, source);
         else if (percentProgress === 100) successCb(source);
         else action.onLoginProgress(percentProgress, message);
     });

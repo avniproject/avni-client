@@ -1,7 +1,5 @@
-import React from "react";
 import {Alert} from "react-native";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
-
 
 export const AvniAlert = (title, message, onYesPress, I18n, skipEvent) => {
     Alert.alert(title, message, [
