@@ -1,4 +1,4 @@
-import {Alert, Clipboard, NativeModules, Text, View, BackHandler, Image} from "react-native";
+import {Alert, Clipboard, NativeModules, Text, View, BackHandler, Image, FlatList} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -15,6 +15,7 @@ import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
 import Config from './framework/Config';
 import JailMonkey from 'jail-monkey';
+
 const {TamperCheckModule} = NativeModules;
 import KeepAwake from 'react-native-keep-awake';
 import moment from "moment";
@@ -128,13 +129,30 @@ class App extends Component {
         if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
         }
-        const message = `Upgrading database. Please do not close the App. May take upto 5 minutes on slow devices. Start Time: ${moment().format("hh:mm")}`
+        const message = `Upgrading Database. May take upto 15 minutes on slow devices with a lot of Avni data.`;
         return (
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <View style={{flex: 1, flexDirection: "column", alignItems: 'center', justifyContent: 'center', marginTop: 50}}>
                 <Image source={{uri: `asset:/logo.png`}}
                        style={{height: 120, width: 120, alignSelf: 'center'}} resizeMode={'center'}/>
+
                 <KeepAwake/>
-                <Text>{message}</Text>
+                <Text style={{fontSize: 17, paddingHorizontal: 10, marginBottom: 20}}>{message}</Text>
+                <FlatList
+                    data={[
+                        {key: '- Please do not close the App'},
+                        {key: '- Please do not power-off screen'},
+                        {key: '- App will keep screen ON by itself'},
+                        {key: `- Start Time: ${moment().format("hh:mm")}`},
+                        {key: `- REPORT ERROR IF NOT COMPLETE BEFORE: ${moment().add(15, "minutes").format("hh:mm")}`}
+                    ]}
+                    renderItem={({item}) => {
+                        return (
+                            <View>
+                                <Text style={{fontSize: 15}}>{item.key}</Text>
+                            </View>
+                        );
+                    }}
+                />
             </View>);
     }
 }
