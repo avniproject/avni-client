@@ -1,8 +1,10 @@
 import _ from 'lodash'
+import CustomDashboardService from '../service/customDashboard/CustomDashboardService';
 
 class LandingViewActions {
     static getInitialState() {
         return {
+            renderCustomDashboard: false,
             dummy: false,
             home: false,
             search: false,
@@ -17,6 +19,7 @@ class LandingViewActions {
     static reset(state) {
         return {
             ...state,
+            renderCustomDashboard: false,
             home: false,
             search: false,
             register: false,
@@ -25,14 +28,17 @@ class LandingViewActions {
         }
     }
 
-    static onLoad(state, action) {
+    static onLoad(state, action, context) {
         const newState = LandingViewActions.reset(state);
         const syncRequired = _.isNil(action.syncRequired) ? true : action.syncRequired;
+        const customDashboardService = context.get(CustomDashboardService);
+        const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
         return {
             ...newState,
             dummy: !state.dummy,
             home: true,
             syncRequired,
+            renderCustomDashboard,
             previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || newState.previouslySelectedSubjectTypeUUID,
         };
     }
