@@ -5,7 +5,6 @@ import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
 
 export default class Router extends Component {
-
     static propTypes = {
         initialRoute: PropTypes.object.isRequired,
     };

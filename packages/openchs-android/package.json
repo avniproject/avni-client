@@ -99,7 +99,9 @@
     "rules-config": "github:openchs/rules-config#982bb007c4f759639063159196edee386b48cac3",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "error-stack-parser": "2.1.4",
+    "react-native-exception-handler": "2.10.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

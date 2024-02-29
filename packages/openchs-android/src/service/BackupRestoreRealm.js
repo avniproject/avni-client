@@ -170,7 +170,7 @@ export default class BackupRestoreRealmService extends BaseService {
                         })
                         .catch((error) => {
                             General.logErrorAsInfo("BackupRestoreRealm", error);
-                            cb(100, "restoreFailed", true, error.message);
+                            cb(100, "restoreFailed", true, error);
                         });
                 } else {
                     cb(100, "restoreNoDump");
@@ -178,11 +178,7 @@ export default class BackupRestoreRealmService extends BaseService {
             })
             .catch((error) => {
                 General.logErrorAsInfo("BackupRestoreRealm", error);
-                if (error.errorText) {
-                    error.errorText.then(message => cb(100, "restoreFailed", true, message));
-                } else {
-                    cb(100, "restoreFailed", true, error.message);
-                }
+                cb(100, "restoreFailed", true, error);
             });
     }
 
