@@ -19,7 +19,6 @@ class LandingViewActions {
     static reset(state) {
         return {
             ...state,
-            renderCustomDashboard: false,
             home: false,
             search: false,
             register: false,
