@@ -370,7 +370,7 @@
     "backgroundSyncInProgress": "ऑटो सिंक प्रगति पर है| कृपया कुछ देर बाद प्रयास करें।",
     "addressFilterBehaviorHint": "(वही लोकेशन जहाँ सब्जेक्ट रजिस्टर्ड है)",
     "queryExecutionError" : "नियम निष्पादन त्रुटि",
-    "nestedReportCardsCountMismatch" : "कार्डों की कॉन्फ़िगर की गई संख्या नियम में कार्डों की संख्या से मेल नहीं खाती"
+    "nestedReportCardsCountMismatch" : "कार्डों की कॉन्फ़िगर की गई संख्या नियम में कार्डों की संख्या से मेल नहीं खाती",
     "addressFilterImplicitBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)"
   }
 }
