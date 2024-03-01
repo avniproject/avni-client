@@ -8,8 +8,6 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import General from "../utility/General";
 import HomeScreenView from "./HomeScreenView";
 import ExtensionService from "../service/ExtensionService";
-import bugsnag from "../utility/bugsnag";
-
 
 @Path('/rootView')
 @PathRoot

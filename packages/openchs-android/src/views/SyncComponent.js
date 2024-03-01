@@ -58,7 +58,9 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError) bugsnag.notify(error);
+        if (!ignoreBugsnag && !isServerError) {
+            ErrorUtil.notifyBugsnag(error, "SyncComponent");
+        }
         this.dispatchAction(SyncActions.ON_ERROR);
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
