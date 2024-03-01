@@ -445,7 +445,7 @@ auth_live:
 	make get-token server=$(flavor_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
 
 upload = \
-	curl -X POST $(server):$(port)/$(1) -d $(2)  \
+	curl -f -X POST $(server):$(port)/$(1) -d $(2)  \
 		-H "Content-Type: application/json"  \
 		-H "USER-NAME: admin"  \
 		-H "AUTH-TOKEN: $(token)"
