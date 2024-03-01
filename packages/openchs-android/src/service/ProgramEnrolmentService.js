@@ -12,7 +12,7 @@ import EntityService from "./EntityService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import RuleEvaluationService from "./RuleEvaluationService";
-import bugsnag from "../utility/bugsnag";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -54,7 +54,7 @@ class ProgramEnrolmentService extends BaseService {
         if (!_.isEmpty(conceptsRemovedInCurrentObservation)) {
             const error = new Error(`Mandatory fields removed from enrolment observations. Details: ${JSON.stringify(conceptsRemovedInCurrentObservation)}`);
             General.logDebug('ProgramEnrolmentService', `Notifying Bugsnag ${error}`);
-            bugsnag.notify(error);
+            ErrorUtil.notifyBugsnag(error, "ProgramEnrolmentService");
         }
     }
 

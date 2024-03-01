@@ -1,6 +1,9 @@
 import StackTrace from "stacktrace-js";
 import AvniError from "./AvniError";
 import ErrorStackParser from "error-stack-parser";
+import EnvironmentConfig from "../EnvironmentConfig";
+import General from "../../utility/General";
+import bugsnag from "../../utility/bugsnag";
 
 function createNavigableStackTrace(stackFrames) {
     return stackFrames.map((sf) => {
@@ -9,7 +12,6 @@ function createNavigableStackTrace(stackFrames) {
 }
 
 class ErrorUtil {
-    //Errors can potentially un-streamed
     static createBugsnagStackFrames(error) {
         return StackTrace.fromError(error, {offline: true})
             .then((x) => {
@@ -25,6 +27,27 @@ class ErrorUtil {
 
     static getNavigableStackTraceSync(error) {
         return createNavigableStackTrace(ErrorStackParser.parse(error))
+    }
+
+    static notifyBugsnagWithComponentStack(error, errorInfo) {
+        return ErrorUtil.createBugsnagStackFrames(error).then((frameArray) => {
+            if (EnvironmentConfig.inNonDevMode()) {
+                General.logDebug('ErrorHandler', `Notifying Bugsnag with component stack`);
+                error.message = error.message + "\n" + errorInfo.componentStack;
+                bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
+            }
+            return error;
+        });
+    }
+
+    static notifyBugsnag(error, source) {
+        return ErrorUtil.createBugsnagStackFrames(error).then((frameArray) => {
+            if (EnvironmentConfig.inNonDevMode()) {
+                General.logDebug('ErrorHandler', `Notifying Bugsnag: ${source}`);
+                bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
+            }
+            return error;
+        });
     }
 }
 

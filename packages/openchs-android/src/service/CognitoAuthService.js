@@ -4,9 +4,9 @@ import SettingsService from "./SettingsService";
 import _ from "lodash";
 import AuthenticationError, {NO_USER} from "./AuthenticationError";
 import General from "../utility/General";
-import ErrorHandler from "../utility/ErrorHandler";
 import UserInfoService from "./UserInfoService";
 import BaseAuthProviderService from "./BaseAuthProviderService";
+import bugsnag from "../utility/bugsnag";
 
 @Service("cognitoAuthService")
 class CognitoAuthService extends BaseAuthProviderService {
@@ -21,7 +21,7 @@ class CognitoAuthService extends BaseAuthProviderService {
 
     authenticate(userId, password) {
         const authenticateAndUpdateUserSettings = (userId, password, settings) => {
-            ErrorHandler.setUser(userId);
+            bugsnag.setUser(userId, userId, userId);
             return this._authenticate(userId, password, settings);
         };
 

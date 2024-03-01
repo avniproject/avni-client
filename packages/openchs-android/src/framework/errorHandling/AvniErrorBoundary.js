@@ -15,6 +15,7 @@ export default class AvniErrorBoundary extends Component {
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
         console.log("AvniErrorBoundary", "componentDidCatch");
+        ErrorUtil.notifyBugsnagWithComponentStack(error, errorInfo);
     }
 
     render() {
