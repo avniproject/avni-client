@@ -499,6 +499,7 @@
     "addressFilterBehaviorHint": "(Choose exact level at which subject is registered)",
     "addressFilterImplicitBehaviorHint": "(Selection includes lower levels implicitly)",
     "copyErrorTryAgain": "Copy Error & Try Again",
-    "copyErrorAndCancel": "Copy Error & Cancel"
+    "copyErrorAndCancel": "Copy Error & Cancel",
+    "reportCopiedReportByPasting": "Report is copied. You can paste in a messaging app to report."
   }
 }
