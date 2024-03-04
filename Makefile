@@ -118,7 +118,7 @@ endif
 define _create_config
 	@echo "Creating config for $1"
 	@if [ $(1) = "prod" ]; then \
-		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)', DISABLE_APP_RUN_ON_ROOTED_DEVICES: '$(flavor_disable_app_run_on_rooted_devices)'});" > packages/openchs-android/src/framework/Config.js; \
+		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)', DISABLE_APP_RUN_ON_ROOTED_DEVICES: $(flavor_disable_app_run_on_rooted_devices)});" > packages/openchs-android/src/framework/Config.js; \
 	else \
 	 	echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js; \
 	fi
