@@ -1,8 +1,9 @@
 import Config from "../Config";
-import {Alert, Clipboard, ToastAndroid, View} from "react-native";
+import {Alert, View} from "react-native";
 import React from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
+import Clipboard from "@react-native-clipboard/clipboard";
 
 export function ErrorDisplay({avniError}) {
     console.log("ErrorDisplay", "render", Config.allowServerURLConfig);
