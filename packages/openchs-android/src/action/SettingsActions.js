@@ -61,10 +61,6 @@ class SettingsActions {
         }, context);
     }
 
-    static toNumber(str) {
-        return General.isNumeric(str) ? _.toNumber(str) : str;
-    }
-
     static onLocaleChange(state, action, context) {
         return SettingsActions._updateUserSettingsAndSave(
             state,
