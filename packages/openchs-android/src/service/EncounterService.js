@@ -8,6 +8,7 @@ import MediaQueueService from "./MediaQueueService";
 import IndividualService from "./IndividualService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
+import EncounterServiceUtil from "./EncounterServiceUtil";
 
 @Service("EncounterService")
 class EncounterService extends BaseService {
@@ -49,6 +50,8 @@ class EncounterService extends BaseService {
     }
 
     _saveEncounter(encounter, db) {
+        const isGettingFilled = encounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), encounter)
+        encounter.updateAudit(this.getUserInfo(), this.isNew(encounter), isGettingFilled);
         encounter = db.create(Encounter.schema.name, encounter, true);
         const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         individual.addEncounter(encounter);
@@ -98,6 +101,7 @@ class EncounterService extends BaseService {
         return encounter;
     }
 
+    // This is used by media service hence last modified audit fields are not updated here
     updateObservations(encounter) {
         ObservationsHolder.convertObsForSave(encounter.observations);
         ObservationsHolder.convertObsForSave(encounter.cancelObservations);

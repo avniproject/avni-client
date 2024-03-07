@@ -171,6 +171,10 @@ class BaseService {
         return _.isEmpty(uuid) ? false : this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
     }
 
+    isNew(entity) {
+        return _.isEmpty(entity.uuid) || !this.existsByUuid(entity.uuid);
+    }
+
     filtered(...args) {
         return this.db.objects(this.getSchema()).filtered(...args);
     }
@@ -192,6 +196,10 @@ class BaseService {
 
     getActualSchemaVersion() {
         return this.db.schemaVersion;
+    }
+
+    getUserInfo() {
+        return this.getService("userInfoService").getUserInfo();
     }
 }
 

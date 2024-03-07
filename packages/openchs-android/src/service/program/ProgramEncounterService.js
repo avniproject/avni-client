@@ -16,6 +16,7 @@ import IndividualService from "../IndividualService";
 import EncounterService from "../EncounterService";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import FormMappingService from "../FormMappingService";
+import EncounterServiceUtil from "../EncounterServiceUtil";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -27,24 +28,9 @@ class ProgramEncounterService extends BaseService {
         return ProgramEncounter.schema.name;
     }
 
-    getProgramSummary(program) {
-        const encounterSummary = {};
-        const unfulfilledEncounters = this.db.objects(ProgramEncounter.schema.name).filtered(`encounterDateTime == null AND earliestVisitDateTime != null AND programEnrolment.program.uuid == \"${program.uuid}\"`).sorted('earliestVisitDateTime');
-        encounterSummary.upcoming = 0;
-        encounterSummary.overdue = 0;
-
-        unfulfilledEncounters.forEach((programEncounter) => {
-            if (moment(programEncounter.earliestVisitDateTime).subtract(7, 'days').isAfter(moment())) {
-                encounterSummary.upcoming++;
-            } else if (General.dateAIsAfterB(new Date(), programEncounter.earliestVisitDateTime)) {
-                encounterSummary.overdue++;
-            }
-        });
-        encounterSummary.openEncounters = unfulfilledEncounters;
-        return encounterSummary;
-    }
-
     _saveEncounter(programEncounter, db) {
+        const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), programEncounter)
+        programEncounter.updateAudit(this.getUserInfo(), this.isNew(programEncounter), isGettingFilled);
         programEncounter = db.create(ProgramEncounter.schema.name, programEncounter, true);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
@@ -102,6 +88,7 @@ class ProgramEncounterService extends BaseService {
         return programEncounter;
     }
 
+    // This is used by media service hence last modified audit fields are not updated here
     updateObservations(programEncounter) {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
