@@ -58,7 +58,7 @@ class UserInfoService extends BaseService {
 
     getUserName(userUUID, userName, I18n) {
         const userInfo = this.getUserInfo();
-        if (userUUID === userInfo.userUUID) return I18n.t("you");
+        if ((userUUID === userInfo.userUUID) && !_.isNil(userUUID)) return I18n.t("you");
         return userName;
     }
 }
