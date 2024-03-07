@@ -310,8 +310,8 @@
     "disableAutoSync": "ಸ್ವಯಂ ಸಿಂಕ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ",
     "autoSync": "ಸ್ವಯಂ ಸಿಂಕ್",
     "addressFilterBehaviorHint": "(ಯಾವ ವಿಷಯವನ್ನು ನೋಂದಾಯಿಸಲಾಗಿದೆ ಎಂಬುದನ್ನು ನಿಖರವಾದ ಮಟ್ಟವನ್ನು ಆರಿಸಿ)",
-    "queryExecutionError" : "ನಿಯಮ ಕಾರ್ಯಗತಗೊಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
-    "nestedReportCardsCountMismatch" : "ಕಾರ್ಡ್ಗಳ ಸಂಖ್ಯೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ",
+    "queryExecutionError": "ನಿಯಮ ಕಾರ್ಯಗತಗೊಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
+    "nestedReportCardsCountMismatch": "ಕಾರ್ಡ್ಗಳ ಸಂಖ್ಯೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ",
     "addressFilterImplicitBehaviorHint": "(ಆಯ್ಕೆಯು ಕೆಳ ಹಂತಗಳನ್ನು ಸೂಚ್ಯವಾಗಿ ಒಳಗೊಂಡಿರುತ್ತದೆ)",
     "copyErrorTryAgain": "ನಕಲು ದೋಷ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     "copyErrorAndCancel": "ನಕಲು ದೋಷ ಮತ್ತು ರದ್ದುಗೊಳಿಸು"
