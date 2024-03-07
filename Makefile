@@ -118,7 +118,7 @@ endif
 define _create_config
 	@echo "Creating config for $1"
 	@if [ $(1) = "prod" ]; then \
-		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)', DISABLE_APP_RUN_ON_ROOTED_DEVICES: '$(flavor_disable_app_run_on_rooted_devices)'});" > packages/openchs-android/src/framework/Config.js; \
+		echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)', SERVER_URL: '$(flavor_server_url)', DISABLE_APP_RUN_ON_ROOTED_DEVICES: $(flavor_disable_app_run_on_rooted_devices)});" > packages/openchs-android/src/framework/Config.js; \
 	else \
 	 	echo "module.exports = Object.assign(require('../../config/env/$(1).json'), {COMMIT_ID: '$(sha)'});" > packages/openchs-android/src/framework/Config.js; \
 	fi
@@ -445,7 +445,7 @@ auth_live:
 	make get-token server=$(flavor_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
 
 upload = \
-	curl -X POST $(server):$(port)/$(1) -d $(2)  \
+	curl -f -X POST $(server):$(port)/$(1) -d $(2)  \
 		-H "Content-Type: application/json"  \
 		-H "USER-NAME: admin"  \
 		-H "AUTH-TOKEN: $(token)"

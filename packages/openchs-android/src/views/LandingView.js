@@ -25,7 +25,6 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
 import CustomFilterService from "../service/CustomFilterService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
-import CustomDashboardService from "../service/customDashboard/CustomDashboardService";
 import NewsService from "../service/news/NewsService";
 import {CustomDashboardActionNames} from "../action/customDashboard/CustomDashboardActions";
 import LocalCacheService from '../service/LocalCacheService';
@@ -58,7 +57,7 @@ class LandingView extends AbstractComponent {
     }
 
     didFocus() {
-        this.refreshCustomDashboardsCounts();
+        this.state.renderCustomDashboard && this.refreshCustomDashboardsCounts();
     }
 
     refreshCustomDashboardsCounts() {
@@ -121,8 +120,7 @@ class LandingView extends AbstractComponent {
     }
 
     renderDashboard(startSync) {
-        const renderCustomDashboard = this.getService(CustomDashboardService).isCustomDashboardMarkedPrimary();
-        return renderCustomDashboard ? this.renderCustomDashboard(startSync) : this.renderDefaultDashboard(startSync);
+        return this.state.renderCustomDashboard ? this.renderCustomDashboard(startSync) : this.renderDefaultDashboard(startSync);
     }
 
     render() {
