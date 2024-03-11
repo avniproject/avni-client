@@ -253,7 +253,7 @@ class FilterView extends AbstractComponent {
                                 }
                                 {!_.isEmpty(topLevelFilters) ?
                                     <CustomFilters filters={topLevelFilters}
-                                                   selectedCustomFilters={this.props.selectedCustomFilters}
+                                                   selectedCustomFilters={this.state.selectedCustomFilters}
                                                    onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                     /> : null}
                                 {this.customFilterService.filterTypePresent(filterScreenName, CustomFilter.type.Gender, this.state.selectedSubjectType.uuid) ?
@@ -276,7 +276,7 @@ class FilterView extends AbstractComponent {
                                         userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/> : null}
                                 {!_.isEmpty(bottomLevelFilters) ?
                                     <CustomFilters filters={bottomLevelFilters}
-                                                   selectedCustomFilters={this.props.selectedCustomFilters}
+                                                   selectedCustomFilters={this.state.selectedCustomFilters}
                                                    onSelect={(selectedCustomFilters) => this.dispatchAction(FilterActionNames.CUSTOM_FILTER_CHANGE, {selectedCustomFilters})}
                                                    addressLevelState={this.state.addressLevelState}
                                     /> : null}

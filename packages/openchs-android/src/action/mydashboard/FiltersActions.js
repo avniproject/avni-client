@@ -3,6 +3,7 @@ import IndividualSearchCriteria from "../../service/query/IndividualSearchCriter
 import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
 import {ArrayUtil} from "openchs-models";
+import AddressLevelState from '../common/AddressLevelsState';
 
 class FiltersActions {
 
@@ -33,6 +34,7 @@ class FiltersActions {
             filters: FiltersActions.cloneFilters(action.filters),
             locationSearchCriteria: action.locationSearchCriteria,
             addressLevelState: action.addressLevelState,
+            selectedCustomFilters: action.selectedCustomFilters,
             filterDate: {value: action.filterDate.value},
             programs: action.programs,
             selectedPrograms: action.selectedPrograms,
@@ -115,10 +117,14 @@ class FiltersActions {
             selectedSubjectType,
             programs,
             selectedPrograms,
+            selectedLocations: [],
+            addressLevelState: new AddressLevelState(),
             encounterTypes,
             selectedEncounterTypes: [],
             generalEncounterTypes,
             selectedGeneralEncounterTypes: [],
+            selectedCustomFilters: [],
+            selectedGenders: [],
         }
     }
 
