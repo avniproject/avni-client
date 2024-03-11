@@ -16,7 +16,6 @@ import Distances from "../primitives/Distances";
 
 @Path('/IndividualListView')
 class IndividualListView extends AbstractComponent {
-
     static propTypes = {
         results: PropTypes.array.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,

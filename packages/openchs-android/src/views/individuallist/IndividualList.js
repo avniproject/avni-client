@@ -1,20 +1,9 @@
 import React from "react";
-import {ActivityIndicator, ListView, Modal, SectionList, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import {MyDashboardActionNames as Actions} from "../../action/mydashboard/MyDashboardActions";
-import AppHeader from "../common/AppHeader";
-import Colors from '../primitives/Colors';
-import CHSContainer from "../common/CHSContainer";
-import Distances from '../primitives/Distances'
-import IndividualDetails from './IndividualDetails';
-import DynamicGlobalStyles from "../primitives/DynamicGlobalStyles";
-import Fonts from "../primitives/Fonts";
 import General from "../../utility/General";
-import SearchResultsHeader from "../individual/SearchResultsHeader";
-import _ from 'lodash';
-import Separator from "../primitives/Separator";
 import CHSNavigator from "../../utility/CHSNavigator";
 import IndividualListView from "./IndividualListView";
 

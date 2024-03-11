@@ -7,7 +7,7 @@ import {CustomDashboardActionNames as Actions} from "../../action/customDashboar
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
-import {DashboardSection} from 'avni-models';
+import {DashboardSection} from 'openchs-models';
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
@@ -28,6 +28,14 @@ import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import Distances from '../primitives/Distances';
 import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 import General from "../../utility/General";
+
+const viewNameMap = {
+    'ApprovalListingView': ApprovalListingView,
+    'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
+    'IndividualListView': IndividualListView,
+    'CommentListView': CommentListView,
+    'ChecklistListingView': ChecklistListingView
+};
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -154,17 +162,6 @@ class CustomDashboardView extends AbstractComponent {
         )
     }
 
-    getViewByName(viewName) {
-        const viewNameMap = {
-            'ApprovalListingView': ApprovalListingView,
-            'IndividualSearchResultPaginatedView': IndividualSearchResultPaginatedView,
-            'IndividualListView': IndividualListView,
-            'CommentListView': CommentListView,
-            'ChecklistListingView': ChecklistListingView
-        };
-        return viewNameMap[viewName]
-    }
-
     onBackPress() {
         this.goBack();
     }
@@ -185,18 +182,18 @@ class CustomDashboardView extends AbstractComponent {
                     reportFilters: reportFilters
                 }).to(TaskListView);
             },
-            onApprovalItemsResults: (results, status, viewName, approvalStatus_status, reportFilters) => TypedTransition.from(this).with({
+            onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard) => TypedTransition.from(this).with({
                 reportFilters: reportFilters,
                 approvalStatus_status: approvalStatus_status,
                 indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: status || 'subjectsList',
+                headerTitle: status || _.truncate(reportCard.name, {'length': 20}),
                 results: results,
                 reportCardUUID,
                 listType: _.lowerCase(status),
                 backFunction: this.onBackPress.bind(this),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),
-            }).to(this.getViewByName(viewName), true)
+            }).to(viewNameMap[viewName], true)
         }), 0);
     }
 
