@@ -27,6 +27,7 @@ import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import Separator from "../primitives/Separator";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
+import {SubjectType} from "openchs-models";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -147,21 +148,23 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     renderPlannedVisits(allowedEncounterTypeUuids) {
-        const cancelEncounterCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
-        const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelEncounterCriteria, 'programEncounterTypeUuid');
-        const programEnrolment = this.state.enrolment;
-        const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
-        return (<PreviousEncounters encounters={scheduledEncounters}
-                                    allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
-                                    allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuids}
-                                    formType={Form.formTypes.ProgramEncounter}
-                                    showCount={this.state.showCount}
-                                    showPartial={false}
-                                    title={this.I18n.t('visitsPlanned')}
-                                    emptyTitle={this.I18n.t('noPlannedEncounters')}
-                                    subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
-                                    expandCollapseView={false}
-        />);
+        if (this.state.enrolment.individual.subjectType.getSetting(SubjectType.settingKeys.displayPlannedEncounters) !== false) {
+            const cancelEncounterCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+            const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelEncounterCriteria, 'programEncounterTypeUuid');
+            const programEnrolment = this.state.enrolment;
+            const scheduledEncounters = _.filter(programEnrolment.nonVoidedEncounters(), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+            return (<PreviousEncounters encounters={scheduledEncounters}
+                                        allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
+                                        allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuids}
+                                        formType={Form.formTypes.ProgramEncounter}
+                                        showCount={this.state.showCount}
+                                        showPartial={false}
+                                        title={this.I18n.t('visitsPlanned')}
+                                        emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                        subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
+                                        expandCollapseView={false}
+            />);
+        }
     }
 
     renderCompletedVisits() {

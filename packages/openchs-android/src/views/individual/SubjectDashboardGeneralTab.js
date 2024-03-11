@@ -14,6 +14,7 @@ import ActionSelector from "../common/ActionSelector";
 import PrivilegeService from "../../service/PrivilegeService";
 import NewFormButton from "../common/NewFormButton";
 import AvniToast from "../common/AvniToast";
+import {SubjectType} from "openchs-models";
 
 class SubjectDashboardGeneralTab extends AbstractComponent {
     static propTypes = {
@@ -64,23 +65,25 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     }
 
     renderPlannedVisits() {
-        const scheduledEncounters = _.filter(_.map(this.state.encounters, 'encounter'), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
-        const cancelVisitCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelVisitCriteria, 'encounterTypeUuid');
-        const performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
-        const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'encounterTypeUuid');
-        return (<PreviousEncounters encounters={scheduledEncounters}
-                                    allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
-                                    allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuidsForPerformVisit}
-                                    formType={Form.formTypes.Encounter}
-                                    style={{marginBottom: 21}}
-                                    showPartial={false}
-                                    showCount={this.state.showCount}
-                                    title={this.I18n.t('visitsPlanned')}
-                                    emptyTitle={this.I18n.t('noPlannedEncounters')}
-                                    expandCollapseView={false}
-                                    subjectInfo={this.state.individual.name}
-        />);
+        if (this.state.individual.subjectType.getSetting(SubjectType.settingKeys.displayPlannedEncounters) !== false) {
+            const scheduledEncounters = _.filter(_.map(this.state.encounters, 'encounter'), (encounter) => !encounter.encounterDateTime && !encounter.cancelDateTime);
+            const cancelVisitCriteria = `privilege.name = '${Privilege.privilegeName.cancelVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+            const allowedEncounterTypeUuidsForCancelVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(cancelVisitCriteria, 'encounterTypeUuid');
+            const performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+            const allowedEncounterTypeUuidsForPerformVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'encounterTypeUuid');
+            return (<PreviousEncounters encounters={scheduledEncounters}
+                                        allowedEncounterTypeUuidsForCancelVisit={allowedEncounterTypeUuidsForCancelVisit}
+                                        allowedEncounterTypeUuidsForPerformVisit={allowedEncounterTypeUuidsForPerformVisit}
+                                        formType={Form.formTypes.Encounter}
+                                        style={{ marginBottom: 21 }}
+                                        showPartial={false}
+                                        showCount={this.state.showCount}
+                                        title={this.I18n.t('visitsPlanned')}
+                                        emptyTitle={this.I18n.t('noPlannedEncounters')}
+                                        expandCollapseView={false}
+                                        subjectInfo={this.state.individual.name}
+            />);
+        }
     }
 
     renderCompletedVisits() {

@@ -40,6 +40,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
+import {SubjectType} from "openchs-models";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -334,6 +335,14 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         </View>
     }
 
+    renderProfileOrVoided(individual) {
+        if (individual.subjectType.getSetting(SubjectType.settingKeys.displayRegistrationDetails) !== false) {
+            return <View style={styles.container}>
+                {individual.voided ? this.renderVoided() : this.renderProfile()}
+            </View>
+        }
+    }
+
     renderSummary() {
         return <View style={{
             padding: Distances.ScaledContentDistanceFromEdge,
@@ -369,9 +378,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                         onDisplayIndicatorToggle={(display) => this.dispatchAction(Actions.ON_DISPLAY_INDICATOR_TOGGLE, {display})}
                     />
                     {!_.isEmpty(this.state.subjectSummary) && this.renderSummary()}
-                    <View style={styles.container}>
-                        {individual.voided ? this.renderVoided() : this.renderProfile()}
-                    </View>
+                    {this.renderProfileOrVoided(individual)}
                     {relativesFeatureToggle ? this.renderRelatives() : <View/>}
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
