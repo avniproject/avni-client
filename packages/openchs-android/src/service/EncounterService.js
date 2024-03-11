@@ -50,6 +50,7 @@ class EncounterService extends BaseService {
     }
 
     _saveEncounter(encounter, db) {
+        // Checks whether unsaved encounter is filled but saved encounter is not filled
         const isGettingFilled = encounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), encounter)
         encounter.updateAudit(this.getUserInfo(), this.isNew(encounter), isGettingFilled);
         encounter = db.create(Encounter.schema.name, encounter, true);
