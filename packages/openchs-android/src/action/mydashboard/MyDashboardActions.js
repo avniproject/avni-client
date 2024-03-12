@@ -360,11 +360,19 @@ class MyDashboardActions {
             'programExitDateTime = null'
         ].filter(Boolean).join(" AND ");
 
+        const transformedSelectedLocations = (action.selectedLocations && !_.isNil(action.selectedLocations)) ? action.selectedLocations.map(({
+              uuid,
+              name,
+              level,
+              type,
+              isSelected,
+              parentUuid
+          }) => ({uuid, name, level, type, parentUuid, isSelected})) : [];
         const newState = {
             ...state,
             filters: newFilters,
             locationSearchCriteria: action.locationSearchCriteria.clone(),
-            selectedLocations: action.selectedLocations,
+            selectedLocations: transformedSelectedLocations,
             addressLevelState: action.addressLevelState.clone(),
             date: {value: action.filterDate},
             programs: action.programs,
