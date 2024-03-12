@@ -1,6 +1,8 @@
 class EncounterServiceUtil {
     static isNotFilled(db, schema, entity) {
-        return db.objects(schema).filtered("uuid = $0 and encounterDateTime = null", entity.uuid).length > 0;
+        const encounters = db.objects(schema).filtered("uuid = $0", entity.uuid);
+        if (encounters.length === 0) return true;
+        return encounters.filtered("encounterDateTime = null").length > 0;
     }
 }
 
