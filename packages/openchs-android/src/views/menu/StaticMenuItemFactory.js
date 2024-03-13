@@ -1,4 +1,3 @@
-import React from "react";
 import StaticMenuItem from "./StaticMenuItem";
 import FamilyFolderView from "../familyfolder/FamilyFolderView";
 import VideoListView from "../videos/VideoListView";

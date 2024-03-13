@@ -39,7 +39,7 @@ import {LandingViewActionsNames as LandingViewActions} from '../action/LandingVi
 import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
 import {CustomDashboardActionNames} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
-import CustomDashboardService from './customDashboard/CustomDashboardService';
+import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -411,7 +411,7 @@ class SyncService extends BaseService {
         if(!renderCustomDashboard) {
             this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         } else {
-            this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {onlyPrimary: false});
+            this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
             this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
             setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
         }

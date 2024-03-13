@@ -1,5 +1,19 @@
 import _ from 'lodash'
 import CustomDashboardService from '../service/customDashboard/CustomDashboardService';
+import General from "../utility/General";
+import {JSONStringify} from "../utility/JsonStringify";
+
+function reset(state) {
+    return {
+        ...state,
+        home: false,
+        search: false,
+        register: false,
+        menu: false,
+        dashboard: false,
+        secondaryDashboardSelected: false
+    }
+}
 
 class LandingViewActions {
     static getInitialState() {
@@ -12,26 +26,18 @@ class LandingViewActions {
             menu: false,
             dashboard: false,
             syncRequired: true,
-            previouslySelectedSubjectTypeUUID: null
+            previouslySelectedSubjectTypeUUID: null,
+            secondaryDashboard: null,
+            secondaryDashboardSelected: false
         };
     }
 
-    static reset(state) {
-        return {
-            ...state,
-            home: false,
-            search: false,
-            register: false,
-            menu: false,
-            dashboard: false,
-        }
-    }
-
     static onLoad(state, action, context) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         const syncRequired = _.isNil(action.syncRequired) ? true : action.syncRequired;
         const customDashboardService = context.get(CustomDashboardService);
         const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
+        const secondaryDashboard = customDashboardService.getOneSecondaryDashboard();
         return {
             ...newState,
             dummy: !state.dummy,
@@ -39,11 +45,12 @@ class LandingViewActions {
             syncRequired,
             renderCustomDashboard,
             previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || newState.previouslySelectedSubjectTypeUUID,
+            secondaryDashboard: secondaryDashboard
         };
     }
 
     static onHomeClick(state) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         return {
             ...newState,
             home: true,
@@ -51,7 +58,7 @@ class LandingViewActions {
     }
 
     static onSearchClick(state) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         return {
             ...newState,
             search: true,
@@ -59,7 +66,7 @@ class LandingViewActions {
     }
 
     static onDashboardClick(state) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         return {
             ...newState,
             dashboard: true,
@@ -67,7 +74,7 @@ class LandingViewActions {
     }
 
     static onRegisterClick(state) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         return {
             ...newState,
             register: true,
@@ -75,10 +82,18 @@ class LandingViewActions {
     }
 
     static onMenuClick(state) {
-        const newState = LandingViewActions.reset(state);
+        const newState = reset(state);
         return {
             ...newState,
             menu: true,
+        }
+    }
+
+    static onSecondaryDashboardClick(state) {
+        const newState = reset(state);
+        return {
+            ...newState,
+            secondaryDashboardSelected: true
         }
     }
 }
@@ -90,6 +105,7 @@ const LandingViewActionsNames = {
     ON_DASHBOARD_CLICK: 'LVA.ON_DASHBOARD_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
+    ON_SECONDARY_DASHBOARD_CLICK: 'LVA.ON_SECONDARY_DASHBOARD_CLICK'
 };
 
 const LandingViewActionsMap = new Map([
@@ -99,6 +115,7 @@ const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
     [LandingViewActionsNames.ON_DASHBOARD_CLICK, LandingViewActions.onDashboardClick],
+    [LandingViewActionsNames.ON_SECONDARY_DASHBOARD_CLICK, LandingViewActions.onSecondaryDashboardClick]
 ]);
 
 export {

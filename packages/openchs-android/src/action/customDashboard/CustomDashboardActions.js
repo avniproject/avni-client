@@ -11,7 +11,6 @@ import CryptoUtils from '../../utility/CryptoUtils';
 import MessageService from '../../service/MessageService';
 
 class CustomDashboardActions {
-
     static getInitialState(context) {
         return {
             loading: false,
@@ -36,9 +35,8 @@ class CustomDashboardActions {
 
     static onLoad(state, action, context) {
         const newState = {...state};
-        const onlyPrimary = action.onlyPrimary;
         const dashboardService = context.get(CustomDashboardService);
-        const dashboards = dashboardService.getDashboards(onlyPrimary);
+        const dashboards = dashboardService.getDashboards(action.customDashboardType);
         newState.dashboards = dashboards;
         newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
         return CustomDashboardActions.loadCurrentDashboardInfo(context, newState);
