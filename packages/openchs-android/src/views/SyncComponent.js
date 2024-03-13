@@ -20,6 +20,7 @@ import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 import AvniError from "../framework/errorHandling/AvniError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import {IgnorableSyncError} from "openchs-models";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -54,14 +55,16 @@ class SyncComponent extends AbstractComponent {
 
     _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
+        const isIgnorableSyncError = error instanceof IgnorableSyncError;
         this.setState({syncStarted: false});
-        this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
+        !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError) {
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
         this.dispatchAction(SyncActions.ON_ERROR);
+        if (isIgnorableSyncError) return;
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);

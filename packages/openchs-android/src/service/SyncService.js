@@ -184,6 +184,8 @@ class SyncService extends BaseService {
             const userResponse = await userConfirmation();
             if (userResponse === 'YES')
                 return this.getService(ResetSyncService).resetSync();
+            else
+                return Promise.reject(new IgnorableSyncError("userDeclinedResetSync", "User Declined Reset Sync"));
         }
     }
 
