@@ -4,6 +4,7 @@ import React from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
 import Clipboard from "@react-native-clipboard/clipboard";
+import _ from "lodash";
 
 export function ErrorDisplay({avniError}) {
     console.log("ErrorDisplay", "render", Config.allowServerURLConfig);

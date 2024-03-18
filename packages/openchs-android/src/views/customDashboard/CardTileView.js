@@ -2,7 +2,7 @@ import {ActivityIndicator, Dimensions, StyleSheet, Text, TouchableNativeFeedback
 import Icon from "react-native-vector-icons/MaterialIcons";
 import React from 'react';
 import {CountResult} from "./CountResult";
-import {get} from "lodash";
+import _, {get} from "lodash";
 
 const renderIcon = function(iconName, textColor) {
     return (

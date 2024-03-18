@@ -1,9 +1,10 @@
 import React from 'react';
 import Styles from "../primitives/Styles";
-import {StyleSheet, Text, TextInput, TouchableOpacity, View, Button} from "react-native";
+import {Button, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import Colors from "../primitives/Colors";
+import _ from 'lodash';
 
 export default class Pin extends React.Component {
 

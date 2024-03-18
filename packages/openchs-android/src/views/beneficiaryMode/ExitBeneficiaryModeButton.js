@@ -8,9 +8,7 @@ import CHSNavigator from "../../utility/CHSNavigator";
 import AvniIcon from '../common/AvniIcon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-
 class ExitBeneficiaryModeButton extends AbstractComponent {
-
     constructor(props, context) {
         super(props, context);
     }

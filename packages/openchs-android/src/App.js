@@ -17,7 +17,6 @@ import KeepAwake from 'react-native-keep-awake';
 import moment from "moment";
 import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
-import AvniError from "./framework/errorHandling/AvniError";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 
 const {TamperCheckModule} = NativeModules;
