@@ -8,21 +8,23 @@ import Clipboard from "@react-native-clipboard/clipboard";
 export function ErrorDisplay({avniError}) {
     console.log("ErrorDisplay", "render", Config.allowServerURLConfig);
     if (!Config.allowServerURLConfig) {
-        Alert.alert("App will restart now", avniError.getDisplayMessage(),
-            [
-                {
-                    text: "copyErrorAndRestart",
-                    onPress: () => {
-                        console.log("ErrorDisplay", JSONStringify(avniError));
-                        Clipboard.setString(avniError.reportingText);
-                        RNRestart.Restart();
-                    }
-                },
-                {
-                    text: "restart",
-                    onPress: () => RNRestart.Restart()
+        const buttons = [
+            {
+                text: "copyErrorAndRestart",
+                onPress: () => {
+                    console.log("ErrorDisplay", JSONStringify(avniError));
+                    Clipboard.setString(avniError.reportingText);
+                    RNRestart.Restart();
                 }
-            ],
+            },
+            {
+                text: "restart",
+                onPress: () => RNRestart.Restart()
+            },
+            {text: "close", onPress: _.noop}
+        ];
+        Alert.alert("App will restart now", avniError.getDisplayMessage(),
+            buttons,
             {cancelable: true}
         );
     }
