@@ -718,7 +718,7 @@ class RuleEvaluationService extends BaseService {
         try {
             const ruleFunc = eval(reportCard.query);
             const result = ruleFunc({
-                params: _.merge({db: this.db, ruleInput: ruleInput}, this.getCommonParams()()),
+                params: _.merge({db: this.db, ruleInput: ruleInput}, this.getCommonParams()),
                 imports: getImports()
             });
             return result;
