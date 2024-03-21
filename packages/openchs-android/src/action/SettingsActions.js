@@ -5,6 +5,7 @@ import {LocaleMapping, Settings, UserInfo} from 'avni-models';
 import General from "../utility/General";
 import MessageService from "../service/MessageService";
 import UserInfoService from '../service/UserInfoService';
+import {JSONStringify} from "../utility/JsonStringify";
 
 class SettingsActions {
     static getInitialState(context) {
@@ -34,13 +35,15 @@ class SettingsActions {
         };
     }
 
-    static _updateSettingAndSave(state, updateFunc, context) {
+    static _updateSettingAndSave(state, updateFunc, context, ignoreValidationError = false) {
         const newState = SettingsActions.clone(state);
         updateFunc(newState.settings);
         newState.validationResults = newState.settings.validate();
 
-        if (newState.validationResults.hasNoValidationError()) {
+        if (newState.validationResults.hasNoValidationError() || ignoreValidationError) {
             context.get(SettingsService).saveOrUpdate(newState.settings, Settings.schema.name);
+        } else {
+            General.logError("SettingsActions", `ValidationError: ${JSONStringify(newState.validationResults)}`);
         }
 
         return newState;
@@ -58,7 +61,7 @@ class SettingsActions {
     static onServerURLChange(state, action, context) {
         return SettingsActions._updateSettingAndSave(state, (settings) => {
             settings.serverURL = action.value
-        }, context);
+        }, context, true);
     }
 
     static toNumber(str) {
