@@ -7,8 +7,10 @@ import _ from "lodash";
 class ChecklistItemState extends AbstractDataEntryState {
     constructor(formElementGroup, wizard, isNewEntity, checklistItem, filteredFormElements) {
         super([], formElementGroup, wizard, isNewEntity, filteredFormElements);
-        this.checklistItem = checklistItem.clone();
-        this.checklistItem.setCompletionDate(_.isNil(this.checklistItem.completionDate) ? new Date() : this.checklistItem.completionDate);
+        if(!_.isNil(checklistItem)) {
+            this.checklistItem = checklistItem.clone();
+            this.checklistItem.setCompletionDate(_.isNil(this.checklistItem.completionDate) ? new Date() : this.checklistItem.completionDate);
+        }
     }
 
     getEntity() {

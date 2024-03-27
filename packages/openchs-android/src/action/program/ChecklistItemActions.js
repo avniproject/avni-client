@@ -12,7 +12,7 @@ function filterFormElements(formElementGroup, context, checklistItem) {
 
 class ChecklistItemActions {
     static getInitialState() {
-        return ChecklistItemState.createOnLoadStateForEmptyForm(new ChecklistItem(), {}, false);
+        return new ChecklistItemState();
     }
 
     static onLoad(state, action, context) {
