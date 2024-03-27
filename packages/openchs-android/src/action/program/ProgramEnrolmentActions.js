@@ -20,7 +20,7 @@ import IndividualService from "../../service/IndividualService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
-        return {};
+        return new ProgramEnrolmentState();
     }
 
     static onLoad(state: ProgramEnrolmentState, action, context) {
