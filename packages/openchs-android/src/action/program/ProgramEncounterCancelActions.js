@@ -15,7 +15,7 @@ import IndividualService from "../../service/IndividualService";
 
 class ProgramEncounterCancelActions {
     static getInitialState() {
-        return {};
+        return new ProgramEncounterCancelState();
     }
 
     static filterFormElements(formElementGroup, context, programEncounter) {

@@ -1,4 +1,10 @@
+import TimerState from '../../state/TimerState';
+
 export default class TimerActions {
+
+    static getInitialState(context) {
+        return new TimerState();
+    }
 
     static onTimedForm(state, action, context) {
         const newState = state.clone();

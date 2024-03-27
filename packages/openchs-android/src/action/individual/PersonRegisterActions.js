@@ -24,8 +24,9 @@ export class PersonRegisterActions {
     static getInitialState(context) {
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
-
-        return {genders: gendersSortedByName};
+        const state = new IndividualRegistrationState();
+        state.genders = gendersSortedByName;
+        return state;
     }
 
     static onLoad(state, action, context) {
