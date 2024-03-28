@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import _ from "lodash";
 
 if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);

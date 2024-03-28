@@ -6,6 +6,7 @@ import General from "../utility/General";
 import {get} from "../framework/http/requests";
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
+import _ from "lodash";
 
 @Service("mediaService")
 class MediaService extends BaseService {

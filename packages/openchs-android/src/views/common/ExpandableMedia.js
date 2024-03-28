@@ -10,6 +10,7 @@ import Colors from "../primitives/Colors";
 import ExpandableAudio from "./ExpandableAudio";
 import ExpandableFile from "./ExpandableFile";
 import AvniIcon from './AvniIcon';
+import _ from "lodash";
 
 export default class ExpandableMedia extends AbstractFormElement {
     static propTypes = {

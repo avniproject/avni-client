@@ -5,6 +5,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import BeneficiaryIdentificationState from "../../state/BeneficiaryIdentificationState";
 import IndividualService from "../../service/IndividualService";
 import {Action} from "../util";
+import _ from "lodash";
 
 export default class BeneficiaryIdentificationActions {
     static getInitialState(context) {

@@ -8,7 +8,7 @@ import Reducers from "../../reducer";
 import Colors from "../primitives/Colors";
 import CHSNavigator from "../../utility/CHSNavigator";
 import GrowthChartView from "./GrowthChartView";
-import * as _ from "lodash";
+import _ from "lodash";
 import Fonts from "../primitives/Fonts";
 import Styles from "../primitives/Styles";
 import {Privilege, EncounterType} from "avni-models";

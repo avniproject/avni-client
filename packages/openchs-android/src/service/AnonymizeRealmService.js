@@ -12,6 +12,7 @@ import {
   Observation, Point,
   SubjectType
 } from "openchs-models";
+import _ from "lodash";
 
 const dummyDate = new Date();
 const dummyText = "dummy";

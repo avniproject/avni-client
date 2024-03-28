@@ -16,6 +16,7 @@ import {AvniAlert} from "../common/AvniAlert";
 import {ObservationsHolder} from 'avni-models';
 import FormMappingService from "../../service/FormMappingService";
 import TypedTransition from "../../framework/routing/TypedTransition";
+import _ from "lodash";
 
 
 @Path('/taskFormView')

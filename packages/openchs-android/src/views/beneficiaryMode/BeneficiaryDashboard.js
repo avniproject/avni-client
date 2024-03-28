@@ -16,6 +16,7 @@ import PreviousEncounters from "../common/PreviousEncounters";
 import {Form} from 'avni-models';
 import CHSNavigator from "../../utility/CHSNavigator";
 import SystemRecommendationView from "../conclusion/SystemRecommendationView";
+import _ from "lodash";
 
 export default class BeneficiaryDashboard extends AbstractComponent {
     static propTypes = {
