@@ -6,7 +6,7 @@ import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTe
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
 import ServerError, {getAvniError} from "../service/ServerError";
-import {Alert, Clipboard, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
+import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
 import Clipboard from "@react-native-clipboard/clipboard";
 import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";

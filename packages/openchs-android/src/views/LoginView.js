@@ -7,7 +7,7 @@ import {
     Text,
     TouchableNativeFeedback,
     View,
-    BackHandler, Image, Dimensions, Clipboard, ToastAndroid
+    BackHandler, Image, Dimensions, ToastAndroid
 } from 'react-native';
 import Clipboard from "@react-native-clipboard/clipboard";
 import TextFormElement from './form/formElement/TextFormElement';
