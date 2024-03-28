@@ -3,9 +3,9 @@ import React, {Component} from 'react';
 import {BackHandler, View} from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
+import _ from 'lodash';
 
 export default class Router extends Component {
-
     static propTypes = {
         initialRoute: PropTypes.object.isRequired,
     };

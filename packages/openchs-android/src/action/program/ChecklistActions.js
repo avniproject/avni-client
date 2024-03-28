@@ -1,25 +1,30 @@
 import EntityService from "../../service/EntityService";
 import _ from 'lodash';
 import {ProgramEnrolment, Checklist} from 'avni-models';
+import {EditFormRuleResponse} from "rules-config";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
+
+function clone(state) {
+    const checklists = _.clone(state.checklists);
+
+    return {
+        checklists: checklists,
+        individual: !_.isNil(state.individual) ? state.individual.cloneForReference() : null,
+        showSavedToast: false,
+        promptForSave: false,
+        editFormRuleResponse: state.editFormRuleResponse
+    };
+}
 
 class ChecklistActions {
     static getInitialState() {
-        return {};
-    }
-
-    static clone(state) {
-        const checklists = _.clone(state.checklists);
-
         return {
-            checklists: checklists,
-            individual: !_.isNil(state.individual) ? state.individual.cloneForReference() : null,
-            showSavedToast: false,
-            promptForSave: false
+            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
         };
     }
 
     static onLoad(state, action, context) {
-        const newState = ChecklistActions.clone(state);
+        const newState = clone(state);
         const enrolment = context.get(EntityService).findByUUID(action.enrolmentUUID, ProgramEnrolment.schema.name);
 
         const checklists = [];
@@ -43,7 +48,7 @@ class ChecklistActions {
     }
 
     static onCompletionDateChange(state, action) {
-        const newState = ChecklistActions.clone(state);
+        const newState = clone(state);
         const checklist = newState.checklists.find((checklist) => {
             return checklist.name === action.checklistName
         });
@@ -53,7 +58,7 @@ class ChecklistActions {
     }
 
     static onSave(state, action, context) {
-        const newState = ChecklistActions.clone(state);
+        const newState = clone(state);
         newState.checklists.forEach((checklist) => {
             context.get(EntityService).saveOrUpdate(checklist, Checklist.schema.name);
         });
@@ -61,18 +66,39 @@ class ChecklistActions {
         newState.promptForSave = false;
         return newState;
     }
+
+    static onChecklistItemEdit(state, action, context) {
+        const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(action.checklistItem.detail.form, action.checklistItem, 'ChecklistItem');
+
+        if (editFormRuleResponse.isEditAllowed()) {
+            action.onContinueChecklistItemEdit();
+            return state;
+        } else {
+            const newState = {...state};
+            newState.editFormRuleResponse = editFormRuleResponse;
+            return newState;
+        }
+    }
+
+    static onChecklistItemEditErrorShown(state) {
+        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+    }
 }
 
 const ChecklistActionsNames = {
     ON_LOAD: 'Checklist.ON_LOAD',
     ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE: 'Checklist.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE',
-    SAVE: 'Checklist.Save'
+    SAVE: 'Checklist.Save',
+    ON_CHECKLIST_ITEM_EDIT: 'Checklist.ON_EDIT',
+    ON_CHECKLIST_ITEM_EDIT_ERROR_SHOWN: 'Checklist.ON_EDIT_ERROR_SHOWN'
 };
 
 const ChecklistActionsMap = new Map([
     [ChecklistActionsNames.ON_LOAD, ChecklistActions.onLoad],
     [ChecklistActionsNames.ON_CHECKLIST_ITEM_COMPLETION_DATE_CHANGE, ChecklistActions.onCompletionDateChange],
-    [ChecklistActionsNames.SAVE, ChecklistActions.onSave]
+    [ChecklistActionsNames.SAVE, ChecklistActions.onSave],
+    [ChecklistActionsNames.ON_CHECKLIST_ITEM_EDIT, ChecklistActions.onChecklistItemEdit],
+    [ChecklistActionsNames.ON_CHECKLIST_ITEM_EDIT_ERROR_SHOWN, ChecklistActions.onChecklistItemEditErrorShown],
 ]);
 
 export {

@@ -26,6 +26,7 @@ import ObservationsSectionOptions from "../common/ObservationsSectionOptions";
 import Icon from 'react-native-vector-icons/SimpleLineIcons'
 import Separator from "../primitives/Separator";
 import UserInfoService from "../../service/UserInfoService";
+import AvniToast from "../common/AvniToast";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -67,13 +68,13 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     editEnrolment(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true, pageNumber)
+            continueEnrolmentEdit: (enrolment, workLists) => CHSNavigator.navigateToProgramEnrolmentView(this, enrolment, workLists, true, pageNumber)
         });
     }
 
     editExit(pageNumber) {
         this.dispatchAction(Actions.ON_EDIT_ENROLMENT_EXIT, {
-            cb: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true, pageNumber)
+            continueEditExit: (enrolment, workLists) => CHSNavigator.navigateToExitProgram(this, enrolment, workLists, true, pageNumber)
         });
     }
 
@@ -159,7 +160,8 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     title={this.I18n.t('visitsPlanned')}
                                     emptyTitle={this.I18n.t('noPlannedEncounters')}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
-                                    expandCollapseView={false}/>);
+                                    expandCollapseView={false}
+        />);
     }
 
     renderCompletedVisits() {
@@ -178,6 +180,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                     expandCollapseView={true}
                                     onToggleAction={Actions.ON_ENCOUNTER_TOGGLE}
                                     subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
+                                    onEditEncounterActionName={Actions.ON_EDIT_PROGRAM_ENCOUNTER}
         />);
     }
 
@@ -256,6 +259,8 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                                                 primaryAction={this.getPrimaryEnrolmentContextAction(hasExitPrivilege)}/>
                 </View>
             </TouchableOpacity>
+            {this.state.editFormRuleResponse.isEditDisallowed() &&
+                <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
         </View>);
     }
 

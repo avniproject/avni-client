@@ -19,7 +19,7 @@ import Distances from '../primitives/Distances';
 import ObservationsSectionOptions from '../common/ObservationsSectionOptions';
 import TypedTransition from '../../framework/routing/TypedTransition';
 import CompletedEncountersView from '../../encounter/CompletedEncountersView';
-import CollapsibleEncounters from './CollapsibleEncounters';
+import CollapsibleEncounter from './CollapsibleEncounter';
 import PrivilegeService from '../../service/PrivilegeService';
 import ListViewHelper from '../../utility/ListViewHelper';
 import UserInfoService from "../../service/UserInfoService";
@@ -42,7 +42,9 @@ class PreviousEncounters extends AbstractComponent {
         onToggleAction: PropTypes.string,
         containsDrafts: PropTypes.bool,
         deleteDraft: PropTypes.func,
-        hideIfEmpty: PropTypes.bool
+        hideIfEmpty: PropTypes.bool,
+        onEdit: PropTypes.func,
+        onEditEncounterActionName: PropTypes.string
     };
 
     constructor(props, context) {
@@ -54,11 +56,23 @@ class PreviousEncounters extends AbstractComponent {
         encounter = encounter.cloneForEdit();
         const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        CHSNavigator.navigateToEncounterView(this, {encounter, editing});
+        if (_.isNil(this.props.onEditEncounterActionName))
+            CHSNavigator.navigateToEncounterView(this, {encounter, editing});
+        else
+            this.dispatchAction(this.props.onEditEncounterActionName, {
+                encounter,
+                onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, editing})
+            });
     }
 
     cancelEncounter(encounter) {
-        CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true});
+        if (_.isNil(this.props.onEditEncounterActionName))
+            CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true})
+        else
+            this.dispatchAction(this.props.onEditEncounterActionName, {
+                encounter,
+                onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, cancel: true})
+            });
     }
 
     cancelVisitAction(encounter, textColor) {
@@ -182,7 +196,7 @@ class PreviousEncounters extends AbstractComponent {
                 subjectInfo: this.props.subjectInfo,
                 formType: this.props.formType,
                 cancelFormType: this.props.cancelFormType,
-                isEditAllowed: (encounter) => this.isEditAllowed(encounter),
+                isEditAllowed: (encounter) => this.isEditAllowed(encounter)
             }).to(CompletedEncountersView)}
             style={styles.viewAllContainer}>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -229,14 +243,15 @@ class PreviousEncounters extends AbstractComponent {
                 removeClippedSubviews={true}
                 renderRow={(encounter) => <View style={styles.container}>
                     {this.props.expandCollapseView ?
-                        <CollapsibleEncounters encountersInfo={encounter}
-                                               onToggleAction={this.props.onToggleAction}
-                                               renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
-                                               encounterActions={() => this.encounterActions(encounter.encounter)}
-                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
-                                               formType={this.props.formType}
-                                               cancelFormType={this.props.cancelFormType}
-                                               isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
+                        <CollapsibleEncounter encountersInfo={encounter}
+                                              onToggleAction={this.props.onToggleAction}
+                                              renderTitleAndDetails={() => this.renderTitleAndDetails(encounter.encounter)}
+                                              encounterActions={() => this.encounterActions(encounter.encounter)}
+                                              cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
+                                              formType={this.props.formType}
+                                              cancelFormType={this.props.cancelFormType}
+                                              isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
+                                              formElementGroupEditAction={this.props.onEditEncounterActionName}
                         />
                         : this.renderNormalView(encounter)}
                 </View>}

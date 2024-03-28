@@ -12,6 +12,8 @@ import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import ChecklistDisplay from "./ChecklistDisplay";
+import CHSNavigator from "../../utility/CHSNavigator";
+import AvniToast from "../common/AvniToast";
 
 @Path('/ChecklistView')
 class ChecklistView extends AbstractComponent {
@@ -65,11 +67,19 @@ class ChecklistView extends AbstractComponent {
         }
     }
 
+    onChecklistItemEdit(checklistItem) {
+        this.dispatchAction(Actions.ON_CHECKLIST_ITEM_EDIT, {
+            checklistItem,
+            onContinueChecklistItemEdit: () => CHSNavigator.navigateToChecklistItemView(this, checklistItem)
+        });
+    }
+
     render() {
         General.logDebug('ChecklistView', this.props.enrolmentUUID);
         const checklists = this.state.checklists.map((checklist, idx) => <ChecklistDisplay key={idx}
                                                                                            data={checklist} i18n={this.I18n}
-                                                                                           reloadCallback={() => this.dispatchAction(Actions.ON_LOAD, this.props)}/>);
+                                                                                           reloadCallback={() => this.dispatchAction(Actions.ON_LOAD, this.props)}
+                                                                                           onChecklistItemEdit={(checklistItem) => this.onChecklistItemEdit(checklistItem)}/>);
         return (
             <CHSContainer style={{backgroundColor: Colors.BlackBackground}}>
                 <CHSContent>
@@ -79,6 +89,8 @@ class ChecklistView extends AbstractComponent {
                     <ScrollView>
                         {checklists}
                     </ScrollView>
+                    {this.state.editFormRuleResponse.isEditDisallowed() &&
+                        <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_CHECKLIST_ITEM_EDIT_ERROR_SHOWN)}/>}
                 </CHSContent>
             </CHSContainer>
         );

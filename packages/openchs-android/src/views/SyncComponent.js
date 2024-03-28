@@ -3,11 +3,11 @@ import Colors from "./primitives/Colors";
 import {SyncActionNames as SyncActions} from "../action/SyncActions";
 import General from "../utility/General";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import bugsnag from "../utility/bugsnag";
 import AuthenticationError from "../service/AuthenticationError";
 import CHSNavigator from "../utility/CHSNavigator";
-import ServerError from "../service/ServerError";
+import ServerError, {getAvniError} from "../service/ServerError";
 import {Alert, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
+import Clipboard from "@react-native-clipboard/clipboard";
 import NetInfo from "@react-native-community/netinfo";
 import _ from "lodash";
 import SyncService from "../service/SyncService";
@@ -18,6 +18,8 @@ import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
 import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
+import AvniError from "../framework/errorHandling/AvniError";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -56,7 +58,9 @@ class SyncComponent extends AbstractComponent {
         this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError) bugsnag.notify(error);
+        if (!ignoreBugsnag && !isServerError) {
+            ErrorUtil.notifyBugsnag(error, "SyncComponent");
+        }
         this.dispatchAction(SyncActions.ON_ERROR);
         if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
@@ -67,24 +71,39 @@ class SyncComponent extends AbstractComponent {
                 menuProps: {startSync: true}
             }));
         } else if (!this.state.isConnected) {
-            this.ErrorAlert(this.I18n.t('internetConnectionError'));
+            this.ErrorAlert(AvniError.create(this.I18n.t('internetConnectionError')));
         } else if (isServerError) {
-            error.errorText.then(errorMessage => this.ErrorAlert(errorMessage, error.errorCode));
+            getAvniError(error, this.I18n).then((avniError) => this.ErrorAlert(avniError));
         } else if (error instanceof SyncError) {
-            this.ErrorAlert(error.errorText, error.errorCode)
+            const userMessage = `Error Code : ${error.errorCode}\nMessage : ${error.errorText}`;
+            this.ErrorAlert(AvniError.createFromUserMessageAndStackTrace(userMessage, ErrorUtil.getNavigableStackTraceSync(error)));
+        } else if (!_.isNil(error)) {
+            this.ErrorAlert(ErrorUtil.getAvniErrorSync(error));
         } else {
-            const errorMessage = error.message || "Unknown error occurred";
-            this.ErrorAlert(errorMessage);
+            const errorMessage = error.message || this.I18n.t("unknownError");
+            this.ErrorAlert(AvniError.create(errorMessage));
         }
     }
 
-    ErrorAlert(errorMessage, errorCode) {
-        const message = errorCode ? `Error Code : ${errorCode}\nMessage : ${errorMessage}` : errorMessage;
-        Alert.alert(this.I18n.t("syncError"), message, [{
-                text: this.I18n.t('tryAgain'),
-                onPress: () => this.sync()
-            },
-                {text: this.I18n.t('cancel'), onPress: _.noop, style: 'cancel'},
+    ErrorAlert(avniError) {
+        Alert.alert(this.I18n.t("syncError"), avniError.getDisplayMessage(), [
+                {
+                    text: this.I18n.t('tryAgain'),
+                    onPress: () => this.sync()
+                },
+                {
+                    text: this.I18n.t('cancel'),
+                    onPress: _.noop,
+                    style: 'cancel'
+                },
+                {
+                    text: this.I18n.t('copyErrorAndCancel'),
+                    onPress: () => {
+                        General.logDebug("SyncComponent", avniError.reportingText);
+                        Clipboard.setString(avniError.reportingText);
+                        ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT)
+                    }
+                }
             ]
         );
     }
@@ -119,7 +138,7 @@ class SyncComponent extends AbstractComponent {
     }
 
     sync() {
-        if(this.state.backgroundSyncInProgress) {
+        if (this.state.backgroundSyncInProgress) {
             ToastAndroid.show(this.I18n.t('backgroundSyncInProgress'), ToastAndroid.SHORT);
             return;
         }
@@ -163,7 +182,7 @@ class SyncComponent extends AbstractComponent {
                 SyncService.syncSources.SYNC_BUTTON,
                 () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
             ).catch(onError)
-              .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
+                .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
@@ -195,7 +214,7 @@ class SyncComponent extends AbstractComponent {
         });
         const entitySyncStatusService = this.context.getService(EntitySyncStatusService);
         const totalPending = entitySyncStatusService.getTotalEntitiesPending();
-        if(this.state.backgroundSyncInProgress) {
+        if (this.state.backgroundSyncInProgress) {
             return syncDisabledIcon;
         } else {
             return !this.state.syncing && totalPending > 0 ? <Badge icon={icon} number={totalPending}/> : icon;

@@ -28,10 +28,7 @@ const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => 
             General.logError("requests", response);
             return Promise.reject(new AuthenticationError('Http ' + responseCode, response));
         }
-        if (responseCode === 400) {
-            return Promise.reject(response);
-        }
-        return Promise.reject(new ServerError(`Http ${response.status}`, response));
+        return Promise.reject(new ServerError(response));
     };
     const requestInit = {"method": method, ...params};
     const doFetch = getXSRFPromise(endpoint).then((xsrfToken) => {

@@ -2,8 +2,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import {EntityQueue, MediaQueue, EntityMetaData} from 'openchs-models';
 import _ from "lodash";
-import bugsnag from "../utility/bugsnag";
-import General from "../utility/General";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
 @Service("entityQueueService")
 class EntityQueueService extends BaseService {
@@ -27,7 +26,7 @@ class EntityQueueService extends BaseService {
         const getEntityResource = (item) => {
             const entity = getEntity(item);
             if (_.isNil(entity)) {
-                bugsnag.notify(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}`));
+                ErrorUtil.notifyBugsnag(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}`), "EntityQueueService");
                 this.db.write(() => this.db.delete(item));
                 return undefined;
             }
@@ -60,7 +59,7 @@ class EntityQueueService extends BaseService {
         return () => {
             const itemToDelete = this.findByKey("entityUUID", uuid, EntityQueue.schema.name);
             if (_.isNil(itemToDelete)) {
-                bugsnag.notify(new Error(`Item to delete is undefined in entityQueue. Details: ${uuid}`));
+                ErrorUtil.notifyBugsnag(new Error(`Item to delete is undefined in entityQueue. Details: ${uuid}`), "EntityQueryService");
             } else {
                 this.db.write(() => this.db.delete(itemToDelete));
             }

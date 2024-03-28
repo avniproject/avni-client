@@ -7,12 +7,13 @@ import {
     Text,
     TouchableNativeFeedback,
     View,
-    BackHandler, Image, Dimensions
+    BackHandler, Image, Dimensions, ToastAndroid
 } from 'react-native';
+import Clipboard from "@react-native-clipboard/clipboard";
 import TextFormElement from './form/formElement/TextFormElement';
 import StaticFormElement from './viewmodel/StaticFormElement';
 import {LoginActionsNames as Actions} from '../action/LoginActions';
-import {PrimitiveValue, ErrorCodes} from 'avni-models';
+import {PrimitiveValue, ErrorCodes} from 'openchs-models';
 import Reducers from '../reducer';
 import CHSNavigator from '../utility/CHSNavigator';
 import CHSContainer from './common/CHSContainer';
@@ -35,6 +36,8 @@ import {IDP_PROVIDERS} from "../model/IdpProviders";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import {EntityMappingConfig} from "openchs-models";
 import EntityService from "../service/EntityService";
+import ServerError, {getAvniError} from "../service/ServerError";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -154,19 +157,45 @@ class LoginView extends AbstractComponent {
         </ConfirmDialog>);
     }
 
-    restoreFailureAlert(errorMessage, source) {
-        const isCatchmentError = ErrorCodes[errorMessage] === ErrorCodes.NoCatchmentFound;
-        isCatchmentError ? this.noCatchmentAlert(this.I18n.t(ErrorCodes[errorMessage])) :
-            Alert.alert(this.I18n.t('restoreFailedTitle'), errorMessage, [{
-                    text: this.I18n.t('tryAgain'),
-                    onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
-                        ...this.dumpRestoreAction.call(this),
-                        source
-                    })
-                },
-                    {text: this.I18n.t('performNormalSync'), onPress: () => this.loginComplete(source), style: 'cancel'}
+    displayFailureAlert(avniError, source) {
+        const isCatchmentError = avniError.userMessage.includes(ErrorCodes.NoCatchmentFound);
+        isCatchmentError ? this.noCatchmentAlert(this.I18n.t(ErrorCodes.NoCatchmentFound)) :
+            Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), [
+                    {
+                        text: this.I18n.t('tryAgain'),
+                        onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
+                            ...this.dumpRestoreAction.call(this),
+                            source
+                        })
+                    },
+                    {
+                        text: "copyErrorTryAgain",
+                        onPress: () => {
+                            General.logDebug("LoginView", avniError.reportingText);
+                            Clipboard.setString(avniError.reportingText);
+                            ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT);
+                            this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
+                                ...this.dumpRestoreAction.call(this),
+                                source
+                            });
+                        }
+                    },
+                    {
+                        text: this.I18n.t('performNormalSync'),
+                        onPress: () => this.loginComplete(source),
+                        style: 'cancel'
+                    }
                 ]
             );
+    }
+
+    restoreFailureAlert(error, source) {
+        if (error instanceof ServerError)
+            getAvniError(error, this.I18n).then((avniError) => this.displayFailureAlert(avniError, source));
+        else {
+            this.displayFailureAlert(ErrorUtil.getAvniErrorSync(error), source);
+            ErrorUtil.notifyBugsnag(error, "LoginView");
+        }
     }
 
     noCatchmentAlert(errorMessage) {
@@ -239,45 +268,45 @@ class LoginView extends AbstractComponent {
                                                     </View>
                                                 </TouchableNativeFeedback>
                                                 {(this.state.idpType === IDP_PROVIDERS.COGNITO ||
-                                                    (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO))
-                                                && <TouchableNativeFeedback onPress={() => {
-                                                    this.forgotPassword();
-                                                }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                                    <View style={{paddingTop: 7}}>
-                                                        <Text style={{
-                                                            color: Styles.accentColor,
-                                                            fontSize: 16
-                                                        }}>{this.I18n.t('Forgot Password')}</Text>
-                                                    </View>
-                                                </TouchableNativeFeedback>
+                                                        (this.state.idpType === IDP_PROVIDERS.BOTH && this.state.userSelectedIdp === IDP_PROVIDERS.COGNITO))
+                                                    && <TouchableNativeFeedback onPress={() => {
+                                                        this.forgotPassword();
+                                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                                        <View style={{paddingTop: 7}}>
+                                                            <Text style={{
+                                                                color: Styles.accentColor,
+                                                                fontSize: 16
+                                                            }}>{this.I18n.t('Forgot Password')}</Text>
+                                                        </View>
+                                                    </TouchableNativeFeedback>
                                                 }
                                             </View>
                                             {this.spinner()}
                                         </View>
                                         : null}
                                     {this.state.idpType === IDP_PROVIDERS.BOTH &&
-                                    <TouchableNativeFeedback
-                                        onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
-                                        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
-                                            <CheckBox
-                                                accessible={true}
-                                                accessibilityLabel={"Use Keycloak"}
-                                                onChange={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}
-                                                isChecked={this.state.userSelectedIdp === IDP_PROVIDERS.KEYCLOAK}/>
-                                            <Text
-                                                style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
-                                        </View>
-                                    </TouchableNativeFeedback>}
+                                        <TouchableNativeFeedback
+                                            onPress={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}>
+                                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 5}}>
+                                                <CheckBox
+                                                    accessible={true}
+                                                    accessibilityLabel={"Use Keycloak"}
+                                                    onChange={() => this.dispatchAction(Actions.ON_USER_TOGGLE_IDP)}
+                                                    isChecked={this.state.userSelectedIdp === IDP_PROVIDERS.KEYCLOAK}/>
+                                                <Text
+                                                    style={[Styles.formLabel, {paddingLeft: 12}]}>{this.I18n.t('Use Keycloak')}</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>}
                                 </View>
                                 <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16}}>
                                     {_.get(this, 'props.params.allowSkipLogin') &&
-                                    <TouchableNativeFeedback onPress={() => {
-                                        this.cancelLogin();
-                                    }} background={TouchableNativeFeedback.SelectableBackground()}>
-                                        <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
-                                            <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
-                                        </View>
-                                    </TouchableNativeFeedback>
+                                        <TouchableNativeFeedback onPress={() => {
+                                            this.cancelLogin();
+                                        }} background={TouchableNativeFeedback.SelectableBackground()}>
+                                            <View style={[Styles.basicSecondaryButtonView, {minWidth: 144}]}>
+                                                <Text style={{color: Styles.blackColor, fontSize: 16}}>SKIP</Text>
+                                            </View>
+                                        </TouchableNativeFeedback>
                                     }
                                     <TouchableNativeFeedback onPress={this.safeLogin}
                                                              background={TouchableNativeFeedback.SelectableBackground()}>
@@ -300,24 +329,24 @@ class LoginView extends AbstractComponent {
                             }}>
                                 <Text>Powered by Avni (Version {DeviceInfo.getVersion()}-{Config.COMMIT_ID})</Text>
                                 {!EnvironmentConfig.isProd() &&
-                                <>
-                                    <Text style={{
-                                        fontSize: Styles.normalTextSize,
-                                        fontStyle: 'normal',
-                                        color: Styles.blackColor,
-                                        marginVertical: 0,
-                                    }}>{Config.ENV}</Text>
-                                    <Text style={Styles.textList}>Actual Schema Version : <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
-                                    <Text style={Styles.textList}>Code Schema Version: <Text
-                                        style={{
-                                            color: 'black',
-                                            fontSize: Styles.normalTextSize
-                                        }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
-                                </>
+                                    <>
+                                        <Text style={{
+                                            fontSize: Styles.normalTextSize,
+                                            fontStyle: 'normal',
+                                            color: Styles.blackColor,
+                                            marginVertical: 0,
+                                        }}>{Config.ENV}</Text>
+                                        <Text style={Styles.textList}>Actual Schema Version : <Text
+                                            style={{
+                                                color: 'black',
+                                                fontSize: Styles.normalTextSize
+                                            }}>{this.getService(EntityService).getActualSchemaVersion()}</Text></Text>
+                                        <Text style={Styles.textList}>Code Schema Version: <Text
+                                            style={{
+                                                color: 'black',
+                                                fontSize: Styles.normalTextSize
+                                            }}>{EntityMappingConfig.getInstance().getSchemaVersion()}</Text></Text>
+                                    </>
                                 }
                             </View>
                         </View>
@@ -373,7 +402,7 @@ class LoginView extends AbstractComponent {
     dumpRestoreAction() {
         return {
             onLoginProgress: (percentProgress, message) => this.onLoginProgress(percentProgress, message),
-            checkForRetry: (errorMessage, source) => this.restoreFailureAlert(errorMessage, source),
+            checkForRetry: (error, source) => this.restoreFailureAlert(error, source),
             successCb: (source) => this.loginComplete(source),
             successCBFromSetPasswordView: (source) => this.successCBFromSetPasswordView(source),
         };

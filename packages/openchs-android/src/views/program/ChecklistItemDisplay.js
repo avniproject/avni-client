@@ -20,6 +20,7 @@ class ChecklistItemDisplay extends AbstractComponent {
         reloadCallback: PropTypes.func,
         style: PropTypes.object,
         editable: PropTypes.bool,
+        onEdit: PropTypes.func.isRequired
     };
 
     constructor(props, context) {
@@ -30,7 +31,7 @@ class ChecklistItemDisplay extends AbstractComponent {
     completeChecklistItem(checklistItem) {
         return () => {
             if (this.props.checklistItem.editable)
-                CHSNavigator.navigateToChecklistItemView(this, checklistItem);
+                this.props.onEdit(this.props.checklistItem);
             else
                 Alert.alert(this.I18n.t("voidedChecklistItemDetailAlertTitle"), new ObservationsHolder(checklistItem.observations).toString(this.I18n));
         }

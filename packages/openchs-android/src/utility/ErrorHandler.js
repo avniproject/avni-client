@@ -1,44 +1,34 @@
-import StackTrace from 'stacktrace-js';
-import bugsnag from './bugsnag';
 import Config from '../framework/Config';
 import General from "./General";
-import EnvironmentConfig from "../framework/EnvironmentConfig";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import _ from 'lodash';
+import AvniError from "../framework/errorHandling/AvniError";
+import {setJSExceptionHandler} from 'react-native-exception-handler';
 
 export default class ErrorHandler {
     static set(errorCallback) {
-        General.logDebug('ErrorHandler', `Setting global error handler ${Config.ENV}`);
-        ErrorUtils.setGlobalHandler((error, isFatal) => {
-            ErrorHandler.postError(error, isFatal, errorCallback);
-        });
-    }
-
-    static setUser(username) {
-        bugsnag.setUser(username, username, username);
+        console.log('ErrorHandler', `Setting global error handler ${Config.ENV}`);
+        setJSExceptionHandler((error, isFatal) => {
+            if (isFatal)
+                ErrorHandler.postError(error, errorCallback);
+            else
+                General.logDebug('ErrorHandler', error);
+        }, true);
     }
 
     static postScheduledJobError(error) {
-        this.postError(error, true, () => {
-        });
+        ErrorHandler.postError(error, _.noop);
     }
 
-    static postError(error, isFatal, errorCallback) {
-        General.logDebug('ErrorHandler', `IsFatal=${isFatal} ${error}`);
-        General.logDebug('ErrorHandler', error);
-        error.message = `${isFatal ? 'Fatal' : 'Non-fatal'} error: ${error.message}`;
+    static postError(error, errorCallback) {
+        General.logDebug('ErrorHandler', error.message);
 
-        StackTrace.fromError(error, {offline: true})
-            .then((x) => {
-                General.logDebug('ErrorHandler', `Creating frame array`);
-                const frameArray = x.map((row) => Object.defineProperty(row, 'fileName', {
-                    value: `${row.fileName}:${row.lineNumber || 0}:${row.columnNumber || 0}`
-                }));
-                General.logDebug('ErrorHandler', `Notifying Bugsnag (if release stage) ${error}`);
-                bugsnag.notify(error, (report) => report.metadata.frameArray = frameArray);
-                errorCallback(error, JSON.stringify(frameArray));
+        ErrorUtil.notifyBugsnag(error, "ErrorHandler")
+            .then((error) => {
+                const stackTraceString = ErrorUtil.getNavigableStackTraceSync(error);
+                const avniError = AvniError.createFromUserMessageAndStackTrace(error.message, stackTraceString);
+                General.logDebug('ErrorHandler', avniError.reportingText);
+                errorCallback(avniError);
             });
-
-        if (EnvironmentConfig.inNonDevMode()) {
-            bugsnag.notify(error);
-        }
     }
 }

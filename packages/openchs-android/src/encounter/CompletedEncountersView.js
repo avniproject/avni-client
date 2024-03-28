@@ -14,13 +14,13 @@ import {CompletedEncountersActionNames as Actions} from "../action/encounter/Com
 import SearchResultsHeader from "../views/individual/SearchResultsHeader";
 import CompletedVisitsFilterView from "../views/filter/CompletedVisitsFilterView";
 import TypedTransition from "../framework/routing/TypedTransition";
-import CollapsibleEncounters from "../views/common/CollapsibleEncounters";
+import CollapsibleEncounter from "../views/common/CollapsibleEncounter";
 import DGS from "../views/primitives/DynamicGlobalStyles";
 import Separator from "../views/primitives/Separator";
+import AvniToast from "../views/common/AvniToast";
 
 @Path('/CompletedEncountersView')
 class CompletedEncountersView extends AbstractComponent {
-
     viewName() {
         return 'CompletedEncountersView';
     }
@@ -64,15 +64,17 @@ class CompletedEncountersView extends AbstractComponent {
                   data={chronologicalEncounters}
                   renderItem={({item: encounter}) =>
                     <View style={styles.container}>
-                        <CollapsibleEncounters encountersInfo={encounter}
-                                               onToggleAction={Actions.ON_EXPAND_TOGGLE}
-                                               renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
-                                               encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
-                                               cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
-                                               isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
-                                               style={styles.textContainer}
-                                               formType={this.props.params.formType}
-                                               cancelFormType={this.props.params.cancelFormType}/>
+                        <CollapsibleEncounter encountersInfo={encounter}
+                                              onToggleAction={Actions.ON_EXPAND_TOGGLE}
+                                              renderTitleAndDetails={this.props.params.renderTitleAndDetails.bind(this, encounter.encounter)}
+                                              encounterActions={this.props.params.encounterActions.bind(this, encounter.encounter)}
+                                              cancelVisitAction={this.props.params.cancelVisitAction.bind(this, encounter.encounter)}
+                                              isEditAllowed={this.props.params.isEditAllowed.bind(this, encounter.encounter)}
+                                              style={styles.textContainer}
+                                              formType={this.props.params.formType}
+                                              cancelFormType={this.props.params.cancelFormType}
+                                              formElementGroupEditAction={Actions.ON_EDIT_ENCOUNTER_VIA_FORM_ELEMENT_GROUP}
+                        />
                     </View>}
                   initialNumToRender={15}
                   updateCellsBatchingPeriod={500}
@@ -90,6 +92,8 @@ class CompletedEncountersView extends AbstractComponent {
                         <Icon name={'equalizer'} size={25} style={{color: Colors.headerIconColor}}/>
                     </View>
                 </TouchableOpacity>
+                {this.state.editFormRuleResponse.isEditDisallowed() &&
+                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ENCOUNTER_VIA_FORM_ELEMENT_GROUP_ERROR_SHOWN)}/>}
             </CHSContainer>
         );
     }

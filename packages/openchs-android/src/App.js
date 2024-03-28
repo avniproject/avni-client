@@ -1,4 +1,4 @@
-import {Alert, Clipboard, NativeModules, Text, View, BackHandler, Image, FlatList} from "react-native";
+import {Alert, BackHandler, Image, NativeModules, Text, View, FlatList} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
@@ -8,17 +8,18 @@ import {RegisterAndScheduleJobs} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
 import GlobalContext from "./GlobalContext";
-import RNRestart from 'react-native-restart';
 import AppStore from "./store/AppStore";
 import RealmFactory from "./framework/db/RealmFactory";
 import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
-import Config from './framework/Config';
 import JailMonkey from 'jail-monkey';
-
-const {TamperCheckModule} = NativeModules;
 import KeepAwake from 'react-native-keep-awake';
 import moment from "moment";
+import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
+import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
+import ErrorUtil from "./framework/errorHandling/ErrorUtil";
+
+const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
     static childContextTypes = {
@@ -33,12 +34,12 @@ class App extends Component {
         this.getBean = this.getBean.bind(this);
         this.handleError = this.handleError.bind(this);
         ErrorHandler.set(this.handleError);
-        this.state = {error: '', isInitialisationDone: false, isDeviceRooted: false};
+        this.state = {avniError: null, isInitialisationDone: false, isDeviceRooted: false};
     }
 
-    handleError(error, stacktrace) {
+    handleError(avniError) {
         //It is possible for App to not be available during this time, so check if state is available before setting to it
-        this.setState && this.setState({error, stacktrace});
+        this.setState && this.setState({avniError: avniError});
     }
 
     getChildContext = () => ({
@@ -48,27 +49,6 @@ class App extends Component {
         },
         getStore: () => GlobalContext.getInstance().reduxStore,
     });
-
-    renderError() {
-        const clipboardString = `${this.state.error.message}\nStacktrace:${this.state.stacktrace}`;
-        General.logError("App", `renderError: ${clipboardString}`);
-
-        if (EnvironmentConfig.inNonDevMode() && !Config.allowServerURLConfig) {
-            Alert.alert("App will restart now", this.state.error.message,
-                [
-                    {
-                        text: "Copy error and Restart",
-                        onPress: () => {
-                            Clipboard.setString(clipboardString);
-                            RNRestart.Restart();
-                        }
-                    }
-                ],
-                {cancelable: false}
-            );
-        }
-        return <View/>;
-    }
 
     renderRootedDeviceErrorMessageAndExitApplication() {
         const clipboardString = `This is a Rooted Device. Exiting Avni application due to security considerations.`;
@@ -115,16 +95,17 @@ class App extends Component {
             this.setState(state => ({...state, isInitialisationDone: true}));
         } catch (e) {
             console.log("App", e);
-            this.setState(state => ({...state, error: e}));
+            this.handleError(ErrorUtil.getAvniErrorSync(e));
+            ErrorUtil.notifyBugsnag(e, "App");
         }
     }
 
-    render() {
+    renderApp() {
         if (this.state.isDeviceRooted) {
             return this.renderRootedDeviceErrorMessageAndExitApplication();
         }
-        if (this.state.error) {
-            return this.renderError();
+        if (this.state.avniError) {
+            return <UnhandledErrorView avniError={this.state.avniError}/>;
         }
         if (!_.isNil(GlobalContext.getInstance().routes) && this.state.isInitialisationDone) {
             return GlobalContext.getInstance().routes
@@ -154,6 +135,12 @@ class App extends Component {
                     }}
                 />
             </View>);
+    }
+
+    render() {
+        return <AvniErrorBoundary>
+            {this.renderApp()}
+        </AvniErrorBoundary>;
     }
 }
 

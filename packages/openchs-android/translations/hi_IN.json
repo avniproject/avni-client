@@ -371,6 +371,9 @@
     "addressFilterBehaviorHint": "(वही लोकेशन जहाँ सब्जेक्ट रजिस्टर्ड है)",
     "queryExecutionError" : "नियम निष्पादन त्रुटि",
     "nestedReportCardsCountMismatch" : "कार्डों की कॉन्फ़िगर की गई संख्या नियम में कार्डों की संख्या से मेल नहीं खाती",
-    "addressFilterImplicitBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)"
+    "addressFilterImplicitBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)",
+    "copyErrorTryAgain": "त्रुटि कॉपी करें और पुनः प्रयास करें",
+    "copyErrorAndCancel": "त्रुटि कॉपी करें और रद्द करें",
+    "reportCopiedReportByPasting": "रिपोर्ट कॉपी कर ली गई है। रिपोर्ट करने के लिए आप मैसेजिंग ऐप में पेस्ट कर सकते हैं।"
   }
 }

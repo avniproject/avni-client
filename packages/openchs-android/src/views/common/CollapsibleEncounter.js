@@ -9,8 +9,7 @@ import Observations from "./Observations";
 import _ from "lodash";
 import CHSNavigator from "../../utility/CHSNavigator";
 
-class CollapsibleEncounters extends AbstractComponent {
-
+class CollapsibleEncounter extends AbstractComponent {
     static propTypes = {
         encountersInfo: PropTypes.any.isRequired,
         onToggleAction: PropTypes.string.isRequired,
@@ -19,6 +18,8 @@ class CollapsibleEncounters extends AbstractComponent {
         cancelVisitAction: PropTypes.func.isRequired,
         style: PropTypes.object,
         isEditAllowed: PropTypes.func.isRequired,
+        formElementGroupEditAction: PropTypes.string,
+        formType: PropTypes.string
     };
 
     constructor(props, context) {
@@ -26,10 +27,16 @@ class CollapsibleEncounters extends AbstractComponent {
     }
 
     editEncounterByFEG(pageNumber) {
-        const encounter = this.props.encountersInfo.encounter.cloneForEdit();
+        const {encountersInfo, formType, formElementGroupEditAction} = this.props;
+
+        const encounter = encountersInfo.encounter.cloneForEdit();
         const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        CHSNavigator.navigateToEncounterView(this, {encounter, editing, pageNumber});
+        if (!_.isNil(formElementGroupEditAction))
+            this.dispatchAction(formElementGroupEditAction, {
+                encounter,
+                onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, editing, pageNumber})
+            });
     }
 
     render() {
@@ -69,4 +76,4 @@ class CollapsibleEncounters extends AbstractComponent {
     }
 }
 
-export default CollapsibleEncounters
+export default CollapsibleEncounter

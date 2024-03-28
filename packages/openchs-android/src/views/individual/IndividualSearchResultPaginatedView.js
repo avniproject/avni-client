@@ -85,7 +85,8 @@ export const PaginatedView = ({results, onIndividualSelection, currentPage, titl
         setLoading(true);
         const start = offset;
         const end = offset + CHUNK_SIZE;
-        setDataSource([...dataSource, ...results.slice(start, end > totalCount ? totalCount : end)]);
+        const sliced = results.slice(start, end > totalCount ? totalCount : end);
+        setDataSource([...dataSource, ...sliced]);
         setOffset(offset + CHUNK_SIZE);
         setLoading(false);
     };

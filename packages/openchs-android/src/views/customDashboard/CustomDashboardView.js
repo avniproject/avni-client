@@ -125,6 +125,7 @@ class CustomDashboardView extends AbstractComponent {
             })
             .sortBy('section.displayOrder')
             .value();
+        const onCardPressOp = _.debounce(this.onCardPress.bind(this), 500);
 
         return (
             <View style={styles.container}>
@@ -133,17 +134,19 @@ class CustomDashboardView extends AbstractComponent {
                         {section.viewType !== DashboardSection.viewTypeName.Default &&
                         this.renderSectionName(section.name, section.description, section.viewType, cards)}
                         <View style={styles.cardContainer}>
-                            {_.map(cards, (card, index) => (
-                                <CustomDashboardCard
+                            {_.map(cards, (card, index) => {
+                                return (
+                                  <CustomDashboardCard
                                     key={card.itemKey}
                                     reportCard={card}
-                                    onCardPress={this.onCardPress.bind(this)}
+                                    onCardPress={onCardPressOp}
                                     index={index}
                                     viewType={section.viewType}
                                     countResult={this.state.cardToCountResultMap[card.itemKey]}
                                     countUpdateTime={this.state.countUpdateTime}
-                                />
-                            ))}
+                                  />
+                                );
+                            })}
                         </View>
                     </View>
                 ))}

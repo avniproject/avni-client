@@ -14,7 +14,7 @@ import ProgramEnrolmentService from "./ProgramEnrolmentService";
 import * as mime from 'react-native-mime-types';
 import moment from "moment";
 import I18n from 'i18n-js';
-import bugsnag from "../utility/bugsnag";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 const PARALLEL_UPLOAD_COUNT = 1;
 
 @Service("mediaQueueService")
@@ -237,7 +237,7 @@ class MediaQueueService extends BaseService {
                 return Promise.resolve();
             }).catch((error) => {
                 // notify bugsnag of the original underlying error, so we can check if there are multiple causes for failure
-                bugsnag.notify(error);
+                ErrorUtil.notifyBugsnag(error, "MediaQueueService");
                 return Promise.reject(new Error("syncTimeoutError"));
             })
         }

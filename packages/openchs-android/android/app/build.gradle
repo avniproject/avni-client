@@ -167,6 +167,7 @@ android {
         }
     }
 
+    project.logger.lifecycle("bugsnagAPIKey=" + System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY"))
     flavorDimensions "organisation"
     productFlavors {
         generic {

@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------------------------
-// Purpose of this file is to create a singleton instance of the bugsnag client 
+// Purpose of this file is to create a singleton instance of the bugsnag client
 // so we don't have to duplicate our configuration anywhere.
 //-------------------------------------------------------------------------------------------------
 

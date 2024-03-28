@@ -5,6 +5,14 @@ import {EncounterType, Form, FormMapping, Program, SubjectType} from "avni-model
 import _ from "lodash";
 import FormQueryResult from "./FormQueryResult";
 
+function getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
+    let criteria = `voided = false AND ${entityCriteria} AND form.formType="${formType}"`;
+    if (subjectType) {
+        criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
+    }
+    return criteria;
+}
+
 @Service("FormMappingService")
 class FormMappingService extends BaseService {
     constructor(db, beanStore) {
@@ -62,21 +70,13 @@ class FormMappingService extends BaseService {
     };
 
     findEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
-        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
+        let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
         return this.getEncounterTypesForProgram(criteria);
     }
 
     findActiveEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
-        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
+        let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
         return this.getEncounterTypesForProgram(criteria).filter(this.active);
-    }
-
-    getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
-        let criteria = `voided = false AND ${entityCriteria} AND form.formType="${formType}"`;
-        if (subjectType) {
-            criteria = `${criteria} and subjectType.uuid="${subjectType.uuid}"`
-        }
-        return criteria;
     }
 
     getEncounterTypesForProgram(criteria) {
@@ -88,12 +88,12 @@ class FormMappingService extends BaseService {
     }
 
     findEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
-        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
+        let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
         return this.getEncounterTypesForSubject(criteria);
     }
 
     findActiveEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
-        let criteria = this.getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
+        let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
         return this.getEncounterTypesForSubject(criteria).filter(this.active);
     }
 
