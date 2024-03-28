@@ -4,6 +4,7 @@ import Colors from "../primitives/Colors";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
 import {Concept} from 'openchs-models';
+import _ from 'lodash';
 
 export default class AppliedFilters extends AbstractComponent {
     static styles = StyleSheet.create({
