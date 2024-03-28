@@ -9,6 +9,7 @@ import {
     View,
     BackHandler, Image, Dimensions, Clipboard, ToastAndroid
 } from 'react-native';
+import Clipboard from "@react-native-clipboard/clipboard";
 import TextFormElement from './form/formElement/TextFormElement';
 import StaticFormElement from './viewmodel/StaticFormElement';
 import {LoginActionsNames as Actions} from '../action/LoginActions';

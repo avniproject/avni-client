@@ -1,7 +1,6 @@
 import EntityService from "../../service/EntityService";
 import _ from 'lodash';
 import {ProgramEnrolment, Checklist} from 'avni-models';
-import {ChecklistItemActionNames, ChecklistItemActions} from "./ChecklistItemActions";
 import {EditFormRuleResponse} from "rules-config";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 

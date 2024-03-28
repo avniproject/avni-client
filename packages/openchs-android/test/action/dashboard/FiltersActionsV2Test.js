@@ -4,6 +4,7 @@ import {CustomFilter} from 'openchs-models';
 import TestDashboardFilterConfigFactory from "../../model/TestDashboardFilterConfigFactory";
 import TestDashboardFilterFactory from "../../model/TestDashboardFilterFactory";
 import {assert} from 'chai';
+import _ from 'lodash';
 
 it('should update and apply date range filter', function () {
     let state = FiltersActionsV2.getInitialState();

@@ -17,6 +17,7 @@ import KeepAwake from 'react-native-keep-awake';
 import moment from "moment";
 import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
+import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 
 const {TamperCheckModule} = NativeModules;
 
@@ -94,7 +95,8 @@ class App extends Component {
             this.setState(state => ({...state, isInitialisationDone: true}));
         } catch (e) {
             console.log("App", e);
-            this.setState(state => ({...state, error: e}));
+            this.handleError(ErrorUtil.getAvniErrorSync(e));
+            ErrorUtil.notifyBugsnag(e, "App");
         }
     }
 
