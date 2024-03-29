@@ -3,7 +3,7 @@ import { postUrlFormEncoded, putJSON } from "../framework/http/requests";
 import General from "../utility/General";
 import AuthenticationError, { NO_USER } from "./AuthenticationError";
 import BaseAuthProviderService from "./BaseAuthProviderService";
-
+import _ from "lodash";
 
 @Service("keycloakAuthService")
 class KeycloakAuthService extends BaseAuthProviderService {

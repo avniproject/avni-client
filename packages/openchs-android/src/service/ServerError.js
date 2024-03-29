@@ -1,5 +1,6 @@
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import AvniError from "../framework/errorHandling/AvniError";
+import _ from "lodash";
 
 function ServerError(response) {
     const instance = new Error(response);

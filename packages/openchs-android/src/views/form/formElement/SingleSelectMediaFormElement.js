@@ -4,6 +4,7 @@ import React from "react";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import MediaFormElement from "./MediaFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import _ from "lodash";
 
 export default class SingleSelectMediaFormElement extends MediaFormElement {
     static propTypes = {

@@ -13,7 +13,7 @@ import Styles from "../primitives/Styles";
 import Colors from "../primitives/Colors";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import UserInfoService from "../../service/UserInfoService";
-
+import _ from "lodash";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {

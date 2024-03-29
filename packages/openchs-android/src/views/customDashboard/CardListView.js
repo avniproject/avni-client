@@ -3,7 +3,7 @@ import React from 'react';
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {CountResult} from "./CountResult";
-import {get} from 'lodash';
+import _, {get} from 'lodash';
 
 export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
     const {name, colour, itemKey} = reportCard;

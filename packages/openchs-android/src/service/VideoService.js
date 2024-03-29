@@ -1,6 +1,7 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {Video} from 'avni-models';
+import _ from "lodash";
 
 @Service("videoService")
 class VideoService extends BaseService {

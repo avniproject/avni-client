@@ -8,6 +8,7 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import Separator from "../primitives/Separator";
 import moment from "moment";
+import _ from "lodash";
 
 class NextScheduledVisits extends AbstractComponent {
     static propTypes = {

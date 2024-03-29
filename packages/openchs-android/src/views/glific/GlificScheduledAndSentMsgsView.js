@@ -15,6 +15,7 @@ import Fonts from '../primitives/Fonts';
 import GlificMessagesTab from './GlificMessagesTab';
 import GlificService from '../../service/GlificService';
 import {Spinner} from 'native-base';
+import _ from "lodash";
 
 @Path('/GlificScheduledAndSentMsgsView')
 class GlificScheduledAndSentMsgsView extends AbstractComponent {

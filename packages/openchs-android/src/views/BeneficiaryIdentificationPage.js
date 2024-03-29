@@ -13,6 +13,7 @@ import FormElementGroup from "./form/FormElementGroup";
 import WizardButtons from "./common/WizardButtons";
 import CHSContainer from "./common/CHSContainer";
 import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
+import _ from "lodash";
 
 @Path('/BeneficiaryIdentificationPage')
 class BeneficiaryIdentificationPage extends AbstractComponent {

@@ -17,6 +17,7 @@ import Fonts from "../primitives/Fonts";
 import {Names as Actions} from "../../action/program/SubjectDashboardViewActions";
 import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import OIcon from "react-native-vector-icons/Octicons";
+import _ from "lodash";
 
 class SubjectDashboardView extends AbstractComponent {
     static propTypes = {

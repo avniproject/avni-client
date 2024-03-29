@@ -4,6 +4,7 @@ import Colors from './views/primitives/Colors';
 const App = require('./App').default;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getJSON } from './framework/http/requests';
+import _ from "lodash";
 
 class ServerUrlConfiguration extends Component {
     constructor(props) {

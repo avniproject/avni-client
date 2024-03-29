@@ -6,6 +6,7 @@ import General from "../../utility/General";
 import {IndividualRelative} from 'avni-models';
 import EntityService from "../EntityService";
 import {Individual} from 'avni-models';
+import _ from "lodash";
 
 @Service("individualRelationshipService")
 class IndividualRelationshipService extends BaseService {

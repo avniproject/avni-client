@@ -12,6 +12,7 @@ import {Button, Text} from "native-base";
 import Fonts from "../../primitives/Fonts";
 import Styles from "../../primitives/Styles";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import _ from "lodash";
 
 class MultiSelectFileFormElement extends FileFormElement {
     static propTypes = {

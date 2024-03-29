@@ -6,6 +6,7 @@ import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
 import GlobalContext from "../GlobalContext";
 import {MetaDataService} from "openchs-models";
+import _ from "lodash";
 
 export const imageObservationDoesNotExist = (db) => (media) => {
     return MetaDataService.everyObservationField((observationField, schemaName) => {

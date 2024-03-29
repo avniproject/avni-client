@@ -7,7 +7,7 @@ import Colors from "../../primitives/Colors";
 import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni-models';
 import QuestionGroup from "./QuestionGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
-
+import _ from "lodash";
 
 class RepeatableFormElement extends AbstractFormElement {
 

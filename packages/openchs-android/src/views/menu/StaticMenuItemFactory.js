@@ -6,6 +6,7 @@ import EntitySyncStatusView from "../entitysyncstatus/EntitySyncStatusView";
 import DevSettingsView from "../settings/DevSettingsView";
 import CustomDashboardView from "../customDashboard/CustomDashboardView";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import _ from "lodash";
 
 const FunctionalityMenus = [
     new StaticMenuItem("dashboard", "view-dashboard", "dashboards", StaticMenuItem.InternalNavigationMenuType, CustomDashboardView),
