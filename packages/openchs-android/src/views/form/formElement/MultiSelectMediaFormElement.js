@@ -1,10 +1,10 @@
 import {StyleSheet, View} from "react-native";
 import PropTypes from 'prop-types';
-import React, {Fragment} from "react";
+import React from "react";
 import ValidationErrorMessage from "../../form/ValidationErrorMessage";
 import MediaFormElement from "./MediaFormElement";
 import Colors from "../../primitives/Colors";
-import {Button, Icon, Text} from "native-base";
+import {Button, Text} from "native-base";
 import Fonts from "../../primitives/Fonts";
 import Styles from "../../primitives/Styles";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
@@ -58,6 +58,7 @@ export default class MultiSelectMediaFormElement extends MediaFormElement {
             parentFormElement: this.props.parentElement,
             questionGroupIndex: this.props.questionGroupIndex,
         });
+        this.setState({mediaCount: _.size(this.mediaUris)});
     }
 
     renderMedia(index) {

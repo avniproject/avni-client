@@ -53,6 +53,7 @@ class MultiSelectFileFormElement extends FileFormElement {
             formElement: this.props.element,
             answerUUID: fileName
         });
+        this.setState({mediaCount: _.size(this.mediaUris)});
     }
 
     renderMedia(index) {

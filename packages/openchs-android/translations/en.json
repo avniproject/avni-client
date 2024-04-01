@@ -430,7 +430,7 @@
     "registrationOverviewSection": "Registration overview",
     "noFileTypeErrorMessage": "File type not recognised, please select correct file.",
     "FileTypeErrorMessage": "Selected file type {{type}} does not match with the required file type(s) {{allowedTypeNames}}",
-    "FileSizeErrorMessage": "File size {{size}} MB increases the max file size {{allowedMaxSize}} MB",
+    "FileSizeErrorMessage": "File size {{size}} MB is more than the allowed size {{allowedMaxSize}} MB",
     "FileSelectionErrorTitle": "Error while selecting the file",
     "FetchingChangedResource": "Fetching changed resources from the server",
     "chooseVisitType": "Choose Visit Type",
