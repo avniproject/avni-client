@@ -1,0 +1,2 @@
+## Find files with usages of _ (lodash) without corresponding import
+find . -type f -exec grep -q '_\.' /dev/null {} \; -print | xargs grep -L 'import _'
