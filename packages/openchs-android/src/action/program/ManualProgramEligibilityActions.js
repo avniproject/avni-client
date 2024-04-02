@@ -9,7 +9,7 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 class ManualProgramEligibilityActions {
 
     static getInitialState() {
-        return {}
+        return new SubjectProgramEligibilityState();
     }
 
     static filterFormElements(formElementGroup, context, subjectProgramEligibility) {

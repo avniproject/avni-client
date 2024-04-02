@@ -303,6 +303,7 @@
     "nestedReportCardsCountMismatch": "कॉन्फिगर केलेली कार्डची संख्या नियमातील कार्डांच्या संख्येशी जुळत नाही",
     "addressFilterImplicitBehaviorHint": "(निवडीत खालच्या स्तरांचा समावेश होतो)",
     "copyErrorTryAgain": "एरर कॉपी करा आणि पुन्हा प्रयत्न करा",
-    "copyErrorAndCancel": "एरर कॉपी करा आणि रद्द करा"
+    "copyErrorAndCancel": "एरर कॉपी करा आणि रद्द करा",
+    "reportCopiedReportByPasting": "अहवाल कॉपी केला आहे. तुम्ही तक्रार करण्यासाठी मेसेजिंग ॲपमध्ये पेस्ट करू शकता."
   }
 }

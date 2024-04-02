@@ -62,6 +62,7 @@ class ProgramEnrolmentService extends BaseService {
         if (!_.isNil(workflowInfo))
             this.checkAndNotifyForRemovedObservations(programEnrolment, workflowInfo);
         const db = this.db;
+        programEnrolment.updateAudit(this.getUserInfo(), false);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             db.create(ProgramEnrolment.schema.name, {
@@ -80,16 +81,16 @@ class ProgramEnrolmentService extends BaseService {
         const entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         const individual = this.findByUUID(programEnrolment.individual.uuid, Individual.schema.name);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramForm(individual.subjectType, programEnrolment.program);
+        const isNew = this.isNew(programEnrolment);
         this.db.write(() => {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
             programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            programEnrolment.updateAudit(this.getUserInfo(), isNew);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
-            General.logDebug('ProgramEnrolmentService', 'Saved ProgramEnrolment');
             programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, db, programEnrolment.enrolmentDateTime);
-            General.logDebug('ProgramEnrolmentService', 'Added scheduled visits to ProgramEnrolment');
             const checklistService = this.getService(ChecklistService);
             checklists
                 .map((checklist) => checklistService.saveOrUpdate.bind(this)(programEnrolment, checklist, db))
@@ -120,21 +121,10 @@ class ProgramEnrolmentService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
             db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            programEnrolment.updateAudit(this.getUserInfo(), false);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));
         });
-    }
-
-    getProgramReport(program) {
-        const programSummary = this.getService(ProgramEncounterService).getProgramSummary(program);
-        const all = this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${program.uuid}\"`);
-        programSummary.total = all.length;
-        programSummary.open = 0;
-        all.forEach((enrolment) => {
-            if (_.isNil(enrolment.enrolmentDateTime)) programSummary.open++;
-        });
-        programSummary.program = program;
-        return programSummary;
     }
 
     getAllEnrolments(programUUID) {
@@ -144,6 +134,7 @@ class ProgramEnrolmentService extends BaseService {
     reJoinProgram(programEnrolment) {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         const entityService = this.getService(EntityService);
+        programEnrolment.updateAudit(this.getUserInfo(), false);
         entityService.saveAndPushToEntityQueue(programEnrolment, ProgramEnrolment.schema.name);
     }
 

@@ -306,6 +306,7 @@
     "nestedReportCardsCountMismatch": "કાર્ડની રૂપરેખાંકિત સંખ્યા નિયમમાંના કાર્ડની સંખ્યા સાથે મેળ ખાતી નથી",
     "addressFilterImplicitBehaviorHint": "(પસંદગીમાં નિમ્ન સ્તરનો ગર્ભિત સમાવેશ થાય છે)",
     "copyErrorTryAgain": "કોપી ભૂલ કરો અને ફરીથી પ્રયાસ કરો",
-    "copyErrorAndCancel": "કોપી ભૂલ અને રદ કરો"
+    "copyErrorAndCancel": "કોપી ભૂલ અને રદ કરો",
+    "reportCopiedReportByPasting": "रिपोर्ट कॉपी कर ली गई है। रिपोर्ट करने के लिए आप मैसेजिंग ऐप में पेस्ट कर सकते हैं।"
   }
 }

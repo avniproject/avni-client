@@ -45,7 +45,7 @@ const isSaveDraftOn = (context) => {
 
 export class EncounterActions {
     static getInitialState() {
-        return {};
+        return new EncounterActionState();
     }
 
     static filterFormElements(formElementGroup, context, encounter) {

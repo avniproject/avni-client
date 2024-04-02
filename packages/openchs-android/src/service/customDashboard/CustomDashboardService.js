@@ -4,6 +4,17 @@ import {Dashboard, GroupDashboard} from "avni-models";
 import PrivilegeService from "../PrivilegeService";
 import EntityService from "../EntityService";
 import _ from 'lodash';
+import General from "../../utility/General";
+
+function getOneDashboard(dashboards) {
+    return _.head(_.map(dashboards, ({dashboard}) => dashboard));
+}
+
+export const CustomDashboardType = {
+    Primary: "Primary",
+    Secondary: "Secondary",
+    None: "None"
+}
 
 @Service("customDashboardService")
 class CustomDashboardService extends BaseService {
@@ -20,31 +31,44 @@ class CustomDashboardService extends BaseService {
         return [...this.getAll().filtered('voided = false')];
     }
 
-    getDashboards(onlyPrimary) {
-        return onlyPrimary ? [this.getOnePrimaryDashboard()] : this.getDashboardsBasedOnPrivilege();
+    getDashboards(customDashboardType) {
+        General.logDebugTemp("CustomDashboardService", customDashboardType);
+        switch (customDashboardType) {
+            case CustomDashboardType.Primary:
+                return [this.getOnePrimaryDashboard()];
+            case CustomDashboardType.Secondary:
+                return [this.getOneSecondaryDashboard()];
+            case CustomDashboardType.None:
+                return this.getDashboardsBasedOnPrivilege();
+        }
+        return [];
     }
 
     getOnePrimaryDashboard() {
-        const groupDashboards = this.getGroupDashboard().filtered('primaryDashboard = true');
-        return _.head(_.map(groupDashboards, ({dashboard}) => dashboard));
+        const groupDashboards = this.getGroupDashboards().filtered('primaryDashboard = true');
+        return getOneDashboard(groupDashboards);
+    }
+
+    getOneSecondaryDashboard() {
+        const groupDashboards = this.getGroupDashboards().filtered('secondaryDashboard = true');
+        return getOneDashboard(groupDashboards);
     }
 
     isCustomDashboardMarkedPrimary() {
-        return this.getGroupDashboard().filtered('primaryDashboard = true').length > 0;
+        return this.getGroupDashboards().filtered('primaryDashboard = true').length > 0;
     }
 
     getDashboardsBasedOnPrivilege() {
         return this.getService(PrivilegeService).hasAllPrivileges() ?
-            this.getAllDashboards() : _.map(this.getGroupDashboard(), ({dashboard}) => dashboard);
+            this.getAllDashboards() : _.map(this.getGroupDashboards(), ({dashboard}) => dashboard);
     }
 
-    getGroupDashboard() {
+    getGroupDashboards() {
         const ownedGroupsQuery = _.map(this.getService(PrivilegeService).ownedGroups(), ({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
         return this.getService(EntityService).getAllNonVoided(GroupDashboard.schema.name)
             .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
             .filtered('TRUEPREDICATE DISTINCT(dashboard.uuid)');
     }
-
 }
 
 export default CustomDashboardService

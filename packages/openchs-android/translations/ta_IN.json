@@ -314,6 +314,7 @@
     "nestedReportCardsCountMismatch": "கார்டுகளின் எண்ணிக்கை பொருந்தவில்லை",
     "addressFilterImplicitBehaviorHint": "(தேர்வு என்பது கீழ்நிலைகளை மறைமுகமாக உள்ளடக்கியது)",
     "copyErrorTryAgain": "பிழையை நகலெடுத்து மீண்டும் முயற்சிக்கவும்",
-    "copyErrorAndCancel": "நகல் பிழை & ரத்துசெய்"
+    "copyErrorAndCancel": "நகல் பிழை & ரத்துசெய்",
+    "reportCopiedReportByPasting": "அறிக்கை நகலெடுக்கப்பட்டது. புகாரளிக்க செய்தியிடல் பயன்பாட்டில் ஒட்டலாம்."
   }
 }

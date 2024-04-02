@@ -7,6 +7,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import PropTypes from 'prop-types';
 import AutoHeightWebView from 'react-native-autoheight-webview';
 import AvniIcon from './AvniIcon';
+import _ from 'lodash';
 
 class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {

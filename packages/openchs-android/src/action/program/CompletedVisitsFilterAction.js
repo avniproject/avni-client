@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 class CompletedVisitsFilterAction {
     static getInitialState() {
         return {

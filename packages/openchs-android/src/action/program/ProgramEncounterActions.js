@@ -17,9 +17,9 @@ import {ObservationsHolder} from "openchs-models";
 
 class ProgramEncounterActions {
     static getInitialState() {
-        return {
-            messageDisplayed: true
-        };
+        const state = new ProgramEncounterState();
+        state.messageDisplayed = true;
+        return state;
     }
 
     static filterFormElements(formElementGroup, context, programEncounter) {

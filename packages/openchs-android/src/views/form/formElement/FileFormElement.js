@@ -68,21 +68,23 @@ class FileFormElement extends AbstractFormElement {
     async selectFile(onUpdateObservations) {
         const formElement = this.props.element;
         const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [DocumentPicker.types.allFiles] : formElement.allowedTypes;
-        const options = {type: applicableTypes};
+        const options = {type: applicableTypes, allowMultiSelection: formElement.isMultiSelect()};
         const directory = FileSystem.getFileDir();
         if (await this.isPermissionGranted()) {
-            DocumentPicker.pickSingle(options)
+            DocumentPicker.pick(options)
                 .then((response) => {
-                    const {uri, copyError, type, name, size} = response;
-                    this.checkFileSizeAndType(type, size);
-                    if (name && uri && !copyError) {
-                        const fileName = this.getFileName(name);
-                        fs.copyFile(uri, `${directory}/${fileName}`)
-                            .then(() => onUpdateObservations(fileName))
-                            .catch(err => {
-                                AlertMessage("Error while coping file", err.message);
-                            })
-                    }
+                    response.map(responseItem => {
+                        const {uri, copyError, type, name, size} = responseItem;
+                        this.checkFileSizeAndType(type, size);
+                        if (name && uri && !copyError) {
+                            const fileName = this.getFileName(name);
+                            fs.copyFile(uri, `${directory}/${fileName}`)
+                                .then(() => onUpdateObservations(fileName))
+                                .catch(err => {
+                                    AlertMessage("Error while copying file", err.message);
+                                })
+                        }
+                    });
                 })
                 .catch(err => {
                     if (!DocumentPicker.isCancel(err)) {

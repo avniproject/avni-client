@@ -3,6 +3,7 @@ import analytics from '@react-native-firebase/analytics';
 import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import _ from "lodash";
 
 let db;
 const firebaseAnalytics = analytics();

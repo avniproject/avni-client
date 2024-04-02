@@ -22,6 +22,15 @@ it('should get displayable value from numeric value', function () {
     assert.equal("0.", getDisplayValue("0", "0."));
     assert.equal("1.", getDisplayValue("1", "1."));
     assert.equal("1.", getDisplayValue("1.1", "1."));
+    assert.equal("1", getDisplayValue("1.", "1"));
+    assert.equal("", getDisplayValue(".", ""));
+    assert.equal(".", getDisplayValue("", "."));
+    assert.equal("1.", getDisplayValue("1.2", "1."));
+    assert.equal(".2", getDisplayValue("1.2", ".2"));
+    assert.equal("1", getDisplayValue(".1", "1"));
+    assert.equal("1", getDisplayValue("1.", "1"));
+    assert.equal(".", getDisplayValue(".1", "."));
+    assert.equal(".", getDisplayValue("1.", "."));
 
     //negative sign
     assert.equal("-", getDisplayValue("", "-"));
@@ -40,3 +49,5 @@ it('should overwrite with rule value always', function () {
 
     assert.equal("3000", getDisplayValue("3000", "100", false));
 });
+
+

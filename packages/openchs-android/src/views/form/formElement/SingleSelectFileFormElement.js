@@ -9,6 +9,7 @@ import Colors from "../../primitives/Colors";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import FileFormElement from "./FileFormElement";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import _ from "lodash";
 
 class SingleSelectFileFormElement extends FileFormElement {
     static propTypes = {

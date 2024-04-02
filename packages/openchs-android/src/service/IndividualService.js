@@ -93,9 +93,11 @@ class IndividualService extends BaseService {
         const formMappingService = this.getService(FormMappingService);
         const registrationForm = formMappingService.findRegistrationForm(individual.subjectType);
         const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
+        const isNew = this.isNew(individual);
         this.db.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, db, individual.subjectType.uuid);
+            individual.updateAudit(this.getUserInfo(), isNew);
             const saved = db.create(Individual.schema.name, individual, true);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
@@ -107,6 +109,7 @@ class IndividualService extends BaseService {
 
     updateObservations(individual) {
         const db = this.db;
+        individual.updateAudit(this.getUserInfo(), false);
         this.db.write(() => {
             ObservationsHolder.convertObsForSave(individual.observations);
             db.create(Individual.schema.name, {uuid: individual.uuid, observations: individual.observations, profilePicture: individual.profilePicture}, Realm.UpdateMode.Modified);
@@ -265,30 +268,6 @@ class IndividualService extends BaseService {
         return allEncounters;
     }
 
-    withScheduledVisits(program, addressLevel, encounterType) {
-        const todayMidnight = moment(new Date()).endOf('day').toDate();
-        const todayMorning = moment(new Date()).startOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.program.uuid = $0 ' +
-                'AND programEnrolment.individual.lowestAddressLevel.uuid = $1 ' +
-                'AND earliestVisitDateTime <= $2 ' +
-                'AND maxVisitDateTime >= $3 ' +
-                'AND encounterDateTime = null ' +
-                'AND cancelDateTime = null ' +
-                'AND encounterType.uuid = $4 ',
-                program.uuid,
-                addressLevel.uuid,
-                todayMidnight,
-                todayMorning,
-                encounterType.uuid)
-            .map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
-    }
-
-    totalScheduledVisits(program, addressLevel, encounterType) {
-        return this.withScheduledVisits(program, addressLevel, encounterType).length;
-    }
-
     allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const privilegeService = this.getService(PrivilegeService);
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
@@ -370,30 +349,13 @@ class IndividualService extends BaseService {
                       }
                   };
               })
-        };
+        }
         const allEncounters = [...
             [...programEncounters, ...encounters]
                 .reduce(this._uniqIndividualWithVisitName, new Map())
                 .values()
         ];
         return allEncounters;
-    }
-
-    overdueVisits(program, addressLevel, encounterType) {
-        const todayMorning = moment(new Date()).startOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.program.uuid = $0 ' +
-                'AND programEnrolment.individual.lowestAddressLevel.uuid = $1 ' +
-                'AND maxVisitDateTime < $2 ' +
-                'AND cancelDateTime = null ' +
-                'AND encounterDateTime = null ' +
-                'AND encounterType.uuid = $3 ',
-                program.uuid,
-                addressLevel.uuid,
-                todayMorning,
-                encounterType.uuid)
-            .map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
     }
 
     allCompletedVisitsIn(date, queryAdditions) {
@@ -477,7 +439,7 @@ class IndividualService extends BaseService {
                     }
                 };
             })
-        };
+        }
         return [...[...programEncounters, ...encounters]
             .reduce(this._uniqIndividualWithVisitName, new Map())
             .values()]
@@ -561,23 +523,6 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    completedVisits(program, addressLevel, encounterType, fromDate = new Date(), tillDate = new Date()) {
-        fromDate = moment(fromDate).startOf('day').toDate();
-        tillDate = moment(tillDate).endOf('day').toDate();
-        const encounters = this.db.objects(ProgramEncounter.schema.name)
-            .filtered('programEnrolment.program.uuid = $0 ' +
-                'AND programEnrolment.individual.lowestAddressLevel.uuid = $1 ' +
-                'AND encounterDateTime <= $2 ' +
-                'AND encounterDateTime >= $3 ' +
-                'AND encounterType.uuid = $4 ',
-                program.uuid,
-                addressLevel.uuid,
-                tillDate,
-                fromDate,
-                encounterType.uuid).map(_.identity);
-        return this._uniqIndividualsFrom(encounters);
-    }
-
     dueChecklistForDefaultDashboard = (date, queryAdditions) => {
         if (!this.showDueChecklistOnDashboard) {
             return {individual: [], checklistItemNames: []}
@@ -625,10 +570,6 @@ class IndividualService extends BaseService {
         return {
             individual: individualsWithVisitInfo, checklistItemNames
         }
-    }
-
-    totalCompletedVisits(program, addressLevel, encounterType, fromDate, tillDate) {
-        return this.completedVisits(program, addressLevel, encounterType, tillDate).length;
     }
 
     voidUnVoidIndividual(individualUUID, setVoided, groupAffiliation) {
@@ -709,7 +650,6 @@ class IndividualService extends BaseService {
     getAllBySubjectType(subjectType) {
         return this.getAll().filtered('subjectType = $0', subjectType);
     }
-
 }
 
 export default IndividualService;

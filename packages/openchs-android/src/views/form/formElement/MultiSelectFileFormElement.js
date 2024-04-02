@@ -12,6 +12,7 @@ import {Button, Text} from "native-base";
 import Fonts from "../../primitives/Fonts";
 import Styles from "../../primitives/Styles";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
+import _ from "lodash";
 
 class MultiSelectFileFormElement extends FileFormElement {
     static propTypes = {
@@ -52,6 +53,7 @@ class MultiSelectFileFormElement extends FileFormElement {
             formElement: this.props.element,
             answerUUID: fileName
         });
+        this.setState({mediaCount: _.size(this.mediaUris)});
     }
 
     renderMedia(index) {

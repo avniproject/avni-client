@@ -1,6 +1,7 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {BeneficiaryModePin} from 'avni-models';
+import _ from "lodash";
 
 @Service("beneficiaryModePinService")
 class BeneficiaryModePinService extends BaseService {

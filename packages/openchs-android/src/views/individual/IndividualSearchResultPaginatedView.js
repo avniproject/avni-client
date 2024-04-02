@@ -23,6 +23,7 @@ import ZeroResults from "../common/ZeroResults";
 import FloatingButton from "../primitives/FloatingButton";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import SubjectRegisterFromTaskView from "./SubjectRegisterFromTaskView";
+import _ from "lodash";
 
 @Path('/individualSearchResultPaginatedView')
 class IndividualSearchResultPaginatedView extends AbstractComponent {

@@ -22,7 +22,7 @@ import AddressLevelService from '../../service/AddressLevelService';
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
-        return {};
+        return new SubjectRegistrationState();
     }
 
     static filterFormElements(formElementGroup, context, subject) {

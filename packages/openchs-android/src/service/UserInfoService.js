@@ -2,6 +2,7 @@ import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {UserInfo} from 'avni-models';
 import UserSettings from "../model/UserSettings";
+import _ from "lodash";
 
 @Service("userInfoService")
 class UserInfoService extends BaseService {

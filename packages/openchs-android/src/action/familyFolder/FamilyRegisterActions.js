@@ -10,7 +10,9 @@ export class FamilyRegisterActions {
     static getInitialState(context) {
         // const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
         const genders = context.get(EntityService).getAll(Gender.schema.name);
-        return {genders: genders};
+        const state = new FamilyRegistrationState();
+        state.genders = genders;
+        return state;
     }
 
     static onLoad(state, action, context) {

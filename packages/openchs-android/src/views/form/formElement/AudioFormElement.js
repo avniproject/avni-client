@@ -94,19 +94,23 @@ class AudioFormElement extends AbstractFormElement {
     }
 
     async uploadFromFileSystem() {
-        const options = {type: DocumentPicker.types.audio};
+        const formElement = this.props.element;
+        const options = {type: DocumentPicker.types.audio, allowMultiSelection: formElement.isMultiSelect()};
         const fileName = `${General.randomUUID()}.mp3`;
         const directory = FileSystem.getAudioDir();
         if (await this.isPermissionGranted()) {
             DocumentPicker.pick(options)
-                .then(({uri, copyError, type}) => {
-                    if (_.isNil(type)) {
-                        AlertMessage(this.I18n("audioFileTitle"), this.I18n.t("audioFileDescription"))
-                    }
-                    if (uri && type && !copyError) {
-                        fs.copyFile(uri, `${directory}/${fileName}`)
-                            .then(() => this.updateValue(fileName))
-                    }
+                .then((response) => {
+                    response.map(responseItem => {
+                        const {uri, copyError, type} = responseItem;
+                        if (_.isNil(type)) {
+                            AlertMessage(this.I18n.t("audioFileTitle"), this.I18n.t("audioFileDescription"))
+                        }
+                        if (uri && type && !copyError) {
+                            fs.copyFile(uri, `${directory}/${fileName}`)
+                                .then(() => this.updateValue(fileName))
+                        }
+                    })
                 }).catch(err => {
                 if (!DocumentPicker.isCancel(err)) {
                     //Throw error only when user does not cancel it using back press

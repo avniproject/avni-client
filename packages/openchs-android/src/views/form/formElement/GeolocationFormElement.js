@@ -13,6 +13,7 @@ import Geo from "../../../framework/geo";
 import UserInfoService from "../../../service/UserInfoService";
 import AvniIcon from '../../common/AvniIcon';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import _ from "lodash";
 
 class GeolocationFormElement extends AbstractComponent {
     static propTypes = {

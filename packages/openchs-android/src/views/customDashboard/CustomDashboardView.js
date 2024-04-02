@@ -28,6 +28,7 @@ import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import Distances from '../primitives/Distances';
 import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 import General from "../../utility/General";
+import {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -221,18 +222,19 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug("CustomDashboardView", "render");
+        const {hideBackButton, startSync, renderSync, icon, customDashboardType} = this.props;
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground,
                 marginBottom: Styles.ContentDistanceFromEdge}}>
                 <AppHeader title={this.I18n.t(title)}
-                           hideBackButton={this.props.hideBackButton}
-                           startSync={this.props.startSync}
-                           renderSync={this.props.renderSync}
-                           icon={this.props.icon}
-                           hideIcon={_.isNil(this.props.icon)}/>
-                {!this.props.onlyPrimary &&
+                           hideBackButton={hideBackButton}
+                           startSync={startSync}
+                           renderSync={renderSync}
+                           icon={icon}
+                           hideIcon={_.isNil(icon)}/>
+                {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                 <SafeAreaView style={{height: 50}}>
                     <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
                         {this.renderDashboards()}

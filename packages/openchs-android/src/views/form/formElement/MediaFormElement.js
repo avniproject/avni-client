@@ -1,7 +1,7 @@
-import { StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid } from "react-native";
+import {StyleSheet, TouchableNativeFeedback, View, PermissionsAndroid} from "react-native";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import fs from 'react-native-fs';
 import General from "../../../utility/General";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -71,14 +71,14 @@ export default class MediaFormElement extends AbstractFormElement {
     addMediaFromPicker(response, onUpdateObservations) {
         if (!response.didCancel && !response.errorCode) {
             const ext = this.isVideo ? 'mp4' : 'jpg';
-            const fileName = `${General.randomUUID()}.${ext}`;
             const directory = this.isVideo ? FileSystem.getVideosDir() :
                 (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
-            if (_.get(response, 'assets[0]')) {
-                fileSystemAction(response.assets[0].uri, `${directory}/${fileName}`)
+            _.get(response, 'assets').map(asset => {
+                const fileName = `${General.randomUUID()}.${ext}`;
+                fileSystemAction(asset.uri, `${directory}/${fileName}`)
                     .then(() => onUpdateObservations(fileName));
-            }
+            });
         }
     }
 
@@ -108,10 +108,11 @@ export default class MediaFormElement extends AbstractFormElement {
     }
 
     async launchMediaLibrary(onUpdateObservations) {
-        this.setState({ mode: Mode.MediaLibrary });
+        this.setState({mode: Mode.MediaLibrary});
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
+            selectionLimit: this.props.element.isMultiSelect() ? 0 : 1
         };
         if (await this.isPermissionGranted()) {
             launchImageLibrary(options,
@@ -153,7 +154,7 @@ export default class MediaFormElement extends AbstractFormElement {
 
     showInputOptions(onUpdateObservations) {
         return (
-            <View style={[styles.contentRow, { justifyContent: 'flex-end' }]}>
+            <View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
                 <TouchableNativeFeedback onPress={() => {
                     this.launchMediaLibrary(onUpdateObservations)
                 }}
