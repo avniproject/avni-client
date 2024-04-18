@@ -118,8 +118,8 @@ class CustomDashboardActions {
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
             const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
-            if(rcm.card.nested) {
-                if(countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
+            if (rcm.card.nested) {
+                if (countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
                     _.forEach(countQueryResponse, (reportCard, index) => {
                         const itemKey = rcm.card.getCardId(index);
                         newState.cardToCountResultMap[itemKey] = {
@@ -127,7 +127,7 @@ class CustomDashboardActions {
                             itemKey
                         };
                     });
-                } else if(countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
+                } else if (countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
                     Array(rcm.card.countOfCards).fill(rcm.card).forEach((reportCard, index) => {
                         const itemKey = reportCard.getCardId(index);
                         newState.cardToCountResultMap[itemKey] = {
@@ -152,9 +152,9 @@ class CustomDashboardActions {
         const reportCardSectionMappings = state.reportCardSectionMappings;
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
         reportCardSectionMappings.forEach(rcm => {
-            const keysOfReportCard= _.keys(newState.cardToCountResultMap).filter((itemKey) => itemKey.startsWith(rcm.card.uuid));
+            const keysOfReportCard = _.keys(newState.cardToCountResultMap).filter((itemKey) => itemKey.startsWith(rcm.card.uuid));
             _.forEach(keysOfReportCard, (itemKey) => {
-                newState.cardToCountResultMap[itemKey]= null;
+                newState.cardToCountResultMap[itemKey] = null;
             });
         });
         return newState;
@@ -169,7 +169,7 @@ class CustomDashboardActions {
     static setCustomDashboardFilters(state, action, context) {
         const newState = {...state};
         newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters
-          : CustomDashboardActions.getDefaultCustomDashboardFilters();
+            : CustomDashboardActions.getDefaultCustomDashboardFilters();
         return newState;
     }
 }
