@@ -14,6 +14,9 @@ Styles.groupSubjectBackground = '#871f74';
 Styles.greyBackground = '#f7f7f7';
 Styles.greyText = '#666666';
 Styles.blueColor='#0000e5';
+Styles.blackish = '#1E1E1E';
+Styles.lightgrey = '#919191';
+Styles.grey = '#868686';
 
 Styles.titleSize = 20;
 Styles.normalTextSize = 16;

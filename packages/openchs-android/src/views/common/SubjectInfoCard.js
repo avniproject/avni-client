@@ -13,6 +13,42 @@ import EncounterService from "../../service/EncounterService";
 import IndividualService from "../../service/IndividualService";
 import AddressLevelService from "../../service/AddressLevelService";
 
+const styles = {
+    subjectName: {
+        fontSize: Styles.smallTextSize,
+        fontStyle: 'normal',
+        color: Styles.blackColor,
+        lineHeight: Styles.smallTextSizeLineHeight
+    },
+    subjectSubtext1: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.blackish,
+        paddingRight: 8
+    },
+    subjectSubtext2: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.blackish,
+    },
+    subjectAddress: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.lightgrey,
+    },
+    enrolledProgram: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.whiteColor,
+    },
+    customSearchField: {
+        fontSize: Styles.smallerTextSize,
+        fontStyle: 'normal',
+        color: Styles.grey,
+        paddingRight: 8
+    }
+}
+
 class SubjectInfoCard extends AbstractComponent {
     static propTypes = {
         individual: PropTypes.object.isRequired,
@@ -31,14 +67,13 @@ class SubjectInfoCard extends AbstractComponent {
             <Text key={index} disabled
                   style={[{
                       height: 22,
-                      marginLeft: 4,
                       marginRight: 4,
                       borderRadius: 2,
                       paddingHorizontal: 4,
-                      marginVertical: 1,
+                      marginVertical: 2,
                       backgroundColor: program.colour,
                       color: Colors.TextOnPrimaryColor,
-                  }, Styles.userProfileProgramTitle]}
+                  }, styles.enrolledProgram]}
                   numberOfLines={1} ellipsizeMode='tail'>{this.I18n.t(program.displayName)}</Text>
         );
     }
@@ -50,9 +85,9 @@ class SubjectInfoCard extends AbstractComponent {
             alignItems: 'flex-start'
         }}>
             <Text
-                style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
+                style={styles.subjectSubtext1}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
             <Text
-                style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
+                style={styles.subjectSubtext2}>{this.props.individual.userProfileSubtext2(i18n)}</Text>
         </View>
     }
 
@@ -74,7 +109,7 @@ class SubjectInfoCard extends AbstractComponent {
         const enrolledPrograms = _.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 
-      const subjectAddressText = _.replace(this.props.individual.lowestTwoLevelAddress(i18n),new RegExp(",","g"),",\n");
+      const subjectAddressText = this.props.individual.lowestTwoLevelAddress(i18n);
         return (
             <View style={{
                 flexDirection: 'row',
@@ -86,9 +121,9 @@ class SubjectInfoCard extends AbstractComponent {
                 paddingHorizontal: 8
             }}>
                 <SubjectProfilePicture
-                    size={24}
+                    size={32}
                     subjectType={this.props.individual.subjectType}
-                    style={{marginRight: 8}}
+                    style={{marginRight: 12}}
                     round={true}
                     individual={this.props.individual}
                     containerStyle={iconContainerStyle}
@@ -99,7 +134,7 @@ class SubjectInfoCard extends AbstractComponent {
                         alignItems: 'flex-start',
                         flex: 1
                     }}>
-                    <Text style={Styles.textStyle}>
+                    <Text style={styles.subjectName}>
                         {this.props.individual.nameString}
                         {this.props.individual.voided &&
                         <Text style={{color: Styles.redColor}}>
@@ -113,26 +148,19 @@ class SubjectInfoCard extends AbstractComponent {
                         }
                     </Text>
                     {this.props.individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
-                    {this.renderCustomSearchResultFields(i18n, conceptService)}
-                </View>
-                <View style={{
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'flex-end',
-                    flex: 1
-                }}>
-                    <View style={{justifyContent: 'flex-end'}}>
+                    <View style={{justifyContent: 'flex-start'}}>
                         <Text
-                            style={[{opacity: 0.6, textAlign: 'right'}, Styles.textStyle]}>{subjectAddressText}</Text>
+                            style={styles.subjectAddress}>{subjectAddressText}</Text>
                     </View>
-                    {!this.props.hideEnrolments &&
-                    <View style={{
-                        flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        flexWrap: 'wrap',
-                    }}>
-                        {_.uniqBy(enrolledPrograms, (x) => x.name).map((program, index) => this.renderProgram(program, index))}
-                    </View>}
+                    {this.renderCustomSearchResultFields(i18n, conceptService)}
+                        {!this.props.hideEnrolments &&
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'flex-start',
+                            flexWrap: 'wrap',
+                        }}>
+                            {_.uniqBy(enrolledPrograms, (x) => x.name).map((program, index) => this.renderProgram(program, index))}
+                        </View>}
                 </View>
             </View>
         );
