@@ -16,6 +16,7 @@ class Colors {
     static InputNormal = 'rgba(0, 0, 0, 0.87)';
     static InputBorderNormal = 'rgba(0, 0, 0, 0.12)';
     static GreyBackground = 'rgba(97, 97, 97, 0.20)';
+    static SubHeaderBackground = 'white';
     static ChatBackground = 'rgba(249, 247, 244, 1)';
     static ChatSectionHeaderBackground = 'rgba(239, 246, 242, 1)';
     static ChatSectionHeaderFontColor = 'rgba(31, 66, 42, 1)';

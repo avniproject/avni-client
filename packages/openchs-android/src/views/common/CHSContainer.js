@@ -12,9 +12,9 @@ class CHSContainer extends React.Component {
     render() {
         return (
             <NativeBaseProvider>
-                    <Box style={this.props.style} flex={1} onLayout={this.props.onLayout}>
-                        {this.props.children}
-                    </Box>
+                <Box style={this.props.style} flex={1} onLayout={this.props.onLayout}>
+                    {this.props.children}
+                </Box>
             </NativeBaseProvider>
         );
     }

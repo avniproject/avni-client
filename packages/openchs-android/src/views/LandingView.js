@@ -66,7 +66,7 @@ class LandingView extends AbstractComponent {
         setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
     }
 
-    renderBottomBarIcons(icon, menuMessageKey, pressHandler, isSelected, idx) {
+    renderBottomBarItem(icon, menuMessageKey, pressHandler, isSelected, idx) {
         return _.isNil(menuMessageKey) ? null :
             (<View key={idx} style={[{
                 alignItems: 'center',
@@ -111,6 +111,7 @@ class LandingView extends AbstractComponent {
             hideBackButton={true}
             renderSync={true}
             customDashboardType={CustomDashboardType.Primary}
+            onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
         />
     }
 
@@ -134,21 +135,17 @@ class LandingView extends AbstractComponent {
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
         const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, previouslySelectedSubjectTypeUUID);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
-        const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
         const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, register), this.I18n.t("register"),
             previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), register] : [];
-        const searchMenuItem = !hideSearch ? [this.Icon("magnify", LandingView.barIconStyle, search), this.I18n.t("search"),
-            () => this.dispatchAction(Actions.ON_SEARCH_CLICK), search] : [];
         const moreMenu = [this.Icon("menu", LandingView.barIconStyle, menu, renderDot), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), menu];
         const bottomBarIcons = [
-            [this.Icon("home", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home],
-            registerMenuItem,
-            searchMenuItem
+            [this.Icon("home", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home]
         ];
         if (!_.isNil(secondaryDashboard))
             bottomBarIcons.push([this.Icon("dashboard", LandingView.barIconStyle, secondaryDashboardSelected, false, "MaterialIcons"),
                 _.truncate(this.I18n.t(secondaryDashboard.name), {'length': 14}), () => this.dispatchAction(Actions.ON_SECONDARY_DASHBOARD_CLICK), menu]);
+        bottomBarIcons.push(registerMenuItem);
         bottomBarIcons.push(moreMenu);
 
         return (
@@ -160,7 +157,7 @@ class LandingView extends AbstractComponent {
                     hideBackButton={true}/>}
                 {register && <RegisterView hideBackButton={true}/>}
                 {menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
-                {dashboard && <CustomDashboardView hideBackButton={true}/>}
+                {dashboard && <CustomDashboardView hideBackButton={true} onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}/>}
                 {secondaryDashboardSelected && <CustomDashboardView
                     startSync={startSync && this.state.syncRequired}
                     icon={(name, style) => this.Icon(name, style)}
@@ -168,6 +165,7 @@ class LandingView extends AbstractComponent {
                     hideBackButton={true}
                     renderSync={true}
                     customDashboardType={CustomDashboardType.Secondary}
+                    onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
                 />}
 
                 <View style={{
@@ -183,7 +181,7 @@ class LandingView extends AbstractComponent {
                     borderTopWidth: StyleSheet.hairlineWidth,
                     borderTopColor: Colors.Separator
                 }}>
-                    {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarIcons(icon, display, cb, isSelected, idx))}
+                    {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarItem(icon, display, cb, isSelected, idx))}
                 </View>
             </CHSContainer>
         );

@@ -5,9 +5,7 @@ import {TouchableNativeFeedback, View} from "react-native";
 import Colors from "../primitives/Colors";
 import PropTypes from "prop-types";
 
-
 class CommentResolveButton extends AbstractComponent {
-
     static propTypes = {
         onResolveComment: PropTypes.func.isRequired,
     };

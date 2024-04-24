@@ -4,7 +4,7 @@ import AppHeader from "../common/AppHeader";
 import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import {DashboardSection} from 'openchs-models';
@@ -29,6 +29,8 @@ import Distances from '../primitives/Distances';
 import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 import General from "../../utility/General";
 import {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
+import CustomFilterService from "../../service/CustomFilterService";
+import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -37,6 +39,25 @@ const viewNameMap = {
     'CommentListView': CommentListView,
     'ChecklistListingView': ChecklistListingView
 };
+
+function SubHeader({hideBackButton, I18n, onFilterPressed}) {
+    return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
+        <View style={{
+            backgroundColor: Colors.SubHeaderBackground,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            minHeight: 45,
+            alignItems: 'center',
+            marginRight: 20
+        }}>
+            <Text style={[{
+                color: Colors.headerBackgroundColor,
+                fontSize: 18
+            }, hideBackButton && {marginLeft: 20}]}>{I18n.t('filter')}</Text>
+            <MCIIcon style={{fontSize: 30, color: Colors.BadgeColor}} name='tune'/>
+        </View>
+    </TouchableNativeFeedback>;
+}
 
 @Path('/customDashboardView')
 class CustomDashboardView extends AbstractComponent {
@@ -120,8 +141,8 @@ class CustomDashboardView extends AbstractComponent {
 
     renderCards() {
         const splitNestedCards = (cardIter) => {
-            const repeatTimes = cardIter.nested ? cardIter.countOfCards: 1;
-            return Array(repeatTimes).fill(cardIter).map((card, i) => ({ ...card.toJSON(), itemKey:  card.getCardId(i)}));
+            const repeatTimes = cardIter.nested ? cardIter.countOfCards : 1;
+            return Array(repeatTimes).fill(cardIter).map((card, i) => ({...card.toJSON(), itemKey: card.getCardId(i)}));
         }
         const activeDashboardSectionMappings = _.filter(this.state.reportCardSectionMappings, ({dashboardSection}) => this.state.activeDashboardUUID === dashboardSection.dashboard.uuid);
         const sectionWiseData = _.chain(activeDashboardSectionMappings)
@@ -141,19 +162,19 @@ class CustomDashboardView extends AbstractComponent {
                 {_.map(sectionWiseData, ({section, cards}) => (
                     <View key={section.uuid} style={styles.sectionContainer}>
                         {section.viewType !== DashboardSection.viewTypeName.Default &&
-                        this.renderSectionName(section.name, section.description, section.viewType, cards)}
+                            this.renderSectionName(section.name, section.description, section.viewType, cards)}
                         <View style={styles.cardContainer}>
                             {_.map(cards, (card, index) => {
                                 return (
-                                  <CustomDashboardCard
-                                    key={card.itemKey}
-                                    reportCard={card}
-                                    onCardPress={onCardPressOp}
-                                    index={index}
-                                    viewType={section.viewType}
-                                    countResult={this.state.cardToCountResultMap[card.itemKey]}
-                                    countUpdateTime={this.state.countUpdateTime}
-                                  />
+                                    <CustomDashboardCard
+                                        key={card.itemKey}
+                                        reportCard={card}
+                                        onCardPress={onCardPressOp}
+                                        index={index}
+                                        viewType={section.viewType}
+                                        countResult={this.state.cardToCountResultMap[card.itemKey]}
+                                        countUpdateTime={this.state.countUpdateTime}
+                                    />
                                 );
                             })}
                         </View>
@@ -222,44 +243,44 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug("CustomDashboardView", "render");
-        const {hideBackButton, startSync, renderSync, icon, customDashboardType} = this.props;
+        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch} = this.props;
+        const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
-            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground,
-                marginBottom: Styles.ContentDistanceFromEdge}}>
+            <CHSContainer style={{
+                backgroundColor: Colors.GreyContentBackground,
+                marginBottom: Styles.ContentDistanceFromEdge
+            }}>
                 <AppHeader title={this.I18n.t(title)}
                            hideBackButton={hideBackButton}
                            startSync={startSync}
                            renderSync={renderSync}
                            icon={icon}
-                           hideIcon={_.isNil(icon)}/>
+                           hideIcon={_.isNil(icon)}
+                           renderSearch={!hideSearch}
+                           onSearch={onSearch}
+                />
+                <SubHeader hideBackButton={hideBackButton} I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>
                 {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
-                <SafeAreaView style={{height: 50}}>
-                    <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
-                        {this.renderDashboards()}
-                        {this.renderZeroResultsMessageIfNeeded()}
-                    </ScrollView>
-                </SafeAreaView>}
+                    <SafeAreaView style={{height: 50}}>
+                        <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
+                            {this.renderDashboards()}
+                            {this.renderZeroResultsMessageIfNeeded()}
+                        </ScrollView>
+                    </SafeAreaView>}
                 <Fragment>
                     {hasFilters && <View style={{display: "flex", padding: 10}}>
                         <SafeAreaView style={{maxHeight: 160}}>
                             <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
                                 <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
-                                                postClearAction={() => this.onClearFilters()}
+                                                  postClearAction={() => this.onClearFilters()}
                                                   applied={this.state.customDashboardFilters.applied}
                                                   selectedLocations={this.state.customDashboardFilters.selectedLocations}
-                                                selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
-                                                selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
+                                                  selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
+                                                  selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
                             </ScrollView>
                         </SafeAreaView>
-                        <View style={CustomDashboardView.styles.buttons}>
-                            <TouchableOpacity
-                              style={CustomDashboardView.styles.filterButton}
-                              onPress={() => this.onFilterPressed()}>
-                                <Text style={CustomDashboardView.styles.buttonText}>{this.I18n.t("filter")}</Text>
-                            </TouchableOpacity>
-                        </View>
                     </View>}
                     <CustomActivityIndicator loading={loading}/>
                     <ScrollView>

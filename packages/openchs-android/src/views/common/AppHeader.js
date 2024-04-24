@@ -17,16 +17,22 @@ import CommentResolveButton from "../comment/CommentResolveButton";
 
 class AppHeader extends AbstractComponent {
     static propTypes = {
-        title: PropTypes.string.isRequired,
+        displayHomePressWarning: PropTypes.bool,
         func: PropTypes.func,
         hideBackButton: PropTypes.bool,
         hideIcon: PropTypes.bool,
         icons: PropTypes.array,
-        displayHomePressWarning: PropTypes.bool,
+        renderExitBeneficiaryMode: PropTypes.bool,
+        renderSync: PropTypes.bool,
+        title: PropTypes.string.isRequired,
+        renderSearch: PropTypes.bool,
+        onSearch: PropTypes.func
     };
 
     static defaultProps = {
-        icons: []
+        icons: [],
+        renderSearch: false,
+        onSearch: _.noop
     };
 
     constructor(props, context) {
@@ -71,7 +77,7 @@ class AppHeader extends AbstractComponent {
                 paddingHorizontal: 16,
             }}>
                 {_.isNil(this.props.icon) ? (this.props.hideIcon ? <View/> :
-                    <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
+                        <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='home'/>) :
                     <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name={this.props.icon}/>}
             </View>
         </TouchableNativeFeedback>;
@@ -85,11 +91,9 @@ class AppHeader extends AbstractComponent {
         return <ExitBeneficiaryModeButton/>;
     }
 
-    renderCommentResolve() {
-        return <CommentResolveButton onResolveComment={this.props.iconFunc}/>;
-    }
-
     render() {
+        const {renderSync, renderExitBeneficiaryMode, renderCommentResolve, hideBackButton, title, renderSearch, iconFunc, onSearch} = this.props;
+
         return (
             <View style={{
                 backgroundColor: Colors.headerBackgroundColor,
@@ -97,7 +101,7 @@ class AppHeader extends AbstractComponent {
                 minHeight: 56,
                 elevation: 3,
             }}>
-                {this.props.hideBackButton ? <View/> :
+                {hideBackButton ? <View/> :
                     <TouchableNativeFeedback onPress={() => this.onBack()}
                                              background={this.background()}>
                         <View style={{
@@ -116,12 +120,23 @@ class AppHeader extends AbstractComponent {
                     <Text style={[{
                         color: Colors.headerTextColor,
                         fontSize: 18
-                    }, this.props.hideBackButton && {marginLeft: 20}]}>{this.props.title}</Text>
+                    }, hideBackButton && {marginLeft: 20}]}>{title}</Text>
                 </View>
-                {this.props.renderSync && this.renderSyncIcon()}
-                {this.props.renderExitBeneficiaryMode && this.renderExitBeneficiaryMode()}
-                {this.props.renderCommentResolve && this.renderCommentResolve()}
-                {!this.props.renderSync && !this.props.renderExitBeneficiaryMode && !this.props.renderCommentResolve && this.renderHomeIcon()}
+                {renderSearch && <TouchableNativeFeedback onPress={() => onSearch()} background={this.background()}>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'flex-end',
+                        height: 56,
+                        width: 72
+                    }}>
+                        <MCIIcon style={{fontSize: 30, color: Colors.headerIconColor}} name='magnify'/>
+                    </View></TouchableNativeFeedback>}
+                {renderSync && this.renderSyncIcon()}
+                {renderExitBeneficiaryMode && this.renderExitBeneficiaryMode()}
+                {renderCommentResolve && <CommentResolveButton onResolveComment={iconFunc}/>}
+
+                {!renderSync && !renderExitBeneficiaryMode && !renderCommentResolve && this.renderHomeIcon()}
             </View>
         );
     }
