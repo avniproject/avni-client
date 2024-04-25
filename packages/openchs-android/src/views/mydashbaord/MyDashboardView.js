@@ -20,10 +20,17 @@ import RefreshReminder from "./RefreshReminder";
 import AvniIcon from '../common/AvniIcon';
 import _ from 'lodash';
 import OrganisationConfigService from '../../service/OrganisationConfigService';
+import PropTypes from "prop-types";
 
 @Path('/MyDashboard')
 class MyDashboardView extends AbstractComponent {
-    static propTypes = {};
+    static propTypes = {
+        onSearch: PropTypes.func,
+    };
+
+    static defaultProps = {
+        onSearch: _.noop
+    }
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.myDashboard);
@@ -115,10 +122,11 @@ class MyDashboardView extends AbstractComponent {
         General.logDebug(this.viewName(), "render");
         const dataSource = this.ds.cloneWithRows(this.renderableVisits());
         const date = this.state.date;
+        const {startSync, icon, onSearch} = this.props;
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={this.props.startSync}
-                           renderSync={true} icon={this.props.icon}/>
+                <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={startSync}
+                           renderSync={true} icon={icon} onSearch={() => onSearch()} renderSearch={true}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}
                                       selectedLocations={this.state.selectedLocations}

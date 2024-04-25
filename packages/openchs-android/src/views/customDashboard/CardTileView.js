@@ -3,8 +3,9 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import React from 'react';
 import {CountResult} from "./CountResult";
 import _, {get} from "lodash";
+import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
-const renderIcon = function(iconName, textColor) {
+const renderIcon = function (iconName, textColor) {
     return (
         <View style={styles.iconContainer}>
             <Icon name={iconName} size={30} color={textColor} style={{opacity: 0.8}}/>
@@ -44,13 +45,32 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                       backgroundColor: cardColor
                   }]}>
                 <View style={{flexDirection: 'row'}}>
-                    <View style={styles.leftContainer}>
+                    <View style={{
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        flex: 0.8,
+                        paddingHorizontal: 12,
+                        paddingVertical: 10
+                    }}>
                         <View style={{alignItems: 'flex-start', margin: 5, height: 45, width: 100}}>
                             {renderNumber(countResult, textColor)}
                         </View>
                         <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(cardName)}</Text>
                     </View>
-                    {iconName && renderIcon(iconName, textColor)}
+                    <View style={{
+                        flexDirection: 'column',
+                        flex: 0.2,
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-end',
+                        marginRight: 5
+                    }}>
+                        <View>
+                            {iconName && renderIcon(iconName, textColor)}
+                        </View>
+                        <View style={{backgroundColor: colour, borderRadius: 6}}>
+                            <MCIcon name={'chevron-right'} size={40} color={textColor} style={{opacity: 0.8}}/>
+                        </View>
+                    </View>
                 </View>
             </View>
         </TouchableNativeFeedback>
@@ -59,17 +79,10 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 8,
+        borderRadius: 10,
         elevation: 2,
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        paddingHorizontal: 20,
-        paddingVertical: 5
-    },
-    leftContainer: {
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        flex: 1
+        alignItems: 'flex-start'
     },
     cardNameTextStyle: {
         fontSize: 12,

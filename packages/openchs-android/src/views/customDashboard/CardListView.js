@@ -4,6 +4,7 @@ import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import {CountResult} from "./CountResult";
 import _, {get} from 'lodash';
+import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
     const {name, colour, itemKey} = reportCard;
@@ -28,12 +29,15 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
         <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!get(countResult, 'clickable')}>
             <View key={itemKey} style={styles.container}>
                 <View style={styles.rowContainer}>
-                    <View style={styles.nameContainer}>
-                        <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
-                    </View>
                     <View style={[styles.numberContainer, {backgroundColor: cardColor}]}>
                         <View style={{alignSelf: 'center'}}>
                             {renderNumber()}
+                        </View>
+                    </View>
+                    <View style={styles.nameContainer}>
+                        <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
+                        <View style={{borderRadius: 6, alignSelf: "flex-end"}}>
+                            <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>
                         </View>
                     </View>
                 </View>
@@ -46,8 +50,9 @@ const styles = StyleSheet.create({
     container: {
         elevation: 2,
         backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 3,
+        marginVertical: 1,
         marginHorizontal: 3,
+        borderRadius: 4
     },
     rowContainer: {
         flexDirection: 'row',
@@ -60,12 +65,18 @@ const styles = StyleSheet.create({
         height: 100,
     },
     nameContainer: {
-        paddingHorizontal: 10,
+        marginLeft: 5,
+        paddingHorizontal: 3,
         width: '75%',
-        alignSelf: 'center'
+        height: '100%',
+        alignSelf: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between"
     },
     nameTextStyle: {
-        fontSize: Styles.normalTextSize
+        paddingTop: 15,
+        fontSize: Styles.normalTextSize,
+        width: '80%'
     },
     numberContainer: {
         width: '25%',

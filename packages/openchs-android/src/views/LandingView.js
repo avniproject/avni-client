@@ -118,7 +118,9 @@ class LandingView extends AbstractComponent {
     renderDefaultDashboard(startSync) {
         return <MyDashboardView
             startSync={startSync && this.state.syncRequired}
-            icon={(name, style) => this.Icon(name, style)}/>
+            icon={(name, style) => this.Icon(name, style)}
+            onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+        />
     }
 
     renderDashboard(startSync) {
@@ -150,7 +152,7 @@ class LandingView extends AbstractComponent {
 
         return (
             <CHSContainer>
-                {home && this.renderDashboard(startSync) }
+                {home && this.renderDashboard(startSync)}
                 {search && <IndividualSearchView
                     onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
                     buttonElevated={true}

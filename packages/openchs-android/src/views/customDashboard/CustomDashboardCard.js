@@ -15,10 +15,9 @@ export default class CustomDashboardCard extends AbstractComponent {
     }
 
     render() {
-        const {reportCard, index, viewType, onCardPress, countResult, countUpdateTime } = this.props;
+        const {reportCard, index, viewType, onCardPress, countResult } = this.props;
         return viewType === 'Tile' ?
             <CardTileView reportCard={reportCard} I18n={this.I18n} onCardPress={onCardPress} index={index} countResult={countResult} /> :
             <CardListView reportCard={reportCard} I18n={this.I18n} onCardPress={onCardPress} countResult={countResult} />
     }
-
 }

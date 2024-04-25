@@ -312,6 +312,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
+        marginTop: 20
     }
 });
 
