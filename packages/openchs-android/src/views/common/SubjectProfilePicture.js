@@ -1,10 +1,26 @@
-import {Image, TouchableNativeFeedback, View} from "react-native";
+import {Image, TouchableNativeFeedback, View, Text} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
 import MediaService from "../../service/MediaService";
 import _, {isEmpty} from 'lodash';
 import AvniModel from "./AvniModel";
+import Styles from "../primitives/Styles";
+
+function Initials({name}) {
+    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('');
+    return <Text style={{
+        color: Styles.blackColor,
+        fontWeight: 'bold',
+        fontSize: Styles.titleSize,
+        borderRadius: 8,
+        backgroundColor: '#DBFBF3',
+        height: 40,
+        width: 40,
+        paddingLeft: 6,
+        paddingTop: 5
+    }}>{initials}</Text>
+}
 
 class SubjectProfilePicture extends AbstractComponent {
     static propTypes = {
@@ -38,12 +54,6 @@ class SubjectProfilePicture extends AbstractComponent {
         return super.UNSAFE_componentWillMount();
     }
 
-    renderDefaultIcon({subjectType, size, style, round}) {
-        const defaultIconFileName = `${_.toLower(subjectType.type)}.png`;
-        return <Image source={{uri: `asset:/icons/${defaultIconFileName}`}}
-                      style={{height: size, width: size, borderRadius: round ? size / 2 : 0, ...style}}/>
-    }
-
     renderIcon({subjectType, size, style, round, individual}) {
         const filePath = this.state.loadProfilePic
             ? this.getService(MediaService).getAbsolutePath(individual.profilePicture, 'Profile-Pics')
@@ -56,7 +66,7 @@ class SubjectProfilePicture extends AbstractComponent {
         this.setState({expandIcon: expand})
     }
 
-    renderImage({round, size}) {
+    renderImage({round, size, individual}) {
         const iconConfig = {...this.props, round, size};
         const loadDefaultIcon = !(this.props.subjectType.iconFileS3Key || this.state.loadProfilePic);
         return <View style={{
@@ -67,24 +77,26 @@ class SubjectProfilePicture extends AbstractComponent {
             alignItems: 'center',
             justifyContent: 'center'
         }}>
-            {loadDefaultIcon ? this.renderDefaultIcon(iconConfig) : this.renderIcon(iconConfig)}
+            {loadDefaultIcon ? <Initials name={individual.nameString}/> : this.renderIcon(iconConfig)}
         </View>
     }
 
     render() {
+        const {containerStyle, individual} = this.props;
+
         return (
-            <React.Fragment>
+            <View style={containerStyle}>
                 <AvniModel dismiss={() => this.onIconTouch()} visible={this.state.expandIcon}>
-                    {this.renderImage({round: false, size: 250})}
+                    {this.renderImage({round: false, size: 250, individual: individual})}
                 </AvniModel>
                 <TouchableNativeFeedback
                     pointerEvents={"none"}
                     onPress={() => this.onIconTouch(true)}>
-                    <View style={this.props.containerStyle}>
+                    <View>
                         {this.renderImage(this.props)}
                     </View>
                 </TouchableNativeFeedback>
-            </React.Fragment>
+            </View>
         )
     }
 }

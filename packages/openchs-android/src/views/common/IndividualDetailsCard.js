@@ -8,7 +8,6 @@ import Separator from "../primitives/Separator";
 import SubjectInfoCard from "./SubjectInfoCard";
 
 class IndividualDetailsCard extends AbstractComponent {
-
     static propTypes = {
         individual: PropTypes.object.isRequired,
         renderDraftString: PropTypes.bool
@@ -19,13 +18,14 @@ class IndividualDetailsCard extends AbstractComponent {
     }
 
     render() {
+        const {individual, renderDraftString} = this.props;
         return (
             <View style={{
                 marginRight: Distances.ScaledContentDistanceFromEdge,
                 marginLeft: Distances.ScaledContentDistanceFromEdge
             }}
             >
-                <SubjectInfoCard individual={this.props.individual} renderDraftString={this.props.renderDraftString}/>
+                <SubjectInfoCard individual={individual} renderDraftString={renderDraftString}/>
                 <Separator backgroundColor={Colors.InputBorderNormal}/>
             </View>
         );

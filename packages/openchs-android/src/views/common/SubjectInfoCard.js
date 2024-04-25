@@ -15,8 +15,9 @@ import AddressLevelService from "../../service/AddressLevelService";
 
 const styles = {
     subjectName: {
-        fontSize: Styles.smallTextSize,
+        fontSize: Styles.normalTextSize,
         fontStyle: 'normal',
+        fontWeight: 'bold',
         color: Styles.blackColor,
         lineHeight: Styles.smallTextSizeLineHeight
     },
@@ -82,7 +83,7 @@ class SubjectInfoCard extends AbstractComponent {
         return <View style={{
             flexDirection: 'row',
             justifyContent: 'flex-start',
-            alignItems: 'flex-start'
+            alignItems: 'center'
         }}>
             <Text
                 style={styles.subjectSubtext1}>{this.props.individual.userProfileSubtext1(i18n)}</Text>
@@ -104,12 +105,13 @@ class SubjectInfoCard extends AbstractComponent {
 
     render() {
         const i18n = this.I18n;
+        const {individual, hideEnrolments, renderDraftString} = this.props;
         const conceptService = this.getService(ConceptService);
-        const iconContainerStyle = {minHeight: 72, alignItems: 'center', justifyContent: 'center'};
-        const enrolledPrograms = _.filter(this.props.individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
+        const iconContainerStyle = {minHeight: 72, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start'};
+        const enrolledPrograms = _.filter(individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 
-      const subjectAddressText = this.props.individual.lowestTwoLevelAddress(i18n);
+      const subjectAddressText = individual.lowestTwoLevelAddress(i18n);
         return (
             <View style={{
                 flexDirection: 'row',
@@ -118,42 +120,43 @@ class SubjectInfoCard extends AbstractComponent {
                 alignSelf: 'center',
                 minHeight: 72,
                 backgroundColor: Colors.cardBackgroundColor,
-                paddingHorizontal: 8
+                paddingHorizontal: 8,
+                paddingVertical: 8
             }}>
                 <SubjectProfilePicture
                     size={32}
-                    subjectType={this.props.individual.subjectType}
-                    style={{marginRight: 12}}
+                    subjectType={individual.subjectType}
                     round={true}
-                    individual={this.props.individual}
+                    individual={individual}
                     containerStyle={iconContainerStyle}
                 />
                 <View
                     style={{
+                        marginLeft: 20,
                         flexDirection: 'column',
                         alignItems: 'flex-start',
                         flex: 1
                     }}>
                     <Text style={styles.subjectName}>
-                        {this.props.individual.nameString}
-                        {this.props.individual.voided &&
+                        {individual.nameString}
+                        {individual.voided &&
                         <Text style={{color: Styles.redColor}}>
                             {` ${this.I18n.t("voidedLabel")}`}
                         </Text>
                         }
-                        {this.props.renderDraftString &&
+                        {renderDraftString &&
                         <Text style={{color: Styles.redColor}}>
                             {` (${this.I18n.t("draft")})`}
                         </Text>
                         }
                     </Text>
-                    {this.props.individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
+                    {individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
                     <View style={{justifyContent: 'flex-start'}}>
                         <Text
                             style={styles.subjectAddress}>{subjectAddressText}</Text>
                     </View>
                     {this.renderCustomSearchResultFields(i18n, conceptService)}
-                        {!this.props.hideEnrolments &&
+                        {!hideEnrolments &&
                         <View style={{
                             flexDirection: 'row',
                             justifyContent: 'flex-start',
