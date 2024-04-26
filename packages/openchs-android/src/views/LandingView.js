@@ -23,7 +23,6 @@ import AbstractComponent from "../framework/view/AbstractComponent";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
-import CustomFilterService from "../service/CustomFilterService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import NewsService from "../service/news/NewsService";
 import {CustomDashboardActionNames} from "../action/customDashboard/CustomDashboardActions";
@@ -112,6 +111,7 @@ class LandingView extends AbstractComponent {
             renderSync={true}
             customDashboardType={CustomDashboardType.Primary}
             onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+            showSearch={true}
         />
     }
 
@@ -159,7 +159,7 @@ class LandingView extends AbstractComponent {
                     hideBackButton={true}/>}
                 {register && <RegisterView hideBackButton={true}/>}
                 {menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
-                {dashboard && <CustomDashboardView hideBackButton={true} onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}/>}
+                {dashboard && <CustomDashboardView hideBackButton={true} onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)} showSearch={true}/>}
                 {secondaryDashboardSelected && <CustomDashboardView
                     startSync={startSync && this.state.syncRequired}
                     icon={(name, style) => this.Icon(name, style)}

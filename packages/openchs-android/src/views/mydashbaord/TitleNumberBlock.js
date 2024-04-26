@@ -4,6 +4,7 @@ import {Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from 'react
 import Fonts from '../primitives/Fonts';
 import _ from 'lodash';
 import AbstractComponent from "../../framework/view/AbstractComponent";
+import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const cardGap = 10;
 
@@ -16,10 +17,10 @@ class TitleNumberBlock extends AbstractComponent {
 
     static styles = StyleSheet.create({
         container: {
-            borderRadius: 8,
+            borderRadius: 6,
             elevation: 2,
             justifyContent: 'center',
-            paddingHorizontal: 10,
+            paddingLeft: 15,
             flexWrap: 'wrap',
             minHeight: 80,
             backgroundColor: 'white',
@@ -32,26 +33,29 @@ class TitleNumberBlock extends AbstractComponent {
     });
 
     render() {
-        const textColor = {color: this.props.textColor, opacity: 0.9};
-        const numberColor = {color: this.props.numberColor};
-        const backgroundColor = this.props.cardColor;
-        const index = this.props.index;
+        const {textColor, numberColor, cardColor, title, onPress, number, index} = this.props;
+
+        const textColorStyle = {color: textColor, opacity: 0.9};
+        const numberColorStyle = {color: numberColor};
         return (
-            <TouchableNativeFeedback onPress={() => this.props.onPress()}>
+            <TouchableNativeFeedback onPress={() => onPress()}>
                 <View
                     style={[TitleNumberBlock.styles.container, {
                         marginLeft: _.includes([1, 2], index) ? cardGap : 0,
-                        backgroundColor
+                        backgroundColor: cardColor
                     }]}>
-                    <View style={{flexDirection: 'column'}}>
-                        <Text style={[Fonts.typography("paperFontBody2"), numberColor, {fontSize: 20}]}>
-                            {this.props.number}
+                    <View style={{flexDirection: 'column', width: '100%'}}>
+                        <Text style={[Fonts.typography("paperFontBody2"), numberColorStyle, {fontSize: 20, marginTop: 20}]}>
+                            {number}
                         </Text>
                         <View style={{marginTop: 5}}>
                             <Text
-                                style={[TitleNumberBlock.styles.titleStyle, Fonts.typography("paperFontBody2"), textColor]}>
-                                {this.I18n.t(this.props.title)}
+                                style={[TitleNumberBlock.styles.titleStyle, Fonts.typography("paperFontBody2"), textColorStyle]}>
+                                {this.I18n.t(title)}
                             </Text>
+                        </View>
+                        <View style={{backgroundColor: cardColor, borderRadius: 6, alignSelf: "flex-end"}}>
+                            <MCIcon name={'chevron-right'} size={30} color={numberColor} style={{opacity: 0.8}}/>
                         </View>
                     </View>
                 </View>

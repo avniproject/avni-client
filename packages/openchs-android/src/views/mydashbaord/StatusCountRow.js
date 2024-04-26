@@ -51,12 +51,14 @@ class StatusCountRow extends AbstractComponent {
     }
 
     render() {
-        const visitBlocks = _.toPairs(this.props.visits).map(([title, numberObj], idx) => {
+        const {visits, backFunction, sectionName} = this.props;
+
+        const visitBlocks = _.toPairs(visits).map(([title, numberObj], idx) => {
             const cardTitle = _.has(numberObj, "label") ? numberObj.label : title;
             return (<View key={idx}>
                 <TitleNumberBlock
                     highlight={numberObj.abnormal}
-                    onPress={() => this.onPressHandler(title, numberObj.count, this.props.backFunction, cardTitle)}
+                    onPress={() => this.onPressHandler(title, numberObj.count, backFunction, cardTitle)}
                     title={cardTitle}
                     number={numberObj.count}
                     index={idx}
@@ -70,7 +72,7 @@ class StatusCountRow extends AbstractComponent {
                     paddingHorizontal: 10,
                     fontSize: 17,
                 }]}>
-                    {this.I18n.t(this.props.sectionName)}
+                    {this.I18n.t(sectionName)}
                 </Text>
                 <View style={StatusCountRow.styles.visitBlockContainer}>
                     {visitBlocks}

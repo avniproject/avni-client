@@ -40,7 +40,7 @@ const viewNameMap = {
     'ChecklistListingView': ChecklistListingView
 };
 
-function SubHeader({hideBackButton, I18n, onFilterPressed}) {
+function SubHeader({I18n, onFilterPressed}) {
     return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
         <View style={{
             backgroundColor: Colors.SubHeaderBackground,
@@ -52,8 +52,9 @@ function SubHeader({hideBackButton, I18n, onFilterPressed}) {
         }}>
             <Text style={[{
                 color: Colors.headerBackgroundColor,
-                fontSize: 18
-            }, hideBackButton && {marginLeft: 20}]}>{I18n.t('filter')}</Text>
+                fontSize: 18,
+                marginLeft: 20
+            }]}>{I18n.t('filter')}</Text>
             <MCIIcon style={{fontSize: 30, color: Colors.BadgeColor}} name='tune'/>
         </View>
     </TouchableNativeFeedback>;
@@ -95,12 +96,17 @@ class CustomDashboardView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.customDashboard);
     }
 
+    defaultProps = {
+        showSearch: false
+    };
+
     viewName() {
         return 'CustomDashboardView';
     }
 
     UNSAFE_componentWillMount() {
-        this.dispatchAction(Actions.ON_LOAD, this.props);
+        const {customDashboardType} = this.props;
+        this.dispatchAction(Actions.ON_LOAD, {customDashboardType});
         this.refreshCounts();
         super.UNSAFE_componentWillMount();
     }
@@ -243,8 +249,7 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug("CustomDashboardView", "render");
-        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch} = this.props;
-        const hideSearch = this.context.getService(CustomFilterService).hideSearchButton();
+        const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
         return (
@@ -258,10 +263,10 @@ class CustomDashboardView extends AbstractComponent {
                            renderSync={renderSync}
                            icon={icon}
                            hideIcon={_.isNil(icon)}
-                           renderSearch={!hideSearch}
+                           renderSearch={showSearch}
                            onSearch={onSearch}
                 />
-                <SubHeader hideBackButton={hideBackButton} I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>
+                <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>
                 {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                     <SafeAreaView style={{height: 50}}>
                         <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>

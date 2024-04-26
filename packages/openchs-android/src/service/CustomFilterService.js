@@ -325,12 +325,6 @@ class CustomFilterService extends BaseService {
         });
         return this.individualUUIDs;
     }
-
-    hideSearchButton() {
-        const customSearchFilters = this.getSearchFilters();
-        const totalSubjectCounts = this.getService(EntityService).findAllByCriteria('voided = false', Individual.schema.name).length;
-        return _.isEmpty(customSearchFilters) && totalSubjectCounts < 5;
-    }
 }
 
 export default CustomFilterService;

@@ -18,7 +18,6 @@ export const CustomDashboardType = {
 
 @Service("customDashboardService")
 class CustomDashboardService extends BaseService {
-
     constructor(db, context) {
         super(db, context);
     }
@@ -41,7 +40,7 @@ class CustomDashboardService extends BaseService {
             case CustomDashboardType.None:
                 return this.getDashboardsBasedOnPrivilege();
         }
-        return [];
+        return this.getDashboardsBasedOnPrivilege();
     }
 
     getOnePrimaryDashboard() {
