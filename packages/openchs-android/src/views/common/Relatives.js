@@ -84,10 +84,10 @@ class Relatives extends AbstractComponent {
 
     renderRelativeActionButton(individualRelative) {
         return (<View>
-            <View style={{flex: 0.125, alignItems: 'flex-start', justifyContent: 'flex-start'}}>
+            <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
                 <Button transparent
                         onPress={() => this.props.onRelativeDeletion(individualRelative)}
-                        _text={{fontSize: Fonts.Medium, paddingHorizontal: 5}}
+                        _text={{fontSize: Fonts.Medium, color: Styles.accentColor}}
                         style={styles.buttonStyle}>
                     {this.I18n.t("delete")}
                 </Button>
@@ -119,13 +119,14 @@ class Relatives extends AbstractComponent {
                                                            background={TouchableNativeFeedback.SelectableBackground()}>
                                       <View style={styles.container}>
                                           <View style={styles.relativeDetails}>
-                                              <View style={{flex: 0.75}}>
+                                              <View style={{flex: 1, alignContent: 'flex-start'}}>
                                                   <Text
                                                       style={Styles.relativeRelationText}>{this.I18n.t(relative.relation.name)}</Text>
                                               </View>
-                                              {editDeleteFeatureToggle && this.renderRelativeActionButton(relative)}
+
                                           </View>
                                           <SubjectInfoCard individual={relative.relative} />
+                                          {editDeleteFeatureToggle && this.renderRelativeActionButton(relative)}
                                       </View>
                                   </TouchableNativeFeedback>
                               }>
@@ -143,13 +144,14 @@ const styles = StyleSheet.create({
     container: {
         margin: 4,
         elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
+        backgroundColor: Styles.greyBackground,
         marginVertical: 3,
         paddingBottom: 5,
         paddingTop: 5
     },
     relativeDetails: {
         flexDirection: 'row',
+        backgroundColor: Styles.greyBackground,
         flexWrap: 'nowrap',
         paddingHorizontal: Styles.ContainerHorizontalDistanceFromEdge,
         alignItems: 'center',
@@ -157,6 +159,6 @@ const styles = StyleSheet.create({
         flex: 1
     },
     buttonStyle: {
-        backgroundColor: Colors.ActionButtonColor
+        backgroundColor: Styles.greyBackground
     }
 });

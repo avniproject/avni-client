@@ -196,7 +196,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                 padding: Distances.ScaledContentDistanceFromEdge,
                 margin: 4,
                 elevation: 2,
-                backgroundColor: Colors.cardBackgroundColor,
+                backgroundColor: Styles.greyBackground,
                 marginVertical: 16
             }}>
                 <Text style={[Fonts.MediumBold]}>{this.getExitHeaderMessage(this.state.enrolment)}</Text>
@@ -215,7 +215,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             padding: Distances.ScaledContentDistanceFromEdge,
             margin: 4,
             elevation: 2,
-            backgroundColor: Colors.cardBackgroundColor,
+            backgroundColor: Styles.greyBackground,
             marginVertical: 16
         }}>
             <View>
@@ -236,7 +236,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             padding: Distances.ScaledContentDistanceFromEdge,
             margin: 4,
             elevation: 2,
-            backgroundColor: Colors.cardBackgroundColor,
+            backgroundColor: Styles.greyBackground,
             marginVertical: 16
         }}>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
@@ -274,16 +274,16 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const performVisitCriteria = this.state.enrolment.program && `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'` || '';
         const allowedEncounterTypeUuids = this.privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'programEncounterTypeUuid');
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground}}>
-                <View style={{backgroundColor: Styles.defaultBackground}}>
+            <View style={{backgroundColor: Colors.WhiteContentBackground}}>
+                <View style={{backgroundColor: Styles.WhiteContentBackground}}>
                 </View>
                 <ScrollView style={{
                     flexDirection: 'column',
                     borderRadius: 5,
                     marginHorizontal: 16,
-                    backgroundColor: Colors.GreyContentBackground
+                    backgroundColor: Colors.WhiteContentBackground
                 }}>
-                    <View style={{marginHorizontal: 8}}>
+                    <View style={{backgroundColor: Styles.greyBackground}}>
                         {this.state.enrolment.individual.voided &&
                         <Text style={{
                             fontSize: Fonts.Large,
@@ -291,7 +291,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                         }}>{this.I18n.t("thisIndividualHasBeenVoided")}</Text>
                         }
                         <Text style={{
-                            fontSize: Fonts.Large,
+                            fontSize: Styles.normalTextSize,
                             color: Colors.InputNormal
                         }}>{this.I18n.t('programList')}</Text>
                         <View style={{

@@ -61,7 +61,7 @@ class IndividualProfile extends AbstractComponent {
         if (number) {
             return (
                 <MaterialIcon name="call" size={30}
-                              style={{color: 'white'}}
+                              style={{color: Styles.accentColor}}
                               onPress={() => this.makeCall(number)}/>
             );
         } else {
@@ -80,7 +80,7 @@ class IndividualProfile extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
                     <View>
                         <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 30}} color={Colors.TextOnPrimaryColor}/>
+                                  style={{fontSize: 30}} color={Styles.accentColor}/>
                     </View>
                 </TouchableNativeFeedback>
             </View>);
@@ -129,9 +129,9 @@ class IndividualProfile extends AbstractComponent {
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
         return (<TouchableNativeFeedback onPress={onPress}>
             <View style={{
-                flexDirection: 'row', height: DGS.resizeHeight(30), borderColor: Styles.accentColor, borderWidth: 1,
-                borderStyle: 'solid', borderRadius: 2, paddingHorizontal: DGS.resizeWidth(6),
-                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4
+                flexDirection: 'row', height: DGS.resizeHeight(30),
+                paddingHorizontal: DGS.resizeWidth(6),
+                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4, backgroundColor: Styles.greyBackground
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
@@ -184,12 +184,11 @@ class IndividualProfile extends AbstractComponent {
     renderGroupButton(groupAction) {
         const label = groupAction.isHousehold ? 'household' : 'group';
         return <TouchableOpacity onPress={groupAction.fn} style={{
-            borderColor: Styles.accentColor,
             paddingVertical: 1,
             paddingHorizontal: 10,
+            marginEnd: 2,
             alignItems: 'center',
-            borderRadius: 10,
-            borderWidth: 1
+            backgroundColor: Styles.greyBackground
         }}>
             <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>
@@ -231,7 +230,6 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
-        const backgroundColor = this.props.individual.isGroup() ? Styles.groupSubjectBackground : Styles.defaultBackground;
         const textColor = this.props.textColor ? this.props.textColor : Styles.blackColor;
         let isPerson = this.props.individual.subjectType.isPerson();
         let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
@@ -240,7 +238,7 @@ class IndividualProfile extends AbstractComponent {
             headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
         }
         let headingSuffix = _.join(headingSuffixesList, ", ")
-        return <View style={{backgroundColor: backgroundColor}}>
+        return <View style={{backgroundColor: Styles.greyBackground}}>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <>
@@ -248,7 +246,7 @@ class IndividualProfile extends AbstractComponent {
                         <View style={{
                             marginVertical: 10,
                             marginHorizontal: 10,
-                            backgroundColor: backgroundColor
+                            backgroundColor: Styles.greyBackground
                         }}>
                             <ActionSelector
                                 title={this.I18n.t("enrolInProgram")}
@@ -288,7 +286,8 @@ class IndividualProfile extends AbstractComponent {
                                     justifyContent: 'space-between',
                                     flexWrap: 'wrap',
                                     paddingVertical: 8,
-                                    alignItems: 'center'
+                                    alignItems: 'center',
+                                    backgroundColor: Styles.whiteColor
                                 }}>
                                 {(!this.props.hideEnrol && !_.isEmpty(this.state.eligiblePrograms)) ? this.renderBasedOnProgramActions() :
                                     <View/>}
@@ -299,7 +298,7 @@ class IndividualProfile extends AbstractComponent {
                 (
                     <View style={this.appendedStyle({
                         flexDirection: 'column',
-                        backgroundColor: backgroundColor,
+                        backgroundColor: Styles.greyBackground,
                         paddingHorizontal: Distances.ContentDistanceFromEdge,
                         paddingVertical: Distances.ContentDistanceFromEdge
                     })}>

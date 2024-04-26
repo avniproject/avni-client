@@ -32,7 +32,8 @@ class ObservationsSectionTitle extends AbstractComponent {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                flexWrap: 'wrap'
+                flexWrap: 'wrap',
+                marginVertical: 10
             })}>
                 <Text style={this.props.titleStyle || [Fonts.MediumBold]}>{this.props.title}</Text>
                 {contextActionButtons}

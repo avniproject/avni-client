@@ -11,7 +11,7 @@ Styles.blackColor = '#000000';
 Styles.redColor = '#ff0000';
 Styles.defaultBackground = '#212121';
 Styles.groupSubjectBackground = '#871f74';
-Styles.greyBackground = '#f7f7f7';
+Styles.greyBackground = '#f6f6f6';
 Styles.greyText = '#666666';
 Styles.blueColor='#0000e5';
 Styles.blackish = '#1E1E1E';
@@ -39,7 +39,8 @@ Styles.VerticalSpacingBetweenOptionItems = 20;
 
 Styles.programProfileHeading = {
     fontSize: Styles.normalTextSize,
-    color: Styles.whiteColor,
+    color: Styles.blackish,
+    fontWeight: 'bold',
     lineHeight: Styles.normalTextSizeLineHeight
 };
 
@@ -49,7 +50,7 @@ Styles.container = {
 
 Styles.programProfileSubheading = {
     fontSize: Styles.smallTextSize,
-    color: Styles.whiteColor,
+    color: Styles.blackish,
     lineHeight: Styles.smallTextSizeLineHeight
 };
 
@@ -247,8 +248,8 @@ Styles.userProfileSubtext = {
 };
 
 Styles.relativeRelationText = {
-    fontSize: Styles.normalTextSize,
-    fontStyle: 'normal',
+    fontSize: Styles.smallTextSize,
+    // fontStyle: 'normal',
     color: Styles.blackColor,
     paddingRight: 8
 };

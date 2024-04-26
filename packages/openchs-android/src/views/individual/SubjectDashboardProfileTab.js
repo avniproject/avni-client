@@ -366,7 +366,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const relativesFeatureToggle = individual.isPerson() && isRelationshipTypePresent;
         const groupSubjectToggle = individual.subjectType.isGroup();
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
+            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
                 <View style={{marginHorizontal: 10}}>
                     <NewFormButton display={displayGeneralEncounterInfo} style={{marginBottom: 50}}/>
                     <CustomActivityIndicator loading={displayIndicator}/>
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
         padding: Distances.ScaledContentDistanceFromEdge,
         margin: 4,
         elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
+        backgroundColor: Styles.greyBackground,
         marginVertical: 3,
         borderBottomLeftRadius: 5,
         borderBottomRightRadius: 5,

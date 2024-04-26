@@ -25,6 +25,7 @@ class Colors {
     static DisabledButtonColor = '#c2c5c6';
     static SecondaryActionButtonColor = '#e0e0e0';
     static GreyContentBackground = '#f7f7f7';
+    static WhiteContentBackground = '#FFFFFF';
     static HighlightBackgroundColor = 'lightgrey';
 
     static ChecklistItemUpcoming = 'yellow';

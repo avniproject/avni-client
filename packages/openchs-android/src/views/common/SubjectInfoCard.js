@@ -119,9 +119,9 @@ class SubjectInfoCard extends AbstractComponent {
                 alignItems: 'center',
                 alignSelf: 'center',
                 minHeight: 72,
-                backgroundColor: Colors.cardBackgroundColor,
+                backgroundColor: Styles.greyBackground,
                 paddingHorizontal: 8,
-                paddingVertical: 8
+                paddingVertical: 2
             }}>
                 <SubjectProfilePicture
                     size={32}

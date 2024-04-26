@@ -5,6 +5,7 @@ import {Button, Text} from "native-base";
 import Colors from "../primitives/Colors";
 import Fonts from "../primitives/Fonts";
 import {TouchableOpacity} from 'react-native'
+import Styles from "./Styles";
 
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
@@ -23,7 +24,8 @@ class ContextActionButton extends AbstractComponent {
                 <Text style={{
                     fontSize: Fonts.Medium,
                     color: color,
-                    paddingHorizontal: 5
+                    paddingHorizontal: 5,
+                    backgroundColor: Styles.greyBackground
                 }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></TouchableOpacity>
         );
     }

@@ -97,7 +97,7 @@ class SubjectDashboardView extends AbstractComponent {
                                            hideEnrol={this.state.hideEnrol}
                         />
                     </View>
-                    <ScrollView>
+                    <ScrollView style={{backgroundColor: Colors.WhiteContentBackground}}>
                         {this.state.individualProfile && (
                             <SubjectDashboardProfileTab
                                 params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>
