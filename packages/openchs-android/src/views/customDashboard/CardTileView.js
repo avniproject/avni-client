@@ -1,29 +1,38 @@
-import {ActivityIndicator, Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import {ActivityIndicator, Dimensions, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import React from 'react';
-import {CountResult} from "./CountResult";
-import _, {get} from "lodash";
-import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import _, {get} from 'lodash';
+import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Colors from '../primitives/Colors';
 
 const renderIcon = function (iconName, textColor) {
     return (
         <View style={styles.iconContainer}>
             <Icon name={iconName} size={30} color={textColor} style={{opacity: 0.8}}/>
         </View>
-    )
+    );
 };
 
-const renderNumber = function (countResult, textColor) {
-    return (_.isNil(get(countResult, 'primaryValue')) ?
-            <ActivityIndicator size="small" color={textColor}/> :
-            <CountResult
-                direction={'row'}
-                primary={countResult.primaryValue}
-                secondary={countResult.secondaryValue}
-                primaryStyle={[styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
-                secondaryStyle={[styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
-            />
-    )
+const renderNumber = function (countResult = {}, textColor) {
+    if ((_.isNil(get(countResult, 'primaryValue')))) {
+        return <ActivityIndicator size="small" color={textColor}/>;
+    }
+    const primaryStyle = [styles.cardPrimaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle, {marginTop: -20}];
+    const secondaryStyle = [styles.cardSecondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle];
+    const {primaryValue, secondaryValue} = countResult;
+
+    return (
+        <View>
+            <View style={{alignItems: 'flex-end', paddingTop: 10, minHeight: 40}}>
+                {secondaryValue ?
+                    <Text style={[secondaryStyle, {marginRight: 8}]}>
+                        {secondaryValue}
+                    </Text> :
+                    null}
+            </View>
+            <Text style={primaryStyle}>{primaryValue}</Text>
+        </View>
+    );
 };
 
 const cardGap = 16;
@@ -32,64 +41,64 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
     const {name, colour, itemKey, iconName} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const cardName = (countResult && countResult.cardName) || name;
-    const textColor = (countResult && countResult.textColor) || '#ffffff';
+    const textColor = (countResult && countResult.textColor) || '#000000';
+    const descriptionColor = (countResult && countResult.textColor) || '#333333';
     const cardColor = (countResult && countResult.cardColor) || colour || '#ffffff';
+    const clickable = get(countResult, 'clickable');
+    const chevronColor = Colors.darker(0.1, cardColor);
+    const cardBorderColor = Colors.darker(0.2, cardColor);
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!get(countResult, 'clickable')}>
+        <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!clickable}>
             <View key={itemKey}
                   style={[styles.container, {
                       marginTop: cardGap,
                       marginLeft: index % 2 !== 0 ? cardGap : 0,
                       width: cardWidth,
-                      backgroundColor: cardColor
+                      backgroundColor: cardColor,
+                      borderColor: cardBorderColor,
+                      paddingLeft: 16,
                   }]}>
-                <View style={{flexDirection: 'row'}}>
-                    <View style={{
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        flex: 0.8,
-                        paddingHorizontal: 12,
-                        paddingVertical: 10
-                    }}>
-                        <View style={{alignItems: 'flex-start', margin: 5, height: 45, width: 100}}>
-                            {renderNumber(countResult, textColor)}
-                        </View>
-                        <Text style={[styles.cardNameTextStyle, {color: textColor}]}>{I18n.t(cardName)}</Text>
+                <View style={styles.cardNameContainerStyle}>
+                    <View>
+                        {renderNumber(countResult, textColor)}
+                        <Text style={[styles.cardNameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
                     </View>
+                    <View>
+                        {iconName && renderIcon(iconName, textColor)}
+                    </View>
+                </View>
+                <View style={{position: 'absolute', right: 0, bottom: 0, height: 40, width: 40}}>
                     <View style={{
-                        flexDirection: 'column',
-                        flex: 0.2,
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-end',
-                        marginRight: 5
+                        backgroundColor: chevronColor,
+                        borderTopLeftRadius: 10, borderBottomRightRadius: 10,
+                        height: 40, width: 40, alignItems: 'center', justifyContent: 'center'
                     }}>
-                        <View>
-                            {iconName && renderIcon(iconName, textColor)}
-                        </View>
-                        <View style={{backgroundColor: colour, borderRadius: 6}}>
-                            <MCIcon name={'chevron-right'} size={40} color={textColor} style={{opacity: 0.8}}/>
-                        </View>
+                        {clickable &&
+                            <MCIcon name={'chevron-right'} size={30} color={textColor} style={{opacity: 0.8}}/>}
                     </View>
                 </View>
             </View>
         </TouchableNativeFeedback>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
     container: {
         borderRadius: 10,
-        elevation: 2,
-        justifyContent: 'center',
-        alignItems: 'flex-start'
+        borderWidth: StyleSheet.hairlineWidth,
     },
     cardNameTextStyle: {
-        fontSize: 12,
+        fontSize: 18,
         fontStyle: 'normal'
     },
+    cardNameContainerStyle: {
+        paddingBottom: 40,
+        marginRight: 12
+    },
     cardPrimaryTextStyle: {
-        fontSize: 19,
+        fontSize: 28,
+        fontWeight: '900',
         fontStyle: 'normal',
     },
     cardSecondaryTextStyle: {

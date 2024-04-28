@@ -59,6 +59,8 @@ class CustomDashboardActions {
         let filterConfigsJSON = JSON.stringify(filterConfigs);
         let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
         const cachedData = customDashboardCacheService.fetchCachedData(newState.activeDashboardUUID, filterConfigsChecksum);
+
+        newState.filtersPresent = _.keys(filterConfigs).length > 0;
         newState.filterConfigsChecksum = cachedData.getChecksum();
         newState.customDashboardFilters = cachedData.getTransformedFilters();
         newState.ruleInput = cachedData.getRuleInput();

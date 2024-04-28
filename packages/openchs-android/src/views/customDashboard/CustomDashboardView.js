@@ -18,7 +18,6 @@ import IndividualSearchResultPaginatedView from "../individual/IndividualSearchR
 import IndividualListView from "../individuallist/IndividualListView";
 import Styles from "../primitives/Styles";
 import EntityService from "../../service/EntityService";
-import CustomDashboardCard from "./CustomDashboardCard";
 import CommentListView from "../comment/CommentListView";
 import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
@@ -29,8 +28,10 @@ import Distances from '../primitives/Distances';
 import AppliedFiltersV2 from '../filter/AppliedFiltersV2';
 import General from "../../utility/General";
 import {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
-import CustomFilterService from "../../service/CustomFilterService";
 import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import Line from '../common/Line';
+import {CardTileView} from './CardTileView';
+import {CardListView} from './CardListView';
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -45,17 +46,12 @@ function SubHeader({I18n, onFilterPressed}) {
         <View style={{
             backgroundColor: Colors.SubHeaderBackground,
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-end',
             minHeight: 45,
             alignItems: 'center',
             marginRight: 20
         }}>
-            <Text style={[{
-                color: Colors.headerBackgroundColor,
-                fontSize: 18,
-                marginLeft: 20
-            }]}>{I18n.t('filter')}</Text>
-            <MCIIcon style={{fontSize: 30, color: Colors.BadgeColor}} name='tune'/>
+            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor}} name='tune'/>
         </View>
     </TouchableNativeFeedback>;
 }
@@ -166,26 +162,26 @@ class CustomDashboardView extends AbstractComponent {
         return (
             <View style={styles.container}>
                 {_.map(sectionWiseData, ({section, cards}) => (
-                    <View key={section.uuid} style={styles.sectionContainer}>
-                        {section.viewType !== DashboardSection.viewTypeName.Default &&
-                            this.renderSectionName(section.name, section.description, section.viewType, cards)}
-                        <View style={styles.cardContainer}>
-                            {_.map(cards, (card, index) => {
-                                return (
-                                    <CustomDashboardCard
-                                        key={card.itemKey}
-                                        reportCard={card}
-                                        onCardPress={onCardPressOp}
-                                        index={index}
-                                        viewType={section.viewType}
-                                        countResult={this.state.cardToCountResultMap[card.itemKey]}
-                                        countUpdateTime={this.state.countUpdateTime}
-                                    />
-                                );
-                            })}
+                        <View key={section.uuid} style={styles.sectionContainer}>
+                            {section.viewType !== DashboardSection.viewTypeName.Default &&
+                                this.renderSectionName(section.name, section.description, section.viewType, cards)}
+                            <View style={section.viewType === 'Tile'? styles.cardContainer: styles.listContainer}>
+                                {_.map(cards, (card, index) => {
+                                    return section.viewType === 'Tile' ?
+                                        <CardTileView key={card.itemKey} reportCard={card} I18n={this.I18n}
+                                                      onCardPress={onCardPressOp}
+                                                      index={index}
+                                                      countResult={this.state.cardToCountResultMap[card.itemKey]}/> :
+                                        <CardListView key={card.itemKey} reportCard={card} I18n={this.I18n}
+                                                      onCardPress={onCardPressOp}
+                                                      countResult={this.state.cardToCountResultMap[card.itemKey]}
+                                                      index={index} isLastCard={index === cards.length - 1}/>;
+
+                                })}
+                            </View>
                         </View>
-                    </View>
-                ))}
+                    )
+                )}
             </View>
         )
     }
@@ -237,6 +233,10 @@ class CustomDashboardView extends AbstractComponent {
             return (<View/>);
     }
 
+    renderFilters() {
+        return this.state.filtersPresent && <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>;
+    }
+
     onFilterPressed() {
         const {activeDashboardUUID} = this.state;
         TypedTransition.from(this)
@@ -254,7 +254,6 @@ class CustomDashboardView extends AbstractComponent {
         const {hasFilters, loading} = this.state;
         return (
             <CHSContainer style={{
-                backgroundColor: Colors.GreyContentBackground,
                 marginBottom: Styles.ContentDistanceFromEdge
             }}>
                 <AppHeader title={this.I18n.t(title)}
@@ -266,7 +265,8 @@ class CustomDashboardView extends AbstractComponent {
                            renderSearch={showSearch}
                            onSearch={onSearch}
                 />
-                <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>
+                {this.renderFilters()}
+                <Line/>
                 {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                     <SafeAreaView style={{height: 50}}>
                         <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
@@ -317,7 +317,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        marginTop: 20
+    },
+    listContainer: {
+      marginTop: 16
     }
 });
 

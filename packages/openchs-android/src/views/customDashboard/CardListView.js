@@ -1,16 +1,16 @@
-import {ActivityIndicator, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {ActivityIndicator, StyleSheet, Text, TouchableNativeFeedback, View} from 'react-native';
 import React from 'react';
-import Colors from "../primitives/Colors";
-import Styles from "../primitives/Styles";
-import {CountResult} from "./CountResult";
+import Styles from '../primitives/Styles';
+import {CountResult} from './CountResult';
 import _, {get} from 'lodash';
-import MCIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
+export const CardListView = ({reportCard, I18n, onCardPress, countResult, index, isLastCard}) => {
     const {name, colour, itemKey} = reportCard;
     const cardName = (countResult && countResult.cardName) || name;
-    const textColor = (countResult && countResult.textColor) || '#ffffff';
+    const textColor = (countResult && countResult.textColor) || '#000000';
     const cardColor = (countResult && countResult.cardColor) || colour || '#0000ff';
+    const clickable = get(countResult, 'clickable');
 
     const renderNumber = () => {
         return (_.isNil(get(countResult, 'primaryValue')) ?
@@ -22,42 +22,45 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult}) => {
                     primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
                     secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
                 />
-        )
+        );
     };
 
     return (
-        <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!get(countResult, 'clickable')}>
-            <View key={itemKey} style={styles.container}>
-                <View style={styles.rowContainer}>
-                    <View style={[styles.numberContainer, {backgroundColor: cardColor}]}>
-                        <View style={{alignSelf: 'center'}}>
-                            {renderNumber()}
-                        </View>
+        <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!clickable}>
+            <View
+                style={[styles.rowContainer, {backgroundColor: cardColor}, index === 0 ? styles.firstRowContainer : {},
+                    isLastCard ? styles.lastRowContainer : {}
+                ]}>
+                <View style={styles.nameContainer}>
+                    <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
+                    <View style={{borderRadius: 6, alignSelf: 'flex-end'}}>
+                        {clickable &&
+                            <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>}
                     </View>
-                    <View style={styles.nameContainer}>
-                        <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
-                        <View style={{borderRadius: 6, alignSelf: "flex-end"}}>
-                            <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>
-                        </View>
-                    </View>
+                </View>
+                <View style={[styles.numberContainer]}>
+                    {renderNumber()}
                 </View>
             </View>
         </TouchableNativeFeedback>
-    )
+    );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
-        marginVertical: 1,
-        marginHorizontal: 3,
-        borderRadius: 4
-    },
     rowContainer: {
         flexDirection: 'row',
         flexWrap: 'nowrap',
         height: 100,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: '#DCDCDC'
+    },
+    firstRowContainer: {
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10
+    },
+    lastRowContainer: {
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10
     },
     NameContainer: {
         flexDirection: 'row',
@@ -67,27 +70,28 @@ const styles = StyleSheet.create({
     nameContainer: {
         marginLeft: 5,
         paddingHorizontal: 3,
-        width: '75%',
-        height: '100%',
-        alignSelf: 'center',
-        flexDirection: "row",
-        justifyContent: "space-between"
+        flex: 0.7,
+        flexDirection: 'row',
+        paddingLeft: 16,
+        borderRightWidth: StyleSheet.hairlineWidth,
+        borderColor: '#DCDCDC'
     },
     nameTextStyle: {
         paddingTop: 15,
-        fontSize: Styles.normalTextSize,
-        width: '80%'
+        fontSize: Styles.titleSize,
+        width: '90%'
     },
     numberContainer: {
-        width: '25%',
+        flex: 0.3,
         paddingVertical: 1
     },
     primaryTextStyle: {
-        fontSize: 30,
-        fontWeight: 'bold'
+        fontSize: 28,
+        fontWeight: '900',
+        fontStyle: 'normal',
     },
     secondaryTextStyle: {
-        fontSize: 23,
+        fontSize: 16,
         fontStyle: 'normal',
     },
     cardPrimaryTextErrorStyle: {

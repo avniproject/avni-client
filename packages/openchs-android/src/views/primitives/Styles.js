@@ -29,7 +29,7 @@ Styles.normalTextSizeLineHeight = computeLineHeight(Styles.normalTextSize);
 Styles.smallTextSizeLineHeight = computeLineHeight(Styles.smallTextSize);
 Styles.smallerTextSizeLineHeight = computeLineHeight(Styles.smallTextSize);
 
-Styles.ContentDistanceFromEdge = 24;
+Styles.ContentDistanceFromEdge = 28;
 Styles.ContainerHorizontalDistanceFromEdge = 14;
 Styles.ContentDistanceWithinContainer = 10;
 Styles.VerticalSpacingBetweenFormElements = 20;
