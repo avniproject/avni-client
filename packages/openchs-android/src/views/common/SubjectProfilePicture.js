@@ -7,8 +7,8 @@ import _, {isEmpty} from 'lodash';
 import AvniModel from "./AvniModel";
 import Styles from "../primitives/Styles";
 
-function Initials({name}) {
-    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('');
+function Initials({name = ''}) {
+    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('').substring(0,2);
     return <Text style={{
         color: Styles.blackColor,
         fontWeight: 'bold',
