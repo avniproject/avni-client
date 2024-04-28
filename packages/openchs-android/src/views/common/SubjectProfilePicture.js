@@ -1,25 +1,28 @@
-import {Image, TouchableNativeFeedback, View, Text} from "react-native";
-import React from "react";
-import AbstractComponent from "../../framework/view/AbstractComponent";
-import PropTypes from "prop-types";
-import MediaService from "../../service/MediaService";
+import {Image, TouchableNativeFeedback, View, Text} from 'react-native';
+import React from 'react';
+import AbstractComponent from '../../framework/view/AbstractComponent';
+import PropTypes from 'prop-types';
+import MediaService from '../../service/MediaService';
 import _, {isEmpty} from 'lodash';
-import AvniModel from "./AvniModel";
-import Styles from "../primitives/Styles";
+import AvniModel from './AvniModel';
+import Styles from '../primitives/Styles';
 
 function Initials({name = ''}) {
-    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('').substring(0,2);
-    return <Text style={{
-        color: Styles.blackColor,
-        fontWeight: 'bold',
-        fontSize: Styles.titleSize,
+    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('').substring(0, 2);
+    return <View style={{
+        backgroundColor: '#E6F6F5',
         borderRadius: 8,
-        backgroundColor: '#DBFBF3',
-        height: 40,
-        width: 40,
-        paddingLeft: 6,
-        paddingTop: 5
-    }}>{initials}</Text>
+        height: 56,
+        width: 56,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }}>
+        <Text style={{
+            color: Styles.blackColor,
+            fontWeight: '700',
+            fontSize: Styles.titleSize,
+        }}>{initials}</Text>
+    </View>;
 }
 
 class SubjectProfilePicture extends AbstractComponent {
@@ -59,11 +62,11 @@ class SubjectProfilePicture extends AbstractComponent {
             ? this.getService(MediaService).getAbsolutePath(individual.profilePicture, 'Profile-Pics')
             : this.getService(MediaService).getAbsolutePath(subjectType.iconFileS3Key, 'Icons');
         return <Image source={{uri: `file://${filePath}`}}
-                      style={{height: size, width: size, borderRadius: round ? size / 2 : 0, ...style}}/>
+                      style={{height: size, width: size, borderRadius: round ? size / 2 : 0, ...style}}/>;
     }
 
     onIconTouch(expand = false) {
-        this.setState({expandIcon: expand})
+        this.setState({expandIcon: expand});
     }
 
     renderImage({round, size, individual}) {
@@ -78,7 +81,7 @@ class SubjectProfilePicture extends AbstractComponent {
             justifyContent: 'center'
         }}>
             {loadDefaultIcon ? <Initials name={individual.nameString}/> : this.renderIcon(iconConfig)}
-        </View>
+        </View>;
     }
 
     render() {
@@ -90,14 +93,14 @@ class SubjectProfilePicture extends AbstractComponent {
                     {this.renderImage({round: false, size: 250, individual: individual})}
                 </AvniModel>
                 <TouchableNativeFeedback
-                    pointerEvents={"none"}
+                    pointerEvents={'none'}
                     onPress={() => this.onIconTouch(true)}>
                     <View>
                         {this.renderImage(this.props)}
                     </View>
                 </TouchableNativeFeedback>
             </View>
-        )
+        );
     }
 }
 
