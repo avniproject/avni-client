@@ -345,16 +345,18 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderSummary() {
         return <View>
-            <View>
+            <View style={{marginLeft: 10}}>
                 <Text style={Styles.cardTitle}>{this.I18n.t('subjectSummary')}</Text>
             </View>
 
             <View style={{
                 padding: Distances.ScaledContentDistanceFromEdge,
                 margin: 4,
-                elevation: 2,
                 backgroundColor: Styles.greyBackground,
-                marginVertical: 16
+                marginVertical: 16,
+                borderWidth: 2,
+                borderColor: Styles.greyBackground,
+                borderRadius: 10
             }}>
 
                 <Observations observations={_.defaultTo(this.state.subjectSummary, [])}
@@ -402,13 +404,9 @@ const styles = StyleSheet.create({
     container: {
         padding: Distances.ScaledContentDistanceFromEdge,
         margin: 4,
-        elevation: 2,
         backgroundColor: Styles.greyBackground,
         marginVertical: 3,
-        borderBottomLeftRadius: 5,
-        borderBottomRightRadius: 5,
-        borderTopLeftRadius: 5,
-        borderTopRightRadius: 5,
+        borderRadius: 10,
     },
     memberCard: {
         marginTop: 5,

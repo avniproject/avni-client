@@ -110,7 +110,7 @@ class Relatives extends AbstractComponent {
         const dataSource = new ListView.DataSource({rowHasChanged: () => false}).cloneWithRows(relatives);
         return (
             relatives.length > 0 ?
-                (<View style={{flexDirection: "column", paddingBottom: 10}}>
+                (<View style={{flexDirection: "column", paddingBottom: 10, borderRadius: 10}}>
                     {this.renderTitle()}
                     <ListView enableEmptySections={true}
                               dataSource={dataSource}
@@ -125,7 +125,9 @@ class Relatives extends AbstractComponent {
                                               </View>
 
                                           </View>
+                                          <View style={{marginHorizontal: 10}}>
                                           <SubjectInfoCard individual={relative.relative} />
+                                          </View>
                                           {editDeleteFeatureToggle && this.renderRelativeActionButton(relative)}
                                       </View>
                                   </TouchableNativeFeedback>
@@ -143,11 +145,11 @@ export default Relatives;
 const styles = StyleSheet.create({
     container: {
         margin: 4,
-        elevation: 2,
         backgroundColor: Styles.greyBackground,
         marginVertical: 3,
-        paddingBottom: 5,
-        paddingTop: 5
+        paddingBottom: 10,
+        paddingTop: 5,
+        borderRadius: 10
     },
     relativeDetails: {
         flexDirection: 'row',
@@ -159,6 +161,9 @@ const styles = StyleSheet.create({
         flex: 1
     },
     buttonStyle: {
-        backgroundColor: Styles.greyBackground
+        backgroundColor: Styles.greyBackground,
+        borderRadius: 5,
+        elevation: 2,
+        marginHorizontal: 5
     }
 });

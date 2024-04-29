@@ -109,7 +109,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
 
     render() {
         return (
-            <View style={{backgroundColor: Colors.GreyContentBackground, marginTop: 10}}>
+            <View style={{backgroundColor: Colors.WhiteContentBackground, marginTop: 10}}>
                 <ActionSelector
                     title={this.I18n.t("followupTypes")}
                     hide={() => this.dispatchAction(Actions.HIDE_ENCOUNTER_SELECTOR)}

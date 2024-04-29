@@ -195,9 +195,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             (<View style={{
                 padding: Distances.ScaledContentDistanceFromEdge,
                 margin: 4,
-                elevation: 2,
                 backgroundColor: Styles.greyBackground,
-                marginVertical: 16
+                marginVertical: 16,
+                borderRadius: 10
             }}>
                 <Text style={[Fonts.MediumBold]}>{this.getExitHeaderMessage(this.state.enrolment)}</Text>
                 <Observations form={this.getExitForm()}
@@ -214,9 +214,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return <View style={{
             padding: Distances.ScaledContentDistanceFromEdge,
             margin: 4,
-            elevation: 2,
             backgroundColor: Styles.greyBackground,
-            marginVertical: 16
+            marginVertical: 16,
+            borderRadius: 10
         }}>
             <View>
                 <Text style={Styles.cardTitle}>{this.I18n.t('summary')}</Text>
@@ -235,9 +235,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return (<View style={{
             padding: Distances.ScaledContentDistanceFromEdge,
             margin: 4,
-            elevation: 2,
             backgroundColor: Styles.greyBackground,
-            marginVertical: 16
+            marginVertical: 16,
+            borderRadius: 10
         }}>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
                 <Text style={Styles.cardTitle}>{this.I18n.t('enrolmentDetails')}</Text>
@@ -283,7 +283,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                     marginHorizontal: 16,
                     backgroundColor: Colors.WhiteContentBackground
                 }}>
-                    <View style={{backgroundColor: Styles.greyBackground}}>
+                    <View style={{backgroundColor: Styles.greyBackground, borderRadius: 10}}>
                         {this.state.enrolment.individual.voided &&
                         <Text style={{
                             fontSize: Fonts.Large,

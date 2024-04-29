@@ -272,9 +272,11 @@ const styles = StyleSheet.create({
     container: {
         padding: Distances.ScaledContentDistanceFromEdge,
         margin: 4,
-        elevation: 2,
         backgroundColor: Styles.greyBackground,
-        marginVertical: 3
+        marginVertical: 3,
+        borderWidth: 2,
+        borderColor: Styles.greyBackground,
+        borderRadius: 10
     },
     viewAllContainer: {
         right: Distances.ScaledContentDistanceFromEdge,

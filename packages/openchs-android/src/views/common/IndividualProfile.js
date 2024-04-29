@@ -129,9 +129,10 @@ class IndividualProfile extends AbstractComponent {
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {
         return (<TouchableNativeFeedback onPress={onPress}>
             <View style={{
-                flexDirection: 'row', height: DGS.resizeHeight(30),
+                flexDirection: 'row',
                 paddingHorizontal: DGS.resizeWidth(6),
-                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4, backgroundColor: Styles.greyBackground
+                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4, backgroundColor: Styles.greyBackground,
+                borderRadius: 5, elevation: 2
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
@@ -188,7 +189,9 @@ class IndividualProfile extends AbstractComponent {
             paddingHorizontal: 10,
             marginEnd: 2,
             alignItems: 'center',
-            backgroundColor: Styles.greyBackground
+            backgroundColor: Styles.greyBackground,
+            borderRadius: 5,
+            elevation: 2
         }}>
             <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>
@@ -243,18 +246,14 @@ class IndividualProfile extends AbstractComponent {
                 (
                     <>
                         <CustomActivityIndicator loading={this.state.displayProgressIndicator}/>
-                        <View style={{
-                            marginVertical: 10,
-                            marginHorizontal: 10,
-                            backgroundColor: Styles.greyBackground
-                        }}>
+                        <View>
                             <ActionSelector
                                 title={this.I18n.t("enrolInProgram")}
                                 hide={() => this.dispatchAction(Actions.HIDE_ACTION_SELECTOR)}
                                 visible={this.state.displayActionSelector}
                                 actions={this.state.programActions}
                             />
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
                                 <View style={{
                                     paddingHorizontal: 20,
                                     justifyContent: 'center',

@@ -25,7 +25,9 @@ class ContextActionButton extends AbstractComponent {
                     fontSize: Fonts.Medium,
                     color: color,
                     paddingHorizontal: 5,
-                    backgroundColor: Styles.greyBackground
+                    backgroundColor: Styles.greyBackground,
+                    borderRadius: 5,
+                    elevation: 2
                 }}>{`${this.I18n.t(this.props.labelKey)}`}</Text></TouchableOpacity>
         );
     }
