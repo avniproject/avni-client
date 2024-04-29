@@ -344,18 +344,22 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     }
 
     renderSummary() {
-        return <View style={{
-            padding: Distances.ScaledContentDistanceFromEdge,
-            margin: 4,
-            elevation: 2,
-            backgroundColor: Colors.cardBackgroundColor,
-            marginVertical: 16
-        }}>
+        return <View>
             <View>
                 <Text style={Styles.cardTitle}>{this.I18n.t('subjectSummary')}</Text>
             </View>
-            <Observations observations={_.defaultTo(this.state.subjectSummary, [])}
-                          style={{marginVertical: DGS.resizeHeight(8)}}/>
+
+            <View style={{
+                padding: Distances.ScaledContentDistanceFromEdge,
+                margin: 4,
+                elevation: 2,
+                backgroundColor: Styles.greyBackground,
+                marginVertical: 16
+            }}>
+
+                <Observations observations={_.defaultTo(this.state.subjectSummary, [])}
+                              style={{ marginVertical: DGS.resizeHeight(8) }}/>
+            </View>
         </View>
     }
 
@@ -383,7 +387,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     {groupSubjectToggle ? this.renderMembers() : <View/>}
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
-                <Separator height={110} backgroundColor={Colors.GreyContentBackground}/>
+                <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
                 {editFormRuleResponse.isEditDisallowed() &&
                     <AvniToast message={this.I18n.t(editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>

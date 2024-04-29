@@ -219,7 +219,7 @@ class PreviousEncounters extends AbstractComponent {
         }
         const dataSource = ListViewHelper.getDataSource(toDisplayEncounters);
         const renderable = (<View>
-            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Styles.greyBackground}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: Styles.whiteColor}}>
                 {this.props.title && (
                     <Text style={[Styles.cardTitle, {padding: Distances.ScaledContentDistanceFromEdge}]}>
                         {this.props.title}

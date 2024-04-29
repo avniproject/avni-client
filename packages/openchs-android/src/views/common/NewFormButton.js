@@ -48,12 +48,12 @@ class NewFormButton extends AbstractComponent {
     renderOption() {
         const containerStyle = this.props.style || {};
         const availableActions = _.size(this.state.encounterActions);
-        return (
+        return ( availableActions > 0 ?
             <View style={containerStyle}>
                 <View style={{marginTop: 2, position: 'absolute', right: 8}}>
-                    {availableActions > 0 ? this.renderButtonBasedOnEncounters() : <View/>}
+                    {this.renderButtonBasedOnEncounters()}
                 </View>
-            </View>
+            </View> : <View/>
         )
     }
 

@@ -238,7 +238,7 @@ class IndividualProfile extends AbstractComponent {
             headingSuffixesList.unshift(this.props.individual.userProfileSubtext1(this.I18n)); //localized Gender
         }
         let headingSuffix = _.join(headingSuffixesList, ", ")
-        return <View style={{backgroundColor: Styles.greyBackground}}>
+        return <View style={{backgroundColor: Styles.whiteColor}}>
             {(this.props.viewContext !== IndividualProfile.viewContext.Wizard) ?
                 (
                     <>
