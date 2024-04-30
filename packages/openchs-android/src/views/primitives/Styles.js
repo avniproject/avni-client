@@ -328,4 +328,12 @@ Styles.cardTitle = {
     letterSpacing: 0.1
 };
 
+Styles.dashboardSubsectionTitleText = {
+    color: Styles.lightgrey,
+    textTransform: 'uppercase',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 0.1
+}
+
 export default Styles;

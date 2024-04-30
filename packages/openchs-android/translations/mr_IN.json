@@ -248,6 +248,7 @@
     "unplannedVisit": "अनियोजित भेट",
     "registeredOn": "नोंदणीची तारीख:",
     "by": "द्वारे: {{user}}",
+    "byOn": "{{user}} द्वारे {{date}} वर",
     "home": "होम",
     "Program": "कार्यक्रम",
     "Choose type": "पर्याय निवडा",

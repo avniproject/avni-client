@@ -117,7 +117,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     actions={this.state.encounterActions}
                 />
                 <View style={{marginHorizontal: 10}}>
-                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab}/>
+                    <NewFormButton display={!this.props.params.displayGeneralInfoInProfileTab} style={{marginBottom: 50}}/>
                     {this.renderDraftVisits()}
                     {this.renderPlannedVisits()}
                     {this.renderCompletedVisits()}
