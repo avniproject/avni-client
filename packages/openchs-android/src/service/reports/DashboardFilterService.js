@@ -14,7 +14,6 @@ import {
 import {DashboardReportFilter} from "../../model/DashboardReportFilters";
 import _ from "lodash";
 import AddressLevelService from "../AddressLevelService";
-import GlobalContext from "../../GlobalContext";
 
 
 @Service("dashboardFilterService")
@@ -77,12 +76,13 @@ class DashboardFilterService extends BaseService {
             if (_.isEmpty(filterValue.selectedAddresses)) {
                 ruleInput.filterValue = filterValue.selectedAddresses;
             } else {
-                const addressLevelService = GlobalContext.getInstance().beanRegistry.getService(AddressLevelService);
+                const addressLevelService = this.getService(AddressLevelService);
+                const addressFilterValues = [...filterValue.selectedAddresses];
                 const allChildrenOfLowestSelectedLocations = filterValue.selectedAddresses
                     .filter(location => location.level === _.get(_.minBy(filterValue.selectedAddresses, 'level'), 'level'))
-                    .reduce((acc, parent) => acc.concat(addressLevelService.getChildrenOfNode(parent, false)), []);
-                ruleInput.filterValue = allChildrenOfLowestSelectedLocations
-                    .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid', 'typeUuid']));
+                    .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent, true)), []);
+                ruleInput.filterValue = addressFilterValues.concat(allChildrenOfLowestSelectedLocations
+                    .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
             }
         }
         else
