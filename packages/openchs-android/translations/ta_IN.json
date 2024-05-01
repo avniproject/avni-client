@@ -265,6 +265,7 @@
     "registrationInformation": "பதிவு விவரங்கள்",
     "registeredOn": "பதிவுத் தேதி:",
     "by": "மூலம்: {{user}}",
+    "byOn": "மூலம்: {{user}} அன்று: {{date}}",
     "addRelative": "உறவினர் சேர்க்கவும்",
     "noRelativeAdded": "உறவினர் சேர்க்கப்படவில்லை",
     "profile": "சுயவிவரம்",

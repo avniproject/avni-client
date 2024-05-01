@@ -131,7 +131,7 @@ class IndividualProfile extends AbstractComponent {
             <View style={{
                 flexDirection: 'row',
                 paddingHorizontal: DGS.resizeWidth(6),
-                alignItems: 'center', justifyContent: 'flex-start', marginHorizontal: 4, backgroundColor: Styles.greyBackground,
+                alignItems: 'center', justifyContent: 'flex-start', marginLeft: 16, backgroundColor: Styles.greyBackground,
                 borderRadius: 5, elevation: 2
             }}>
                 <AvniIcon name={iconMode} style={{
@@ -187,7 +187,7 @@ class IndividualProfile extends AbstractComponent {
         return <TouchableOpacity onPress={groupAction.fn} style={{
             paddingVertical: 1,
             paddingHorizontal: 10,
-            marginEnd: 2,
+            marginEnd: 16,
             alignItems: 'center',
             backgroundColor: Styles.greyBackground,
             borderRadius: 5,

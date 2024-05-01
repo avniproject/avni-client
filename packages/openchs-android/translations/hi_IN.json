@@ -349,6 +349,7 @@
     "dueChecklist": "ड्यू",
     "registeredOn": "पंजीकरण की तारीख:",
     "by": "द्वारा: {{user}}",
+    "byOn": "{{user}} द्वारा {{date}} पर",
     "disableAutoRefresh": "डैशबोर्ड ऑटो रिफ्रेश को अक्षम करें",
     "autoRefresh": "डैशबोर्ड ऑटो रिफ्रेश",
     "trackLocation": "ट्रैक स्थान",

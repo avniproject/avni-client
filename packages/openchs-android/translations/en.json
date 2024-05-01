@@ -268,6 +268,7 @@
     "registrationInformation": "Registration Details",
     "registeredOn": "Registered on:",
     "by": "By: {{user}}",
+    "byOn": "By {{user}} on {{date}}",
     "you": "You",
     "addRelative": "Add Relative",
     "noRelativeAdded": "No Relative Added",

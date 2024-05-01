@@ -265,6 +265,7 @@
     "registeredOn": "ನೋಂದಣಿ ದಿನಾಂಕ:",
     "you": "ಸ್ವಯಂ",
     "by": "ಮೂಲಕ: {{user}}",
+    "byOn": "ಮೂಲಕ: {{user}} ಮೇಲೆ: {{date}}",
     "addRelative": "ಸಂಬಂಧಿಕರು",
     "noRelativeAdded": "ಯಾವುದೇ ಸಂಬಂಧಿತರನ್ನು ಸೇರಿಸಲಾಗಿಲ್ಲ",
     "profile": "ವಿವರ",

@@ -20,7 +20,7 @@ class ContextActionButton extends AbstractComponent {
     render() {
         const color = this.props.textColor || Colors.ActionButtonColor;
         return (
-            <TouchableOpacity onPress={() => this.props.onPress()} style={{paddingHorizontal: 25}}>
+            <TouchableOpacity onPress={() => this.props.onPress()} style={{paddingHorizontal: 10}}>
                 <Text style={{
                     fontSize: Fonts.Medium,
                     color: color,

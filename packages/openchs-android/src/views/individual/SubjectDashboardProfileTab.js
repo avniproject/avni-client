@@ -173,7 +173,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 <View style={{paddingLeft: 10}}>
                     <ObservationsSectionTitle contextActions={this.getRelativeActions()}
                                               title={this.I18n.t('Relatives')}
-                                              titleStyle={Styles.cardTitle}/>
+                                              titleStyle={Styles.dashboardSubsectionTitleText}/>
                 </View>
                 <Relatives relatives={this.state.relatives}
                            style={{marginVertical: DGS.resizeHeight(8)}}
@@ -306,10 +306,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         const hasVoidPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(voidProfileCriteria, 'subjectTypeUuid');
         return <View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
-                <View styel={{flexDirection: 'column'}}>
-                    <Text style={[Styles.cardTitle, {color: Colors.DefaultPrimaryColor}]}>
-                        {this.I18n.t("registrationInformation")}
-                    </Text>
+                <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
                         {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)}. ${createdByMessage}`}
                     </Text>
@@ -337,8 +334,13 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderProfileOrVoided(individual) {
         if (individual.subjectType.getSetting(SubjectType.settingKeys.displayRegistrationDetails) !== false) {
-            return <View style={styles.container}>
-                {individual.voided ? this.renderVoided() : this.renderProfile()}
+            return <View>
+                <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>
+                    {this.I18n.t("registrationInformation")}
+                </Text>
+                <View style={styles.container}>
+                    {individual.voided ? this.renderVoided() : this.renderProfile()}
+                </View>
             </View>
         }
     }
@@ -346,7 +348,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     renderSummary() {
         return <View>
             <View style={{marginLeft: 10}}>
-                <Text style={Styles.cardTitle}>{this.I18n.t('subjectSummary')}</Text>
+                <Text style={Styles.dashboardSubsectionTitleText}>{this.I18n.t('subjectSummary')}</Text>
             </View>
 
             <View style={{
