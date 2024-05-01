@@ -162,8 +162,9 @@ class SyncService extends BaseService {
 
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
+        const requestParams = "includeUserSubjectType=true"
         const entitySyncStatuses = this.entitySyncStatusService.findAll().map(_.identity);
-        return post(`${url}/v2/syncDetails`, entitySyncStatuses, true)
+        return post(`${url}/v2/syncDetails?${requestParams}`, entitySyncStatuses, true)
             .then(res => res.json())
             .then(({syncDetails, nowMinus10Seconds, now}) => ({
                 syncDetails,

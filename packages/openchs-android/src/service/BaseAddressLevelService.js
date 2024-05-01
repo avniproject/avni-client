@@ -83,7 +83,7 @@ class BaseAddressLevelService extends BaseService {
     }
 
     getChildrenParent(parentUUID) {
-        if (_.isNil(parentUUID)) return [];
+        if (_.isEmpty(parentUUID)) return [];
         return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())];
     }
 
