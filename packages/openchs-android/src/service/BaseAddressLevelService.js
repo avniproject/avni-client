@@ -91,19 +91,19 @@ class BaseAddressLevelService extends BaseService {
         return child.level === this.minLevel();
     }
 
-    getChildrenOfNode( node, leavesOnly = true) {
-        if (this.isLeaf(node)) {
+    getDescendantsOfNode(node, excludeSelf = true) {
+        if (this.isLeaf(node)) { //in this case excludeSelf is not respected
             return [node];
         }
         const children = this.getChildrenParent(node.uuid);
         if (_.isEmpty(children)) {
-            return leavesOnly ? [] : [node];
+            return excludeSelf ? [] : [node];
         }
         else if (this.isLeaf(_.first(children))) {
-            return leavesOnly ? children : [node].concat(children);
+            return excludeSelf ? children : [node].concat(children);
         }
-        return leavesOnly ? _.flatten(children.map(c => this.getChildrenOfNode(c, leavesOnly)))
-            : [node].concat(_.flatten(children.map(c => this.getChildrenOfNode(c, leavesOnly))));
+        return excludeSelf ? _.flatten(children.map(c => this.getDescendantsOfNode(c, excludeSelf)))
+            : [node].concat(_.flatten(children.map(c => this.getDescendantsOfNode(c, excludeSelf))));
     }
 
     getDescendantsOfParent(parentUuid, minLevelTypeUUIDs) {
