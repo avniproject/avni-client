@@ -253,7 +253,7 @@ class IndividualProfile extends AbstractComponent {
                                 visible={this.state.displayActionSelector}
                                 actions={this.state.programActions}
                             />
-                            <View style={{flexDirection: 'row', alignItems: 'center', paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
+                            <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
                                 <View style={{
                                     paddingHorizontal: 20,
                                     justifyContent: 'center',

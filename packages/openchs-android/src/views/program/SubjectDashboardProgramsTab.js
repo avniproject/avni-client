@@ -91,7 +91,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     getHeaderMessage(enrolment) {
         const createdBy = this.getService(UserInfoService).getCreatedBy(enrolment, this.I18n);
-        const createdByMessage = _.isNil(createdBy) ? "" : this.I18n.t("by", { user: createdBy });
+        const createdByMessage = _.isEmpty(createdBy) ? "" : this.I18n.t("by", { user: createdBy });
         return (
             <View>
                 <Text>{`${this.I18n.t("enrolledOn")} ${General.toDisplayDate(enrolment.enrolmentDateTime)}. ${createdByMessage}`}</Text>

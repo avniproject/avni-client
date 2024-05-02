@@ -297,14 +297,15 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
     renderProfile() {
         const formMappingService = this.getService(FormMappingService);
+        const registrationForm = formMappingService.findRegistrationForm(this.state.individual.subjectType);
         const createdBy = this.getService(UserInfoService).getCreatedBy(this.state.individual, this.I18n);
-        const createdByMessage = _.isNil(createdBy) ? "" : this.I18n.t("by", {user: createdBy});
+        const createdByMessage = _.isEmpty(createdBy) ? "" : this.I18n.t("by", {user: createdBy});
 
         const editProfileCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const hasEditPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(editProfileCriteria, 'subjectTypeUuid');
         const hasVoidPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(voidProfileCriteria, 'subjectTypeUuid');
-        return <View>
+        return registrationForm ? (<View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
@@ -312,24 +313,26 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                     </Text>
                 </View>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
-                    {this.state.expand === false ?
-                        <Icon name={'arrow-down'} size={12}/> :
-                        <Icon name={'arrow-up'} size={12}/>}
+                    {this.state.expand === false ? <Icon name={'arrow-down'} size={12}/> :
+                      <Icon name={'arrow-up'} size={12}/>}
                 </View>
             </TouchableOpacity>
             <View style={{marginTop: 3}}>
-                {this.state.expand === true ?
-                    <View style={{paddingHorizontal: 10}}>
-                        <Observations form={formMappingService.findRegistrationForm(this.state.individual.subjectType)}
-                                      observations={this.state.individual.observations}
-                                      style={{marginVertical: 3}}
-                                      quickFormEdit={hasEditPrivilege}
-                                      onFormElementGroupEdit={(pageNumber) => this.editSubjectByFEG(pageNumber)}
-                        />
-                    </View> : <View/>}
+                {this.state.expand === true ? <View style={{paddingHorizontal: 10}}>
+                    <Observations form={registrationForm}
+                                  observations={this.state.individual.observations}
+                                  style={{marginVertical: 3}}
+                                  quickFormEdit={hasEditPrivilege}
+                                  onFormElementGroupEdit={(pageNumber) => this.editSubjectByFEG(pageNumber)}
+                    />
+                </View> : <View/>}
                 {this.renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege)}
             </View>
-        </View>
+        </View>) : (<View style={{flexDirection: 'column'}}>
+            <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
+                {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)}. ${createdByMessage}`}
+            </Text>
+        </View>);
     }
 
     renderProfileOrVoided(individual) {
