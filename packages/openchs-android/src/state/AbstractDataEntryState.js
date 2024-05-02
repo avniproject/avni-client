@@ -2,7 +2,7 @@ import _ from "lodash";
 import RuleEvaluationService from "../service/RuleEvaluationService";
 import {BaseEntity, SubjectType, ValidationResult, WorkItem, WorkLists, Individual, ProgramEnrolment} from "avni-models";
 import General from "../utility/General";
-import ObservationHolderActions from "../action/common/ObservationsHolderActions";
+import ObservationsHolderActions from "../action/common/ObservationsHolderActions";
 import SettingsService from "../service/SettingsService";
 import Geo from "../framework/geo";
 import UserInfoService from "../service/UserInfoService";
@@ -115,14 +115,15 @@ class AbstractDataEntryState {
     handlePrevious(action, context) {
         this.movePrevious();
 
-        ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
         this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
 
         if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             General.logDebug("No form elements here. Moving to previous screen");
             return this.handlePrevious(action, context);
         }
-
+        const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
+        this.handleValidationResults(formElementRuleValidationErrors, context);
         if (!(_.isNil(action) || _.isNil(action.cb)))
             action.cb(this);
         return this;
@@ -176,16 +177,18 @@ class AbstractDataEntryState {
             if (action.popVerificationVew)
                 action.popVerificationVewFunc();
             this.moveNext();
-            const formElementStatuses = ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+            const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
             this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
             this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
-            if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
-                ObservationHolderActions.updateFormElements(this.formElementGroup, this, context);
+            if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
+                ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
             }
             if (this.hasNoFormElements()) {
                 General.logDebug("No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
             }
+            const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
+            this.handleValidationResults(formElementRuleValidationErrors, context);
             if (_.isFunction(action.movedNext)) action.movedNext(this);
         }
         return this;

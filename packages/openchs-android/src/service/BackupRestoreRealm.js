@@ -1,4 +1,13 @@
-import {EntitySyncStatus, IdentifierAssignment, UserInfo, Concept, MyGroups, UserSubjectAssignment} from 'openchs-models';
+import {
+    EntitySyncStatus,
+    IdentifierAssignment,
+    UserInfo,
+    Concept,
+    MyGroups,
+    UserSubjectAssignment,
+    DraftSubject,
+    DraftEncounter
+} from 'openchs-models';
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import fs from 'react-native-fs';
@@ -148,6 +157,10 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Deleted user info and id assignment");
                         })
                         .then(() => {
+                            this._deleteDrafts();
+                            General.logDebug("BackupRestoreRealmService", "Deleted drafts");
+                        })
+                        .then(() => {
                             this._restoreUserInfo(prevUserInfo);
                             General.logDebug("BackupRestoreRealmService", "Restoring prev userInfo to ensure we have user details" +
                               " immediately after fast sync restore");
@@ -185,6 +198,11 @@ export default class BackupRestoreRealmService extends BaseService {
     _deleteUserInfoAndIdAssignment() {
         this._deleteAndResetSync(UserInfo.schema.name);
         this._deleteAndResetSync(IdentifierAssignment.schema.name);
+    }
+
+    _deleteDrafts() {
+        this._deleteAndResetSync(DraftEncounter.schema.name);
+        this._deleteAndResetSync(DraftSubject.schema.name);
     }
 
     _deleteUserGroups() {

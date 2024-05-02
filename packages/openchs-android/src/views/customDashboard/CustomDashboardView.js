@@ -210,7 +210,7 @@ class CustomDashboardView extends AbstractComponent {
                 reportFilters: reportFilters,
                 approvalStatus_status: approvalStatus_status,
                 indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: status || _.truncate(reportCard.name, {'length': 30}),
+                headerTitle: _.truncate(reportCard.name, {'length': 30}) || status,
                 results: results,
                 reportCardUUID,
                 listType: _.lowerCase(status),

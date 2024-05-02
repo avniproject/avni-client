@@ -169,7 +169,7 @@ class CustomDashboardActions {
     static setCustomDashboardFilters(state, action, context) {
         const newState = {...state};
         newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters
-            : CustomDashboardActions.getDefaultCustomDashboardFilters();
+          : CustomDashboardActions.getDefaultCustomDashboardFilters();
         return newState;
     }
 }
