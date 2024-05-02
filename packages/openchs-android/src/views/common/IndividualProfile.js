@@ -269,7 +269,7 @@ class IndividualProfile extends AbstractComponent {
                                 </View>
                                 <View style={{flex: 1, paddingHorizontal: 5}}>
                                     <Text
-                                        style={Styles.programProfileHeading}>{this.props.individual.nameString} {this.props.individual.id}</Text>
+                                        style={Styles.programProfileHeading}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
                                     {this.programProfileHeading()}
                                 </View>
 

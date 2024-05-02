@@ -138,7 +138,7 @@ class SubjectInfoCard extends AbstractComponent {
                         flex: 1
                     }}>
                     <Text style={styles.subjectName}>
-                        {individual.nameString}
+                        {individual.getTranslatedNameString(this.I18n)}
                         {individual.voided &&
                         <Text style={{color: Styles.redColor}}>
                             {` ${this.I18n.t("voidedLabel")}`}
