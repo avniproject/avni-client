@@ -123,7 +123,7 @@ export class IndividualGeneralHistoryActions {
 
     static onRender(state, action, context) {
         const organisationConfigService = context.get(OrganisationConfigService);
-        if (organisationConfigService.isSaveDraftOn()) {
+        if (organisationConfigService.isSaveDraftOn() && !_.isNil(action.individualUUID)) {
             const newState = IndividualGeneralHistoryActions.clone(state);
             const individual = context.get(IndividualService).findByUUID(action.individualUUID);
             newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());

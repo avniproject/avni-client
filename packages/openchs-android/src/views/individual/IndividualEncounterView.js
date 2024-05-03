@@ -125,7 +125,9 @@ class IndividualEncounterView extends AbstractComponent {
 
     onAppHeaderBack() {
         const onYesPress = () => {
-            this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individualUUID});
+            this.dispatchAction(IGHActions.ON_RENDER, {
+                individualUUID: this.props.individualUUID || this.props.encounter.individual.uuid
+            });
             CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
         }
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
