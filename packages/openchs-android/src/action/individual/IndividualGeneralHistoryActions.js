@@ -11,6 +11,7 @@ import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {Form} from "openchs-models";
 import {EditFormRuleResponse} from "rules-config";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -119,6 +120,17 @@ export class IndividualGeneralHistoryActions {
     static onEditErrorShown(state) {
         return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
     }
+
+    static onRender(state, action, context) {
+        const organisationConfigService = context.get(OrganisationConfigService);
+        if (organisationConfigService.isSaveDraftOn()) {
+            const newState = IndividualGeneralHistoryActions.clone(state);
+            const individual = context.get(IndividualService).findByUUID(action.individualUUID);
+            newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());
+            return newState;
+        }
+        return state;
+    }
 }
 
 const actions = {
@@ -129,8 +141,8 @@ const actions = {
     LAUNCH_ENCOUNTER_SELECTOR: "IGHA.LAUNCH_ENCOUNTER_SELECTOR",
     DELETE_DRAFT: "IGHA.DELETE_DRAFT",
     ON_EDIT_ENCOUNTER: "IGHA.ON_EDIT_ENCOUNTER",
-    ON_EDIT_ERROR_SHOWN: "IGHA.ON_EDIT_ERROR_SHOWN"
-
+    ON_EDIT_ERROR_SHOWN: "IGHA.ON_EDIT_ERROR_SHOWN",
+    ON_RENDER: "IGHA.ON_RENDER"
 };
 
 export default new Map([
@@ -142,6 +154,7 @@ export default new Map([
     [actions.DELETE_DRAFT, IndividualGeneralHistoryActions.deleteDraft],
     [actions.ON_EDIT_ENCOUNTER, IndividualGeneralHistoryActions.onEditEncounter],
     [actions.ON_EDIT_ERROR_SHOWN, IndividualGeneralHistoryActions.onEditErrorShown],
+    [actions.ON_RENDER, IndividualGeneralHistoryActions.onRender],
 ]);
 
 export {actions as Actions};

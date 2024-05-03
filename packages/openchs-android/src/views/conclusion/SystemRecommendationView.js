@@ -37,6 +37,7 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import AvniIcon from "../common/AvniIcon";
+import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -167,7 +168,10 @@ class SystemRecommendationView extends AbstractComponent {
     onAppHeaderBack(isSaveDraftOn) {
         const wizardViews = [PersonRegisterView, PersonRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, ChecklistItemView, SubjectRegisterView];
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, wizardViews);
+        const onYesPress = () => {
+            this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
+            CHSNavigator.navigateToFirstPage(this, wizardViews);
+        }
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
