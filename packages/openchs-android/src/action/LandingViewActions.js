@@ -54,6 +54,7 @@ class LandingViewActions {
         return {
             ...newState,
             home: true,
+            secondaryDashboardSelected: false
         }
     }
 
@@ -62,6 +63,7 @@ class LandingViewActions {
         return {
             ...newState,
             search: true,
+            secondaryDashboardSelected: false
         }
     }
 
@@ -78,6 +80,7 @@ class LandingViewActions {
         return {
             ...newState,
             register: true,
+            secondaryDashboardSelected: false
         }
     }
 
@@ -86,6 +89,7 @@ class LandingViewActions {
         return {
             ...newState,
             menu: true,
+            secondaryDashboardSelected: false
         }
     }
 
