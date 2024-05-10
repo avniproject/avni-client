@@ -28,6 +28,7 @@ import {RejectionMessage} from "../approval/RejectionMessage";
 import SummaryButton from "../common/SummaryButton";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
+import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
 
 @Path('/IndividualEncounterView')
 class IndividualEncounterView extends AbstractComponent {
@@ -123,7 +124,12 @@ class IndividualEncounterView extends AbstractComponent {
     }
 
     onAppHeaderBack() {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
+        const onYesPress = () => {
+            this.dispatchAction(IGHActions.ON_RENDER, {
+                individualUUID: this.props.individualUUID || this.props.encounter.individual.uuid
+            });
+            CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
+        }
         AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 

@@ -144,9 +144,10 @@ class LandingView extends AbstractComponent {
         const bottomBarIcons = [
             [this.Icon("home", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home]
         ];
-        if (!_.isNil(secondaryDashboard))
+        if (!_.isNil(secondaryDashboard)) {
             bottomBarIcons.push([this.Icon("dashboard", LandingView.barIconStyle, secondaryDashboardSelected, false, "MaterialIcons"),
-                _.truncate(this.I18n.t(secondaryDashboard.name), {'length': 14}), () => this.dispatchAction(Actions.ON_SECONDARY_DASHBOARD_CLICK), menu]);
+                _.truncate(this.I18n.t(secondaryDashboard.name), {'length': 14}), () => this.dispatchAction(Actions.ON_SECONDARY_DASHBOARD_CLICK), secondaryDashboardSelected]);
+        }
         bottomBarIcons.push(registerMenuItem);
         bottomBarIcons.push(moreMenu);
 
