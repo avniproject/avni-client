@@ -189,6 +189,8 @@ class MediaQueueService extends BaseService {
         // However, we need to find some way of highlighting this to user.
         const exists = await this.mediaExists(mediaQueueItem);
         if (!exists) {
+            // Note to Developers: We are missing media from the system,
+            // and in-order to highlight this to user, we should not clean up these dangling mediaQueueItems
             General.logDebug("MediaQueueService", `mediaQueueItem ${mediaQueueItem.fileName} does not exist. Ignoring...`);
             return;
         }
