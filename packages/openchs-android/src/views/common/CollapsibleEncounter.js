@@ -35,6 +35,7 @@ class CollapsibleEncounter extends AbstractComponent {
         if (!_.isNil(formElementGroupEditAction))
             this.dispatchAction(formElementGroupEditAction, {
                 encounter,
+                formType,
                 onEncounterEditAllowed: () => CHSNavigator.navigateToEncounterView(this, {encounter, editing, pageNumber})
             });
     }
