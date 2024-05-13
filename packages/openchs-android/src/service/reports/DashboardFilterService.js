@@ -14,6 +14,8 @@ import {
 import {DashboardReportFilter} from "../../model/DashboardReportFilters";
 import _ from "lodash";
 import AddressLevelService from "../AddressLevelService";
+import General from "../../utility/General";
+import {JSONStringify} from "../../utility/JsonStringify";
 
 
 @Service("dashboardFilterService")
@@ -78,11 +80,12 @@ class DashboardFilterService extends BaseService {
             } else {
                 const addressLevelService = this.getService(AddressLevelService);
                 const addressFilterValues = [...filterValue.selectedAddresses];
-                const allChildrenOfLowestSelectedLocations = filterValue.selectedAddresses
+                const descendants = filterValue.selectedAddresses
                     .filter(location => location.level === _.get(_.minBy(filterValue.selectedAddresses, 'level'), 'level'))
-                    .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent, true)), []);
-                ruleInput.filterValue = addressFilterValues.concat(allChildrenOfLowestSelectedLocations
+                    .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []);
+                ruleInput.filterValue = addressFilterValues.concat(descendants
                     .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
+                General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(ruleInput.filterValue, "type"))}`);
             }
         }
         else

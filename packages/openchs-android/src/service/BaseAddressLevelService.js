@@ -54,7 +54,7 @@ class BaseAddressLevelService extends BaseService {
     isTypeUUIDPresent(addressLevel, levelTypeUUIDs) {
         if (_.includes(levelTypeUUIDs, addressLevel.typeUuid)) return true;
         else {
-            const childrenParent = this.getChildrenParent(addressLevel.uuid);
+            const childrenParent = this.getChildren(addressLevel.uuid);
             if (_.isEmpty(childrenParent)) return false;
             else return this.isTypeUUIDPresent(_.head(childrenParent), levelTypeUUIDs);
         }
@@ -82,32 +82,22 @@ class BaseAddressLevelService extends BaseService {
         return this.findAllByCriteria(`uuid = '${parentUUID}'`);
     }
 
-    getChildrenParent(parentUUID) {
+    getChildren(parentUUID) {
         if (_.isNil(parentUUID)) return [];
         return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())];
     }
 
-    isLeaf(child) {
-        return child.level === this.minLevel();
-    }
-
-    getDescendantsOfNode(node, excludeSelf = true) {
-        if (this.isLeaf(node)) { //in this case excludeSelf is not respected
-            return [node];
-        }
-        const children = this.getChildrenParent(node.uuid);
+    getDescendantsOfNode(node) {
+        const children = this.getChildren(node.uuid);
         if (_.isEmpty(children)) {
-            return excludeSelf ? [] : [node];
+            return [];
         }
-        else if (this.isLeaf(_.first(children))) {
-            return excludeSelf ? children : [node].concat(children);
-        }
-        return excludeSelf ? _.flatten(children.map(c => this.getDescendantsOfNode(c, excludeSelf)))
-            : [node].concat(_.flatten(children.map(c => this.getDescendantsOfNode(c, excludeSelf))));
+
+        return [...children].concat(_.flatten(children.map(c => this.getDescendantsOfNode(c))));
     }
 
     getDescendantsOfParent(parentUuid, minLevelTypeUUIDs) {
-        const children = this.getChildrenParent(parentUuid);
+        const children = this.getChildren(parentUuid);
         return !_.isEmpty(minLevelTypeUUIDs) ? this.filterRequiredDescendants(children, minLevelTypeUUIDs) : children;
     }
 
@@ -129,7 +119,7 @@ class BaseAddressLevelService extends BaseService {
         if (!_.isEmpty(minLevelTypeUUIDs)) {
             return _.every(lowestSelectedAddresses, ({typeUuid}) => _.includes(minLevelTypeUUIDs, typeUuid));
         }
-        return _.every(lowestSelectedAddresses, (al) => _.isEmpty(this.getChildrenParent(al.uuid)));
+        return _.every(lowestSelectedAddresses, (al) => _.isEmpty(this.getChildren(al.uuid)));
     }
 }
 
