@@ -29,7 +29,7 @@ class BaseAddressLevelService extends BaseService {
     }
 
     maxTypeUUID() {
-        return  this.findAll(this.getSchema()).filtered('voided = false').sorted('level', true)[0].typeUuid;
+        return this.findAll(this.getSchema()).filtered('voided = false').sorted('level', true)[0].typeUuid;
     }
 
     getAllWithTypeUUID(typeUUID) {
@@ -87,12 +87,16 @@ class BaseAddressLevelService extends BaseService {
         return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())];
     }
 
+    isLeaf(child) {
+        return child.level === this.minLevel();
+    }
+
     getDescendantsOfNode(node) {
-        const children = this.getChildren(node.uuid);
-        if (_.isEmpty(children)) {
+        if (this.isLeaf(node)) {
             return [];
         }
 
+        const children = this.getChildren(node.uuid);
         return [...children].concat(_.flatten(children.map(c => this.getDescendantsOfNode(c))));
     }
 
@@ -103,12 +107,12 @@ class BaseAddressLevelService extends BaseService {
 
     filterRequiredDescendants(allChildren, minLevelTypeUUIDs) {
         const minLevel = this.getMinLevelFromTypeUUIDs(minLevelTypeUUIDs);
-        const childrenWithMinLevel = allChildren.filter(({typeUuid})  => _.includes(minLevelTypeUUIDs, typeUuid));
-        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : _.reject(allChildren,({level})  => level <= minLevel);
+        const childrenWithMinLevel = allChildren.filter(({typeUuid}) => _.includes(minLevelTypeUUIDs, typeUuid));
+        return childrenWithMinLevel.length > 0 ? childrenWithMinLevel : _.reject(allChildren, ({level}) => level <= minLevel);
     }
 
     getMinLevelFromTypeUUIDs(minLevelTypeUUIDs) {
-        const  query = minLevelTypeUUIDs.map(uuid => `typeUuid = '${uuid}'`).join(' OR ');
+        const query = minLevelTypeUUIDs.map(uuid => `typeUuid = '${uuid}'`).join(' OR ');
         return _.minBy([...this.findAll(this.getSchema()).filtered(`voided = false and (${query})`)
             .filtered('TRUEPREDICATE DISTINCT(level)')
             .map(al => al.level)
