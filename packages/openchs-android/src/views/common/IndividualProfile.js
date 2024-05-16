@@ -233,7 +233,6 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
-        const textColor = this.props.textColor ? this.props.textColor : Styles.blackColor;
         let isPerson = this.props.individual.subjectType.isPerson();
         let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
         if (isPerson) {
@@ -302,7 +301,7 @@ class IndividualProfile extends AbstractComponent {
                         paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
+                            <Text style={[Fonts.LargeBold, {color: Styles.blackColor}]}>{this.props.individual.nameString}</Text>
                         </View>
                         <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
                     </View>

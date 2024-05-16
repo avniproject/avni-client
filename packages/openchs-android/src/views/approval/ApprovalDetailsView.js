@@ -81,7 +81,7 @@ class ApprovalDetailsView extends AbstractComponent {
         const {messageKey, dateProperty} = schemaToDatePropertyMap[entity.getSchemaName()];
 
         return <Text
-            style={styles.entityDateStyle}>{`${I18n.t(messageKey)}: ${General.toDisplayDate(entity[dateProperty])} ${createdByMessage}`}</Text>;
+            style={styles.entityDateStyle}>{`${I18n.t(messageKey)} ${General.toDisplayDate(entity[dateProperty])} ${createdByMessage}`}</Text>;
     }
 
     renderEditButton(entity) {

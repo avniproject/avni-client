@@ -63,36 +63,16 @@ class Relatives extends AbstractComponent {
 
     onResultRowPress(individual) {
         this.props.onRelativeSelection(this, individual);
-        // CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
-    }
-
-    renderProgram(program, index) {
-        return (
-            <Text key={index} disabled
-                  style={[{
-                      height: 22,
-                      marginLeft: 4,
-                      marginRight: 4,
-                      borderRadius: 2,
-                      paddingHorizontal: 4,
-                      backgroundColor: program.colour,
-                      color: Colors.TextOnPrimaryColor,
-                      textAlignVertical: 'center'
-                  }, Styles.userProfileProgramTitle]}>{this.I18n.t(program.displayName)}</Text>
-        );
     }
 
     renderRelativeActionButton(individualRelative) {
-        return (<View>
-            <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
-                <Button transparent
-                        onPress={() => this.props.onRelativeDeletion(individualRelative)}
-                        _text={{fontSize: Fonts.Medium, color: Styles.accentColor}}
-                        style={styles.buttonStyle}>
-                    {this.I18n.t("delete")}
-                </Button>
-            </View>
-        </View>);
+        return <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
+            <Button transparent
+                    onPress={() => this.props.onRelativeDeletion(individualRelative)}
+                    style={styles.buttonStyle}>
+                <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}}>{this.I18n.t("delete")}</Text>
+            </Button>
+        </View>;
     }
 
     renderNoRelativeMessage() {
@@ -123,16 +103,14 @@ class Relatives extends AbstractComponent {
                                                   <Text
                                                       style={Styles.relativeRelationText}>{this.I18n.t(relative.relation.name)}</Text>
                                               </View>
-
                                           </View>
                                           <View style={{marginHorizontal: 10}}>
-                                          <SubjectInfoCard individual={relative.relative} />
+                                              <SubjectInfoCard individual={relative.relative}/>
                                           </View>
                                           {editDeleteFeatureToggle && this.renderRelativeActionButton(relative)}
                                       </View>
                                   </TouchableNativeFeedback>
                               }>
-
                     </ListView>
                 </View>)
                 : this.renderNoRelativeMessage()

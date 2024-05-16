@@ -137,7 +137,7 @@ class General {
     }
 
     static toDisplayDate(date) {
-        return moment(date).format('DD-MMM-YYYY');
+        return moment(date).format('DD MMM YYYY');
     }
 
     static toDisplayDateTime(dateTime) {
