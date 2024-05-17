@@ -100,8 +100,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: Colors.AccentColor,
-        elevation: 2,
+        backgroundColor: Colors.AccentColor
     },
     iconSend: {
         alignSelf: 'center',

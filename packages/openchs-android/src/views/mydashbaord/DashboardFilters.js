@@ -44,7 +44,7 @@ export default class DashboardFilters extends AbstractComponent {
             paddingVertical: 2,
             borderRadius: 3,
             paddingHorizontal: 8,
-            marginLeft: 4,
+            marginLeft: 4
         }
     });
 

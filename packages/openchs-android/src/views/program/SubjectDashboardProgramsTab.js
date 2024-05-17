@@ -318,7 +318,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                         </View>
                     </View>
                     {enrolments.length > 0 ? (
-                        <View style={{backgroundColor: Styles.greyBackground}}>
+                        <View>
                             {this.renderSummary()}
                             {this.renderExitObservations()}
                             {this.renderPlannedVisits(allowedEncounterTypeUuids)}

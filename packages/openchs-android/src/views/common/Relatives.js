@@ -67,11 +67,13 @@ class Relatives extends AbstractComponent {
 
     renderRelativeActionButton(individualRelative) {
         return <View style={{flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end'}}>
-            <Button transparent
-                    onPress={() => this.props.onRelativeDeletion(individualRelative)}
-                    style={styles.buttonStyle}>
-                <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}}>{this.I18n.t("delete")}</Text>
-            </Button>
+            <TouchableNativeFeedback>
+                <Button transparent
+                        onPress={() => this.props.onRelativeDeletion(individualRelative)}
+                        style={styles.buttonStyle}>
+                    <Text style={{fontSize: Fonts.Medium, color: Colors.ActionButtonColor}}>{this.I18n.t("delete")}</Text>
+                </Button>
+            </TouchableNativeFeedback>
         </View>;
     }
 
@@ -141,7 +143,6 @@ const styles = StyleSheet.create({
     buttonStyle: {
         backgroundColor: Styles.greyBackground,
         borderRadius: 5,
-        elevation: 2,
         marginHorizontal: 5
     }
 });

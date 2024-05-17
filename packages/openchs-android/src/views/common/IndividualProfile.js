@@ -132,7 +132,7 @@ class IndividualProfile extends AbstractComponent {
                 flexDirection: 'row',
                 paddingHorizontal: DGS.resizeWidth(6),
                 alignItems: 'center', justifyContent: 'flex-start', marginLeft: 16, backgroundColor: Styles.greyBackground,
-                borderRadius: 5, elevation: 2
+                borderRadius: 5
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
@@ -190,8 +190,7 @@ class IndividualProfile extends AbstractComponent {
             marginEnd: 16,
             alignItems: 'center',
             backgroundColor: Styles.greyBackground,
-            borderRadius: 5,
-            elevation: 2
+            borderRadius: 5
         }}>
             <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>

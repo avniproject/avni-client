@@ -20,7 +20,7 @@ class ObservationsSectionOptions extends AbstractComponent {
         let contextActionButtons = this.props.contextActions.map((contextAction, idx) => {
             return <ContextActionButton labelKey={contextAction.labelKey}
                                         onPress={() => contextAction.onPressFunc()}
-                                        textColor={Colors.VisitActionColor}
+                                        textColor={contextAction.color || Colors.VisitActionColor}
                                         key={idx}/>
         });
         let primaryAction = this.props.primaryAction;
