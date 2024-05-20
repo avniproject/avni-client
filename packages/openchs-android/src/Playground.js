@@ -12,6 +12,8 @@ async function executeQuery(queryString, type, setOutput) {
     if (db == null) {
         return -1000;
     }
+    console.log('db version', db.schemaVersion);
+
     try {
         setOutput("Executing query");
         let objects = db.objects(type);

@@ -2,13 +2,14 @@ import IndividualService from "../../service/IndividualService";
 import IndividualSearchCriteria from "../../service/query/IndividualSearchCriteria";
 import AddressLevelService from "../../service/AddressLevelService";
 import EntityService from "../../service/EntityService";
-import {SubjectType, Privilege} from "avni-models";
+import {Privilege, SubjectType} from "avni-models";
 import CustomFilterService from "../../service/CustomFilterService";
 import _ from "lodash";
 import PrivilegeService from "../../service/PrivilegeService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import AddressLevelState from "../common/AddressLevelsState";
-import { ArrayUtil, CustomFilter } from "openchs-models";
+import {ArrayUtil, CustomFilter} from "openchs-models";
+import General from "../../utility/General";
 
 export class IndividualSearchActions {
     static clone(state) {
@@ -114,9 +115,10 @@ export class IndividualSearchActions {
         const addressLevelService = beans.get(AddressLevelService);
         const addressLevelState = action.values;
         const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
-        const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent, false)), []);
-        newState.searchCriteria.toggleLowestAddresses(lowestAddressLevels);
+        const searchAddressLevels = lowestSelectedAddressLevels
+            .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []).concat(addressLevelState.selectedAddresses);
+        General.logDebug("IndividualSearchActions", `Effective address filters: ${JSON.stringify(_.countBy((searchAddressLevels), "type"))}`);
+        newState.searchCriteria.toggleLowestAddresses(searchAddressLevels);
         newState.addressLevelState = addressLevelState;
         return newState;
     };
