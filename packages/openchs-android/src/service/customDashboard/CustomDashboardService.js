@@ -39,6 +39,7 @@ class CustomDashboardService extends BaseService {
             case CustomDashboardType.Secondary:
                 return [this.getOneSecondaryDashboard()];
             case CustomDashboardType.None:
+            default:
                 return this.getDashboardsBasedOnPrivilege();
         }
         return [];
