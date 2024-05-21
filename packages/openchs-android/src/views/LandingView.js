@@ -160,7 +160,7 @@ class LandingView extends AbstractComponent {
                     hideBackButton={true}/>}
                 {register && <RegisterView hideBackButton={true}/>}
                 {menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
-                {dashboard && <CustomDashboardView hideBackButton={true} onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)} showSearch={true}/>}
+                {dashboard && <CustomDashboardView hideBackButton={true} onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)} showSearch={true} customDashboardType={CustomDashboardType.None}/>}
                 {secondaryDashboardSelected && <CustomDashboardView
                     startSync={startSync && this.state.syncRequired}
                     icon={(name, style) => this.Icon(name, style)}
