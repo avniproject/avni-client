@@ -42,7 +42,6 @@ class CustomDashboardService extends BaseService {
             default:
                 return this.getDashboardsBasedOnPrivilege();
         }
-        return [];
     }
 
     getOnePrimaryDashboard() {
