@@ -43,7 +43,7 @@
     "@react-native-firebase/analytics": "15.2.0",
     "@react-native-firebase/app": "15.2.0",
     "amazon-cognito-identity-js": "6.3.1",
-    "avni-health-modules": "^0.0.24",
+    "avni-health-modules": "^0.0.26",
     "base-64": "^1.0.0",
     "bugsnag-react-native": "2.23.10",
     "color": "4.2.3",
