@@ -181,7 +181,7 @@ class PreviousEncounters extends AbstractComponent {
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
-                    <Text style={{fontSize: Fonts.Small}}>{filledByMessage}</Text>
+                    <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{filledByMessage}</Text>
                     {secondaryDate}
                 </View>
                 {this.renderStatus(encounter)}

@@ -26,7 +26,7 @@ class ObservationsSectionOptions extends AbstractComponent {
         let primaryAction = this.props.primaryAction;
         let primaryActionButton = primaryAction &&
             <ContextActionButton labelKey={primaryAction.labelKey} onPress={() => primaryAction.onPressFunc()}
-                                 textColor={Colors.VisitActionColor}/>;
+                                 textColor={Colors.SecondaryText}/>;
         return (
             <View style={this.appendedStyle({
                 flex: 1,

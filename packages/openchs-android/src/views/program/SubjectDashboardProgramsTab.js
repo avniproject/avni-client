@@ -213,7 +213,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
             borderRadius: 10
         }}>
             <Text style={[Styles.dashboardSubsectionTitleText, {paddingLeft: 10}]}>{this.I18n.t('summary')}</Text>
-            <View style={{backgroundColor: Styles.greyBackground, borderRadius: 10, padding: 5}}>
+            <View style={{backgroundColor: Styles.greyBackground, paddingVertical: 5, paddingHorizontal: 7}}>
                 {this.getHeaderMessage(this.state.enrolment)}
             </View>
             <View style={{backgroundColor: Styles.greyBackground, paddingHorizontal: 7}}>
@@ -244,7 +244,11 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                 borderRadius: 10
             }}>
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
-                    <Text>{`${this.I18n.t("enrolledOn")} ${General.toDisplayDate(enrolment.enrolmentDateTime)} ${createdByMessage}`}</Text>
+
+                    <View style={{flexDirection: 'column'}}>
+                        <Text style={{fontSize: Fonts.Normal}}>{`${this.I18n.t(_.get(enrolment, 'program.displayName'))}`}</Text>
+                        <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{`${this.I18n.t("enrolledOn")} ${General.toDisplayDate(enrolment.enrolmentDateTime)} ${createdByMessage}`}</Text>
+                    </View>
                     <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                         {this.state.expandEnrolmentInfo === false ?
                             <Icon name={'arrow-down'} size={12}/> :

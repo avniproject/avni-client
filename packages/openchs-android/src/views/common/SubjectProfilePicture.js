@@ -8,7 +8,7 @@ import AvniModel from './AvniModel';
 import Styles from '../primitives/Styles';
 
 function Initials({name = ''}) {
-    const initials = name.split(' ').map(n => n[0].toUpperCase()).join('').substring(0, 2);
+    const initials = name && name.split(' ').map(n => n && n[0].toUpperCase()).join('').substring(0, 2);
     return <View style={{
         backgroundColor: '#E6F6F5',
         borderRadius: 8,

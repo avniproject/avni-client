@@ -10,7 +10,9 @@ import {TouchableNativeFeedback} from "react-native";
 class ContextActionButton extends AbstractComponent {
     static propTypes = {
         labelKey: PropTypes.string.isRequired,
-        onPress: PropTypes.func.isRequired
+        onPress: PropTypes.func.isRequired,
+        textColor: PropTypes.string.isOptional,
+        key: PropTypes.string.isOptional
     };
 
     constructor(props, context) {
@@ -18,11 +20,12 @@ class ContextActionButton extends AbstractComponent {
     }
 
     render() {
+        const color = this.props.textColor || Colors.ActionButtonColor;
         return (
             <TouchableNativeFeedback onPress={() => this.props.onPress()} style={{paddingHorizontal: 10}}>
                 <Text style={{
                     fontSize: Fonts.Medium,
-                    color: Colors.ActionButtonColor,
+                    color: color,
                     paddingHorizontal: 5,
                     backgroundColor: Styles.greyBackground,
                     borderRadius: 5
