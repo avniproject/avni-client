@@ -61,6 +61,8 @@ class Colors {
     static Separator = '#C0C0C0';
     static SecondaryText = '#929292';
     static SelectedTabColor = '#1C96FF';
+    static PrimaryActionColor = this.SecondaryText;
+
 
     static SubjectTypeColor = '#3949ab';
     static EditColor = '#347cff';
