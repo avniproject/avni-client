@@ -15,6 +15,7 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import LocationHierarchyService from "../../service/LocationHierarchyService";
 import AutocompleteSearchWithLabel from "../AutoCompleteSearch/AutocompleteSearchWithLabel";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
+import {Individual} from 'openchs-models';
 
 class AddressLevels extends AbstractComponent {
     static propTypes = {
@@ -99,11 +100,15 @@ class AddressLevels extends AbstractComponent {
         } else {
             this.setState({data: new AddressLevelsState()}, () => {
                 const selectedLowestLevel = this.props.selectedLowestLevel;
-                const exists = !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid);
+                const exists = this.doesLowestSelectedLevelExist(selectedLowestLevel);
                 const newState = this.onLoad(exists ? selectedLowestLevel : undefined);
                 this.setState(newState);
             });
         }
+    }
+
+    doesLowestSelectedLevelExist(selectedLowestLevel) {
+        return !_.isEmpty(selectedLowestLevel) && !_.isEmpty(selectedLowestLevel.uuid) && !_.isEqual(selectedLowestLevel.uuid, Individual.getAddressLevelDummyUUID());
     }
 
     _invokeCallbacks(oldState, newState) {
