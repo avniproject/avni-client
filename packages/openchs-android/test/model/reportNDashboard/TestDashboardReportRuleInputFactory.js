@@ -1,4 +1,10 @@
-import DashboardReportFilters from "../../../src/model/DashboardReportFilters";
+class DashboardReportFilters {
+    filterValues; // array of DashboardReportFilter
+
+    constructor(filterValues) {
+        this.filterValues = filterValues;
+    }
+}
 
 class TestDashboardReportRuleInputFactory {
     static create({filterValues = []}) {

@@ -26,6 +26,7 @@ import IndividualService from "../../service/IndividualService";
 import DateRangeFilter from "./DateRangeFilter";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AddressLevelState from '../../action/common/AddressLevelsState';
+import FormMetaDataSelect from "../common/formMetaData/FormMetaDataSelect";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -198,6 +199,9 @@ class FiltersViewV2 extends AbstractComponent {
                                         </FilterContainerWithLabel>;
                                     case CustomFilter.type.GroupSubject:
                                         return <GroupSubjectFilter filter={filter} filterConfig={filterConfig} selectedGroupSubjectUUIDs={filterValue} key={index}
+                                                                   onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
+                                    case CustomFilter.type.SubjectType:
+                                        return <FormMetaDataSelect isMulti={true} key={index}
                                                                    onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
                                     default:
                                         return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)} key={index}

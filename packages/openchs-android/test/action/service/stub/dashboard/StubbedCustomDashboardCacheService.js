@@ -7,9 +7,9 @@ class StubbedCustomDashboardCacheService extends StubbedBaseService {
         return CustomDashboardCache.schema.name;
     }
 
-    fetchCachedData(dashboardUUID, filterConfigsChecksum) {
+    fetchCachedData(dashboardUUID) {
         const cache = this.findByUUID(dashboardUUID);
-        if (cache === undefined || cache.getChecksum() !== filterConfigsChecksum) {
+        if (cache === undefined) {
             return CustomDashboardCache.createEmptyInstance();
         }
         return cache;

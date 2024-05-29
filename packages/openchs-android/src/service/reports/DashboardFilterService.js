@@ -17,7 +17,6 @@ import AddressLevelService from "../AddressLevelService";
 import General from "../../utility/General";
 import {JSONStringify} from "../../utility/JsonStringify";
 
-
 @Service("dashboardFilterService")
 class DashboardFilterService extends BaseService {
     constructor(db, beanStore) {
@@ -36,24 +35,28 @@ class DashboardFilterService extends BaseService {
         const dashboardFilters = this.getFilters(dashboardUUID);
         const filterConfigs = {};
         dashboardFilters.forEach((x) => {
-            const obj = JSON.parse(x.filterConfig);
-            const filterConfig = new DashboardFilterConfig();
-            filterConfig.widget = obj.widget;
-            filterConfig.type = obj.type;
-            if (obj.type === CustomFilter.type.GroupSubject) {
-                filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
-                filterConfig.groupSubjectTypeFilter.subjectType = this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name);
-            } else if (obj.type === CustomFilter.type.Concept) {
-                const observationBasedFilter = new ObservationBasedFilter();
-                observationBasedFilter.scope = obj.observationBasedFilter.scope;
-                observationBasedFilter.programs = obj.observationBasedFilter.programUUIDs.map(x => this.findByUUID(x, Program.schema.name));
-                observationBasedFilter.encounterTypes = obj.observationBasedFilter.encounterTypeUUIDs.map(x => this.findByUUID(x, EncounterType.schema.name));
-                observationBasedFilter.concept = this.findByUUID(obj.observationBasedFilter.conceptUUID, Concept.schema.name);
-                filterConfig.observationBasedFilter = observationBasedFilter;
-            }
-            filterConfigs[x.uuid] = filterConfig;
+            filterConfigs[x.uuid] = this.getDashboardFilterConfig(x);
         });
         return filterConfigs;
+    }
+
+    getDashboardFilterConfig(dashboardFilter) {
+        const obj = JSON.parse(dashboardFilter.filterConfig);
+        const filterConfig = new DashboardFilterConfig();
+        filterConfig.widget = obj.widget;
+        filterConfig.type = obj.type;
+        if (obj.type === CustomFilter.type.GroupSubject) {
+            filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
+            filterConfig.groupSubjectTypeFilter.subjectType = this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name);
+        } else if (obj.type === CustomFilter.type.Concept) {
+            const observationBasedFilter = new ObservationBasedFilter();
+            observationBasedFilter.scope = obj.observationBasedFilter.scope;
+            observationBasedFilter.programs = obj.observationBasedFilter.programUUIDs.map(x => this.findByUUID(x, Program.schema.name));
+            observationBasedFilter.encounterTypes = obj.observationBasedFilter.encounterTypeUUIDs.map(x => this.findByUUID(x, EncounterType.schema.name));
+            observationBasedFilter.concept = this.findByUUID(obj.observationBasedFilter.conceptUUID, Concept.schema.name);
+            filterConfig.observationBasedFilter = observationBasedFilter;
+        }
+        return filterConfig;
     }
 
     toRuleInputObject(filterConfig, filterValue) {

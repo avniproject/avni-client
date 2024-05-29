@@ -39,6 +39,10 @@ class EnvironmentConfig {
     static isProdAndDisallowedOnRootDevices() {
         return EnvironmentConfig.isProd() && EnvironmentConfig.disallowedAppRunOnRootDevices();
     }
+
+    static isHighSecurity() {
+        return Config.HIGH_SECURITY === 'true';
+    }
 }
 
 export default EnvironmentConfig;

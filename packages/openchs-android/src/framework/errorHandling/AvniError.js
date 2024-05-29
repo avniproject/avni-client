@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import EnvironmentConfig from "../EnvironmentConfig";
 
 class AvniError {
     userMessage;
@@ -16,7 +17,10 @@ class AvniError {
     }
 
     getDisplayMessage() {
-        return _.truncate(this.userMessage, {length: 80});
+        if (EnvironmentConfig.isHighSecurity())
+            return _.truncate(this.userMessage, {length: 80});
+
+        return _.truncate(this.reportingText, {length: 600});
     }
 }
 

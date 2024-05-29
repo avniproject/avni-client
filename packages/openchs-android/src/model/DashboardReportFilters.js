@@ -6,7 +6,6 @@ import {CustomFilter} from "openchs-models";
 export class DashboardReportFilter {
     type;
     dataType;
-    subjectType;
     groupSubjectTypeFilter;
     observationBasedFilter;
     filterValue;
@@ -16,13 +15,3 @@ export class DashboardReportFilter {
         return _.find(reportFilters, (x: DashboardReportFilter) => x.type === CustomFilter.type.Address);
     }
 }
-
-class DashboardReportFilters {
-    filterValues; // array of DashboardReportFilter
-
-    constructor(filterValues) {
-        this.filterValues = filterValues;
-    }
-}
-
-export default DashboardReportFilters;

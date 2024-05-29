@@ -10,6 +10,18 @@ import CustomDashboardCacheService from '../../service/CustomDashboardCacheServi
 import CryptoUtils from '../../utility/CryptoUtils';
 import MessageService from '../../service/MessageService';
 
+function loadCurrentDashboardInfo(context, newState) {
+    const dashboardFilterService = context.get(DashboardFilterService);
+    const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
+    newState.filtersPresent = _.keys(filterConfigs).length > 0;
+    newState.customDashboardFilters = dashboardFilterService.getFilters(newState.activeDashboardUUID);
+    if (newState.activeDashboardUUID) {
+        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(newState.activeDashboardUUID, context);
+        newState.hasFilters = dashboardFilterService.hasFilters(newState.activeDashboardUUID);
+    }
+    return newState;
+}
+
 class CustomDashboardActions {
     static getInitialState(context) {
         return {
@@ -19,17 +31,8 @@ class CustomDashboardActions {
             countUpdateTime: null,
             hasFilters: false,
             ruleInput: null,
-            activeDashboardUUID: '',
-            customDashboardFilters: this.getDefaultCustomDashboardFilters(),
-        };
-    }
-
-    static getDefaultCustomDashboardFilters() {
-        return {
-            applied: false,
-            selectedLocations: [],
-            selectedCustomFilters: [],
-            selectedGenders: [],
+            activeDashboardUUID: null,
+            customDashboardFilters: []
         };
     }
 
@@ -39,7 +42,7 @@ class CustomDashboardActions {
         const dashboards = dashboardService.getDashboards(action.customDashboardType);
         newState.dashboards = dashboards;
         newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
-        return CustomDashboardActions.loadCurrentDashboardInfo(context, newState);
+        return loadCurrentDashboardInfo(context, newState);
     }
 
     static getReportsCards(dashboardUUID, context) {
@@ -49,26 +52,7 @@ class CustomDashboardActions {
     static onDashboardChange(state, action, context) {
         const newState = {...state};
         newState.activeDashboardUUID = action.dashboardUUID;
-        return CustomDashboardActions.loadCurrentDashboardInfo(context, newState);
-    }
-
-    static loadCurrentDashboardInfo(context, newState) {
-        const dashboardFilterService = context.get(DashboardFilterService);
-        const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
-        let filterConfigsJSON = JSON.stringify(filterConfigs);
-        let filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = customDashboardCacheService.fetchCachedData(newState.activeDashboardUUID, filterConfigsChecksum);
-
-        newState.filtersPresent = _.keys(filterConfigs).length > 0;
-        newState.filterConfigsChecksum = cachedData.getChecksum();
-        newState.customDashboardFilters = cachedData.getTransformedFilters();
-        newState.ruleInput = cachedData.getRuleInput();
-        if (newState.activeDashboardUUID) {
-            newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(newState.activeDashboardUUID, context);
-            newState.hasFilters = dashboardFilterService.hasFilters(newState.activeDashboardUUID);
-        }
-        return newState;
+        return loadCurrentDashboardInfo(context, newState);
     }
 
     // This action is responsible for loading data for multiple views. If any of the views have to be updated then this mega action has to be invoked and duplicating the callback implementation on the action. We have to break this action into smaller actions for each view. Starting with task here, which is why it invokes a different callback and the service doesn't handle task.
@@ -168,8 +152,7 @@ class CustomDashboardActions {
 
     static setCustomDashboardFilters(state, action, context) {
         const newState = {...state};
-        newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters
-          : CustomDashboardActions.getDefaultCustomDashboardFilters();
+        newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters : [];
         return newState;
     }
 }

@@ -1,20 +1,16 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
-import {ArrayUtil, Concept, CustomDashboardCache, CustomFilter, ModelGeneral} from 'openchs-models';
-import {CustomDashboardActions} from '../customDashboard/CustomDashboardActions';
+import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
-import CryptoUtils from '../../utility/CryptoUtils';
 
 import General from "../../utility/General";
 
 class FiltersActionsV2 {
     static getInitialState() {
         return {
-            dashboardUUID : '',
-            filterConfigsChecksum : '',
+            dashboardUUID: '',
             loading: false,
             filters: [],
-            filterConfigs: {},
             filterErrors: {},
             selectedValues: {},
             filterApplied: false
@@ -25,18 +21,18 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        let newState = {...state, filterConfigs: filterConfigs, filters: filters, loading: false};
-        let filterConfigsJSON = JSON.stringify(newState.filterConfigs);
-        newState.filterConfigsChecksum = CryptoUtils.computeHash(filterConfigsJSON);
-        const cachedData = context.get(CustomDashboardCacheService).fetchCachedData(action.dashboardUUID, newState.filterConfigsChecksum);
-        if(state.dashboardUUID !== action.dashboardUUID) {
-            newState = {...newState, dashboardUUID: action.dashboardUUID, filterApplied: cachedData.filterApplied,
-                selectedValues: cachedData.getSelectedValues(), filterErrors: cachedData.getFilterErrors()};
-        }
-        return newState;
+        const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardCacheService).getDashboardCache(action.dashboardUUID);
+        return  {
+            ...state,
+            filterConfigs: filterConfigs,
+            filters: filters,
+            loading: false,
+            dashboardUUID: action.dashboardUUID,
+            filterApplied: dashboardCache.filterApplied,
+            selectedValues: selectedFilterValues
+        };
     }
 
-    // minValue: value.replace(/[^0-9.]/g, '')
     static onFilterUpdate(state, action) {
         const {filter, value} = action;
         const {filterConfigs} = state;
@@ -48,6 +44,12 @@ class FiltersActionsV2 {
 
         const newState = {...state};
         newState.selectedValues = {...state.selectedValues};
+
+        if (filterConfig.type === CustomFilter.type.SubjectType) {
+            newState.selectedValues[filter.uuid] = action.value.clone();
+            return newState;
+        }
+
         let updatedValue;
         switch (inputDataType) {
             case Concept.dataType.Coded:
@@ -62,7 +64,6 @@ class FiltersActionsV2 {
             case Concept.dataType.Subject:
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
-            case Concept.dataType.Location :
             case Concept.dataType.Id :
                 updatedValue = value;
                 break;
@@ -83,77 +84,6 @@ class FiltersActionsV2 {
         return {...state, loading: true};
     }
 
-    static transformFilters(filledFilterValues, filterConfigs, selectedValues) {
-        let selectedFilters = CustomDashboardActions.getDefaultCustomDashboardFilters();
-
-        filledFilterValues.forEach(([filterUUID, filterValue]) => {
-            selectedFilters.applied = true; //At-least one of the filters have been set
-            const filterConfig = filterConfigs[filterUUID];
-            const inputDataType = filterConfig.getInputDataType();
-            const currentFilterValue = selectedValues[filterUUID];
-            switch (inputDataType) {
-                case Concept.dataType.Subject:
-                case Concept.dataType.Program:
-                case Concept.dataType.Encounter:
-                case Concept.dataType.ProgramEncounter:
-                case Concept.dataType.Image:
-                case Concept.dataType.Video:
-                case Concept.dataType.Audio:
-                case Concept.dataType.File:
-                case Concept.dataType.NA:
-                case Concept.dataType.PhoneNumber:
-                case Concept.dataType.GroupAffiliation:
-                case Concept.dataType.QuestionGroup:
-                case Concept.dataType.Duration:
-                    //Not supported
-                    break;
-                case Concept.dataType.Location:
-                    let addressConceptValue = [{value: currentFilterValue.name}];
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : addressConceptValue};
-                    break;
-                case Concept.dataType.Coded:
-                    const codedConceptAnswers = currentFilterValue.map(answer => answer.name).join(", ");
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [filterConfig.observationBasedFilter.concept.name] : [{value: codedConceptAnswers}]};
-                    break;
-                case Concept.dataType.Time:
-                case Concept.dataType.DateTime:
-                case Concept.dataType.Numeric:
-                case Concept.dataType.Date:
-                    const keyValue = _.get(filterConfig, 'observationBasedFilter.concept.name', filterConfig.type);
-                    let customDateValue = [{dateType: inputDataType,
-                        minValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.minValue : currentFilterValue,
-                        maxValue: filterConfig.widget === CustomFilter.widget.Range ? currentFilterValue.maxValue : ''}];
-                    selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                        [keyValue] : customDateValue};
-                    break;
-                case CustomFilter.type.Gender:
-                    selectedFilters.selectedGenders = currentFilterValue;
-                    break;
-                case CustomFilter.type.Address:
-                    selectedFilters.selectedLocations = _.flatMap(currentFilterValue.levels,
-                      (level) => {return level[1]})
-                      .map(addressLevel =>_.pick(addressLevel, ['type', 'name', 'isSelected']));
-                    break;
-                default:
-                    let customConceptValue = [{value: currentFilterValue}];
-                    if(_.get(filterConfig, 'widget') === CustomFilter.widget.Range) {
-                        customConceptValue = [{dateType: _.get(filterConfig, 'type'),
-                            minValue:  currentFilterValue.minValue,
-                            maxValue: currentFilterValue.maxValue}];
-                    }
-                    if (!_.isEmpty(_.get(filterConfig, 'observationBasedFilter.concept.name'))) {
-                        selectedFilters.selectedCustomFilters = {...selectedFilters.selectedCustomFilters,
-                            [_.get(filterConfig, 'observationBasedFilter.concept.name')] : customConceptValue};
-                    }
-                    break;
-            }
-
-        });
-        return selectedFilters;
-    };
-
     static appliedFilter(state, action, context) {
         //Init data
         const {filterConfigs, selectedValues} = state;
@@ -172,35 +102,22 @@ class FiltersActionsV2 {
             return newState;
         }
         const dashboardFilterService = context.get(DashboardFilterService);
-        let transformedFilters = FiltersActionsV2.transformFilters(filledFilterValues, filterConfigs, selectedValues);
         const ruleInputArray = filledFilterValues
             .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
-        //Create and save/update the cache entry
-        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, newState.dashboardUUID, transformedFilters, ruleInputArray);
-        context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
-        //Invoke callbacks
-        setFiltersDataOnDashboardView(transformedFilters);
+
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        customDashboardCacheService.setSelectedFilterValues(newState.dashboardUUID, selectedValues, true);
+
+        //Invoke callbacks. Used only in test.
+        // setFiltersDataOnDashboardView(serializableFilterData);
         navigateToDashboardView(ruleInputArray);
         return newState;
     }
 
-    static createCustomDashboardCache(newState, dashboardUUID, transformedFilters, ruleInputArray) {
-        let selectValueJSON = JSON.stringify(newState.selectedValues);
-        let filteredErrorsJSON = JSON.stringify(newState.filterErrors);
-        let transformedFiltersJSON = JSON.stringify(transformedFilters);
-        let ruleInputJSON = JSON.stringify({ruleInputArray: ruleInputArray});
-        const customDashboardCache = CustomDashboardCache.create(dashboardUUID, newState.filterConfigsChecksum, new Date(),
-          selectValueJSON, newState.filterApplied, filteredErrorsJSON, ruleInputJSON, transformedFiltersJSON);
-        return customDashboardCache;
-    }
-
     static clearFilter(state, action, context) {
-        let newState = {...state, filterApplied: false, selectedValues: {}, filterErrors: {}};
-        //Create and save/update the cache
-        const customDashboardCache = FiltersActionsV2.createCustomDashboardCache(newState, newState.dashboardUUID,
-          CustomDashboardActions.getDefaultCustomDashboardFilters(), null);
-        context.get(CustomDashboardCacheService).saveOrUpdate(customDashboardCache);
-        return newState;
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        customDashboardCacheService.reset(state.dashboardUUID);
+        return {...state, filterApplied: false, selectedValues: {}, filterErrors: {}};
     }
 }
 

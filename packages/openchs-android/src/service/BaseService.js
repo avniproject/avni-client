@@ -42,6 +42,10 @@ class BaseService {
         return settingsService.getSettings().serverURL;
     }
 
+    findAllByUUID(uuids, entityType) {
+        return this.findAllByKey("uuid", uuids, entityType.schema.name);
+    }
+
     findAllByKey(keyName, value, schemaName) {
         return this.findAllByCriteria(`${keyName}="${value}"`, schemaName);
     }

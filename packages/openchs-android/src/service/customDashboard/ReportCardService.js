@@ -8,6 +8,7 @@ import CommentService from "../comment/CommentService";
 import _ from "lodash";
 import TaskService from "../task/TaskService";
 import General from "../../utility/General";
+import RealmQueryService from "../query/RealmQueryService";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -58,7 +59,7 @@ class ReportCardService extends BaseService {
         return this.getService(TaskService).getIncompleteTasks(taskTypeType, filters);
     }
 
-    getResultForDefaultCardsType(type, reportFilters) {
+    getResultForDefaultCardsType(reportFilters, reportCard) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
             [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
@@ -69,15 +70,18 @@ class ReportCardService extends BaseService {
             [StandardReportCardType.type.Total, individualService.allIn],
             [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
         ]);
-        const resultFunc = typeToMethodMap.get(type);
-        const result = type === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(new Date(), reportFilters);
-        const sortedResult = type === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
-        return {status: type, result: sortedResult}
+        const standardReportCardTypeName = reportCard.standardReportCardType.name;
+        const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
+        const programEncounterCriteria = RealmQueryService.programEncounterCriteria(reportCard.subjectTypes, reportCard.programs, reportCard.encounterTypes);
+        const generalEncounterCriteria = RealmQueryService.generalEncounterCriteria(reportCard.subjectTypes, reportCard.encounterTypes);
+        const result = standardReportCardTypeName === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(new Date(), reportFilters, programEncounterCriteria, generalEncounterCriteria);
+        const sortedResult = standardReportCardTypeName === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
+        return {status: standardReportCardTypeName, result: sortedResult};
     }
 
-    getCountForDefaultCardsType(type, reportFilters) {
+    getCountForDefaultCardsType(reportFilters, reportCard) {
         return {
-            primaryValue: this.getResultForDefaultCardsType(type, reportFilters).result.length,
+            primaryValue: this.getResultForDefaultCardsType(reportFilters, reportCard).result.length,
             secondaryValue: null,
             clickable: true
         };
@@ -105,7 +109,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isApprovalType() :
                 return this.getCountForApprovalCardsType(standardReportCardType, reportFilters);
             case standardReportCardType.isDefaultType() :
-                return this.getCountForDefaultCardsType(standardReportCardType.name, reportFilters);
+                return this.getCountForDefaultCardsType(reportFilters, reportCard);
             case standardReportCardType.isCommentType() :
                 return this.getCountForCommentCardType(reportFilters);
             case standardReportCardType.isTaskType() :
@@ -126,7 +130,7 @@ class ReportCardService extends BaseService {
             case standardReportCardType.isApprovalType() :
                 return {status: null, result: this.getResultForApprovalCardsType(standardReportCardType, reportFilters)};
             case standardReportCardType.isDefaultType() :
-                return this.getResultForDefaultCardsType(standardReportCardType.name, reportFilters);
+                return this.getResultForDefaultCardsType(reportFilters, reportCard);
             case standardReportCardType.isCommentType() :
                 return {status: null, result: this.getResultForCommentCardType(reportFilters)};
             case standardReportCardType.isChecklistType() :
