@@ -276,7 +276,13 @@ class AbstractDataEntryState {
 
     _hasPerformVisitPrivilegeOnScheduledVisit(worklistItemParameters, context) {
         const {encounterType, programName, programEnrolmentUUID} = worklistItemParameters;
-        const encounterTypeUuid = context.get(EntityService).findByKey('name', encounterType, EncounterType.schema.name).uuid;
+        const encounterTypeUuid = _.get(context.get(EntityService).findByKey('name', encounterType, EncounterType.schema.name), "uuid");
+
+        if (_.isNil(encounterTypeUuid)) {
+            General.logWarn("AbstractDataEntryState", `EncounterType with name ${encounterType} not found.`)
+            return false;
+        }
+
         let performVisitCriteria;
         if (programEnrolmentUUID) {
             const programEnrolment = context.get(EntityService).findByUUID(programEnrolmentUUID, ProgramEnrolment.schema.name);
@@ -391,9 +397,9 @@ class AbstractDataEntryState {
     isAlreadyScheduled(entity, newlyScheduledEncounter) {
         //paranoid code
         if (_.isNil(entity)
-          || _.isEmpty(entity.getSchemaName())
-          || (entity.getSchemaName() !== Individual.schema.name && entity.getSchemaName() !== ProgramEnrolment.schema.name)
-          || _.isNil(entity.everScheduledEncountersOfType)) return false;
+            || _.isEmpty(entity.getSchemaName())
+            || (entity.getSchemaName() !== Individual.schema.name && entity.getSchemaName() !== ProgramEnrolment.schema.name)
+            || _.isNil(entity.everScheduledEncountersOfType)) return false;
 
         return _.some(entity.everScheduledEncountersOfType(newlyScheduledEncounter.encounterType), (alreadyScheduledEncounter) => {
             return General.datesAreSame(newlyScheduledEncounter.earliestDate, alreadyScheduledEncounter.earliestVisitDateTime) && General.datesAreSame(newlyScheduledEncounter.maxDate, alreadyScheduledEncounter.maxVisitDateTime) && newlyScheduledEncounter.name === alreadyScheduledEncounter.name;
