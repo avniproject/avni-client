@@ -13,6 +13,7 @@ import TimerState from "./TimerState";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import PrivilegeService from "../service/PrivilegeService";
 import {EncounterType, Privilege} from "openchs-models";
+import ProgramService from "../service/program/ProgramService";
 
 class AbstractDataEntryState {
     locationError;
@@ -274,11 +275,17 @@ class AbstractDataEntryState {
     }
 
     _hasPerformVisitPrivilegeOnScheduledVisit(worklistItemParameters, context) {
-        const {encounterType, programEnrolmentUUID} = worklistItemParameters;
+        const {encounterType, programName, programEnrolmentUUID} = worklistItemParameters;
         const encounterTypeUuid = context.get(EntityService).findByKey('name', encounterType, EncounterType.schema.name).uuid;
         let performVisitCriteria;
         if (programEnrolmentUUID) {
-            const programUuid = context.get(EntityService).findByUUID(programEnrolmentUUID, ProgramEnrolment.schema.name).program.uuid;
+            const programEnrolment = context.get(EntityService).findByUUID(programEnrolmentUUID, ProgramEnrolment.schema.name);
+            let programUuid;
+            if (!_.isNil(programEnrolment)) {
+                programUuid = _.get(programEnrolment, 'program.uuid');
+            } else { // programEnrolment not available/persisted yet - Assume current program.
+                programUuid = _.get(context.get(ProgramService).allPrograms().find((program) => program.name === programName), 'uuid');
+            }
             performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${programUuid}'`;
         } else {
             performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null`;
