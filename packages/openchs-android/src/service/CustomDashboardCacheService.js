@@ -3,8 +3,9 @@ import Service from "../framework/bean/Service";
 import {CustomDashboardCache} from "avni-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
-import {AddressLevel, Concept, CustomFilter, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
+import {AddressLevel, Concept, CustomFilter, Dashboard, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
+import General from "../utility/General";
 
 const dataTypeDetails = new Map();
 dataTypeDetails.set(Concept.dataType.Coded, {type: Concept, isArray: true});
@@ -13,11 +14,12 @@ dataTypeDetails.set(CustomFilter.type.Address, {type: AddressLevel, isArray: tru
 dataTypeDetails.set(CustomFilter.type.GroupSubject, {type: Individual, isArray: false});
 
 function getDashboardCache(service, dashboardUUID) {
-    let cache = service.findByKey("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+    let cache = service.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
     if (_.isNil(cache)) {
-        cache = service.save(CustomDashboardCache.newInstance(), CustomDashboardCache.schema.name);
+        const dashboard = service.findByUUID(dashboardUUID, Dashboard.schema.name);
+        cache = service.save(CustomDashboardCache.newInstance(dashboard), CustomDashboardCache.schema.name);
     }
-    return cache;
+    return cache.clone();
 }
 
 @Service('customDashboardCacheService')
@@ -30,12 +32,18 @@ class CustomDashboardCacheService extends BaseService {
         return CustomDashboardCache.schema.name;
     }
 
+    clearAllCache() {
+        this.db.write(() => {
+            this.db.delete(this.db.objects(CustomDashboardCache.schema.name));
+        });
+    }
+
     getDashboardCache(dashboardUUID) {
+        const entityService = this.getService(EntityService);
         const dashboardCache = getDashboardCache(this, dashboardUUID);
         try {
             const selectedSerialisedValues = dashboardCache.getSelectedValues();
             const dashboardFilterService = this.getService(DashboardFilterService);
-            const entityService = this.getService(EntityService);
 
             const selectedFilterValues = {};
             Object.keys(selectedSerialisedValues).forEach((filterUuid) => {
@@ -60,8 +68,9 @@ class CustomDashboardCacheService extends BaseService {
             });
             return {selectedFilterValues, dashboardCache};
         } catch (e) {
+            General.logError("CustomDashboardCacheService",  e);
             dashboardCache.reset();
-            this.save(dashboardCache, CustomDashboardCache.schema.name);
+            this.saveOrUpdate(dashboardCache, CustomDashboardCache.schema.name);
             return {selectedFilterValues: {}, dashboardCache};
         }
     }
@@ -69,13 +78,13 @@ class CustomDashboardCacheService extends BaseService {
     reset(dashboardUUID) {
         const cache = getDashboardCache(this, dashboardUUID);
         cache.reset();
-        this.save(cache);
+        this.saveOrUpdate(cache);
     }
 
     setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied) {
-        const cachedData = this.findByUUID(dashboardUUID);
-        cachedData.filterApplied = filterApplied;
-        cachedData.updatedAt = new Date();
+        const dashboardCache = getDashboardCache(this, dashboardUUID);
+        dashboardCache.filterApplied = filterApplied;
+        dashboardCache.updatedAt = new Date();
 
         const dashboardFilterService = this.getService(DashboardFilterService);
         const serialisedSelectedValues = {};
@@ -102,8 +111,8 @@ class CustomDashboardCacheService extends BaseService {
             }
         });
 
-        cachedData.selectedValuesJSON = JSON.stringify(serialisedSelectedValues);
-        this.save(cachedData);
+        dashboardCache.selectedValuesJSON = JSON.stringify(serialisedSelectedValues);
+        this.saveOrUpdate(dashboardCache);
     }
 
     resetCache(dashboardUUID) {

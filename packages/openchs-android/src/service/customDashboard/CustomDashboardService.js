@@ -31,7 +31,6 @@ class CustomDashboardService extends BaseService {
     }
 
     getDashboards(customDashboardType) {
-        General.logDebugTemp("CustomDashboardService", customDashboardType);
         switch (customDashboardType) {
             case CustomDashboardType.Primary:
                 return [this.getOnePrimaryDashboard()];

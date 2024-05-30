@@ -4,6 +4,7 @@ import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 
 import General from "../../utility/General";
+import {JSONStringify} from "../../utility/JsonStringify";
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -89,27 +90,31 @@ class FiltersActionsV2 {
         const {filterConfigs, selectedValues} = state;
         const {navigateToDashboardView, setFiltersDataOnDashboardView} = action;
         const newState = {...state, filterApplied: true, filterErrors: {}};
-        const filledFilterValues = _.filter(Object.entries(selectedValues), ([, filterValue]) => !ModelGeneral.isDeepEmpty(filterValue));
-        //Check if there are errors in filter values specified
-        filledFilterValues.forEach(([filterUUID, filterValue]) => {
-            const [success, message] = filterConfigs[filterUUID].validate && filterConfigs[filterUUID].validate(filterValue) || [false, `validate for filterConfig ${filterUUID} not found`];
-            if (!success)
-                newState.filterErrors[filterUUID] = message;
+        const filledFilterValues = {};
+        Object.keys(selectedValues).forEach((filterUUID) => {
+            const filterValue = selectedValues[filterUUID];
+            if (!ModelGeneral.isDeepEmpty(filterValue)) {
+                filledFilterValues[filterUUID] = filterValue;
+
+                const [success, message] = filterConfigs[filterUUID].validate && filterConfigs[filterUUID].validate(filterValue) || [false, `validate for filterConfig ${filterUUID} not found`];
+                if (!success)
+                    newState.filterErrors[filterUUID] = message;
+            }
         });
+        //Check if there are errors in filter values specified
         if (Object.keys(newState.filterErrors).length > 0) {
             newState.filterApplied = false;
             newState.loading = false;
             return newState;
         }
-        const dashboardFilterService = context.get(DashboardFilterService);
-        const ruleInputArray = filledFilterValues
-            .map(([filterUUID, filterValue]) => dashboardFilterService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
-
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        customDashboardCacheService.setSelectedFilterValues(newState.dashboardUUID, selectedValues, true);
+        customDashboardCacheService.setSelectedFilterValues(newState.dashboardUUID, filledFilterValues, true);
 
         //Invoke callbacks. Used only in test.
         // setFiltersDataOnDashboardView(serializableFilterData);
+        const dashboardFilterService = context.get(DashboardFilterService);
+        const ruleInputArray = dashboardFilterService.toRuleInputObjects(newState.dashboardUUID, filledFilterValues);
+        General.logDebugTemp("FiltersActionsV2", `ruleInputArray: ${JSONStringify(ruleInputArray)}`);
         navigateToDashboardView(ruleInputArray);
         return newState;
     }

@@ -7,8 +7,8 @@ import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
-import CryptoUtils from '../../utility/CryptoUtils';
 import MessageService from '../../service/MessageService';
+import dashboardCacheService from "../../service/DashboardCacheService";
 
 function loadCurrentDashboardInfo(context, newState) {
     const dashboardFilterService = context.get(DashboardFilterService);
@@ -30,7 +30,6 @@ class CustomDashboardActions {
             cardToCountResultMap: {},
             countUpdateTime: null,
             hasFilters: false,
-            ruleInput: null,
             activeDashboardUUID: null,
             customDashboardFilters: []
         };
@@ -42,6 +41,9 @@ class CustomDashboardActions {
         const dashboards = dashboardService.getDashboards(action.customDashboardType);
         newState.dashboards = dashboards;
         newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
+
+        // context.get(CustomDashboardCacheService).clearAllCache();
+
         return loadCurrentDashboardInfo(context, newState);
     }
 
@@ -61,16 +63,19 @@ class CustomDashboardActions {
         const itemKey = action.reportCardUUID;
         const rcUUID = context.get(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(action.reportCardUUID);
         const reportCard = context.get(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
+        const {selectedFilterValues} = context.get(CustomDashboardCacheService).getDashboardCache(state.activeDashboardUUID);
+        const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
+
         reportCard.itemKey = itemKey;
         if (reportCard.isStandardTaskType()) {
-            action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), state.ruleInput.ruleInputArray);
+            action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), ruleInputArray);
         } else {
-            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, state.ruleInput.ruleInputArray);
+            const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, ruleInputArray);
             const standardReportCardType = reportCard.standardReportCardType;
             const viewName = CustomDashboardActions._getViewName(standardReportCardType);
             if (!_.isNil(result)) {
                 setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                    standardReportCardType && standardReportCardType.getApprovalStatusForType(), state.ruleInput.ruleInputArray, reportCard), 0);
+                    standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard), 0);
             }
         }
         return newState;
@@ -94,14 +99,17 @@ class CustomDashboardActions {
     }
 
     static refreshCount(state, action, context) {
+        const {dashboardCache, selectedFilterValues} = context.get(CustomDashboardCacheService).getDashboardCache(state.activeDashboardUUID);
+
         const I18n = context.get(MessageService).getI18n();
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
-        newState.ruleInput = action.filterApplied ? action.ruleInput : newState.ruleInput;
+
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
+        const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, newState.ruleInput.ruleInputArray);
+            const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, ruleInputArray);
             if (rcm.card.nested) {
                 if (countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
                     _.forEach(countQueryResponse, (reportCard, index) => {

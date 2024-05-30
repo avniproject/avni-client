@@ -59,6 +59,13 @@ class DashboardFilterService extends BaseService {
         return filterConfig;
     }
 
+    toRuleInputObjects(dashboardUUID, selectedFilterValues) {
+        const filterConfigs = this.getFilterConfigsForDashboard(dashboardUUID);
+        const thisService = this;
+        return Object.entries(selectedFilterValues)
+            .map(([filterUUID, filterValue]) => thisService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
+    }
+
     toRuleInputObject(filterConfig, filterValue) {
         const ruleInput = new DashboardReportFilter();
         ruleInput.type = filterConfig.type;

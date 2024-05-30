@@ -80,6 +80,10 @@ class BaseService {
         return this.getReturnValue(entities);
     }
 
+    findByFiltered(filter, value, schema = this.getSchema()) {
+        return this.getReturnValue(this.findAll(schema).filtered(`${filter} = '${value}'`));
+    }
+
     getReturnValue(entities) {
         if (entities.length === 0) return undefined;
         if (entities.length === 1) return entities[0];
