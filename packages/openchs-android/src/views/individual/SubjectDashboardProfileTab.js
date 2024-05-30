@@ -89,12 +89,12 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
             return [new ContextAction(this.I18n.t('addMember'), () => {
                 const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
-                if(_.isEmpty(groupRoles))
+                if (_.isEmpty(groupRoles))
                     Alert.alert(this.I18n.t("rolesNotConfigured"), this.I18n.t("rolesNotConfiguredDescription"), [
                         {text: this.I18n.t('okay'), onPress: _.noop}
                     ]);
                 else
-                 CHSNavigator.navigateToAddMemberView(this, this.state.individual)
+                    CHSNavigator.navigateToAddMemberView(this, this.state.individual)
             })];
         } else return []
     }
@@ -309,12 +309,12 @@ class SubjectDashboardProfileTab extends AbstractComponent {
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>
-                        {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)}. ${createdByMessage}`}
+                        {`${this.I18n.t("registeredOn")} ${General.toDisplayDate(this.state.individual.registrationDate)} ${createdByMessage}`}
                     </Text>
                 </View>
                 <View style={{right: 2, position: 'absolute', alignSelf: 'center'}}>
                     {this.state.expand === false ? <Icon name={'arrow-down'} size={12}/> :
-                      <Icon name={'arrow-up'} size={12}/>}
+                        <Icon name={'arrow-up'} size={12}/>}
                 </View>
             </TouchableOpacity>
             <View style={{marginTop: 3}}>
@@ -363,9 +363,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 borderColor: Styles.greyBackground,
                 borderRadius: 10
             }}>
-
                 <Observations observations={_.defaultTo(this.state.subjectSummary, [])}
-                              style={{ marginVertical: DGS.resizeHeight(8) }}/>
+                              style={{marginVertical: DGS.resizeHeight(8)}}/>
             </View>
         </View>
     }

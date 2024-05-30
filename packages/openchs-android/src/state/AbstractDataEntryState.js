@@ -11,6 +11,9 @@ import moment from "moment/moment";
 import EntityService from "../service/EntityService";
 import TimerState from "./TimerState";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import PrivilegeService from "../service/PrivilegeService";
+import {EncounterType, Privilege} from "openchs-models";
+import ProgramService from "../service/program/ProgramService";
 
 class AbstractDataEntryState {
     locationError;
@@ -206,7 +209,7 @@ class AbstractDataEntryState {
             }
         }
         if (!_.isEmpty(nextScheduledVisits)) {
-            workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits);
+            workLists = this._addNextScheduledVisitToWorkList(workLists, nextScheduledVisits, context);
         }
 
         if (!workLists.peekNextWorkItem()) {
@@ -244,7 +247,7 @@ class AbstractDataEntryState {
         return workLists;
     }
 
-    _addNextScheduledVisitToWorkList(workLists: WorkLists, nextScheduledVisits): WorkLists {
+    _addNextScheduledVisitToWorkList(workLists: WorkLists, nextScheduledVisits, context): WorkLists {
         if (_.isEmpty(nextScheduledVisits)) return workLists;
 
         const applicableScheduledVisits = _.filter(nextScheduledVisits, (visit) => {
@@ -259,10 +262,42 @@ class AbstractDataEntryState {
                     return programEnrolmentUUID === parameters.programEnrolmentUUID && encounterType === parameters.encounterType;
                 });
             if (sameVisitTypeExists) return;
+
+            if (!this._hasPerformVisitPrivilegeOnScheduledVisit(parameters, context)) {
+                General.logDebug('ADES._addNextScheduledVisitToWorkList', `Not adding ${parameters.encounterType} to worklist as user does not have required privilege.`);
+                return;
+            }
+
             const workItemType = WorkItem.type[parameters.programEnrolmentUUID ? 'PROGRAM_ENCOUNTER' : 'ENCOUNTER'];
             workLists.addItemsToCurrentWorkList(new WorkItem(General.randomUUID(), workItemType, parameters));
         });
         return workLists;
+    }
+
+    _hasPerformVisitPrivilegeOnScheduledVisit(worklistItemParameters, context) {
+        const {encounterType, programName, programEnrolmentUUID} = worklistItemParameters;
+        const encounterTypeUuid = _.get(context.get(EntityService).findByKey('name', encounterType, EncounterType.schema.name), "uuid");
+
+        if (_.isNil(encounterTypeUuid)) {
+            General.logWarn("AbstractDataEntryState", `EncounterType with name ${encounterType} not found.`)
+            return false;
+        }
+
+        let performVisitCriteria;
+        if (programEnrolmentUUID) {
+            const programEnrolment = context.get(EntityService).findByUUID(programEnrolmentUUID, ProgramEnrolment.schema.name);
+            let programUuid;
+            if (!_.isNil(programEnrolment)) {
+                programUuid = _.get(programEnrolment, 'program.uuid');
+            } else { // programEnrolment not available/persisted yet - Assume current program.
+                programUuid = _.get(context.get(ProgramService).allPrograms().find((program) => program.name === programName), 'uuid');
+            }
+            performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${programUuid}'`;
+        } else {
+            performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null`;
+        }
+        const allowedEncounterTypeUuidsForPerformVisit = context.get(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performVisitCriteria, `${worklistItemParameters.programEnrolmentUUID ? 'programEncounterTypeUuid' : 'encounterTypeUuid'}`);
+        return allowedEncounterTypeUuidsForPerformVisit.includes(encounterTypeUuid);
     }
 
     moveToLastPageWithFormElements(action, context) {
@@ -362,9 +397,9 @@ class AbstractDataEntryState {
     isAlreadyScheduled(entity, newlyScheduledEncounter) {
         //paranoid code
         if (_.isNil(entity)
-          || _.isEmpty(entity.getSchemaName())
-          || (entity.getSchemaName() !== Individual.schema.name && entity.getSchemaName() !== ProgramEnrolment.schema.name)
-          || _.isNil(entity.everScheduledEncountersOfType)) return false;
+            || _.isEmpty(entity.getSchemaName())
+            || (entity.getSchemaName() !== Individual.schema.name && entity.getSchemaName() !== ProgramEnrolment.schema.name)
+            || _.isNil(entity.everScheduledEncountersOfType)) return false;
 
         return _.some(entity.everScheduledEncountersOfType(newlyScheduledEncounter.encounterType), (alreadyScheduledEncounter) => {
             return General.datesAreSame(newlyScheduledEncounter.earliestDate, alreadyScheduledEncounter.earliestVisitDateTime) && General.datesAreSame(newlyScheduledEncounter.maxDate, alreadyScheduledEncounter.maxVisitDateTime) && newlyScheduledEncounter.name === alreadyScheduledEncounter.name;

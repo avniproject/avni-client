@@ -7,6 +7,7 @@ import {Concept} from 'openchs-models';
 import AvniIcon from '../common/AvniIcon';
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import _ from 'lodash';
+import Styles from "../primitives/Styles";
 
 export default class AppliedFiltersV2 extends AbstractComponent {
     static styles = StyleSheet.create({
@@ -18,7 +19,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
             zIndex: 1,
             paddingTop: 2,
             fontSize: 24,
-            color: Colors.FilterClear,
+            color: Styles.greyText,
             alignSelf: 'flex-end'
         },
     });
@@ -38,12 +39,12 @@ export default class AppliedFiltersV2 extends AbstractComponent {
         return <Text key={label}>
             <Text style={{
                 fontSize: 14,
-                color: Colors.TextOnPrimaryColor,
+                color: Styles.greyText,
                 fontWeight: 'bold',
             }}>{label} - </Text>
             <Text style={{
                 fontSize: 14,
-                color: Colors.TextOnPrimaryColor,
+                color: Styles.greyText
             }}>{content}{separator}</Text>
         </Text>
     }

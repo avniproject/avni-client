@@ -42,10 +42,10 @@ class Members extends AbstractComponent {
         const undoneProgramVisits = this.getService(ProgramEncounterService).getAllDueForSubject(memberSubject.uuid).length;
         const undoneGeneralVisits = this.getService(EncounterService).getAllDueForSubject(memberSubject.uuid).length;
         const roleDescription = groupSubject.getRoleDescription(this.getRelatives(groupSubject));
-        return (<View style={{flexDirection: 'column', alignItems: 'flex-start'}}>
+        return (<View style={{marginLeft: 2, flexDirection: 'column', alignItems: 'flex-start'}}>
                 <Badge number={undoneProgramVisits + undoneGeneralVisits} component={component}/>
                 {<Text key={roleDescription}
-                       style={{marginLeft: 2, fontSize: 12}}>{this.I18n.t(roleDescription)}</Text>}
+                       style={{ fontSize: 12}}>{this.I18n.t(roleDescription)}</Text>}
             </View>
         )
     }
@@ -82,25 +82,35 @@ class Members extends AbstractComponent {
         return (
             <View style={styles.rowContainer}>
                 <TouchableOpacity onPress={() => this.props.onMemberSelection(groupSubject.memberSubject.uuid)}>
-                    <View key={index} style={[styles.container, { alignItems: 'center', minHeight: 20 }]}>
-                        <SubjectProfilePicture containerStyle={iconContainerStyle} size={18}
-                                               subjectType={groupSubject.memberSubject.subjectType}
-                                               individual={groupSubject.memberSubject}/>
-
-                        <View style={{ flex: 1, alignSelf: 'center', flexWrap: 'wrap' }}>
+                    <View key={index} style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingTop: 10,
+                            paddingBottom: 10,
+                            backgroundColor: Styles.greyBackground
+                        }}>
+                            <View style={{
+                                paddingHorizontal: 20,
+                                justifyContent: 'center',
+                            }}>
+                                <SubjectProfilePicture containerStyle={iconContainerStyle} size={18}
+                                                       subjectType={groupSubject.memberSubject.subjectType}
+                                                       individual={groupSubject.memberSubject}/>
+                            </View>
+                        <View style={{ flex: 1, flexDirection: 'column' }}>
                             {this.renderGroupMember(groupSubject)}
+                            <View style={{ flex: 0.8, flexWrap: 'wrap', flexDirection: 'row' }}>
+                                {this.renderEnrolledPrograms(groupSubject.memberSubject)}
+                            </View>
                         </View>
                         <View style={{
-                            flex: 0.4,
+                            flex: 0.2,
                             flexDirection: 'row',
                             flexWrap: 'wrap',
                             justifyContent: 'space-between'
                         }}>
                             <Actions key={index} actions={this.props.actions} item={groupSubject}/>
                         </View>
-                    </View>
-                    <View style={{ flex: 0.8, flexWrap: 'wrap', flexDirection: 'row' }}>
-                        {this.renderEnrolledPrograms(groupSubject.memberSubject)}
                     </View>
                 </TouchableOpacity>
             </View>
@@ -115,7 +125,7 @@ class Members extends AbstractComponent {
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), {color: Styles.blackColor}]}>{this.I18n.t('name')}</Text>
                     </View>
-                    <View style={{flex: 0.4, alignSelf: 'stretch'}}>
+                    <View style={{flex: 0.2, alignSelf: 'stretch'}}>
                         <Text
                             style={[Fonts.typography("paperFontSubhead"), {color: Styles.blackColor}]}>{this.I18n.t('actions')}</Text>
                     </View>

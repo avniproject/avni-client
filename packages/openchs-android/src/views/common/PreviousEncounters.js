@@ -144,9 +144,10 @@ class PreviousEncounters extends AbstractComponent {
             this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
         }
         this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
+        const canEditEncounter = !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
         return <View>
             <TouchableOpacity
-                onPress={() => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid) ? this.editEncounter(encounter) : _.noop()}>
+                onPress={() => canEditEncounter ? this.editEncounter(encounter) : _.noop()}>
                 {containsDrafts && (<View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
                     {this.badge(this.I18n.t('draft'), Colors.WarningButtonColor)}
                 </View>)}
@@ -166,7 +167,10 @@ class PreviousEncounters extends AbstractComponent {
         const filledBy = this.getService(UserInfoService).getUserName(encounter.filledByUUID, encounter.filledBy, this.I18n);
         const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
         const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
-        const filledByMessage = _.isNil(filledBy) ? `${General.toDisplayDate(primaryDate)}` : `${this.I18n.t("byOn", {user: filledBy, date: General.toDisplayDate(primaryDate)})}`;
+        const filledByMessage = _.isNil(filledBy) ? `${General.toDisplayDate(primaryDate)}` : `${this.I18n.t("byOn", {
+            user: filledBy,
+            date: General.toDisplayDate(primaryDate)
+        })}`;
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
                 color: Colors.SecondaryText
@@ -177,7 +181,7 @@ class PreviousEncounters extends AbstractComponent {
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
-                    <Text style={{fontSize: Fonts.Small}}>{filledByMessage}</Text>
+                    <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{filledByMessage}</Text>
                     {secondaryDate}
                 </View>
                 {this.renderStatus(encounter)}

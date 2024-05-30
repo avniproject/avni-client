@@ -132,7 +132,7 @@ class IndividualProfile extends AbstractComponent {
                 flexDirection: 'row',
                 paddingHorizontal: DGS.resizeWidth(6),
                 alignItems: 'center', justifyContent: 'flex-start', marginLeft: 16, backgroundColor: Styles.greyBackground,
-                borderRadius: 5, elevation: 2
+                borderRadius: 5
             }}>
                 <AvniIcon name={iconMode} style={{
                     fontSize: DGS.resizeWidth(Styles.programProfileButtonText.fontSize),
@@ -190,8 +190,7 @@ class IndividualProfile extends AbstractComponent {
             marginEnd: 16,
             alignItems: 'center',
             backgroundColor: Styles.greyBackground,
-            borderRadius: 5,
-            elevation: 2
+            borderRadius: 5
         }}>
             <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
         </TouchableOpacity>
@@ -233,7 +232,6 @@ class IndividualProfile extends AbstractComponent {
 
     render() {
         General.logDebug('IndividualProfile', 'render');
-        const textColor = this.props.textColor ? this.props.textColor : Styles.blackColor;
         let isPerson = this.props.individual.subjectType.isPerson();
         let headingSuffixesList = [this.props.individual.fullAddress(this.I18n)]
         if (isPerson) {
@@ -302,7 +300,7 @@ class IndividualProfile extends AbstractComponent {
                         paddingVertical: Distances.ContentDistanceFromEdge
                     })}>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                            <Text style={[Fonts.LargeBold, {color: textColor}]}>{this.props.individual.nameString}</Text>
+                            <Text style={[Fonts.LargeBold, {color: Styles.blackColor}]}>{this.props.individual.nameString}</Text>
                         </View>
                         <Text style={Styles.subjectProfileSubheading}>{headingSuffix}</Text>
                     </View>

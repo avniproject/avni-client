@@ -63,7 +63,7 @@ class CustomDashboardView extends AbstractComponent {
             flexDirection: 'column',
             borderBottomWidth: 1,
             borderColor: Colors.InputBorderNormal,
-            backgroundColor: Colors.FilterBar,
+            backgroundColor: Styles.greyBackground,
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
             elevation: 2,
@@ -265,7 +265,6 @@ class CustomDashboardView extends AbstractComponent {
                            renderSearch={showSearch}
                            onSearch={onSearch}
                 />
-                {this.renderFilters()}
                 <Line/>
                 {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
                     <SafeAreaView style={{height: 50}}>
@@ -274,6 +273,7 @@ class CustomDashboardView extends AbstractComponent {
                             {this.renderZeroResultsMessageIfNeeded()}
                         </ScrollView>
                     </SafeAreaView>}
+                {this.renderFilters()}
                 <Fragment>
                     {hasFilters && <View style={{display: "flex", padding: 10}}>
                         <SafeAreaView style={{maxHeight: 160}}>
