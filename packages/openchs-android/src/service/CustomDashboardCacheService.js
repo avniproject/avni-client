@@ -6,6 +6,7 @@ import EntityService from "./EntityService";
 import {AddressLevel, Concept, CustomFilter, Dashboard, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
+import FormMetaDataSelection from "../model/FormMetaDataSelection";
 
 const dataTypeDetails = new Map();
 dataTypeDetails.set(Concept.dataType.Coded, {type: Concept, isArray: true});
@@ -53,11 +54,10 @@ class CustomDashboardCacheService extends BaseService {
                 const inputDataType = dashboardFilterConfig.getInputDataType();
 
                 if (dashboardFilterConfig.type === CustomFilter.type.SubjectType) {
-                    selectedFilterValues[filterUuid] = {
-                        subjectTypes: entityService.findAllByUUID(selectedSerialisedValue.subjectTypes, SubjectType),
-                        programs: entityService.findAllByUUID(selectedSerialisedValue.programs, Program),
-                        encounterTypes: entityService.findAllByUUID(selectedSerialisedValue.encounterTypes, EncounterType)
-                    };
+                    selectedFilterValues[filterUuid] = new FormMetaDataSelection(entityService.findAllByUUID(selectedSerialisedValue.subjectTypes, SubjectType),
+                        entityService.findAllByUUID(selectedSerialisedValue.programs, Program),
+                        entityService.findAllByUUID(selectedSerialisedValue.encounterTypes, EncounterType)
+                    );
                 } else if (dataTypeDetails.has(inputDataType) && dataTypeDetails.get(inputDataType).isArray) {
                     selectedFilterValues[filterUuid] = entityService.findAllByUUID(selectedSerialisedValue, dataTypeDetails.get(inputDataType).type);
                 } else if (dataTypeDetails.has(inputDataType)) {
@@ -68,7 +68,7 @@ class CustomDashboardCacheService extends BaseService {
             });
             return {selectedFilterValues, dashboardCache};
         } catch (e) {
-            General.logError("CustomDashboardCacheService",  e);
+            General.logError("CustomDashboardCacheService", e);
             dashboardCache.reset();
             this.saveOrUpdate(dashboardCache, CustomDashboardCache.schema.name);
             return {selectedFilterValues: {}, dashboardCache};

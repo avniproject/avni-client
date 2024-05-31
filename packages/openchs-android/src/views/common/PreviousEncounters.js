@@ -77,11 +77,11 @@ class PreviousEncounters extends AbstractComponent {
 
     cancelVisitAction(encounter, textColor) {
         const encounterService = this.context.getService(EncounterService);
-        if (encounterService.isEncounterTypeCancellable(encounter) && (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
+        if (encounterService.isEncounterTypeCancellable(encounter) && (this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForCancelVisit, encounter.encounterType.uuid))) return new ContextAction('cancelVisit', () => this.cancelEncounter(encounter), textColor);
     }
 
     hasEditPrivilege(encounter) {
-        return !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
+        return this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
     }
 
     isEditAllowed(encounter) {
@@ -93,7 +93,7 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     addScheduledEncounterActions(encounter, actionName, textColor, actions, isDraftEncounter) {
-        if (isDraftEncounter || !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
+        if (isDraftEncounter || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid)) {
             actions.push(new ContextAction(actionName, () => this.editEncounter(encounter), textColor));
         }
         return actions;
@@ -144,7 +144,7 @@ class PreviousEncounters extends AbstractComponent {
             this.addDeleteDraftAction(encounter, this.I18n.t('delete'), Colors.ValidationError, actions);
         }
         this.addScheduledEncounterActions(encounter, this.I18n.t('do'), Colors.ScheduledVisitColor, actions, containsDrafts);
-        const canEditEncounter = !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
+        const canEditEncounter = this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
         return <View>
             <TouchableOpacity
                 onPress={() => canEditEncounter ? this.editEncounter(encounter) : _.noop()}>

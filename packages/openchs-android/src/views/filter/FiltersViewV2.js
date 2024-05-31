@@ -202,6 +202,7 @@ class FiltersViewV2 extends AbstractComponent {
                                                                    onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
                                     case CustomFilter.type.SubjectType:
                                         return <FormMetaDataSelect isMulti={true} key={index}
+                                                                   formMetaDataSelections={filterValue}
                                                                    onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
                                     default:
                                         return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)} key={index}

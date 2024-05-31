@@ -1,46 +1,47 @@
 import AbstractComponent from "../../../framework/view/AbstractComponent";
-import SubjectTypeService from "../../../service/SubjectTypeService";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
 import React from "react";
 import NamedSelectableEntities from "../../../model/NamedSelectableEntities";
 import PropTypes from "prop-types";
 import UserInfoService from "../../../service/UserInfoService";
+import ProgramService from "../../../service/program/ProgramService";
 
-class SubjectTypeSelect extends AbstractComponent {
+class ProgramSelect extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {
-            subjectTypes: []
+            programs: []
         };
     }
 
     static propTypes = {
-        selectedSubjectTypes: PropTypes.array.isRequired,
+        subjectTypes: PropTypes.array.isRequired,
+        selectedPrograms: PropTypes.array.isRequired,
         onChange: PropTypes.func.isRequired,
         isMulti: PropTypes.bool.isRequired
     }
 
     render() {
-        const {selectedSubjectTypes, isMulti, onChange} = this.props;
-        const subjectTypeService = this.getService(SubjectTypeService);
-        const subjectTypes = NamedSelectableEntities.create(subjectTypeService.getAllowedSubjectTypes());
+        const {selectedPrograms, subjectTypes, isMulti, onChange} = this.props;
+        const programService = this.getService(ProgramService);
+        const programs = NamedSelectableEntities.create(programService.getAllowedViewPrograms(subjectTypes));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
-        const options = subjectTypes.getOptions();
+        const options = programs.getOptions();
 
         if (options.length === 0) {
-            return <Text>Not subject types found with permission</Text>;
+            return null;
         }
 
-        return <SelectableItemGroup labelKey={"subjectTypes"}
+        return <SelectableItemGroup labelKey={"programs"}
                                     I18n={this.I18n}
                                     labelValuePairs={options}
                                     multiSelect={isMulti}
-                                    onPress={(value) => onChange(subjectTypes.toggle(selectedSubjectTypes, value, isMulti))}
-                                    selectionFn={(selectedVal) => _.some(selectedSubjectTypes, (x) => x.uuid === selectedVal)}
+                                    onPress={(value) => onChange(programs.toggle(selectedPrograms, value, isMulti))}
+                                    selectionFn={(selectedVal) => _.some(selectedPrograms, (x) => x.uuid === selectedVal)}
                                     mandatory={false}
                                     inPairs={true}
-                                    locale={currentLocale}/>;
+                                    locale={currentLocale}/>
     }
 }
 
-export default SubjectTypeSelect;
+export default ProgramSelect;

@@ -68,11 +68,6 @@ class PrivilegeService extends BaseService {
             .filtered('hasAllPrivileges=true').length > 0;
     }
 
-    //Temporary function for this release to handle the case when user has not synced group privileges. Remove after.
-    hasEverSyncedGroupPrivileges() {
-        return this.db.objects(GroupPrivileges.schema.name).length > 0;
-    }
-
     deleteRevokedEntities() {
         if (this.hasAllPrivileges()) {
             return;
@@ -222,7 +217,7 @@ class PrivilegeService extends BaseService {
 
     hasActionPrivilegeForCriteria(privilegeCriteria, privilegeParam) {
         const allowedTypeUUIDs = this.allowedEntityTypeUUIDListForCriteria(privilegeCriteria, privilegeParam);
-        return !this.hasEverSyncedGroupPrivileges() || this.hasAllPrivileges() || !_.isEmpty(allowedTypeUUIDs);
+        return this.hasAllPrivileges() || !_.isEmpty(allowedTypeUUIDs);
     }
 }
 

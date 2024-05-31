@@ -50,7 +50,7 @@ export class IndividualGeneralHistoryActions {
     static getEncounterActions(newState, privilegeService, action) {
         const performEncounterCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = null AND subjectTypeUuid = '${newState.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performEncounterCriteria, 'encounterTypeUuid');
-        return newState.encounterTypes.filter((encounterType) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
+        return newState.encounterTypes.filter((encounterType) => privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForPerformVisit, encounterType.uuid)).map(encounterType => {
             const newEncounter = Encounter.create();
             newEncounter.individual = newState.individual;
             newEncounter.encounterType = encounterType;

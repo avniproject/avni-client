@@ -61,8 +61,8 @@ class StartProgramActions {
         StartProgramActions.preselectEncounterTypeIfRequired(newState);
 
         newState.hideUnplanned = context.get(UserInfoService).getUserSettings().hideUnplanned;
-        newState.allowedEncounters = _.filter(newState.encounters, ({encounter}) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounter.encounterType.uuid));
-        newState.allowedEncounterTypes = _.filter(newState.encounterTypes, ({encounterType}) => !privilegeService.hasEverSyncedGroupPrivileges() || privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounterType.uuid));
+        newState.allowedEncounters = _.filter(newState.encounters, ({encounter}) => privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounter.encounterType.uuid));
+        newState.allowedEncounterTypes = _.filter(newState.encounterTypes, ({encounterType}) => privilegeService.hasAllPrivileges() || _.includes(action.allowedEncounterTypeUuids, encounterType.uuid));
         newState.isSingle = _.size([...newState.allowedEncounters, ...newState.allowedEncounterTypes]) === 1;
         const allAllowed = newState.allowedEncounters;
         if (!newState.hideUnplanned) {

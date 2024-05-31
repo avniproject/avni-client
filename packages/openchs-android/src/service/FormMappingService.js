@@ -1,9 +1,10 @@
 // @flow
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {EncounterType, Form, FormMapping, Program, SubjectType} from "avni-models";
+import {EncounterType, Form, FormMapping, Program, SubjectType} from "openchs-models";
 import _ from "lodash";
 import FormQueryResult from "./FormQueryResult";
+import RealmQueryService from "./query/RealmQueryService";
 
 function getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
     let criteria = `voided = false AND ${entityCriteria} AND form.formType="${formType}"`;
@@ -37,7 +38,7 @@ class FormMappingService extends BaseService {
         return this._findProgramRelatedForm(program, Form.formTypes.ProgramEnrolment, subjectType);
     }
 
-    findProgramsForSubjectType(subjectType: SubjectType): Form {
+    findProgramsForSubjectType(subjectType: SubjectType): Program[] {
         const programs = this.getEnrolmentFormMappingsForSubjectType(subjectType).map(
             (formMapping) => this.findByUUID(formMapping.entityUUID, Program.schema.name))
             .filter(this.unVoided);
@@ -61,6 +62,13 @@ class FormMappingService extends BaseService {
         return _.uniqBy(_.compact(programs), 'uuid');
     }
 
+    findProgramEncounterTypesForSubjectTypesAndPrograms(subjectTypes, programs) {
+        const subjectTypesCriteria = RealmQueryService.orKeyValueQuery('subjectType.uuid', subjectTypes.map(x => x.uuid));
+        const programCriteria = RealmQueryService.orKeyValueQuery('entityUUID', programs.map(program => program.uuid));
+        const criteria = RealmQueryService.andQuery(['voided = false', subjectTypesCriteria, `form.formType="${Form.formTypes.ProgramEncounter}"`, programCriteria]);
+        return this.getEncounterTypes(criteria);
+    }
+
     findFormForProgramExit(program: Program, subjectType: SubjectType) {
         return this._findProgramRelatedForm(program, Form.formTypes.ProgramExit, subjectType);
     }
@@ -71,15 +79,29 @@ class FormMappingService extends BaseService {
 
     findEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
         let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
-        return this.getEncounterTypesForProgram(criteria);
+        return this.getEncounterTypes(criteria);
+    }
+
+    findGeneralEncounterTypesForSubjectTypes(subjectTypes) {
+        const formMappingService = this;
+        return _.reduce(subjectTypes,
+            (acc, subjectType) => _.unionBy(acc, formMappingService.findEncounterTypesForSubjectType(subjectType), (x) => x.uuid),
+            []);
+    }
+
+    findProgramsForSubjectTypes(subjectTypes) {
+        const formMappingService = this;
+        return _.reduce(subjectTypes,
+            (acc, subjectType) => _.unionBy(acc, formMappingService.findProgramsForSubjectType(subjectType), (x) => x.uuid),
+            []);
     }
 
     findActiveEncounterTypesForProgram(program: Program, subjectType: SubjectType) {
         let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.ProgramEncounter, `entityUUID="${program.uuid}"`);
-        return this.getEncounterTypesForProgram(criteria).filter(this.active);
+        return this.getEncounterTypes(criteria).filter(this.active);
     }
 
-    getEncounterTypesForProgram(criteria) {
+    getEncounterTypes(criteria) {
         const formMappings = this.findAllByCriteria(criteria);
         return _.uniqBy(formMappings
             .map(this._findEncounterTypesForFormMapping)
@@ -88,7 +110,7 @@ class FormMappingService extends BaseService {
     }
 
     findEncounterTypesForSubjectType(subjectType: SubjectType): EncounterType[] {
-        let criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
+        const criteria = getEncounterTypeCriteria(subjectType, Form.formTypes.Encounter, `entityUUID=null`);
         return this.getEncounterTypesForSubject(criteria);
     }
 

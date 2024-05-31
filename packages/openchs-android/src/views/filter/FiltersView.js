@@ -30,6 +30,7 @@ import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import Filter from "../../model/Filter";
 import {ScrollView} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
+import ProgramService from "../../service/program/ProgramService";
 
 @Path('/FilterView')
 class FilterView extends AbstractComponent {
@@ -152,11 +153,10 @@ class FilterView extends AbstractComponent {
     }
 
     renderProgramEncounterGroup() {
-        const viewProgramCriteria = `privilege.name = '${Privilege.privilegeName.viewEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.selectedSubjectType.uuid}'`;
-        const allowedProgramUuidsForViewProgram = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramCriteria, 'programUuid');
+        const allowedProgramUuidsForViewProgram = this.context.getService(ProgramService).getAllowedProgramUUIDs(this.state.subjectType);
         const programFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
-            visits={_.filter(this.state.programs, program => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedProgramUuidsForViewProgram, program.uuid))}
+            visits={_.filter(this.state.programs, program => this.privilegeService.hasAllPrivileges() || _.includes(allowedProgramUuidsForViewProgram, program.uuid))}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedPrograms.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Program'}/>;
@@ -167,7 +167,7 @@ class FilterView extends AbstractComponent {
         const allowedEncounterTypeUuidsForViewProgramEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramEncounterCriteria, 'programEncounterTypeUuid');
         const programEncounterFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onVisitSelect(name, uuid)}
-            visits={_.filter(this.state.encounterTypes, encounterType => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForViewProgramEncounter, encounterType.uuid))}
+            visits={_.filter(this.state.encounterTypes, encounterType => this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForViewProgramEncounter, encounterType.uuid))}
             multiSelect={true}
             selectionFn={(uuid) => this.state.selectedEncounterTypes.filter((prog) => prog.uuid === uuid).length > 0}
             name={'Visits'}/>;
@@ -209,7 +209,7 @@ class FilterView extends AbstractComponent {
                 }}>
                     <ProgramFilter
                         onToggle={(name, uuid) => this.onGeneralVisitSelect(name, uuid)}
-                        visits={_.filter(this.state.generalEncounterTypes, generalEncounter => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForViewGeneralEncounter, generalEncounter.uuid))}
+                        visits={_.filter(this.state.generalEncounterTypes, generalEncounter => this.privilegeService.hasAllPrivileges() || _.includes(allowedEncounterTypeUuidsForViewGeneralEncounter, generalEncounter.uuid))}
                         multiSelect={true}
                         selectionFn={uuid => _.some(this.state.selectedGeneralEncounterTypes, e => e.uuid === uuid)}
                         name={'GeneralVisits'}/>
@@ -223,7 +223,7 @@ class FilterView extends AbstractComponent {
         const filterScreenName = 'myDashboardFilters';
         const viewSubjectCriteria = `privilege.name = '${Privilege.privilegeName.viewSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypeUuidsForView = this.privilegeService.allowedEntityTypeUUIDListForCriteria(viewSubjectCriteria, 'subjectTypeUuid');
-        const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => !this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), ({name}) => this.I18n.t(name));
+        const allowedSubjectTypes = _.sortBy(_.filter(this.state.subjectTypes, subjectType => this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypeUuidsForView, subjectType.uuid)), ({name}) => this.I18n.t(name));
         let subjectTypeSelectFilter = SingleSelectFilterModel.forSubjectTypes(allowedSubjectTypes, this.state.selectedSubjectType);
         const topLevelFilters = this.customFilterService.getTopLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);
         const bottomLevelFilters = this.customFilterService.getBottomLevelFilters(filterScreenName, this.state.selectedSubjectType.uuid);

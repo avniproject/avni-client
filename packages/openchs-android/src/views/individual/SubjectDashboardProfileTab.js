@@ -86,7 +86,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
     addMemberActions() {
         const addMemberCriteria = `privilege.name = '${Privilege.privilegeName.addMember}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}'`;
         const allowedSubjectTypesForAddMember = this.privilegeService.allowedEntityTypeUUIDListForCriteria(addMemberCriteria, 'subjectTypeUuid');
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
+        if (this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypesForAddMember, this.state.individual.subjectType.uuid)) {
             return [new ContextAction(this.I18n.t('addMember'), () => {
                 const groupRoles = this.context.getService(GroupSubjectService).getGroupRoles(this.state.individual.subjectType)
                 if (_.isEmpty(groupRoles))
@@ -228,7 +228,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
 
     checkPrivilege(allowedSubjectTypes, applicableActions, action) {
-        if (!this.privilegeService.hasEverSyncedGroupPrivileges() || this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
+        if (this.privilegeService.hasAllPrivileges() || _.includes(allowedSubjectTypes, this.state.individual.subjectType.uuid)) {
             applicableActions.push(action);
             return true;
         }

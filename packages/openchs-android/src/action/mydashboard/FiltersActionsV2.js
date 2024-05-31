@@ -5,11 +5,12 @@ import CustomDashboardCacheService from '../../service/CustomDashboardCacheServi
 
 import General from "../../utility/General";
 import {JSONStringify} from "../../utility/JsonStringify";
+import FormMetaDataSelection from "../../model/FormMetaDataSelection";
 
 class FiltersActionsV2 {
     static getInitialState() {
         return {
-            dashboardUUID: '',
+            dashboardUUID: null,
             loading: false,
             filters: [],
             filterErrors: {},
@@ -23,6 +24,11 @@ class FiltersActionsV2 {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
         const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardCacheService).getDashboardCache(action.dashboardUUID);
+        Object.keys(filterConfigs).forEach((uuid) => {
+            if (filterConfigs[uuid].type === CustomFilter.type.SubjectType && _.isNil(selectedFilterValues[uuid])) {
+                selectedFilterValues[uuid] = FormMetaDataSelection.createNew();
+            }
+        });
         return  {
             ...state,
             filterConfigs: filterConfigs,
@@ -122,7 +128,7 @@ class FiltersActionsV2 {
     static clearFilter(state, action, context) {
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         customDashboardCacheService.reset(state.dashboardUUID);
-        return {...state, filterApplied: false, selectedValues: {}, filterErrors: {}};
+        return FiltersActionsV2.onLoad(this.getInitialState(), {dashboardUUID: state.dashboardUUID}, context);
     }
 }
 

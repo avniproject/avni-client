@@ -14,11 +14,16 @@ locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ")
 
 class RealmQueryService {
     static orQuery(array) {
-        return array.length > 0 ? '( ' + array.join(' OR ') + ' )' : ''
+        return array.length > 0 ? '( ' + array.join(' OR ') + ' )' : '';
+    }
+
+    static orKeyValueQuery(key, valueArray) {
+        return RealmQueryService.orQuery(valueArray.map((x) => `${key} = "${x}"`));
     }
 
     static andQuery(array) {
-        return array.length > 0 ? '( ' + array.join(' AND ') + ' )' : ''
+        const nonEmptyCriteria = _.filter(array, (x) => !_.isEmpty(x));
+        return nonEmptyCriteria.length > 0 ? '( ' + nonEmptyCriteria.join(' AND ') + ' )' : '';
     }
 
     static filterBasedOnAddress(schema, entitiesResult, addressFilter) {
