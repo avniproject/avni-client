@@ -72,8 +72,10 @@ class ReportCardService extends BaseService {
         ]);
         const standardReportCardTypeName = reportCard.standardReportCardType.name;
         const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
-        const programEncounterCriteria = RealmQueryService.programEncounterCriteria(reportCard.subjectTypes, reportCard.programs, reportCard.encounterTypes);
-        const generalEncounterCriteria = RealmQueryService.generalEncounterCriteria(reportCard.subjectTypes, reportCard.encounterTypes);
+
+        const programEncounterCriteria = RealmQueryService.programEncounterCriteria(reportCard.standardReportCardInputSubjectTypes,
+            reportCard.standardReportCardInputPrograms, reportCard.standardReportCardInputEncounterTypes);
+        const generalEncounterCriteria = RealmQueryService.generalEncounterCriteria(reportCard.standardReportCardInputSubjectTypes, reportCard.standardReportCardInputEncounterTypes);
         const result = standardReportCardTypeName === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(new Date(), reportFilters, programEncounterCriteria, generalEncounterCriteria);
         const sortedResult = standardReportCardTypeName === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {status: standardReportCardTypeName, result: sortedResult};
@@ -149,7 +151,7 @@ class ReportCardService extends BaseService {
      */
     getPlainUUIDFromCompositeReportCardUUID(reportCardUUID) {
         return reportCardUUID && (typeof reportCardUUID === 'string' || reportCardUUID instanceof String)
-          ? reportCardUUID.substring(0, reportCardUUID.indexOf('#')) : null;
+            ? reportCardUUID.substring(0, reportCardUUID.indexOf('#')) : null;
     }
 }
 

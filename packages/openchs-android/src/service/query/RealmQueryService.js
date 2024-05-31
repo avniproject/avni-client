@@ -35,15 +35,15 @@ class RealmQueryService {
     }
 
     static programEncounterCriteria(subjectTypes, programs, encounterTypes) {
-        const subjectTypeQuery = subjectTypes.length > 0 ? `programEnrolment.individual.subjectType.uuid IN ["${subjectTypes.join('", "')}"]` : "";
-        const programQuery = programs.length > 0 ? `programEnrolment.program.uuid IN ["${programs.join('", "')}"]` : "";
-        const encounterTypeQuery = encounterTypes.length > 0 ? `encounterType.uuid IN ["${encounterTypes.join('", "')}"]` : "";
+        const subjectTypeQuery = RealmQueryService.orKeyValueQuery("programEnrolment.individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
+        const programQuery = RealmQueryService.orKeyValueQuery("programEnrolment.program.uuid", programs.map((x) => x.uuid));
+        const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
         return RealmQueryService.andQuery([subjectTypeQuery, programQuery, encounterTypeQuery]);
     }
 
     static generalEncounterCriteria(subjectTypes, encounterTypes) {
-        const subjectTypeQuery = subjectTypes.length > 0 ? `individual.subjectType.uuid IN ["${subjectTypes.join('", "')}"]` : "";
-        const encounterTypeQuery = encounterTypes.length > 0 ? `encounterType.uuid IN ["${encounterTypes.join('", "')}"]` : "";
+        const subjectTypeQuery = RealmQueryService.orKeyValueQuery("individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
+        const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
         return RealmQueryService.andQuery([subjectTypeQuery, encounterTypeQuery]);
     }
 }
