@@ -61,7 +61,7 @@ class Colors {
     static Separator = '#C0C0C0';
     static SecondaryText = '#929292';
     static SelectedTabColor = '#1C96FF';
-    static PrimaryActionColor = this.SecondaryText;
+    static PrimaryActionColor = this.CancelledVisitColor;
 
 
     static SubjectTypeColor = '#3949ab';
@@ -75,7 +75,7 @@ class Colors {
 
     static BadgeColor = '#C71585';
     static DullIconColor = '#919191';
-    static ReadCardColor = '#f3f3f3';
+    static ReadCardColor = '#dbdbdf';
 
     /** https://stackoverflow.com/questions/5560248/programmatically-lighten-or-darken-a-hex-color-or-rgb-and-blend-colors
      *

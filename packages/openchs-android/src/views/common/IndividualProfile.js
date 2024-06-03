@@ -271,7 +271,7 @@ class IndividualProfile extends AbstractComponent {
                                     {this.programProfileHeading()}
                                 </View>
 
-                                <View style={{flexDirection: 'column'}}>
+                                <View style={{flexDirection: 'column', paddingRight: 15}}>
                                     {this.renderCommentIcon()}
                                     {this.renderCallButton()}
                                     {this.renderWhatsappButton(this.props.individual.uuid)}
