@@ -94,20 +94,22 @@ class CustomDashboardCacheService extends BaseService {
             const dashboardFilter = dashboardFilterService.findByUUID(filterUuid);
             const dashboardFilterConfig = dashboardFilterService.getDashboardFilterConfig(dashboardFilter);
 
-            if (dashboardFilterConfig.type === CustomFilter.type.SubjectType) {
-                serialisedSelectedValues[filterUuid] = {
-                    subjectTypes: selectedFilterValues[filterUuid].subjectTypes.map(x => x.uuid),
-                    programs: selectedFilterValues[filterUuid].programs.map(x => x.uuid),
-                    encounterTypes: selectedFilterValues[filterUuid].encounterTypes.map(x => x.uuid)
-                };
-            } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) &&
+            if (!_.isNil(selectedFilterValues[filterUuid])) {
+                if (dashboardFilterConfig.type === CustomFilter.type.SubjectType) {
+                    serialisedSelectedValues[filterUuid] = {
+                        subjectTypes: selectedFilterValues[filterUuid].subjectTypes.map(x => x.uuid),
+                        programs: selectedFilterValues[filterUuid].programs.map(x => x.uuid),
+                        encounterTypes: selectedFilterValues[filterUuid].encounterTypes.map(x => x.uuid)
+                    };
+                } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) &&
                 dataTypeDetails.get(dashboardFilterConfig.getInputDataType()).isArray &&
                 !_.isEmpty(selectedFilterValues[filterUuid])) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid].map(x => x.uuid);
-            } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) && !_.isNil(selectedFilterValues[filterUuid])) {
-                serialisedSelectedValues[filterUuid] = _.get(selectedFilterValues[filterUuid], "uuid");
-            } else if (!_.isNil(selectedFilterValues[filterUuid])) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid];
+                    serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid].map(x => x.uuid);
+                } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType())) {
+                    serialisedSelectedValues[filterUuid] = _.get(selectedFilterValues[filterUuid], "uuid");
+                } else {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid];
+                }
             }
         });
 
