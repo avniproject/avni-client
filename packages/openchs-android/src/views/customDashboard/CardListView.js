@@ -9,7 +9,8 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
     const {name, colour, itemKey} = reportCard;
     const cardName = (countResult && countResult.cardName) || name;
     const textColor = (countResult && countResult.textColor) || '#000000';
-    const cardColor = (countResult && countResult.cardColor) || colour || '#0000ff';
+    const descriptionColor = (countResult && countResult.textColor) || '#333333';
+    const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
     const clickable = get(countResult, 'clickable');
 
     const renderNumber = () => {
@@ -32,7 +33,7 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                     isLastCard ? styles.lastRowContainer : {}
                 ]}>
                 <View style={styles.nameContainer}>
-                    <Text style={styles.nameTextStyle}>{I18n.t(cardName)}</Text>
+                    <Text style={[styles.nameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
                     <View style={{borderRadius: 6, alignSelf: 'flex-end'}}>
                         {clickable &&
                             <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>}
