@@ -8,8 +8,8 @@ import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 export const CardListView = ({reportCard, I18n, onCardPress, countResult, index, isLastCard}) => {
     const {name, colour, itemKey} = reportCard;
     const cardName = (countResult && countResult.cardName) || name;
-    const textColor = (countResult && countResult.textColor) || '#000000';
-    const descriptionColor = (countResult && countResult.textColor) || '#333333';
+    const textColor = (countResult && countResult.textColor) || Styles.blackColor;
+    const descriptionColor = (countResult && countResult.textColor) || Styles.blackColor;
     const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
     const clickable = get(countResult, 'clickable');
 

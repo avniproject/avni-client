@@ -4,6 +4,7 @@ import React from 'react';
 import _, {get} from 'lodash';
 import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Colors from '../primitives/Colors';
+import Styles from '../primitives/Styles';
 
 const renderIcon = function (iconName, textColor) {
     return (
@@ -41,8 +42,8 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
     const {name, colour, itemKey, iconName} = reportCard;
     const cardWidth = (Dimensions.get('window').width - cardGap * 3) / 2;
     const cardName = (countResult && countResult.cardName) || name;
-    const textColor = (countResult && countResult.textColor) || '#000000';
-    const descriptionColor = (countResult && countResult.textColor) || '#333333';
+    const textColor = (countResult && countResult.textColor) || Styles.blackColor;
+    const descriptionColor = (countResult && countResult.textColor) || Styles.blackColor;
     const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
     const clickable = get(countResult, 'clickable');
     const chevronColor = Colors.darker(0.1, cardColor);
