@@ -10,7 +10,6 @@ import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import RealmQueryService from "../../service/query/RealmQueryService";
 import SubjectTypeService from "../../service/SubjectTypeService";
 import {DashboardCacheFilter} from "openchs-models";
-import General from "../../utility/General";
 
 function getApplicableEncounterTypes(holder) {
     return _.isEmpty(holder.selectedGeneralEncounterTypes) ? holder.selectedEncounterTypes : holder.selectedGeneralEncounterTypes;
