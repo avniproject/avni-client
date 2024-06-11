@@ -1,9 +1,9 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'avni-models';
+import {Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import General from "../utility/General";
 import _ from 'lodash';
-import {get} from '../framework/http/requests';
+import {get, isHttpRequestSuccessful} from '../framework/http/requests';
 import RNFetchBlob from 'rn-fetch-blob';
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
@@ -16,6 +16,14 @@ import moment from "moment";
 import I18n from 'i18n-js';
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 const PARALLEL_UPLOAD_COUNT = 1;
+
+function checkUploadStatus(response, mediaDisplayText) {
+    const statusCode = response.info().status;
+    if (!isHttpRequestSuccessful(statusCode)) {
+        throw new Error("Media upload failed. HTTP Status:" + statusCode + ". " + mediaDisplayText);
+    }
+    General.logDebug('MediaQueueService', `Upload of ${mediaDisplayText} done`);
+}
 
 @Service("mediaQueueService")
 class MediaQueueService extends BaseService {
@@ -118,10 +126,8 @@ class MediaQueueService extends BaseService {
             }, RNFetchBlob.wrap(this.getAbsoluteFileName(mediaQueueItem)));
 
         let jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName)
-        uploadTask
-            .then(() => {
-                General.logDebug('MediaQueueService', `Upload of ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName} done`);
-            })
+        const returnPromise = uploadTask
+            .then((x) => checkUploadStatus(x, mediaQueueItem.getDisplayText()))
             .finally(() => clearTimeout(jobTimeoutHandler));
 
         uploadTask.uploadProgress({interval: 1000},(sent, total) => {
@@ -129,7 +135,7 @@ class MediaQueueService extends BaseService {
             clearTimeout(jobTimeoutHandler);
             jobTimeoutHandler = this.cancelUploadIfNoProgress(new Date(), uploadTask, mediaQueueItem.fileName);
         });
-        return uploadTask;
+        return returnPromise;
     }
 
     cancelUploadIfNoProgress(lastProgressTime, uploadTask, fileName) {
@@ -148,7 +154,7 @@ class MediaQueueService extends BaseService {
             .uploadProgress((written, total) => {
                 General.logDebug("MediaQueueService", 'uploaded', written / total);
                 cb(written, total);
-            });
+            }).then((x) => checkUploadStatus(x, `${url}. ${fullFilePath}`));
     }
 
     deleteFile(mediaQueueItem) {
@@ -205,7 +211,6 @@ class MediaQueueService extends BaseService {
             .then(() => this.replaceObservation(mediaQueueItem, uploadUrl))
             .then(() => this.popItem(mediaQueueItem))
             .catch((error) => {
-                General.logError("MediaQueueService", `Error while uploading ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
                 General.logError("MediaQueueService", error);
                 return Promise.reject(error);
             });

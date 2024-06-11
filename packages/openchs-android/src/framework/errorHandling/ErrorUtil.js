@@ -49,6 +49,10 @@ class ErrorUtil {
             return error;
         });
     }
+
+    static newError(newMessage, error) {
+        return new Error(newMessage + ". " + error.message);
+    }
 }
 
 export default ErrorUtil;
