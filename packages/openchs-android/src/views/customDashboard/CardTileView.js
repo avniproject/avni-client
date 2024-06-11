@@ -58,6 +58,7 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                       width: cardWidth,
                       backgroundColor: cardColor,
                       borderColor: cardBorderColor,
+                      borderWidth: 2,
                       paddingLeft: 16,
                   }]}>
                 <View style={styles.cardNameContainerStyle}>

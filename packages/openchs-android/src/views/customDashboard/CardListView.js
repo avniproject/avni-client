@@ -3,7 +3,7 @@ import React from 'react';
 import Styles from '../primitives/Styles';
 import {CountResult} from './CountResult';
 import _, {get} from 'lodash';
-import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Colors from '../primitives/Colors';
 
 export const CardListView = ({reportCard, I18n, onCardPress, countResult, index, isLastCard}) => {
     const {name, colour, itemKey} = reportCard;
@@ -11,6 +11,7 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
     const textColor = (countResult && countResult.textColor) || Styles.blackColor;
     const descriptionColor = (countResult && countResult.textColor) || Styles.blackColor;
     const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
+    const chevronColor = Colors.darker(0.1, cardColor);
     const clickable = get(countResult, 'clickable');
 
     const renderNumber = () => {
@@ -22,6 +23,9 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                     secondary={countResult.secondaryValue}
                     primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
                     secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
+                    clickable={clickable}
+                    chevronColor={chevronColor}
+                    colour={textColor}
                 />
         );
     };
@@ -34,10 +38,6 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                 ]}>
                 <View style={styles.nameContainer}>
                     <Text style={[styles.nameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
-                    <View style={{borderRadius: 6, alignSelf: 'flex-end'}}>
-                        {clickable &&
-                            <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>}
-                    </View>
                 </View>
                 <View style={[styles.numberContainer]}>
                     {renderNumber()}
