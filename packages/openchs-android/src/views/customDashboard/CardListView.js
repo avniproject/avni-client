@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     rowContainer: {
         flexDirection: 'row',
         flexWrap: 'nowrap',
-        height: 100,
+        minHeight: 100,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#DCDCDC'
     },
@@ -70,17 +70,16 @@ const styles = StyleSheet.create({
     },
     nameContainer: {
         marginLeft: 5,
-        paddingHorizontal: 3,
+        paddingHorizontal: 16,
         flex: 0.7,
         flexDirection: 'row',
-        paddingLeft: 16,
+        alignItems: 'center',
         borderRightWidth: StyleSheet.hairlineWidth,
         borderColor: '#DCDCDC'
     },
     nameTextStyle: {
-        paddingTop: 15,
-        fontSize: Styles.titleSize,
-        width: '90%'
+        paddingVertical: 15,
+        fontSize: Styles.normalTextSize
     },
     numberContainer: {
         flex: 0.3,
@@ -92,7 +91,8 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
     },
     secondaryTextStyle: {
-        fontSize: 16,
+        fontSize: 14,
+        fontWeight: '300',
         fontStyle: 'normal',
     },
     cardPrimaryTextErrorStyle: {

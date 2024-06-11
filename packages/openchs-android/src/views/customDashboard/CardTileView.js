@@ -36,7 +36,7 @@ const renderNumber = function (countResult = {}, textColor) {
     );
 };
 
-const cardGap = 16;
+const cardGap = 14;
 
 export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}) => {
     const {name, colour, itemKey, iconName} = reportCard;
@@ -56,9 +56,10 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                       marginTop: cardGap,
                       marginLeft: index % 2 !== 0 ? cardGap : 0,
                       width: cardWidth,
+                      minHeight: 100,
                       backgroundColor: cardColor,
                       borderColor: cardBorderColor,
-                      borderWidth: 2,
+                      borderWidth: 1,
                       paddingLeft: 16,
                   }]}>
                 <View style={styles.cardNameContainerStyle}>
@@ -70,14 +71,14 @@ export const CardTileView = ({index, reportCard, I18n, onCardPress, countResult}
                         {iconName && renderIcon(iconName, textColor)}
                     </View>
                 </View>
-                <View style={{position: 'absolute', right: 0, bottom: 0, height: 40, width: 40}}>
+                <View style={{position: 'absolute', right: 0, bottom: 0, height: 20, width: 20}}>
                     <View style={{
                         backgroundColor: chevronColor,
-                        borderTopLeftRadius: 10, borderBottomRightRadius: 10,
-                        height: 40, width: 40, alignItems: 'center', justifyContent: 'center'
+                        borderTopLeftRadius: 4, borderBottomRightRadius: 4,
+                        height: 20, width: 20, alignItems: 'center', justifyContent: 'center'
                     }}>
                         {clickable &&
-                            <MCIcon name={'chevron-right'} size={30} color={textColor} style={{opacity: 0.8}}/>}
+                            <MCIcon name={'chevron-right'} size={20} color={textColor} style={{opacity: 0.8}}/>}
                     </View>
                 </View>
             </View>
@@ -91,11 +92,11 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
     },
     cardNameTextStyle: {
-        fontSize: 18,
+        fontSize: Styles.normalTextSize,
         fontStyle: 'normal'
     },
     cardNameContainerStyle: {
-        paddingBottom: 40,
+        paddingBottom: 20,
         marginRight: 12
     },
     cardPrimaryTextStyle: {
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
     },
     cardSecondaryTextStyle: {
-        fontSize: 16,
+        fontSize: 14,
         fontStyle: 'normal',
     },
     iconContainer: {

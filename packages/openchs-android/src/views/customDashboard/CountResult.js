@@ -8,7 +8,7 @@ export const CountResult = ({primary, secondary, primaryStyle, secondaryStyle, d
             <Text style={primaryStyle}>{primary}</Text>
             {secondary ?
                 <Text style={[secondaryStyle, direction === 'row' ? {marginLeft: 8} : {}]}>
-                    {secondary}
+                    ({secondary})
                 </Text> :
                 null}
 
