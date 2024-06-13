@@ -3,7 +3,7 @@ import Service from "../../framework/bean/Service";
 import {Comment, EntityQueue, Individual, CommentThread} from "openchs-models";
 import EntityService from "../EntityService";
 import General from "../../utility/General";
-import {DashboardReportFilter} from "../../model/DashboardReportFilters";
+import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import RealmQueryService from "../query/RealmQueryService";
 
 @Service("commentService")

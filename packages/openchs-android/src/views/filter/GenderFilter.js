@@ -30,34 +30,24 @@ class GenderFilter extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    _invokeCallbacks() {
-        if (_.isFunction(this.props.onSelect) && this.state.selectedGenders !== this.props.selectedGenders) {
-            this.props.onSelect(this.state.selectedGenders);
-        }
-    }
-
     notifyChange(genderName) {
         this.props.onSelect(_.find(this.state.genders, (x) => x.name === genderName));
     }
 
-    renderGenders = () => {
+    render() {
         const locale = this.getService(UserInfoService).getUserSettings().locale || "en";
         const {genders} = this.state;
         const selectedGenders = this.props.selectedGenders;
         const optsFnMap = genders.reduce((genderMap, gender) => genderMap.set(gender.name, gender), new Map());
         const selectedNames = selectedGenders.map(gender => gender.name);
-        let label = this.props.filterLabel || this.I18n.t('gender');
-        let filterModel = new MultiSelectFilterModel(label, optsFnMap, new Map(), selectedNames);
+        const label = this.props.filterLabel || this.I18n.t('gender');
+        const filterModel = new MultiSelectFilterModel(label, optsFnMap, new Map(), selectedNames);
         return <View>
             <MultiSelectFilter filter={filterModel}
                                locale={locale}
                                I18n={this.I18n}
                                onSelect={(genderName) => this.notifyChange(genderName)}/>
-        </View>
-    };
-
-    render() {
-        return this.renderGenders();
+        </View>;
     }
 }
 

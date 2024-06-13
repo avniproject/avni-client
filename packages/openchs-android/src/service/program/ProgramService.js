@@ -31,7 +31,7 @@ class ProgramService extends BaseService {
 
     getAllowedViewPrograms(subjectTypes) {
         const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramUUIDs = _.reduce(subjectTypes, (acc, subjectType) => _.union(acc, getAllowedViewProgramUUIDs(subjectType, privilegeService)));
+        const allowedProgramUUIDs = _.reduce(subjectTypes, (acc, subjectType) => _.union(acc, getAllowedViewProgramUUIDs(subjectType, privilegeService)), []);
         const formMappingService = this.getService(FormMappingService);
         const programs = formMappingService.findProgramsForSubjectTypes(subjectTypes);
         return _.filter(programs, x => privilegeService.hasAllPrivileges() || _.includes(allowedProgramUUIDs, x.uuid));

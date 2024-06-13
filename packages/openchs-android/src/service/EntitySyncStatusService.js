@@ -4,7 +4,6 @@ import {
     Checklist,
     ChecklistItem,
     Encounter,
-    EntityApprovalStatusMetaData,
     EntityMetaData,
     EntitySyncStatus,
     GroupSubject,
@@ -12,7 +11,7 @@ import {
     IndividualRelationship,
     ProgramEncounter,
     ProgramEnrolment
-} from 'avni-models';
+} from 'openchs-models';
 import General from '../utility/General';
 import _ from "lodash";
 import EntityQueueService from "./EntityQueueService";

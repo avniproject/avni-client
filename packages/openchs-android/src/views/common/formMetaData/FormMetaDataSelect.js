@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import React from "react";
 import ProgramSelect from "./ProgramSelect";
 import EncounterTypeSelect from "./EncounterTypeSelect";
+import ProgramService from "../../../service/program/ProgramService";
+import EncounterTypeService from "../../../service/EncounterTypeService";
 
 class FormMetaDataSelect extends AbstractComponent {
     constructor(props, context) {
@@ -17,12 +19,16 @@ class FormMetaDataSelect extends AbstractComponent {
     }
 
     render() {
+        const programService = this.getService(ProgramService);
+        const encounterTypeService = this.getService(EncounterTypeService);
         const {formMetaDataSelections, onChange} = this.props;
         return <>
             <SubjectTypeSelect
                 selectedSubjectTypes={formMetaDataSelections.subjectTypes}
-                onChange={(x) => {
-                    formMetaDataSelections.subjectTypes = x;
+                onChange={(selectedSubjectTypes) => {
+                    const programs = programService.getAllowedViewPrograms(selectedSubjectTypes);
+                    const encounterTypes = encounterTypeService.getAllowedViewEncounterTypes(selectedSubjectTypes, programs)
+                    formMetaDataSelections.updateSubjectTypes(selectedSubjectTypes, programs, encounterTypes);
                     onChange(formMetaDataSelections);
                 }}
                 isMulti={true}/>
@@ -30,8 +36,9 @@ class FormMetaDataSelect extends AbstractComponent {
                 <ProgramSelect
                     subjectTypes={formMetaDataSelections.subjectTypes}
                     selectedPrograms={formMetaDataSelections.programs}
-                    onChange={(x) => {
-                        formMetaDataSelections.programs = x;
+                    onChange={(selectedPrograms) => {
+                        const encounterTypes = encounterTypeService.getAllowedViewEncounterTypes(formMetaDataSelections.subjectTypes, selectedPrograms);
+                        formMetaDataSelections.updatePrograms(selectedPrograms, encounterTypes);
                         onChange(formMetaDataSelections);
                     }}
                     isMulti={true}

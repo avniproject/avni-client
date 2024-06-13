@@ -1,6 +1,7 @@
 // @flow
 import _ from "lodash";
 import General from "../utility/General";
+import RealmQueryService from "./query/RealmQueryService";
 
 /*
 All methods with entity/entities in their name are to be used for disconnected objects. The ones without these terms are for connected objects.
@@ -43,7 +44,8 @@ class BaseService {
     }
 
     findAllByUUID(uuids, entityType) {
-        return this.findAllByKey("uuid", uuids, entityType.schema.name);
+        if (uuids.length === 0) return [];
+        return this.findAllByCriteria(RealmQueryService.orKeyValueQuery("uuid", uuids), entityType.schema.name).map(_.identity);
     }
 
     findAllByKey(keyName, value, schemaName) {

@@ -24,9 +24,9 @@ class ProgramSelect extends AbstractComponent {
     render() {
         const {selectedPrograms, subjectTypes, isMulti, onChange} = this.props;
         const programService = this.getService(ProgramService);
-        const programs = NamedSelectableEntities.create(programService.getAllowedViewPrograms(subjectTypes));
+        const selectablePrograms = NamedSelectableEntities.create(programService.getAllowedViewPrograms(subjectTypes));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
-        const options = programs.getOptions();
+        const options = selectablePrograms.getOptions();
 
         if (options.length === 0) {
             return null;
@@ -36,7 +36,7 @@ class ProgramSelect extends AbstractComponent {
                                     I18n={this.I18n}
                                     labelValuePairs={options}
                                     multiSelect={isMulti}
-                                    onPress={(value) => onChange(programs.toggle(selectedPrograms, value, isMulti))}
+                                    onPress={(value) => onChange(selectablePrograms.toggle(selectedPrograms, value, isMulti))}
                                     selectionFn={(selectedVal) => _.some(selectedPrograms, (x) => x.uuid === selectedVal)}
                                     mandatory={false}
                                     inPairs={true}

@@ -15,10 +15,6 @@ class StubbedCustomDashboardCacheService extends StubbedBaseService {
         return cache;
     }
 
-    resetCache(dashboardUUID) {
-        return CustomDashboardCache.createEmptyInstance();
-    }
-
     selectedValues(dashboardUUID) {
         return this.fetchCachedData(dashboardUUID).getSelectedValues();
     }

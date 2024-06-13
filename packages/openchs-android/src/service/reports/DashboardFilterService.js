@@ -11,7 +11,7 @@ import {
     Program,
     SubjectType
 } from 'openchs-models';
-import {DashboardReportFilter} from "../../model/DashboardReportFilters";
+import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import _ from "lodash";
 import AddressLevelService from "../AddressLevelService";
 import General from "../../utility/General";

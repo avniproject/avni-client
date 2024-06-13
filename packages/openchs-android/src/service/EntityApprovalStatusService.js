@@ -13,7 +13,7 @@ import {
     ProgramEnrolment
 } from "openchs-models";
 import _ from 'lodash';
-import {DashboardReportFilter} from "../model/DashboardReportFilters";
+import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import RealmQueryService from "./query/RealmQueryService";
 
 function getEntityApprovalStatuses(service, schema, status) {

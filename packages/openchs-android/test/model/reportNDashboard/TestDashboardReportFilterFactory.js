@@ -1,4 +1,4 @@
-import {DashboardReportFilter} from "../../../src/model/DashboardReportFilters";
+import {DashboardReportFilter} from "../../../src/model/DashboardReportFilter";
 
 class TestDashboardReportFilterFactory {
     static create({type, dataType, subjectType, groupSubjectTypeFilter, observationBasedFilter, filterValue}) {

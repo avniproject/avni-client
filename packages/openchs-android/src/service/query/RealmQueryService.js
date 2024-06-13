@@ -1,7 +1,6 @@
-import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment, Comment, Task} from "openchs-models";
+import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment, Comment, Task, CustomFilter, AddressLevel} from "openchs-models";
 import _ from "lodash";
-import AddressLevel from "../../views/common/AddressLevel";
-import General from "../../utility/General";
+import moment from "moment";
 
 const locationBasedQueries = new Map();
 locationBasedQueries.set(Individual.schema.name, "lowestAddressLevel.uuid = ");
@@ -11,6 +10,10 @@ locationBasedQueries.set(Encounter.schema.name, "individual.lowestAddressLevel.u
 locationBasedQueries.set(ChecklistItem.schema.name, "checklist.programEnrolment.individual.lowestAddressLevel.uuid = ");
 locationBasedQueries.set(Comment.schema.name, "subject.lowestAddressLevel.uuid = ");
 locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ");
+
+const genderQueryKeys = new Map();
+genderQueryKeys.set(ProgramEncounter.schema.name, "programEnrolment.individual.gender.uuid");
+genderQueryKeys.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid");
 
 class RealmQueryService {
     static orQuery(array) {
@@ -34,6 +37,12 @@ class RealmQueryService {
         return entitiesResult;
     }
 
+    static filterBasedOnGenders(schema, entitiesResult, genders) {
+        const orKeyValueQuery = RealmQueryService.orKeyValueQuery(genderQueryKeys.get(schema), genders.map((x) => x.uuid));
+        if (_.isEmpty(orKeyValueQuery)) return entitiesResult;
+        return entitiesResult.filtered(orKeyValueQuery);
+    }
+
     static programEncounterCriteria(subjectTypes, programs, encounterTypes) {
         const subjectTypeQuery = RealmQueryService.orKeyValueQuery("programEnrolment.individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
         const programQuery = RealmQueryService.orKeyValueQuery("programEnrolment.program.uuid", programs.map((x) => x.uuid));
@@ -45,6 +54,19 @@ class RealmQueryService {
         const subjectTypeQuery = RealmQueryService.orKeyValueQuery("individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
         const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
         return RealmQueryService.andQuery([subjectTypeQuery, encounterTypeQuery]);
+    }
+
+    static getDateFilterFunction(selectedOptions, widget, queryColumn) {
+        const {minValue, maxValue} = _.head(selectedOptions);
+        const realmFormatDate = (value, time) => {
+            const date = value || moment().format("YYYY-MM-DDTHH:mm:ss");
+            return date.split('T')[0] + time;
+        };
+        if (widget === CustomFilter.widget.Range) {
+            return () => ` ${queryColumn} >= ${realmFormatDate(minValue, '@00:00:00')} &&  ${queryColumn} <= ${realmFormatDate(maxValue, '@23:59:59')} `;
+        } else {
+            return () => ` ${queryColumn} == ${realmFormatDate(minValue, '@00:00:00')} `;
+        }
     }
 }
 

@@ -102,8 +102,8 @@ class CustomDashboardCacheService extends BaseService {
                         encounterTypes: selectedFilterValues[filterUuid].encounterTypes.map(x => x.uuid)
                     };
                 } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) &&
-                dataTypeDetails.get(dashboardFilterConfig.getInputDataType()).isArray &&
-                !_.isEmpty(selectedFilterValues[filterUuid])) {
+                    dataTypeDetails.get(dashboardFilterConfig.getInputDataType()).isArray &&
+                    !_.isEmpty(selectedFilterValues[filterUuid])) {
                     serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid].map(x => x.uuid);
                 } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType())) {
                     serialisedSelectedValues[filterUuid] = _.get(selectedFilterValues[filterUuid], "uuid");
@@ -115,10 +115,6 @@ class CustomDashboardCacheService extends BaseService {
 
         dashboardCache.selectedValuesJSON = JSON.stringify(serialisedSelectedValues);
         this.saveOrUpdate(dashboardCache);
-    }
-
-    resetCache(dashboardUUID) {
-        return CustomDashboardCache.createEmptyInstance();
     }
 }
 

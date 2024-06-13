@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 class FormMetaDataSelection {
     subjectTypes;
     programs;
@@ -15,6 +17,17 @@ class FormMetaDataSelection {
 
     static createNew() {
         return new FormMetaDataSelection([], [], []);
+    }
+
+    updateSubjectTypes(selectedSubjectTypes, programsForSubjectTypes, encounterTypesForSubjectTypesAndPrograms) {
+        this.subjectTypes = selectedSubjectTypes;
+        this.programs = _.intersectionBy(this.programs, programsForSubjectTypes, "uuid");
+        this.encounterTypes = _.intersectionBy(this.encounterTypes, encounterTypesForSubjectTypesAndPrograms, "uuid");
+    }
+
+    updatePrograms(selectedPrograms, encounterTypesForSubjectTypesAndPrograms) {
+        this.programs = selectedPrograms;
+        this.encounterTypes = _.intersectionBy(this.encounterTypes, encounterTypesForSubjectTypesAndPrograms, "uuid");
     }
 }
 

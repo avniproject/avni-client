@@ -4,7 +4,7 @@ import {EntityQueue, ObservationsHolder, Task} from 'openchs-models';
 import _ from 'lodash';
 import TaskFilter from "../../model/TaskFilter";
 import moment from 'moment';
-import {DashboardReportFilter} from "../../model/DashboardReportFilters";
+import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import RealmQueryService from "../query/RealmQueryService";
 
 const getIncompleteTasks = function(taskService, taskTypeName) {
