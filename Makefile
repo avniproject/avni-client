@@ -51,11 +51,11 @@ ignore_deps_changes:
 #for emulators using virtualbox
 ip:=$(shell ifconfig | grep -A 2 'vboxnet' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2)
 
-# for default Andoird Emulator
+# for default Android Emulator
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'wlp' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 2 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
 ip:=$(if $(ip),$(ip),$(shell ifconfig | grep -A 4 'en0' | grep 'inet ' | tail -1 | xargs | cut -d ' ' -f 2 | cut -d ':' -f 2))
-ip:=$(if $(ip),$(ip),10.0.3.2)
+ip:=$(if $(ip),$(ip),10.0.3.2) #Fallback for host loopback interface. 10.0.3.2 is for genymotion using virtualbox. try 10.0.2.2 if not using genymotion. https://developer.android.com/studio/run/emulator-networking
 
 AVNI_HOST?=$(ip)
 sha:=$(shell git rev-parse --short=4 HEAD)
