@@ -7,8 +7,8 @@ import TestOrganisationConfigFactory from "../../test/model/TestOrganisationConf
 class TestOrganisationService {
     static setupOrganisation(db) {
         const returnData = {};
-        returnData.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
-        returnData.addressLevel2 = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+        returnData.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
+        returnData.addressLevel2 = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
         returnData.gender = db.create(Gender, TestGenderFactory.createWithDefaults({name: "Male"}));
         db.create(Settings, TestSettingsFactory.createWithDefaults({}));
         db.create(OrganisationConfig, TestOrganisationConfigFactory.createWithDefaults({}));

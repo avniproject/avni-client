@@ -321,6 +321,7 @@ class IndividualService extends BaseService {
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+        const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
@@ -334,10 +335,7 @@ class IndividualService extends BaseService {
                     'AND voided = false ',
                     dateMorning);
 
-            if (!_.isEmpty(programEncounterCriteria)) {
-                programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
-            }
-            programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
+            programEncounters = applyUserFilters(programEncounters, reportFilters, programEncounterCriteria, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -372,10 +370,7 @@ class IndividualService extends BaseService {
                     'AND voided = false ',
                     dateMorning);
 
-            if (!_.isEmpty(encounterCriteria)) {
-                encounters = encounters.filtered(`${encounterCriteria}`);
-            }
-            encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
+            encounters = applyUserFilters(encounters, reportFilters, encounterCriteria, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;

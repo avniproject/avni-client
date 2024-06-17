@@ -1,5 +1,12 @@
 import _ from 'lodash';
 
+function adjustForDisplayedLevels(allCurrentLevels, selectedLevel, newLevels) {
+    const toRemove = allCurrentLevels.filter(l => !_.isEmpty(l.locationMappings) && l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
+    return new AddressLevelsState(allCurrentLevels).addLevels(newLevels)
+        .removeLevels(toRemove)
+        .removeUnwantedLevels();
+}
+
 class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
@@ -20,7 +27,7 @@ class AddressLevelsState {
         this.levels = levelTypeOrderedUnsortedLevels.map(([levelNum, levels]) => {
             const levelType = levels[0].type;
             const other = _.find(levels, (level) => _.startsWith(level.name, "Other"));
-            if(!_.isNil(other)) {
+            if (!_.isNil(other)) {
                 const levelsExcludingOther = _.filter(levels, (level) => level.name !== other.name);
                 const sortedLevels = _.sortBy(levelsExcludingOther, "name");
                 const levelsEndingWithOther = _.concat(sortedLevels, other);
@@ -28,7 +35,6 @@ class AddressLevelsState {
             } else {
                 return [levelType, _.sortBy(levels, "name")];
             }
-
         });
     }
 
@@ -62,27 +68,24 @@ class AddressLevelsState {
     addLevel(type, selectedLevel, newLevels = []) {
         let levelMap = new Map(this.levels);
         const levels = levelMap.get(type);
-        levelMap.set(type, levels.map(l => _.assignIn({},l,{
+        levelMap.set(type, levels.map(l => _.assignIn({}, l, {
             isSelected: l.uuid === selectedLevel.uuid ? !l.isSelected : l.isSelected
         })));
         return new AddressLevelsState(this._asList(levelMap)).addOrRemoveLevels(selectedLevel.uuid, newLevels).removeUnwantedLevels();
     }
 
-    selectLevel(type, selectedLevel, newLevels = []) {
+    selectLevel(selectedLevel, newLevels = []) {
         const allCurrentLevels = this._asList();
         if (_.isEmpty(selectedLevel.locationMappings)) {
             allCurrentLevels.forEach(l => {
                 l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false;
-            })
+            });
         } else {
             allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
                 l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
             });
         }
-        const toRemove = allCurrentLevels.filter(l => !_.isEmpty(l.locationMappings) && l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
-        return new AddressLevelsState(allCurrentLevels).addLevels(newLevels)
-            .removeLevels(toRemove)
-            .removeUnwantedLevels();
+        return adjustForDisplayedLevels(allCurrentLevels, selectedLevel, newLevels);
     }
 
     addLevels(levels) {
@@ -122,12 +125,24 @@ class AddressLevelsState {
     }
 
     findAllChildrenFromCurrentLevels(levels = []) {
-        if(_.isEmpty(levels)) {
+        if (_.isEmpty(levels)) {
             return levels;
         }
         const parentUUIDs = _.defaultTo(levels.map(p => p.uuid), []);
         const children = this._asList().filter(l => _.includes(parentUUIDs, l.parentUuid));
         return _.concat(levels, this.findAllChildrenFromCurrentLevels(children));
+    }
+
+    setSelectedAddresses(addresses) {
+        let returnAddressLevelState = this;
+        const orderedAddresses = _.orderBy(addresses, (x) => x.level, "desc");
+        orderedAddresses.forEach(selectedAddress => {
+            const matchingAddress = _.find(returnAddressLevelState._asList(), (address) => selectedAddress.uuid === address.uuid);
+            matchingAddress.isSelected = true;
+            const allCurrentLevels = returnAddressLevelState._asList();
+            returnAddressLevelState = adjustForDisplayedLevels(allCurrentLevels, matchingAddress, []);
+        });
+        return returnAddressLevelState;
     }
 }
 

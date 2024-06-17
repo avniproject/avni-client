@@ -4,8 +4,8 @@ import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 
 import General from "../../utility/General";
-import {JSONStringify} from "../../utility/JsonStringify";
 import FormMetaDataSelection from "../../model/FormMetaDataSelection";
+import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 
 class FiltersActionsV2 {
     static getInitialState() {
@@ -23,7 +23,7 @@ class FiltersActionsV2 {
         const dashboardFilterService = context.get(DashboardFilterService);
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
-        const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardCacheService).getDashboardCache(action.dashboardUUID);
+        const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardService).getDashboardData(action.dashboardUUID);
         Object.keys(filterConfigs).forEach((uuid) => {
             if (filterConfigs[uuid].type === CustomFilter.type.SubjectType && _.isNil(selectedFilterValues[uuid])) {
                 selectedFilterValues[uuid] = FormMetaDataSelection.createNew();
@@ -94,7 +94,7 @@ class FiltersActionsV2 {
     static appliedFilter(state, action, context) {
         //Init data
         const {filterConfigs, selectedValues} = state;
-        const {navigateToDashboardView, setFiltersDataOnDashboardView} = action;
+        const {navigateToDashboardView} = action;
         const newState = {...state, filterApplied: true, filterErrors: {}};
         const filledFilterValues = {};
         Object.keys(selectedValues).forEach((filterUUID) => {
@@ -113,14 +113,11 @@ class FiltersActionsV2 {
             newState.loading = false;
             return newState;
         }
-        const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        customDashboardCacheService.setSelectedFilterValues(newState.dashboardUUID, filledFilterValues, true);
+        const customDashboardService = context.get(CustomDashboardService);
+        customDashboardService.setSelectedFilterValues(newState.dashboardUUID, filledFilterValues, true);
 
-        //Invoke callbacks. Used only in test.
-        // setFiltersDataOnDashboardView(serializableFilterData);
         const dashboardFilterService = context.get(DashboardFilterService);
         const ruleInputArray = dashboardFilterService.toRuleInputObjects(newState.dashboardUUID, filledFilterValues);
-        General.logDebugTemp("FiltersActionsV2", `ruleInputArray: ${JSONStringify(ruleInputArray)}`);
         navigateToDashboardView(ruleInputArray);
         return newState;
     }

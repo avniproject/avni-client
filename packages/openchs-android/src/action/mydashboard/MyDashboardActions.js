@@ -153,12 +153,17 @@ class MyDashboardActions {
             allIndividuals,
             dueChecklist
         ] = state.returnEmpty ? [[], [], [], [], [], [], [], []] : (fetchFromDB ? [
-                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.allScheduledVisitsIn(dashboardCacheFilter.filterDate, [], RealmQueryService.orQuery(dashboardCacheFilter.encountersFilters), RealmQueryService.orQuery(dashboardCacheFilter.generalEncountersFilters), queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+
+                MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], RealmQueryService.orQuery(dashboardCacheFilter.encountersFilters), RealmQueryService.orQuery(dashboardCacheFilter.generalEncountersFilters), queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
+
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs),
+
                 MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
+                MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], RealmQueryService.orQuery(dashboardCacheFilter.individualFilters), dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
+
                 MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
             ]
             : [state.scheduled, state.overdue, state.recentlyCompletedVisits, state.recentlyCompletedRegistration, state.recentlyCompletedEnrolment, state.total, state.dueChecklist]);
@@ -361,13 +366,20 @@ class MyDashboardActions {
         ].filter(Boolean).join(" AND ");
 
         const transformedSelectedLocations = (action.selectedLocations && !_.isNil(action.selectedLocations)) ? action.selectedLocations.map(({
-              uuid,
-              name,
-              level,
-              type,
-              isSelected,
-              parentUuid
-          }) => ({uuid, name, level, type, parentUuid, isSelected})) : [];
+                                                                                                                                                  uuid,
+                                                                                                                                                  name,
+                                                                                                                                                  level,
+                                                                                                                                                  type,
+                                                                                                                                                  isSelected,
+                                                                                                                                                  parentUuid
+                                                                                                                                              }) => ({
+            uuid,
+            name,
+            level,
+            type,
+            parentUuid,
+            isSelected
+        })) : [];
         const newState = {
             ...state,
             filters: newFilters,

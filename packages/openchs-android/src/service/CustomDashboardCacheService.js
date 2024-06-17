@@ -3,16 +3,10 @@ import Service from "../framework/bean/Service";
 import {CustomDashboardCache} from "avni-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
-import {AddressLevel, Concept, CustomFilter, Dashboard, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
+import {CustomFilter, Dashboard, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
 import FormMetaDataSelection from "../model/FormMetaDataSelection";
-
-const dataTypeDetails = new Map();
-dataTypeDetails.set(Concept.dataType.Coded, {type: Concept, isArray: true});
-dataTypeDetails.set(CustomFilter.type.Gender, {type: Gender, isArray: true});
-dataTypeDetails.set(CustomFilter.type.Address, {type: AddressLevel, isArray: true});
-dataTypeDetails.set(CustomFilter.type.GroupSubject, {type: Individual, isArray: false});
 
 function getDashboardCache(service, dashboardUUID) {
     let cache = service.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
@@ -33,13 +27,7 @@ class CustomDashboardCacheService extends BaseService {
         return CustomDashboardCache.schema.name;
     }
 
-    clearAllCache() {
-        this.db.write(() => {
-            this.db.delete(this.db.objects(CustomDashboardCache.schema.name));
-        });
-    }
-
-    getDashboardCache(dashboardUUID) {
+    getDashboardCache(dashboardUUID, dataTypeDetails) {
         const entityService = this.getService(EntityService);
         const dashboardCache = getDashboardCache(this, dashboardUUID);
         try {
@@ -81,7 +69,7 @@ class CustomDashboardCacheService extends BaseService {
         this.saveOrUpdate(cache);
     }
 
-    setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied) {
+    setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied, dataTypeDetails) {
         const dashboardCache = getDashboardCache(this, dashboardUUID);
         dashboardCache.filterApplied = filterApplied;
         dashboardCache.updatedAt = new Date();
@@ -94,21 +82,22 @@ class CustomDashboardCacheService extends BaseService {
             const dashboardFilter = dashboardFilterService.findByUUID(filterUuid);
             const dashboardFilterConfig = dashboardFilterService.getDashboardFilterConfig(dashboardFilter);
 
-            if (!_.isNil(selectedFilterValues[filterUuid])) {
+            const selectedFilterValue = selectedFilterValues[filterUuid];
+            if (!_.isNil(selectedFilterValue)) {
                 if (dashboardFilterConfig.type === CustomFilter.type.SubjectType) {
                     serialisedSelectedValues[filterUuid] = {
-                        subjectTypes: selectedFilterValues[filterUuid].subjectTypes.map(x => x.uuid),
-                        programs: selectedFilterValues[filterUuid].programs.map(x => x.uuid),
-                        encounterTypes: selectedFilterValues[filterUuid].encounterTypes.map(x => x.uuid)
+                        subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
+                        programs: selectedFilterValue.programs.map(x => x.uuid),
+                        encounterTypes: selectedFilterValue.encounterTypes.map(x => x.uuid)
                     };
                 } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) &&
                     dataTypeDetails.get(dashboardFilterConfig.getInputDataType()).isArray &&
-                    !_.isEmpty(selectedFilterValues[filterUuid])) {
-                    serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid].map(x => x.uuid);
+                    !_.isEmpty(selectedFilterValue)) {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue.map(x => x.uuid);
                 } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType())) {
-                    serialisedSelectedValues[filterUuid] = _.get(selectedFilterValues[filterUuid], "uuid");
+                    serialisedSelectedValues[filterUuid] = _.get(selectedFilterValue, "uuid");
                 } else {
-                    serialisedSelectedValues[filterUuid] = selectedFilterValues[filterUuid];
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue;
                 }
             }
         });

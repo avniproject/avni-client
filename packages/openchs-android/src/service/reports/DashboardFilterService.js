@@ -85,20 +85,19 @@ class DashboardFilterService extends BaseService {
             };
         }
         if (filterConfig.type === CustomFilter.type.Address) {
-            if (_.isEmpty(filterValue.selectedAddresses)) {
-                ruleInput.filterValue = filterValue.selectedAddresses;
+            if (_.isEmpty(filterValue)) {
+                ruleInput.filterValue = filterValue;
             } else {
                 const addressLevelService = this.getService(AddressLevelService);
-                const addressFilterValues = [...filterValue.selectedAddresses];
-                const descendants = filterValue.selectedAddresses
-                    .filter(location => location.level === _.get(_.minBy(filterValue.selectedAddresses, 'level'), 'level'))
+                const addressFilterValues = [...filterValue];
+                const descendants = filterValue
+                    .filter(location => location.level === _.get(_.minBy(filterValue, 'level'), 'level'))
                     .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []);
                 ruleInput.filterValue = addressFilterValues.concat(descendants
                     .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
                 General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(ruleInput.filterValue, "type"))}`);
             }
-        }
-        else
+        } else
             ruleInput.filterValue = filterValue;
         return ruleInput;
     }

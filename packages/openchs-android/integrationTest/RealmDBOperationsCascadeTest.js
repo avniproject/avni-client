@@ -31,7 +31,7 @@ class RealmDBOperationsCascadeTest extends BaseIntegrationTest {
           name: 'concept-1',
           dataType: Concept.dataType.Text
         }), updateMode);
-        this.savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+        this.savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
 
         //Create Individual
         this.individual = db.create(Individual, TestSubjectFactory.createWithDefaults({

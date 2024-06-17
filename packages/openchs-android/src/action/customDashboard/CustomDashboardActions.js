@@ -42,8 +42,6 @@ class CustomDashboardActions {
         newState.dashboards = dashboards;
         newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
 
-        // context.get(CustomDashboardCacheService).clearAllCache();
-
         return loadCurrentDashboardInfo(context, newState);
     }
 
@@ -63,7 +61,7 @@ class CustomDashboardActions {
         const itemKey = action.reportCardUUID;
         const rcUUID = context.get(ReportCardService).getPlainUUIDFromCompositeReportCardUUID(action.reportCardUUID);
         const reportCard = context.get(EntityService).findByUUID(rcUUID, ReportCard.schema.name);
-        const {selectedFilterValues} = context.get(CustomDashboardCacheService).getDashboardCache(state.activeDashboardUUID);
+        const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
         const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
 
         reportCard.itemKey = itemKey;
@@ -99,7 +97,7 @@ class CustomDashboardActions {
     }
 
     static refreshCount(state, action, context) {
-        const {dashboardCache, selectedFilterValues} = context.get(CustomDashboardCacheService).getDashboardCache(state.activeDashboardUUID);
+        const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
 
         const I18n = context.get(MessageService).getI18n();
         const reportCardSectionMappings = state.reportCardSectionMappings;

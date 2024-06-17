@@ -16,7 +16,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import {ScrollView} from "native-base";
 import PropTypes from "prop-types";
 import ObservationBasedFilterView, {FilterContainer, FilterContainerWithLabel} from "./ObservationBasedFilterView";
-import {CustomFilter} from 'openchs-models';
+import {CustomFilter, Locations} from 'openchs-models';
 import DatePicker from "../primitives/DatePicker";
 import _ from "lodash";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
@@ -27,6 +27,7 @@ import DateRangeFilter from "./DateRangeFilter";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AddressLevelState from '../../action/common/AddressLevelsState';
 import FormMetaDataSelect from "../common/formMetaData/FormMetaDataSelect";
+import AddressLevelService from "../../service/AddressLevelService";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -127,12 +128,7 @@ class FiltersViewV2 extends AbstractComponent {
                 setTimeout(() => {
                     this.props.onFilterChosen(ruleInput);
                 }, 100);
-            },
-            setFiltersDataOnDashboardView: (customDashboardFilters) => {
-                setTimeout(() => {
-                    this.props.loadFiltersData(customDashboardFilters);
-                }, 100);
-            },
+            }
         });
     }
 
@@ -150,6 +146,7 @@ class FiltersViewV2 extends AbstractComponent {
         const {width} = Dimensions.get('window');
 
         const {loading, filterConfigs, filters, selectedValues, filterErrors} = this.state;
+        const addressLevelService = this.getService(AddressLevelService);
 
         return (
             <CHSContainer style={{backgroundColor: Styles.whiteColor, display: "flex", flexDirection: "column", paddingBottom: 50}}>
@@ -171,19 +168,13 @@ class FiltersViewV2 extends AbstractComponent {
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
-                                        const selectedAddressesInfo = _.flatten([...new Map(filterValue?.levels).values()])
-                                          .map(({uuid, name, level, type, isSelected, parentUuid}) => ({
-                                              uuid,
-                                              name,
-                                              level,
-                                              type,
-                                              parentUuid,
-                                              isSelected
-                                          }));
-                                        return <AddressLevels addressLevelState={new AddressLevelState(selectedAddressesInfo)}
+                                        const userVisibleAddresses = addressLevelService.getAllAtLevels(Locations.getUniqueLevels(filterValue));
+                                        let addressLevelState = new AddressLevelState(userVisibleAddresses);
+                                        addressLevelState = addressLevelState.setSelectedAddresses(filterValue);
+                                        return <AddressLevels addressLevelState={addressLevelState}
                                                               fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}
-                                                              onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState)}
+                                                              onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState.selectedAddresses)}
                                                               multiSelect={true}
                                                               userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/>;
                                     case CustomFilter.type.RegistrationDate:

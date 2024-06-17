@@ -1,5 +1,6 @@
 import BaseService from './BaseService.js'
 import _ from 'lodash';
+import RealmQueryService from "./query/RealmQueryService";
 
 class BaseAddressLevelService extends BaseService {
     constructor(db, beanStore) {
@@ -37,7 +38,12 @@ class BaseAddressLevelService extends BaseService {
     }
 
     getAllAtLevel(levelQuery) {
-        return [...this.findAllByCriteria(`${levelQuery} AND voided = false`, this.getSchema()).sorted('level', true)];
+        const query = _.isEmpty(levelQuery) ? "" : `${levelQuery} AND`;
+        return [...this.findAllByCriteria(`${query} voided = false`, this.getSchema()).sorted('level', true)];
+    }
+
+    getAllAtLevels(levels) {
+        return this.getAllAtLevel(RealmQueryService.orKeyValueQuery("level", levels));
     }
 
     highestLevel(minLevelTypeUUIDs) {

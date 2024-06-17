@@ -67,7 +67,7 @@ class PersonRegisterActionsIntegrationTest extends BaseIntegrationTest {
         super.setup();
         this.executeInWrite((db) => {
             this.concept = db.create(Concept, TestConceptFactory.createWithDefaults({dataType: Concept.dataType.Text}));
-            this.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+            this.addressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
             this.gender = db.create(Gender, TestGenderFactory.createWithDefaults({name: "Male"}));
             db.create(Settings, TestSettingsFactory.createWithDefaults({}));
         });

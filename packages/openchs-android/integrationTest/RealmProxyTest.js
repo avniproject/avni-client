@@ -21,7 +21,7 @@ function shouldFail(baseIntegrationTest, obs, updateMode) {
 function shouldFailSubjectCreationWithoutSubjectType(baseIntegrationTest, sub, updateMode) {
     baseIntegrationTest.executeInWrite((db) => {
         try {
-            let savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+            let savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
             sub.lowestAddressLevel = savedAddressLevel;
             db.create(Individual, sub, updateMode);
             assert.fail("Subject without subjectType should have failed to save.");
@@ -55,7 +55,7 @@ function conceptNameShouldRemainSameOnEntityObservationSave(baseIntegrationTest,
                 dataType: Concept.dataType.Text, keyValues: [{key: "subjectTypeUUID", value: "c47088d6-ac67-4e4d-b5af-158468a83202"}]
             }), updateMode);
             assert.isNotNull(originalConcept);
-            const savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1}));
+            const savedAddressLevel = db.create(AddressLevel, TestAddressLevelFactory.createWithDefaults({level: 1, type: "1"}));
 
             assert.equal(originalConcept.keyValues.length, 1);
             assert.equal(originalConcept.keyValues[0].key, "subjectTypeUUID");
