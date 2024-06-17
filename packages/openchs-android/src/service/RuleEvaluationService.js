@@ -470,7 +470,7 @@ class RuleEvaluationService extends BaseService {
                 General.logDebug("Rule-Failure", `Visit Schedule failed for form: ${form.uuid}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
-        } else {
+        } else if (!_.isEmpty(rulesFromTheBundle)) {
             const nextVisits = rulesFromTheBundle
                 .reduce((schedule, rule) => {
                     General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
