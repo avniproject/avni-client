@@ -17,6 +17,15 @@ import ConceptService from "./ConceptService";
 import moment from "moment";
 import RealmQueryService from "./query/RealmQueryService";
 
+function getDateFilterFunction(filterValue, widget, queryColumn) {
+    if (widget === CustomFilter.widget.Range) {
+        const {minValue, maxValue} = filterValue;
+        return () => ` ${queryColumn} >= ${RealmQueryService.toMidnight(minValue)} &&  ${queryColumn} <= ${RealmQueryService.toMidnight(maxValue)} `;
+    } else {
+        return () => ` ${queryColumn} == ${RealmQueryService.toMidnight(filterValue)} `;
+    }
+}
+
 @Service("customFilterService")
 class CustomFilterService extends BaseService {
     constructor(db, context) {
@@ -107,13 +116,18 @@ class CustomFilterService extends BaseService {
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
-    queryEntity(schemaName, selectedAnswerFilters, otherFilters, indFunc, includeVoided) {
-        return [...this.db.objects(schemaName)
-            .filtered(includeVoided ? `uuid != null ` : `voided = false `)
-            .filtered(selectedAnswerFilters())
-            .filtered((_.isEmpty(otherFilters) ? 'uuid != null' : otherFilters))
-            .map(indFunc)
-        ];
+    queryEntity(schemaName, selectedAnswerQueryFunction, otherFilters, indFunc, includeVoided) {
+        const query = selectedAnswerQueryFunction();
+
+        let results = this.db.objects(schemaName);
+        if (includeVoided)
+            results = results.filtered("voided = false");
+        if (!_.isEmpty(query))
+            results = results.filtered(query);
+        if (!_.isEmpty(otherFilters))
+            results = results.filtered(otherFilters);
+
+        return [...results.map(indFunc)];
     }
 
     // Note that the query is run for every filter(concept) separately, this is because we don't have
@@ -132,11 +146,11 @@ class CustomFilterService extends BaseService {
             : this.filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilterFunction, indFunc, inMemoryFilter);
     }
 
-    filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilters, indFunc, inMemoryFilter) {
+    filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFiltersFunction, indFunc, inMemoryFilter) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
         if (_.isEmpty(latestEncounters)) return [];
-        let encountersBasedOnSelectedAnswers = latestEncounters.filtered(` ${selectedAnswerFilters()} `);
+        let encountersBasedOnSelectedAnswers = latestEncounters.filtered(` ${selectedAnswerFiltersFunction()} `);
         if (!_.isNil(inMemoryFilter)) {
             General.logDebug("CustomFilterService", "Running in memory filter");
             encountersBasedOnSelectedAnswers = encountersBasedOnSelectedAnswers.filterInternal((obsHolder) => inMemoryFilter(obsHolder))
@@ -153,21 +167,40 @@ class CustomFilterService extends BaseService {
         return [_.isEmpty(encounterOptions) ? '' : `( ${encounterOptions} )`, _.isEmpty(programOptions) ? '' : `( ${programOptions} )`].filter(Boolean).join(" AND ");
     }
 
+    //Delete with MyDashboard
     getFilterQueryByTypeFunction({type, conceptUUID, widget}, selectedOptions) {
         if (type === CustomFilter.type.Concept) {
             const conceptService = this.getService(ConceptService);
             const concept = conceptService.getConceptByUUID(conceptUUID);
             return this.getConceptFilterQueryFunction(concept, selectedOptions, widget)
         } else if (type === CustomFilter.type.RegistrationDate) {
-            return RealmQueryService.getDateFilterFunction(selectedOptions, widget, 'registrationDate');
+            return RealmQueryService.getDateFilterFunctionV1(selectedOptions, widget, 'registrationDate');
         } else if (type === CustomFilter.type.EnrolmentDate) {
-            return RealmQueryService.getDateFilterFunction(selectedOptions, widget, 'enrolmentDateTime');
+            return RealmQueryService.getDateFilterFunctionV1(selectedOptions, widget, 'enrolmentDateTime');
         } else if (type === CustomFilter.type.ProgramEncounterDate || type === CustomFilter.type.EncounterDate) {
-            return RealmQueryService.getDateFilterFunction(selectedOptions, widget, 'encounterDateTime');
+            return RealmQueryService.getDateFilterFunctionV1(selectedOptions, widget, 'encounterDateTime');
         } else if (type === CustomFilter.type.GroupSubject) {
             return this.groupSubjectQuery.bind(this, selectedOptions);
         } else {
             return () => 'uuid != null'
+        }
+    }
+
+    getFilterQueryByTypeFunctionV2({type, conceptUUID, widget}, filterValue) {
+        if (type === CustomFilter.type.Concept) {
+            const conceptService = this.getService(ConceptService);
+            const concept = conceptService.getConceptByUUID(conceptUUID);
+            return this.getConceptFilterQueryFunction(concept, filterValue, widget)
+        } else if (type === CustomFilter.type.RegistrationDate) {
+            return getDateFilterFunction(filterValue, widget, 'registrationDate');
+        } else if (type === CustomFilter.type.EnrolmentDate) {
+            return getDateFilterFunction(filterValue, widget, 'enrolmentDateTime');
+        } else if (type === CustomFilter.type.ProgramEncounterDate || type === CustomFilter.type.EncounterDate) {
+            return getDateFilterFunction(filterValue, widget, 'encounterDateTime');
+        } else if (type === CustomFilter.type.GroupSubject) {
+            return this.groupSubjectQuery.bind(this, filterValue);
+        } else {
+            return RealmQueryService.getMatchAllEntitiesQuery;
         }
     }
 

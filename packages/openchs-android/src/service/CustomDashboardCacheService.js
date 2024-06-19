@@ -1,20 +1,31 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {CustomDashboardCache} from "avni-models";
+import {CustomDashboardCache} from "openchs-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
-import {CustomFilter, Dashboard, EncounterType, Gender, Individual, Program, SubjectType} from "openchs-models";
+import {Concept, CustomFilter, Dashboard, EncounterType, Range, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
 import FormMetaDataSelection from "../model/FormMetaDataSelection";
+import Hashes from 'jshashes';
 
 function getDashboardCache(service, dashboardUUID) {
     let cache = service.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+    const dashboard = service.findByUUID(dashboardUUID, Dashboard.schema.name);
     if (_.isNil(cache)) {
-        const dashboard = service.findByUUID(dashboardUUID, Dashboard.schema.name);
         cache = service.save(CustomDashboardCache.newInstance(dashboard), CustomDashboardCache.schema.name);
+    } else if (getDashboardFiltersHash(dashboard) !== cache.dashboardFiltersHash) {
+        General.logDebugTemp("CustomDashboardCacheService", "Dashboard filters hash didn't match");
+        cache = cache.clone();
+        cache.reset();
+        cache = service.saveOrUpdate(cache);
     }
     return cache.clone();
+}
+
+function getDashboardFiltersHash(dashboard) {
+    const str = JSON.stringify(dashboard.filters.map((x) => x.filterConfig));
+    return new Hashes.MD5().hex(str);
 }
 
 @Service('customDashboardCacheService')
@@ -50,6 +61,10 @@ class CustomDashboardCacheService extends BaseService {
                     selectedFilterValues[filterUuid] = entityService.findAllByUUID(selectedSerialisedValue, dataTypeDetails.get(inputDataType).type);
                 } else if (dataTypeDetails.has(inputDataType)) {
                     selectedFilterValues[filterUuid] = entityService.findByUUID(selectedSerialisedValue, dataTypeDetails.get(inputDataType).type);
+                } else if (inputDataType === Concept.dataType.Date && !_.isNil(selectedSerialisedValue)) {
+                    selectedFilterValues[filterUuid] = new Date(selectedSerialisedValue);
+                } else if (inputDataType === Range.DateRange) {
+                    selectedFilterValues[filterUuid] = new Range(selectedSerialisedValue.minValue, selectedSerialisedValue.maxValue);
                 } else {
                     selectedFilterValues[filterUuid] = selectedSerialisedValue;
                 }
@@ -65,8 +80,11 @@ class CustomDashboardCacheService extends BaseService {
 
     reset(dashboardUUID) {
         const cache = getDashboardCache(this, dashboardUUID);
-        cache.reset();
-        this.saveOrUpdate(cache);
+        this.delete(cache);
+    }
+
+    resetAllDashboards() {
+        this.deleteAll();
     }
 
     setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied, dataTypeDetails) {
@@ -83,6 +101,7 @@ class CustomDashboardCacheService extends BaseService {
             const dashboardFilterConfig = dashboardFilterService.getDashboardFilterConfig(dashboardFilter);
 
             const selectedFilterValue = selectedFilterValues[filterUuid];
+            const inputDataType = dashboardFilterConfig.getInputDataType();
             if (!_.isNil(selectedFilterValue)) {
                 if (dashboardFilterConfig.type === CustomFilter.type.SubjectType) {
                     serialisedSelectedValues[filterUuid] = {
@@ -90,19 +109,22 @@ class CustomDashboardCacheService extends BaseService {
                         programs: selectedFilterValue.programs.map(x => x.uuid),
                         encounterTypes: selectedFilterValue.encounterTypes.map(x => x.uuid)
                     };
-                } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType()) &&
-                    dataTypeDetails.get(dashboardFilterConfig.getInputDataType()).isArray &&
-                    !_.isEmpty(selectedFilterValue)) {
-                    serialisedSelectedValues[filterUuid] = selectedFilterValue.map(x => x.uuid);
-                } else if (dataTypeDetails.has(dashboardFilterConfig.getInputDataType())) {
-                    serialisedSelectedValues[filterUuid] = _.get(selectedFilterValue, "uuid");
                 } else {
-                    serialisedSelectedValues[filterUuid] = selectedFilterValue;
+                    if (dataTypeDetails.has(inputDataType) &&
+                        dataTypeDetails.get(inputDataType).isArray &&
+                        !_.isEmpty(selectedFilterValue)) {
+                        serialisedSelectedValues[filterUuid] = selectedFilterValue.map(x => x.uuid);
+                    } else if (dataTypeDetails.has(inputDataType)) {
+                        serialisedSelectedValues[filterUuid] = _.get(selectedFilterValue, "uuid");
+                    } else {
+                        serialisedSelectedValues[filterUuid] = selectedFilterValue;
+                    }
                 }
             }
         });
 
         dashboardCache.selectedValuesJSON = JSON.stringify(serialisedSelectedValues);
+        dashboardCache.dashboardFiltersHash = getDashboardFiltersHash(dashboardCache.dashboard);
         this.saveOrUpdate(dashboardCache);
     }
 }

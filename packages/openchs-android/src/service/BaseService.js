@@ -211,6 +211,21 @@ class BaseService {
     getUserInfo() {
         return this.getService("userInfoService").getUserInfo();
     }
+
+    delete(objectOrOrObjects) {
+        const db = this.db;
+        this.db.write(() => {
+            db.delete(objectOrOrObjects);
+        });
+    }
+
+    deleteAll() {
+        const db = this.db;
+        const all = this.findAll(this.getSchema());
+        this.db.write(() => {
+            db.delete(all);
+        });
+    }
 }
 
 export default BaseService;

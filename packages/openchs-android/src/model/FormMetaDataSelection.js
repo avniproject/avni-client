@@ -29,6 +29,10 @@ class FormMetaDataSelection {
         this.programs = selectedPrograms;
         this.encounterTypes = _.intersectionBy(this.encounterTypes, encounterTypesForSubjectTypesAndPrograms, "uuid");
     }
+
+    isEmpty() {
+        return _.isEmpty(this.subjectTypes) && _.isEmpty(this.programs) && _.isEmpty(this.encounterTypes);
+    }
 }
 
 export default FormMetaDataSelection;

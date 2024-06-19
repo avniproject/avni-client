@@ -44,13 +44,18 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
             case CustomFilter.type.EncounterDate:
             case CustomFilter.type.GroupSubject:
                 filterApplied = true;
-                const filterQueryByTypeFunction = customFilterService.getFilterQueryByTypeFunction({
+                const filterQueryByTypeFunction = customFilterService.getFilterQueryByTypeFunctionV2({
                     type: filter.type,
                     widget: filter.dataType,
                     conceptUUID: conceptUUID
                 }, filter.filterValue);
                 const subjects = customFilterService.getSubjects(conceptUUID, filter.filterValue, filter.type, scope, scopeParameters, filter.dataType, filterQueryByTypeFunction, false);
-                uniqueSubjects = _.intersection(uniqueSubjects, subjects);
+                if (_.isEmpty(uniqueSubjects)) {
+                    uniqueSubjects = subjects;
+                } else {
+                    uniqueSubjects = _.intersection(subjects, uniqueSubjects);
+                }
+                General.logDebugTemp("IndividualService", `Filtered by ${filter.type}. Matching subjects: ${subjects.length}.`);
                 break;
             default:
                 break;
@@ -67,8 +72,13 @@ function applyUserFilters(entities, reportFilters, criteria, addressFilter, gend
     filteredEntities = RealmQueryService.filterBasedOnAddress(schema, filteredEntities, addressFilter);
     filteredEntities = RealmQueryService.filterBasedOnGenders(schema, filteredEntities, genders);
     const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
-    if (filterApplied && uniqueSubjects.length > 0) {
-        filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery("programEnrolment.individual.uuid", uniqueSubjects));
+    General.logDebugTemp("IndividualService", `uniqueSubjects: ${uniqueSubjects.length}, filterApplied: ${filterApplied}`);
+    if (filterApplied) {
+        if (uniqueSubjects.length > 0)
+            filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(schema === ProgramEncounter.schema.name
+                ? "programEnrolment.individual.uuid" : "individual.uuid", uniqueSubjects));
+        else
+            filteredEntities = filteredEntities.filtered('uuid = null');
     }
     return filteredEntities;
 }

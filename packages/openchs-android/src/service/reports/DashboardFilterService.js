@@ -63,21 +63,22 @@ class DashboardFilterService extends BaseService {
         const filterConfigs = this.getFilterConfigsForDashboard(dashboardUUID);
         const thisService = this;
         return Object.entries(selectedFilterValues)
-            .map(([filterUUID, filterValue]) => thisService.toRuleInputObject(filterConfigs[filterUUID], filterValue));
+            .map(([filterUUID, filterValue]) => thisService.toRuleInputObject(filterConfigs[filterUUID], filterValue))
+            .filter(x => x.hasValue());
     }
 
     toRuleInputObject(filterConfig, filterValue) {
-        const ruleInput = new DashboardReportFilter();
-        ruleInput.type = filterConfig.type;
-        ruleInput.dataType = filterConfig.widget;
+        const dashboardReportFilter = new DashboardReportFilter();
+        dashboardReportFilter.type = filterConfig.type;
+        dashboardReportFilter.dataType = filterConfig.widget;
 
         if (filterConfig.type === CustomFilter.type.GroupSubject) {
-            ruleInput.groupSubjectTypeFilter = {
+            dashboardReportFilter.groupSubjectTypeFilter = {
                 subjectType: filterConfig.groupSubjectTypeFilter.subjectType
             }
         } else if (filterConfig.type === CustomFilter.type.Concept) {
             const {scope, concept, programs, encounterTypes} = filterConfig.observationBasedFilter;
-            ruleInput.observationBasedFilter = {
+            dashboardReportFilter.observationBasedFilter = {
                 scope: scope,
                 concept: concept,
                 programs: _.keyBy(programs, (x) => x.uuid),
@@ -86,20 +87,21 @@ class DashboardFilterService extends BaseService {
         }
         if (filterConfig.type === CustomFilter.type.Address) {
             if (_.isEmpty(filterValue)) {
-                ruleInput.filterValue = filterValue;
+                dashboardReportFilter.filterValue = filterValue;
             } else {
                 const addressLevelService = this.getService(AddressLevelService);
                 const addressFilterValues = [...filterValue];
                 const descendants = filterValue
                     .filter(location => location.level === _.get(_.minBy(filterValue, 'level'), 'level'))
                     .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []);
-                ruleInput.filterValue = addressFilterValues.concat(descendants
+                dashboardReportFilter.filterValue = addressFilterValues.concat(descendants
                     .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
-                General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(ruleInput.filterValue, "type"))}`);
+                General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(dashboardReportFilter.filterValue, "type"))}`);
             }
         } else
-            ruleInput.filterValue = filterValue;
-        return ruleInput;
+            dashboardReportFilter.filterValue = filterValue;
+
+        return dashboardReportFilter;
     }
 
     hasFilters(dashboardUUID) {

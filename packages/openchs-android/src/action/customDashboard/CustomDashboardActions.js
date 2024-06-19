@@ -6,9 +6,8 @@ import {ReportCard} from "avni-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
-import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 import MessageService from '../../service/MessageService';
-import dashboardCacheService from "../../service/DashboardCacheService";
+
 
 function loadCurrentDashboardInfo(context, newState) {
     const dashboardFilterService = context.get(DashboardFilterService);

@@ -1,12 +1,12 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Dashboard, GroupDashboard} from "avni-models";
+import {Range, AddressLevel, Concept, CustomFilter, Dashboard, Gender, GroupDashboard, Individual, SubjectType} from "openchs-models";
 import PrivilegeService from "../PrivilegeService";
 import EntityService from "../EntityService";
 import _ from 'lodash';
 import CustomDashboardCacheService from "../CustomDashboardCacheService";
-import {AddressLevel, Concept, CustomFilter, Gender, Individual} from "openchs-models";
 import DashboardFilterService from "../reports/DashboardFilterService";
+import FormMetaDataSelection from "../../model/FormMetaDataSelection";
 
 function getOneDashboard(dashboards) {
     return _.head(_.map(dashboards, ({dashboard}) => dashboard));
@@ -82,7 +82,18 @@ class CustomDashboardService extends BaseService {
         dashboardCache.dashboard.filters.filter(filter => _.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
             const dashboardFilterConfig = customDashboardService.getDashboardFilterConfig(filter);
             const dataType = dataTypeDetails.get(dashboardFilterConfig.type);
-            selectedFilterValues[filter.uuid] = _.get(dataType, "isArray") ? [] : null;
+            const inputDataType = dashboardFilterConfig.getInputDataType();
+
+            if (!_.isNil(dataType)) {
+                selectedFilterValues[filter.uuid] = dataType.isArray ? [] : null;
+            } else if (inputDataType === Range.DateRange) {
+                //value should not be an array but CustomFilterService and MyDashboard has been built on that assumption
+                selectedFilterValues[filter.uuid] = Range.empty();
+            } else if (inputDataType === CustomFilter.type.SubjectType) {
+                selectedFilterValues[filter.uuid] = FormMetaDataSelection.createNew();
+            } else {
+                selectedFilterValues[filter.uuid] = null;
+            }
         });
         return {selectedFilterValues, dashboardCache};
     }
@@ -90,6 +101,7 @@ class CustomDashboardService extends BaseService {
     setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied) {
         const customDashboardCacheService = this.getService(CustomDashboardCacheService);
         customDashboardCacheService.setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied, dataTypeDetails);
+        return this.getDashboardData(dashboardUUID);
     }
 }
 

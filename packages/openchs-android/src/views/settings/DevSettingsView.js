@@ -21,6 +21,7 @@ import UserInfoService from "../../service/UserInfoService";
 import moment from "moment";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
+import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -68,6 +69,7 @@ class DevSettingsView extends AbstractComponent {
 
     clearDashboardCache() {
         this.context.getService(DashboardCacheService).clear();
+        this.context.getService(CustomDashboardCacheService).resetAllDashboards();
         this.dispatchAction(MyDashboardActionNames.ON_LOAD, {fetchFromDB: true});
     }
 

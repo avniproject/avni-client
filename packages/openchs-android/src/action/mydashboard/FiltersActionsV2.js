@@ -1,6 +1,6 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
-import {ArrayUtil, Concept, CustomFilter, ModelGeneral} from 'openchs-models';
+import {ArrayUtil, Concept, CustomFilter, Range} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 
 import General from "../../utility/General";
@@ -29,14 +29,15 @@ class FiltersActionsV2 {
                 selectedFilterValues[uuid] = FormMetaDataSelection.createNew();
             }
         });
-        return  {
+        return {
             ...state,
             filterConfigs: filterConfigs,
             filters: filters,
             loading: false,
             dashboardUUID: action.dashboardUUID,
             filterApplied: dashboardCache.filterApplied,
-            selectedValues: selectedFilterValues
+            selectedValues: selectedFilterValues,
+            filterErrors: {}
         };
     }
 
@@ -47,7 +48,6 @@ class FiltersActionsV2 {
         const filterConfig = filterConfigs[filter.uuid];
         const inputDataType = filterConfig.getInputDataType();
         const currentFilterValue = state.selectedValues[filter.uuid];
-        const isRange = filterConfig.widget === CustomFilter.widget.Range;
 
         const newState = {...state};
         newState.selectedValues = {...state.selectedValues};
@@ -72,14 +72,12 @@ class FiltersActionsV2 {
             case Concept.dataType.Text :
             case Concept.dataType.Notes :
             case Concept.dataType.Id :
-                updatedValue = value;
-                break;
-
             case Concept.dataType.Numeric:
             case Concept.dataType.Date:
-            case Concept.dataType.DateTime:
-            case Concept.dataType.Time:
-                updatedValue = isRange ? {...currentFilterValue, ...value} : value;
+            case Range.DateRange:
+                updatedValue = value;
+                break;
+            default:
                 break;
         }
 
@@ -96,16 +94,11 @@ class FiltersActionsV2 {
         const {filterConfigs, selectedValues} = state;
         const {navigateToDashboardView} = action;
         const newState = {...state, filterApplied: true, filterErrors: {}};
-        const filledFilterValues = {};
         Object.keys(selectedValues).forEach((filterUUID) => {
             const filterValue = selectedValues[filterUUID];
-            if (!ModelGeneral.isDeepEmpty(filterValue)) {
-                filledFilterValues[filterUUID] = filterValue;
-
-                const [success, message] = filterConfigs[filterUUID].validate && filterConfigs[filterUUID].validate(filterValue) || [false, `validate for filterConfig ${filterUUID} not found`];
-                if (!success)
-                    newState.filterErrors[filterUUID] = message;
-            }
+            const [success, message] = filterConfigs[filterUUID].validate(filterValue);
+            if (!success)
+                newState.filterErrors[filterUUID] = message;
         });
         //Check if there are errors in filter values specified
         if (Object.keys(newState.filterErrors).length > 0) {
@@ -114,10 +107,10 @@ class FiltersActionsV2 {
             return newState;
         }
         const customDashboardService = context.get(CustomDashboardService);
-        customDashboardService.setSelectedFilterValues(newState.dashboardUUID, filledFilterValues, true);
+        customDashboardService.setSelectedFilterValues(newState.dashboardUUID, selectedValues, true);
 
         const dashboardFilterService = context.get(DashboardFilterService);
-        const ruleInputArray = dashboardFilterService.toRuleInputObjects(newState.dashboardUUID, filledFilterValues);
+        const ruleInputArray = dashboardFilterService.toRuleInputObjects(newState.dashboardUUID, selectedValues);
         navigateToDashboardView(ruleInputArray);
         return newState;
     }

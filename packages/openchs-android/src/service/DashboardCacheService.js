@@ -39,7 +39,8 @@ class DashboardCacheService extends BaseService {
         const db = this.db;
         this.db.write(() => {
             const dashboardCache = this.findOnly();
-            db.delete(dashboardCache);
+            if (!_.isNil(dashboardCache))
+                db.delete(dashboardCache);
         });
     }
 }

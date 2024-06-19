@@ -8,6 +8,37 @@ import {JSONStringify} from "./JsonStringify";
 
 let currentLogLevel;
 
+function getDisplayMessage(obj) {
+    if (obj && obj instanceof Error)
+        return obj.message;
+    if (typeof obj === 'object') {
+        let s = JSON.stringify(obj);
+        if (s === '{}') return obj;
+        return s;
+    }
+    return obj;
+}
+
+function log(source, messages, level, decorate = false) {
+    if (EnvironmentConfig.inNonDevMode()) return;
+
+    try {
+        const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
+        const displayMessages = messages.map(getDisplayMessage);
+        const headerOfMessage = `[${moment().format("h:mm:ss:SSS")}] [${source}][${levelName}]`;
+
+        if (level >= General.getCurrentLogLevel()) {
+            //https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
+            if (decorate)
+                console[levelName.toLowerCase()]("\x1b[43m\x1b[30m%s\x1b[0m", headerOfMessage, ...displayMessages);
+            else
+                console[levelName.toLowerCase()](headerOfMessage, ...displayMessages);
+        }
+    } catch (e) {
+        console.error('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
+    }
+}
+
 class General {
     static LogLevel = {
         Error: 4,
@@ -45,23 +76,6 @@ class General {
         return moment().format('MMM_Do_YYYY_h_mm_ss_a');
     }
 
-    static getTimeStamp() {
-        const date = new Date();
-        let month = date.getMonth() + 1;
-        let day = date.getDate();
-        let hour = date.getHours();
-        let min = date.getMinutes();
-        let sec = date.getSeconds();
-
-        month = (month < 10 ? "0" : "") + month;
-        day = (day < 10 ? "0" : "") + day;
-        hour = (hour < 10 ? "0" : "") + hour;
-        min = (min < 10 ? "0" : "") + min;
-        sec = (sec < 10 ? "0" : "") + sec;
-
-        return `${day}-${month}-${date.getFullYear()} ${hour}:${min}:${sec}`;
-    }
-
     static hoursAndMinutesOfDateAreZero(date) {
         return date.getMinutes() === 0 && date.getHours() === 0;
     }
@@ -70,23 +84,12 @@ class General {
         return _.isNil(date) ? "null" : `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()}`;
     }
 
-    static formatDateTime(date) {
-        const hour = General.toTwoChars(date.getHours());
-        const minutes = General.toTwoChars(date.getMinutes());
-
-        return `${General.toTwoChars(date.getDate())}-${General.toTwoChars(date.getMonth() + 1)}-${date.getFullYear()} ${hour}:${minutes}`;
-    }
-
     static to12HourDateTimeFormat(dateTime) {
         return moment(dateTime).format("lll");
     }
 
     static to12HourDateFormat(dateTime) {
         return moment(dateTime).format("ll");
-    }
-
-    static isoFormat(date) {
-        return `${date.getFullYear()}-${General.toTwoChars(date.getMonth() + 1)}-${General.toTwoChars(date.getDate())}`;
     }
 
     static toISOFormatTime(hour, minute) {
@@ -147,40 +150,6 @@ class General {
             .split("_");
     }
 
-    static assignDateFields(dateFields, source, dest) {
-        if (!_.isNil(dateFields)) {
-            dateFields.forEach((fieldName) => {
-                dest[fieldName] = _.isNil(source[fieldName]) ? null : new Date(source[fieldName]);
-            });
-        }
-    }
-
-    static assignFields(source, dest, directCopyFields, dateFields, observationFields, entityService) {
-        if (!_.isNil(directCopyFields)) {
-            directCopyFields.forEach((fieldName) => {
-                dest[fieldName] = source[fieldName];
-            });
-        }
-        General.assignDateFields(dateFields, source, dest);
-        if (!_.isNil(observationFields)) {
-            observationFields.forEach((observationField) => {
-                const observations = [];
-                if (!_.isNil(source[observationField])) {
-                    source[observationField].forEach((observationResource) => {
-                        const observation = new Observation();
-                        observation.concept = entityService.findByKey('uuid', observationResource["conceptUUID"], Concept.schema.name);
-                        const value = observationResource.value;
-                        observation.valueJSON = JSON.stringify(observation.concept.getValueWrapperFor(value));
-                        observations.push(observation);
-                    });
-                }
-                dest[observationField] = observations;
-            });
-        }
-
-        return dest;
-    }
-
     static randomUUID() {
         return uuidv4();
     }
@@ -225,24 +194,24 @@ class General {
         return moment(General.dateWithoutTime(a)).isBefore(General.dateWithoutTime(b));
     }
 
-    static logDebug(source, message) {
-        General.log(source, message, General.LogLevel.Debug);
+    static logDebug(source, ...messages) {
+        log(source, messages, General.LogLevel.Debug);
     }
 
-    static logDebugTemp(source, message) {
-        General.log(source, message, General.LogLevel.Debug, true);
+    static logDebugTemp(source, ...messages) {
+        log(source, messages, General.LogLevel.Debug, true);
     }
 
     static logDebugTempJson(source, message) {
         General.logDebugTemp(source, JSONStringify(message));
     }
 
-    static logInfo(source, message) {
-        General.log(source, message, General.LogLevel.Info);
+    static logInfo(source, ...messages) {
+        log(source, messages, General.LogLevel.Info);
     }
 
-    static logWarn(source, message) {
-        General.log(source, message, General.LogLevel.Warn);
+    static logWarn(source, ...messages) {
+        log(source, messages, General.LogLevel.Warn);
     }
 
     static logError(source, error) {
@@ -264,48 +233,6 @@ class General {
             console.log(`[${source}]`, error.message, JSON.stringify(error));
     }
 
-    static log(source, message, level, decorate = false) {
-        if (EnvironmentConfig.inNonDevMode()) return;
-
-        try {
-            const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
-            const logMessage = `[${moment().format("h:mm:ss:SSS")}] [${source}][${levelName}] ${General.getDisplayableMessage(message)}`;
-            if (level >= General.getCurrentLogLevel()) {
-                //https://stackoverflow.com/questions/9781218/how-to-change-node-jss-console-font-color
-                if (decorate)
-                    console[levelName.toLowerCase()]("\x1b[43m\x1b[30m%s\x1b[0m", logMessage);
-                else
-                    console[levelName.toLowerCase()](logMessage);
-            }
-        } catch (e) {
-            console.error('General', `Logger failed for : 'General.log("${source}",....)' with error: "${e.message}"`, level);
-        }
-    }
-
-    static getDisplayableMessage(obj) {
-        if (obj && obj instanceof Error)
-            return obj.message;
-        if (typeof obj === 'object') {
-            let s = JSON.stringify(obj);
-            if (s === '{}') return obj;
-            return s;
-        }
-        return obj;
-    }
-
-    static isoFormat(date) {
-        if (_.isNil(date)) return null;
-        return moment(date).format();
-    }
-
-    static isNumeric(str) {
-        return !isNaN(parseFloat(str)) && isFinite(str);
-    }
-
-    static weeksBetween(arg1, arg2) {
-        return moment.duration(moment(arg1).diff(moment(arg2))).asWeeks();
-    }
-
     static isEmptyOrBlank(value) {
         return _.overSome([_.isNil, _.isNaN])(value) ? true :
             _.overSome([_.isNumber, _.isBoolean, _.isDate])(value) ? false :
@@ -315,10 +242,6 @@ class General {
     static dlog(str, ...values) {
         console.log(_.pad(str, 40, '-'));
         console.log(...values);
-    }
-
-    static getLinkPropFromResource(resource, property) {
-        return _.get(resource, ['_links', property, 'href']);
     }
 
     static delay(ms) {
