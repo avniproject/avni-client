@@ -134,15 +134,11 @@ class AddressLevelsState {
     }
 
     setSelectedAddresses(addresses) {
-        let returnAddressLevelState = this;
-        const orderedAddresses = _.orderBy(addresses, (x) => x.level, "desc");
-        orderedAddresses.forEach(selectedAddress => {
-            const matchingAddress = _.find(returnAddressLevelState._asList(), (address) => selectedAddress.uuid === address.uuid);
+        const thisObject = this;
+        addresses.forEach(selectedAddress => {
+            const matchingAddress = _.find(thisObject._asList(), (address) => selectedAddress.uuid === address.uuid);
             matchingAddress.isSelected = true;
-            const allCurrentLevels = returnAddressLevelState._asList();
-            returnAddressLevelState = adjustForDisplayedLevels(allCurrentLevels, matchingAddress, []);
         });
-        return returnAddressLevelState;
     }
 }
 

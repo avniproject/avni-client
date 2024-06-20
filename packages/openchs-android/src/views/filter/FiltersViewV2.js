@@ -173,9 +173,9 @@ class FiltersViewV2 extends AbstractComponent {
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
-                                        const userVisibleAddresses = addressLevelService.getAllAtLevels(Locations.getUniqueLevels(filterValue));
+                                        const userVisibleAddresses = addressLevelService.getAllDisplayAddresses(filterValue);
                                         let addressLevelState = new AddressLevelState(userVisibleAddresses);
-                                        addressLevelState = addressLevelState.setSelectedAddresses(filterValue);
+                                        addressLevelState.setSelectedAddresses(filterValue);
                                         return <AddressLevels addressLevelState={addressLevelState}
                                                               fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}

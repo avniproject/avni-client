@@ -42,10 +42,6 @@ class BaseAddressLevelService extends BaseService {
         return [...this.findAllByCriteria(`${query} voided = false`, this.getSchema()).sorted('level', true)];
     }
 
-    getAllAtLevels(levels) {
-        return this.getAllAtLevel(RealmQueryService.orKeyValueQuery("level", levels));
-    }
-
     highestLevel(minLevelTypeUUIDs) {
         const maxLevels = this.maxLevels();
         const levelQuery = _.isEmpty(maxLevels) ? 'level = 0' : _.map(maxLevels, l => `level = ${l}`).join(" or ");

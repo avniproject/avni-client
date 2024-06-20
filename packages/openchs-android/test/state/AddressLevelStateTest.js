@@ -42,7 +42,18 @@ it('should select multiple addresses', function () {
     const al2 = TestAddressLevelFactory.createWithDefaults({level: 1, name: 'A2', type: "type1"});
     const al3 = TestAddressLevelFactory.createWithDefaults({level: 1, name: 'A3', type: "type1"});
 
-    let state = new AddressLevelsState([al1, al2, al3]);
-    state = state.setSelectedAddresses([al1, al3]);
+    const state = new AddressLevelsState([al1, al2, al3]);
+    state.setSelectedAddresses([al1, al3]);
+    assert.equal(state.selectedAddresses.length, 2);
+});
+
+it('should select addresses at multiple levels', function () {
+    const al1 = TestAddressLevelFactory.createWithDefaults({level: 2, name: 'A1', type: "type1"});
+    const al2 = TestAddressLevelFactory.createWithDefaults({level: 2, name: 'A2', type: "type1"});
+    const al3 = TestAddressLevelFactory.createWithDefaults({level: 1, name: 'A3', type: "type2", parent: al1});
+    const al4 = TestAddressLevelFactory.createWithDefaults({level: 1, name: 'A4', type: "type2", parent: al2});
+
+    const state = new AddressLevelsState([al1, al2, al3, al4]);
+    state.setSelectedAddresses([al1, al3]);
     assert.equal(state.selectedAddresses.length, 2);
 });
