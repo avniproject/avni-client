@@ -38,6 +38,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
                 scope = filter.getScope(reportFilters);
                 conceptUUID = filter.getConceptUUID();
                 scopeParameters = filter.getScopeParameters();
+            case CustomFilter.type.SubjectType:
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:
             case CustomFilter.type.ProgramEncounterDate:
@@ -55,7 +56,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
                 } else {
                     uniqueSubjects = _.intersection(subjects, uniqueSubjects);
                 }
-                General.logDebugTemp("IndividualService", `Filtered by ${filter.type}. Matching subjects: ${subjects.length}.`);
+                General.logDebugTemp("IndividualService", `Filtered by ${filter.toDisplayText()}. Matching subjects: ${subjects.length}.`);
                 break;
             default:
                 break;

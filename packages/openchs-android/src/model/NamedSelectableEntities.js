@@ -56,6 +56,10 @@ class NamedSelectableEntities {
     getOptions() {
         return this.entities.map(labelValueMapper);
     }
+
+    getUUIDs() {
+        return this.entities.map((x) => x.uuid);
+    }
 }
 
 export default NamedSelectableEntities;

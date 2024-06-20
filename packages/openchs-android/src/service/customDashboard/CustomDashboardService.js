@@ -1,12 +1,13 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {Range, AddressLevel, Concept, CustomFilter, Dashboard, Gender, GroupDashboard, Individual, SubjectType} from "openchs-models";
+import {Dashboard, DashboardFilterConfig, GroupDashboard, Range} from "openchs-models";
 import PrivilegeService from "../PrivilegeService";
 import EntityService from "../EntityService";
 import _ from 'lodash';
 import CustomDashboardCacheService from "../CustomDashboardCacheService";
 import DashboardFilterService from "../reports/DashboardFilterService";
 import FormMetaDataSelection from "../../model/FormMetaDataSelection";
+import General from "../../utility/General";
 
 function getOneDashboard(dashboards) {
     return _.head(_.map(dashboards, ({dashboard}) => dashboard));
@@ -17,12 +18,6 @@ export const CustomDashboardType = {
     Secondary: "Secondary",
     None: "None"
 }
-
-const dataTypeDetails = new Map();
-dataTypeDetails.set(Concept.dataType.Coded, {type: Concept, isArray: true});
-dataTypeDetails.set(CustomFilter.type.Gender, {type: Gender, isArray: true});
-dataTypeDetails.set(CustomFilter.type.Address, {type: AddressLevel, isArray: true});
-dataTypeDetails.set(CustomFilter.type.GroupSubject, {type: Individual, isArray: false});
 
 @Service("customDashboardService")
 class CustomDashboardService extends BaseService {
@@ -77,19 +72,20 @@ class CustomDashboardService extends BaseService {
     }
 
     getDashboardData(dashboardUUID) {
-        const {selectedFilterValues, dashboardCache} = this.getService(CustomDashboardCacheService).getDashboardCache(dashboardUUID, dataTypeDetails);
+        const {selectedFilterValues, dashboardCache} = this.getService(CustomDashboardCacheService).getDashboardCache(dashboardUUID);
         const customDashboardService = this.getService(DashboardFilterService);
-        dashboardCache.dashboard.filters.filter(filter => _.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
+        dashboardCache.dashboard.filters.filter(filter => !filter.voided && _.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
             const dashboardFilterConfig = customDashboardService.getDashboardFilterConfig(filter);
-            const dataType = dataTypeDetails.get(dashboardFilterConfig.type);
             const inputDataType = dashboardFilterConfig.getInputDataType();
 
-            if (!_.isNil(dataType)) {
-                selectedFilterValues[filter.uuid] = dataType.isArray ? [] : null;
-            } else if (inputDataType === Range.DateRange) {
+            General.logDebugTemp("CustomDashboardCacheService", "Init empty values for", dashboardFilterConfig.toDisplayText());
+
+            if (dashboardFilterConfig.isMultiEntityType()) {
+                selectedFilterValues[filter.uuid] = [];
+            } else if (dashboardFilterConfig.isDateRangeFilterType() || dashboardFilterConfig.isDateTimeRangeFilterType() || dashboardFilterConfig.isTimeRangeFilterType() || dashboardFilterConfig.isNumericRangeFilterType()) {
                 //value should not be an array but CustomFilterService and MyDashboard has been built on that assumption
                 selectedFilterValues[filter.uuid] = Range.empty();
-            } else if (inputDataType === CustomFilter.type.SubjectType) {
+            } else if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
                 selectedFilterValues[filter.uuid] = FormMetaDataSelection.createNew();
             } else {
                 selectedFilterValues[filter.uuid] = null;
@@ -100,7 +96,7 @@ class CustomDashboardService extends BaseService {
 
     setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied) {
         const customDashboardCacheService = this.getService(CustomDashboardCacheService);
-        customDashboardCacheService.setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied, dataTypeDetails);
+        customDashboardCacheService.setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied);
         return this.getDashboardData(dashboardUUID);
     }
 }

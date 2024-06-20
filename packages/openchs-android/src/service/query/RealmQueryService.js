@@ -77,6 +77,14 @@ class RealmQueryService {
     static getMatchAllEntitiesQuery() {
         return 'uuid != null';
     }
+
+    static getDateForStringLikeMatching(date) {
+        return moment(date).format("YYYY-MM-DD");
+    }
+
+    static getDateTimeForStringLikeMatching(date) {
+        return moment(date).format("YYYY-MM-DDTHH:mm:ss");
+    }
 }
 
 export default RealmQueryService;

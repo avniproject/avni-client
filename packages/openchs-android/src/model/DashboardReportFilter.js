@@ -40,25 +40,29 @@ export class DashboardReportFilter {
     }
 
     hasValue() {
-        General.logDebugTemp("DashboardReportFilter", this.type, this.filterValue);
-
         switch (this.type) {
             case CustomFilter.type.Gender:
             case CustomFilter.type.Address:
-                return !_.isEmpty(this.filterValue);
+            case CustomFilter.type.GroupSubject:
+            case CustomFilter.type.Concept:
+                return !_.isEmpty(this.filterValue) || _.isDate(this.filterValue);
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:
             case CustomFilter.type.ProgramEncounterDate:
             case CustomFilter.type.EncounterDate:
                 return this.dataType === CustomFilter.widget.Range ? !this.filterValue.isEmpty() : !_.isNil(this.filterValue);
-            case CustomFilter.type.GroupSubject:
-                return !_.isNil(this.filterValue);
             case CustomFilter.type.SubjectType:
-                return this.filterValue.isEmpty();
-            case CustomFilter.type.Concept:
-                return this.observationBasedFilter.concept.isCodedConcept() ? !_.isEmpty(this.filterValue) : !_.isNil(this.filterValue);
+                return !this.filterValue.isEmpty();
             default:
                 return false;
         }
+    }
+
+    toDisplayText() {
+        let s = `Type: ${this.type}. DataType: ${this.dataType}.`;
+        if (this.type === CustomFilter.type.Concept) {
+            s += ` Concept: ${this.observationBasedFilter.concept.name}`;
+        }
+        return s;
     }
 }

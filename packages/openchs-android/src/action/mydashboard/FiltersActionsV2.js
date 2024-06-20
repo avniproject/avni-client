@@ -1,6 +1,6 @@
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import _ from "lodash";
-import {ArrayUtil, Concept, CustomFilter, Range} from 'openchs-models';
+import {ArrayUtil, Concept, CustomFilter, DashboardFilterConfig} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
 
 import General from "../../utility/General";
@@ -24,11 +24,6 @@ class FiltersActionsV2 {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(action.dashboardUUID);
         const filters = dashboardFilterService.getFilters(action.dashboardUUID);
         const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardService).getDashboardData(action.dashboardUUID);
-        Object.keys(filterConfigs).forEach((uuid) => {
-            if (filterConfigs[uuid].type === CustomFilter.type.SubjectType && _.isNil(selectedFilterValues[uuid])) {
-                selectedFilterValues[uuid] = FormMetaDataSelection.createNew();
-            }
-        });
         return {
             ...state,
             filterConfigs: filterConfigs,
@@ -46,39 +41,20 @@ class FiltersActionsV2 {
         const {filterConfigs} = state;
 
         const filterConfig = filterConfigs[filter.uuid];
-        const inputDataType = filterConfig.getInputDataType();
         const currentFilterValue = state.selectedValues[filter.uuid];
+        const inputDataType = filterConfig.getInputDataType();
 
         const newState = {...state};
         newState.selectedValues = {...state.selectedValues};
 
-        if (filterConfig.type === CustomFilter.type.SubjectType) {
-            newState.selectedValues[filter.uuid] = action.value.clone();
-            return newState;
-        }
-
         let updatedValue;
-        switch (inputDataType) {
-            case Concept.dataType.Coded:
-            case CustomFilter.type.Gender:
-                updatedValue = _.isNil(currentFilterValue) ? [] : [...currentFilterValue];
-                ArrayUtil.toggle(updatedValue, value, (a, b) => a.uuid === b.uuid);
-                break;
-
-            case CustomFilter.type.Address:
-                updatedValue = General.deepOmit(value, 'locationMappings'); //including locationMappings causes cyclical reference errors during JSON.stringify
-                break;
-            case Concept.dataType.Subject:
-            case Concept.dataType.Text :
-            case Concept.dataType.Notes :
-            case Concept.dataType.Id :
-            case Concept.dataType.Numeric:
-            case Concept.dataType.Date:
-            case Range.DateRange:
-                updatedValue = value;
-                break;
-            default:
-                break;
+        if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
+            updatedValue = action.value.clone();
+        } else if (inputDataType === Concept.dataType.Coded || filterConfig.type === CustomFilter.type.Gender) {
+            updatedValue = _.isNil(currentFilterValue) ? [] : [...currentFilterValue];
+            ArrayUtil.toggle(updatedValue, value, (a, b) => a.uuid === b.uuid);
+        } else {
+            updatedValue = value;
         }
 
         newState.selectedValues[filter.uuid] = updatedValue;

@@ -43,9 +43,9 @@ class BaseService {
         return settingsService.getSettings().serverURL;
     }
 
-    findAllByUUID(uuids, entityType) {
+    findAllByUUID(uuids, schema) {
         if (uuids.length === 0) return [];
-        return this.findAllByCriteria(RealmQueryService.orKeyValueQuery("uuid", uuids), entityType.schema.name).map(_.identity);
+        return this.findAllByCriteria(RealmQueryService.orKeyValueQuery("uuid", uuids), schema).map(_.identity);
     }
 
     findAllByKey(keyName, value, schemaName) {

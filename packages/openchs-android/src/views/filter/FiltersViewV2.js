@@ -28,6 +28,7 @@ import TypedTransition from "../../framework/routing/TypedTransition";
 import AddressLevelState from '../../action/common/AddressLevelsState';
 import FormMetaDataSelect from "../common/formMetaData/FormMetaDataSelect";
 import AddressLevelService from "../../service/AddressLevelService";
+import NamedSelectableEntities from "../../model/NamedSelectableEntities";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -40,7 +41,7 @@ class GroupSubjectFilter extends AbstractComponent {
     static propTypes = {
         filter: PropTypes.object.isRequired,
         filterConfig: PropTypes.object.isRequired,
-        selectedGroupSubjectUUIDs: PropTypes.array,
+        selectedGroupSubjects: PropTypes.array,
         onChange: PropTypes.func
     }
 
@@ -50,22 +51,26 @@ class GroupSubjectFilter extends AbstractComponent {
     }
 
     render() {
-        const {filter, selectedGroupSubjectUUIDs} = this.props;
+        const {filter, selectedGroupSubjects} = this.props;
         const {groupSubjects} = this.state;
 
         if (groupSubjects.length === 0) return null;
 
+        const namedSelectableEntities = NamedSelectableEntities.create(groupSubjects);
         const labelValuePairs = groupSubjects.map((x) => new RadioLabelValue(`${x.nameString} (${x.lowestAddressLevel.translatedFieldValue})`, x.uuid));
-
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
+
         return <FilterContainer>
             <SelectableItemGroup
                 locale={currentLocale}
                 I18n={this.I18n}
                 multiSelect={true}
                 inPairs={true}
-                onPress={(value) => this.props.onChange(value)}
-                selectionFn={(groupSubjectUUID) => _.includes(selectedGroupSubjectUUIDs, groupSubjectUUID)}
+                onPress={(value) => {
+                    const updatedSelectedEntities = namedSelectableEntities.toggle(selectedGroupSubjects, value, true);
+                    this.props.onChange(updatedSelectedEntities);
+                }}
+                selectionFn={(groupSubjectUUID) => _.some(selectedGroupSubjects, (x) => x.uuid === groupSubjectUUID)}
                 labelKey={filter.name}
                 labelValuePairs={labelValuePairs}/>
         </FilterContainer>;
@@ -189,8 +194,9 @@ class FiltersViewV2 extends AbstractComponent {
                                                 <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>}
                                         </FilterContainerWithLabel>;
                                     case CustomFilter.type.GroupSubject:
-                                        return <GroupSubjectFilter filter={filter} filterConfig={filterConfig} selectedGroupSubjectUUIDs={filterValue} key={index}
-                                                                   onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
+                                        return <GroupSubjectFilter filter={filter} filterConfig={filterConfig}
+                                                                   selectedGroupSubjects={filterValue} key={index}
+                                                                   onChange={(newGroupSubjects) => this.dispatchFilterUpdate(filter, newGroupSubjects)}/>;
                                     case CustomFilter.type.SubjectType:
                                         return <FormMetaDataSelect isMulti={true} key={index}
                                                                    formMetaDataSelections={filterValue}

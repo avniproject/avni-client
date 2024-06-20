@@ -47,10 +47,10 @@ class SelectableItemGroup extends React.Component {
         const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return _.chunk(labelValuePairs, 2).map((rlvPair, idx) =>
             <View style={{flexDirection: "row", display: "flex"}} key={idx}>
-                {rlvPair.map((radioLabelValue) => {
+                {rlvPair.map((radioLabelValue, index) => {
                         const checked = selectionFn(radioLabelValue.value) || false;
                         return <View style={{flex: 0.5, display: "flex", paddingHorizontal: 2}}
-                                     key={radioLabelValue.label}>
+                                     key={radioLabelValue.label + index}>
                             <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                             checked={checked}
                                             abnormal={radioLabelValue.abnormal}

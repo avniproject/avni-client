@@ -30,7 +30,6 @@ function getDateFilterFunction(filterValue, widget, queryColumn) {
 class CustomFilterService extends BaseService {
     constructor(db, context) {
         super(db, context);
-
     }
 
     getSchema() {
@@ -143,10 +142,10 @@ class CustomFilterService extends BaseService {
             .filtered(_.isEmpty(sortFilter) ? 'uuid != null' : ` ${sortFilter} `);
 
         return widget === CustomFilter.widget.Range ? this.filterForRangeWidgetType(latestEncounters, selectedAnswerFilterFunction, indFunc)
-            : this.filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFilterFunction, indFunc, inMemoryFilter);
+            : this.filterForNonRangeWidgetType(latestEncounters, schemaName, selectedAnswerFilterFunction, indFunc, inMemoryFilter);
     }
 
-    filterForFixedWidgetType(latestEncounters, schemaName, selectedAnswerFiltersFunction, indFunc, inMemoryFilter) {
+    filterForNonRangeWidgetType(latestEncounters, schemaName, selectedAnswerFiltersFunction, indFunc, inMemoryFilter) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
         if (_.isEmpty(latestEncounters)) return [];
@@ -190,7 +189,7 @@ class CustomFilterService extends BaseService {
         if (type === CustomFilter.type.Concept) {
             const conceptService = this.getService(ConceptService);
             const concept = conceptService.getConceptByUUID(conceptUUID);
-            return this.getConceptFilterQueryFunction(concept, filterValue, widget)
+            return this.getConceptFilterQueryFunctionV2(concept, filterValue, widget)
         } else if (type === CustomFilter.type.RegistrationDate) {
             return getDateFilterFunction(filterValue, widget, 'registrationDate');
         } else if (type === CustomFilter.type.EnrolmentDate) {
@@ -239,6 +238,49 @@ class CustomFilterService extends BaseService {
                     return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue(), 'H:mma').isBetween(moment(selectedOption.minValue, 'h:mma'), moment(selectedOption.maxValue, 'h:mma'), null, []);
                 } else {
                     const timeFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.minValue}') `).join(" OR ");
+                    return () => this.getObsSubQueryForQuery(timeFilterQuery);
+                }
+            default:
+                return () => 'uuid != null';
+        }
+    }
+
+    getConceptFilterQueryFunctionV2(concept, filterValue, widget) {
+        switch (concept.datatype) {
+            case (Concept.dataType.Coded) :
+                const codedFilterQuery = _.map(filterValue, c => ` (observations.concept.uuid == '${concept.uuid}' AND  observations.valueJSON CONTAINS[c] '${c.uuid}') `).join(" OR ");
+                return () => codedFilterQuery;
+            case (Concept.dataType.Text) :
+            case (Concept.dataType.Notes) :
+            case (Concept.dataType.Id) :
+                const textFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(filterValue.name)}) `;
+                return () => this.getObsSubQueryForQuery(textFilterQuery);
+            case (Concept.dataType.Numeric) :
+                if (widget === CustomFilter.widget.Range) {
+                    return (obs) => obs.concept.uuid === concept.uuid && obs.getValue() >= filterValue.minValue && obs.getValue() <= filterValue.maxValue;
+                } else {
+                    const numericFilterQuery = ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${filterValue}') `;
+                    return () => this.getObsSubQueryForQuery(numericFilterQuery);
+                }
+            case (Concept.dataType.Date) :
+                if (widget === CustomFilter.widget.Range) {
+                    return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue()).isBetween(filterValue.minValue, filterValue.maxValue, null, []);
+                } else {
+                    const dateFilterQuery = ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":"${RealmQueryService.getDateForStringLikeMatching(filterValue)}') `;
+                    return () => this.getObsSubQueryForQuery(dateFilterQuery);
+                }
+            case (Concept.dataType.DateTime):
+                if (widget === CustomFilter.widget.Range) {
+                    return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue()).isBetween(filterValue.minValue, filterValue.maxValue, null, []);
+                } else {
+                    const dateFilterQuery = ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":"${RealmQueryService.getDateTimeForStringLikeMatching(filterValue)}') `;
+                    return () => this.getObsSubQueryForQuery(dateFilterQuery);
+                }
+            case (Concept.dataType.Time):
+                if (widget === CustomFilter.widget.Range) {
+                    return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue(), 'H:mma').isBetween(moment(filterValue.minValue, 'h:mma'), moment(filterValue.maxValue, 'h:mma'), null, []);
+                } else {
+                    const timeFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${filterValue}') `;
                     return () => this.getObsSubQueryForQuery(timeFilterQuery);
                 }
             default:
