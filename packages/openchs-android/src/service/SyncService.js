@@ -46,7 +46,7 @@ function transformResourceToEntity(entityMetaData, entityResources) {
         try {
             return acc.concat([entityMetaData.entityClass.fromResource(resource, this.entityService, entityResources)]);
         } catch (error) {
-            if(error instanceof IgnorableSyncError) {
+            if (error instanceof IgnorableSyncError) {
                 resource.excludeFromPersist = true;
                 General.logError("SyncService", error);
             } else {
@@ -104,9 +104,9 @@ class SyncService extends BaseService {
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages())
-          .then(() => {
-              return updatedSyncSource;
-          });
+            .then(() => {
+                return updatedSyncSource;
+            });
 
         // Even blank dataServerSync with no data in or out takes quite a while.
         // Don't do it twice if no image sync required
@@ -411,12 +411,12 @@ class SyncService extends BaseService {
         });
         const customDashboardService = this.context.getService(CustomDashboardService);
         const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
-        if(!renderCustomDashboard) {
-            this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-        } else {
+        if (renderCustomDashboard) {
             this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
             this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
             setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+        } else {
+            this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         }
     }
 }

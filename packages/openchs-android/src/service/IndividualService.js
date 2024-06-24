@@ -65,11 +65,16 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
     return {uniqueSubjects, filterApplied};
 }
 
-function applyUserFilters(entities, reportFilters, criteria, addressFilter, genders, schema, customFilterService) {
+function applyConfiguredFilters(entities, criteria) {
     let filteredEntities = entities;
     if (!_.isEmpty(criteria)) {
         filteredEntities = filteredEntities.filtered(criteria);
     }
+    return filteredEntities;
+}
+
+function applyUserFilters(entities, reportFilters, addressFilter, genders, schema, customFilterService) {
+    let filteredEntities = entities;
     filteredEntities = RealmQueryService.filterBasedOnAddress(schema, filteredEntities, addressFilter);
     filteredEntities = RealmQueryService.filterBasedOnGenders(schema, filteredEntities, genders);
     const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
@@ -259,7 +264,8 @@ class IndividualService extends BaseService {
                     dateMidnight,
                     dateMorning);
 
-            programEncounters = applyUserFilters(programEncounters, reportFilters, programEncounterCriteria, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
+            programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
+            programEncounters = applyUserFilters(programEncounters, reportFilters, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -296,7 +302,8 @@ class IndividualService extends BaseService {
                     dateMidnight,
                     dateMorning);
 
-            encounters = applyUserFilters(encounters, reportFilters, encounterCriteria, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
+            encounters = applyConfiguredFilters(encounters, encounterCriteria);
+            encounters = applyUserFilters(encounters, reportFilters, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -346,7 +353,8 @@ class IndividualService extends BaseService {
                     'AND voided = false ',
                     dateMorning);
 
-            programEncounters = applyUserFilters(programEncounters, reportFilters, programEncounterCriteria, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
+            programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
+            programEncounters = applyUserFilters(programEncounters, reportFilters, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -381,7 +389,8 @@ class IndividualService extends BaseService {
                     'AND voided = false ',
                     dateMorning);
 
-            encounters = applyUserFilters(encounters, reportFilters, encounterCriteria, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
+            encounters = applyConfiguredFilters(encounters, encounterCriteria);
+            encounters = applyUserFilters(encounters, reportFilters, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;

@@ -11,6 +11,7 @@ import RealmQueryService from "../../service/query/RealmQueryService";
 import SubjectTypeService from "../../service/SubjectTypeService";
 import {DashboardCacheFilter} from "openchs-models";
 import General from "../../utility/General";
+import {JSONStringify} from "../../utility/JsonStringify";
 
 function getApplicableEncounterTypes(holder) {
     return _.isEmpty(holder.selectedGeneralEncounterTypes) ? holder.selectedEncounterTypes : holder.selectedGeneralEncounterTypes;
@@ -35,11 +36,11 @@ function updateCacheWithPostSyncValues(context) {
     if (oneSyncCompleted) {
         const subjectTypeQuery = (path) => [`${path} = "${subjectTypes[0].uuid}"`];
         toUpdateValues = {
-            individualFilters: subjectTypeQuery('subjectType.uuid'),
-            encountersFilters: subjectTypeQuery('programEnrolment.individual.subjectType.uuid'),
-            enrolmentFilters: subjectTypeQuery('individual.subjectType.uuid'),
-            generalEncountersFilters: subjectTypeQuery('individual.subjectType.uuid'),
-            dueChecklistFilter: subjectTypeQuery('individual.subjectType.uuid'),
+            individualFilters: RealmQueryService.orQuery(subjectTypeQuery('subjectType.uuid')),
+            encountersFilters: RealmQueryService.orQuery(subjectTypeQuery('programEnrolment.individual.subjectType.uuid')),
+            enrolmentFilters: RealmQueryService.orQuery(subjectTypeQuery('individual.subjectType.uuid')),
+            generalEncountersFilters: RealmQueryService.orQuery(subjectTypeQuery('individual.subjectType.uuid')),
+            dueChecklistFilter: RealmQueryService.orQuery(subjectTypeQuery('individual.subjectType.uuid')),
             selectedSubjectTypeUUID: subjectTypes[0].uuid,
             ...toUpdateValues
         };
@@ -104,9 +105,9 @@ class MyDashboardActions {
             showFilters: false,
             filters: new Map(),
             locationSearchCriteria: IndividualSearchCriteria.empty(),
-            individualFilters: [],
-            encountersFilters: [],
-            generalEncountersFilters: [],
+            individualFilters: '',
+            encountersFilters: '',
+            generalEncountersFilters: '',
             enrolmentFilters: [],
             dueChecklistFilter: [],
             selectedLocations: [],
@@ -143,6 +144,8 @@ class MyDashboardActions {
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
+
+        General.logDebugTemp("MyDashboardActions", JSONStringify(dashboardCacheFilter));
 
         const [
             allIndividualsWithScheduledVisits,
@@ -230,7 +233,9 @@ class MyDashboardActions {
         if (listType === "recentlyCompletedRegistration" || listType === "total")
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state));
         else if (listType === "dueChecklist") {
-            allIndividuals = methodMap.get(listType)(state.date.value, [], state.dueChecklistFilter)
+            allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state), queryProgramEncounter, queryGeneralEncounter);
+        } else if (["scheduled", "overdue"].includes(listType)) {
+            allIndividuals = methodMap.get(listType)(state.date.value, [], state.encountersFilters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
         } else
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
 
