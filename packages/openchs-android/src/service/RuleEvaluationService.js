@@ -489,8 +489,8 @@ class RuleEvaluationService extends BaseService {
     }
 
     checkIfScheduledVisitsAreValid(nextVisits) {
-        if (nextVisits.map(visit => _.isNil(visit.earliestVisitDateTime)).length > 0) {
-            throw new Error("Visit(s) scheduled without earliestVisitDateTime");
+        if (_.some(nextVisits, visit => _.isNil(visit.earliestDate))) {
+            throw new Error("Visit(s) scheduled without earliestDate");
         }
     }
 
