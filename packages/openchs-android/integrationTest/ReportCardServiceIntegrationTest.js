@@ -183,9 +183,9 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
             const pendingCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.PendingApproval}));
             const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.ScheduledVisits}));
             const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OverdueVisits}));
-            const latestVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestVisits}));
-            const latestRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestRegistrations}));
-            const latestEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.LatestEnrolments}));
+            const recentVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentVisits}));
+            const recentRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentRegistrations}));
+            const recentEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentEnrolments}));
             const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Total}));
             const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.DueChecklist}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
@@ -195,14 +195,14 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 standardReportCardType: scheduledVisitsCardType
             }));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
-            this.latestVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "latestVisitsCard", standardReportCardType: latestVisitsCardType}));
-            this.latestRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({
-                name: "latestRegistrationsCard",
-                standardReportCardType: latestRegistrationsCardType
+            this.recentVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "recentVisitsCard", standardReportCardType: recentVisitsCardType}));
+            this.recentRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "recentRegistrationsCard",
+                standardReportCardType: recentRegistrationsCardType
             }));
-            this.latestEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({
-                name: "latestEnrolmentsCard",
-                standardReportCardType: latestEnrolmentsCardType
+            this.recentEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "recentEnrolmentsCard",
+                standardReportCardType: recentEnrolmentsCardType
             }));
             this.totalCard = db.create(ReportCard, TestReportCardFactory.create({name: "totalCard", standardReportCardType: totalCardType}));
             this.dueChecklistCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: dueChecklistCardType}));
@@ -287,25 +287,25 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.overdueVisitsCard, [this.twoAddressSelected]));
     }
 
-    getCountForDefaultCardsType_forLatestVisits() {
-        assert.equal(1, getCount(this, this.latestVisitsCard, []));
-        assert.equal(0, getCount(this, this.latestVisitsCard, [this.addressSelected]));
-        assert.equal(1, getCount(this, this.latestVisitsCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.latestVisitsCard, [this.twoAddressSelected]));
+    getCountForDefaultCardsType_forRecentVisits() {
+        assert.equal(1, getCount(this, this.recentVisitsCard, []));
+        assert.equal(0, getCount(this, this.recentVisitsCard, [this.addressSelected]));
+        assert.equal(1, getCount(this, this.recentVisitsCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.recentVisitsCard, [this.twoAddressSelected]));
     }
 
-    getCountForDefaultCardsType_forLatestRegistrations() {
-        assert.equal(2, getCount(this, this.latestRegistrationsCard, []));
-        assert.equal(1, getCount(this, this.latestRegistrationsCard, [this.addressSelected]));
-        assert.equal(1, getCount(this, this.latestRegistrationsCard, [this.address2Selected]));
-        assert.equal(2, getCount(this, this.latestRegistrationsCard, [this.twoAddressSelected]));
+    getCountForDefaultCardsType_forRecentRegistrations() {
+        assert.equal(2, getCount(this, this.recentRegistrationsCard, []));
+        assert.equal(1, getCount(this, this.recentRegistrationsCard, [this.addressSelected]));
+        assert.equal(1, getCount(this, this.recentRegistrationsCard, [this.address2Selected]));
+        assert.equal(2, getCount(this, this.recentRegistrationsCard, [this.twoAddressSelected]));
     }
 
-    getCountForDefaultCardsType_forLatestEnrolments() {
-        assert.equal(1, getCount(this, this.latestEnrolmentsCard, []));
-        assert.equal(1, getCount(this, this.latestEnrolmentsCard, [this.addressSelected]));
-        assert.equal(0, getCount(this, this.latestEnrolmentsCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.latestEnrolmentsCard, [this.twoAddressSelected]));
+    getCountForDefaultCardsType_forRecentEnrolments() {
+        assert.equal(1, getCount(this, this.recentEnrolmentsCard, []));
+        assert.equal(1, getCount(this, this.recentEnrolmentsCard, [this.addressSelected]));
+        assert.equal(0, getCount(this, this.recentEnrolmentsCard, [this.address2Selected]));
+        assert.equal(1, getCount(this, this.recentEnrolmentsCard, [this.twoAddressSelected]));
     }
 
     getCountForDefaultCardsType_forTotal() {

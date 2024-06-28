@@ -64,9 +64,9 @@ class ReportCardService extends BaseService {
         const typeToMethodMap = new Map([
             [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
             [StandardReportCardType.type.OverdueVisits, individualService.allOverdueVisitsIn],
-            [StandardReportCardType.type.LatestVisits, individualService.recentlyCompletedVisitsIn],
-            [StandardReportCardType.type.LatestRegistrations, individualService.recentlyRegistered],
-            [StandardReportCardType.type.LatestEnrolments, individualService.recentlyEnrolled],
+            [StandardReportCardType.type.RecentVisits, individualService.recentlyCompletedVisitsIn],
+            [StandardReportCardType.type.RecentRegistrations, individualService.recentlyRegistered],
+            [StandardReportCardType.type.RecentEnrolments, individualService.recentlyEnrolled],
             [StandardReportCardType.type.Total, individualService.allIn],
             [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
         ]);
