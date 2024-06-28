@@ -464,21 +464,34 @@ class RuleEvaluationService extends BaseService {
                     params: _.merge({visitSchedule: scheduledVisits, entity, entityContext, services: this.services}, this.getCommonParams()),
                     imports: getImports()
                 });
+                this.checkIfScheduledVisitsAreValid(nextVisits);
                 return nextVisits;
             } catch (e) {
-                General.logDebug("Rule-Failure", `New enrolment decision failed for form: ${form.uuid}`);
+                General.logDebug("Rule-Failure", `Visit Schedule failed for form: ${form.uuid}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
-        } else {
+        } else if (!_.isEmpty(rulesFromTheBundle)) {
             const nextVisits = rulesFromTheBundle
                 .reduce((schedule, rule) => {
                     General.logDebug(`RuleEvaluationService`, `Executing Rule: ${rule.name} Class: ${rule.fnName}`);
                     return this.runRuleAndSaveFailure(rule, entityName, entity, schedule, visitScheduleConfig, null, entityContext);
                 }, scheduledVisits);
             General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
-            return nextVisits;
+            try {
+                this.checkIfScheduledVisitsAreValid(nextVisits);
+                return nextVisits;
+            } catch(e) {
+                General.logDebug("Rule-Failure", `Visit Schedule (old) failed for form: ${form.uuid}`);
+                this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
+            }
         }
-        return scheduledVisits;
+        return defaultVisitSchedule;
+    }
+
+    checkIfScheduledVisitsAreValid(nextVisits) {
+        if (_.some(nextVisits, visit => _.isNil(visit.earliestDate))) {
+            throw new Error("Visit(s) scheduled without earliestDate");
+        }
     }
 
     getChecklists(entity, entityName, defaultChecklists = []) {

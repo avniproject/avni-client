@@ -91,11 +91,9 @@ class DashboardFilterService extends BaseService {
             } else {
                 const addressLevelService = this.getService(AddressLevelService);
                 const addressFilterValues = [...filterValue];
-                const descendants = filterValue
-                    .filter(location => location.level === _.get(_.minBy(filterValue, 'level'), 'level'))
-                    .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []);
+                const descendants = addressLevelService.getAllDescendants(filterValue.selectedAddresses);
                 dashboardReportFilter.filterValue = addressFilterValues.concat(descendants
-                    .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
+                  .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
                 General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(dashboardReportFilter.filterValue, "type"))}`);
             }
         } else

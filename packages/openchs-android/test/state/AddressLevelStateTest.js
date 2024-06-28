@@ -57,3 +57,22 @@ it('should select addresses at multiple levels', function () {
     state.setSelectedAddresses([al1, al3]);
     assert.equal(state.selectedAddresses.length, 2);
 });
+
+
+it ('should treat multiple address level types at the same level as separate', function() {
+    const addrLevel1 = TestAddressLevelFactory.createWithDefaults({level: 1, type: 'a', name: 'location1'});
+    const addrLevel2 = TestAddressLevelFactory.createWithDefaults({level: 1, type: 'b', name: 'location2'});
+    const addrLevel3 = TestAddressLevelFactory.createWithDefaults({level: 1, type: 'c', name: 'location3'});
+
+    const allLevels = [
+        addrLevel1, addrLevel2, addrLevel3,
+    ]
+    // Shuffle the addressLevels
+    let addressLevelsState = new AddressLevelsState(_.shuffle(allLevels));
+    assert.equal(addressLevelsState.levels.length, 3);
+    addressLevelsState.levels.map(([levelType, levels]) => {
+        assert.equal(levels.length, 1); // 1 group for each levelType
+        assert.equal(levels[0].type, levelType); // group consists of same type of addressLevels
+    });
+
+});

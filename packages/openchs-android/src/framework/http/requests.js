@@ -18,10 +18,14 @@ const getIdpType = async () => {
     return await settingsService.getSettings().idpType;
 }
 
+export function isHttpRequestSuccessful(responseCode) {
+    return ACCEPTABLE_RESPONSE_STATUSES.indexOf(responseCode) > -1;
+}
+
 const fetchFactory = (endpoint, method = "GET", params, fetchWithoutTimeout) => {
     const processResponse = (response) => {
         let responseCode = parseInt(response.status);
-        if (ACCEPTABLE_RESPONSE_STATUSES.indexOf(responseCode) > -1) {
+        if (isHttpRequestSuccessful(responseCode)) {
             return Promise.resolve(response);
         }
         if (responseCode === 403 || responseCode === 401) {

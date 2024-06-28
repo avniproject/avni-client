@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     container: {
         margin: 4,
         elevation: 2,
-        backgroundColor: Colors.cardBackgroundColor,
+        backgroundColor: Colors.GreyContentBackground,
         padding: 8,
         flexDirection: 'column',
     },

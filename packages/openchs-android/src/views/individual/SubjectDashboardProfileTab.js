@@ -196,6 +196,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         });
         const removeAllowed = this.checkPrivilege(allowedSubjectTypesForRemoveMember, applicableActions, {
             label: 'remove',
+            color: Colors.CancelledVisitColor,
             fn: (groupSubject) => this.onMemberRemove(groupSubject)
         });
         const nonVoidedMembersGroupSubjects = _.filter(groupSubjects, (groupSubject) => !groupSubject.memberSubject.voided);

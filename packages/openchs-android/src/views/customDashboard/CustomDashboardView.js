@@ -4,7 +4,7 @@ import AppHeader from "../common/AppHeader";
 import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
-import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import {DashboardSection} from 'openchs-models';
@@ -42,15 +42,23 @@ const viewNameMap = {
 };
 
 function SubHeader({I18n, onFilterPressed}) {
+    const filterLabelStyle = {
+        paddingLeft: 15,
+        color: Styles.grey,
+        fontSize: Styles.normalTextSize,
+        fontWeight: 'bold',
+        textTransform: 'uppercase'
+    };
     return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
         <View style={{
             backgroundColor: Colors.SubHeaderBackground,
             flexDirection: 'row',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             minHeight: 45,
             alignItems: 'center',
             marginRight: 20
         }}>
+            <Text style={filterLabelStyle}>{I18n.t('filter')}</Text>
             <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor}} name='tune'/>
         </View>
     </TouchableNativeFeedback>;

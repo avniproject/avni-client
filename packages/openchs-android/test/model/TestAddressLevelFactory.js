@@ -7,7 +7,7 @@ class TestAddressLevelFactory {
     const addressLevel = new AddressLevel();
     addressLevel.uuid = General.randomUUID();
     addressLevel.name = _.defaultTo(name, addressLevel.uuid);
-    addressLevel.type = type;
+    addressLevel.type = type || level+'_level';
     addressLevel.level = level;
     if (!_.isNil(parent)) {
         const locationMapping = new LocationMapping();

@@ -11,7 +11,10 @@ class AddressLevelsState {
     constructor(levels = []) {
         const unsortedLevels = Object.entries(_.uniqBy(levels, l => l.uuid)
             .reduce((acc, {locationMappings, uuid, name, level, type, parentUuid, typeUuid, isSelected = false}) => {
-                acc[level] = _.defaultTo(acc[level], []).concat([{
+                const accumulatorKey = level + "->" + type;
+                // accumulating just by type affects our ability to sort the levels. accumulating just by level affects our ability to group levels of the same type
+                // hence using a composite key of level + type with a separator
+                acc[accumulatorKey] = _.defaultTo(acc[accumulatorKey], []).concat([{
                     uuid,
                     name,
                     level,
@@ -23,8 +26,8 @@ class AddressLevelsState {
                 }]);
                 return acc;
             }, {}));
-        const levelTypeOrderedUnsortedLevels = _.orderBy(unsortedLevels, ([level, value]) => level, ['desc']);
-        this.levels = levelTypeOrderedUnsortedLevels.map(([levelNum, levels]) => {
+        const sortedLevels = _.orderBy(unsortedLevels, ([levelKey, value]) => levelKey, ['desc']);
+        this.levels = sortedLevels.map(([levelKey, levels]) => {
             const levelType = levels[0].type;
             const other = _.find(levels, (level) => _.startsWith(level.name, "Other"));
             if (!_.isNil(other)) {
