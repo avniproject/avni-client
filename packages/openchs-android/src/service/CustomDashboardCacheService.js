@@ -3,7 +3,7 @@ import Service from "../framework/bean/Service";
 import {CustomDashboardCache, DashboardFilterConfig} from "openchs-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
-import {Concept, CustomFilter, Dashboard, EncounterType, Range, Program, SubjectType} from "openchs-models";
+import {Dashboard, EncounterType, Range, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
 import FormMetaDataSelection from "../model/FormMetaDataSelection";
@@ -16,7 +16,7 @@ function getDashboardCache(service, dashboardUUID) {
         cache = CustomDashboardCache.newInstance(dashboard, getDashboardFiltersHash(dashboard));
         cache = service.save(cache, CustomDashboardCache.schema.name);
     } else if (getDashboardFiltersHash(dashboard) !== cache.dashboardFiltersHash) {
-        General.logDebugTemp("CustomDashboardCacheService", "Dashboard filters hash didn't match");
+        General.logDebug("CustomDashboardCacheService", "Dashboard filters hash didn't match");
         cache = cache.clone();
         cache.reset(getDashboardFiltersHash(dashboard));
         cache = service.saveOrUpdate(cache);
@@ -53,7 +53,7 @@ class CustomDashboardCacheService extends BaseService {
                 const selectedSerialisedValue = selectedSerialisedValues[filterUuid];
                 const inputDataType = dashboardFilterConfig.getInputDataType();
 
-                General.logDebugTemp("CustomDashboardCacheService", "loading dashboard filters from cache", dashboardFilterConfig.toDisplayText());
+                General.logDebug("CustomDashboardCacheService", "loading dashboard filters from cache", dashboardFilterConfig.toDisplayText());
 
                 if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
                     selectedFilterValues[filterUuid] = new FormMetaDataSelection(entityService.findAllByUUID(selectedSerialisedValue.subjectTypes, SubjectType.schema.name),
@@ -107,7 +107,7 @@ class CustomDashboardCacheService extends BaseService {
             const selectedFilterValue = selectedFilterValues[filterUuid];
             const inputDataType = dashboardFilterConfig.getInputDataType();
 
-            General.logDebugTemp("CustomDashboardCacheService", "Setting filter value", dashboardFilterConfig.toDisplayText());
+            General.logDebug("CustomDashboardCacheService", "Setting filter value", dashboardFilterConfig.toDisplayText());
 
             if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData && !selectedFilterValue.isEmpty()) {
                 serialisedSelectedValues[filterUuid] = {

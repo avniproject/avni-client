@@ -1,6 +1,6 @@
 import BaseService from "../BaseService";
 import Service from "../../framework/bean/Service";
-import {ReportCard, StandardReportCardType, ApprovalStatus} from "openchs-models";
+import {ReportCard, StandardReportCardType, ApprovalStatus, DateTimeUtil} from "openchs-models";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import RuleEvaluationService from "../RuleEvaluationService";
 import IndividualService from "../IndividualService";
@@ -9,6 +9,20 @@ import _ from "lodash";
 import TaskService from "../task/TaskService";
 import General from "../../utility/General";
 import RealmQueryService from "../query/RealmQueryService";
+import {DashboardReportFilter} from "../../model/DashboardReportFilter";
+
+function getProgramEncounterCriteria(reportCard) {
+    const subjectTypeQuery = RealmQueryService.orKeyValueQuery("programEnrolment.individual.subjectType.uuid", reportCard.standardReportCardInputSubjectTypes.map((x) => x.uuid));
+    const programQuery = RealmQueryService.orKeyValueQuery("programEnrolment.program.uuid", reportCard.standardReportCardInputPrograms.map((x) => x.uuid));
+    const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", reportCard.standardReportCardInputEncounterTypes.map((x) => x.uuid));
+    return RealmQueryService.andQuery([subjectTypeQuery, programQuery, encounterTypeQuery]);
+}
+
+function getGeneralEncounterCriteria(reportCard) {
+    const subjectTypeQuery = RealmQueryService.orKeyValueQuery("individual.subjectType.uuid", reportCard.standardReportCardInputSubjectTypes.map((x) => x.uuid));
+    const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", reportCard.standardReportCardInputEncounterTypes.map((x) => x.uuid));
+    return RealmQueryService.andQuery([subjectTypeQuery, encounterTypeQuery]);
+}
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -73,10 +87,10 @@ class ReportCardService extends BaseService {
         const standardReportCardTypeName = reportCard.standardReportCardType.name;
         const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
 
-        const programEncounterCriteria = RealmQueryService.programEncounterCriteria(reportCard.standardReportCardInputSubjectTypes,
-            reportCard.standardReportCardInputPrograms, reportCard.standardReportCardInputEncounterTypes);
-        const generalEncounterCriteria = RealmQueryService.generalEncounterCriteria(reportCard.standardReportCardInputSubjectTypes, reportCard.standardReportCardInputEncounterTypes);
-        const result = standardReportCardTypeName === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(new Date(), reportFilters, programEncounterCriteria, generalEncounterCriteria);
+        const programEncounterCriteria = getProgramEncounterCriteria(reportCard);
+        const generalEncounterCriteria = getGeneralEncounterCriteria(reportCard);
+        const date = DashboardReportFilter.getAsOnDate(reportFilters);
+        const result = standardReportCardTypeName === StandardReportCardType.type.Total ? resultFunc(undefined, reportFilters) : resultFunc(date, reportFilters, programEncounterCriteria, generalEncounterCriteria);
         const sortedResult = standardReportCardTypeName === StandardReportCardType.type.Total ? result : _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {status: standardReportCardTypeName, result: sortedResult};
     }

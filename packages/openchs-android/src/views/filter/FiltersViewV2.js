@@ -187,11 +187,15 @@ class FiltersViewV2 extends AbstractComponent {
                                     case CustomFilter.type.ProgramEncounterDate:
                                     case CustomFilter.type.EncounterDate:
                                         return <FilterContainerWithLabel filter={filter} key={index}>
-                                            {filterConfig.widget === CustomFilter.widget.Range ?
+                                            {filterConfig.isRangeWidget() ?
                                                 <DateRangeFilter pickTime={false} maxValue={filterValue.maxValue} minValue={filterValue.minValue}
                                                                  onChange={(x) => this.dispatchFilterUpdate(filter, x)} errorMessage={filterError}/>
                                                 :
                                                 <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>}
+                                        </FilterContainerWithLabel>;
+                                    case CustomFilter.type.AsOnDate:
+                                        return <FilterContainerWithLabel filter={filter} key={index}>
+                                            <DatePicker pickTime={false} dateValue={filterValue} onChange={(value) => this.dispatchFilterUpdate(filter, value)}/>
                                         </FilterContainerWithLabel>;
                                     case CustomFilter.type.GroupSubject:
                                         return <GroupSubjectFilter filter={filter} filterConfig={filterConfig}

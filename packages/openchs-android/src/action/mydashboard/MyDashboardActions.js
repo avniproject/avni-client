@@ -145,8 +145,6 @@ class MyDashboardActions {
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
 
-        General.logDebugTemp("MyDashboardActions", JSONStringify(dashboardCacheFilter));
-
         const [
             allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
