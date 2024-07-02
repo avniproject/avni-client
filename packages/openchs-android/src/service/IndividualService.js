@@ -357,7 +357,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
-            programEncounters = applyUserFilters(programEncounters, reportFilters, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
+            programEncounters = applyUserFilters(programEncounters, reportFilters, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -393,7 +393,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             encounters = applyConfiguredFilters(encounters, encounterCriteria);
-            encounters = applyUserFilters(encounters, reportFilters, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
+            encounters = applyUserFilters(encounters, reportFilters, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -455,10 +455,6 @@ class IndividualService extends BaseService {
                     'AND encounterDateTime >= $1 ',
                     tillDate,
                     fromDate);
-            if (!_.isEmpty(programEncounterCriteria)) {
-                programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
-            }
-            programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
