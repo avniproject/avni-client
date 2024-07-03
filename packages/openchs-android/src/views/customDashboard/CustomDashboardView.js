@@ -167,9 +167,11 @@ class CustomDashboardView extends AbstractComponent {
             .value();
         const onCardPressOp = _.debounce(this.onCardPress.bind(this), 500);
 
+        const nonVoidedSectionWiseData = sectionWiseData.filter(item => !item.section.voided);
+
         return (
             <View style={styles.container}>
-                {_.map(sectionWiseData, ({section, cards}) => (
+                {_.map(nonVoidedSectionWiseData, ({section, cards}) => (
                         <View key={section.uuid} style={styles.sectionContainer}>
                             {section.viewType !== DashboardSection.viewTypeName.Default &&
                                 this.renderSectionName(section.name, section.description, section.viewType, cards)}
