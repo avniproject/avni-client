@@ -1,7 +1,7 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {
-    CustomFilter,
+    CustomFilter, Duration,
     Encounter,
     EntityQueue,
     Individual,
@@ -27,6 +27,13 @@ import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
+import {JSONStringify} from "../utility/JsonStringify";
+
+function getDateRange(date, duration) {
+    const fromDate = moment(date).subtract(duration.durationValue, duration.durationUnit).startOf('day').toDate();
+    const tillDate = moment(date).endOf('day').toDate();
+    return {fromDate, tillDate};
+}
 
 function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
     let uniqueSubjects = [];
@@ -56,7 +63,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
                 } else {
                     uniqueSubjects = _.intersection(subjects, uniqueSubjects);
                 }
-                General.logDebugTemp("IndividualService", `Filtered by ${filter.toDisplayText()}. Matching subjects: ${subjects.length}.`);
+                General.logDebug("IndividualService", `Filtered by ${filter.toDisplayText()}. Matching subjects: ${subjects.length}.`);
                 break;
             default:
                 break;
@@ -73,16 +80,27 @@ function applyConfiguredFilters(entities, criteria) {
     return filteredEntities;
 }
 
-function applyUserFilters(entities, reportFilters, addressFilter, genders, schema, customFilterService) {
+const subjectUuidQueries = {
+    [ProgramEncounter.schema.name]: "programEnrolment.individual.uuid",
+    [Encounter.schema.name]: "individual.uuid",
+    [ProgramEnrolment.schema.name]: "individual.uuid",
+    [Individual.schema.name]: "uuid"
+};
+
+function applyUserFilters(entities, reportFilters, schema, customFilterService) {
+    const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+    const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
+
+    const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
+    General.logDebug("IndividualService", `uniqueSubjects: ${uniqueSubjects.length}, filterApplied: ${filterApplied}`);
+
     let filteredEntities = entities;
     filteredEntities = RealmQueryService.filterBasedOnAddress(schema, filteredEntities, addressFilter);
     filteredEntities = RealmQueryService.filterBasedOnGenders(schema, filteredEntities, genders);
-    const {uniqueSubjects, filterApplied} = getSubjectUUIDsForCustomFilters(customFilterService, reportFilters);
-    General.logDebugTemp("IndividualService", `uniqueSubjects: ${uniqueSubjects.length}, filterApplied: ${filterApplied}`);
+
     if (filterApplied) {
         if (uniqueSubjects.length > 0)
-            filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(schema === ProgramEncounter.schema.name
-                ? "programEnrolment.individual.uuid" : "individual.uuid", uniqueSubjects));
+            filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(subjectUuidQueries[schema], uniqueSubjects));
         else
             filteredEntities = filteredEntities.filtered('uuid = null');
     }
@@ -96,9 +114,7 @@ class IndividualService extends BaseService {
         this.allCompletedVisitsIn = this.allCompletedVisitsIn.bind(this);
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
-        this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
-        this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
     }
 
     getSchema() {
@@ -247,8 +263,6 @@ class IndividualService extends BaseService {
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMidnight = moment(date).endOf('day').toDate();
         const dateMorning = moment(date).startOf('day').toDate();
-        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
@@ -265,7 +279,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
-            programEncounters = applyUserFilters(programEncounters, reportFilters, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
+            programEncounters = applyUserFilters(programEncounters, reportFilters, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -303,7 +317,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             encounters = applyConfiguredFilters(encounters, encounterCriteria);
-            encounters = applyUserFilters(encounters, reportFilters, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
+            encounters = applyUserFilters(encounters, reportFilters, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -338,8 +352,6 @@ class IndividualService extends BaseService {
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
-        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
-        const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
@@ -354,7 +366,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
-            programEncounters = applyUserFilters(programEncounters, reportFilters, addressFilter, genders, ProgramEncounter.schema.name, this.getService(CustomFilterService));
+            programEncounters = applyUserFilters(programEncounters, reportFilters, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -390,7 +402,7 @@ class IndividualService extends BaseService {
                     dateMorning);
 
             encounters = applyConfiguredFilters(encounters, encounterCriteria);
-            encounters = applyUserFilters(encounters, reportFilters, addressFilter, genders, Encounter.schema.name, this.getService(CustomFilterService));
+            encounters = applyUserFilters(encounters, reportFilters, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -437,10 +449,8 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyCompletedVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
-        let tillDate = moment(date).endOf('day').toDate();
-        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+    recentlyCompletedVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter, queryGeneralEncounter, duration = new Duration(1, Duration.Day)) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
@@ -452,10 +462,9 @@ class IndividualService extends BaseService {
                     'AND encounterDateTime >= $1 ',
                     tillDate,
                     fromDate);
-            if (!_.isEmpty(programEncounterCriteria)) {
-                programEncounters = programEncounters.filtered(`${programEncounterCriteria}`);
-            }
-            programEncounters = RealmQueryService.filterBasedOnAddress(ProgramEncounter.schema.name, programEncounters, addressFilter);
+
+            programEncounters = applyConfiguredFilters(programEncounters, programEncounterCriteria);
+            programEncounters = applyUserFilters(programEncounters, reportFilters, ProgramEncounter.schema.name, this.getService(CustomFilterService));
 
             programEncounters = programEncounters.map((enc) => {
                 const individual = enc.programEnrolment.individual;
@@ -481,11 +490,9 @@ class IndividualService extends BaseService {
                     'AND encounterDateTime <= $0 ' +
                     'AND encounterDateTime >= $1 ',
                     tillDate,
-                    fromDate)
-            if (!_.isEmpty(encounterCriteria)) {
-                encounters = encounters.filtered(`${encounterCriteria}`);
-            }
-            encounters = RealmQueryService.filterBasedOnAddress(Encounter.schema.name, encounters, addressFilter);
+                    fromDate);
+            encounters = applyConfiguredFilters(encounters, encounterCriteria);
+            encounters = applyUserFilters(encounters, reportFilters, Encounter.schema.name, this.getService(CustomFilterService));
 
             encounters = encounters.map((enc) => {
                 const individual = enc.individual;
@@ -549,10 +556,45 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
-    recentlyEnrolled(date, reportFilters, queryAdditions) {
-        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
-        let tillDate = moment(date).endOf('day').toDate();
-        const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
+    recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration) {
+        const {tillDate, fromDate} = getDateRange(date, duration);
+
+        let individuals = this.db.objects(Individual.schema.name)
+            .filtered('voided = false ' +
+                'AND registrationDate <= $0 ' +
+                'AND registrationDate >= $1 ',
+                tillDate,
+                fromDate);
+
+        General.logDebug("IndividualService", JSONStringify(duration), "fromDate", fromDate, "tillDate", tillDate, subjectCriteria);
+
+        individuals = applyConfiguredFilters(individuals, subjectCriteria);
+        individuals = applyUserFilters(individuals, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+
+        individuals = individuals.map((individual) => {
+            const registrationDate = individual.registrationDate;
+            return {
+                individual,
+                visitInfo: {
+                    uuid: individual.uuid,
+                    visitName: [],
+                    groupingBy: General.formatDate(registrationDate),
+                    sortingBy: registrationDate,
+                    allow: true,
+                }
+            };
+        });
+        return [...individuals
+            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .values()]
+            .map(_.identity);
+    }
+
+    recentlyEnrolled(date, reportFilters = [], programEnrolmentCriteria = "", duration = new Duration(1, Duration.Day)) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
+
+        General.logDebug("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
+
         let enrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' +
                 'AND individual.voided = false ' +
@@ -561,10 +603,9 @@ class IndividualService extends BaseService {
                 tillDate,
                 fromDate);
 
-        if (!_.isEmpty(queryAdditions)) {
-            enrolments = enrolments.filtered(`${queryAdditions}`);
-        }
-        enrolments = RealmQueryService.filterBasedOnAddress(ProgramEnrolment.schema.name, enrolments, addressFilter);
+        enrolments = applyConfiguredFilters(enrolments, programEnrolmentCriteria);
+        enrolments = applyUserFilters(enrolments, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
+
         enrolments = enrolments.map((enc) => {
             const individual = enc.individual;
             const enrolmentDateTime = enc.enrolmentDateTime;

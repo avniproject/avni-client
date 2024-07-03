@@ -22,6 +22,13 @@ export class DashboardReportFilter {
         return genderFilter.filterValue;
     }
 
+    static getAsOnDate(reportFilters = []) {
+        const asOnDateFilter = _.find(reportFilters, (x: DashboardReportFilter) => x.type === CustomFilter.type.AsOnDate);
+        if (_.isNil(asOnDateFilter) || _.isNil(asOnDateFilter.filterValue)) return new Date();
+
+        return asOnDateFilter.filterValue;
+    }
+
     getScope() {
         return _.get(this.observationBasedFilter, "scope");
     }
@@ -46,6 +53,7 @@ export class DashboardReportFilter {
             case CustomFilter.type.GroupSubject:
             case CustomFilter.type.Concept:
                 return !_.isEmpty(this.filterValue) || _.isDate(this.filterValue);
+            case CustomFilter.type.AsOnDate:
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:
             case CustomFilter.type.ProgramEncounterDate:

@@ -145,8 +145,6 @@ class MyDashboardActions {
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
 
-        General.logDebugTemp("MyDashboardActions", JSONStringify(dashboardCacheFilter));
-
         const [
             allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
@@ -160,7 +158,7 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
                 MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
             ]
@@ -219,23 +217,25 @@ class MyDashboardActions {
         const methodMap = new Map([
             ["scheduled", individualService.allScheduledVisitsIn],
             ["overdue", individualService.allOverdueVisitsIn],
-            ["recentlyCompletedVisits", individualService.recentlyCompletedVisitsIn],
             ["recentlyCompletedRegistration", individualService.recentlyRegistered],
-            ["recentlyCompletedEnrolment", individualService.recentlyEnrolled],
-            ["total", individualService.allIn],
-            ["dueChecklist", individualService.dueChecklistForDefaultDashboard]
+            ["total", individualService.allIn]
         ]);
         const filters = listType === 'recentlyCompletedEnrolment' ? state.enrolmentFilters :
             (listType === 'total' || listType === 'recentlyCompletedRegistration' || listType === "dueChecklist") ? state.individualFilters : state.encountersFilters;
         const queryProgramEncounter = MyDashboardActions.shouldQueryProgramEncounter(state);
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
+
         let allIndividuals;
         if (listType === "recentlyCompletedRegistration" || listType === "total")
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state));
         else if (listType === "dueChecklist") {
-            allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state), queryProgramEncounter, queryGeneralEncounter);
+            allIndividuals = individualService.dueChecklistForDefaultDashboard(state.date.value, [], filters, state.selectedPrograms, getApplicableEncounterTypes(state), queryProgramEncounter, queryGeneralEncounter);
         } else if (["scheduled", "overdue"].includes(listType)) {
             allIndividuals = methodMap.get(listType)(state.date.value, [], state.encountersFilters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
+        } else if (["recentlyCompletedEnrolment"].includes(listType)) {
+            allIndividuals = individualService.recentlyEnrolled(listType)(state.date.value);
+        } else if (["recentlyCompletedVisits"].includes(listType)) {
+            allIndividuals = individualService.recentlyCompletedVisitsIn(state.date.value, [], state.encountersFilters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
         } else
             allIndividuals = methodMap.get(listType)(state.date.value, [], filters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
 

@@ -78,7 +78,7 @@ class CustomDashboardService extends BaseService {
             const dashboardFilterConfig = customDashboardService.getDashboardFilterConfig(filter);
             const inputDataType = dashboardFilterConfig.getInputDataType();
 
-            General.logDebugTemp("CustomDashboardCacheService", "Init empty values for", dashboardFilterConfig.toDisplayText());
+            General.logDebug("CustomDashboardCacheService", "Init empty values for", dashboardFilterConfig.toDisplayText());
 
             if (dashboardFilterConfig.isMultiEntityType()) {
                 selectedFilterValues[filter.uuid] = [];

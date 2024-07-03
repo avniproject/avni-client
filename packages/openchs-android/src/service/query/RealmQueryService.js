@@ -12,8 +12,10 @@ locationBasedQueries.set(Comment.schema.name, "subject.lowestAddressLevel.uuid =
 locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ");
 
 const genderQueryKeys = new Map();
+genderQueryKeys.set(Individual.schema.name, "gender.uuid");
 genderQueryKeys.set(ProgramEncounter.schema.name, "programEnrolment.individual.gender.uuid");
-genderQueryKeys.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid");
+genderQueryKeys.set(ProgramEnrolment.schema.name, "individual.gender.uuid");
+genderQueryKeys.set(Encounter.schema.name, "individual.gender.uuid");
 
 class RealmQueryService {
     static orQuery(array) {
@@ -41,19 +43,6 @@ class RealmQueryService {
         const orKeyValueQuery = RealmQueryService.orKeyValueQuery(genderQueryKeys.get(schema), genders.map((x) => x.uuid));
         if (_.isEmpty(orKeyValueQuery)) return entitiesResult;
         return entitiesResult.filtered(orKeyValueQuery);
-    }
-
-    static programEncounterCriteria(subjectTypes, programs, encounterTypes) {
-        const subjectTypeQuery = RealmQueryService.orKeyValueQuery("programEnrolment.individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
-        const programQuery = RealmQueryService.orKeyValueQuery("programEnrolment.program.uuid", programs.map((x) => x.uuid));
-        const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
-        return RealmQueryService.andQuery([subjectTypeQuery, programQuery, encounterTypeQuery]);
-    }
-
-    static generalEncounterCriteria(subjectTypes, encounterTypes) {
-        const subjectTypeQuery = RealmQueryService.orKeyValueQuery("individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
-        const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
-        return RealmQueryService.andQuery([subjectTypeQuery, encounterTypeQuery]);
     }
 
     static formatDateString(value, time) {
