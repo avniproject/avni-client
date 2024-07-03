@@ -12,6 +12,7 @@ locationBasedQueries.set(Comment.schema.name, "subject.lowestAddressLevel.uuid =
 locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ");
 
 const genderQueryKeys = new Map();
+genderQueryKeys.set(Individual.schema.name, "gender.uuid");
 genderQueryKeys.set(ProgramEncounter.schema.name, "programEnrolment.individual.gender.uuid");
 genderQueryKeys.set(ProgramEnrolment.schema.name, "individual.gender.uuid");
 genderQueryKeys.set(Encounter.schema.name, "individual.gender.uuid");

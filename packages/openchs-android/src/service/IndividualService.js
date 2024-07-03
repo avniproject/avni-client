@@ -27,6 +27,7 @@ import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
+import {JSONStringify} from "../utility/JsonStringify";
 
 function getDateRange(date, duration) {
     const fromDate = moment(date).subtract(duration.durationValue, duration.durationUnit).startOf('day').toDate();
@@ -79,6 +80,13 @@ function applyConfiguredFilters(entities, criteria) {
     return filteredEntities;
 }
 
+const subjectUuidQueries = {
+    [ProgramEncounter.schema.name]: "programEnrolment.individual.uuid",
+    [Encounter.schema.name]: "individual.uuid",
+    [ProgramEnrolment.schema.name]: "individual.uuid",
+    [Individual.schema.name]: "uuid"
+};
+
 function applyUserFilters(entities, reportFilters, schema, customFilterService) {
     const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
     const genders = DashboardReportFilter.getGenderFilterValues(reportFilters);
@@ -92,8 +100,7 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService) 
 
     if (filterApplied) {
         if (uniqueSubjects.length > 0)
-            filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(schema === ProgramEncounter.schema.name
-                ? "programEnrolment.individual.uuid" : "individual.uuid", uniqueSubjects));
+            filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(subjectUuidQueries[schema], uniqueSubjects));
         else
             filteredEntities = filteredEntities.filtered('uuid = null');
     }
@@ -549,10 +556,44 @@ class IndividualService extends BaseService {
             .map(_.identity);
     }
 
+    recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration) {
+        const {tillDate, fromDate} = getDateRange(date, duration);
+
+        let individuals = this.db.objects(Individual.schema.name)
+            .filtered('voided = false ' +
+                'AND registrationDate <= $0 ' +
+                'AND registrationDate >= $1 ',
+                tillDate,
+                fromDate);
+
+        General.logDebug("IndividualService", JSONStringify(duration), "fromDate", fromDate, "tillDate", tillDate, subjectCriteria);
+
+        individuals = applyConfiguredFilters(individuals, subjectCriteria);
+        individuals = applyUserFilters(individuals, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+
+        individuals = individuals.map((individual) => {
+            const registrationDate = individual.registrationDate;
+            return {
+                individual,
+                visitInfo: {
+                    uuid: individual.uuid,
+                    visitName: [],
+                    groupingBy: General.formatDate(registrationDate),
+                    sortingBy: registrationDate,
+                    allow: true,
+                }
+            };
+        });
+        return [...individuals
+            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .values()]
+            .map(_.identity);
+    }
+
     recentlyEnrolled(date, reportFilters = [], programEnrolmentCriteria = "", duration = new Duration(1, Duration.Day)) {
         const {fromDate, tillDate} = getDateRange(date, duration);
 
-        General.logDebugTemp("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
+        General.logDebug("IndividualService", "recentlyEnrolled", "fromDate", fromDate, "tillDate", tillDate, programEnrolmentCriteria);
 
         let enrolments = this.db.objects(ProgramEnrolment.schema.name)
             .filtered('voided = false ' +

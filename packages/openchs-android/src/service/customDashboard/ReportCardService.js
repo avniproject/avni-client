@@ -30,6 +30,30 @@ function getProgramEnrolmentCriteria(reportCard) {
     return RealmQueryService.andQuery([subjectTypeQuery, programQuery]);
 }
 
+function getSubjectCriteria(reportCard) {
+    const programEncounterCriteria = [];
+    const generalEncounterCriteria = [];
+
+    const subjectCriteria = RealmQueryService.orKeyValueQuery("subjectType.uuid", reportCard.standardReportCardInputSubjectTypes.map((x) => x.uuid));
+    if (!_.isEmpty(subjectCriteria)) programEncounterCriteria.push(subjectCriteria);
+
+    const programMatch = RealmQueryService.orKeyValueQuery("$enrolment.program.uuid", reportCard.standardReportCardInputPrograms.map((x) => x.uuid));
+    const encounterTypeMatch = RealmQueryService.orKeyValueQuery("$encounter.encounterType.uuid", reportCard.standardReportCardInputEncounterTypes.map((x) => x.uuid));
+
+    const programEnrolmentWithEncounterTypeCriteria = `subquery(enrolments, $enrolment, $enrolment.voided = false and (${programMatch}) and (subquery($enrolment.encounters, $encounter, $encounter.voided = false and (${encounterTypeMatch})).@count > 0)).@count > 0`;
+    const programEnrolmentWithoutEncounterTypeCriteria = `subquery(enrolments, $enrolment, $enrolment.voided = false and (${programMatch})).@count > 0`;
+    if (!_.isEmpty(encounterTypeMatch))
+        programEncounterCriteria.push(programEnrolmentWithEncounterTypeCriteria);
+    else if (!_.isEmpty(programMatch))
+        programEncounterCriteria.push(programEnrolmentWithoutEncounterTypeCriteria);
+
+    if (!_.isEmpty(encounterTypeMatch))
+        generalEncounterCriteria.push(subjectCriteria);
+        generalEncounterCriteria.push(`subquery(encounters, $encounter, $encounter.voided = false and (${encounterTypeMatch})).@count > 0`);
+
+    return RealmQueryService.orQuery([RealmQueryService.andQuery(programEncounterCriteria), RealmQueryService.andQuery(generalEncounterCriteria)]);
+}
+
 @Service("reportCardService")
 class ReportCardService extends BaseService {
     constructor(db, context) {
@@ -84,7 +108,6 @@ class ReportCardService extends BaseService {
         const typeToMethodMap = new Map([
             [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
             [StandardReportCardType.type.OverdueVisits, individualService.allOverdueVisitsIn],
-            [StandardReportCardType.type.RecentRegistrations, individualService.recentlyRegistered],
             [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
         ]);
         const standardReportCardTypeName = reportCard.standardReportCardType.name;
@@ -98,6 +121,8 @@ class ReportCardService extends BaseService {
             result = individualService.allIn(undefined, reportFilters);
         } else if (standardReportCardTypeName === StandardReportCardType.type.RecentEnrolments) {
             result = individualService.recentlyEnrolled(date, reportFilters, getProgramEnrolmentCriteria(reportCard), reportCard.getStandardReportCardInputRecentDuration());
+        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentRegistrations) {
+            result = individualService.recentlyRegisteredV2(date, reportFilters, getSubjectCriteria(reportCard), reportCard.getStandardReportCardInputRecentDuration());
         } else if (standardReportCardTypeName === StandardReportCardType.type.RecentVisits) {
             result = individualService.recentlyCompletedVisitsIn(date, reportFilters, programEncounterCriteria, generalEncounterCriteria, true, true,
                 reportCard.getStandardReportCardInputRecentDuration());
