@@ -13,7 +13,8 @@ locationBasedQueries.set(Task.schema.name, "subject.lowestAddressLevel.uuid = ")
 
 const genderQueryKeys = new Map();
 genderQueryKeys.set(ProgramEncounter.schema.name, "programEnrolment.individual.gender.uuid");
-genderQueryKeys.set(Encounter.schema.name, "individual.lowestAddressLevel.uuid");
+genderQueryKeys.set(ProgramEnrolment.schema.name, "individual.gender.uuid");
+genderQueryKeys.set(Encounter.schema.name, "individual.gender.uuid");
 
 class RealmQueryService {
     static orQuery(array) {
