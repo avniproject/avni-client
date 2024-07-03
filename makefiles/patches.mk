@@ -13,6 +13,7 @@ patch-history:
 	cd packages/openchs-android && npx patch-package react-native-deprecated-custom-components --include "(Navigator.js)|(NavigatorBreadcrumbNavigationBar.js)|(NavigatorNavigationBar.js)"
 	cd packages/openchs-android && npx patch-package react-native-background-job --include "build.gradle"
 	cd packages/openchs-android && npx patch-package react-native-i18n --include "ReactNativeI18n.java"
+	cd packages/openchs-android && npx patch-package react-native-image-picker --include "ImagePickerModuleImpl.java"
 
 
 apply_patch:
