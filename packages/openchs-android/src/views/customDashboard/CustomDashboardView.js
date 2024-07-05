@@ -223,7 +223,7 @@ class CustomDashboardView extends AbstractComponent {
                 headerTitle: _.truncate(reportCard.name, {'length': 30}) || status,
                 results: results,
                 reportCardUUID,
-                listType: _.lowerCase(status),
+                listType: status,
                 backFunction: this.onBackPress.bind(this),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),

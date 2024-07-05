@@ -27,12 +27,63 @@ import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
-import {JSONStringify} from "../utility/JsonStringify";
+
+function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
+    const permissionAllowed = individualWithVisit.visitInfo.allow;
+    if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
+        const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
+        const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
+        const presentEntry = individualWithVisit.visitInfo.visitName;
+        const previousEntries = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName;
+        individualsWithVisits.set(individualWithVisit.individual.uuid,
+            {
+                individual: individualWithVisit.individual,
+                visitInfo: {
+                    uuid: individualWithVisit.individual.uuid,
+                    visitName: permissionAllowed ? [...previousEntries, ...presentEntry] : previousEntries,
+                    groupingBy: smallerDate && General.formatDate(smallerDate) || '',
+                    sortingBy: smallerDate,
+                }
+            })
+    } else {
+        permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
+    }
+    return individualsWithVisits;
+}
+
+function filterSubjects(subjects, subjectCriteria, reportFilters, customFilterService) {
+    subjects = applyConfiguredFilters(subjects, subjectCriteria);
+    subjects = applyUserFilters(subjects, reportFilters, Individual.schema.name, customFilterService);
+
+    const returnSubjects = subjects.map((subject) => {
+        const registrationDate = subject.registrationDate;
+        return {
+            individual: subject,
+            visitInfo: {
+                uuid: subject.uuid,
+                visitName: [],
+                groupingBy: General.formatDate(registrationDate),
+                sortingBy: registrationDate,
+                allow: true,
+            }
+        };
+    });
+    return [...returnSubjects
+        .reduce(uniqSubjectWithVisitName, new Map())
+        .values()]
+        .map(_.identity);
+}
 
 function getDateRange(date, duration) {
     const fromDate = moment(date).subtract(duration.durationValue, duration.durationUnit).startOf('day').toDate();
     const tillDate = moment(date).endOf('day').toDate();
     return {fromDate, tillDate};
+}
+
+function get24HoursDateRange(date) {
+    const dateMidnight = moment(date).endOf('day').toDate();
+    const dateMorning = moment(date).startOf('day').toDate();
+    return {dateMidnight, dateMorning};
 }
 
 function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
@@ -217,29 +268,6 @@ class IndividualService extends BaseService {
         return individuals;
     }
 
-    _uniqIndividualWithVisitName(individualsWithVisits, individualWithVisit) {
-        const permissionAllowed = individualWithVisit.visitInfo.allow;
-        if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
-            const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
-            const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
-            const presentEntry = individualWithVisit.visitInfo.visitName;
-            const previousEntries = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.visitName;
-            individualsWithVisits.set(individualWithVisit.individual.uuid,
-                {
-                    individual: individualWithVisit.individual,
-                    visitInfo: {
-                        uuid: individualWithVisit.individual.uuid,
-                        visitName: permissionAllowed ? [...previousEntries, ...presentEntry] : previousEntries,
-                        groupingBy: smallerDate && General.formatDate(smallerDate) || '',
-                        sortingBy: smallerDate,
-                    }
-                })
-        } else {
-            permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
-        }
-        return individualsWithVisits;
-    }
-
     allInWithFilters(ignored, reportFilters, queryAdditions, programs = [], encounterTypes = []) {
         if (!this.hideTotalForProgram() || (_.isEmpty(programs) && _.isEmpty(encounterTypes))) {
             return this.allIn(ignored, reportFilters, queryAdditions);
@@ -261,8 +289,7 @@ class IndividualService extends BaseService {
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const privilegeService = this.getService(PrivilegeService);
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
-        const dateMidnight = moment(date).endOf('day').toDate();
-        const dateMorning = moment(date).startOf('day').toDate();
+        const {dateMidnight, dateMorning} = get24HoursDateRange(date);
 
         let programEncounters = [];
         if (queryProgramEncounter) {
@@ -341,7 +368,7 @@ class IndividualService extends BaseService {
         }
         const allEncounters = [...
             [...programEncounters, ...encounters]
-                .reduce(this._uniqIndividualWithVisitName, new Map())
+                .reduce(uniqSubjectWithVisitName, new Map())
                 .values()
         ];
         return allEncounters;
@@ -426,20 +453,19 @@ class IndividualService extends BaseService {
         }
         const allEncounters = [...
             [...programEncounters, ...encounters]
-                .reduce(this._uniqIndividualWithVisitName, new Map())
+                .reduce(uniqSubjectWithVisitName, new Map())
                 .values()
         ];
         return allEncounters;
     }
 
     allCompletedVisitsIn(date, queryAdditions) {
-        let fromDate = moment(date).startOf('day').toDate();
-        let tillDate = moment(date).endOf('day').toDate();
+        const {dateMidnight, dateMorning} = get24HoursDateRange(date);
         return [...this.db.objects(ProgramEncounter.schema.name)
             .filtered('encounterDateTime <= $0 ' +
                 'AND encounterDateTime >= $1 ',
-                tillDate,
-                fromDate)
+                dateMidnight,
+                dateMorning)
             .filtered((_.isEmpty(queryAdditions) ? 'uuid != null' : `${queryAdditions}`))
             .map((enc) => {
                 return enc.programEnrolment.individual;
@@ -510,14 +536,13 @@ class IndividualService extends BaseService {
             })
         }
         return [...[...programEncounters, ...encounters]
-            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .reduce(uniqSubjectWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
 
     recentlyRegistered(date, reportFilters, addressQuery, programs = [], encounterTypes = []) {
-        let fromDate = moment(date).subtract(1, 'day').startOf('day').toDate();
-        let tillDate = moment(date).endOf('day').toDate();
+        const {fromDate, tillDate} = getDateRange(date, new Duration(1, Duration.Day));
         const addressFilter = DashboardReportFilter.getAddressFilter(reportFilters);
 
         let individuals = this.db.objects(Individual.schema.name)
@@ -551,43 +576,30 @@ class IndividualService extends BaseService {
             };
         });
         return [...individuals
-            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .reduce(uniqSubjectWithVisitName, new Map())
             .values()]
             .map(_.identity);
+    }
+
+    allInV2(date, reportFilters, subjectCriteria) {
+        let {dateMidnight} = get24HoursDateRange(date);
+        let subjects = this.db.objects(Individual.schema.name)
+            .filtered('voided = false AND registrationDate <= $0', dateMidnight);
+
+        return filterSubjects(subjects, subjectCriteria, reportFilters, this.getService(CustomFilterService));
     }
 
     recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration) {
         const {tillDate, fromDate} = getDateRange(date, duration);
 
-        let individuals = this.db.objects(Individual.schema.name)
+        let subjects = this.db.objects(Individual.schema.name)
             .filtered('voided = false ' +
                 'AND registrationDate <= $0 ' +
                 'AND registrationDate >= $1 ',
                 tillDate,
                 fromDate);
 
-        General.logDebug("IndividualService", JSONStringify(duration), "fromDate", fromDate, "tillDate", tillDate, subjectCriteria);
-
-        individuals = applyConfiguredFilters(individuals, subjectCriteria);
-        individuals = applyUserFilters(individuals, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
-
-        individuals = individuals.map((individual) => {
-            const registrationDate = individual.registrationDate;
-            return {
-                individual,
-                visitInfo: {
-                    uuid: individual.uuid,
-                    visitName: [],
-                    groupingBy: General.formatDate(registrationDate),
-                    sortingBy: registrationDate,
-                    allow: true,
-                }
-            };
-        });
-        return [...individuals
-            .reduce(this._uniqIndividualWithVisitName, new Map())
-            .values()]
-            .map(_.identity);
+        return filterSubjects(subjects, subjectCriteria, reportFilters, this.getService(CustomFilterService));
     }
 
     recentlyEnrolled(date, reportFilters = [], programEnrolmentCriteria = "", duration = new Duration(1, Duration.Day)) {
@@ -621,7 +633,7 @@ class IndividualService extends BaseService {
             };
         });
         return [...enrolments
-            .reduce(this._uniqIndividualWithVisitName, new Map())
+            .reduce(uniqSubjectWithVisitName, new Map())
             .values()]
             .map(_.identity);
     }
