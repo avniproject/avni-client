@@ -37,7 +37,7 @@ import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
 import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
-import {CustomDashboardActionNames} from '../action/customDashboard/CustomDashboardActions';
+import {CustomDashboardActionNames, performCustomDashboardActionAndRefresh} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 
@@ -412,9 +412,7 @@ class SyncService extends BaseService {
         const customDashboardService = this.context.getService(CustomDashboardService);
         const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
         if (renderCustomDashboard) {
-            this.dispatchAction(CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
-            this.dispatchAction(CustomDashboardActionNames.REMOVE_OLDER_COUNTS);
-            setTimeout(() => this.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+            performCustomDashboardActionAndRefresh(this, CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
         } else {
             this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         }

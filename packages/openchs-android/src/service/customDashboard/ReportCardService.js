@@ -10,6 +10,7 @@ import TaskService from "../task/TaskService";
 import General from "../../utility/General";
 import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import ReportCardQueryBuilder from "./ReportCardQueryBuilder";
+import {ReportCardResult} from "openchs-models";
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -24,11 +25,7 @@ class ReportCardService extends BaseService {
     getCountForApprovalCardsType(standardReportCardType, reportFilters) {
         const approvalStatus_status = standardReportCardType.getApprovalStatusForType();
         const {result} = this.getService(EntityApprovalStatusService).getAllEntitiesForReports(approvalStatus_status, reportFilters);
-        return {
-            primaryValue: _.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0),
-            secondaryValue: null,
-            clickable: true
-        };
+        return ReportCardResult.create(_.map(result, ({data}) => data.length).reduce((total, l) => total + l, 0), null, true);
     }
 
     getResultForApprovalCardsType(standardReportCardType, reportFilters, formMapping) {
@@ -37,11 +34,7 @@ class ReportCardService extends BaseService {
     }
 
     getCountForCommentCardType(reportFilters) {
-        return {
-            primaryValue: this.getResultForCommentCardType(reportFilters).length,
-            secondaryValue: null,
-            clickable: true
-        };
+        return ReportCardResult.create(this.getResultForCommentCardType(reportFilters).length, null, true);
     }
 
     getResultForCommentCardType(reportFilters) {
@@ -49,11 +42,7 @@ class ReportCardService extends BaseService {
     }
 
     getCountForTaskCardType(taskTypeType, reportFilters) {
-        return {
-            primaryValue: this.getResultForTaskCardType(taskTypeType, reportFilters).length,
-            secondaryValue: null,
-            clickable: true
-        };
+        return ReportCardResult.create(this.getResultForTaskCardType(taskTypeType, reportFilters).length, null, true);
     }
 
     getResultForTaskCardType(taskTypeType, filters) {
@@ -91,11 +80,7 @@ class ReportCardService extends BaseService {
     }
 
     getCountForDefaultCardsType(reportFilters, reportCard) {
-        return {
-            primaryValue: this.getResultForDefaultCardsType(reportFilters, reportCard).result.length,
-            secondaryValue: null,
-            clickable: true
-        };
+        return ReportCardResult.create(this.getResultForDefaultCardsType(reportFilters, reportCard).result.length, null, true);
     }
 
     getResultForChecklistCardType(type, reportFilters) {
@@ -104,11 +89,7 @@ class ReportCardService extends BaseService {
     }
 
     getCountForChecklistCardType(type, reportFilters) {
-        return {
-            primaryValue: this.getResultForChecklistCardType(type, reportFilters).result.individual.length,
-            secondaryValue: null,
-            clickable: true
-        };
+        return ReportCardResult.create(this.getResultForChecklistCardType(type, reportFilters).result.individual.length, null, true);
     }
 
     getReportCardCount(reportCard, reportFilters) {

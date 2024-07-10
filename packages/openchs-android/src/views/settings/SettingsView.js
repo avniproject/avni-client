@@ -14,6 +14,7 @@ import Colors from "../primitives/Colors";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
 import UserInfoService from "../../service/UserInfoService";
 import _ from "lodash";
+import {CustomDashboardActionNames, performCustomDashboardActionAndRefresh} from "../../action/customDashboard/CustomDashboardActions";
 
 @Path('/settingsView')
 class SettingsView extends AbstractComponent {
@@ -30,7 +31,7 @@ class SettingsView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    renderUserPropertyToggleButton(label, propertyName, actionName) {
+    renderUserPropertyToggleButton(label, propertyName, actionName, onValueChange = _.noop) {
         return <View>
             <Text style={Styles.formLabel}>{this.I18n.t(label)}</Text>
             <View style={{
@@ -48,7 +49,10 @@ class SettingsView extends AbstractComponent {
                     fontSize: Styles.normalTextSize
                 }}>{this.I18n.t(propertyName)}</Text>
                 <Switch value={this.state.userInfo.getSettings()[propertyName]}
-                        onValueChange={() => this.dispatchAction(actionName)}/>
+                        onValueChange={(value) => {
+                            this.dispatchAction(actionName);
+                            onValueChange(value);
+                        }}/>
             </View>
         </View>
     }
@@ -75,7 +79,9 @@ class SettingsView extends AbstractComponent {
                             />
                         }
                         {this.renderUserPropertyToggleButton('location', 'trackLocation', Actions.ON_CAPTURE_LOCATION_CHANGE)}
-                        {this.renderUserPropertyToggleButton('autoRefresh', 'disableAutoRefresh', Actions.ON_CAPTURE_AUTO_REFRESH_CHANGE)}
+                        {this.renderUserPropertyToggleButton('autoRefresh', 'disableAutoRefresh', Actions.ON_CAPTURE_AUTO_REFRESH_CHANGE, (disabled) => {
+                            performCustomDashboardActionAndRefresh(this, CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, {disabled});
+                        })}
                         {this.renderUserPropertyToggleButton('autoSync', 'disableAutoSync', Actions.ON_CAPTURE_AUTO_SYNC_CHANGE)}
                     </View>
                 </CHSContent>

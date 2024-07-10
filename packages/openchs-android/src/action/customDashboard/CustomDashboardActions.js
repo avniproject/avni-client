@@ -1,13 +1,18 @@
 import _ from 'lodash';
-import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
+import CustomDashboardService, {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard} from "avni-models";
+import {ReportCard, NestedReportCardResult} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import MessageService from '../../service/MessageService';
+import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
+import UserInfoService from "../../service/UserInfoService";
 
+function getReportsCards(dashboardUUID, context) {
+    return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
+}
 
 function loadCurrentDashboardInfo(context, newState) {
     const dashboardFilterService = context.get(DashboardFilterService);
@@ -15,10 +20,27 @@ function loadCurrentDashboardInfo(context, newState) {
     newState.filtersPresent = _.keys(filterConfigs).length > 0;
     newState.customDashboardFilters = dashboardFilterService.getFilters(newState.activeDashboardUUID);
     if (newState.activeDashboardUUID) {
-        newState.reportCardSectionMappings = CustomDashboardActions.getReportsCards(newState.activeDashboardUUID, context);
+        newState.reportCardSectionMappings = getReportsCards(newState.activeDashboardUUID, context);
         newState.hasFilters = dashboardFilterService.hasFilters(newState.activeDashboardUUID);
     }
     return newState;
+}
+
+function getViewName(standardReportCardType) {
+    switch (true) {
+        case _.isNil(standardReportCardType) :
+            return 'IndividualSearchResultPaginatedView';
+        case standardReportCardType.isApprovalType() :
+            return 'ApprovalListingView';
+        case standardReportCardType.isDefaultType() :
+            return 'IndividualListView';
+        case standardReportCardType.isCommentType() :
+            return 'CommentListView';
+        case standardReportCardType.isTaskType() :
+            return 'TaskListView';
+        case standardReportCardType.isChecklistType():
+            return 'ChecklistListingView';
+    }
 }
 
 class CustomDashboardActions {
@@ -34,22 +56,26 @@ class CustomDashboardActions {
         };
     }
 
+    // loads dashboard without the data for cards
     static onLoad(state, action, context) {
-        const newState = {...state};
+        let newState = {...state};
         const dashboardService = context.get(CustomDashboardService);
         const dashboards = dashboardService.getDashboards(action.customDashboardType);
         newState.dashboards = dashboards;
         newState.activeDashboardUUID = _.get(_.head(dashboards), 'uuid');
+        if (state.dashboardUUID !== newState.activeDashboardUUID) {
+            newState.cardToCountResultMap = {};
+        }
 
         return loadCurrentDashboardInfo(context, newState);
     }
 
-    static getReportsCards(dashboardUUID, context) {
-        return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
-    }
-
+    // loads dashboard without the data for cards
     static onDashboardChange(state, action, context) {
-        const newState = {...state};
+        let newState = {...state};
+        if (action.dashboardUUID !== state.activeDashboardUUID) {
+            newState.cardToCountResultMap = {};
+        }
         newState.activeDashboardUUID = action.dashboardUUID;
         return loadCurrentDashboardInfo(context, newState);
     }
@@ -68,8 +94,9 @@ class CustomDashboardActions {
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), ruleInputArray);
         } else {
             const {result, status} = context.get(ReportCardService).getReportCardResult(reportCard, ruleInputArray);
+
             const standardReportCardType = reportCard.standardReportCardType;
-            const viewName = CustomDashboardActions._getViewName(standardReportCardType);
+            const viewName = getViewName(standardReportCardType);
             if (!_.isNil(result)) {
                 setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
                     standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard), 0);
@@ -78,74 +105,70 @@ class CustomDashboardActions {
         return newState;
     }
 
-    static _getViewName(standardReportCardType) {
-        switch (true) {
-            case _.isNil(standardReportCardType) :
-                return 'IndividualSearchResultPaginatedView';
-            case standardReportCardType.isApprovalType() :
-                return 'ApprovalListingView';
-            case standardReportCardType.isDefaultType() :
-                return 'IndividualListView';
-            case standardReportCardType.isCommentType() :
-                return 'CommentListView';
-            case standardReportCardType.isTaskType() :
-                return 'TaskListView';
-            case standardReportCardType.isChecklistType():
-                return 'ChecklistListingView';
-        }
+    static setFilterApplied(state, action, context) {
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        customDashboardCacheService.clearResults(state.activeDashboardUUID);
+        return CustomDashboardActions.refreshCount(state, action, context);
     }
 
+    static setFilterCleared(state, action, context) {
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        customDashboardCacheService.clearResults(state.activeDashboardUUID);
+        return state;
+    }
+
+    // loads the dashboard report cards data
     static refreshCount(state, action, context) {
-        const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
+        const customDashboardService = context.get(CustomDashboardService);
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        const userInfoService = context.get(UserInfoService);
+        const reportCardService = context.get(ReportCardService);
+
+        const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
+        const userSettings = userInfoService.getUserSettingsObject();
 
         const I18n = context.get(MessageService).getI18n();
         const reportCardSectionMappings = state.reportCardSectionMappings;
         const newState = {...state};
 
+        newState.cardToCountResultMap = {};
         newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
+
         const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
-            const countQueryResponse = context.get(ReportCardService).getReportCardCount(rcm.card, ruleInputArray);
+            const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
             if (rcm.card.nested) {
-                if (countQueryResponse && countQueryResponse.length === rcm.card.countOfCards) {
-                    _.forEach(countQueryResponse, (reportCard, index) => {
+                let reportCardResults = dashboardCache.getNestedReportCardResults(rcm.card);
+                let hasError = reportCardResults && reportCardResults.length !== rcm.card.countOfCards;
+                if (userSettings.autoRefreshEnabled || _.isEmpty(reportCardResults)) {
+                    reportCardResults = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                    if (!hasError)
+                        customDashboardCacheService.updateNestedCardResults(state.activeDashboardUUID, rcm.card, reportCardResults);
+                }
+
+                if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
+                    _.forEach(reportCardResults, (reportCardResult, index) => {
                         const itemKey = rcm.card.getCardId(index);
-                        newState.cardToCountResultMap[itemKey] = {
-                            ...reportCard,
-                            itemKey
-                        };
+                        newState.cardToCountResultMap[itemKey] = reportCardResult;
                     });
-                } else if (countQueryResponse && countQueryResponse.length !== rcm.card.countOfCards) {
-                    Array(rcm.card.countOfCards).fill(rcm.card).forEach((reportCard, index) => {
-                        const itemKey = reportCard.getCardId(index);
-                        newState.cardToCountResultMap[itemKey] = {
-                            hasErrorMsg: true,
-                            primaryValue: I18n.t("Error"),
-                            secondaryValue: I18n.t("nestedReportCardsCountMismatch"),
-                            lineListFunction: _.noop(),
-                            itemKey
-                        };
+                } else if (hasError) {
+                    rcm.card.createNestedErrorResults(I18n.t("Error"), I18n.t("nestedReportCardsCountMismatch")).forEach((result, index) => {
+                        const itemKey = rcm.card.getCardId(index);
+                        newState.cardToCountResultMap[itemKey] = result;
                     });
                 }
             } else {
-                newState.cardToCountResultMap[rcm.card.getCardId()] = countQueryResponse;
+                let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
+                if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
+                    reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                    customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
+                }
+                newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
-        return newState;
-    }
-
-    static removeOlderCounts(state) {
-        const newState = {...state};
-        const reportCardSectionMappings = state.reportCardSectionMappings;
-        newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
-        reportCardSectionMappings.forEach(rcm => {
-            const keysOfReportCard = _.keys(newState.cardToCountResultMap).filter((itemKey) => itemKey.startsWith(rcm.card.uuid));
-            _.forEach(keysOfReportCard, (itemKey) => {
-                newState.cardToCountResultMap[itemKey] = null;
-            });
-        });
+        customDashboardCacheService.setDashboardUpdateCompleted(state.activeDashboardUUID);
         return newState;
     }
 
@@ -160,8 +183,23 @@ class CustomDashboardActions {
         newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters : [];
         return newState;
     }
+
+    static disableAutoRefreshValueUpdated(state, action, context) {
+        if (!action.disabled) {
+            const customDashboardService = context.get(CustomDashboardService);
+            const allDashboards = customDashboardService.getAllDashboards();
+            const customDashboardCacheService = context.get(CustomDashboardCacheService);
+            customDashboardCacheService.clearAllDashboardResults(allDashboards);
+        }
+        return state;
+    }
 }
 
+// This is not a reducer, just a code reuse mechanism
+export function performCustomDashboardActionAndRefresh(dispatcher, actionName, action) {
+    dispatcher.dispatchAction(actionName, action);
+    setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+}
 
 const ActionPrefix = 'CustomDashboard';
 
@@ -171,8 +209,10 @@ const CustomDashboardActionNames = {
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
-    REMOVE_OLDER_COUNTS: `${ActionPrefix}.REMOVE_OLDER_COUNTS`,
     SET_DASHBOARD_FILTERS: `${ActionPrefix}.SET_DASHBOARD_FILTERS`,
+    FILTER_APPLIED: `${ActionPrefix}.FILTER_APPLIED`,
+    FILTER_CLEARED: `${ActionPrefix}.FILTER_CLEARED`,
+    DISABLE_AUTO_REFRESH_VALUE_UPDATED: `${ActionPrefix}.DISABLE_AUTO_REFRESH_VALUE_UPDATED`
 };
 
 const CustomDashboardActionMap = new Map([
@@ -181,8 +221,10 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
-    [CustomDashboardActionNames.REMOVE_OLDER_COUNTS, CustomDashboardActions.removeOlderCounts],
     [CustomDashboardActionNames.SET_DASHBOARD_FILTERS, CustomDashboardActions.setCustomDashboardFilters],
+    [CustomDashboardActionNames.FILTER_APPLIED, CustomDashboardActions.setFilterApplied],
+    [CustomDashboardActionNames.FILTER_CLEARED, CustomDashboardActions.setFilterCleared],
+    [CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, CustomDashboardActions.disableAutoRefreshValueUpdated]
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}

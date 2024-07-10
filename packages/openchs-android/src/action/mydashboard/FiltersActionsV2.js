@@ -68,7 +68,6 @@ class FiltersActionsV2 {
     static appliedFilter(state, action, context) {
         //Init data
         const {filterConfigs, selectedValues} = state;
-        const {navigateToDashboardView} = action;
         const newState = {...state, filterApplied: true, filterErrors: {}};
         Object.keys(selectedValues).forEach((filterUUID) => {
             const filterValue = selectedValues[filterUUID];
@@ -87,7 +86,7 @@ class FiltersActionsV2 {
 
         const dashboardFilterService = context.get(DashboardFilterService);
         const ruleInputArray = dashboardFilterService.toRuleInputObjects(newState.dashboardUUID, selectedValues);
-        navigateToDashboardView(ruleInputArray);
+        action.navigateToDashboardView(ruleInputArray);
         return newState;
     }
 

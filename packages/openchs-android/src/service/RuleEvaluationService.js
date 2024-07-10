@@ -42,7 +42,7 @@ import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 import MessageService from './MessageService';
-import {Groups} from "openchs-models";
+import {Groups, ReportCardResult, NestedReportCardResult} from "openchs-models";
 import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
 import {EditFormRuleResponse} from "rules-config";
@@ -740,12 +740,9 @@ class RuleEvaluationService extends BaseService {
             General.logError("Rule-Failure", error);
             this.saveFailedRules(error, reportCard.uuid, '',
                 'ReportCard', reportCard.uuid, null, null);
-            return {
-                hasErrorMsg: true,
-                primaryValue: this.I18n.t("Error"),
-                secondaryValue: this.I18n.t("queryExecutionError"),
-                lineListFunction: _.noop()
-            };
+            return reportCard.nested ?
+                ReportCardResult.create(this.I18n.t("Error"), this.I18n.t("queryExecutionError"), false, true)
+                : reportCard.createNestedErrorResults(this.I18n.t("Error"), this.I18n.t("queryExecutionError"));
         }
     }
 
@@ -756,48 +753,14 @@ class RuleEvaluationService extends BaseService {
 
     getDashboardCardCount(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
-        if (queryResult.hasErrorMsg) {
-            return this.createErrorResponse(reportCard, queryResult);
-        }
-        if (this.isOldStyleQueryResult(queryResult)) {
-            return {primaryValue: queryResult.length, secondaryValue: null, clickable: true};
+        if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
+            return ReportCardResult.create(queryResult.length, null, true);
         } else if (reportCard.nested) {
-            return _.map(queryResult.reportCards, (reportCardResultsItr, index) => {
-                return {
-                    cardColor: reportCard.colour,
-                    ...reportCardResultsItr,
-                    clickable: _.isFunction(reportCardResultsItr.lineListFunction),
-                    itemKey: reportCard.getCardId(index),
-                    reportCardUUID: reportCard.uuid
-                };
+            return _.map(queryResult.reportCards, (result, index) => {
+                return NestedReportCardResult.fromQueryResult(result, reportCard, index);
             });
         } else {
-            return {
-                primaryValue: queryResult.primaryValue,
-                secondaryValue: queryResult.secondaryValue,
-                clickable: _.isFunction(queryResult.lineListFunction)
-            };
-        }
-    }
-
-    createErrorResponse(reportCard, queryResult) {
-        if (reportCard.nested) {
-            return _.times(reportCard.countOfCards, (index) => {
-                return {
-                    hasErrorMsg: queryResult.hasErrorMsg,
-                    primaryValue: queryResult.primaryValue,
-                    secondaryValue: queryResult.secondaryValue,
-                    itemKey: reportCard.getCardId(index),
-                    clickable: _.isFunction(queryResult.lineListFunction)
-                };
-            });
-        } else {
-            return {
-                hasErrorMsg: queryResult.hasErrorMsg,
-                primaryValue: queryResult.primaryValue,
-                secondaryValue: queryResult.secondaryValue,
-                clickable: _.isFunction(queryResult.lineListFunction)
-            };
+            return ReportCardResult.fromQueryResult(queryResult);
         }
     }
 

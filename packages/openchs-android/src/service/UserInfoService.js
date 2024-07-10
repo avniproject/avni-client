@@ -20,7 +20,7 @@ class UserInfoService extends BaseService {
     }
 
     /*
-    Deprecated. Use getUserSettingsObject.
+    @Deprecated. Use getUserSettingsObject.
      */
     getUserSettings() {
         return this.getUserInfo().getSettings();

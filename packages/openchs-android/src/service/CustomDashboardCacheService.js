@@ -95,7 +95,6 @@ class CustomDashboardCacheService extends BaseService {
     setSelectedFilterValues(dashboardUUID, selectedFilterValues, filterApplied) {
         const dashboardCache = getDashboardCache(this, dashboardUUID);
         dashboardCache.filterApplied = filterApplied;
-        dashboardCache.updatedAt = new Date();
 
         const dashboardFilterService = this.getService(DashboardFilterService);
         const serialisedSelectedValues = {};
@@ -128,6 +127,46 @@ class CustomDashboardCacheService extends BaseService {
 
         dashboardCache.selectedValuesJSON = JSON.stringify(serialisedSelectedValues);
         dashboardCache.dashboardFiltersHash = getDashboardFiltersHash(dashboardCache.dashboard);
+        this.saveOrUpdate(dashboardCache);
+    }
+
+    updateNestedCardResults(dashboardUUID, reportCard, results) {
+        const dashboardCache = getDashboardCache(this, dashboardUUID);
+        _.remove(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+        results.forEach(result => {
+            result.dashboard = dashboardCache.dashboard.uuid;
+            result.reportCard = reportCard.uuid;
+            dashboardCache.nestedReportCardResults.push(result);
+        });
+        this.saveOrUpdate(dashboardCache);
+    }
+
+    clearResults(dashboardUUID) {
+        const dashboardCache = getDashboardCache(this, dashboardUUID);
+        dashboardCache.reportCardResults = [];
+        dashboardCache.nestedReportCardResults = [];
+        this.saveOrUpdate(dashboardCache);
+    }
+
+    clearAllDashboardResults(dashboards) {
+        const thisService = this;
+        dashboards.forEach((x) => {
+            thisService.clearResults(x.uuid);
+        });
+    }
+
+    updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
+        const dashboardCache = getDashboardCache(this, dashboardUUID);
+        _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+        reportCardResult.dashboard = dashboardUUID;
+        reportCardResult.reportCard = reportCard.uuid;
+        dashboardCache.reportCardResults.push(reportCardResult);
+        this.saveOrUpdate(dashboardCache);
+    }
+
+    setDashboardUpdateCompleted(dashboardUUID) {
+        const dashboardCache = getDashboardCache(this, dashboardUUID);
+        dashboardCache.updatedAt = new Date();
         this.saveOrUpdate(dashboardCache);
     }
 }

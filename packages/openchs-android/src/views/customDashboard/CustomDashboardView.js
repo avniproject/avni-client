@@ -3,7 +3,7 @@ import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import React, {Fragment} from "react";
 import Reducers from "../../reducer";
-import {CustomDashboardActionNames as Actions} from "../../action/customDashboard/CustomDashboardActions";
+import {CustomDashboardActionNames as Actions, performCustomDashboardActionAndRefresh} from "../../action/customDashboard/CustomDashboardActions";
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
@@ -110,25 +110,17 @@ class CustomDashboardView extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         const {customDashboardType} = this.props;
-        this.dispatchAction(Actions.ON_LOAD, {customDashboardType});
-        this.refreshCounts();
+        performCustomDashboardActionAndRefresh(this, Actions.ON_LOAD, {customDashboardType});
         super.UNSAFE_componentWillMount();
     }
 
     onClearFilters() {
-        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: this.state.activeDashboardUUID});
-        this.refreshCounts();
-    }
-
-    refreshCounts() {
-        this.dispatchAction(Actions.REMOVE_OLDER_COUNTS);
-        setTimeout(() => this.dispatchAction(Actions.REFRESH_COUNT), 500);
+        performCustomDashboardActionAndRefresh(this, Actions.FILTER_CLEARED, {dashboardUUID: this.state.activeDashboardUUID});
     }
 
     onDashboardNamePress(uuid) {
         this.dispatchAction(FilterActionNames.ON_LOAD, {dashboardUUID: uuid});
-        this.dispatchAction(Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
-        this.refreshCounts();
+        performCustomDashboardActionAndRefresh(this, Actions.ON_DASHBOARD_CHANGE, {dashboardUUID: uuid});
     }
 
     renderDashboards() {
@@ -200,10 +192,6 @@ class CustomDashboardView extends AbstractComponent {
         this.goBack();
     }
 
-    didFocus() {
-        this.refreshCounts();
-    }
-
     onCardPress(reportCardUUID) {
         this.dispatchAction(Actions.LOAD_INDICATOR, {loading: true});
         return setTimeout(() => this.dispatchAction(Actions.ON_CARD_PRESS, {
@@ -252,7 +240,7 @@ class CustomDashboardView extends AbstractComponent {
         TypedTransition.from(this)
             .with({
                 dashboardUUID: activeDashboardUUID,
-                onFilterChosen: (ruleInputArray) => this.dispatchAction(Actions.REFRESH_COUNT, {ruleInput: {ruleInputArray: ruleInputArray}, filterApplied: true}),
+                onFilterChosen: (ruleInputArray) => this.dispatchAction(Actions.FILTER_APPLIED, {ruleInput: {ruleInputArray: ruleInputArray}, filterApplied: true}),
                 loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters, filterApplied: true}),
             }).to(FiltersViewV2, true);
     }
