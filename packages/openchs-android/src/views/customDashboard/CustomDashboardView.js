@@ -3,7 +3,11 @@ import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
 import React, {Fragment} from "react";
 import Reducers from "../../reducer";
-import {CustomDashboardActionNames as Actions, performCustomDashboardActionAndRefresh} from "../../action/customDashboard/CustomDashboardActions";
+import {
+    CustomDashboardActionNames as Actions,
+    performCustomDashboardActionAndClearRefresh,
+    performCustomDashboardActionAndRefresh
+} from "../../action/customDashboard/CustomDashboardActions";
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
@@ -32,6 +36,7 @@ import MCIIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import Line from '../common/Line';
 import {CardTileView} from './CardTileView';
 import {CardListView} from './CardListView';
+import UserInfoService from "../../service/UserInfoService";
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -41,15 +46,37 @@ const viewNameMap = {
     'ChecklistListingView': ChecklistListingView
 };
 
+function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
+    const refreshSectionStyle = {
+        paddingLeft: 15,
+        color: Styles.grey,
+        fontSize: 8,
+        fontWeight: 'bold',
+        textTransform: 'uppercase'
+    };
+    return <TouchableNativeFeedback onPress={() => onRefreshPressed()}>
+        <View style={{
+            backgroundColor: Colors.SubHeaderBackground,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            minHeight: 45,
+            alignItems: 'center'
+        }}>
+            <Text style={refreshSectionStyle}>{I18n.t('lastRefreshedMessage', {dateTime: General.formatDateTime(lastUpdatedOn)})}</Text>
+            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor}} name='refresh'/>
+        </View>
+    </TouchableNativeFeedback>;
+}
+
 function SubHeader({I18n, onFilterPressed}) {
     const filterLabelStyle = {
         paddingLeft: 15,
         color: Styles.grey,
         fontSize: Styles.normalTextSize,
         fontWeight: 'bold',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
     };
-    return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
+    return <TouchableNativeFeedback onPress={() => onFilterPressed()} style={{flex: 0.5}}>
         <View style={{
             backgroundColor: Colors.SubHeaderBackground,
             flexDirection: 'row',
@@ -110,12 +137,12 @@ class CustomDashboardView extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         const {customDashboardType} = this.props;
-        performCustomDashboardActionAndRefresh(this, Actions.ON_LOAD, {customDashboardType});
+        performCustomDashboardActionAndClearRefresh(this, Actions.ON_LOAD, {customDashboardType});
         super.UNSAFE_componentWillMount();
     }
 
     onClearFilters() {
-        performCustomDashboardActionAndRefresh(this, Actions.FILTER_CLEARED, {dashboardUUID: this.state.activeDashboardUUID});
+        performCustomDashboardActionAndClearRefresh(this, Actions.FILTER_CLEARED, {dashboardUUID: this.state.activeDashboardUUID});
     }
 
     onDashboardNamePress(uuid) {
@@ -167,7 +194,7 @@ class CustomDashboardView extends AbstractComponent {
                         <View key={section.uuid} style={styles.sectionContainer}>
                             {section.viewType !== DashboardSection.viewTypeName.Default &&
                                 this.renderSectionName(section.name, section.description, section.viewType, cards)}
-                            <View style={section.viewType === 'Tile'? styles.cardContainer: styles.listContainer}>
+                            <View style={section.viewType === 'Tile' ? styles.cardContainer : styles.listContainer}>
                                 {_.map(cards, (card, index) => {
                                     return section.viewType === 'Tile' ?
                                         <CardTileView key={card.itemKey} reportCard={card} I18n={this.I18n}
@@ -231,21 +258,21 @@ class CustomDashboardView extends AbstractComponent {
             return (<View/>);
     }
 
-    renderFilters() {
-        return this.state.filtersPresent && <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>;
-    }
-
     onFilterPressed() {
         const {activeDashboardUUID} = this.state;
         TypedTransition.from(this)
             .with({
                 dashboardUUID: activeDashboardUUID,
-                onFilterChosen: (ruleInputArray) => this.dispatchAction(Actions.FILTER_APPLIED, {ruleInput: {ruleInputArray: ruleInputArray}, filterApplied: true}),
+                onFilterChosen: (ruleInputArray) => performCustomDashboardActionAndClearRefresh(this, Actions.FILTER_APPLIED, {
+                    ruleInput: {ruleInputArray: ruleInputArray},
+                    filterApplied: true
+                }),
                 loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters, filterApplied: true}),
             }).to(FiltersViewV2, true);
     }
 
     render() {
+        const settings = this.getService(UserInfoService).getUserSettingsObject();
         General.logDebug("CustomDashboardView", "render");
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
@@ -271,7 +298,13 @@ class CustomDashboardView extends AbstractComponent {
                             {this.renderZeroResultsMessageIfNeeded()}
                         </ScrollView>
                     </SafeAreaView>}
-                {this.renderFilters()}
+                <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
+                    {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
+                        <RefreshSection I18n={this.I18n}
+                                        onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                        lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                    {this.state.filtersPresent && <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
+                </View>
                 <Fragment>
                     {hasFilters && <View style={{display: "flex", padding: 10}}>
                         <SafeAreaView style={{maxHeight: 160}}>
@@ -317,7 +350,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     listContainer: {
-      marginTop: 16
+        marginTop: 16
     }
 });
 

@@ -1,9 +1,8 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {CustomDashboardCache, DashboardFilterConfig} from "openchs-models";
+import {CustomDashboardCache, Dashboard, DashboardFilterConfig, EncounterType, Program, Range, SubjectType} from "openchs-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
-import {Dashboard, EncounterType, Range, Program, SubjectType} from "openchs-models";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
 import FormMetaDataSelection from "../model/FormMetaDataSelection";
@@ -138,6 +137,7 @@ class CustomDashboardCacheService extends BaseService {
             result.reportCard = reportCard.uuid;
             dashboardCache.nestedReportCardResults.push(result);
         });
+        dashboardCache.updatedAt = new Date();
         this.saveOrUpdate(dashboardCache);
     }
 
@@ -145,6 +145,7 @@ class CustomDashboardCacheService extends BaseService {
         const dashboardCache = getDashboardCache(this, dashboardUUID);
         dashboardCache.reportCardResults = [];
         dashboardCache.nestedReportCardResults = [];
+        dashboardCache.updatedAt = null;
         this.saveOrUpdate(dashboardCache);
     }
 
@@ -160,13 +161,8 @@ class CustomDashboardCacheService extends BaseService {
         _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
         reportCardResult.dashboard = dashboardUUID;
         reportCardResult.reportCard = reportCard.uuid;
-        dashboardCache.reportCardResults.push(reportCardResult);
-        this.saveOrUpdate(dashboardCache);
-    }
-
-    setDashboardUpdateCompleted(dashboardUUID) {
-        const dashboardCache = getDashboardCache(this, dashboardUUID);
         dashboardCache.updatedAt = new Date();
+        dashboardCache.reportCardResults.push(reportCardResult);
         this.saveOrUpdate(dashboardCache);
     }
 }

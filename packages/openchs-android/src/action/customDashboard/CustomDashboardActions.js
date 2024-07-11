@@ -49,7 +49,7 @@ class CustomDashboardActions {
             loading: false,
             reportCardSectionMappings: [],
             cardToCountResultMap: {},
-            countUpdateTime: null,
+            resultUpdatedAt: null,
             hasFilters: false,
             activeDashboardUUID: null,
             customDashboardFilters: []
@@ -108,7 +108,7 @@ class CustomDashboardActions {
     static setFilterApplied(state, action, context) {
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         customDashboardCacheService.clearResults(state.activeDashboardUUID);
-        return CustomDashboardActions.refreshCount(state, action, context);
+        return state;
     }
 
     static setFilterCleared(state, action, context) {
@@ -132,7 +132,6 @@ class CustomDashboardActions {
         const newState = {...state};
 
         newState.cardToCountResultMap = {};
-        newState.countUpdateTime = new Date(); //Update this to ensure reportCard count change is reflected
 
         const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
         reportCardSectionMappings.forEach(rcm => {
@@ -168,7 +167,8 @@ class CustomDashboardActions {
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
-        customDashboardCacheService.setDashboardUpdateCompleted(state.activeDashboardUUID);
+        const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
+        newState.resultUpdatedAt = dashboardCache.updatedAt;
         return newState;
     }
 
@@ -193,13 +193,32 @@ class CustomDashboardActions {
         }
         return state;
     }
+
+    static forceRefresh(state, action, context) {
+        const customDashboardCacheService = context.get(CustomDashboardCacheService);
+        customDashboardCacheService.clearResults(state.activeDashboardUUID);
+        return state;
+    }
+
+    static clearCounts(state, action, context) {
+        const newState = {...state};
+        newState.cardToCountResultMap = {};
+        return newState;
+    }
 }
 
-// This is not a reducer, just a code reuse mechanism
-export function performCustomDashboardActionAndRefresh(dispatcher, actionName, action) {
-    dispatcher.dispatchAction(actionName, action);
+// These are not reducers, just a code reuse mechanism
+export function performCustomDashboardActionAndRefresh(dispatcher, actionName, payload) {
+    dispatcher.dispatchAction(actionName, payload);
     setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
 }
+
+export function performCustomDashboardActionAndClearRefresh(dispatcher, actionName, payload) {
+    dispatcher.dispatchAction(actionName, payload);
+    dispatcher.dispatchAction(CustomDashboardActionNames.CLEAR_COUNTS, payload);
+    setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+}
+
 
 const ActionPrefix = 'CustomDashboard';
 
@@ -212,7 +231,9 @@ const CustomDashboardActionNames = {
     SET_DASHBOARD_FILTERS: `${ActionPrefix}.SET_DASHBOARD_FILTERS`,
     FILTER_APPLIED: `${ActionPrefix}.FILTER_APPLIED`,
     FILTER_CLEARED: `${ActionPrefix}.FILTER_CLEARED`,
-    DISABLE_AUTO_REFRESH_VALUE_UPDATED: `${ActionPrefix}.DISABLE_AUTO_REFRESH_VALUE_UPDATED`
+    DISABLE_AUTO_REFRESH_VALUE_UPDATED: `${ActionPrefix}.DISABLE_AUTO_REFRESH_VALUE_UPDATED`,
+    FORCE_REFRESH: `${ActionPrefix}.FORCE_REFRESH`,
+    CLEAR_COUNTS: `${ActionPrefix}.CLEAR_COUNTS`
 };
 
 const CustomDashboardActionMap = new Map([
@@ -224,7 +245,9 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.SET_DASHBOARD_FILTERS, CustomDashboardActions.setCustomDashboardFilters],
     [CustomDashboardActionNames.FILTER_APPLIED, CustomDashboardActions.setFilterApplied],
     [CustomDashboardActionNames.FILTER_CLEARED, CustomDashboardActions.setFilterCleared],
-    [CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, CustomDashboardActions.disableAutoRefreshValueUpdated]
+    [CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, CustomDashboardActions.disableAutoRefreshValueUpdated],
+    [CustomDashboardActionNames.FORCE_REFRESH, CustomDashboardActions.forceRefresh],
+    [CustomDashboardActionNames.CLEAR_COUNTS, CustomDashboardActions.clearCounts]
 ]);
 
 export {CustomDashboardActionNames, CustomDashboardActionMap, CustomDashboardActions}

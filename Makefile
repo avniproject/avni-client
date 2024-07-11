@@ -477,7 +477,6 @@ else
 	$(call upload,platformTranslation,@packages/openchs-android/translations/ka_IN.json)
 endif
 
-
 deploy_platform_translations_staging:
 	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
 
@@ -496,3 +495,6 @@ deploy_platform_translations_for_flavor_live:
 deploy_platform_translations_live_for_all_flavors:
 	make deploy_platform_translations_for_flavor_live flavor='lfe'
 	make deploy_platform_translations_for_flavor_live flavor='generic'
+
+deploy_platform_translations_local_live:
+	make deploy_translations server=http://localhost port=8021 username=$(username) password=$(password)
