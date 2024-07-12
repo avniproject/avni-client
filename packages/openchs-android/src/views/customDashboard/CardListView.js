@@ -14,22 +14,6 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
     const chevronColor = Colors.darker(0.1, cardColor);
     const clickable = get(countResult, 'clickable');
 
-    const renderNumber = () => {
-        return (_.isNil(get(countResult, 'primaryValue')) ?
-                <ActivityIndicator size="large" color={textColor} style={{paddingVertical: 25}}/> :
-                <CountResult
-                    direction={'column'}
-                    primary={countResult.primaryValue}
-                    secondary={countResult.secondaryValue}
-                    primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
-                    secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
-                    clickable={clickable}
-                    chevronColor={chevronColor}
-                    colour={textColor}
-                />
-        );
-    };
-
     return (
         <TouchableNativeFeedback onPress={() => onCardPress(itemKey)} disabled={!clickable}>
             <View
@@ -40,7 +24,18 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                     <Text style={[styles.nameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
                 </View>
                 <View style={[styles.numberContainer]}>
-                    {renderNumber()}
+                    {_.isNil(countResult) ?
+                            <ActivityIndicator size="large" color={textColor} style={{paddingVertical: 25}}/> :
+                            <CountResult
+                                direction={'column'}
+                                primary={countResult.hasErrorMsg ? countResult.primaryValue : I18n.t(countResult.primaryValue)}
+                                secondary={countResult.hasErrorMsg ? countResult.secondaryValue : I18n.t(countResult.secondaryValue)}
+                                primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
+                                secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
+                                clickable={clickable}
+                                chevronColor={chevronColor}
+                                colour={textColor}
+                            />}
                 </View>
             </View>
         </TouchableNativeFeedback>

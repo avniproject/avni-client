@@ -12,11 +12,13 @@ export const CountResult = ({primary, secondary, primaryStyle, secondaryStyle, d
                 </Text> :
                 null}
 
-          <View style={{position: 'absolute', right: 0, bottom: 0, height: 20, width: 20, backgroundColor: chevronColor,
-            borderTopLeftRadius: 4, borderBottomRightRadius: 4,}}>
-              {clickable &&
-                <MCIcon name={'chevron-right'} size={20} color={colour} style={{opacity: 0.8}}/>}
-          </View>
+            <View style={{
+                position: 'absolute', right: 0, bottom: 0, height: 20, width: 20, backgroundColor: chevronColor,
+                borderTopLeftRadius: 4, borderBottomRightRadius: 4,
+            }}>
+                {clickable &&
+                    <MCIcon name={'chevron-right'} size={20} color={colour} style={{opacity: 0.8}}/>}
+            </View>
         </View>
     )
 };
