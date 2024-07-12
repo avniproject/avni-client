@@ -212,10 +212,10 @@ class BaseService {
         return this.getService("userInfoService").getUserInfo();
     }
 
-    delete(objectOrOrObjects) {
+    delete(objectOrObjects) {
         const db = this.db;
         this.db.write(() => {
-            db.delete(objectOrOrObjects);
+            db.delete(objectOrObjects);
         });
     }
 

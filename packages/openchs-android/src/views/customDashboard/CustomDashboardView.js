@@ -50,15 +50,13 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
     const refreshSectionStyle = {
         paddingLeft: 15,
         color: Styles.grey,
-        fontSize: 8,
-        fontWeight: 'bold',
-        textTransform: 'uppercase'
+        fontSize: Styles.smallerTextSize,
+        fontWeight: 'bold'
     };
     return <TouchableNativeFeedback onPress={() => onRefreshPressed()}>
         <View style={{
             backgroundColor: Colors.SubHeaderBackground,
             flexDirection: 'row',
-            justifyContent: 'space-between',
             minHeight: 45,
             alignItems: 'center'
         }}>
@@ -70,23 +68,22 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
 
 function SubHeader({I18n, onFilterPressed}) {
     const filterLabelStyle = {
-        paddingLeft: 15,
         color: Styles.grey,
         fontSize: Styles.normalTextSize,
         fontWeight: 'bold',
         textTransform: 'uppercase',
+        paddingRight: 5
     };
-    return <TouchableNativeFeedback onPress={() => onFilterPressed()} style={{flex: 0.5}}>
+    return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
         <View style={{
+            flex: 0.25,
             backgroundColor: Colors.SubHeaderBackground,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+            flexDirection: 'row-reverse',
             minHeight: 45,
-            alignItems: 'center',
-            marginRight: 20
+            alignItems: 'center'
         }}>
+            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor, paddingRight: 15}} name='tune'/>
             <Text style={filterLabelStyle}>{I18n.t('filter')}</Text>
-            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor}} name='tune'/>
         </View>
     </TouchableNativeFeedback>;
 }
@@ -299,10 +296,12 @@ class CustomDashboardView extends AbstractComponent {
                         </ScrollView>
                     </SafeAreaView>}
                 <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
-                    {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
-                        <RefreshSection I18n={this.I18n}
-                                        onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
-                                        lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                    <View style={{flex: 0.65}}>
+                        {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
+                            <RefreshSection I18n={this.I18n}
+                                            onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                            lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                    </View>
                     {this.state.filtersPresent && <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
                 </View>
                 <Fragment>

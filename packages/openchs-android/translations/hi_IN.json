@@ -375,6 +375,7 @@
     "addressFilterImplicitBehaviorHint": "(चयन में निचले स्तर परोक्ष रूप से शामिल हैं)",
     "copyErrorTryAgain": "त्रुटि कॉपी करें और पुनः प्रयास करें",
     "copyErrorAndCancel": "त्रुटि कॉपी करें और रद्द करें",
-    "reportCopiedReportByPasting": "रिपोर्ट कॉपी कर ली गई है। रिपोर्ट करने के लिए आप मैसेजिंग ऐप में पेस्ट कर सकते हैं।"
+    "reportCopiedReportByPasting": "रिपोर्ट कॉपी कर ली गई है। रिपोर्ट करने के लिए आप मैसेजिंग ऐप में पेस्ट कर सकते हैं।",
+    "lastRefreshedMessage": "कार्ड नंबर अंतिम बार {{dateTime}} पर अपडेट किए गए"
   }
 }

@@ -157,13 +157,15 @@ class CustomDashboardCacheService extends BaseService {
     }
 
     updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
-        const dashboardCache = getDashboardCache(this, dashboardUUID);
-        _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
-        reportCardResult.dashboard = dashboardUUID;
-        reportCardResult.reportCard = reportCard.uuid;
-        dashboardCache.updatedAt = new Date();
-        dashboardCache.reportCardResults.push(reportCardResult);
-        this.saveOrUpdate(dashboardCache);
+        const db = this.db;
+        db.write(() => {
+            let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+            dashboardCache.updatedAt = new Date();
+            _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
+            reportCardResult.dashboard = dashboardUUID;
+            reportCardResult.reportCard = reportCard.uuid;
+            dashboardCache.reportCardResults.push(reportCardResult);
+        });
     }
 }
 

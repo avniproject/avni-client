@@ -121,6 +121,7 @@ class CustomDashboardActions {
     static refreshCount(state, action, context) {
         const customDashboardService = context.get(CustomDashboardService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
+
         const userInfoService = context.get(UserInfoService);
         const reportCardService = context.get(ReportCardService);
 
