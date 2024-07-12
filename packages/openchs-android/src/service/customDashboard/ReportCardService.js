@@ -97,7 +97,7 @@ class ReportCardService extends BaseService {
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
             case _.isNil(standardReportCardType) :
-                return this.getService(RuleEvaluationService).getDashboardCardCount(reportCard, reportFilters);
+                return this.getService(RuleEvaluationService).getDashboardCardResult(reportCard, reportFilters);
             case standardReportCardType.isApprovalType() :
                 return this.getCountForApprovalCardsType(standardReportCardType, reportFilters);
             case standardReportCardType.isDefaultType() :

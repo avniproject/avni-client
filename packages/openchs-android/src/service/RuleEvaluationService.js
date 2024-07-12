@@ -751,7 +751,7 @@ class RuleEvaluationService extends BaseService {
         return queryResult.length !== undefined;
     }
 
-    getDashboardCardCount(reportCard, ruleInput) {
+    getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
             return ReportCardResult.create(queryResult.length, null, true);
