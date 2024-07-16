@@ -9,7 +9,7 @@ buildscript {
         targetSdkVersion = 33
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
-        kotlinVersion = '1.6.0'
+        kotlinVersion = '1.6.21'
 
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"
@@ -23,8 +23,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle'
-        classpath 'com.google.gms:google-services:4.3.2'
+        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.google.gms:google-services:4.3.10'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
         classpath('com.facebook.react:react-native-gradle-plugin')
         // NOTE: Do not place your application dependencies here; they belong

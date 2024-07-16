@@ -213,6 +213,7 @@ android {
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy"]
         }
     }
+    namespace 'com.openchsclient'
     sourceSets {
         // Required to enable TamperChecking, init this only for flavours which need Security Tamper Check enabled
         lfe.java.srcDir 'src/common/java'
