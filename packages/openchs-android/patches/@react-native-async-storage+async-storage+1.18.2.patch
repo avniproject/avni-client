@@ -1,0 +1,24 @@
+diff --git a/node_modules/@react-native-async-storage/async-storage/android/build.gradle b/node_modules/@react-native-async-storage/async-storage/android/build.gradle
+index 462db2d..edc64e7 100644
+--- a/node_modules/@react-native-async-storage/async-storage/android/build.gradle
++++ b/node_modules/@react-native-async-storage/async-storage/android/build.gradle
+@@ -74,6 +74,7 @@ if (useNextStorage) {
+ }
+ 
+ android {
++    namespace 'com.reactnativecommunity.asyncstorage' 
+     compileSdkVersion safeExtGet('compileSdkVersion', 32)
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 23)
+diff --git a/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml b/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml
+index 7e180bd..405ed27 100644
+--- a/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml
++++ b/node_modules/@react-native-async-storage/async-storage/android/src/main/AndroidManifest.xml
+@@ -1,6 +1,5 @@
+ 
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.reactnativecommunity.asyncstorage">
+-
++	>
+ </manifest>
+   

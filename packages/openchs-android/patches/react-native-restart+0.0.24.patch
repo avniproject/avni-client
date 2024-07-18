@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-restart/android/build.gradle b/node_modules/react-native-restart/android/build.gradle
+index 47a5d21..415a8fa 100644
+--- a/node_modules/react-native-restart/android/build.gradle
++++ b/node_modules/react-native-restart/android/build.gradle
+@@ -22,7 +22,7 @@ def safeExtGet(name) {
+ 
+ android {
+   compileSdkVersion safeExtGet('compileSdkVersion')
+-
++  namespace 'com.reactnativerestart'
+   defaultConfig {
+     minSdkVersion safeExtGet('minSdkVersion')
+     targetSdkVersion safeExtGet('targetSdkVersion')
+diff --git a/node_modules/react-native-restart/android/src/main/AndroidManifest.xml b/node_modules/react-native-restart/android/src/main/AndroidManifest.xml
+index ddd717c..2a803a9 100644
+--- a/node_modules/react-native-restart/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-restart/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,3 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.reactnativerestart">
+-
++	>
+ </manifest>

@@ -1,0 +1,25 @@
+diff --git a/node_modules/react-native-file-viewer/android/build.gradle b/node_modules/react-native-file-viewer/android/build.gradle
+index 5016f0c..717f050 100644
+--- a/node_modules/react-native-file-viewer/android/build.gradle
++++ b/node_modules/react-native-file-viewer/android/build.gradle
+@@ -7,7 +7,7 @@ def safeExtGet(prop, fallback) {
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+     buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+-
++    namespace 'com.vinzscam.reactnativefileviewer'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 16)
+         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+diff --git a/node_modules/react-native-file-viewer/android/src/main/AndroidManifest.xml b/node_modules/react-native-file-viewer/android/src/main/AndroidManifest.xml
+index 8166e4c..2c3eca0 100644
+--- a/node_modules/react-native-file-viewer/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-file-viewer/android/src/main/AndroidManifest.xml
+@@ -1,7 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest
+   xmlns:android="http://schemas.android.com/apk/res/android"
+-  package="com.vinzscam.reactnativefileviewer"
+   >
+       <application>
+         <provider android:name="com.vinzscam.reactnativefileviewer.FileProvider" android:authorities="${applicationId}.provider" android:exported="false" android:grantUriPermissions="true">

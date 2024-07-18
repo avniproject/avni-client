@@ -1,0 +1,23 @@
+diff --git a/node_modules/@react-native-firebase/analytics/android/build.gradle b/node_modules/@react-native-firebase/analytics/android/build.gradle
+index 0165f28..e32a886 100644
+--- a/node_modules/@react-native-firebase/analytics/android/build.gradle
++++ b/node_modules/@react-native-firebase/analytics/android/build.gradle
+@@ -105,6 +105,7 @@ if (rootProject.ext && rootProject.ext.firebaseJson) {
+ }
+ 
+ android {
++  namespace 'io.invertase.firebase.analytics'
+   defaultConfig {
+     multiDexEnabled true
+     manifestPlaceholders = [
+diff --git a/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml b/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml
+index de844a8..13258d4 100644
+--- a/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml
++++ b/node_modules/@react-native-firebase/analytics/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<manifest package="io.invertase.firebase.analytics"
++<manifest 
+   xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

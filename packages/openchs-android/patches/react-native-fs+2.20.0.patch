@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-fs/android/build.gradle b/node_modules/react-native-fs/android/build.gradle
+index ddef857..229d2a6 100644
+--- a/node_modules/react-native-fs/android/build.gradle
++++ b/node_modules/react-native-fs/android/build.gradle
+@@ -17,7 +17,7 @@ apply plugin: 'com.android.library'
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 26)
+     buildToolsVersion safeExtGet('buildToolsVersion', '26.0.3')
+-
++    namespace 'com.rnfs'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 19)
+         targetSdkVersion safeExtGet('targetSdkVersion', 26)
+diff --git a/node_modules/react-native-fs/android/src/main/AndroidManifest.xml b/node_modules/react-native-fs/android/src/main/AndroidManifest.xml
+index 6e54f65..8fbeffd 100644
+--- a/node_modules/react-native-fs/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-fs/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.rnfs" >
++    >
+ <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+ </manifest>

@@ -1,0 +1,21 @@
+diff --git a/node_modules/react-native-svg/android/build.gradle b/node_modules/react-native-svg/android/build.gradle
+index ae49918..7bc5579 100644
+--- a/node_modules/react-native-svg/android/build.gradle
++++ b/node_modules/react-native-svg/android/build.gradle
+@@ -22,7 +22,7 @@ def safeExtGet(prop, fallback) {
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+-
++    namespace 'com.horcrux.svg'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 16)
+         //noinspection OldTargetApi
+diff --git a/node_modules/react-native-svg/android/src/main/AndroidManifest.xml b/node_modules/react-native-svg/android/src/main/AndroidManifest.xml
+index d85bd62..bdae66c 100644
+--- a/node_modules/react-native-svg/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-svg/android/src/main/AndroidManifest.xml
+@@ -1,2 +1,2 @@
+-<manifest package="com.horcrux.svg">
++<manifest>
+ </manifest>

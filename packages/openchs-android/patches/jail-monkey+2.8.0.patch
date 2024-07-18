@@ -1,0 +1,22 @@
+diff --git a/node_modules/jail-monkey/android/build.gradle b/node_modules/jail-monkey/android/build.gradle
+index 158b55d..79054c7 100644
+--- a/node_modules/jail-monkey/android/build.gradle
++++ b/node_modules/jail-monkey/android/build.gradle
+@@ -7,7 +7,7 @@ apply plugin: 'com.android.library'
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 31)
+     buildToolsVersion safeExtGet('buildToolsVersion', "31.0.0")
+-
++    namespace 'com.gantix.JailMonkey'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 21)
+         targetSdkVersion safeExtGet('targetSdkVersion', 31)
+diff --git a/node_modules/jail-monkey/android/src/main/AndroidManifest.xml b/node_modules/jail-monkey/android/src/main/AndroidManifest.xml
+index 73f0aea..a2f47b6 100644
+--- a/node_modules/jail-monkey/android/src/main/AndroidManifest.xml
++++ b/node_modules/jail-monkey/android/src/main/AndroidManifest.xml
+@@ -1,3 +1,2 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.gantix.JailMonkey">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ </manifest>
