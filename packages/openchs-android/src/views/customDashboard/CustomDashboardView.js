@@ -66,7 +66,7 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
     </TouchableNativeFeedback>;
 }
 
-function SubHeader({I18n, onFilterPressed}) {
+function FilterSection({I18n, onFilterPressed}) {
     const filterLabelStyle = {
         color: Styles.grey,
         fontSize: Styles.normalTextSize,
@@ -263,14 +263,16 @@ class CustomDashboardView extends AbstractComponent {
                 onFilterChosen: (ruleInputArray) => performCustomDashboardActionAndClearRefresh(this, Actions.FILTER_APPLIED, {
                     ruleInput: {ruleInputArray: ruleInputArray},
                     filterApplied: true
-                }),
-                loadFiltersData: (filters) => this.dispatchAction(Actions.SET_DASHBOARD_FILTERS, {customDashboardFilters: filters, filterApplied: true}),
+                })
             }).to(FiltersViewV2, true);
     }
 
     render() {
-        const settings = this.getService(UserInfoService).getUserSettingsObject();
         General.logDebug("CustomDashboardView", "render");
+
+        const settings = this.getService(UserInfoService).getUserSettingsObject();
+        const dashboard = this.state.dashboards.find((x) => x.uuid === this.state.activeDashboardUUID);
+
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
         const {hasFilters, loading} = this.state;
@@ -287,41 +289,36 @@ class CustomDashboardView extends AbstractComponent {
                            renderSearch={showSearch}
                            onSearch={onSearch}
                 />
-                <Line/>
-                {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
-                    <SafeAreaView style={{height: 50}}>
-                        <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
-                            {this.renderDashboards()}
-                            {this.renderZeroResultsMessageIfNeeded()}
-                        </ScrollView>
-                    </SafeAreaView>}
-                <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
-                    <View style={{flex: 0.65}}>
-                        {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
-                            <RefreshSection I18n={this.I18n}
-                                            onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
-                                            lastUpdatedOn={this.state.resultUpdatedAt}/>}
-                    </View>
-                    {this.state.filtersPresent && <SubHeader I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
-                </View>
-                <Fragment>
-                    {hasFilters && <View style={{display: "flex", padding: 10}}>
-                        <SafeAreaView style={{maxHeight: 160}}>
-                            <ScrollView style={this.state.customDashboardFilters.applied && CustomDashboardView.styles.itemContent}>
-                                <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
-                                                  postClearAction={() => this.onClearFilters()}
-                                                  applied={this.state.customDashboardFilters.applied}
-                                                  selectedLocations={this.state.customDashboardFilters.selectedLocations}
-                                                  selectedCustomFilters={this.state.customDashboardFilters.selectedCustomFilters}
-                                                  selectedGenders={this.state.customDashboardFilters.selectedGenders}/>
+                <ScrollView>
+                    <Line/>
+                    {(_.isNil(customDashboardType) || customDashboardType === CustomDashboardType.None) &&
+                        <SafeAreaView style={{height: 50}}>
+                            <ScrollView horizontal style={{backgroundColor: Colors.cardBackgroundColor}}>
+                                {this.renderDashboards()}
+                                {this.renderZeroResultsMessageIfNeeded()}
                             </ScrollView>
+                        </SafeAreaView>}
+                    <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
+                        <View style={{flex: 0.65}}>
+                            {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
+                                <RefreshSection I18n={this.I18n}
+                                                onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                                lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                        </View>
+                        {this.state.filtersPresent && <FilterSection I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
+                    </View>
+                    <CustomActivityIndicator loading={loading}/>
+
+                    {hasFilters && <View style={{display: "flex", padding: 10}}>
+                        <SafeAreaView>
+                            <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
+                                              postClearAction={() => this.onClearFilters()}
+                                              dashboard={dashboard}
+                                              selectedFilterValues={this.state.customDashboardFilters}/>
                         </SafeAreaView>
                     </View>}
-                    <CustomActivityIndicator loading={loading}/>
-                    <ScrollView>
-                        {this.renderCards()}
-                    </ScrollView>
-                </Fragment>
+                    {this.renderCards()}
+                </ScrollView>
             </CHSContainer>
         );
     }

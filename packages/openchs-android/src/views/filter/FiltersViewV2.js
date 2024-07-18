@@ -81,8 +81,7 @@ class GroupSubjectFilter extends AbstractComponent {
 class FiltersViewV2 extends AbstractComponent {
     static propTypes = {
         dashboardUUID: PropTypes.string.isRequired,
-        onFilterChosen: PropTypes.func.isRequired,
-        loadFiltersData: PropTypes.func.isRequired,
+        onFilterChosen: PropTypes.func.isRequired
     };
 
     static styles = StyleSheet.create({

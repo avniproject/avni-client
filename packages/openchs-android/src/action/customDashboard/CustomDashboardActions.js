@@ -14,16 +14,23 @@ function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
 }
 
-function loadCurrentDashboardInfo(context, newState) {
+function filterUpdated(context, state) {
+    const customDashboardCacheService = context.get(CustomDashboardCacheService);
+    customDashboardCacheService.clearResults(state.activeDashboardUUID);
+    return state;
+}
+
+function loadCurrentDashboardInfo(context, state) {
     const dashboardFilterService = context.get(DashboardFilterService);
-    const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(newState.activeDashboardUUID);
-    newState.filtersPresent = _.keys(filterConfigs).length > 0;
-    newState.customDashboardFilters = dashboardFilterService.getFilters(newState.activeDashboardUUID);
-    if (newState.activeDashboardUUID) {
-        newState.reportCardSectionMappings = getReportsCards(newState.activeDashboardUUID, context);
-        newState.hasFilters = dashboardFilterService.hasFilters(newState.activeDashboardUUID);
+    const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(state.activeDashboardUUID);
+    state.filtersPresent = _.keys(filterConfigs).length > 0;
+    const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
+    state.customDashboardFilters = selectedFilterValues;
+    if (state.activeDashboardUUID) {
+        state.reportCardSectionMappings = getReportsCards(state.activeDashboardUUID, context);
+        state.hasFilters = dashboardFilterService.hasFilters(state.activeDashboardUUID);
     }
-    return newState;
+    return state;
 }
 
 function getViewName(standardReportCardType) {
@@ -106,31 +113,29 @@ class CustomDashboardActions {
     }
 
     static setFilterApplied(state, action, context) {
-        const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        customDashboardCacheService.clearResults(state.activeDashboardUUID);
-        return state;
+        return filterUpdated(context, state);
     }
 
     static setFilterCleared(state, action, context) {
-        const customDashboardCacheService = context.get(CustomDashboardCacheService);
-        customDashboardCacheService.clearResults(state.activeDashboardUUID);
-        return state;
+        return filterUpdated(context, state);
     }
 
     // loads the dashboard report cards data
     static refreshCount(state, action, context) {
         const customDashboardService = context.get(CustomDashboardService);
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
-
         const userInfoService = context.get(UserInfoService);
         const reportCardService = context.get(ReportCardService);
 
+        const newState = {...state};
+
         const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
+        newState.customDashboardFilters = selectedFilterValues;
         const userSettings = userInfoService.getUserSettingsObject();
 
         const I18n = context.get(MessageService).getI18n();
         const reportCardSectionMappings = state.reportCardSectionMappings;
-        const newState = {...state};
+
 
         newState.cardToCountResultMap = {};
 
@@ -179,12 +184,6 @@ class CustomDashboardActions {
         return newState;
     }
 
-    static setCustomDashboardFilters(state, action, context) {
-        const newState = {...state};
-        newState.customDashboardFilters = action.filterApplied ? action.customDashboardFilters : [];
-        return newState;
-    }
-
     static disableAutoRefreshValueUpdated(state, action, context) {
         if (!action.disabled) {
             const customDashboardService = context.get(CustomDashboardService);
@@ -229,7 +228,6 @@ const CustomDashboardActionNames = {
     ON_CARD_PRESS: `${ActionPrefix}.ON_CARD_PRESS`,
     LOAD_INDICATOR: `${ActionPrefix}.LOAD_INDICATOR`,
     REFRESH_COUNT: `${ActionPrefix}.REFRESH_COUNT`,
-    SET_DASHBOARD_FILTERS: `${ActionPrefix}.SET_DASHBOARD_FILTERS`,
     FILTER_APPLIED: `${ActionPrefix}.FILTER_APPLIED`,
     FILTER_CLEARED: `${ActionPrefix}.FILTER_CLEARED`,
     DISABLE_AUTO_REFRESH_VALUE_UPDATED: `${ActionPrefix}.DISABLE_AUTO_REFRESH_VALUE_UPDATED`,
@@ -243,7 +241,6 @@ const CustomDashboardActionMap = new Map([
     [CustomDashboardActionNames.ON_CARD_PRESS, CustomDashboardActions.onCardPress],
     [CustomDashboardActionNames.LOAD_INDICATOR, CustomDashboardActions.loadIndicator],
     [CustomDashboardActionNames.REFRESH_COUNT, CustomDashboardActions.refreshCount],
-    [CustomDashboardActionNames.SET_DASHBOARD_FILTERS, CustomDashboardActions.setCustomDashboardFilters],
     [CustomDashboardActionNames.FILTER_APPLIED, CustomDashboardActions.setFilterApplied],
     [CustomDashboardActionNames.FILTER_CLEARED, CustomDashboardActions.setFilterCleared],
     [CustomDashboardActionNames.DISABLE_AUTO_REFRESH_VALUE_UPDATED, CustomDashboardActions.disableAutoRefreshValueUpdated],
