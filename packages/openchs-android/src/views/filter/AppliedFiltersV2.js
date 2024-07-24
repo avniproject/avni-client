@@ -82,7 +82,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
                                 case Concept.dataType.Time:
                                     return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter} content={General.toDisplayTime(selectedFilterValue)}/>
                                 case Range.DateRange:
-                                    return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
+                                    return !_.isNil(selectedFilterValue) && !selectedFilterValue.isEmpty() && <FilterDisplay filter={filter}
                                                                                            content={`${General.toDisplayDate(selectedFilterValue.minValue)} - ${General.toDisplayDate(selectedFilterValue.maxValue)}`}/>
                                 case DashboardFilterConfig.dataTypes.formMetaData:
                                     let displayValue = selectedFilterValue.subjectTypes.map(x => x.name).join(", ");
