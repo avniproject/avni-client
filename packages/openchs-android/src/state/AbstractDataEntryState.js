@@ -122,7 +122,7 @@ class AbstractDataEntryState {
         this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
 
         if (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
-            General.logDebug("No form elements here. Moving to previous screen");
+            General.logDebug("AbstractDataEntryState", "handlePrevious - No form elements here. Moving to previous screen");
             return this.handlePrevious(action, context);
         }
         const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -134,7 +134,11 @@ class AbstractDataEntryState {
 
     handleSummaryPage(action, context) {
         while (!this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
+            const currentPageBeforeNext = this.wizard.currentPage;
             this.handleNext(action, context);
+            //if last feg has no visible form elements, handleNext moves previous to feg with visible form elements
+            //and as a result, the isLastPage() condition is never satisfied causing an infinite loop
+            if (!(this.wizard.currentPage > currentPageBeforeNext)) break;
         }
         // after the last page one more next to go to SR page
         if (this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
@@ -187,7 +191,7 @@ class AbstractDataEntryState {
                 ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
             }
             if (this.hasNoFormElements()) {
-                General.logDebug("No form elements here. Moving to next screen");
+                General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
                 return this.handleNext(action, context);
             }
             const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
@@ -301,6 +305,7 @@ class AbstractDataEntryState {
     }
 
     moveToLastPageWithFormElements(action, context) {
+        General.logDebug("AbstractDataEntryState", "moveToLastPageWithFormElements");
         while (this.hasNoFormElements() && !this.wizard.isFirstPage()) {
             this.handlePrevious(action, context);
         }
