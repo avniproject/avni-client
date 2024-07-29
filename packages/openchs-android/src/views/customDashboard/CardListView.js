@@ -3,7 +3,7 @@ import React from 'react';
 import Styles from '../primitives/Styles';
 import {CountResult} from './CountResult';
 import _, {get} from 'lodash';
-import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Colors from '../primitives/Colors';
 
 export const CardListView = ({reportCard, I18n, onCardPress, countResult, index, isLastCard}) => {
     const {name, colour, itemKey} = reportCard;
@@ -11,6 +11,7 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
     const textColor = (countResult && countResult.textColor) || Styles.blackColor;
     const descriptionColor = (countResult && countResult.textColor) || Styles.blackColor;
     const cardColor = (countResult && countResult.cardColor) || colour || '#999999';
+    const chevronColor = Colors.darker(0.1, cardColor);
     const clickable = get(countResult, 'clickable');
 
     const renderNumber = () => {
@@ -22,6 +23,9 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                     secondary={countResult.secondaryValue}
                     primaryStyle={[styles.primaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardPrimaryTextErrorStyle]}
                     secondaryStyle={[styles.secondaryTextStyle, {color: textColor}, countResult.hasErrorMsg && styles.cardSecondaryTextErrorStyle]}
+                    clickable={clickable}
+                    chevronColor={chevronColor}
+                    colour={textColor}
                 />
         );
     };
@@ -34,10 +38,6 @@ export const CardListView = ({reportCard, I18n, onCardPress, countResult, index,
                 ]}>
                 <View style={styles.nameContainer}>
                     <Text style={[styles.nameTextStyle, {color: descriptionColor}]}>{I18n.t(cardName)}</Text>
-                    <View style={{borderRadius: 6, alignSelf: 'flex-end'}}>
-                        {clickable &&
-                            <MCIcon name={'chevron-right'} size={40} color={colour} style={{opacity: 0.8}}/>}
-                    </View>
                 </View>
                 <View style={[styles.numberContainer]}>
                     {renderNumber()}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     rowContainer: {
         flexDirection: 'row',
         flexWrap: 'nowrap',
-        height: 100,
+        minHeight: 100,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#DCDCDC'
     },
@@ -70,17 +70,16 @@ const styles = StyleSheet.create({
     },
     nameContainer: {
         marginLeft: 5,
-        paddingHorizontal: 3,
+        paddingHorizontal: 16,
         flex: 0.7,
         flexDirection: 'row',
-        paddingLeft: 16,
+        alignItems: 'center',
         borderRightWidth: StyleSheet.hairlineWidth,
         borderColor: '#DCDCDC'
     },
     nameTextStyle: {
-        paddingTop: 15,
-        fontSize: Styles.titleSize,
-        width: '90%'
+        paddingVertical: 15,
+        fontSize: Styles.normalTextSize
     },
     numberContainer: {
         flex: 0.3,
@@ -92,7 +91,8 @@ const styles = StyleSheet.create({
         fontStyle: 'normal',
     },
     secondaryTextStyle: {
-        fontSize: 16,
+        fontSize: 14,
+        fontWeight: '300',
         fontStyle: 'normal',
     },
     cardPrimaryTextErrorStyle: {

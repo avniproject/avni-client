@@ -202,7 +202,7 @@ class General {
     }
 
     static toISTDate(x) {
-        if (x.toString().includes("18:30:00"))
+        if (x && x.toString().includes("18:30:00"))
             return moment(x).add(330, "m").toDate();
         return x;
     }
