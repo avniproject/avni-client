@@ -4,6 +4,7 @@ import _ from "lodash";
 import FormMappingService from "../../service/FormMappingService";
 import {ArrayUtil} from "openchs-models";
 import AddressLevelState from '../common/AddressLevelsState';
+import General from "../../utility/General";
 
 class FiltersActions {
 
@@ -64,10 +65,8 @@ class FiltersActions {
             addressLevelState: action.addressLevelState
         };
         const addressLevelService = beans.get(AddressLevelService);
-        const lowestSelectedAddressLevels = action.addressLevelState.lowestSelectedAddresses;
-        const lowestAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []);
-        newState.locationSearchCriteria.toggleLowestAddresses(lowestAddressLevels);
+        const toMatchAddresses = [...action.addressLevelState.selectedAddresses].concat(addressLevelService.getAllDescendants(action.addressLevelState.selectedAddresses));
+        newState.locationSearchCriteria.toggleLowestAddresses(toMatchAddresses);
         return newState;
     }
 

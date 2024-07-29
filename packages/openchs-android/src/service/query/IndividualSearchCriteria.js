@@ -98,13 +98,6 @@ class IndividualSearchCriteria {
         this.allowedSubjectUUIDs = subjectUUIDs;
     }
 
-    toggleLowestAddress(lowestAddress) {
-        if (BaseEntity.collectionHasEntity(this.lowestAddressLevels, lowestAddress))
-            BaseEntity.removeFromCollection(this.lowestAddressLevels, lowestAddress);
-        else
-            this.lowestAddressLevels.push(lowestAddress);
-    }
-
     toggleLowestAddresses(lowestAddresses) {
         this.lowestAddressLevels = lowestAddresses;
     }
