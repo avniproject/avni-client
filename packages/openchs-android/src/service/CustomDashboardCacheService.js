@@ -81,7 +81,7 @@ class CustomDashboardCacheService extends BaseService {
     }
 
     reset(dashboardUUID) {
-        const cache = getDashboardCache(this, dashboardUUID);
+        const cache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
         this.delete(cache);
     }
 

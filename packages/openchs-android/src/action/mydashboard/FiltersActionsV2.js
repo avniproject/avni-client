@@ -2,9 +2,6 @@ import DashboardFilterService from "../../service/reports/DashboardFilterService
 import _ from "lodash";
 import {ArrayUtil, Concept, CustomFilter, DashboardFilterConfig} from 'openchs-models';
 import CustomDashboardCacheService from '../../service/CustomDashboardCacheService';
-
-import General from "../../utility/General";
-import FormMetaDataSelection from "../../model/FormMetaDataSelection";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 
 class FiltersActionsV2 {
@@ -93,7 +90,7 @@ class FiltersActionsV2 {
     static clearFilter(state, action, context) {
         const customDashboardCacheService = context.get(CustomDashboardCacheService);
         customDashboardCacheService.reset(state.dashboardUUID);
-        return FiltersActionsV2.onLoad(this.getInitialState(), {dashboardUUID: state.dashboardUUID}, context);
+        return FiltersActionsV2.onLoad(FiltersActionsV2.getInitialState(), {dashboardUUID: state.dashboardUUID}, context);
     }
 }
 

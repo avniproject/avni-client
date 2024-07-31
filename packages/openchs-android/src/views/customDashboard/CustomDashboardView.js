@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
-import React, {Fragment} from "react";
+import React from "react";
 import Reducers from "../../reducer";
 import {
     CustomDashboardActionNames as Actions,
@@ -68,21 +68,22 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
 
 function FilterSection({I18n, onFilterPressed}) {
     const filterLabelStyle = {
-        color: Styles.grey,
+        color: Styles.accentColor,
         fontSize: Styles.normalTextSize,
+        backgroundColor: Colors.FilterButtonColor,
         fontWeight: 'bold',
         textTransform: 'uppercase',
-        paddingRight: 5
+        borderRadius: 5,
+        padding: 5
     };
     return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
         <View style={{
-            flex: 0.25,
-            backgroundColor: Colors.SubHeaderBackground,
+            flex: 0.20,
             flexDirection: 'row-reverse',
             minHeight: 45,
-            alignItems: 'center'
+            alignItems: 'center',
+            marginLeft: 15
         }}>
-            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor, paddingRight: 15}} name='tune'/>
             <Text style={filterLabelStyle}>{I18n.t('filter')}</Text>
         </View>
     </TouchableNativeFeedback>;
@@ -308,15 +309,11 @@ class CustomDashboardView extends AbstractComponent {
                         {this.state.filtersPresent && <FilterSection I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
                     </View>
                     <CustomActivityIndicator loading={loading}/>
-
-                    {hasFilters && <View style={{display: "flex", padding: 10}}>
-                        <SafeAreaView>
-                            <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
-                                              postClearAction={() => this.onClearFilters()}
-                                              dashboard={dashboard}
-                                              selectedFilterValues={this.state.customDashboardFilters}/>
-                        </SafeAreaView>
-                    </View>}
+                    <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
+                                      postClearAction={() => this.onClearFilters()}
+                                      dashboard={dashboard}
+                                      hasFilters={hasFilters}
+                                      selectedFilterValues={this.state.customDashboardFilters}/>
                     {this.renderCards()}
                 </ScrollView>
             </CHSContainer>
