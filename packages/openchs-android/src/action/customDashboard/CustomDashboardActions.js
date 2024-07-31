@@ -22,13 +22,13 @@ function filterUpdated(context, state) {
 
 function loadCurrentDashboardInfo(context, state) {
     const dashboardFilterService = context.get(DashboardFilterService);
-    const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(state.activeDashboardUUID);
-    state.filtersPresent = _.keys(filterConfigs).length > 0;
+    state.filtersPresent = dashboardFilterService.areFiltersPresent(state.activeDashboardUUID);
     const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
     state.customDashboardFilters = selectedFilterValues;
     if (state.activeDashboardUUID) {
         state.reportCardSectionMappings = getReportsCards(state.activeDashboardUUID, context);
-        state.hasFilters = dashboardFilterService.hasFilters(state.activeDashboardUUID);
+        state.hasFiltersSet = selectedFilterValues && Object.values(selectedFilterValues).length > 0
+        && Object.values(selectedFilterValues).some(sfv => !_.isNil(sfv) && !_.isEmpty(sfv));
     }
     return state;
 }
@@ -57,7 +57,8 @@ class CustomDashboardActions {
             reportCardSectionMappings: [],
             cardToCountResultMap: {},
             resultUpdatedAt: null,
-            hasFilters: false,
+            filtersPresent: false,
+            hasFiltersSet: false,
             activeDashboardUUID: null,
             customDashboardFilters: []
         };

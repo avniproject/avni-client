@@ -102,8 +102,9 @@ class DashboardFilterService extends BaseService {
         return dashboardReportFilter;
     }
 
-    hasFilters(dashboardUUID) {
-        return this.getFilters(dashboardUUID).length > 0;
+    areFiltersPresent(dashboardUUID) {
+        const filterConfigs = this.getFilterConfigsForDashboard(dashboardUUID);
+        return _.keys(filterConfigs).length > 0;
     }
 }
 

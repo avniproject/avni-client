@@ -2,7 +2,7 @@ import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-nati
 import React, {Fragment} from 'react';
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import General from "../../utility/General";
-import {Concept, Range, DashboardFilterConfig} from 'openchs-models';
+import {Concept, Range, DashboardFilterConfig, CustomFilter} from 'openchs-models';
 import AvniIcon from '../common/AvniIcon';
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import _ from 'lodash';
@@ -51,11 +51,9 @@ export default class AppliedFiltersV2 extends AbstractComponent {
     }
 
     render() {
-        const {hasFilters, dashboard, selectedFilterValues} = this.props;
+        const {hasFiltersSet, dashboard, selectedFilterValues} = this.props;
         const filterConfigs = this.getService(DashboardFilterService).getFilterConfigsForDashboard(dashboard.uuid);
-        const showFilters = selectedFilterValues && Object.values(selectedFilterValues).length > 0
-          && Object.values(selectedFilterValues).some(sfv => !_.isNil(sfv) && !_.isEmpty(sfv));
-        return hasFilters && showFilters && (<View style={{
+        return hasFiltersSet && (<View style={{
               display: "flex",
               padding: 10,
               backgroundColor: Colors.GreyBackground,
@@ -79,6 +77,11 @@ export default class AppliedFiltersV2 extends AbstractComponent {
                               const filter = dashboard.getFilter(filterUUID);
                               const inputDataType = filterConfigs[filterUUID].getInputDataType();
                               const selectedFilterValue = selectedFilterValues[filterUUID];
+
+                              if(filterConfigs[filterUUID].type === CustomFilter.type.AsOnDate) {
+                                  return <></>;
+                              }
+
                               switch (inputDataType) {
                                   case Concept.dataType.Coded:
                                   case DashboardFilterConfig.dataTypes.array:

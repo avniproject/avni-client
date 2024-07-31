@@ -78,7 +78,7 @@ function FilterSection({I18n, onFilterPressed}) {
     };
     return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
         <View style={{
-            flex: 0.20,
+            display: 'flex',
             flexDirection: 'row-reverse',
             minHeight: 45,
             alignItems: 'center',
@@ -276,7 +276,7 @@ class CustomDashboardView extends AbstractComponent {
 
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
-        const {hasFilters, loading} = this.state;
+        const {hasFiltersSet, loading} = this.state;
         return (
             <CHSContainer style={{
                 marginBottom: Styles.ContentDistanceFromEdge
@@ -312,7 +312,7 @@ class CustomDashboardView extends AbstractComponent {
                     <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
                                       postClearAction={() => this.onClearFilters()}
                                       dashboard={dashboard}
-                                      hasFilters={hasFilters}
+                                      hasFiltersSet={hasFiltersSet}
                                       selectedFilterValues={this.state.customDashboardFilters}/>
                     {this.renderCards()}
                 </ScrollView>
