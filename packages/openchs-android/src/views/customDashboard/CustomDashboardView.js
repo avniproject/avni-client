@@ -8,7 +8,15 @@ import {
     performCustomDashboardActionAndClearRefresh,
     performCustomDashboardActionAndRefresh
 } from "../../action/customDashboard/CustomDashboardActions";
-import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableNativeFeedback, View} from "react-native";
+import {
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableNativeFeedback,
+    TouchableOpacity,
+    View
+} from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
 import {DashboardSection} from 'openchs-models';
@@ -39,6 +47,7 @@ import {CardListView} from './CardListView';
 import UserInfoService from "../../service/UserInfoService";
 import DashboardFilterService from '../../service/reports/DashboardFilterService';
 import DatePicker from '../primitives/DatePicker';
+import moment from 'moment';
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -79,18 +88,21 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
         performCustomDashboardActionAndClearRefresh(dispatcher, Actions.FILTER_APPLIED);
     }
 
-    // const renderQuickDateOptions = (label, value, isFilled) => {
-    //     const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.DisabledButtonColor};
-    //     const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Colors.InputNormal};
-    //     return (
-    //       <TouchableOpacity
-    //         style={[CustomDashboardView.styles.todayButton, backgroundColor]}
-    //         onPress={() => isFilled ? _.noop() : dispatchAction(Actions.ON_DATE, {value})}
-    //       >
-    //           <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
-    //       </TouchableOpacity>
-    //     )
-    // }
+    const renderQuickDateOptions = (label, value, isFilled) => {
+        const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.FilterButtonColor};
+        const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Styles.accentColor};
+        return (
+          <TouchableOpacity
+            style={[CustomDashboardView.styles.todayButton, backgroundColor]}
+            onPress={() => isFilled ? _.noop() : onAsOnDateChange(value)}
+          >
+              <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
+          </TouchableOpacity>
+        )
+    }
+
+    const isToday = moment(asOnDateValue).isSame(moment(), "day");
+    const isTomorrow = moment(asOnDateValue).isSame(moment().add(1, "day"), "day");
 
     return (<Fragment>
         <View>
@@ -108,15 +120,15 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
                         alignItems: 'center',
                         justifyContent: 'flex-start',
                         flexWrap: 'wrap',
-                        gap: 2,
+                        gap: 5,
                         flex: 0.6
                     }}>
                         <Text style={{...CustomDashboardView.styles.labelText}}>{I18n.t('asOnDate')}: </Text>
                         <DatePicker overridingStyle={CustomDashboardView.styles.buttonText} nonRemovable={true}
                                     pickTime={false} dateValue={asOnDateValue}
                                     onChange={onAsOnDateChange.bind(this)}/>
-                        {/*{this.renderQuickDateOptions('Today', new Date(), isToday)}*/}
-                        {/*{this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}*/}
+                        {renderQuickDateOptions('Today', new Date(), isToday)}
+                        {renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}
                     </View>}
                 </View>
             </View>
