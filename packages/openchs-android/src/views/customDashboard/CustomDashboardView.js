@@ -93,7 +93,7 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
         const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Styles.accentColor};
         return (
           <TouchableOpacity
-            style={[CustomDashboardView.styles.todayButton, backgroundColor]}
+            style={[CustomDashboardView.styles.filterButton, backgroundColor]}
             onPress={() => isFilled ? _.noop() : onAsOnDateChange(value)}
           >
               <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
