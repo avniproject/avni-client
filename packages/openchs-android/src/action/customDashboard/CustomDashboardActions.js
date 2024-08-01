@@ -27,10 +27,14 @@ function loadCurrentDashboardInfo(context, state) {
     state.customDashboardFilters = selectedFilterValues;
     if (state.activeDashboardUUID) {
         state.reportCardSectionMappings = getReportsCards(state.activeDashboardUUID, context);
-        state.hasFiltersSet = selectedFilterValues && Object.values(selectedFilterValues).length > 0
-        && Object.values(selectedFilterValues).some(sfv => !_.isNil(sfv) && !_.isEmpty(sfv));
+        state.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
     }
     return state;
+}
+
+function getHasFiltersSet(selectedFilterValues) {
+    return selectedFilterValues && Object.values(selectedFilterValues).length > 0
+      && Object.values(selectedFilterValues).some(sfv => !_.isNil(sfv) && !_.isEmpty(sfv));
 }
 
 function getViewName(standardReportCardType) {
@@ -132,6 +136,7 @@ class CustomDashboardActions {
 
         const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
         newState.customDashboardFilters = selectedFilterValues;
+        newState.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
         const userSettings = userInfoService.getUserSettingsObject();
 
         const I18n = context.get(MessageService).getI18n();
