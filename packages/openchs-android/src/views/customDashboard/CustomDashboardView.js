@@ -96,25 +96,28 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
         <View>
             <View style={CustomDashboardView.styles.itemContent}>
                 <View style={CustomDashboardView.styles.buttons}>
-                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', flex: 0.8}}>
-                        <Text style={{...CustomDashboardView.styles.labelText}}>{I18n.t('asOnDate')}:</Text>
-                        <View style={{
-                            ...CustomDashboardView.styles.filterButton,
-                        }}>
-                            <DatePicker overridingStyle={CustomDashboardView.styles.buttonText} nonRemovable={true}
-                                        pickTime={false} dateValue={asOnDateValue}
-                                        onChange={onAsOnDateChange.bind(this)}/>
-                        </View>
-                        {/*{this.renderQuickDateOptions('Today', new Date(), isToday)}*/}
-                        {/*{this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}*/}
-                    </View>
                     <TouchableNativeFeedback onPress={() => onFilterPressed()}>
                         <View style={{
                             ...CustomDashboardView.styles.filterButton,
                         }}>
-                            <Text style={CustomDashboardView.styles.buttonText}>{I18n.t('filter')}</Text>
+                            <Text style={CustomDashboardView.styles.filterText}>{I18n.t('filter')}</Text>
                         </View>
                     </TouchableNativeFeedback>
+                    {asOnDateFilter && <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        flex: 0.6
+                    }}>
+                        <Text style={{...CustomDashboardView.styles.labelText}}>{I18n.t('asOnDate')}: </Text>
+                        <DatePicker overridingStyle={CustomDashboardView.styles.buttonText} nonRemovable={true}
+                                    pickTime={false} dateValue={asOnDateValue}
+                                    onChange={onAsOnDateChange.bind(this)}/>
+                        {/*{this.renderQuickDateOptions('Today', new Date(), isToday)}*/}
+                        {/*{this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}*/}
+                    </View>}
                 </View>
             </View>
         </View>
@@ -138,7 +141,7 @@ class CustomDashboardView extends AbstractComponent {
             marginHorizontal: 5
         },
         buttons: {
-            flexDirection: "row",
+            flexDirection: "row-reverse",
             alignItems: "center",
             justifyContent: "space-between",
         },
@@ -147,17 +150,21 @@ class CustomDashboardView extends AbstractComponent {
             borderRadius: 3,
             padding: 5
         },
-        buttonText: {
+        filterText: {
             color: Styles.accentColor,
             fontSize: Styles.smallTextSize,
             fontWeight: 'bold',
             textTransform: 'uppercase',
         },
+        buttonText: {
+            color: Styles.accentColor,
+            fontSize: Styles.smallerTextSize,
+            fontWeight: 'bold',
+        },
         labelText: {
             color: Styles.grey,
             fontSize: Styles.smallerTextSize,
             fontWeight: 'bold',
-            // textTransform: 'uppercase',
         }
     });
 
@@ -323,9 +330,10 @@ class CustomDashboardView extends AbstractComponent {
         const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(dashboard.uuid);
         const asOnDateFilterUUID = _.findKey(filterConfigs, entity => entity.isAsOnDateFilter());
         const asOnDateFilter = _.find(filters, ({uuid}) => uuid === asOnDateFilterUUID);
-        const asOnDateFilterValue = this.state.customDashboardFilters[asOnDateFilterUUID];
+        const asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
+          ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
+        const filterUUIDsToIgnore = asOnDateFilterUUID ? [asOnDateFilterUUID] : [];
 
-        const filterUUIDsToIgnore = [asOnDateFilterUUID];
         return (
             <CHSContainer style={{
                 marginBottom: Styles.ContentDistanceFromEdge

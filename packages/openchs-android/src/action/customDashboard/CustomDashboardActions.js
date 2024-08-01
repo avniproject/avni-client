@@ -23,18 +23,13 @@ function filterUpdated(context, state) {
 function loadCurrentDashboardInfo(context, state) {
     const dashboardFilterService = context.get(DashboardFilterService);
     state.filtersPresent = dashboardFilterService.areFiltersPresent(state.activeDashboardUUID);
-    const {selectedFilterValues} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
+    const {selectedFilterValues, dashboardCache} = context.get(CustomDashboardService).getDashboardData(state.activeDashboardUUID);
     state.customDashboardFilters = selectedFilterValues;
     if (state.activeDashboardUUID) {
         state.reportCardSectionMappings = getReportsCards(state.activeDashboardUUID, context);
-        state.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
+        state.hasFiltersSet = dashboardCache.filterApplied;
     }
     return state;
-}
-
-function getHasFiltersSet(selectedFilterValues) {
-    return selectedFilterValues && Object.values(selectedFilterValues).length > 0
-      && Object.values(selectedFilterValues).some(sfv => !_.isNil(sfv) && !_.isEmpty(sfv));
 }
 
 function getViewName(standardReportCardType) {
@@ -136,7 +131,6 @@ class CustomDashboardActions {
 
         const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
         newState.customDashboardFilters = selectedFilterValues;
-        newState.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
         const userSettings = userInfoService.getUserSettingsObject();
 
         const I18n = context.get(MessageService).getI18n();
@@ -181,6 +175,8 @@ class CustomDashboardActions {
         });
         const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
         newState.resultUpdatedAt = dashboardCache.updatedAt;
+        newState.hasFiltersSet = dashboardCache.filterApplied
+
         return newState;
     }
 
@@ -209,9 +205,9 @@ class CustomDashboardActions {
     static clearCounts(state, action, context) {
         const newState = {...state};
         const customDashboardService = context.get(CustomDashboardService);
-        const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
+        const {selectedFilterValues, dashboardCache} = customDashboardService.getDashboardData(state.activeDashboardUUID);
         newState.customDashboardFilters = selectedFilterValues;
-        newState.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
+        newState.hasFiltersSet = dashboardCache.filterApplied;
         newState.cardToCountResultMap = {};
         return newState;
     }
