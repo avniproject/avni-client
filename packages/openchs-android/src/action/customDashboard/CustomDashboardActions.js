@@ -208,6 +208,10 @@ class CustomDashboardActions {
 
     static clearCounts(state, action, context) {
         const newState = {...state};
+        const customDashboardService = context.get(CustomDashboardService);
+        const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
+        newState.customDashboardFilters = selectedFilterValues;
+        newState.hasFiltersSet = getHasFiltersSet(selectedFilterValues);
         newState.cardToCountResultMap = {};
         return newState;
     }
