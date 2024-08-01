@@ -51,8 +51,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
     }
 
     render() {
-        const {hasFiltersSet, dashboard, selectedFilterValues} = this.props;
-        const filterConfigs = this.getService(DashboardFilterService).getFilterConfigsForDashboard(dashboard.uuid);
+        const {hasFiltersSet, dashboard, selectedFilterValues, filterConfigs, filterUUIDsToIgnore} = this.props;
         return hasFiltersSet && (<View style={{
               display: "flex",
               padding: 10,
@@ -73,14 +72,11 @@ export default class AppliedFiltersV2 extends AbstractComponent {
                   </View>
                   <View style={AppliedFiltersV2.styles.container}>
                       {
-                          Object.keys(selectedFilterValues).map((filterUUID) => {
+                          Object.keys(selectedFilterValues).filter(filterUUID => !filterUUIDsToIgnore.includes(filterUUID))
+                            .map((filterUUID) => {
                               const filter = dashboard.getFilter(filterUUID);
                               const inputDataType = filterConfigs[filterUUID].getInputDataType();
                               const selectedFilterValue = selectedFilterValues[filterUUID];
-
-                              if(filterConfigs[filterUUID].type === CustomFilter.type.AsOnDate) {
-                                  return <></>;
-                              }
 
                               switch (inputDataType) {
                                   case Concept.dataType.Coded:

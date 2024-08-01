@@ -21,7 +21,8 @@ class DatePicker extends AbstractComponent {
         pickTime: PropTypes.bool,
         nonRemovable: PropTypes.bool,
         noDateMessageKey: PropTypes.string,
-        onChange: PropTypes.func
+        onChange: PropTypes.func,
+        overridingStyle: PropTypes.object
     };
 
     static defaultProps = {
@@ -128,7 +129,8 @@ class DatePicker extends AbstractComponent {
                     <Text onPress={this.showDatePicker.bind(this)}
                           style={{
                               fontSize: Fonts.Large,
-                              color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError
+                              color: _.isNil(this.props.validationResult) ? Colors.ActionButtonColor : Colors.ValidationError,
+                              ...this.props.overridingStyle
                           }}>
                         {this.dateDisplay(this.props.dateValue)}
                     </Text>

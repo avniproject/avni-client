@@ -225,7 +225,7 @@ export function performCustomDashboardActionAndRefresh(dispatcher, actionName, p
 
 export function performCustomDashboardActionAndClearRefresh(dispatcher, actionName, payload) {
     dispatcher.dispatchAction(actionName, payload);
-    dispatcher.dispatchAction(CustomDashboardActionNames.CLEAR_COUNTS, payload);
+    dispatcher.dispatchAction(CustomDashboardActionNames.CLEAR_COUNTS);
     setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
 }
 

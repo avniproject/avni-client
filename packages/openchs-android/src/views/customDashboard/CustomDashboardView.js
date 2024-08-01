@@ -1,7 +1,7 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import CHSContainer from "../common/CHSContainer";
 import AppHeader from "../common/AppHeader";
-import React from "react";
+import React, {Fragment} from "react";
 import Reducers from "../../reducer";
 import {
     CustomDashboardActionNames as Actions,
@@ -37,6 +37,8 @@ import Line from '../common/Line';
 import {CardTileView} from './CardTileView';
 import {CardListView} from './CardListView';
 import UserInfoService from "../../service/UserInfoService";
+import DashboardFilterService from '../../service/reports/DashboardFilterService';
+import DatePicker from '../primitives/DatePicker';
 
 const viewNameMap = {
     'ApprovalListingView': ApprovalListingView,
@@ -66,27 +68,58 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
     </TouchableNativeFeedback>;
 }
 
-function FilterSection({I18n, onFilterPressed}) {
-    const filterLabelStyle = {
-        color: Styles.accentColor,
-        fontSize: Styles.normalTextSize,
-        backgroundColor: Colors.FilterButtonColor,
-        fontWeight: 'bold',
-        textTransform: 'uppercase',
-        borderRadius: 5,
-        padding: 5
-    };
-    return <TouchableNativeFeedback onPress={() => onFilterPressed()}>
-        <View style={{
-            display: 'flex',
-            flexDirection: 'row-reverse',
-            minHeight: 45,
-            alignItems: 'center',
-            marginLeft: 15
-        }}>
-            <Text style={filterLabelStyle}>{I18n.t('filter')}</Text>
+function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilterPressed}) {
+
+    const onAsOnDateChange = (date) => {
+        dispatcher.dispatchAction(FilterActionNames.ON_FILTER_UPDATE, {
+            filter: asOnDateFilter, value: date
+        });
+        dispatcher.dispatchAction(FilterActionNames.BEFORE_APPLY_FILTER, {status: true});
+        dispatcher.dispatchAction(FilterActionNames.APPLIED_FILTER, {navigateToDashboardView: _.noop});
+        performCustomDashboardActionAndClearRefresh(dispatcher, Actions.FILTER_APPLIED);
+    }
+
+    // const renderQuickDateOptions = (label, value, isFilled) => {
+    //     const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.DisabledButtonColor};
+    //     const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Colors.InputNormal};
+    //     return (
+    //       <TouchableOpacity
+    //         style={[CustomDashboardView.styles.todayButton, backgroundColor]}
+    //         onPress={() => isFilled ? _.noop() : dispatchAction(Actions.ON_DATE, {value})}
+    //       >
+    //           <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
+    //       </TouchableOpacity>
+    //     )
+    // }
+
+    return (<Fragment>
+        <View>
+            <View style={CustomDashboardView.styles.itemContent}>
+                <View style={CustomDashboardView.styles.buttons}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', flex: 0.8}}>
+                        <Text style={{...CustomDashboardView.styles.labelText}}>{I18n.t('asOnDate')}:</Text>
+                        <View style={{
+                            ...CustomDashboardView.styles.filterButton,
+                        }}>
+                            <DatePicker overridingStyle={CustomDashboardView.styles.buttonText} nonRemovable={true}
+                                        pickTime={false} dateValue={asOnDateValue}
+                                        onChange={onAsOnDateChange.bind(this)}/>
+                        </View>
+                        {/*{this.renderQuickDateOptions('Today', new Date(), isToday)}*/}
+                        {/*{this.renderQuickDateOptions('Tomorrow', moment().add(1, "day").toDate(), isTomorrow)}*/}
+                    </View>
+                    <TouchableNativeFeedback onPress={() => onFilterPressed()}>
+                        <View style={{
+                            ...CustomDashboardView.styles.filterButton,
+                        }}>
+                            <Text style={CustomDashboardView.styles.buttonText}>{I18n.t('filter')}</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                </View>
+            </View>
         </View>
-    </TouchableNativeFeedback>;
+
+    </Fragment>);
 }
 
 @Path('/customDashboardView')
@@ -94,30 +127,37 @@ class CustomDashboardView extends AbstractComponent {
     static styles = StyleSheet.create({
         itemContent: {
             flexDirection: 'column',
-            borderBottomWidth: 1,
-            borderColor: Colors.InputBorderNormal,
-            backgroundColor: Styles.greyBackground,
+            // borderBottomWidth: 1,
+            // borderColor: Colors.InputBorderNormal,
+            // backgroundColor: Styles.blueColor,
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
             elevation: 2,
-            minWidth: '95%',
-            minHeight: 60
+            // minWidth: '95%',
+            // minHeight: 45,
+            marginHorizontal: 5
         },
         buttons: {
-            flexDirection: "row-reverse",
+            flexDirection: "row",
             alignItems: "center",
             justifyContent: "space-between",
-            paddingTop: 8,
         },
         filterButton: {
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            backgroundColor: Colors.ActionButtonColor,
-            borderRadius: 3
+            backgroundColor: Colors.FilterButtonColor,
+            borderRadius: 3,
+            padding: 5
         },
         buttonText: {
-            color: Colors.TextOnPrimaryColor,
-            fontSize: Styles.normalTextSize
+            color: Styles.accentColor,
+            fontSize: Styles.smallTextSize,
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+        },
+        labelText: {
+            color: Styles.grey,
+            fontSize: Styles.smallerTextSize,
+            fontWeight: 'bold',
+            // textTransform: 'uppercase',
         }
     });
 
@@ -277,6 +317,15 @@ class CustomDashboardView extends AbstractComponent {
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
         const {hasFiltersSet, loading} = this.state;
+
+        const dashboardFilterService = this.getService(DashboardFilterService);
+        const filters = dashboardFilterService.getFilters(dashboard.uuid);
+        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(dashboard.uuid);
+        const asOnDateFilterUUID = _.findKey(filterConfigs, entity => entity.isAsOnDateFilter());
+        const asOnDateFilter = _.find(filters, ({uuid}) => uuid === asOnDateFilterUUID);
+        const asOnDateFilterValue = this.state.customDashboardFilters[asOnDateFilterUUID];
+
+        const filterUUIDsToIgnore = [asOnDateFilterUUID];
         return (
             <CHSContainer style={{
                 marginBottom: Styles.ContentDistanceFromEdge
@@ -306,14 +355,22 @@ class CustomDashboardView extends AbstractComponent {
                                                 onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
                                                 lastUpdatedOn={this.state.resultUpdatedAt}/>}
                         </View>
-                        {this.state.filtersPresent && <FilterSection I18n={this.I18n} onFilterPressed={() => this.onFilterPressed()}/>}
                     </View>
                     <CustomActivityIndicator loading={loading}/>
+                    <View>
+                        {this.state.filtersPresent &&
+                          <FilterSection dispatcher={this} asOnDateValue={asOnDateFilterValue}
+                                         asOnDateFilter={asOnDateFilter} I18n={this.I18n}
+                                         onFilterPressed={() => this.onFilterPressed()}/>}
+                    </View>
                     <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
                                       postClearAction={() => this.onClearFilters()}
                                       dashboard={dashboard}
                                       hasFiltersSet={hasFiltersSet}
-                                      selectedFilterValues={this.state.customDashboardFilters}/>
+                                      selectedFilterValues={this.state.customDashboardFilters}
+                                      filterConfigs={filterConfigs}
+                                      filterUUIDsToIgnore={filterUUIDsToIgnore}
+                    />
                     {this.renderCards()}
                 </ScrollView>
             </CHSContainer>
