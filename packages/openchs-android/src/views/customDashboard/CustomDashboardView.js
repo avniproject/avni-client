@@ -142,14 +142,9 @@ class CustomDashboardView extends AbstractComponent {
     static styles = StyleSheet.create({
         itemContent: {
             flexDirection: 'column',
-            // borderBottomWidth: 1,
-            // borderColor: Colors.InputBorderNormal,
-            // backgroundColor: Styles.blueColor,
             paddingHorizontal: Distances.ScaledContentDistanceFromEdge,
             paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems,
             elevation: 2,
-            // minWidth: '95%',
-            // minHeight: 45,
             marginHorizontal: 5
         },
         buttons: {
@@ -158,6 +153,9 @@ class CustomDashboardView extends AbstractComponent {
             justifyContent: "space-between",
         },
         filterButton: {
+            zIndex: 1,
+            elevation: 2,
+            fontSize: 16,
             backgroundColor: Colors.FilterButtonColor,
             borderRadius: 3,
             padding: 5

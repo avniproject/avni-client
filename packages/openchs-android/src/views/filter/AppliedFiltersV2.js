@@ -25,6 +25,47 @@ function FilterDisplay({filter, content, contentSeparator}) {
     </View>;
 }
 
+function getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboard, filterConfigs) {
+    return Object.keys(selectedFilterValues).filter(filterUUID => !filterUUIDsToIgnore.includes(filterUUID))
+      .map((filterUUID) => {
+          const filter = dashboard.getFilter(filterUUID);
+          const inputDataType = filterConfigs[filterUUID].getInputDataType();
+          const selectedFilterValue = selectedFilterValues[filterUUID];
+
+          switch (inputDataType) {
+              case Concept.dataType.Coded:
+              case DashboardFilterConfig.dataTypes.array:
+                  return !_.isEmpty(selectedFilterValue) &&
+                    <FilterDisplay filter={filter}
+                                   content={selectedFilterValue.map((x) => x.name).join(", ")}/>;
+              case Concept.dataType.Date:
+                  return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
+                                                                         content={General.toDisplayDate(selectedFilterValue)}/>
+              case Concept.dataType.DateTime:
+                  return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
+                                                                         content={General.formatDateTime(selectedFilterValue)}/>
+              case Concept.dataType.Time:
+                  return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
+                                                                         content={General.toDisplayTime(selectedFilterValue)}/>
+              case Range.DateRange:
+                  return !_.isNil(selectedFilterValue) && !selectedFilterValue.isEmpty() &&
+                    <FilterDisplay filter={filter}
+                                   content={`${General.toDisplayDate(selectedFilterValue.minValue)} - ${General.toDisplayDate(selectedFilterValue.maxValue)}`}/>
+              case DashboardFilterConfig.dataTypes.formMetaData:
+                  let displayValue = selectedFilterValue.subjectTypes.map(x => x.name).join(", ");
+                  displayValue += selectedFilterValue.programs.length === 0 ? "" : " | ";
+                  displayValue += selectedFilterValue.programs.map(x => x.name).join(", ");
+                  displayValue += selectedFilterValue.encounterTypes.length === 0 ? "" : " | ";
+                  displayValue += selectedFilterValue.encounterTypes.map(x => x.name).join(", ");
+                  return !_.isEmpty(displayValue) &&
+                    <FilterDisplay filter={filter} content={displayValue}/>;
+              default:
+                  return !_.isNil(selectedFilterValue) &&
+                    <FilterDisplay filter={filter} content={selectedFilterValue}/>;
+          }
+      });
+}
+
 export default class AppliedFiltersV2 extends AbstractComponent {
     static styles = StyleSheet.create({
         container: {
@@ -33,8 +74,8 @@ export default class AppliedFiltersV2 extends AbstractComponent {
         },
         filterIcon: {
             zIndex: 1,
-            paddingTop: 2,
-            fontSize: 24,
+            elevation: 2,
+            fontSize: 20,
             color: Styles.accentColor,
             alignSelf: 'flex-end'
         },
@@ -52,13 +93,14 @@ export default class AppliedFiltersV2 extends AbstractComponent {
 
     render() {
         const {hasFiltersSet, dashboard, selectedFilterValues, filterConfigs, filterUUIDsToIgnore} = this.props;
-        return hasFiltersSet && (<View style={{
+        const filtersToDisplay = getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboard, filterConfigs);
+        const showAppliedFilters = hasFiltersSet && filtersToDisplay && filtersToDisplay.length > 0 && _.some(filtersToDisplay, f => f);
+        return showAppliedFilters && (<View style={{
               display: "flex",
-              padding: 10,
+              padding: 5,
               backgroundColor: Colors.GreyBackground,
               borderRadius: 5,
               marginHorizontal: 15
-
           }}>
               <SafeAreaView >
                   <View>
@@ -71,45 +113,7 @@ export default class AppliedFiltersV2 extends AbstractComponent {
                       </TouchableOpacity>
                   </View>
                   <View style={AppliedFiltersV2.styles.container}>
-                      {
-                          Object.keys(selectedFilterValues).filter(filterUUID => !filterUUIDsToIgnore.includes(filterUUID))
-                            .map((filterUUID) => {
-                              const filter = dashboard.getFilter(filterUUID);
-                              const inputDataType = filterConfigs[filterUUID].getInputDataType();
-                              const selectedFilterValue = selectedFilterValues[filterUUID];
-
-                              switch (inputDataType) {
-                                  case Concept.dataType.Coded:
-                                  case DashboardFilterConfig.dataTypes.array:
-                                      return !_.isEmpty(selectedFilterValue) &&
-                                        <FilterDisplay filter={filter}
-                                                       content={selectedFilterValue.map((x) => x.name).join(", ")}/>;
-                                  case Concept.dataType.Date:
-                                      return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
-                                                                                             content={General.toDisplayDate(selectedFilterValue)}/>
-                                  case Concept.dataType.DateTime:
-                                      return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
-                                                                                             content={General.formatDateTime(selectedFilterValue)}/>
-                                  case Concept.dataType.Time:
-                                      return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
-                                                                                             content={General.toDisplayTime(selectedFilterValue)}/>
-                                  case Range.DateRange:
-                                      return !_.isNil(selectedFilterValue) && !selectedFilterValue.isEmpty() &&
-                                        <FilterDisplay filter={filter}
-                                                       content={`${General.toDisplayDate(selectedFilterValue.minValue)} - ${General.toDisplayDate(selectedFilterValue.maxValue)}`}/>
-                                  case DashboardFilterConfig.dataTypes.formMetaData:
-                                      let displayValue = selectedFilterValue.subjectTypes.map(x => x.name).join(", ");
-                                      displayValue += selectedFilterValue.programs.length === 0 ? "" : " | ";
-                                      displayValue += selectedFilterValue.programs.map(x => x.name).join(", ");
-                                      displayValue += selectedFilterValue.encounterTypes.length === 0 ? "" : " | ";
-                                      displayValue += selectedFilterValue.encounterTypes.map(x => x.name).join(", ");
-                                      return !_.isEmpty(displayValue) &&
-                                        <FilterDisplay filter={filter} content={displayValue}/>;
-                                  default:
-                                      return !_.isNil(selectedFilterValue) &&
-                                        <FilterDisplay filter={filter} content={selectedFilterValue}/>;
-                              }
-                          })}
+                      {filtersToDisplay}
                   </View>
               </SafeAreaView>
           </View>

@@ -16,7 +16,7 @@ import CustomActivityIndicator from "../CustomActivityIndicator";
 import {ScrollView} from "native-base";
 import PropTypes from "prop-types";
 import ObservationBasedFilterView, {FilterContainer, FilterContainerWithLabel} from "./ObservationBasedFilterView";
-import {CustomFilter, Locations} from 'openchs-models';
+import {CustomFilter} from 'openchs-models';
 import DatePicker from "../primitives/DatePicker";
 import _ from "lodash";
 import SelectableItemGroup from "../primitives/SelectableItemGroup";
