@@ -93,8 +93,8 @@ export default class AppliedFiltersV2 extends AbstractComponent {
 
     render() {
         const {hasFiltersSet, dashboard, selectedFilterValues, filterConfigs, filterUUIDsToIgnore} = this.props;
-        const filtersToDisplay = getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboard, filterConfigs);
-        const showAppliedFilters = hasFiltersSet && filtersToDisplay && filtersToDisplay.length > 0 && _.some(filtersToDisplay, f => f);
+        const filtersToDisplay = hasFiltersSet && getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboard, filterConfigs);
+        const showAppliedFilters = filtersToDisplay && filtersToDisplay.length > 0 && _.some(filtersToDisplay, f => f);
         return showAppliedFilters && (<View style={{
               display: "flex",
               padding: 5,
