@@ -1,0 +1,33 @@
+diff --git a/node_modules/react-native-vector-icons/android/build.gradle b/node_modules/react-native-vector-icons/android/build.gradle
+index 3d12e69..643ffcd 100755
+--- a/node_modules/react-native-vector-icons/android/build.gradle
++++ b/node_modules/react-native-vector-icons/android/build.gradle
+@@ -23,7 +23,7 @@ def safeExtGet(prop, fallback) {
+ 
+ android {
+   compileSdkVersion safeExtGet('compileSdkVersion', 28)
+-  
++  namespace 'com.oblador.vectoricons' 
+   defaultConfig {
+     minSdkVersion safeExtGet('minSdkVersion', 16)
+     targetSdkVersion safeExtGet('targetSdkVersion', 28)
+diff --git a/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml b/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
+index 3bd661a..a2f47b6 100755
+--- a/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-vector-icons/android/src/main/AndroidManifest.xml
+@@ -1,2 +1,2 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.oblador.vectoricons">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ </manifest>
+diff --git a/node_modules/react-native-vector-icons/fonts.gradle b/node_modules/react-native-vector-icons/fonts.gradle
+index 5485fac..76cb03f 100644
+--- a/node_modules/react-native-vector-icons/fonts.gradle
++++ b/node_modules/react-native-vector-icons/fonts.gradle
+@@ -28,5 +28,7 @@ afterEvaluate {
+         def targetName = variant.name.capitalize()
+         def generateAssetsTask = tasks.findByName("generate${targetName}Assets")
+         generateAssetsTask.dependsOn(fontCopyTask)
++        def lintVitalAnalyzeTask = tasks.findByName("lintVitalAnalyze${targetName}")
++        lintVitalAnalyzeTask?.dependsOn(fontCopyTask)
+     }
+ }

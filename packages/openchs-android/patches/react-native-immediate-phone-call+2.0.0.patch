@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-immediate-phone-call/android/build.gradle b/node_modules/react-native-immediate-phone-call/android/build.gradle
+index 8395acc..b1fa073 100644
+--- a/node_modules/react-native-immediate-phone-call/android/build.gradle
++++ b/node_modules/react-native-immediate-phone-call/android/build.gradle
+@@ -7,7 +7,7 @@ def safeExtGet(prop, fallback) {
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+     buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+-
++    namespace 'com.github.wumke.RNImmediatePhoneCall'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 16)
+         targetSdkVersion safeExtGet('targetSdkVersion', 22)
+diff --git a/node_modules/react-native-immediate-phone-call/android/src/main/AndroidManifest.xml b/node_modules/react-native-immediate-phone-call/android/src/main/AndroidManifest.xml
+index 4eebf4e..6dc538d 100644
+--- a/node_modules/react-native-immediate-phone-call/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-immediate-phone-call/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,5 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.github.wumke.RNImmediatePhoneCall">
++          >
+           
+ 
+ </manifest>

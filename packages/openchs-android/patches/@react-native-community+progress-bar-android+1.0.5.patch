@@ -1,0 +1,25 @@
+diff --git a/node_modules/@react-native-community/progress-bar-android/android/build.gradle b/node_modules/@react-native-community/progress-bar-android/android/build.gradle
+index 316eadc..118d608 100644
+--- a/node_modules/@react-native-community/progress-bar-android/android/build.gradle
++++ b/node_modules/@react-native-community/progress-bar-android/android/build.gradle
+@@ -16,7 +16,7 @@ def safeExtGet(prop, fallback) {
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+-
++    namespace 'com.reactnativecommunity.androidprogressbar'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 16)
+         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+diff --git a/node_modules/@react-native-community/progress-bar-android/android/src/main/AndroidManifest.xml b/node_modules/@react-native-community/progress-bar-android/android/src/main/AndroidManifest.xml
+index 3c2f283..405ed27 100644
+--- a/node_modules/@react-native-community/progress-bar-android/android/src/main/AndroidManifest.xml
++++ b/node_modules/@react-native-community/progress-bar-android/android/src/main/AndroidManifest.xml
+@@ -1,6 +1,5 @@
+ 
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.reactnativecommunity.androidprogressbar">
+-
++	>
+ </manifest>
+   

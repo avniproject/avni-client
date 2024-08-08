@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-device-info/android/build.gradle b/node_modules/react-native-device-info/android/build.gradle
+index de22598..6f42258 100644
+--- a/node_modules/react-native-device-info/android/build.gradle
++++ b/node_modules/react-native-device-info/android/build.gradle
+@@ -23,7 +23,7 @@ def safeExtGet(prop, fallback) {
+ 
+ android {
+     compileSdkVersion safeExtGet('compileSdkVersion', 30)
+-
++    namespace 'com.learnium.RNDeviceInfo'
+     defaultConfig {
+         minSdkVersion safeExtGet('minSdkVersion', 16)
+         targetSdkVersion safeExtGet('targetSdkVersion', 28)
+diff --git a/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml b/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml
+index 62fd21b..6d50bae 100644
+--- a/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-device-info/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,4 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.learnium.RNDeviceInfo">
++          >
+ </manifest>
+ 

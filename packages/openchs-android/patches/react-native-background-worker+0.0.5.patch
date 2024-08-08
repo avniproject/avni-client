@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-background-worker/android/build.gradle b/node_modules/react-native-background-worker/android/build.gradle
-index ab9b663..2344aea 100644
+index ab9b663..6d94e79 100644
 --- a/node_modules/react-native-background-worker/android/build.gradle
 +++ b/node_modules/react-native-background-worker/android/build.gradle
 @@ -17,29 +17,29 @@ buildscript {
@@ -35,7 +35,7 @@ index ab9b663..2344aea 100644
 -  }
 +    compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
 +    buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
-+
++    namespace 'com.backgroundworker'
 +    defaultConfig {
 +        minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
 +        targetSdkVersion safeExtGet('targetSdkVersion', DEFAULT_TARGET_SDK_VERSION)
@@ -104,6 +104,17 @@ index ab9b663..2344aea 100644
 -        }
 -    }
 -}
+diff --git a/node_modules/react-native-background-worker/android/src/main/AndroidManifest.xml b/node_modules/react-native-background-worker/android/src/main/AndroidManifest.xml
+index b542b2d..9d52d9b 100644
+--- a/node_modules/react-native-background-worker/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-background-worker/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,4 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.backgroundworker">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+ 
 diff --git a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java b/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java
 index ecbb304..5646a54 100644
 --- a/node_modules/react-native-background-worker/android/src/main/java/com/backgroundworker/BackgroundWorker.java

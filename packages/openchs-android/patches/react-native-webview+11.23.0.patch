@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-webview/android/build.gradle b/node_modules/react-native-webview/android/build.gradle
+index fbede17..7b48b66 100644
+--- a/node_modules/react-native-webview/android/build.gradle
++++ b/node_modules/react-native-webview/android/build.gradle
+@@ -35,6 +35,7 @@ apply plugin: 'com.android.library'
+ apply plugin: 'kotlin-android'
+ 
+ android {
++  namespace 'com.reactnativecommunity.webview'
+   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+   defaultConfig {
+     minSdkVersion getExtOrIntegerDefault('minSdkVersion')
+diff --git a/node_modules/react-native-webview/android/src/main/AndroidManifest.xml b/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
+index b8f945d..b19015d 100644
+--- a/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,5 @@
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-  package="com.reactnativecommunity.webview">
++  >
+ 
+   <application>
+     <provider

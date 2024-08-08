@@ -74,10 +74,7 @@ def enableProguardInReleaseBuilds = true
 
 android {
     ndkVersion rootProject.ext.ndkVersion
-
-    dexOptions {
-        javaMaxHeapSize "3g"
-    }
+    namespace "com.openchsclient"
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -213,6 +210,7 @@ android {
             manifestPlaceholders = [bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy"]
         }
     }
+    namespace 'com.openchsclient'
     sourceSets {
         // Required to enable TamperChecking, init this only for flavours which need Security Tamper Check enabled
         lfe.java.srcDir 'src/common/java'
@@ -222,31 +220,18 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-background-timer')
     implementation project(':react-native-file-viewer')
     implementation project(':react-native-keep-awake')
-    implementation project(':react-native-audio-recorder-player')
     implementation project(':react-native-document-picker')
     implementation project(':react-native-zip-archive')
     implementation project(':react-native-webview')
-    implementation project(':@react-native-firebase_app')
-    implementation project(':@react-native-firebase_analytics')
     implementation project(':react-native-immediate-phone-call')
-    implementation project(':amazon-cognito-identity-js')
     implementation (project(':rn-fetch-blob')) {
         exclude group: 'com.squareup.okhttp3'
     }
     implementation project(':react-native-image-picker')
     implementation project(':react-native-fs')
-    implementation(project(':react-native-video')) {
-        exclude group: 'com.squareup.okhttp3'
-    }
-    implementation project(':bugsnag-react-native')
     implementation project(':react-native-geolocation-service')
-    implementation project(':react-native-charts-wrapper')
-    implementation project(':react-native-vector-icons')
-//    implementation project(':react-native-i18n')
-//    implementation project(':realm')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
     implementation project(':react-native-device-info')
@@ -256,6 +241,7 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
+    implementation 'org.jetbrains:annotations:16.0.2'
 
     // required to avoid crash on Android 12 API 31
     implementation 'androidx.work:work-runtime:2.8.1'
