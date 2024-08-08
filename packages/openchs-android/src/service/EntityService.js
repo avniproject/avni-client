@@ -29,6 +29,13 @@ class EntityService extends BaseService {
             this.db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
         });
     }
+
+    deleteEntities(objects) {
+        const db = this.db;
+        this.db.write(() => {
+            db.delete(objects);
+        });
+    }
 }
 
 export default EntityService;
