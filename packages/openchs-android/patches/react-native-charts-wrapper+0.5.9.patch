@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-charts-wrapper/android/build.gradle b/node_modules/react-native-charts-wrapper/android/build.gradle
+index fc50724..862320a 100644
+--- a/node_modules/react-native-charts-wrapper/android/build.gradle
++++ b/node_modules/react-native-charts-wrapper/android/build.gradle
+@@ -20,6 +20,7 @@ def safeExtGet(prop, fallback) {
+ }
+ 
+ android {
++    namespace 'com.github.wuxudong.rncharts'
+     compileSdkVersion safeExtGet("compileSdkVersion", 28)
+     buildToolsVersion safeExtGet("buildToolsVersion", "28.0.3")
+ 
+diff --git a/node_modules/react-native-charts-wrapper/android/src/main/AndroidManifest.xml b/node_modules/react-native-charts-wrapper/android/src/main/AndroidManifest.xml
+index c67a3d9..41498bb 100644
+--- a/node_modules/react-native-charts-wrapper/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-charts-wrapper/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,4 @@
+-<manifest package="com.github.wuxudong.rncharts"
++<manifest 
+           xmlns:android="http://schemas.android.com/apk/res/android"
+ >
+ </manifest>

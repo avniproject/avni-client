@@ -1,0 +1,27 @@
+diff --git a/node_modules/@react-native-community/netinfo/android/build.gradle b/node_modules/@react-native-community/netinfo/android/build.gradle
+index 82b3c9a..4617dc5 100644
+--- a/node_modules/@react-native-community/netinfo/android/build.gradle
++++ b/node_modules/@react-native-community/netinfo/android/build.gradle
+@@ -30,7 +30,7 @@ apply plugin: 'com.android.library'
+ 
+ android {
+   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+-
++  namespace 'com.reactnativecommunity.netinfo'
+   compileOptions {
+       sourceCompatibility JavaVersion.VERSION_1_8
+       targetCompatibility JavaVersion.VERSION_1_8
+diff --git a/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml b/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml
+index 51cb573..3622225 100644
+--- a/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml
++++ b/node_modules/@react-native-community/netinfo/android/src/main/AndroidManifest.xml
+@@ -1,8 +1,7 @@
+ 
+ <manifest
+ 	xmlns:android="http://schemas.android.com/apk/res/android"
+-	package="com.reactnativecommunity.netinfo">
+-
++	>
+ 	<uses-permission
+ 		android:name="android.permission.ACCESS_NETWORK_STATE" />
+ 	<uses-permission

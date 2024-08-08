@@ -1,5 +1,17 @@
+diff --git a/node_modules/react-native-image-picker/android/src/main/AndroidManifest.xml b/node_modules/react-native-image-picker/android/src/main/AndroidManifest.xml
+index 2209799..2c5911e 100644
+--- a/node_modules/react-native-image-picker/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-image-picker/android/src/main/AndroidManifest.xml
+@@ -1,7 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest
+   xmlns:android="http://schemas.android.com/apk/res/android"
+-  package="com.imagepicker"
+   >
+     <application>
+       <provider
 diff --git a/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/ImagePickerModuleImpl.java b/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/ImagePickerModuleImpl.java
-index afe4b3e..68e558d 100644
+index afe4b3e..8cb845b 100644
 --- a/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/ImagePickerModuleImpl.java
 +++ b/node_modules/react-native-image-picker/android/src/main/java/com/imagepicker/ImagePickerModuleImpl.java
 @@ -120,39 +120,22 @@ public class ImagePickerModuleImpl implements ActivityEventListener {

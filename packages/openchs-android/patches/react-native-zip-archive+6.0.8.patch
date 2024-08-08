@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-zip-archive/android/build.gradle b/node_modules/react-native-zip-archive/android/build.gradle
+index e07d0ca..d2636d1 100644
+--- a/node_modules/react-native-zip-archive/android/build.gradle
++++ b/node_modules/react-native-zip-archive/android/build.gradle
+@@ -14,7 +14,7 @@ apply plugin: 'com.android.library'
+ android {
+     compileSdkVersion rootProject.ext.compileSdkVersion
+     buildToolsVersion rootProject.ext.buildToolsVersion
+-
++    namespace 'com.rnziparchive'
+     compileOptions {
+         sourceCompatibility JavaVersion.VERSION_1_8
+         targetCompatibility JavaVersion.VERSION_1_8
+diff --git a/node_modules/react-native-zip-archive/android/src/main/AndroidManifest.xml b/node_modules/react-native-zip-archive/android/src/main/AndroidManifest.xml
+index 1d66eba..37767b7 100644
+--- a/node_modules/react-native-zip-archive/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-zip-archive/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.rnziparchive" >
++    >
+ </manifest>

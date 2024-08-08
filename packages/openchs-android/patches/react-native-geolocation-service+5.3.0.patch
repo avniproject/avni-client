@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-geolocation-service/android/build.gradle b/node_modules/react-native-geolocation-service/android/build.gradle
+index cf167cf..c1fd886 100644
+--- a/node_modules/react-native-geolocation-service/android/build.gradle
++++ b/node_modules/react-native-geolocation-service/android/build.gradle
+@@ -13,7 +13,7 @@ def safeExtGet(prop, fallback) {
+ android {
+   compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
+   buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
+-
++  namespace 'com.agontuk.RNFusedLocation'
+   defaultConfig {
+     minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
+     targetSdkVersion safeExtGet('targetSdkVersion', DEFAULT_TARGET_SDK_VERSION)
+diff --git a/node_modules/react-native-geolocation-service/android/src/main/AndroidManifest.xml b/node_modules/react-native-geolocation-service/android/src/main/AndroidManifest.xml
+index 22bf78b..21a6b46 100644
+--- a/node_modules/react-native-geolocation-service/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-geolocation-service/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-  package="com.agontuk.RNFusedLocation">
++  >
+ </manifest>

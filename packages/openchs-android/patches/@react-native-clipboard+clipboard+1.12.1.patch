@@ -1,0 +1,24 @@
+diff --git a/node_modules/@react-native-clipboard/clipboard/android/build.gradle b/node_modules/@react-native-clipboard/clipboard/android/build.gradle
+index 86d4866..084fd11 100644
+--- a/node_modules/@react-native-clipboard/clipboard/android/build.gradle
++++ b/node_modules/@react-native-clipboard/clipboard/android/build.gradle
+@@ -21,7 +21,7 @@ apply plugin: 'com.android.library'
+ 
+ android {
+     compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+-
++    namespace 'com.reactnativecommunity.clipboard'
+     defaultConfig {
+         minSdkVersion getExtOrIntegerDefault('minSdkVersion')
+         targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+diff --git a/node_modules/@react-native-clipboard/clipboard/android/src/main/AndroidManifest.xml b/node_modules/@react-native-clipboard/clipboard/android/src/main/AndroidManifest.xml
+index e81b06a..5f5d7a2 100644
+--- a/node_modules/@react-native-clipboard/clipboard/android/src/main/AndroidManifest.xml
++++ b/node_modules/@react-native-clipboard/clipboard/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,4 @@
+ 
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-          package="com.reactnativecommunity.clipboard">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+ </manifest>

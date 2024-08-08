@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-keep-awake/android/build.gradle b/node_modules/react-native-keep-awake/android/build.gradle
+index ba4dfe7..3d5c81f 100644
+--- a/node_modules/react-native-keep-awake/android/build.gradle
++++ b/node_modules/react-native-keep-awake/android/build.gradle
+@@ -22,7 +22,7 @@ def _targetSdkVersion = _ext.has('targetSdkVersion') ? _ext.targetSdkVersion : 2
+ android {
+     compileSdkVersion _compileSdkVersion
+     buildToolsVersion _buildToolsVersion
+-
++    namespace 'com.corbt.keepawake'
+     defaultConfig {
+         minSdkVersion _minSdkVersion
+         targetSdkVersion _targetSdkVersion
+diff --git a/node_modules/react-native-keep-awake/android/src/main/AndroidManifest.xml b/node_modules/react-native-keep-awake/android/src/main/AndroidManifest.xml
+index bc02af3..37767b7 100644
+--- a/node_modules/react-native-keep-awake/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-keep-awake/android/src/main/AndroidManifest.xml
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="com.corbt.keepawake" >
++    >
+ </manifest>
