@@ -314,8 +314,10 @@ kill_realm_browser:
 	pkill "Realm Browser" || true
 
 open_db: rm_db get_db open_db_only
+open-db: open_db
 open_db_only:
 	$(call _open_resource,../db/default.realm)
+open-db-only: open_db_only
 # </db>
 
 local_deploy_apk:

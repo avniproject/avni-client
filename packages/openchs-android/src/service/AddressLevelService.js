@@ -15,7 +15,7 @@ class AddressLevelService extends BaseAddressLevelService {
 
     getAllDisplayAddresses(selectedAddresses) {
         let allDisplayAddresses = this.findAll(this.getSchema())
-            .filtered('voided = false and parentUuid == null').map(_.identity);
+            .filtered('voided = false and typeUuid == $0', this.maxTypeUUID()).map(_.identity);
         const sortedAddresses = _.orderBy(selectedAddresses, 'level', 'desc');
         const thisService = this;
         sortedAddresses.forEach(selectedAddress => {

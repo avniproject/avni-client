@@ -15,7 +15,7 @@ class DashboardSectionCardMappingService extends BaseService {
 
     getAllCardsForDashboard(dashboardUUID) {
         return this.getAll()
-            .filtered('voided = false and dashboardSection.dashboard.uuid = $0', dashboardUUID)
+            .filtered('voided = false and dashboardSection.dashboard.uuid = $0 and card.voided = false', dashboardUUID)
             .sorted('displayOrder')
     }
 
