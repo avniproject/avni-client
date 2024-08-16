@@ -26,7 +26,7 @@ const renderNumber = function (countResult = {}, textColor) {
         <View>
             <View style={{alignItems: 'flex-end', paddingTop: 10, minHeight: 40}}>
                 {secondaryValue ?
-                    <Text style={[secondaryStyle, {marginRight: 8}]}>
+                    <Text style={[secondaryStyle, {marginLeft: 33, minHeight: 50}]}>
                         {secondaryValue}
                     </Text> :
                     null}
