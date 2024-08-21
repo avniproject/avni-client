@@ -342,7 +342,7 @@ class CustomDashboardView extends AbstractComponent {
         const asOnDateFilter = _.find(filters, ({uuid}) => uuid === asOnDateFilterUUID);
         const asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
           ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
-        const filterUUIDsToIgnore = asOnDateFilterUUID ? [asOnDateFilterUUID] : [];
+        const filterUUIDsToIgnore = [];
 
         return (
             <CHSContainer style={{
