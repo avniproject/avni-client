@@ -27,9 +27,10 @@ function getServerStatusMessageKey(serverError) {
         case 408:
             return "poorConnection";
         case 429:
+        case 502:
         case 503:
         case 504:
-            return "serverUnavailable";
+            return "serverUnavailableTryLater";
         default:
             return "unknownServerErrorReason";
     }
@@ -41,10 +42,12 @@ export function getAvniError(serverError, i18n) {
     const avniError = new AvniError();
     const serverErrorPromise = serverError.response.text() || Promise.resolve(i18n.t("unknownServerErrorReason"));
     return serverErrorPromise.then((errorMessage) => {
-        avniError.userMessage = `${i18n.t(getServerStatusMessageKey(serverError))}. ${errorCode}. ${errorMessage}`;
+        const statusMessageKey = getServerStatusMessageKey(serverError);
+        if (statusMessageKey === 'serverUnavailableTryLater') avniError.showOnlyUserMessage = true;
+        avniError.userMessage = `${i18n.t(statusMessageKey)}. ${errorCode}. ${errorMessage}`;
         return ErrorUtil.getNavigableStackTraceSync(serverError);
     }).then((stackTraceString) => {
-        avniError.reportingText = `${avniError.userMessage}\n${stackTraceString}`;
+        avniError.reportingText = `${avniError.userMessage}\n\n${stackTraceString}`;
         return avniError;
     });
 }

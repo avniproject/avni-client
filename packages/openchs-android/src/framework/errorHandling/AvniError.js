@@ -4,11 +4,13 @@ import EnvironmentConfig from "../EnvironmentConfig";
 class AvniError {
     userMessage;
     reportingText;
+    showOnlyUserMessage;
 
-    static create(userMessage, reportingText) {
+    static create(userMessage, reportingText, showOnlyUserMessage = false) {
         const avniError = new AvniError();
         avniError.userMessage = userMessage;
         avniError.reportingText = reportingText;
+        avniError.showOnlyUserMessage = showOnlyUserMessage;
         return avniError;
     }
 
@@ -17,7 +19,7 @@ class AvniError {
     }
 
     getDisplayMessage() {
-        if (EnvironmentConfig.isHighSecurity())
+        if (EnvironmentConfig.isHighSecurity() || this.showOnlyUserMessage)
             return _.truncate(this.userMessage, {length: 80});
 
         return _.truncate(this.reportingText, {length: 600});
