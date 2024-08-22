@@ -107,20 +107,30 @@ class CustomDashboardCacheService extends BaseService {
 
             General.logDebug("CustomDashboardCacheService", "Setting filter value", dashboardFilterConfig.toDisplayText());
 
-            if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData && !selectedFilterValue.isEmpty()) {
-                serialisedSelectedValues[filterUuid] = {
-                    subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
-                    programs: selectedFilterValue.programs.map(x => x.uuid),
-                    encounterTypes: selectedFilterValue.encounterTypes.map(x => x.uuid)
-                };
-            } else if (dashboardFilterConfig.isMultiEntityType() && !_.isEmpty(selectedFilterValue)) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValue.map(x => x.uuid);
-            } else if ((dashboardFilterConfig.isDateLikeRangeFilterType() || dashboardFilterConfig.isNumericRangeFilterType()) && !selectedFilterValue.isEmpty()) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValue;
-            } else if (dashboardFilterConfig.isNonCodedObservationDataType() && !_.isEmpty(selectedFilterValue)) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValue;
-            } else if (dashboardFilterConfig.isDateLikeFilterType() && _.isDate(selectedFilterValue)) {
-                serialisedSelectedValues[filterUuid] = selectedFilterValue;
+            if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
+                if(!selectedFilterValue.isEmpty()) {
+                    serialisedSelectedValues[filterUuid] = {
+                        subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
+                        programs: selectedFilterValue.programs.map(x => x.uuid),
+                        encounterTypes: selectedFilterValue.encounterTypes.map(x => x.uuid)
+                    };
+                }
+            } else if (dashboardFilterConfig.isMultiEntityType()) {
+                if(!_.isEmpty(selectedFilterValue)) {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue.map(x => x.uuid);
+                }
+            } else if (dashboardFilterConfig.isDateLikeRangeFilterType() || dashboardFilterConfig.isNumericRangeFilterType()) {
+                if(!selectedFilterValue.isEmpty()) {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue;
+                }
+            } else if (dashboardFilterConfig.isNonCodedObservationDataType()) {
+                if(!_.isEmpty(selectedFilterValue)) {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue;
+                }
+            } else if (dashboardFilterConfig.isDateLikeFilterType()) {
+                if(_.isDate(selectedFilterValue)) {
+                    serialisedSelectedValues[filterUuid] = selectedFilterValue;
+                }
             }
         });
 

@@ -52,7 +52,7 @@ export class DashboardReportFilter {
             case CustomFilter.type.Address:
             case CustomFilter.type.GroupSubject:
             case CustomFilter.type.Concept:
-                return !_.isEmpty(this.filterValue) || _.isDate(this.filterValue);
+                    return this.dataType === CustomFilter.widget.Range ? !this.filterValue.isEmpty() : !_.isEmpty(this.filterValue);
             case CustomFilter.type.AsOnDate:
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:

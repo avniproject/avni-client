@@ -79,7 +79,7 @@ class CustomDashboardService extends BaseService {
 
             if (dashboardFilterConfig.isMultiEntityType()) {
                 selectedFilterValues[filter.uuid] = [];
-            } else if (dashboardFilterConfig.isDateRangeFilterType() || dashboardFilterConfig.isDateTimeRangeFilterType() || dashboardFilterConfig.isTimeRangeFilterType() || dashboardFilterConfig.isNumericRangeFilterType()) {
+            } else if (dashboardFilterConfig.isDateLikeRangeFilterType() || dashboardFilterConfig.isNumericRangeFilterType()) {
                 //value should not be an array but CustomFilterService and MyDashboard has been built on that assumption
                 selectedFilterValues[filter.uuid] = Range.empty();
             } else if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
