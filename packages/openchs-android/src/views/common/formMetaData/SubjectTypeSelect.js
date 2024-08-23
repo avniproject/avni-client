@@ -1,6 +1,7 @@
 import AbstractComponent from "../../../framework/view/AbstractComponent";
 import SubjectTypeService from "../../../service/SubjectTypeService";
 import SelectableItemGroup from "../../primitives/SelectableItemGroup";
+import {Text} from "react-native";
 import React from "react";
 import NamedSelectableEntities from "../../../model/NamedSelectableEntities";
 import PropTypes from "prop-types";
@@ -28,7 +29,7 @@ class SubjectTypeSelect extends AbstractComponent {
         const options = subjectTypes.getOptions();
 
         if (options.length === 0) {
-            return <Text>Not subject types found with permission</Text>;
+            return <Text>No subject types found</Text>;
         }
 
         return <SelectableItemGroup labelKey={"subjectTypes"}
