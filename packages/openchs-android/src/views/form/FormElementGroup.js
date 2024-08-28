@@ -119,7 +119,7 @@ class FormElementGroup extends AbstractComponent {
                 {formElements.length < 1 ? <View/> :
                     <Text
                         style={[Styles.formGroupLabel, this.props.group.styles, {paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
-                        {this.I18n.t(this.props.group.display)}
+                        {this.I18n.t(this.props.group.name)}
                     </Text>
                 }
                 {
