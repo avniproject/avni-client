@@ -19,7 +19,7 @@ genderQueryKeys.set(Encounter.schema.name, "individual.gender.uuid");
 
 class RealmQueryService {
     static orQuery(array) {
-        const nonEmptyList = array.filter((x) => !_.isEmpty(x));
+        const nonEmptyList = _.filter(array, (x) => !_.isEmpty(x));
         return nonEmptyList.length > 0 ? '( ' + nonEmptyList.join(' OR ') + ' )' : '';
     }
 
