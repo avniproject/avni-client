@@ -1,6 +1,7 @@
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import AvniError from "../framework/errorHandling/AvniError";
 import _ from "lodash";
+import {ErrorCodes} from "openchs-models";
 
 function ServerError(response) {
     const instance = new Error(response);
@@ -36,6 +37,9 @@ function getServerStatusMessageKey(serverError) {
     }
 }
 
+const knownServerStatusMessages = ['serverUnavailableTryLater'];
+const knownServerExceptionMessages = ['NoCatchmentFound'];
+
 export function getAvniError(serverError, i18n) {
     const statusCode = getStatusCode(serverError);
     const errorCode = _.isNil(statusCode) ? "" : `Http ${statusCode}`;
@@ -43,8 +47,15 @@ export function getAvniError(serverError, i18n) {
     const serverErrorPromise = serverError.response.text() || Promise.resolve(i18n.t("unknownServerErrorReason"));
     return serverErrorPromise.then((errorMessage) => {
         const statusMessageKey = getServerStatusMessageKey(serverError);
-        if (statusMessageKey === 'serverUnavailableTryLater') avniError.showOnlyUserMessage = true;
-        avniError.userMessage = `${i18n.t(statusMessageKey)}. ${errorCode}. ${errorMessage}`;
+        if (_.includes(knownServerStatusMessages, statusMessageKey)) {
+            avniError.userMessage = `${i18n.t(statusMessageKey)}`;
+            avniError.showOnlyUserMessage = true;
+        } else if (_.includes(knownServerExceptionMessages, errorMessage)) {
+            avniError.userMessage = `${i18n.t(ErrorCodes[errorMessage] || errorMessage)}`;
+            avniError.showOnlyUserMessage = true;
+        } else {
+            avniError.userMessage = `${i18n.t(statusMessageKey)}. ${errorCode}. ${errorMessage}`;
+        }
         return ErrorUtil.getNavigableStackTraceSync(serverError);
     }).then((stackTraceString) => {
         avniError.reportingText = `${avniError.userMessage}\n\n${stackTraceString}`;

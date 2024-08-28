@@ -158,35 +158,33 @@ class LoginView extends AbstractComponent {
     }
 
     displayFailureAlert(avniError, source) {
-        const isCatchmentError = avniError.userMessage.includes(ErrorCodes.NoCatchmentFound);
-        isCatchmentError ? this.noCatchmentAlert(this.I18n.t(ErrorCodes.NoCatchmentFound)) :
-            Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), [
-                    {
-                        text: this.I18n.t('tryAgain'),
-                        onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
+        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), [
+                {
+                    text: this.I18n.t('tryAgain'),
+                    onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
+                        ...this.dumpRestoreAction.call(this),
+                        source
+                    })
+                },
+                {
+                    text: "copyErrorTryAgain",
+                    onPress: () => {
+                        General.logDebug("LoginView", avniError.reportingText);
+                        Clipboard.setString(avniError.reportingText);
+                        ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT);
+                        this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
                             ...this.dumpRestoreAction.call(this),
                             source
-                        })
-                    },
-                    {
-                        text: "copyErrorTryAgain",
-                        onPress: () => {
-                            General.logDebug("LoginView", avniError.reportingText);
-                            Clipboard.setString(avniError.reportingText);
-                            ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT);
-                            this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
-                                ...this.dumpRestoreAction.call(this),
-                                source
-                            });
-                        }
-                    },
-                    {
-                        text: this.I18n.t('performNormalSync'),
-                        onPress: () => this.loginComplete(source),
-                        style: 'cancel'
+                        });
                     }
-                ]
-            );
+                },
+                {
+                    text: this.I18n.t('performNormalSync'),
+                    onPress: () => this.loginComplete(source),
+                    style: 'cancel'
+                }
+            ]
+        );
     }
 
     restoreFailureAlert(error, source) {
@@ -196,15 +194,6 @@ class LoginView extends AbstractComponent {
             this.displayFailureAlert(ErrorUtil.getAvniErrorSync(error), source);
             ErrorUtil.notifyBugsnag(error, "LoginView");
         }
-    }
-
-    noCatchmentAlert(errorMessage) {
-        Alert.alert(this.I18n.t('restoreFailedTitle'), errorMessage, [{
-                text: this.I18n.t('ok'),
-                onPress: () => BackHandler.exitApp()
-            }
-            ]
-        );
     }
 
     render() {
