@@ -86,7 +86,7 @@ function get24HoursDateRange(date) {
     return {dateMidnight, dateMorning};
 }
 
-function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
+function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, entityService) {
     let uniqueSubjects = [];
     let filterApplied = false;
     reportFilters.forEach((filter) => {
@@ -96,7 +96,6 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
                 scope = filter.getScope(reportFilters);
                 conceptUUID = filter.getConceptUUID();
                 scopeParameters = filter.getScopeParameters();
-            case CustomFilter.type.SubjectType:
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:
             case CustomFilter.type.ProgramEncounterDate:
@@ -126,6 +125,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
 function applyConfiguredFilters(entities, criteria) {
     let filteredEntities = entities;
     if (!_.isEmpty(criteria)) {
+        General.logDebug("IndividualService", "Configured filter", criteria);
         filteredEntities = filteredEntities.filtered(criteria);
     }
     return filteredEntities;
@@ -153,7 +153,7 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService) 
         if (uniqueSubjects.length > 0)
             filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(subjectUuidQueries[schema], uniqueSubjects));
         else
-            filteredEntities = filteredEntities.filtered('uuid = null');
+        filteredEntities = filteredEntities.filtered('uuid = null');
     }
     return filteredEntities;
 }

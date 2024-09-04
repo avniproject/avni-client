@@ -55,7 +55,8 @@ class CustomDashboardCacheService extends BaseService {
                 General.logDebug("CustomDashboardCacheService", "loading dashboard filters from cache", dashboardFilterConfig.toDisplayText());
 
                 if (inputDataType === DashboardFilterConfig.dataTypes.formMetaData) {
-                    selectedFilterValues[filterUuid] = new FormMetaDataSelection(entityService.findAllByUUID(selectedSerialisedValue.subjectTypes, SubjectType.schema.name),
+                    selectedFilterValues[filterUuid] = new FormMetaDataSelection(
+                        entityService.findAllByUUID(selectedSerialisedValue.subjectTypes, SubjectType.schema.name),
                         entityService.findAllByUUID(selectedSerialisedValue.programs, Program.schema.name),
                         entityService.findAllByUUID(selectedSerialisedValue.encounterTypes, EncounterType.schema.name)
                     );

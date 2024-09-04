@@ -357,7 +357,7 @@ class CustomFilterService extends BaseService {
             case CustomFilter.type.GroupSubject:
                 return this.queryEntity(GroupSubject.schema.name, queryFunction, null, gs => gs.memberSubject.uuid, includeVoided);
             default :
-                General.logDebug("Filter type not found");
+                General.logDebug("Filter type not found", type);
                 return [];
         }
     }
