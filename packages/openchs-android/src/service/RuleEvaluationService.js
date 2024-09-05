@@ -36,16 +36,16 @@ import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
 import * as rulesConfig from "rules-config";
+import {EditFormRuleResponse} from "rules-config";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 import MessageService from './MessageService';
-import {Groups} from "openchs-models";
 import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
-import {EditFormRuleResponse} from "rules-config";
+import PrivilegeService from './PrivilegeService';
 
 function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
@@ -875,7 +875,7 @@ class RuleEvaluationService extends BaseService {
 
     getCommonParams() {
         const user = this.getService(UserInfoService).getUserInfo();
-        const myUserGroups = this.getService(EntityService).loadAll(Groups.schema.name);
+        const myUserGroups = this.getService(PrivilegeService).ownedGroups();
         return { user, myUserGroups };
     }
 
