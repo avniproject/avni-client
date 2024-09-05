@@ -86,24 +86,24 @@ class ReportCardService extends BaseService {
     getResultForDefaultCardsType(reportFilters, reportCard) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
-            [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
-            [StandardReportCardType.type.OverdueVisits, individualService.allOverdueVisitsIn],
-            [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
+            [StandardReportCardType.types.ScheduledVisits, individualService.allScheduledVisitsIn],
+            [StandardReportCardType.types.OverdueVisits, individualService.allOverdueVisitsIn],
+            [StandardReportCardType.types.DueChecklist, individualService.dueChecklists.individual]
         ]);
-        const standardReportCardTypeName = reportCard.standardReportCardType.name;
+        const standardReportCardTypeName = reportCard.standardReportCardType.type;
         const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
 
         const formMetaData = DashboardReportFilter.getFormMetaDataFilterValues(reportFilters);
 
         const date = DashboardReportFilter.getAsOnDate(reportFilters);
         let result;
-        if (standardReportCardTypeName === StandardReportCardType.type.Total) {
+        if (standardReportCardTypeName === StandardReportCardType.types.Total) {
             result = individualService.allInV2(date, reportFilters, getSubjectCriteria(reportCard, formMetaData));
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentEnrolments) {
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentEnrolments) {
             result = individualService.recentlyEnrolled(date, reportFilters, getProgramEnrolmentCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentRegistrations) {
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentRegistrations) {
             result = individualService.recentlyRegisteredV2(date, reportFilters, getSubjectCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentVisits) {
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentVisits) {
             result = individualService.recentlyCompletedVisitsIn(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData), true, true,
                 reportCard.getStandardReportCardInputRecentDuration());
         } else {
