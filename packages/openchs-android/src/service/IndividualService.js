@@ -1,10 +1,13 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {
-    CustomFilter, Duration,
+    CustomFilter,
+    Duration,
     Encounter,
     EntityQueue,
+    getUnderlyingRealmCollection,
     Individual,
+    KeyValue,
     ObservationsHolder,
     Privilege,
     ProgramEncounter,
@@ -23,7 +26,6 @@ import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import OrganisationConfigService from './OrganisationConfigService';
-import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
@@ -166,6 +168,9 @@ class IndividualService extends BaseService {
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
+        this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
+        this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
+        this.allIn = this.allIn.bind(this);
     }
 
     getSchema() {
