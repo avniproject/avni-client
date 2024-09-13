@@ -292,6 +292,7 @@ class CustomDashboardView extends AbstractComponent {
                 indicatorActionName: Actions.LOAD_INDICATOR,
                 headerTitle: _.truncate(reportCard.name, {'length': 30}) || status,
                 results: results,
+                totalSearchResultsCount: results.length,
                 reportCardUUID,
                 listType: status,
                 backFunction: this.onBackPress.bind(this),
