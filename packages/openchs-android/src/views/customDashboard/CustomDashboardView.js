@@ -322,7 +322,6 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug("CustomDashboardView", "render");
-        General.logDebugTemp("CustomDashboardView", "render", this.state.dashboards.length);
 
         const settings = this.getService(UserInfoService).getUserSettingsObject();
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
@@ -386,7 +385,7 @@ class CustomDashboardView extends AbstractComponent {
                                           hasFiltersSet={hasFiltersSet}
                                           selectedFilterValues={this.state.customDashboardFilters}
                                           filterConfigs={filterConfigs}
-                                          filterUUIDsToIgnore={filterUUIDsToIgnore}
+                                          filterUUIDsToIgnore={[]}
                         />
                         {this.renderCards()}
                     </>}
