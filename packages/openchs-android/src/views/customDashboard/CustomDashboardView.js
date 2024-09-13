@@ -92,12 +92,12 @@ function FilterSection({dispatcher, asOnDateValue, asOnDateFilter, I18n, onFilte
         const backgroundColor = {backgroundColor: isFilled ? Colors.ActionButtonColor : Colors.FilterButtonColor};
         const textColor = {color: isFilled ? Colors.TextOnPrimaryColor : Styles.accentColor};
         return (
-          <TouchableOpacity
-            style={[CustomDashboardView.styles.filterButton, backgroundColor]}
-            onPress={() => isFilled ? _.noop() : onAsOnDateChange(value)}
-          >
-              <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+                style={[CustomDashboardView.styles.filterButton, backgroundColor]}
+                onPress={() => isFilled ? _.noop() : onAsOnDateChange(value)}
+            >
+                <Text style={[CustomDashboardView.styles.buttonText, textColor]}>{I18n.t(label)}</Text>
+            </TouchableOpacity>
         )
     }
 
@@ -303,12 +303,7 @@ class CustomDashboardView extends AbstractComponent {
 
     renderZeroResultsMessageIfNeeded() {
         if (_.size(this.state.dashboards) === 0)
-            return (
-                <View>
-                    <Text
-                        style={GlobalStyles.emptyListPlaceholderText}>{this.I18n.t('dashboardsNotAvailable')}</Text>
-                </View>
-            );
+            return <Text style={[{marginLeft: 20}, GlobalStyles.emptyListPlaceholderText]}>{this.I18n.t('dashboardsNotAvailable')}</Text>;
         else
             return (<View/>);
     }
@@ -327,22 +322,25 @@ class CustomDashboardView extends AbstractComponent {
 
     render() {
         General.logDebug("CustomDashboardView", "render");
+        General.logDebugTemp("CustomDashboardView", "render", this.state.dashboards.length);
 
         const settings = this.getService(UserInfoService).getUserSettingsObject();
-        const dashboard = this.state.dashboards.find((x) => x.uuid === this.state.activeDashboardUUID);
-
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
         const title = this.props.title || 'dashboards';
         const {hasFiltersSet, loading} = this.state;
-
         const dashboardFilterService = this.getService(DashboardFilterService);
-        const filters = dashboardFilterService.getFilters(dashboard.uuid);
-        const filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(dashboard.uuid);
-        const asOnDateFilterUUID = _.findKey(filterConfigs, entity => entity.isAsOnDateFilter());
-        const asOnDateFilter = _.find(filters, ({uuid}) => uuid === asOnDateFilterUUID);
-        const asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
-          ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
-        const filterUUIDsToIgnore = [];
+
+        let filterConfigs, asOnDateFilterUUID, asOnDateFilter, asOnDateFilterValue, filters, dashboard;
+        const hasDashboards = this.state.dashboards.length !== 0;
+        if (hasDashboards) {
+            dashboard = this.state.dashboards.find((x) => x.uuid === this.state.activeDashboardUUID);
+            filters = dashboardFilterService.getFilters(dashboard.uuid);
+            filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(dashboard.uuid);
+            asOnDateFilterUUID = _.findKey(filterConfigs, entity => entity.isAsOnDateFilter());
+            asOnDateFilter = _.find(filters, ({uuid}) => uuid === asOnDateFilterUUID);
+            asOnDateFilterValue = (asOnDateFilterUUID && this.state.customDashboardFilters[asOnDateFilterUUID])
+                ? this.state.customDashboardFilters[asOnDateFilterUUID] : new Date();
+        }
 
         return (
             <CHSContainer style={{
@@ -366,30 +364,32 @@ class CustomDashboardView extends AbstractComponent {
                                 {this.renderZeroResultsMessageIfNeeded()}
                             </ScrollView>
                         </SafeAreaView>}
-                    <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
-                        <View style={{flex: 0.65}}>
-                            {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
-                                <RefreshSection I18n={this.I18n}
-                                                onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
-                                                lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                    {hasDashboards && <>
+                        <View style={{display: "flex", flexDirection: "row", flex: 1, justifyContent: "space-between"}}>
+                            <View style={{flex: 0.65}}>
+                                {settings.autoRefreshDisabled && !_.isNil(this.state.resultUpdatedAt) &&
+                                    <RefreshSection I18n={this.I18n}
+                                                    onRefreshPressed={() => performCustomDashboardActionAndClearRefresh(this, Actions.FORCE_REFRESH)}
+                                                    lastUpdatedOn={this.state.resultUpdatedAt}/>}
+                            </View>
                         </View>
-                    </View>
-                    <CustomActivityIndicator loading={loading}/>
-                    <View>
-                        {this.state.filtersPresent &&
-                          <FilterSection dispatcher={this} asOnDateValue={asOnDateFilterValue}
-                                         asOnDateFilter={asOnDateFilter} I18n={this.I18n}
-                                         onFilterPressed={() => this.onFilterPressed()}/>}
-                    </View>
-                    <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
-                                      postClearAction={() => this.onClearFilters()}
-                                      dashboard={dashboard}
-                                      hasFiltersSet={hasFiltersSet}
-                                      selectedFilterValues={this.state.customDashboardFilters}
-                                      filterConfigs={filterConfigs}
-                                      filterUUIDsToIgnore={filterUUIDsToIgnore}
-                    />
-                    {this.renderCards()}
+                        <CustomActivityIndicator loading={loading}/>
+                        <View>
+                            {this.state.filtersPresent &&
+                                <FilterSection dispatcher={this} asOnDateValue={asOnDateFilterValue}
+                                               asOnDateFilter={asOnDateFilter} I18n={this.I18n}
+                                               onFilterPressed={() => this.onFilterPressed()}/>}
+                        </View>
+                        <AppliedFiltersV2 dashboardUUID={this.state.activeDashboardUUID}
+                                          postClearAction={() => this.onClearFilters()}
+                                          dashboard={dashboard}
+                                          hasFiltersSet={hasFiltersSet}
+                                          selectedFilterValues={this.state.customDashboardFilters}
+                                          filterConfigs={filterConfigs}
+                                          filterUUIDsToIgnore={filterUUIDsToIgnore}
+                        />
+                        {this.renderCards()}
+                    </>}
                 </ScrollView>
             </CHSContainer>
         );
