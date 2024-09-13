@@ -92,6 +92,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, ent
     let uniqueSubjects = [];
     let filterApplied = false;
     reportFilters.forEach((filter) => {
+        General.logDebug("IndividualService", `Filtering by ${filter.toDisplayText()}.`, "Filter value", filter.filterValue);
         let scope, conceptUUID, scopeParameters;
         switch (filter.type) {
             case CustomFilter.type.Concept:

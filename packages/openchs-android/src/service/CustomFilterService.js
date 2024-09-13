@@ -253,7 +253,7 @@ class CustomFilterService extends BaseService {
             case (Concept.dataType.Text) :
             case (Concept.dataType.Notes) :
             case (Concept.dataType.Id) :
-                const textFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(filterValue.name)}) `;
+                const textFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(filterValue)}) `;
                 return () => this.getObsSubQueryForQuery(textFilterQuery);
             case (Concept.dataType.Numeric) :
                 if (widget === CustomFilter.widget.Range) {
