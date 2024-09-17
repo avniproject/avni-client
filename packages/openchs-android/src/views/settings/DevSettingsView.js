@@ -113,7 +113,7 @@ class DevSettingsView extends AbstractComponent {
                         <Text style={{
                             fontSize: Fonts.Medium,
                             color: Colors.TextOnPrimaryColor
-                        }}>Clear Dashboard Cache</Text>
+                        }}>Clear Dashboard Cache (make restart-app after)</Text>
                     </View>
                 </TouchableNativeFeedback>
             </View>);
