@@ -12,7 +12,7 @@ import Colors from '../primitives/Colors';
 function MultiValueFilterDisplay({labelTexts, filter}) {
     return <View key={filter.name} style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
         {labelTexts.map((labelText, index) => {
-            return <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
+            return <View style={{display: "flex", flexDirection: "row", flexWrap: "wrap", width: 320}}>
                 <Text style={{
                     fontSize: 14,
                     color: Styles.greyText,
