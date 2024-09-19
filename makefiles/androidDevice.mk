@@ -8,6 +8,7 @@ endef
 
 uninstall_apk:
 	-adb uninstall ${app_android_package_name}
+uninstall-apk: uninstall_apk
 
 clear_app_data:
 	-adb shell pm clear ${app_android_package_name}
@@ -54,6 +55,7 @@ _run_app_release:
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
 
 run_app: setup_hosts as_dev _run_app
+run-app: run_app
 
 run_app_release: as_dev _run_app_release
 
