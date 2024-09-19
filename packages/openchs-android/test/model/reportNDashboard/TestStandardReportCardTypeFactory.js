@@ -6,6 +6,7 @@ class TestStandardReportCardTypeFactory {
         const standardReportCardType = new StandardReportCardType();
         standardReportCardType.uuid = uuid;
         standardReportCardType.name = name;
+        standardReportCardType.type = name;
         return standardReportCardType;
     }
 }
