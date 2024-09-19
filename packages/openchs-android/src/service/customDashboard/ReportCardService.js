@@ -11,6 +11,40 @@ import General from "../../utility/General";
 import {DashboardReportFilter} from "../../model/DashboardReportFilter";
 import ReportCardQueryBuilder from "./ReportCardQueryBuilder";
 import {ReportCardResult} from "openchs-models";
+import RealmQueryService from "../query/RealmQueryService";
+import {JSONStringify} from "../../utility/JsonStringify";
+
+function getProgramEncounterCriteria(reportCard, formMetaData) {
+    let programEncounterCriteria = ReportCardQueryBuilder.getProgramEncounterCriteriaForReportCard(reportCard);
+    const programEncounterCriteriaForUserFilter = ReportCardQueryBuilder.getProgramEncounterCriteria(formMetaData.subjectTypes, formMetaData.programs, formMetaData.encounterTypes);
+    if (!_.isEmpty(programEncounterCriteriaForUserFilter))
+        programEncounterCriteria = RealmQueryService.andQuery([programEncounterCriteria, programEncounterCriteriaForUserFilter]);
+    return programEncounterCriteria;
+}
+
+function getGeneralEncounterCriteria(reportCard, formMetaData) {
+    let generalEncounterCriteria = ReportCardQueryBuilder.getGeneralEncounterCriteriaForReportCard(reportCard);
+    const generalEncounterForUserFilter = ReportCardQueryBuilder.getGeneralEncounterCriteria(formMetaData.subjectTypes, formMetaData.encounterTypes);
+    if (!_.isEmpty(generalEncounterForUserFilter))
+        generalEncounterCriteria = RealmQueryService.andQuery([generalEncounterCriteria, generalEncounterForUserFilter]);
+    return generalEncounterCriteria;
+}
+
+function getProgramEnrolmentCriteria(reportCard, formMetaData) {
+    let programEnrolmentCriteria = ReportCardQueryBuilder.getProgramEnrolmentCriteriaForReportCard(reportCard);
+    const programEnrolmentCriteriaForUserFilter = ReportCardQueryBuilder.getProgramEnrolmentCriteria(formMetaData.subjectTypes, formMetaData.programs);
+    if (!_.isEmpty(programEnrolmentCriteriaForUserFilter))
+        programEnrolmentCriteria = RealmQueryService.andQuery([programEnrolmentCriteria, programEnrolmentCriteriaForUserFilter]);
+    return programEnrolmentCriteria;
+}
+
+function getSubjectCriteria(reportCard, formMetaData) {
+    let subjectCriteria = ReportCardQueryBuilder.getSubjectCriteriaForReportCard(reportCard);
+    const subjectCriteriaForUserFilter = ReportCardQueryBuilder.getSubjectCriteria(formMetaData.subjectTypes, formMetaData.programs, formMetaData.encounterTypes);
+    if (!_.isEmpty(subjectCriteriaForUserFilter))
+        subjectCriteria = RealmQueryService.andQuery([subjectCriteria, subjectCriteriaForUserFilter]);
+    return subjectCriteria;
+}
 
 @Service("reportCardService")
 class ReportCardService extends BaseService {
@@ -52,28 +86,28 @@ class ReportCardService extends BaseService {
     getResultForDefaultCardsType(reportFilters, reportCard) {
         const individualService = this.getService(IndividualService);
         const typeToMethodMap = new Map([
-            [StandardReportCardType.type.ScheduledVisits, individualService.allScheduledVisitsIn],
-            [StandardReportCardType.type.OverdueVisits, individualService.allOverdueVisitsIn],
-            [StandardReportCardType.type.DueChecklist, individualService.dueChecklists.individual]
+            [StandardReportCardType.types.ScheduledVisits, individualService.allScheduledVisitsIn],
+            [StandardReportCardType.types.OverdueVisits, individualService.allOverdueVisitsIn],
+            [StandardReportCardType.types.DueChecklist, individualService.dueChecklists.individual]
         ]);
-        const standardReportCardTypeName = reportCard.standardReportCardType.name;
+        const standardReportCardTypeName = reportCard.standardReportCardType.type;
         const resultFunc = typeToMethodMap.get(standardReportCardTypeName);
 
-        const programEncounterCriteria = ReportCardQueryBuilder.getProgramEncounterCriteria(reportCard);
-        const generalEncounterCriteria = ReportCardQueryBuilder.getGeneralEncounterCriteria(reportCard);
+        const formMetaData = DashboardReportFilter.getFormMetaDataFilterValues(reportFilters);
+
         const date = DashboardReportFilter.getAsOnDate(reportFilters);
         let result;
-        if (standardReportCardTypeName === StandardReportCardType.type.Total) {
-            result = individualService.allInV2(date, reportFilters, ReportCardQueryBuilder.getSubjectCriteria(reportCard));
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentEnrolments) {
-            result = individualService.recentlyEnrolled(date, reportFilters, ReportCardQueryBuilder.getProgramEnrolmentCriteria(reportCard), reportCard.getStandardReportCardInputRecentDuration());
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentRegistrations) {
-            result = individualService.recentlyRegisteredV2(date, reportFilters, ReportCardQueryBuilder.getSubjectCriteria(reportCard), reportCard.getStandardReportCardInputRecentDuration());
-        } else if (standardReportCardTypeName === StandardReportCardType.type.RecentVisits) {
-            result = individualService.recentlyCompletedVisitsIn(date, reportFilters, programEncounterCriteria, generalEncounterCriteria, true, true,
+        if (standardReportCardTypeName === StandardReportCardType.types.Total) {
+            result = individualService.allInV2(date, reportFilters, getSubjectCriteria(reportCard, formMetaData));
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentEnrolments) {
+            result = individualService.recentlyEnrolled(date, reportFilters, getProgramEnrolmentCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentRegistrations) {
+            result = individualService.recentlyRegisteredV2(date, reportFilters, getSubjectCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentVisits) {
+            result = individualService.recentlyCompletedVisitsIn(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData), true, true,
                 reportCard.getStandardReportCardInputRecentDuration());
         } else {
-            result = resultFunc(date, reportFilters, programEncounterCriteria, generalEncounterCriteria);
+            result = resultFunc(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData));
         }
         const sortedResult = _.orderBy(result, ({visitInfo}) => visitInfo.sortingBy, 'desc');
         return {status: standardReportCardTypeName, result: sortedResult};

@@ -63,6 +63,8 @@ class FormMappingService extends BaseService {
     }
 
     findProgramEncounterTypesForSubjectTypesAndPrograms(subjectTypes, programs) {
+        if (programs.length === 0) return [];
+
         const subjectTypesCriteria = RealmQueryService.orKeyValueQuery('subjectType.uuid', subjectTypes.map(x => x.uuid));
         const programCriteria = RealmQueryService.orKeyValueQuery('entityUUID', programs.map(program => program.uuid));
         const criteria = RealmQueryService.andQuery(['voided = false', subjectTypesCriteria, `form.formType="${Form.formTypes.ProgramEncounter}"`, programCriteria]);

@@ -70,9 +70,9 @@ class CustomDashboardService extends BaseService {
 
     getDashboardData(dashboardUUID) {
         const {selectedFilterValues, dashboardCache} = this.getService(CustomDashboardCacheService).getDashboardCache(dashboardUUID);
-        const customDashboardService = this.getService(DashboardFilterService);
+        const dashboardFilterService = this.getService(DashboardFilterService);
         dashboardCache.dashboard.filters.filter(filter => !filter.voided && _.isNil(selectedFilterValues[filter.uuid])).forEach(filter => {
-            const dashboardFilterConfig = customDashboardService.getDashboardFilterConfig(filter);
+            const dashboardFilterConfig = dashboardFilterService.getDashboardFilterConfig(filter);
             const inputDataType = dashboardFilterConfig.getInputDataType();
 
             General.logDebug("CustomDashboardCacheService", "Init empty values for", dashboardFilterConfig.toDisplayText());

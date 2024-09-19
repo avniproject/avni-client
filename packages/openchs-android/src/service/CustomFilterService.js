@@ -253,7 +253,7 @@ class CustomFilterService extends BaseService {
             case (Concept.dataType.Text) :
             case (Concept.dataType.Notes) :
             case (Concept.dataType.Id) :
-                const textFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(filterValue.name)}) `;
+                const textFilterQuery = ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(filterValue)}) `;
                 return () => this.getObsSubQueryForQuery(textFilterQuery);
             case (Concept.dataType.Numeric) :
                 if (widget === CustomFilter.widget.Range) {
@@ -357,7 +357,7 @@ class CustomFilterService extends BaseService {
             case CustomFilter.type.GroupSubject:
                 return this.queryEntity(GroupSubject.schema.name, queryFunction, null, gs => gs.memberSubject.uuid, includeVoided);
             default :
-                General.logDebug("Filter type not found");
+                General.logDebug("Filter type not found", type);
                 return [];
         }
     }

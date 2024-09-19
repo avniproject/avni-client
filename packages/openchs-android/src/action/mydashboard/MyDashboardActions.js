@@ -233,7 +233,7 @@ class MyDashboardActions {
         } else if (["scheduled", "overdue"].includes(listType)) {
             allIndividuals = methodMap.get(listType)(state.date.value, [], state.encountersFilters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
         } else if (["recentlyCompletedEnrolment"].includes(listType)) {
-            allIndividuals = individualService.recentlyEnrolled(listType)(state.date.value);
+            allIndividuals = individualService.recentlyEnrolled(state.date.value);
         } else if (["recentlyCompletedVisits"].includes(listType)) {
             allIndividuals = individualService.recentlyCompletedVisitsIn(state.date.value, [], state.encountersFilters, state.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter);
         } else

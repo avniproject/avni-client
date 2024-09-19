@@ -1,10 +1,9 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {SectionList, StyleSheet, Text} from "react-native";
-import Fonts from "../primitives/Fonts";
 import _ from "lodash";
 import IndividualDetails from "./IndividualDetails";
-import React from "react";
+import React, {Fragment} from "react";
 import General from "../../utility/General";
 import AppHeader from "../common/AppHeader";
 import SearchResultsHeader from "../individual/SearchResultsHeader";
@@ -13,6 +12,8 @@ import PropTypes from "prop-types";
 import CHSContainer from "../common/CHSContainer";
 import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
+import Styles from '../primitives/Styles';
+import {View} from 'native-base';
 
 @Path('/IndividualListView')
 class IndividualListView extends AbstractComponent {
@@ -44,11 +45,15 @@ class IndividualListView extends AbstractComponent {
         }
     }
 
-    renderHeader = ({section: {title}}) => (
-        _.isEmpty(title) ? null : <Text style={[Fonts.typography("paperFontTitle"), styles.TextHeaderStyle]}>
-            {title}
-        </Text>
-    );
+    renderHeader = ({section: {title, data}}) => (_.isEmpty(title) ? null :
+      <View style={{display: 'flex', flexDirection: 'row'}}>
+          <Text style={{
+              fontSize: 12, color: Styles.blackColor
+          }}>{`   ${title}`}</Text>
+          <Text style={{
+              fontSize: 12, color: Styles.lightgrey
+          }}>{` ${this.I18n.t("matchingResults")}: ${data.length}`}</Text>
+      </View>);
 
     renderItems = (item, section, listType, cardType) => {
         const individualWithMetadata = listType === 'total' ? {individual: item, visitInfo: {visitName: []}} : item;
@@ -97,7 +102,7 @@ class IndividualListView extends AbstractComponent {
                     renderItem={({item, section}) => this.renderItems(item, section, this.props.listType, this.props.headerTitle)}
                     renderSectionHeader={this.renderHeader}
                     SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                        <Separator style={{alignSelf: 'stretch'}} height={5} backgroundColor={Colors.GreyContentBackground}/>) : null}
+                        <Separator style={{alignSelf: 'stretch', margin: 6}} height={2} backgroundColor={Colors.GreyBackground}/>) : null}
                     initialNumToRender={15}
                     updateCellsBatchingPeriod={500}
                     maxToRenderPerBatch={30}

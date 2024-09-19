@@ -1,6 +1,7 @@
 import {ChecklistItem, Encounter, Individual, ProgramEncounter, ProgramEnrolment, Comment, Task, CustomFilter, AddressLevel} from "openchs-models";
 import _ from "lodash";
 import moment from "moment";
+import General from "../../utility/General";
 
 const locationBasedQueries = new Map();
 locationBasedQueries.set(Individual.schema.name, "lowestAddressLevel.uuid = ");
@@ -35,7 +36,9 @@ class RealmQueryService {
     static filterBasedOnAddress(schema, entitiesResult, addressFilter) {
         if (!_.isNil(addressFilter) && !_.isNil(addressFilter.filterValue) && addressFilter.filterValue.length > 0) {
             const joinedQuery = addressFilter.filterValue.map((x: AddressLevel) => locationBasedQueries.get(schema) + `"${x.uuid}"`);
-            return entitiesResult.filtered(RealmQueryService.orQuery(joinedQuery));
+            const query = RealmQueryService.orQuery(joinedQuery);
+            General.logDebug("RealmQueryService", "filterBasedOnAddress", query);
+            return entitiesResult.filtered(query);
         }
         return entitiesResult;
     }
@@ -43,6 +46,7 @@ class RealmQueryService {
     static filterBasedOnGenders(schema, entitiesResult, genders) {
         const orKeyValueQuery = RealmQueryService.orKeyValueQuery(genderQueryKeys.get(schema), genders.map((x) => x.uuid));
         if (_.isEmpty(orKeyValueQuery)) return entitiesResult;
+        General.logDebug("RealmQueryService", "filterBasedOnGender", orKeyValueQuery);
         return entitiesResult.filtered(orKeyValueQuery);
     }
 

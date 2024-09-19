@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import {CustomFilter} from "openchs-models";
-import General from "../utility/General";
+import FormMetaDataSelection from "./FormMetaDataSelection";
 
 export class DashboardReportFilter {
     type;
@@ -27,6 +27,18 @@ export class DashboardReportFilter {
         if (_.isNil(asOnDateFilter) || _.isNil(asOnDateFilter.filterValue)) return new Date();
 
         return asOnDateFilter.filterValue;
+    }
+
+    static getFormMetaDataFilterValues(reportFilters) {
+        const empty = new FormMetaDataSelection([], [], []);
+        if (_.isNil(reportFilters)) {
+            return empty;
+        }
+        const formMetaData = _.find(reportFilters, (x) => x.type === CustomFilter.type.SubjectType);
+        if (_.isNil(formMetaData)) {
+            return empty;
+        }
+        return formMetaData.filterValue;
     }
 
     getScope() {

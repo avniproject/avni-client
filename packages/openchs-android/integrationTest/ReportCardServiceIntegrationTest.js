@@ -179,15 +179,15 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 latestEntityApprovalStatus: programEnc2EAS
             })));
 
-            const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Approved}));
-            const pendingCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.PendingApproval}));
-            const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.ScheduledVisits}));
-            const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OverdueVisits}));
-            const recentVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentVisits}));
-            const recentRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentRegistrations}));
-            const recentEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.RecentEnrolments}));
-            const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Total}));
-            const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.DueChecklist}));
+            const approvedCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.Approved}));
+            const pendingCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.PendingApproval}));
+            const scheduledVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.ScheduledVisits}));
+            const overdueVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.OverdueVisits}));
+            const recentVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.RecentVisits}));
+            const recentRegistrationsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.RecentRegistrations}));
+            const recentEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.RecentEnrolments}));
+            const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.Total}));
+            const dueChecklistCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.DueChecklist}));
             this.approvedCard = db.create(ReportCard, TestReportCardFactory.create({name: "approvedCard", standardReportCardType: approvedCardType}));
             this.pendingCard = db.create(ReportCard, TestReportCardFactory.create({name: "pendingCard", standardReportCardType: pendingCardType}));
             this.scheduledVisitsCard = db.create(ReportCard, TestReportCardFactory.create({
@@ -220,7 +220,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     getCountForCommentCardType() {
         let commentCard;
         this.executeInWrite((db) => {
-            const commentCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.Comments}));
+            const commentCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.Comments}));
             commentCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: commentCardType}));
 
             const commentThread = db.create(CommentThread, TestCommentThreadFactory.create({}));
@@ -234,8 +234,8 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     getCountForTaskCardType() {
         let callTaskTypeCard, openSubjectTaskTypeCard;
         this.executeInWrite((db) => {
-            const callTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.CallTasks}));
-            const openSubjectTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.type.OpenSubjectTasks}));
+            const callTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.CallTasks}));
+            const openSubjectTaskCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.OpenSubjectTasks}));
             callTaskTypeCard = db.create(ReportCard, TestReportCardFactory.create({name: "callTaskTypeCard", standardReportCardType: callTaskCardType}));
             openSubjectTaskTypeCard = db.create(ReportCard, TestReportCardFactory.create({name: "callTaskTypeCard", standardReportCardType: openSubjectTaskCardType}));
             const callTaskType = db.create(TaskType, TestTaskTypeFactory.create({type: TaskType.TaskTypeName.Call}));

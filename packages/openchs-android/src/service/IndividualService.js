@@ -1,10 +1,13 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
 import {
-    CustomFilter, Duration,
+    CustomFilter,
+    Duration,
     Encounter,
     EntityQueue,
+    getUnderlyingRealmCollection,
     Individual,
+    KeyValue,
     ObservationsHolder,
     Privilege,
     ProgramEncounter,
@@ -23,7 +26,6 @@ import PrivilegeService from "./PrivilegeService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import OrganisationConfigService from './OrganisationConfigService';
-import {getUnderlyingRealmCollection, KeyValue} from "openchs-models";
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
@@ -86,17 +88,17 @@ function get24HoursDateRange(date) {
     return {dateMidnight, dateMorning};
 }
 
-function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
+function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters, entityService) {
     let uniqueSubjects = [];
     let filterApplied = false;
     reportFilters.forEach((filter) => {
+        General.logDebug("IndividualService", `Filtering by ${filter.toDisplayText()}.`, "Filter value", filter.filterValue);
         let scope, conceptUUID, scopeParameters;
         switch (filter.type) {
             case CustomFilter.type.Concept:
                 scope = filter.getScope(reportFilters);
                 conceptUUID = filter.getConceptUUID();
                 scopeParameters = filter.getScopeParameters();
-            case CustomFilter.type.SubjectType:
             case CustomFilter.type.RegistrationDate:
             case CustomFilter.type.EnrolmentDate:
             case CustomFilter.type.ProgramEncounterDate:
@@ -126,6 +128,7 @@ function getSubjectUUIDsForCustomFilters(customFilterService, reportFilters) {
 function applyConfiguredFilters(entities, criteria) {
     let filteredEntities = entities;
     if (!_.isEmpty(criteria)) {
+        General.logDebug("IndividualService", "Configured filter", criteria);
         filteredEntities = filteredEntities.filtered(criteria);
     }
     return filteredEntities;
@@ -153,7 +156,7 @@ function applyUserFilters(entities, reportFilters, schema, customFilterService) 
         if (uniqueSubjects.length > 0)
             filteredEntities = filteredEntities.filtered(RealmQueryService.orKeyValueQuery(subjectUuidQueries[schema], uniqueSubjects));
         else
-            filteredEntities = filteredEntities.filtered('uuid = null');
+        filteredEntities = filteredEntities.filtered('uuid = null');
     }
     return filteredEntities;
 }
@@ -166,6 +169,9 @@ class IndividualService extends BaseService {
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
+        this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
+        this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
+        this.allIn = this.allIn.bind(this);
     }
 
     getSchema() {

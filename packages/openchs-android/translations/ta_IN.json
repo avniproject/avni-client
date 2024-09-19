@@ -204,6 +204,8 @@
     "videoListNotAvailable": "வீடியோ பட்டியல் எதுவும் கிடைக்கவில்லை",
     "lastLoaded": "கடைசியாக ஏற்றப்பட்டது",
     "totalMatchingResults": "பொருத்தமான மொத்தம் முடிவுகள்",
+
+    "matchingResults": "பொருத்தமான முடிவுகள்",
     "displayed": "காண்பிக்க",
     "uploadMedia": "சேமித்த மீடியா கோப்புகளைப் பதிவேற்றுதல்",
     "uploadLocallySavedData": "சேமிக்கப்பட்ட தரவைப் பதிவேற்றுதல்",

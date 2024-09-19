@@ -74,6 +74,10 @@ class CustomDashboardActions {
             newState.cardToCountResultMap = {};
         }
 
+        if (newState.dashboards.length === 0) {
+            return newState;
+        }
+
         return loadCurrentDashboardInfo(context, newState);
     }
 
@@ -128,6 +132,10 @@ class CustomDashboardActions {
         const reportCardService = context.get(ReportCardService);
 
         const newState = {...state};
+
+        if (newState.dashboards.length === 0) {
+            return newState;
+        }
 
         const {selectedFilterValues} = customDashboardService.getDashboardData(state.activeDashboardUUID);
         newState.customDashboardFilters = selectedFilterValues;
@@ -205,6 +213,11 @@ class CustomDashboardActions {
     static clearCounts(state, action, context) {
         const newState = {...state};
         const customDashboardService = context.get(CustomDashboardService);
+
+        if (newState.dashboards.length === 0) {
+            return newState;
+        }
+
         const {selectedFilterValues, dashboardCache} = customDashboardService.getDashboardData(state.activeDashboardUUID);
         newState.customDashboardFilters = selectedFilterValues;
         newState.hasFiltersSet = dashboardCache.filterApplied;

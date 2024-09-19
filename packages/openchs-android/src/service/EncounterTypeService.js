@@ -35,7 +35,10 @@ class EncounterTypeService extends BaseService {
         const formMappingService = this.getService(FormMappingService);
         const encounterTypeUUIDs = _.unionBy(getAllowedViewGeneralEncounterTypeUUIDs(privilegeService, subjectTypes), getAllowedViewProgramEncounterTypeUUIDs(privilegeService, subjectTypes, programs));
 
-        const generalEncounterTypes = formMappingService.findGeneralEncounterTypesForSubjectTypes(subjectTypes);
+        let generalEncounterTypes = [];
+        if (programs.length === 0)
+            generalEncounterTypes = formMappingService.findGeneralEncounterTypesForSubjectTypes(subjectTypes);
+
         const programEncounterTypes = formMappingService.findProgramEncounterTypesForSubjectTypesAndPrograms(subjectTypes, programs);
         const allEncounterTypes = _.unionBy(generalEncounterTypes, programEncounterTypes, 'uuid');
 
