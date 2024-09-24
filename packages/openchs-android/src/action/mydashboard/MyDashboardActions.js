@@ -158,7 +158,7 @@ class MyDashboardActions {
                 MyDashboardActions.commonIndividuals(individualService.allOverdueVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyCompletedVisitsIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters, queryProgramEncounter, queryGeneralEncounter), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.recentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs),
-                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate), state.individualUUIDs),
+                MyDashboardActions.commonIndividuals(individualService.recentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters), state.individualUUIDs),
                 MyDashboardActions.commonIndividuals(individualService.allInWithFilters(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters, dashboardCacheFilter.selectedPrograms, getApplicableEncounterTypes(dashboardCacheFilter)), state.individualUUIDs, true),
                 MyDashboardActions.commonIndividuals(dueChecklistWithChecklistItem.individual, state.individualUUIDs)
             ]
