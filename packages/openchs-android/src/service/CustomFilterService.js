@@ -363,12 +363,19 @@ class CustomFilterService extends BaseService {
     }
 
     applyCustomFilters(customFilters, filterName, includeVoided = false) {
+        General.logDebugTemp("CustomFilterService", "Applying custom filters");
         let uniqueSubjectUUIDs = [];
         _.forEach(this.getSettings()[filterName], filter => {
             const selectedOptions = customFilters[filter.titleKey];
             const {scopeParameters, scope, conceptUUID, type, widget} = filter;
             const selectedAnswerFilterQueryFunction = this.getFilterQueryByTypeFunction(filter, selectedOptions);
-            uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided));
+            const subjects = this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided);
+            const filterHasValue = !_.isEmpty(selectedOptions) && !_.isNil(selectedOptions)
+            if (!filterHasValue || _.isEmpty(uniqueSubjectUUIDs)) {
+                uniqueSubjectUUIDs = subjects;
+            } else {
+                uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, subjects);
+            }
         });
         return uniqueSubjectUUIDs;
     }

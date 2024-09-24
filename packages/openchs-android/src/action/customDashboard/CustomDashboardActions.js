@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import CustomDashboardService, {CustomDashboardType} from "../../service/customDashboard/CustomDashboardService";
+import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard, NestedReportCardResult} from "openchs-models";
+import {ReportCard} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
@@ -133,7 +133,7 @@ class CustomDashboardActions {
 
         const newState = {...state};
 
-        if (newState.dashboards.length === 0) {
+        if (_.isNil(newState.dashboards) || newState.dashboards.length === 0) {
             return newState;
         }
 
