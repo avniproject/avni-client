@@ -116,7 +116,7 @@ export class IndividualSearchActions {
         const addressLevelState = action.values;
         const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
         const searchAddressLevels = lowestSelectedAddressLevels
-            .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), []).concat(addressLevelState.selectedAddresses);
+            .reduce((acc, parent) => acc.concat(addressLevelService.getChildrenOfNode(parent)), []).concat(addressLevelState.selectedAddresses);
         General.logDebug("IndividualSearchActions", `Effective address filters: ${JSON.stringify(_.countBy((searchAddressLevels), "type"))}`);
         newState.searchCriteria.toggleLowestAddresses(searchAddressLevels);
         newState.addressLevelState = addressLevelState;
