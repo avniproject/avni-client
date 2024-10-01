@@ -44,6 +44,10 @@ renew_env: clean_all deps
 deps: build_env apply_patch
 deps_ci: build_env_ci apply_patch
 
+kill_gradle_daemons:
+	pkill -f '.*GradleDaemon.*' || true
+	#   Kill all previous gradle daemons irrespective of version to release memory used
+
 ignore_deps_changes:
 	git checkout package-lock.json
 # </deps>
@@ -366,10 +370,8 @@ build: build_env build_app
 
 
 build_env_ci:
-	pkill -f '.*GradleDaemon.*'
 	export NODE_OPTIONS=--max_old_space_size=2048
 	cd packages/openchs-android && npm install --legacy-peer-deps
-#   Kill all previous gradle daemons irrespective of version to release memory used
 # 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=4 -Xms1024m -Xmx4096M -XX:MaxMetaspaceSize=2g"
 #   GRADLE_OPTS set via circleci env vars ui
 

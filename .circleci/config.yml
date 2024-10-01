@@ -63,7 +63,7 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_no_env_universal_without_clean
+      - run: make deps_ci kill_gradle_daemons release_no_env_universal_without_clean
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
           paths:
@@ -97,7 +97,7 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_staging_dev_without_clean
+      - run: make deps_ci kill_gradle_daemons release_staging_dev_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -132,7 +132,7 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_gramin_staging_dev_without_clean
+      - run: make deps_ci kill_gradle_daemons release_gramin_staging_dev_without_clean
       - run: make deploy_platform_translations_gramin_staging
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -170,14 +170,14 @@ jobs:
       - aws-cli/setup:
           role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
           region: 'ap-south-1'
-      - run: make deps_ci release_prerelease_dev_without_clean
+      - run: make deps_ci kill_gradle_daemons release_prerelease_dev_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
-      - run: make deps_ci release_prerelease_without_clean
+      - run: make deps_ci kill_gradle_daemons release_prerelease_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
@@ -215,7 +215,7 @@ jobs:
             - v1-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       - run: sudo npm i -g react-native-cli
-      - run: make deps_ci release_perf_without_clean
+      - run: make deps_ci kill_gradle_daemons release_perf_without_clean
       - run: make deploy_platform_translations_prerelease
       - save_cache:
           key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
