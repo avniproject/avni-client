@@ -153,7 +153,7 @@ class FilterView extends AbstractComponent {
     }
 
     renderProgramEncounterGroup() {
-        const allowedProgramUuidsForViewProgram = this.context.getService(ProgramService).getAllowedViewPrograms(this.state.subjectType).map(program => program.uuid);
+        const allowedProgramUuidsForViewProgram = this.context.getService(ProgramService).getAllowedViewPrograms(this.state.selectedSubjectType).map(program => program.uuid);
         const programFilter = <ProgramFilter
             onToggle={(name, uuid) => this.onProgramSelect(name, uuid)}
             visits={_.filter(this.state.programs, program => this.privilegeService.hasAllPrivileges() || _.includes(allowedProgramUuidsForViewProgram, program.uuid))}

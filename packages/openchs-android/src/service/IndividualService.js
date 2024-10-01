@@ -169,11 +169,9 @@ class IndividualService extends BaseService {
         this.allScheduledVisitsIn = this.allScheduledVisitsIn.bind(this);
         this.allOverdueVisitsIn = this.allOverdueVisitsIn.bind(this);
         this.recentlyRegistered = this.recentlyRegistered.bind(this);
-        this.recentlyRegisteredV2 = this.recentlyRegisteredV2.bind(this);
         this.recentlyCompletedVisitsIn = this.recentlyCompletedVisitsIn.bind(this);
         this.recentlyEnrolled = this.recentlyEnrolled.bind(this);
         this.allIn = this.allIn.bind(this);
-        this.allInV2 = this.allInV2.bind(this);
         this.dueChecklists = this.dueChecklists.bind(this);
     }
 
@@ -598,7 +596,7 @@ class IndividualService extends BaseService {
         return filterSubjects(subjects, subjectCriteria, reportFilters, this.getService(CustomFilterService));
     }
 
-    recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration = new Duration(1, Duration.Day)) {
+    recentlyRegisteredV2(date, reportFilters, subjectCriteria, duration) {
         const {tillDate, fromDate} = getDateRange(date, duration);
 
         let subjects = this.db.objects(Individual.schema.name)
