@@ -48,6 +48,12 @@ kill_gradle_daemons:
 	-pkill -f '.*GradleDaemon.*'
 	#   Kill all previous gradle daemons irrespective of version to release memory used
 
+disable_gradle_daemon:
+	sed -i -e 's/org.gradle.daemon=true/org.gradle.daemon=false/' packages/openchs-android/android/gradle.properties
+
+enable_gradle_daemon:
+	sed -i -e 's/org.gradle.daemon=false/org.gradle.daemon=true/' packages/openchs-android/android/gradle.properties
+
 ignore_deps_changes:
 	git checkout package-lock.json
 # </deps>
