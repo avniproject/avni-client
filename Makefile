@@ -45,7 +45,7 @@ deps: build_env apply_patch
 deps_ci: build_env_ci apply_patch
 
 kill_gradle_daemons:
-	pkill -f '.*GradleDaemon.*' || true
+	-pkill -f '.*GradleDaemon.*'
 	#   Kill all previous gradle daemons irrespective of version to release memory used
 
 ignore_deps_changes:
