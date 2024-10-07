@@ -318,7 +318,8 @@
     "copyErrorTryAgain": "ನಕಲು ದೋಷ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     "copyErrorAndCancel": "ನಕಲು ದೋಷ ಮತ್ತು ರದ್ದುಗೊಳಿಸು",
     "reportCopiedReportByPasting": "ವರದಿಯನ್ನು ನಕಲಿಸಲಾಗಿದೆ. ವರದಿ ಮಾಡಲು ನೀವು ಸಂದೇಶ ಕಳುಹಿಸುವ ಅಪ್ಲಿಕೇಶನ್‌ನಲ್ಲಿ ಅಂಟಿಸಬಹುದು.",
-    "lastRefreshedMessage": "ಕಾರ್ಡ್ ಸಂಖ್ಯೆಗಳನ್ನು {{dateTime}} ರಂದು ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ",
-    "serverUnavailableTryLater": "ಸರ್ವರ್ ನಿರ್ವಹಣೆಯಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ"
+    "lastRefreshedMessage": "ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಿದ ದಿನಾಂಕ: {{dateTime}}",
+    "serverUnavailableTryLater": "ಸರ್ವರ್ ನಿರ್ವಹಣೆಯಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+    "subjectTypes": "ವಿಷಯದ ಪ್ರಕಾರಗಳು"
   }
 }

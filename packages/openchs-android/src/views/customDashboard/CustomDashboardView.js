@@ -71,8 +71,8 @@ function RefreshSection({I18n, onRefreshPressed, lastUpdatedOn}) {
             minHeight: 45,
             alignItems: 'center'
         }}>
-            <Text style={refreshSectionStyle}>{I18n.t('lastRefreshedMessage', {dateTime: General.formatDateTime(lastUpdatedOn)})}</Text>
-            <MCIIcon style={{fontSize: 30, color: Colors.DullIconColor}} name='refresh'/>
+            <Text style={refreshSectionStyle}>{I18n.t('lastRefreshedMessage', {dateTime: General.to12HourDateTimeFormat(lastUpdatedOn)})}</Text>
+            <MCIIcon style={{fontSize: 30, color: Colors.RefreshIconColor}} name='refresh'/>
         </View>
     </TouchableNativeFeedback>;
 }

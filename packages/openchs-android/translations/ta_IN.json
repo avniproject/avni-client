@@ -319,7 +319,8 @@
     "copyErrorTryAgain": "பிழையை நகலெடுத்து மீண்டும் முயற்சிக்கவும்",
     "copyErrorAndCancel": "நகல் பிழை & ரத்துசெய்",
     "reportCopiedReportByPasting": "அறிக்கை நகலெடுக்கப்பட்டது. புகாரளிக்க செய்தியிடல் பயன்பாட்டில் ஒட்டலாம்.",
-    "lastRefreshedMessage": "கார்டு எண்கள் கடைசியாக {{dateTime}} அன்று புதுப்பிக்கப்பட்டது",
-    "serverUnavailableTryLater": "சர்வர் பராமரிப்பில் உள்ளது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்"
+    "lastRefreshedMessage": "கடைசியாக புதுப்பிக்கப்பட்ட தேதி: {{dateTime}}",
+    "serverUnavailableTryLater": "சர்வர் பராமரிப்பில் உள்ளது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்",
+    "subjectTypes": "பொருள் வகைகள்"
   }
 }

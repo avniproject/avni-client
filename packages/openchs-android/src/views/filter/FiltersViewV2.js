@@ -201,9 +201,11 @@ class FiltersViewV2 extends AbstractComponent {
                                                                    selectedGroupSubjects={filterValue} key={index}
                                                                    onChange={(newGroupSubjects) => this.dispatchFilterUpdate(filter, newGroupSubjects)}/>;
                                     case CustomFilter.type.SubjectType:
-                                        return <FormMetaDataSelect isMulti={true} key={index}
+                                        return <FilterContainerWithLabel filter={filter}>
+                                            <FormMetaDataSelect isMulti={true} key={index}
                                                                    formMetaDataSelections={filterValue}
-                                                                   onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>;
+                                                                   onChange={(x) => this.dispatchFilterUpdate(filter, x)}/>
+                                        </FilterContainerWithLabel>;
                                     default:
                                         return <ObservationBasedFilterView onChange={(x) => this.dispatchFilterUpdate(filter, x)} key={index}
                                                                            errorMessage={filterError}

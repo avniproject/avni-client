@@ -503,7 +503,8 @@
     "copyErrorTryAgain": "Copy Error & Try Again",
     "copyErrorAndCancel": "Copy Error & Cancel",
     "reportCopiedReportByPasting": "Report is copied. You can paste in a messaging app to report.",
-    "lastRefreshedMessage": "Card numbers last updated on {{dateTime}}",
-    "serverUnavailableTryLater": "Server under maintenance. Please try again after sometime"
+    "lastRefreshedMessage": "Last refreshed on: {{dateTime}}",
+    "serverUnavailableTryLater": "Server under maintenance. Please try again after sometime",
+    "subjectTypes": "Subject Types"
   }
 }

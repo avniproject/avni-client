@@ -307,7 +307,8 @@
     "copyErrorTryAgain": "एरर कॉपी करा आणि पुन्हा प्रयत्न करा",
     "copyErrorAndCancel": "एरर कॉपी करा आणि रद्द करा",
     "reportCopiedReportByPasting": "अहवाल कॉपी केला आहे. तुम्ही तक्रार करण्यासाठी मेसेजिंग ॲपमध्ये पेस्ट करू शकता.",
-    "lastRefreshedMessage": "कार्ड क्रमांक {{dateTime}} रोजी शेवटचे अपडेट केले गेले",
-    "serverUnavailableTryLater": "देखभाल अंतर्गत सर्व्हर. कृपया काही वेळाने पुन्हा प्रयत्न करा"
+    "lastRefreshedMessage": "शेवटचे रीफ्रेश केले: {{dateTime}}",
+    "serverUnavailableTryLater": "देखभाल अंतर्गत सर्व्हर. कृपया काही वेळाने पुन्हा प्रयत्न करा",
+    "subjectTypes": "सब्जेक्टचे प्रकार"
   }
 }
