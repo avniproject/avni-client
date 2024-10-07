@@ -16,6 +16,7 @@ import _ from "lodash";
 import ConceptService from "./ConceptService";
 import moment from "moment";
 import RealmQueryService from "./query/RealmQueryService";
+import {JSONStringify} from "../utility/JsonStringify";
 
 function getDateFilterFunction(filterValue, widget, queryColumn) {
     if (widget === CustomFilter.widget.Range) {
@@ -24,6 +25,10 @@ function getDateFilterFunction(filterValue, widget, queryColumn) {
     } else {
         return () => ` ${queryColumn} == ${RealmQueryService.toMidnight(filterValue)} `;
     }
+}
+
+function noQueryResultFunction() {
+    return "";
 }
 
 @Service("customFilterService")
@@ -148,7 +153,8 @@ class CustomFilterService extends BaseService {
     filterForNonRangeWidgetType(latestEncounters, schemaName, selectedAnswerFiltersFunction, indFunc, inMemoryFilter) {
         //cannot append next filtered to this query because sorting happens at the end of query and we will not get expected result.
         //so we get the most recent encounters from above query and pass it down to the next query.
-        if (_.isEmpty(latestEncounters)) return [];
+        if (_.isEmpty(latestEncounters) || _.isEmpty(selectedAnswerFiltersFunction())) return [];
+
         let encountersBasedOnSelectedAnswers = latestEncounters.filtered(` ${selectedAnswerFiltersFunction()} `);
         if (!_.isNil(inMemoryFilter)) {
             General.logDebug("CustomFilterService", "Running in memory filter");
@@ -217,13 +223,13 @@ class CustomFilterService extends BaseService {
             case (Concept.dataType.Notes) :
             case (Concept.dataType.Id) :
                 const textFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  ${this.tokenizedNameQuery(c.name)}) `).join(" OR ");
-                return () => this.getObsSubQueryForQuery(textFilterQuery);
+                return selectedOptions.length === 0 ? noQueryResultFunction : () => this.getObsSubQueryForQuery(textFilterQuery);
             case (Concept.dataType.Numeric) :
                 if (widget === CustomFilter.widget.Range) {
                     return (obs) => obs.concept.uuid === concept.uuid && obs.getValue() >= selectedOption.minValue && obs.getValue() <= selectedOption.maxValue;
                 } else {
                     const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${c.minValue}}') `).join(" OR ");
-                    return () => this.getObsSubQueryForQuery(numericFilterQuery);
+                    return selectedOptions.length === 0 ? noQueryResultFunction : () => this.getObsSubQueryForQuery(numericFilterQuery);
                 }
             case (Concept.dataType.Date) :
             case (Concept.dataType.DateTime):
@@ -231,14 +237,14 @@ class CustomFilterService extends BaseService {
                     return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue()).isBetween(selectedOption.minValue, selectedOption.maxValue, null, []);
                 } else {
                     const dateFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":"${c.minValue.replace('Z', '')}') `).join(" OR ");
-                    return () => this.getObsSubQueryForQuery(dateFilterQuery);
+                    return selectedOptions.length === 0 ? noQueryResultFunction : () => this.getObsSubQueryForQuery(dateFilterQuery);
                 }
             case (Concept.dataType.Time):
                 if (widget === CustomFilter.widget.Range) {
                     return (obs) => obs.concept.uuid === concept.uuid && moment(obs.getValue(), 'H:mma').isBetween(moment(selectedOption.minValue, 'h:mma'), moment(selectedOption.maxValue, 'h:mma'), null, []);
                 } else {
                     const timeFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND  valueJSON CONTAINS[c] '${c.minValue}') `).join(" OR ");
-                    return () => this.getObsSubQueryForQuery(timeFilterQuery);
+                    return selectedOptions.length === 0 ? noQueryResultFunction : () => this.getObsSubQueryForQuery(timeFilterQuery);
                 }
             default:
                 return () => 'uuid != null';
@@ -363,18 +369,18 @@ class CustomFilterService extends BaseService {
     }
 
     applyCustomFilters(customFilters, filterName, includeVoided = false) {
-        General.logDebugTemp("CustomFilterService", "Applying custom filters");
         let uniqueSubjectUUIDs = [];
         _.forEach(this.getSettings()[filterName], filter => {
             const selectedOptions = customFilters[filter.titleKey];
             const {scopeParameters, scope, conceptUUID, type, widget} = filter;
-            const selectedAnswerFilterQueryFunction = this.getFilterQueryByTypeFunction(filter, selectedOptions);
-            const subjects = this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided);
             const filterHasValue = !_.isEmpty(selectedOptions) && !_.isNil(selectedOptions)
-            if (!filterHasValue || _.isEmpty(uniqueSubjectUUIDs)) {
-                uniqueSubjectUUIDs = subjects;
-            } else {
-                uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, subjects);
+            if (filterHasValue) {
+                const selectedAnswerFilterQueryFunction = this.getFilterQueryByTypeFunction(filter, selectedOptions);
+                const subjects = this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided);
+                if (_.isEmpty(uniqueSubjectUUIDs))
+                    uniqueSubjectUUIDs = subjects
+                else
+                    uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, subjects);
             }
         });
         return uniqueSubjectUUIDs;
