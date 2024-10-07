@@ -16,6 +16,7 @@ import _ from "lodash";
 import ConceptService from "./ConceptService";
 import moment from "moment";
 import RealmQueryService from "./query/RealmQueryService";
+import {JSONStringify} from "../utility/JsonStringify";
 
 function getDateFilterFunction(filterValue, widget, queryColumn) {
     if (widget === CustomFilter.widget.Range) {
@@ -372,13 +373,14 @@ class CustomFilterService extends BaseService {
         _.forEach(this.getSettings()[filterName], filter => {
             const selectedOptions = customFilters[filter.titleKey];
             const {scopeParameters, scope, conceptUUID, type, widget} = filter;
-            const selectedAnswerFilterQueryFunction = this.getFilterQueryByTypeFunction(filter, selectedOptions);
-            const subjects = this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided);
             const filterHasValue = !_.isEmpty(selectedOptions) && !_.isNil(selectedOptions)
-            if (!filterHasValue || _.isEmpty(uniqueSubjectUUIDs)) {
-                uniqueSubjectUUIDs = subjects;
-            } else {
-                uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, subjects);
+            if (filterHasValue) {
+                const selectedAnswerFilterQueryFunction = this.getFilterQueryByTypeFunction(filter, selectedOptions);
+                const subjects = this.getSubjects(conceptUUID, selectedOptions, type, scope, scopeParameters, widget, selectedAnswerFilterQueryFunction, includeVoided);
+                if (_.isEmpty(uniqueSubjectUUIDs))
+                    uniqueSubjectUUIDs = subjects
+                else
+                    uniqueSubjectUUIDs = _.intersection(uniqueSubjectUUIDs, subjects);
             }
         });
         return uniqueSubjectUUIDs;
