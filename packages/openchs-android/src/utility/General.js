@@ -105,6 +105,15 @@ class General {
         return moment(date).format("HH:mm")
     }
 
+    static toNumericDateTimeFormat(dateTime) {
+        //preferable for display to users as month names in other languages pose an additional barrier to usage
+        return moment(dateTime).format("DD-MM-YYYY HH:mm");
+    }
+
+    static toNumericDateFormat(dateTime) {
+        return moment(dateTime).format("DD-MM-YYYY");
+    }
+
     static toDisplayDateAsTime12H(date) {
         return moment(date).format("hh:mm a")
     }

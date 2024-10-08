@@ -39,8 +39,8 @@ class DatePicker extends AbstractComponent {
         return _.isNil(date)
             ? this.I18n.t(noDateMessageKey)
             : (this.props.pickTime && !(General.hoursAndMinutesOfDateAreZero(date)))
-                ? General.to12HourDateTimeFormat(date)
-                : General.to12HourDateFormat(date);
+                ? General.toNumericDateTimeFormat(date)
+                : General.toNumericDateFormat(date);
     }
 
     showDatePicker() {
