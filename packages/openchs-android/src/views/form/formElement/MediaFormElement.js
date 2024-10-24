@@ -126,8 +126,6 @@ export default class MediaFormElement extends AbstractFormElement {
         const permissionRequest = await PermissionsAndroid.requestMultiple(
             apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ?
                 [
-                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
-                    PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
                     PermissionsAndroid.PERMISSIONS.CAMERA
                 ]
                 :
