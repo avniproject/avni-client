@@ -64,17 +64,17 @@ function getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboar
                                        content={selectedFilterValue.map((x) => x.name).join(", ")}/>;
                 case Concept.dataType.Date:
                     return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
-                                                                           content={General.toDisplayDate(selectedFilterValue)}/>
+                                                                           content={General.toNumericDateFormat(selectedFilterValue)}/>
                 case Concept.dataType.DateTime:
                     return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
-                                                                           content={General.formatDateTime(selectedFilterValue)}/>
+                                                                           content={General.toNumericDateTimeFormat(selectedFilterValue)}/>
                 case Concept.dataType.Time:
                     return !_.isNil(selectedFilterValue) && <FilterDisplay filter={filter}
                                                                            content={General.toDisplayTime(selectedFilterValue)}/>
                 case Range.DateRange:
                     return !_.isNil(selectedFilterValue) && !selectedFilterValue.isEmpty() &&
                         <FilterDisplay filter={filter}
-                                       content={`${General.toDisplayDate(selectedFilterValue.minValue)} - ${General.toDisplayDate(selectedFilterValue.maxValue)}`}/>
+                                       content={`${General.toNumericDateFormat(selectedFilterValue.minValue)} - ${General.toNumericDateTimeFormat(selectedFilterValue.maxValue)}`}/>
                 case DashboardFilterConfig.dataTypes.formMetaData:
                     let labelTexts = [];
                     if (selectedFilterValue.subjectTypes.length > 0) {
