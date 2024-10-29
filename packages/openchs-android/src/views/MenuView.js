@@ -37,6 +37,9 @@ import StaticMenuItem from "./menu/StaticMenuItem";
 import AvniIcon from "./common/AvniIcon";
 import EntityService from "../service/EntityService";
 import EnvironmentConfig from "../framework/EnvironmentConfig";
+import { getAvniError } from "../service/ServerError";
+import { AlertMessage } from "./common/AlertMessage";
+import MessageService from "../service/MessageService";
 
 @Path('/menuView')
 class MenuView extends AbstractComponent {
@@ -98,10 +101,14 @@ class MenuView extends AbstractComponent {
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().logout()
             .then(() => authService.fetchAuthSettingsFromServer())
+            .catch((error) => {
+                const i18n = this.getService(MessageService).getI18n();
+                getAvniError(error, i18n).then(avniError => AlertMessage(i18n.t('Error'), avniError.getDisplayMessage()));
+            })
             .then(() => {
-            logEvent(firebaseEvents.LOG_OUT);
-            CHSNavigator.navigateToLoginView(this, false);
-        });
+                logEvent(firebaseEvents.LOG_OUT);
+                CHSNavigator.navigateToLoginView(this, false);
+            })
     };
 
     logout() {

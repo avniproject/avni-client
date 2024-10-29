@@ -1,6 +1,6 @@
 import React from "react";
 import AbstractComponent from "../framework/view/AbstractComponent";
-import Path, {PathRoot} from "../framework/routing/Path";
+import Path, { PathRoot } from "../framework/routing/Path";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import BeneficiaryModePinService from "../service/BeneficiaryModePinService";
@@ -8,6 +8,10 @@ import BackupRestoreRealmService from "../service/BackupRestoreRealm";
 import General from "../utility/General";
 import HomeScreenView from "./HomeScreenView";
 import ExtensionService from "../service/ExtensionService";
+import { getAvniError } from "../service/ServerError";
+import MessageService from "../service/MessageService";
+import { AlertMessage } from "./common/AlertMessage";
+import { BackHandler } from "react-native";
 
 @Path('/rootView')
 @PathRoot
@@ -40,7 +44,12 @@ class RootView extends AbstractComponent {
     async openApp() {
         const authService = await this.context.getService(AuthService);
         if (! await authService.isAuthInitialized()) {
-            await authService.fetchAuthSettingsFromServer();
+            try {
+                await authService.fetchAuthSettingsFromServer();
+            } catch (error) {
+                const i18n = this.getService(MessageService).getI18n();
+                getAvniError(error, i18n).then(avniError => AlertMessage(i18n.t('Error'), avniError.getDisplayMessage(), BackHandler.exitApp));
+            }
         }
         const decisionParameters = await this.nextScreenDecisionParameters();
 

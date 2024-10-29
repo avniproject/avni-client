@@ -38,6 +38,7 @@ import {EntityMappingConfig} from "openchs-models";
 import EntityService from "../service/EntityService";
 import ServerError, {getAvniError} from "../service/ServerError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import { AlertMessage } from "./common/AlertMessage";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -349,8 +350,9 @@ class LoginView extends AbstractComponent {
         this.getService(AuthService).getAuthProviderService().logout()
             .then(() => this.getService(SyncService).clearData())
             .then(() => this.getService(AuthService).fetchAuthSettingsFromServer())
+            .catch(error => getAvniError(error, this.i18n).then(avniError => AlertMessage(this.i18n.t('Error'), avniError.getDisplayMessage())))
             .then(() => this.reset())
-            .then(() => this.justLogin());
+            .then(() => this.justLogin())
     }
 
     safeLogin() {
