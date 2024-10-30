@@ -332,7 +332,7 @@ class CustomDashboardView extends AbstractComponent {
 
         let filterConfigs, asOnDateFilterUUID, asOnDateFilter, asOnDateFilterValue, filters, dashboard;
         const hasDashboards = this.state.dashboards.length !== 0;
-        if (hasDashboards) {
+        if (hasDashboards && !_.isNil(this.state.activeDashboardUUID)) {
             dashboard = this.state.dashboards.find((x) => x.uuid === this.state.activeDashboardUUID);
             filters = dashboardFilterService.getFilters(dashboard.uuid);
             filterConfigs = dashboardFilterService.getFilterConfigsForDashboard(dashboard.uuid);
