@@ -167,6 +167,7 @@ class PreviousEncounters extends AbstractComponent {
         const filledBy = this.getService(UserInfoService).getUserName(encounter.filledByUUID, encounter.filledBy, this.I18n);
         const visitName = `${_.isNil(encounter.name) ? this.I18n.t(encounter.encounterType.displayName) : this.I18n.t(encounter.name)}`;
         const primaryDate = encounter.encounterDateTime || encounter.cancelDateTime || encounter.earliestVisitDateTime;
+        const filledByMessageLabel = this.I18n.t(encounter.encounterDateTime ? 'encounterDate' : encounter.cancelDateTime ? 'cancelDate' : 'scheduled');
         const filledByMessage = _.isNil(filledBy) ? `${General.toDisplayDate(primaryDate)}` : `${this.I18n.t("byOn", {
             user: filledBy,
             date: General.toDisplayDate(primaryDate)
@@ -174,14 +175,14 @@ class PreviousEncounters extends AbstractComponent {
         const secondaryDate = !encounter.isScheduled() ? <Text style={{
                 fontSize: Fonts.Small,
                 color: Colors.SecondaryText
-            }}>{encounter.earliestVisitDateTime && `${this.I18n.t('scheduled')} : ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
+            }}>{encounter.earliestVisitDateTime && `${this.I18n.t('scheduled')}: ${General.toDisplayDate(encounter.earliestVisitDateTime)}` || this.I18n.t('unplannedVisit')}</Text> :
             <View/>;
         return <View>
             <View
                 style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap'}}>
                 <View style={{flexDirection: 'column'}}>
                     <Text style={{fontSize: Fonts.Normal}}>{visitName}</Text>
-                    <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{filledByMessage}</Text>
+                    <Text style={{fontSize: Fonts.Small, color: Colors.SecondaryText}}>{filledByMessageLabel}: {filledByMessage}</Text>
                     {secondaryDate}
                 </View>
                 {this.renderStatus(encounter)}
