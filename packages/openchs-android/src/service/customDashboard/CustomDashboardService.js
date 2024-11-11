@@ -28,7 +28,8 @@ function getGroupDashboards(privilegeService, entityService) {
     const ownedGroupsQuery = _.map(privilegeService.ownedGroups(), ({groupUuid}) => `group.uuid = '${groupUuid}'`).join(' OR ');
     return entityService.getAllNonVoided(GroupDashboard.schema.name)
         .filtered(_.isEmpty(ownedGroupsQuery) ? 'uuid = null' : ownedGroupsQuery)
-        .filtered('TRUEPREDICATE DISTINCT(dashboard.uuid)');
+        .filtered('TRUEPREDICATE DISTINCT(dashboard.uuid)')
+        .filtered('dashboard.voided = false');
 }
 
 function getDashboardsBasedOnPrivilege(privilegeService, entityService, customDashboardService) {
