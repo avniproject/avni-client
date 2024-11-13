@@ -47,8 +47,7 @@ class RootView extends AbstractComponent {
             try {
                 await authService.fetchAuthSettingsFromServer();
             } catch (error) {
-                const i18n = this.getService(MessageService).getI18n();
-                getAvniError(error, i18n).then(avniError => AlertMessage(i18n.t('Error'), avniError.getDisplayMessage(), BackHandler.exitApp));
+                return AlertMessage('Error', 'Server under maintenance. Please try again after sometime.\n\nPlease kill the app and relaunch if stuck on logo screen.', BackHandler.exitApp);
             }
         }
         const decisionParameters = await this.nextScreenDecisionParameters();
