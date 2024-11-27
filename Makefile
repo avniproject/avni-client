@@ -312,6 +312,14 @@ appdb:=$(if $(appdb),$(appdb),../db/default.realm)
 
 put_db: ## Apply realmdb from ../default.realm
 	adb push $(appdb) /data/data/${app_android_package_name}/files/default.realm
+put-db: put_db
+
+put-db-custom:
+ifndef dbPath
+	@echo "Provde the variable dbPath"
+	exit 1
+endif
+	adb push $(dbPath) /data/data/${app_android_package_name}/files/default.realm
 
 put_db_force:
 	adb push $(appdb) /product/default.realm
