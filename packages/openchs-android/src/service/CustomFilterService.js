@@ -120,6 +120,16 @@ class CustomFilterService extends BaseService {
                 && filter.subjectTypeUUID === subjectTypeUUID);
     }
 
+    shouldFilterBeHidden(filterConfigs, selectedValues, filterConfig) {
+        const subjectTypeFilterUUID = Object.keys(filterConfigs).find(key => filterConfigs[key].type === CustomFilter.type.SubjectType);
+        const subjectTypeFilterValue = selectedValues[subjectTypeFilterUUID];
+        const subjectTypeUUIDs = subjectTypeFilterValue ? subjectTypeFilterValue.subjectTypes.map(st => st.uuid) : [];
+        const type = filterConfig.type;
+        return (type !== CustomFilter.type.SubjectType && type !== CustomFilter.type.AsOnDate) &&
+          !!filterConfig.subjectType &&
+          !_.includes(subjectTypeUUIDs, filterConfig.subjectType.uuid);
+    }
+
     queryEntity(schemaName, selectedAnswerQueryFunction, otherFilters, indFunc, includeVoided) {
         const query = selectedAnswerQueryFunction();
 

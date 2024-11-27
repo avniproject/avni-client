@@ -29,6 +29,7 @@ import AddressLevelState from '../../action/common/AddressLevelsState';
 import FormMetaDataSelect from "../common/formMetaData/FormMetaDataSelect";
 import AddressLevelService from "../../service/AddressLevelService";
 import NamedSelectableEntities from "../../model/NamedSelectableEntities";
+import CustomFilterService from '../../service/CustomFilterService';
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -108,6 +109,7 @@ class FiltersViewV2 extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.filterActionV2);
+        this.customFilterService = context.getService(CustomFilterService);
     }
 
     viewName() {
@@ -163,6 +165,10 @@ class FiltersViewV2 extends AbstractComponent {
                                 const filterConfig = filterConfigs[filter.uuid];
                                 const filterValue = selectedValues[filter.uuid];
                                 const filterError = filterErrors[filter.uuid];
+
+                                if(this.customFilterService.shouldFilterBeHidden(filterConfigs, selectedValues, filterConfig)) {
+                                    return null;
+                                }
 
                                 switch (filterConfig.type) {
                                     case CustomFilter.type.Gender:
