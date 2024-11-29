@@ -24,7 +24,7 @@ function getDashboardCache(service, dashboardUUID) {
 }
 
 function getDashboardFiltersHash(dashboard) {
-    const str = JSON.stringify(dashboard.filters.map((x) => x.filterConfig));
+    const str = JSON.stringify(dashboard.filters.filter(x => !x.voided).map((x) => x.filterConfig));
     return new Hashes.MD5().hex(str);
 }
 
