@@ -168,7 +168,7 @@ class LoginView extends AbstractComponent {
                     })
                 },
                 {
-                    text: "copyErrorTryAgain",
+                    text: this.I18n.t("copyErrorTryAgain"),
                     onPress: () => {
                         General.logDebug("LoginView", avniError.reportingText);
                         Clipboard.setString(avniError.reportingText);
@@ -189,7 +189,7 @@ class LoginView extends AbstractComponent {
     }
 
     restoreFailureAlert(error, source) {
-        if (error instanceof ServerError)
+        if (error && error instanceof ServerError)
             getAvniError(error, this.I18n).then((avniError) => this.displayFailureAlert(avniError, source));
         else {
             this.displayFailureAlert(ErrorUtil.getAvniErrorSync(error), source);
