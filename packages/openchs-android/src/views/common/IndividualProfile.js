@@ -197,19 +197,24 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderMenu(groupActions) {
-        return <Menu
-            ref={this.setMenuRef}
-            button={<TouchableOpacity onPress={this.showMenu}>
-                <MaterialIcon
-                    name='more-vert'
-                    size={25}
-                    color={Colors.TextOnPrimaryColor}/>
-            </TouchableOpacity>}>
-            <MenuItem onPress={_.noop} disabled disabledTextColor={Colors.DefaultPrimaryColor}>Member of
-                groups:</MenuItem>
-            {groupActions.map(({fn, label}) => (
-                <MenuItem onPress={fn} textStyle={{color: Colors.Complimentary}}>{label}</MenuItem>))}
-        </Menu>;
+        return <View style={{ flexDirection: 'row', justifyContent: 'flex-end', flexWrap: 'wrap',}}>
+            {groupActions.map((groupAction) => {
+                const label = groupAction.isHousehold ? 'household' : 'group';
+                return (
+                    <TouchableOpacity onPress={groupAction.fn} style={{
+                        paddingVertical: 1,
+                        paddingHorizontal: 7,
+                        marginEnd: 10,
+                        alignItems: 'center',
+                        backgroundColor: Styles.greyBackground,
+                        borderRadius: 5,
+                        marginBottom: 5
+                    }}>
+                        <Text style={{color: Styles.accentColor}}>{`${groupAction.label} ${this.I18n.t(label)}`}</Text>
+                    </TouchableOpacity>
+                )
+            })}
+        </View>
     }
 
     renderCommentIcon() {
