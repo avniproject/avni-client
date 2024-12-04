@@ -187,7 +187,7 @@ class RegisterView extends AbstractComponent {
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
                 <AppHeader title={this.I18n.t("register")} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
                 <CHSContent>
-                    <ScrollView style={{marginBottom: 110}} keyboardShouldPersistTaps="handled">
+                    <ScrollView keyboardShouldPersistTaps="handled">
                         {_.map(actions, ({action, subjectType}, key) =>
                             this.renderButton(
                                 action.fn,
