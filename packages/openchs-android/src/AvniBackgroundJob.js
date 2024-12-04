@@ -1,6 +1,5 @@
 import DeleteDrafts from "./task/DeleteDrafts";
 import DummySync from "./task/DummySync";
-import PruneMedia from "./task/PruneMedia";
 import Sync from "./task/Sync";
 import WorkManager from 'react-native-background-worker';
 import General from "./utility/General";
@@ -35,24 +34,12 @@ const DeleteDraftsJobSchedule = {
   job: async() => await DeleteDrafts.execute()
 };
 
-const PruneMediaJobSchedule = {
-  jobKey: "pruneMediaJob",
-  timeout: 10,
-  period: 1 * 24 * 60,
-  persist: true,
-  exact: true,
-  job: async() => await PruneMedia.execute()
-};
-
 //The jobs with identifier job keys are persisted. This is required for background jobs to persist over device restarts. If you are changing the job key then remember to cancel the job with the old job key.
 export const RegisterAndScheduleJobs = function () {
     General.logDebug("AvniBackgroundJob", `Background job is ${EnvironmentConfig.autoSyncDisabled ? "disabled" : "enabled"}`);
   Schedule(DeleteDraftsJobSchedule)
     .then(() => General.logInfo("AvniBackgroundJob-DeleteDraftsJob", "Successfully scheduled"))
     .catch(err => General.logError("AvniBackgroundJob-DeleteDraftsJob", err));
-  Schedule(PruneMediaJobSchedule)
-    .then(() => General.logInfo("AvniBackgroundJob-PruneMediaJob", "Successfully scheduled"))
-    .catch(err => General.logError("AvniBackgroundJob-PruneMediaJob", err));
   Schedule(SyncJobSchedule)
     .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Successfully scheduled"))
     .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
