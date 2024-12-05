@@ -50,6 +50,9 @@ jest.mock("react-native-device-info", () => {
         },
         getLastUpdateTimeSync: function () {
             return 1;
+        },
+        getAndroidId: async function () {
+            return Promise.resolve('androidId');
         }
     };
 });
