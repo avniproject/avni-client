@@ -43,7 +43,7 @@ import {
 } from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
-import Device from "react-native-device-info/src/index";
+import DeviceInfo from "react-native-device-info";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -92,7 +92,7 @@ class SyncService extends BaseService {
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
         General.logDebug("SyncService", "sync");
-        this.deviceId = await Device.getAndroidId();
+        this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
             AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
