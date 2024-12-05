@@ -43,6 +43,7 @@ import {
 } from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
+import Device from "react-native-device-info/src/index";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -62,6 +63,7 @@ function transformResourceToEntity(entityMetaData, entityResources) {
 
 @Service("syncService")
 class SyncService extends BaseService {
+    static deviceId;
     constructor(db, context) {
         super(db, context);
         this.persistAll = this.persistAll.bind(this);
@@ -90,6 +92,7 @@ class SyncService extends BaseService {
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
         General.logDebug("SyncService", "sync");
+        this.deviceId = await Device.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
             AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
         const updateProgressSteps = (entityMetadata, entitySyncStatus) => progressBarStatus.updateProgressSteps(entityMetadata, entitySyncStatus);
@@ -165,7 +168,7 @@ class SyncService extends BaseService {
 
     async getSyncDetails() {
         const url = this.getService(SettingsService).getSettings().serverURL;
-        const requestParams = "includeUserSubjectType=true"
+        const requestParams = `includeUserSubjectType=true&deviceId=${this.deviceId}`;
         const entitySyncStatuses = this.entitySyncStatusService.findAll().map(_.identity);
         return post(`${url}/v2/syncDetails?${requestParams}`, entitySyncStatuses, true)
             .then(res => res.json())
@@ -297,7 +300,7 @@ class SyncService extends BaseService {
                 totalElements: page.totalElements
             });
 
-        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled, now);
+        return this.conventionalRestClient.getAll(entitiesMetaDataWithSyncStatus, this.persistAll, onGetOfFirstPage, afterEachPagePulled, now, this.deviceId);
     }
 
     associateParent(entityResources, entities, entityMetaData) {

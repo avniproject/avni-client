@@ -178,6 +178,10 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Deleted individual and dependent forDirectlyAssignableSubjectTypes");
                         })
                         .then(() => {
+                            this._deleteIdentifierAssignments();
+                            General.logDebug("BackupRestoreRealmService", "Deleted identifier assignments");
+                        })
+                        .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
                         })
@@ -234,6 +238,10 @@ export default class BackupRestoreRealmService extends BaseService {
             this.deleteTxDataForSubjectType(subjectType);
             this.resetSyncForSubjectType(subjectType, db);
         });
+    }
+
+    _deleteIdentifierAssignments() {
+        this._deleteAndResetSync(IdentifierAssignment.schema.name);
     }
 
     _restoreSettings(prevSettings) {
