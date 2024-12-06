@@ -93,7 +93,7 @@ export default class BackupRestoreRealmService extends BaseService {
         let entitySyncStatusService = this.getService(EntitySyncStatusService);
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
-        const prevSettings = settingsService.getSettings().clone();
+        const prevSettings = this.getPreviousSettings(settingsService);
         const prevUserInfo = UserInfo.fromResource({username: prevSettings.userId, organisationName: 'dummy', name: prevSettings.userId});
 
         General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
@@ -193,6 +193,12 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logErrorAsInfo("BackupRestoreRealm", error);
                 cb(100, "restoreFailed", true, error);
             });
+    }
+
+    getPreviousSettings(settingsService) {
+        const prevSettings = settingsService.getSettings().clone();
+        prevSettings.locale = null;
+        return prevSettings;
     }
 
     _deleteUserInfoAndIdAssignment() {

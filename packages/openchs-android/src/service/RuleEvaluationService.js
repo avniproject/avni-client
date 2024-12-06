@@ -260,12 +260,14 @@ class RuleEvaluationService extends BaseService {
                 ruleTypeValue = entity;
                 return rule.fn.exec(entity, context, entityContext)
             } else {
+                General.logDebug("Rule-to-run", `Rule context and config: ${JSONStringify(context)}, ${JSONStringify(config)}, ${JSONStringify(entityContext)}`);
+                General.logDebug("Rule-to-run", `Rule function: ${rule.name}, uuid: ${rule.uuid}, ${JSONStringify(rule.fn)}`);
                 return _.isNil(context) ?
                     rule.fn.exec(entity, ruleTypeValue, config, entityContext) :
                     rule.fn.exec(entity, ruleTypeValue, context, config, entityContext);
             }
         } catch (error) {
-            General.logDebug("Rule-Failure", `Rule failed: ${rule.name}, uuid: ${rule.uuid}`);
+            General.logDebug("Rule-Failure", `Rule failed: ${rule.name}, uuid: ${rule.uuid}`, error.message);
             this.saveFailedRules(error, rule.uuid, this.getIndividualUUID(entity, entityName),
                 'Decision', rule.uuid, entityName, entity.uuid);
             return ruleTypeValue;
