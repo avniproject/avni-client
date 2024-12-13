@@ -429,28 +429,76 @@ class RuleEvaluationService extends BaseService {
         if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
         if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
-            try {
-                let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
-                const ruleFunc = eval(form.validationRule);
-                return ruleFunc({
-                    params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
-                });
-            } catch (e) {
+            return this.validateViaFormRule(form, entity, entityContext, entityName);
+        } else if (!_.isEmpty(rulesFromTheBundle)) {
+            return this._validateViaBundleRule(rulesFromTheBundle, entityName, entity, entityContext, defaultValidationErrors);
+        } else {
+            return defaultValidationErrors;
+        }
+    }
+
+    async validateAgainstRuleAsync(entity, form, entityName, entityContext = {}) {
+        const defaultValidationErrors = [];
+        if ([entity, form].some(_.isEmpty)) return defaultValidationErrors;
+        const rulesFromTheBundle = this.getAllRuleItemsFor(form, "Validation", "Form")
+        if (!_.isNil(form.validationRule) && !_.isEmpty(_.trim(form.validationRule))) {
+            return await this.validateViaFormRuleAsync(form, entity, entityContext, entityName);
+        } else if (!_.isEmpty(rulesFromTheBundle)) {
+            return this._validateViaBundleRule(rulesFromTheBundle, entityName, entity, entityContext, defaultValidationErrors);
+        } else {
+            return defaultValidationErrors;
+        }
+    }
+
+    validateViaFormRule(form, entity, entityContext, entityName) {
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(form.validationRule);
+            return ruleFunc({
+                params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
+                imports: getImports()
+            });
+        } catch (e) {
+            console.log(e);
+            General.logDebug("Rule-Failure", `Validation failed for: ${form.name} form name`);
+            this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName),
+                'Validation', form.uuid, entityName, entity.uuid);
+        }
+    }
+
+    async validateViaFormRuleAsync(form, entity, entityContext, entityName) {
+        return await this.validateViaFormRuleAsyncInternal(form, entity, entityContext, entityName)
+            .catch((e) => {
                 console.log(e);
                 General.logDebug("Rule-Failure", `Validation failed for: ${form.name} form name`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName),
                     'Validation', form.uuid, entityName, entity.uuid);
-            }
-        } else if (!_.isEmpty(rulesFromTheBundle)) {
-            const validationErrors = rulesFromTheBundle.reduce(
-                (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors, null, null, entityContext),
-                defaultValidationErrors
-            );
-            General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
-            return validationErrors;
+            });
+    }
+
+    async validateViaFormRuleAsyncInternal(form, entity, entityContext, entityName) {
+        try {
+            let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const ruleFunc = eval(form.validationRule);
+            return ruleFunc({
+                params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
+                imports: getImports()
+            });
+        } catch (e) {
+            console.log(e);
+            General.logDebug("Rule-Failure", `Validation failed for: ${form.name} form name`);
+            this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName),
+                'Validation', form.uuid, entityName, entity.uuid);
         }
-        return defaultValidationErrors;
+    }
+
+    _validateViaBundleRule(rulesFromTheBundle, entityName, entity, entityContext, defaultValidationErrors) {
+        const validationErrors = rulesFromTheBundle.reduce(
+            (validationErrors, rule) => this.runRuleAndSaveFailure(rule, entityName, entity, validationErrors, null, null, entityContext),
+            defaultValidationErrors
+        );
+        General.logDebug("RuleEvaluationService - Validation Errors", validationErrors);
+        return validationErrors;
     }
 
     getNextScheduledVisits(entity, entityName, visitScheduleConfig, entityContext = {}) {
@@ -483,7 +531,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 this.checkIfScheduledVisitsAreValid(nextVisits);
                 return nextVisits;
-            } catch(e) {
+            } catch (e) {
                 General.logDebug("Rule-Failure", `Visit Schedule (old) failed for form: ${form.uuid}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
@@ -842,7 +890,7 @@ class RuleEvaluationService extends BaseService {
     getCommonParams() {
         const user = this.getService(UserInfoService).getUserInfo();
         const myUserGroups = this.getService(PrivilegeService).ownedGroups();
-        return { user, myUserGroups };
+        return {user, myUserGroups};
     }
 
 }

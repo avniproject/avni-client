@@ -147,7 +147,22 @@ class AbstractDataEntryState {
         return this;
     }
 
-    handleNext(action, context) {
+    async handleSummaryPageAsync(action, context) {
+        while (!this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
+            const currentPageBeforeNext = this.wizard.currentPage;
+            await this.handleNextAsync(action, context);
+            //if last feg has no visible form elements, handleNext moves previous to feg with visible form elements
+            //and as a result, the isLastPage() condition is never satisfied causing an infinite loop
+            if (!(this.wizard.currentPage > currentPageBeforeNext)) break;
+        }
+        // after the last page one more next to go to SR page
+        if (this.wizard.isLastPage() && !this.anyFailedResultForCurrentFEG()) {
+            await this.handleNextAsync(action, context);
+        }
+        return this;
+    }
+
+    _handleNextInternal1(context) {
         const ruleService = context.get(RuleEvaluationService);
         const validationResults = this.validateEntity(context);
         const formElementGroupValidations = this.formElementGroup.validate(this.observationsHolder, this.filteredFormElements);
@@ -161,44 +176,83 @@ class AbstractDataEntryState {
                 this.moveNext();
             }
         }
+        return ruleService;
+    }
+
+    _handleNextInternal2(action, context) {
+        if (action.popVerificationVew)
+            action.popVerificationVewFunc();
+        this.moveNext();
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
+        this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
+        if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
+            ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        }
+        if (this.hasNoFormElements()) {
+            General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            return this.handleNext(action, context);
+        }
+        const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
+        this.handleValidationResults(formElementRuleValidationErrors, context);
+        if (_.isFunction(action.movedNext)) action.movedNext(this);
+        return this;
+    }
+
+    handleNext(action, context) {
+        this._handleNextInternal1(context);
+
+        const ruleService = context.get(RuleEvaluationService);
         if (this.anyFailedResultForCurrentFEG()) {
             if (!_.isNil(action.validationFailed)) action.validationFailed(this);
+            return this;
         } else if (!action.popVerificationVew && !_.isNil(action.phoneNumberObservation)) {
             action.verifyPhoneNumber(action.phoneNumberObservation);
+            return this;
         } else if (this.wizard.isLastPage()) {
             this.moveToLastPageWithFormElements(action, context);
             this.removeNonRuleValidationErrors();
             //remove the older rule validation error before validating the form again.
             this.removeRuleValidationErrors();
             const validationResults = this.validateEntityAgainstRule(ruleService);
-            this.handleValidationResults(validationResults, context);
-            let decisions, checklists, nextScheduledVisits;
-            if (!ValidationResult.hasValidationError(this.validationResults)) {
-                decisions = this.executeRule(ruleService, context);
-                checklists = this.getChecklists(ruleService, context);
-                nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
-                this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());
-            }
-            action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, action.fromSDV);
-        } else {
-            if (action.popVerificationVew)
-                action.popVerificationVewFunc();
-            this.moveNext();
-            const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
-            this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
-            this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
-            if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
-                ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
-            }
-            if (this.hasNoFormElements()) {
-                General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
-                return this.handleNext(action, context);
-            }
-            const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
-            this.handleValidationResults(formElementRuleValidationErrors, context);
-            if (_.isFunction(action.movedNext)) action.movedNext(this);
+            this._handleLastPageValidationResults(validationResults, context, ruleService, action);
+            return this;
         }
-        return this;
+        return this._handleNextInternal2(action, context);
+    }
+
+    async handleNextAsync(action, context) {
+        this._handleNextInternal1(context);
+
+        const ruleService = context.get(RuleEvaluationService);
+        if (this.anyFailedResultForCurrentFEG()) {
+            if (!_.isNil(action.validationFailed)) action.validationFailed(this);
+            return this;
+        } else if (!action.popVerificationVew && !_.isNil(action.phoneNumberObservation)) {
+            action.verifyPhoneNumber(action.phoneNumberObservation);
+            return this;
+        } else if (this.wizard.isLastPage()) {
+            this.moveToLastPageWithFormElements(action, context);
+            this.removeNonRuleValidationErrors();
+            //remove the older rule validation error before validating the form again.
+            this.removeRuleValidationErrors();
+            const validationResults = await this.validateEntityAgainstRuleAsync(ruleService);
+            this._handleLastPageValidationResults(validationResults, context, ruleService, action);
+            return this;
+        }
+        return this._handleNextInternal2(action, context);
+    }
+
+    _handleLastPageValidationResults(validationResults, context, ruleService, action) {
+        this.handleValidationResults(validationResults, context);
+        let decisions, checklists, nextScheduledVisits;
+        if (!ValidationResult.hasValidationError(this.validationResults)) {
+            decisions = this.executeRule(ruleService, context);
+            checklists = this.getChecklists(ruleService, context);
+            nextScheduledVisits = this.getNextScheduledVisits(ruleService, context);
+            this.workListState = new WorkListState(this.updateWorkLists(ruleService, this.workListState.workLists, nextScheduledVisits, context), () => this.getWorkContext());
+        }
+        action.completed(this, decisions, validationResults, checklists, nextScheduledVisits, action.fromSDV);
     }
 
     updateWorkLists(ruleService, oldWorkLists, nextScheduledVisits, context) {
@@ -313,6 +367,10 @@ class AbstractDataEntryState {
 
     validateEntityAgainstRule(ruleService) {
         return [];
+    }
+
+    async validateEntityAgainstRuleAsync(ruleService) {
+        return Promise.resolve([]);
     }
 
     executeRule(ruleService, context) {

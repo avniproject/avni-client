@@ -23,30 +23,39 @@ class Mixin {
                 const registrationTitle = view.I18n.t(view.registrationType) + view.I18n.t('registration');
                 const headerMessage = `${registrationTitle} - ${view.I18n.t('summaryAndRecommendations')}`;
                 CHSNavigator.navigateToSystemsRecommendationView(view, decisions, ruleValidationErrors, state.individual,
-                  state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null,
-                  nextScheduledVisits, state.form, state.workListState,null, state.saveDrafts,
-                  popVerificationVew, state.individual.isRejectedEntity(), state.individual.latestEntityApprovalStatus,
-                  undefined, state.getAffiliatedGroups());
+                    state.individual.observations, Actions.SAVE, onSaveCallback, headerMessage, null,
+                    nextScheduledVisits, state.form, state.workListState, null, state.saveDrafts,
+                    popVerificationVew, state.individual.isRejectedEntity(), state.individual.latestEntityApprovalStatus,
+                    undefined, state.getAffiliatedGroups());
             },
-                movedNext: (state) => {
-            if (state.wizard.isFirstFormPage())
-                TypedTransition.from(view).with({}).to(PersonRegisterFormView);
-        },
+            movedNext: (state) => {
+                if (state.wizard.isFirstFormPage())
+                    TypedTransition.from(view).with({}).to(PersonRegisterFormView);
+            },
             validationFailed: (newState) => {
-            if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
-                view.showError(newState.validationResults[0].message);
-            }
-        },
-            popVerificationVewFunc : () => TypedTransition.from(view).popToBookmark(),
+                if (AbstractDataEntryState.hasValidationError(view.state, BaseEntity.fieldKeys.EXTERNAL_RULE)) {
+                    view.showError(newState.validationResults[0].message);
+                }
+            },
+            popVerificationVewFunc: () => TypedTransition.from(view).popToBookmark(),
             popVerificationVew,
             phoneNumberObservation,
-            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => view.dispatchAction(Actions.ON_SKIP_VERIFICATION, {observation, skipVerification: true})),
+            verifyPhoneNumber: (observation) => CHSNavigator.navigateToPhoneNumberVerificationView(view, this.next.bind(this, view), observation, () => view.dispatchAction(Actions.ON_SUCCESS_OTP_VERIFICATION, {observation}), () => view.dispatchAction(Actions.ON_SKIP_VERIFICATION, {
+                observation,
+                skipVerification: true
+            }))
         }
     }
+
     static next(view, popVerificationVew) {
         if (view.scrollToTop)
             view.scrollToTop();
-        view.dispatchAction(Actions.NEXT, Mixin.getNextProps(view, popVerificationVew));
+        const actionParams = Mixin.getNextProps(view, popVerificationVew);
+        view.dispatchAction(Actions.NEXT, _.merge(actionParams, {
+            onCompletion: (newState) => {
+                view.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
+            }
+        }));
     }
 
     static summary(view) {

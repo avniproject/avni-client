@@ -125,7 +125,11 @@ class IndividualRegistrationState extends AbstractDataEntryState {
     }
 
     validateEntityAgainstRule(ruleService) {
-        return ruleService.validateAgainstRule(this.individual, this.formElementGroup.form, 'Individual', this.getEntityContext());
+        throw new Error("Assertion: Not implemented as validation in handled asynchronously now");
+    }
+
+    async validateEntityAgainstRuleAsync(ruleService) {
+        return await ruleService.validateAgainstRuleAsync(this.individual, this.formElementGroup.form, 'Individual', this.getEntityContext());
     }
 
     executeRule(ruleService, context) {

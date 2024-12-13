@@ -170,16 +170,21 @@ export class PersonRegisterActions {
     }
 
     static onNext(state, action, context) {
-        const newState = state.clone().handleNext(action, context);
-        if (state.saveDrafts && _.isEmpty(newState.validationResults)) {
-            const draftIndividual = DraftSubject.create(state.individual);
-            context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
-        }
+        const newState = state.clone();
+        const newStateForPromise = newState.clone();
+        const newStatePromise = newStateForPromise.handleNextAsync(action, context);
+        newStatePromise.then(() => {
+            if (state.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
+                const draftIndividual = DraftSubject.create(state.individual);
+                context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
+            }
+            action.onCompletion(newStateForPromise);
+        })
         return newState;
     }
 
     static onSummaryPage(state, action, context) {
-        return state.clone().handleSummaryPage(action, context);
+        return state.clone().handleSummaryPageAsync(action, context);
     }
 
     static onPrevious(state, action, context) {
@@ -234,12 +239,17 @@ export class PersonRegisterActions {
         }
         return individual;
     }
+
+    static onUseThisState(state, action, context) {
+        return action.state;
+    }
 }
 
 const actions = {
     ON_LOAD: "REGISTRATION_ON_LOAD",
     ON_FORM_LOAD: "REGISTRATION_ON_FORM_LOAD",
     NEXT: "REGISTRATION_NEXT",
+    USE_THIS_STATE: "REGISTRATION_USE_THIS_STATE",
     SUMMARY_PAGE: "REGISTRATION_SUMMARY_PAGE",
     PREVIOUS: "REGISTRATION_PREVIOUS",
     REGISTRATION_ENTER_REGISTRATION_DATE: "REGISTRATION_ENTER_REGISTRATION_DATE",
@@ -277,6 +287,7 @@ export default new Map([
     [actions.ON_LOAD, PersonRegisterActions.onLoad],
     [actions.ON_FORM_LOAD, PersonRegisterActions.onFormLoad],
     [actions.NEXT, PersonRegisterActions.onNext],
+    [actions.USE_THIS_STATE, PersonRegisterActions.onUseThisState],
     [actions.SUMMARY_PAGE, PersonRegisterActions.onSummaryPage],
     [actions.PREVIOUS, PersonRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, PersonRegisterActions.enterRegistrationDate],
