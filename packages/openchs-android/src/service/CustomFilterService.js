@@ -220,7 +220,7 @@ class CustomFilterService extends BaseService {
     }
 
     groupSubjectQuery(selectedGroupSubjects) {
-        return _.map(selectedGroupSubjects, (selectedGroupSubject) => ` (voided = false AND groupSubject.uuid = '${selectedGroupSubject.uuid}') `).join(" OR ");
+        return _.map(selectedGroupSubjects, (selectedGroupSubject) => ` (voided = false AND groupSubject.uuid = '${selectedGroupSubject.groupSubjectUUID}') `).join(" OR ");
     }
 
     getConceptFilterQueryFunction(concept, selectedOptions, widget) {
