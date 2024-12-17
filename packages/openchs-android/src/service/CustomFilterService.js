@@ -213,7 +213,7 @@ class CustomFilterService extends BaseService {
         } else if (type === CustomFilter.type.ProgramEncounterDate || type === CustomFilter.type.EncounterDate) {
             return getDateFilterFunction(filterValue, widget, 'encounterDateTime');
         } else if (type === CustomFilter.type.GroupSubject) {
-            return this.groupSubjectQuery.bind(this, filterValue);
+            return this.groupSubjectQueryV2.bind(this, filterValue);
         } else {
             return RealmQueryService.getMatchAllEntitiesQuery;
         }
@@ -221,6 +221,10 @@ class CustomFilterService extends BaseService {
 
     groupSubjectQuery(selectedGroupSubjects) {
         return _.map(selectedGroupSubjects, (selectedGroupSubject) => ` (voided = false AND groupSubject.uuid = '${selectedGroupSubject.groupSubjectUUID}') `).join(" OR ");
+    }
+
+    groupSubjectQueryV2(selectedGroupSubjects) {
+        return _.map(selectedGroupSubjects, (selectedGroupSubject) => ` (voided = false AND groupSubject.uuid = '${selectedGroupSubject.uuid}') `).join(" OR ");
     }
 
     getConceptFilterQueryFunction(concept, selectedOptions, widget) {
