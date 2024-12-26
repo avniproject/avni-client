@@ -47,6 +47,7 @@ import {Groups, ReportCardResult, NestedReportCardResult} from "openchs-models";
 import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
 import PrivilegeService from './PrivilegeService';
+import AuthService from "./AuthService";
 
 function getImports() {
     return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
@@ -479,9 +480,11 @@ class RuleEvaluationService extends BaseService {
     async validateViaFormRuleAsyncInternal(form, entity, entityContext, entityName) {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
+            const authService = this.context.getService(AuthService);
+            const authToken = await authService.getAuthProviderService().getAuthToken();
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
-                params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
+                params: _.merge({entity, entityContext, services: this.services, authToken: authToken}, this.getCommonParams()),
                 imports: getImports()
             });
         } catch (e) {
