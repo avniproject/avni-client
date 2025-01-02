@@ -795,8 +795,8 @@ class RuleEvaluationService extends BaseService {
             this.saveFailedRules(error, reportCard.uuid, '',
                 'ReportCard', reportCard.uuid, null, null);
             return reportCard.nested ?
-                ReportCardResult.create(this.I18n.t("Error"), this.I18n.t("queryExecutionError"), false, true)
-                : reportCard.createNestedErrorResults(this.I18n.t("Error"), this.I18n.t("queryExecutionError"));
+                reportCard.createNestedErrorResults(this.I18n.t("Error"), this.I18n.t("queryExecutionError"))
+                : ReportCardResult.create(this.I18n.t("Error"), this.I18n.t("queryExecutionError"), false, true);
         }
     }
 
