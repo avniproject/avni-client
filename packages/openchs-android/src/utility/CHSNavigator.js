@@ -1,5 +1,5 @@
 // @flow
-import {Encounter, EncounterType, Individual, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
+import {Encounter, EncounterType, Individual, Program, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";
 import ProgramExitView from "../views/program/ProgramExitView";
@@ -415,6 +415,23 @@ class CHSNavigator {
                             message: message,
                             tab: 2
                         }, true)
+                    ]);
+                break;
+            }
+            case WorkItem.type.PROGRAM_EXIT: {
+                const program = context.getService(EntityService).findByKey('name', nextWorkItem.parameters.programName, Program.schema.name);
+                const enrolment = context.getService(ProgramEnrolmentService).getEnrolmentBySubjectUuidAndProgramUuid(nextWorkItem.parameters.subjectUUID, program.uuid);
+                TypedTransition.from(recommendationsView)
+                    .resetStack(toBePoped, [
+                        TypedTransition.createRoute(GenericDashboardView, {individualUUID: nextWorkItem.parameters.subjectUUID}, true),
+                        TypedTransition.createRoute(ProgramExitView, {params: {
+                                enrolment,
+                                individualUUID: nextWorkItem.parameters.subjectUUID,
+                                workLists: workListState.workLists,
+                                message: message,
+                                editing: false,
+                                tab: 2
+                            }}, true)
                     ]);
                 break;
             }

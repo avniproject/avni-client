@@ -312,6 +312,7 @@
     "reportCopiedReportByPasting": "रिपोर्ट कॉपी कर ली गई है। रिपोर्ट करने के लिए आप मैसेजिंग ऐप में पेस्ट कर सकते हैं।",
     "lastRefreshedMessage": "છેલ્લે રિફ્રેશ થયાનો સમય: {{dateTime}}",
     "serverUnavailableTryLater": "જાળવણી હેઠળ સર્વર. કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો",
-    "subjectTypes": "સબ્જેક્ટ પ્રકાર"
+    "subjectTypes": "સબ્જેક્ટ પ્રકાર",
+    "exitFromProgram": "{{program}} પ્રોગ્રામમાંથી બહાર કરો"
   }
 }

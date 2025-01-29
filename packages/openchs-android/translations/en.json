@@ -505,6 +505,7 @@
     "reportCopiedReportByPasting": "Report is copied. You can paste in a messaging app to report.",
     "lastRefreshedMessage": "Last refreshed on: {{dateTime}}",
     "serverUnavailableTryLater": "Server under maintenance. Please try again after sometime",
-    "subjectTypes": "Subject Types"
+    "subjectTypes": "Subject Types",
+    "exitFromProgram": "exit from {{program}}"
   }
 }
