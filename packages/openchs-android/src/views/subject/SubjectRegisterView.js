@@ -95,10 +95,7 @@ class SubjectRegisterView extends AbstractComponent {
             workLists: params.workLists,
             isDraftEntity: params.isDraftEntity,
             pageNumber: params.pageNumber,
-            taskUuid: params.taskUuid,
-            onCompletion: (newState) => {
-                this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
-            }
+            taskUuid: params.taskUuid
         });
         return super.UNSAFE_componentWillMount();
     }
