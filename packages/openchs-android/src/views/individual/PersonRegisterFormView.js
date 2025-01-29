@@ -23,6 +23,7 @@ import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
+import {WorkItem} from 'openchs-models';
 
 @Path('/PersonRegisterFormView')
 class PersonRegisterFormView extends AbstractComponent {
@@ -52,8 +53,26 @@ class PersonRegisterFormView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
+    getTitleForGroupSubject(){
+        const currentWorkItem = this.state.workListState.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.HOUSEHOLD, WorkItem.type.ADD_MEMBER], currentWorkItem.type)) {
+            const {headOfHousehold} = currentWorkItem.parameters;
+            return headOfHousehold ? 'headOfHouseholdReg' : 'memberReg';
+        }
+    }
+
+    getTitleForSubjectRegistration() {
+        const currentWorkItem = this.state.workListState.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.REGISTRATION], currentWorkItem.type)) {
+            const {name, subjectTypeName} = currentWorkItem.parameters;
+            return name || subjectTypeName;
+        }
+    }
+
     get registrationType() {
-        return _.get(this.state, 'workListState.workLists.currentWorkList.name') || 'REG_DISPLAY-Individual';
+        const workListName = _.get(this.state, 'workListState.workLists.currentWorkList.name');
+        const regName = workListName === 'Enrolment' ? _.get(_.find(this.state.workListState.workLists.currentWorkList.workItems, wl => wl.type === 'PROGRAM_ENROLMENT'), "parameters.programName") : workListName;
+        return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || regName || 'REG_DISPLAY-Individual';
     }
 
     onHardwareBackPress() {
@@ -99,7 +118,7 @@ class PersonRegisterFormView extends AbstractComponent {
 
     render() {
         General.logDebug(this.viewName(), `render`);
-        const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
+        const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         const subjectType = this.state.individual.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);

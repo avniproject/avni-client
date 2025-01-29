@@ -59,10 +59,18 @@ class PersonRegisterView extends AbstractComponent {
         }
     }
 
+    getTitleForSubjectRegistration() {
+        const currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.REGISTRATION], currentWorkItem.type)) {
+            const {name, subjectTypeName} = currentWorkItem.parameters;
+            return name || subjectTypeName;
+        }
+    }
+
     get registrationType() {
         const workListName = _.get(this, 'props.params.workLists.currentWorkList.name');
         const regName = workListName === 'Enrolment' ? _.get(_.find(this.props.params.workLists.currentWorkList.workItems, wl => wl.type === 'PROGRAM_ENROLMENT'), "parameters.programName") : workListName;
-        return this.getTitleForGroupSubject() || regName + ' ' || 'REG_DISPLAY-Individual';
+        return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || regName || 'REG_DISPLAY-Individual';
     }
 
     UNSAFE_componentWillMount() {

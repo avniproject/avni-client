@@ -60,9 +60,17 @@ class SubjectRegisterView extends AbstractComponent {
         }
     }
 
+    getTitleForSubjectRegistration() {
+        const currentWorkItem = this.props.params.workLists.getCurrentWorkItem();
+        if (_.includes([WorkItem.type.REGISTRATION], currentWorkItem.type)) {
+            const {name, subjectTypeName} = currentWorkItem.parameters;
+            return name || subjectTypeName;
+        }
+    }
+
     get registrationType() {
         const workListName = _.get(this, 'props.params.workLists.currentWorkList.name');
-        return this.getTitleForGroupSubject() || workListName || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
+        return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || workListName || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
     }
 
     static canLoad({uuid, customMessage, subjectTypeName}, parent) {
@@ -181,7 +189,7 @@ class SubjectRegisterView extends AbstractComponent {
             this.displayMessage(this.props.message)
         }
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
-        const title = this.I18n.t(this.registrationType) + this.I18n.t('registration');
+        const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         const subjectType = this.state.subject.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
