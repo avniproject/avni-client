@@ -72,8 +72,7 @@ export class SubjectRegisterActions {
         const newState = SubjectRegistrationState.createOnLoad(subject, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, action.workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context, group);
         const finalState = action.isDraftEntity ? SubjectRegisterActions.setTotalMemberForDraftSubject(newState, context) : newState;
 
-        QuickFormEditingActions.moveToPageAsync(finalState, action, context, SubjectRegisterActions);
-        return finalState;
+        return QuickFormEditingActions.moveToPage(finalState, action, context, SubjectRegisterActions);
     }
 
     static enterRegistrationDate(state, action) {
@@ -117,23 +116,13 @@ export class SubjectRegisterActions {
         return newState;
     }
 
-    static onNextAsync(state, action, context) {
-        const newState = state.clone();
-        const newStateForPromise = newState.clone();
-        const newStatePromise = newStateForPromise.handleNextAsync(action, context);
-        return newStatePromise.then(() => {
-            if (state.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
-                const draftSubject = DraftSubject.create(state.subject,  state.household.totalMembers);
-                context.get(DraftSubjectService).saveDraftSubject(draftSubject);
-            }
-            action.onCompletion(newStateForPromise);
-            return newStateForPromise;
-        })
-    }
-
     static onNext(state, action, context) {
-        SubjectRegisterActions.onNextAsync(state, action, context);
-        return state.clone();
+        const newState = state.clone().handleNext(action, context);
+        if (state.saveDrafts && _.isEmpty(newState.validationResults)) {
+            const draftSubject = DraftSubject.create(state.subject, state.household.totalMembers);
+            context.get(DraftSubjectService).saveDraftSubject(draftSubject);
+        }
+        return newState;
     }
 
     static onSummaryPage(state, action, context) {
@@ -198,16 +187,11 @@ export class SubjectRegisterActions {
         }
         return subject;
     }
-
-    static onUseThisState(state, action, context) {
-        return action.state;
-    }
 }
 
 const actions = {
     ON_LOAD: "5eb95861-b093-4210-9d87-04b07719918e",
     NEXT: "ef514731-1e10-4c5a-8f8c-16eb0d13ceb7",
-    USE_THIS_STATE: "REGISTRATION_USE_THIS_STATE",
     SUMMARY_PAGE: "7b3c26ec-ac66-40ea-9188-7b51ec3a85d5",
     PREVIOUS: "170a7491-b168-4297-90ed-b0bbbba40fae",
     REGISTRATION_ENTER_REGISTRATION_DATE: "19057ea4-361e-45be-af07-fbaa7b712a1a",
@@ -238,7 +222,6 @@ const actions = {
 export default new Map([
     [actions.ON_LOAD, SubjectRegisterActions.onLoad],
     [actions.NEXT, SubjectRegisterActions.onNext],
-    [actions.USE_THIS_STATE, SubjectRegisterActions.onUseThisState],
     [actions.SUMMARY_PAGE, SubjectRegisterActions.onSummaryPage],
     [actions.PREVIOUS, SubjectRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, SubjectRegisterActions.enterRegistrationDate],
