@@ -143,7 +143,12 @@ class SubjectRegisterView extends AbstractComponent {
     }
 
     next(popVerificationVew) {
-        this.dispatchAction(Actions.NEXT, this.getNextParams(popVerificationVew));
+        const actionParams = this.getNextParams(popVerificationVew);
+        this.dispatchAction(Actions.NEXT, _.merge(actionParams, {
+            onCompletion: (newState) => {
+                this.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
+            }
+        }));
     }
 
     onGoToSummary() {
