@@ -59,7 +59,12 @@ class Mixin {
     }
 
     static summary(view) {
-        view.dispatchAction(Actions.SUMMARY_PAGE, Mixin.getNextProps(view, false));
+        const actionParams = Mixin.getNextProps(view, false);
+        view.dispatchAction(Actions.SUMMARY_PAGE, _.merge(actionParams, {
+            onCompletion: (newState) => {
+                view.dispatchAction(Actions.USE_THIS_STATE, {state: newState});
+            }
+        }));
     }
 }
 

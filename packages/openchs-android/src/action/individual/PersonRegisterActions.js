@@ -190,7 +190,12 @@ export class PersonRegisterActions {
     }
 
     static onSummaryPage(state, action, context) {
-        return state.clone().handleSummaryPageAsync(action, context);
+        const newState = state.clone();
+        const newStateForPromise = newState.clone();
+        newStateForPromise.handleSummaryPageAsync(action, context).then(() => {
+            action.onCompletion(newStateForPromise); //Used to update state in view
+        });
+        return newState;
     }
 
     static onPrevious(state, action, context) {
