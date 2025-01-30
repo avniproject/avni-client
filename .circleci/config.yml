@@ -8,11 +8,11 @@ parameters:
   versionCode:
     type: string
     default: "1"
-    description: Version code for the binary for internal use on the play store. Is of the format 33702.
+    description: Version code for the binary for internal use on the play store. Is of the format 100302.
   versionName:
     type: string
     default: "1.0.0"
-    description: Version name for the binary for external display on the play store. Is of the format 3.37.2.
+    description: Version name for the binary for external display on the play store. Is of the format 10.3.2
 
 orbs:
   aws-cli: circleci/aws-cli@4.1.1
