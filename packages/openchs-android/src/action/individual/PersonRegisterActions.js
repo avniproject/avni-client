@@ -61,7 +61,8 @@ export class PersonRegisterActions {
         const newState = IndividualRegistrationState.createLoadState(form, state.genders, individual, action.workLists, minLevelTypeUUIDs, saveDrafts, groupAffiliationState, isNewEntity, group);
         PersonRegisterActions.setAgeState(newState);
 
-        return QuickFormEditingActions.moveToPage(newState, action, context, PersonRegisterActions);
+        QuickFormEditingActions.moveToPageAsync(newState, action, context, PersonRegisterActions);
+        return newState;
     }
 
     static onFormLoad(state, action, context) {
@@ -169,22 +170,32 @@ export class PersonRegisterActions {
         return newState;
     }
 
-    static onNext(state, action, context) {
+    static onNextAsync(state, action, context) {
         const newState = state.clone();
         const newStateForPromise = newState.clone();
         const newStatePromise = newStateForPromise.handleNextAsync(action, context);
-        newStatePromise.then(() => {
+        return newStatePromise.then(() => {
             if (state.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
                 const draftIndividual = DraftSubject.create(state.individual);
                 context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
             }
-            action.onCompletion(newStateForPromise);
+            action.onCompletion(newStateForPromise); //Used to update state in view
+            return newStateForPromise; //Used to satisfy iteration checking for FE rule execution errors
         })
-        return newState;
+    }
+
+    static onNext(state, action, context) {
+        PersonRegisterActions.onNextAsync(state, action, context);
+        return state.clone();
     }
 
     static onSummaryPage(state, action, context) {
-        return state.clone().handleSummaryPageAsync(action, context);
+        const newState = state.clone();
+        const newStateForPromise = newState.clone();
+        newStateForPromise.handleSummaryPageAsync(action, context).then(() => {
+            action.onCompletion(newStateForPromise); //Used to update state in view
+        });
+        return newState;
     }
 
     static onPrevious(state, action, context) {

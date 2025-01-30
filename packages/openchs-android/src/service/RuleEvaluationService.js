@@ -43,14 +43,16 @@ import ProgramService from "./program/ProgramService";
 import individualServiceFacade from "./facade/IndividualServiceFacade";
 import addressLevelServiceFacade from "./facade/AddressLevelServiceFacade";
 import MessageService from './MessageService';
-import {Groups, ReportCardResult, NestedReportCardResult} from "openchs-models";
+import {Groups, ReportCardResult, NestedReportCardResult, RuleDependency} from "openchs-models";
 import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
 import PrivilegeService from './PrivilegeService';
 import AuthService from "./AuthService";
 
-function getImports() {
-    return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log};
+const GlobalRuleUUID = "8ae72815-5670-40a4-b8b6-e457d0dff8ad";
+
+function getImports(globalFn) {
+    return {rulesConfig, common, lodash, moment, motherCalculations, log: console.log, globalFn};
 }
 
 function executeLineListFunction(lineListFunction, reportCard, saveFailedRules) {
@@ -61,6 +63,20 @@ function executeLineListFunction(lineListFunction, reportCard, saveFailedRules) 
         General.logDebug("Rule-Failure", e);
         saveFailedRules(e, reportCard.uuid, '', 'ReportCard', reportCard.uuid, null, null);
         return [];
+    }
+}
+
+function getGlobalRuleFunction(ruleService) {
+    const globalRuleDependency = ruleService.findByUUID(GlobalRuleUUID, RuleDependency.schema.name);
+    if (!_.isNil(globalRuleDependency)) {
+        try {
+            return eval(globalRuleDependency.code);
+        } catch (e) {
+            General.logDebug("RuleEvaluationService", "Global Rule failed");
+            General.logError("RuleEvaluationService", e);
+            ruleService.saveFailedRules(e, GlobalRuleUUID, null, 'GlobalRule', GlobalRuleUUID, null, null);
+        }
+        return null;
     }
 }
 
@@ -101,7 +117,8 @@ class RuleEvaluationService extends BaseService {
         this.services = {
             individualService: individualServiceFacade,
             addressLevelService: addressLevelServiceFacade,
-        }
+        };
+        this.globalRuleFunction = getGlobalRuleFunction(this);
     }
 
     getIndividualUUID(entity, entityName) {
@@ -145,7 +162,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
                     params: _.merge({decisions: defaultDecisions, entity, entityContext, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
                 const trimmedDecisions = trimDecisionsMap(decisionsMap);
@@ -221,7 +238,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(worklistUpdationRule);
                 return ruleFunc({
                     params: _.merge({context, workLists, services: this.services}, this.getCommonParams()),
-                    imports: {rulesConfig, common, lodash, moment, models}
+                    imports: {rulesConfig, common, lodash, moment, models, globalFn: this.globalRuleFunction}
                 });
             } catch (e) {
                 General.logDebug("Rule-Failure", `New worklist updation rule failed  ${orgConfig.uuid} `);
@@ -244,7 +261,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(form.editFormRule);
                 const ruleResponse = ruleFunc({
                     params: _.merge({entity, form, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
                 return EditFormRuleResponse.createEditRuleResponse(ruleResponse);
             } catch (e) {
@@ -338,7 +355,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(subjectType.subjectSummaryRule);
                 let summaries = ruleFunc({
                     params: _.merge({summaries: [], individual, context, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
                 summaries = this.validateSummaries(summaries, subjectType.uuid, this.getIndividualUUID(individual, entityName));
                 return _.map(summaries, (summary) => {
@@ -370,7 +387,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(subjectType.programEligibilityCheckRule);
             const subjectProgramEligibilityStatuses = await ruleFunc({
                 params: _.merge({individual, programs, authToken, services: this.services}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
             const validStatuses = this.validatedStatuses(subjectProgramEligibilityStatuses);
             if (_.size(validStatuses) !== _.size(subjectProgramEligibilityStatuses)) {
@@ -408,7 +425,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
                 params: _.merge({summaries: [], programEnrolment: enrolment, services: this.services}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid, enrolment.individual.uuid);
             const summaryObservations = _.map(summaries, (summary) => {
@@ -457,7 +474,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
                 params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
             console.log(e);
@@ -485,7 +502,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
                 params: _.merge({entity, entityContext, services: this.services, authToken: authToken}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
             console.log(e);
@@ -516,7 +533,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
                     params: _.merge({visitSchedule: scheduledVisits, entity, entityContext, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
                 this.checkIfScheduledVisitsAreValid(nextVisits);
                 return nextVisits;
@@ -557,7 +574,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(form.checklistsRule);
                 const allChecklists = ruleFunc({
                     params: _.merge({entity, checklistDetails: allChecklistDetails, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
                 return allChecklists;
             } catch (e) {
@@ -595,7 +612,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
                 params: _.merge({formElementGroup, entity, services: this.services, entityContext}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
             General.logDebug("Rule-Failure", `New form element group rule failed for: ${formElementGroup.uuid}`);
@@ -683,7 +700,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(formElement.rule);
             return ruleFunc({
                 params: _.merge({formElement, entity, questionGroupIndex, services: this.services, entityContext}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
             General.logDebug("Rule-Failure", `New Rule failed for: ${formElement.name}`);
@@ -724,7 +741,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
                 return ruleFunc({
                     params: _.merge({entity: individual, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
                 General.logDebug("Rule-Faiure", e);
@@ -747,7 +764,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
                     params: _.merge({entity: individual, program, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
                 General.logDebug("Rule-Failure", e);
@@ -768,7 +785,7 @@ class RuleEvaluationService extends BaseService {
                 const ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
                 return ruleFunc({
                     params: _.merge({entity: subjectProgramEligibility, subject, program, services: this.services}, this.getCommonParams()),
-                    imports: getImports()
+                    imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
                 General.logDebug("Rule-Failure", e);
@@ -786,7 +803,7 @@ class RuleEvaluationService extends BaseService {
             const ruleFunc = eval(reportCard.query);
             const result = ruleFunc({
                 params: _.merge({db: this.db, ruleInput: ruleInput}, this.getCommonParams()),
-                imports: getImports()
+                imports: getImports(this.globalRuleFunction)
             });
             return result;
         } catch (error) {
