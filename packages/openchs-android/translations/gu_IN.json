@@ -313,6 +313,6 @@
     "lastRefreshedMessage": "છેલ્લે રિફ્રેશ થયાનો સમય: {{dateTime}}",
     "serverUnavailableTryLater": "જાળવણી હેઠળ સર્વર. કૃપા કરીને થોડીવાર પછી ફરી પ્રયાસ કરો",
     "subjectTypes": "સબ્જેક્ટ પ્રકાર",
-    "exitFromProgram": "{{program}} પ્રોગ્રામમાંથી બહાર કરો"
+    "exitFromProgram": "{{program}} માંથી બહાર નીકાળો"
   }
 }

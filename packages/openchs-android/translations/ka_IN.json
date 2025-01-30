@@ -321,6 +321,6 @@
     "lastRefreshedMessage": "ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಿದ ದಿನಾಂಕ: {{dateTime}}",
     "serverUnavailableTryLater": "ಸರ್ವರ್ ನಿರ್ವಹಣೆಯಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     "subjectTypes": "ವಿಷಯದ ಪ್ರಕಾರಗಳು",
-    "exitFromProgram": "{{program}} ಪ್ರೋಗ್ರಾಂನಿಂದ ನಿರ್ಗಮಿಸಿ"
+    "exitFromProgram": "{{program}} ಇಂದ ಹೊರತುಪಡಿಸಿ"
   }
 }
