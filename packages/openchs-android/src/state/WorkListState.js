@@ -54,6 +54,7 @@ export default class WorkListState {
         const tkey = new Map([
             [WorkItem.type.REGISTRATION, 'anotherRegistration'],
             [WorkItem.type.PROGRAM_ENROLMENT, 'enrolIntoProgram'],
+            [WorkItem.type.PROGRAM_EXIT, 'exitFromProgram'],
             [WorkItem.type.PROGRAM_ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ENCOUNTER, 'proceedEncounter'],
             [WorkItem.type.ADD_MEMBER, 'addAnotherMember'],

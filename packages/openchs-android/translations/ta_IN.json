@@ -321,6 +321,7 @@
     "reportCopiedReportByPasting": "அறிக்கை நகலெடுக்கப்பட்டது. புகாரளிக்க செய்தியிடல் பயன்பாட்டில் ஒட்டலாம்.",
     "lastRefreshedMessage": "கடைசியாக புதுப்பிக்கப்பட்ட தேதி: {{dateTime}}",
     "serverUnavailableTryLater": "சர்வர் பராமரிப்பில் உள்ளது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்",
-    "subjectTypes": "பொருள் வகைகள்"
+    "subjectTypes": "பொருள் வகைகள்",
+    "exitFromProgram": "{{program}} விட்டு வெளியேறு"
   }
 }

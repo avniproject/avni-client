@@ -141,6 +141,10 @@ class ProgramEnrolmentService extends BaseService {
     getAllNonExitedEnrolmentsForSubject(subjectUUID) {
         return this.filtered(`voided = false and programExitDateTime = null and individual.uuid = $0`, subjectUUID)
     }
+
+    getEnrolmentBySubjectUuidAndProgramUuid(subjectUUID, programUuid) {
+        return this.findByCriteria(`voided = false and programExitDateTime = null and individual.uuid = '${subjectUUID}' and program.uuid = '${programUuid}'`, ProgramEnrolment.schema.name);
+    }
 }
 
 export default ProgramEnrolmentService;
