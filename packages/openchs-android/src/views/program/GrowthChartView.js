@@ -147,30 +147,55 @@ class GrowthChartView extends AbstractComponent {
     }
 
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
-        const enrolment = this.props.params.enrolment;
-        const observations = _.map(enrolment.nonVoidedEncounters(), encounter => {
+        const enrolmentEntity = this.getEnrolmentEntity();
+        const enrolmentEntityObservations=this.getObservationsForEntity(enrolmentEntity,xAxisConceptName, yAxisConceptName, suffix);
+
+        enrolmentEntityObservations.pointInEntity && enrolmentEntityObservations.entityObservations.unshift(enrolmentEntityObservations.pointInEntity);
+
+        const individual = enrolmentEntity.individual;
+        const individualEntityObservations=this.getObservationsForEntity(individual,xAxisConceptName, yAxisConceptName, suffix);
+
+        individualEntityObservations.pointInEntity && individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
+        const entityObservations = [...enrolmentEntityObservations.entityObservations, ...individualEntityObservations.entityObservations];
+
+        return this.addConfig(_.sortBy(_.compact(entityObservations), 'x'), "data");
+    }
+
+    getObservationsForEntity(entity, xAxisConceptName, yAxisConceptName, suffix) {
+        const enrolmentEntity = this.getEnrolmentEntity();
+        let entityObservations = this.getObservations(entity, xAxisConceptName, yAxisConceptName, suffix);
+        const xInEntity = this.getXInEntity(xAxisConceptName, entity);
+        const yInEntity = this.getObservationValue(entity, yAxisConceptName);
+        const markerInEntity = `${yInEntity} ${suffix}`;
+        const pointInEntity = this.getPoint(xInEntity, yInEntity, markerInEntity);
+        return {enrolmentEntity, entityObservations, xInEntity, yInEntity, markerInEntity,pointInEntity};
+    }
+
+    getEnrolmentEntity = () => {
+        return this.props.params.enrolment;
+    };
+    getPoint = (xInEntity, yInEntity, markerInEntity) => {
+        return (_.isNil(xInEntity) || _.isNil(yInEntity))
+            ? null
+            : {x: xInEntity, y: yInEntity, markerInEntity};
+    };
+    getXInEntity = (xAxisConceptName, entity) => {
+        return xAxisConceptName
+            ? this.getObservationValue(entity, xAxisConceptName)
+            : moment(entity.enrolmentDateTime).diff(entity.individual.dateOfBirth, "months");
+    };
+
+    getObservations(enrolment, xAxisConceptName, yAxisConceptName, suffix) {
+        return _.map(enrolment.nonVoidedEncounters(), encounter => {
             const x = xAxisConceptName
                 ? this.getObservationValue(encounter, xAxisConceptName)
-                : moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, 'months');
+                : moment(encounter.encounterDateTime).diff(enrolment.individual.dateOfBirth, "months");
             const y = this.getObservationValue(encounter, yAxisConceptName);
             const marker = `${y} ${suffix}`;
             return (_.isNil(x) || _.isNil(y))
                 ? null
                 : {x, y, marker};
         });
-
-        const xInEnrolment = xAxisConceptName
-            ? this.getObservationValue(enrolment, xAxisConceptName)
-            : moment(enrolment.enrolmentDateTime).diff(enrolment.individual.dateOfBirth, 'months');
-        const yInEnrolment = this.getObservationValue(enrolment, yAxisConceptName);
-        const marker = `${yInEnrolment} ${suffix}`;
-
-        const point = (_.isNil(xInEnrolment) || _.isNil(yInEnrolment))
-            ? null
-            : {x: xInEnrolment, y: yInEnrolment, marker};
-        observations.unshift(point);
-
-        return this.addConfig(_.sortBy(_.compact(observations), 'x'), "data");
     }
 
     getDataSets(array, yAxisConcept, suffix, xAxisConcept) {
@@ -183,7 +208,7 @@ class GrowthChartView extends AbstractComponent {
 
     addBirthWeightIfRequired(yAxisConcept, data, suffix) {
         if (yAxisConcept === 'Weight') {
-            const birthWt = this.props.params.enrolment.findLatestObservationInEntireEnrolment('Birth Weight');
+            const birthWt = this.getEnrolmentEntity().findLatestObservationInEntireEnrolment('Birth Weight');
             if (birthWt) {
                 const birthWeight = _.toNumber(birthWt.getValue());
                 data.values.unshift({x: 0, y: birthWeight, marker: `${birthWt.getValue()} ${suffix}`});
@@ -227,7 +252,19 @@ class GrowthChartView extends AbstractComponent {
         return this.states.weightForAge === this.state.selectedGraph ? "Weight" : "Height";
     }
 
+    getAxisTitles() {
+        if (this.state.selectedGraph === this.states.weightForAge) {
+            return { xAxisTitle: "Age (completed months)", yAxisTitle: "Weight (kgs)" };
+        } else if (this.state.selectedGraph === this.states.heightForAge) {
+            return { xAxisTitle: "Age (completed months)", yAxisTitle: "Length/Height (cms)" };
+        } else if (this.state.selectedGraph === this.states.weightForHeight) {
+            return { xAxisTitle: "Length/Height (cms)", yAxisTitle: "Weight (kgs)" };
+        }
+        return { xAxisTitle: "", yAxisTitle: "" };
+    }
+
     render() {
+        const { xAxisTitle, yAxisTitle } = this.getAxisTitles();
         const legend = {
             enabled: true,
             textColor: processColor('red'),
@@ -241,33 +278,73 @@ class GrowthChartView extends AbstractComponent {
             wordWrapEnabled: true,
             maxSizePercent: 0.5,
             custom: {
-                colors: [processColor('black'), processColor('green'), processColor("orange"), processColor("red")],
-                labels: [this.I18n.t(this.getLegendLabel()), this.I18n.t('Grade 1'), this.I18n.t('Grade 2'), this.I18n.t('Grade 3')]
-            }
+                colors: [
+                    processColor('black'),
+                    processColor('green'),
+                    processColor("orange"),
+                    processColor("red"),
+                ],
+                labels: [
+                    this.I18n.t(this.getLegendLabel()),
+                    this.I18n.t('Grade 1'),
+                    this.I18n.t('Grade 2'),
+                    this.I18n.t('Grade 3'),
+                ],
+            },
         };
+
         const marker = {
             enabled: true,
             markerColor: processColor('white'),
             textColor: processColor('black'),
             markerFontSize: 18,
         };
+
         const styles = StyleSheet.create({
-            container: {
+            chartContainer: {
                 flex: 1,
-                backgroundColor: '#F5FCFF'
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 1,
+                justifyContent: 'center',
+                alignContent: 'center',
+            },
+            yAxisTitle: {
+                flexWrap: 'nowrap',
+                flexDirection: 'column',
+                transform: [{ rotate: '-90deg'},{ scale:10}],
+                fontSize: 1.2,
+                textAlign: 'center',
+                padding:2
+            },
+            chartWrapper: {
+                flex: 1,
+                justifyContent: 'center',
             },
             chart: {
                 flex: 1
-            }
+            },
+            xAxisTitle: {
+                textAlign: 'center',
+                fontSize: 16,
+                paddingVertical: 5,
+            },
         });
-        let borderColor = processColor("red");
+
         const wfaStyle = this.getGraphStyle(this.states.weightForAge);
         const hfaStyle = this.getGraphStyle(this.states.heightForAge);
         const wfhStyle = this.getGraphStyle(this.states.weightForHeight);
         return (
             <CHSContainer>
-                <View style={{flex: 1, paddingHorizontal: 8, flexDirection: 'column'}}>
-                    <View style={{flexDirection: 'row', paddingTop: 4, paddingHorizontal: 8, justifyContent: 'space-between'}}>
+                <View style={{ flex: 1, paddingHorizontal: 8, flexDirection: 'column' }}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            paddingTop: 4,
+                            paddingHorizontal: 8,
+                            justifyContent: 'space-between',
+                        }}
+                    >
                         <Button
                             style={[GrowthChartView.style.graphButton.self, wfaStyle.self]}
                             _text={wfaStyle.text}
@@ -290,39 +367,36 @@ class GrowthChartView extends AbstractComponent {
                         </Button>
                     </View>
 
-                    <Text style={[Styles.formGroupLabel, {paddingLeft: 4}]}>{this.I18n.t(this.state.title)}</Text>
+                    <Text style={[Styles.formGroupLabel, { paddingLeft: 4}]}>{this.I18n.t(this.state.title)}</Text>
 
-                    <View style={styles.container}>
-                        <LineChart
-                            style={styles.chart}
-                            data={this.state.data}
-                            chartDescription={{text: ''}}
-                            legend={legend}
-                            marker={marker}
-
-                            drawGridBackground={true}
-
-                            borderColor={borderColor}
-                            borderWidth={0}
-                            drawBorders={false}
-
-                            touchEnabled={true}
-                            dragEnabled={true}
-                            scaleEnabled={true}
-                            scaleXEnabled={true}
-                            scaleYEnabled={true}
-                            pinchZoom={true}
-                            doubleTapToZoomEnabled={false}
-
-                            dragDecelerationEnabled={true}
-                            dragDecelerationFrictionCoef={0.99}
-
-                            keepPositionOnRotation={false}
-
-                            xAxis={{position: 'BOTTOM', labelCount: 5}}
-
-                            ref="chart"
-                        />
+                    <View style={styles.chartContainer}>
+                        <Text style={styles.yAxisTitle}>{yAxisTitle}</Text>
+                        <View style={styles.chartWrapper}>
+                            <LineChart
+                                style={styles.chart}
+                                data={this.state.data}
+                                chartDescription={{ text: '' }}
+                                legend={legend}
+                                marker={marker}
+                                drawGridBackground={true}
+                                borderColor={processColor("red")}
+                                borderWidth={0}
+                                drawBorders={false}
+                                touchEnabled={true}
+                                dragEnabled={true}
+                                scaleEnabled={true}
+                                scaleXEnabled={true}
+                                scaleYEnabled={true}
+                                pinchZoom={true}
+                                doubleTapToZoomEnabled={false}
+                                dragDecelerationEnabled={true}
+                                dragDecelerationFrictionCoef={0.99}
+                                keepPositionOnRotation={false}
+                                xAxis={{ position: 'BOTTOM', labelCount: 5}}
+                                ref="chart"
+                            />
+                            <Text style={styles.xAxisTitle}>{xAxisTitle}</Text>
+                        </View>
                     </View>
                 </View>
             </CHSContainer>
