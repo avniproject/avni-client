@@ -24,7 +24,7 @@ class AbstractDataEntryState {
 
     clone(newState = new this.constructor()) {
         newState.validationResults = [];
-        this.validationResults.forEach((validationResult) => {
+        !_.isNil(this.validationResults) && this.validationResults.forEach((validationResult) => {
             newState.validationResults.push(ValidationResult.clone(validationResult));
         });
         newState.formElementGroup = this.formElementGroup;
