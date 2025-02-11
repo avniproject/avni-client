@@ -40,6 +40,6 @@ export default class SingleSelectFilterModel extends Filter {
       )
     );
 
-    return filterModel.selectOption(selectedSubjectType.name);
+    return filterModel.selectOption(!_.isNil(selectedSubjectType) ? selectedSubjectType.name : subjectTypes[0].name);
   }
 }
