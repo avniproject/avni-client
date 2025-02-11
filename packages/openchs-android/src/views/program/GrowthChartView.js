@@ -157,18 +157,16 @@ class GrowthChartView extends AbstractComponent {
 
         individualEntityObservations.pointInEntity && individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
         const entityObservations = [...enrolmentEntityObservations.entityObservations, ...individualEntityObservations.entityObservations];
-
         return this.addConfig(_.sortBy(_.compact(entityObservations), 'x'), "data");
     }
 
     getObservationsForEntity(entity, xAxisConceptName, yAxisConceptName, suffix) {
-        const enrolmentEntity = this.getEnrolmentEntity();
         let entityObservations = this.getObservations(entity, xAxisConceptName, yAxisConceptName, suffix);
         const xInEntity = this.getXInEntity(xAxisConceptName, entity);
         const yInEntity = this.getObservationValue(entity, yAxisConceptName);
         const markerInEntity = `${yInEntity} ${suffix}`;
         const pointInEntity = this.getPoint(xInEntity, yInEntity, markerInEntity);
-        return {enrolmentEntity, entityObservations, xInEntity, yInEntity, markerInEntity,pointInEntity};
+        return {entity, entityObservations, xInEntity, yInEntity, markerInEntity,pointInEntity};
     }
 
     getEnrolmentEntity = () => {
