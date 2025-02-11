@@ -70,17 +70,18 @@ export default class MediaFormElement extends AbstractFormElement {
 
     addMediaFromPicker(response, onUpdateObservations) {
         if (!response.didCancel && !response.errorCode) {
-            const ext = this.isVideo ? 'mp4' : 'jpg';
             const directory = this.isVideo ? FileSystem.getVideosDir() :
                 (this.props.element.name === "profilePicture" ? FileSystem.getProfilePicsDir() : FileSystem.getImagesDir());
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
             _.get(response, 'assets').map(asset => {
+                const ext = asset.uri.split('.').pop();
                 const fileName = `${General.randomUUID()}.${ext}`;
                 fileSystemAction(asset.uri, `${directory}/${fileName}`)
                     .then(() => onUpdateObservations(fileName));
             });
         }
     }
+
 
     getFromKeyValue(key, defaultVal) {
         let keyVal = this.props.element.keyValues.find(keyVal => keyVal.key === key);
