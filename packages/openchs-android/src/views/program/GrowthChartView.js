@@ -148,15 +148,15 @@ class GrowthChartView extends AbstractComponent {
 
     getDataFor(yAxisConceptName, suffix, xAxisConceptName) {
         const enrolmentEntity = this.getEnrolmentEntity();
-        const enrolmentEntityObservations=this.getObservationsForEntity(enrolmentEntity,xAxisConceptName, yAxisConceptName, suffix);
+        const individual = enrolmentEntity.individual;
 
+        const individualEntityObservations=this.getObservationsForEntity(individual,xAxisConceptName, yAxisConceptName, suffix);
+        individualEntityObservations.pointInEntity && individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
+
+        const enrolmentEntityObservations=this.getObservationsForEntity(enrolmentEntity,xAxisConceptName, yAxisConceptName, suffix);
         enrolmentEntityObservations.pointInEntity && enrolmentEntityObservations.entityObservations.unshift(enrolmentEntityObservations.pointInEntity);
 
-        const individual = enrolmentEntity.individual;
-        const individualEntityObservations=this.getObservationsForEntity(individual,xAxisConceptName, yAxisConceptName, suffix);
-
-        individualEntityObservations.pointInEntity && individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
-        const entityObservations = [...enrolmentEntityObservations.entityObservations, ...individualEntityObservations.entityObservations];
+        const entityObservations = [...individualEntityObservations.entityObservations,...enrolmentEntityObservations.entityObservations];
         return this.addConfig(_.sortBy(_.compact(entityObservations), 'x'), "data");
     }
 
@@ -251,14 +251,16 @@ class GrowthChartView extends AbstractComponent {
     }
 
     getAxisTitles() {
-        if (this.state.selectedGraph === this.states.weightForAge) {
-            return { xAxisTitle: "Age (completed months)", yAxisTitle: "Weight (kgs)" };
-        } else if (this.state.selectedGraph === this.states.heightForAge) {
-            return { xAxisTitle: "Age (completed months)", yAxisTitle: "Length/Height (cms)" };
-        } else if (this.state.selectedGraph === this.states.weightForHeight) {
-            return { xAxisTitle: "Length/Height (cms)", yAxisTitle: "Weight (kgs)" };
+        switch (this.state.selectedGraph) {
+            case this.states.weightForAge:
+                return { xAxisTitle: "Age (completed months)", yAxisTitle: "Weight (kgs)" };
+            case this.states.heightForAge:
+                return { xAxisTitle: "Age (completed months)", yAxisTitle: "Length/Height (cms)" };
+            case this.states.weightForHeight:
+                return { xAxisTitle: "Length/Height (cms)", yAxisTitle: "Weight (kgs)" };
+            default:
+                return { xAxisTitle: "", yAxisTitle: "" };
         }
-        return { xAxisTitle: "", yAxisTitle: "" };
     }
 
     render() {

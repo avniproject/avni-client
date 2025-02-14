@@ -13,10 +13,7 @@ class ProgramConfigService extends BaseService {
     }
 
     configForProgram(program) {
-        if (program && program.showGrowthChart) {
-            return programConfig.config(program.name);
-        }
-        return false;
+        return program && program.showGrowthChart && programConfig.config(program.name);
     }
 
     findDashboardButtons(program) {
