@@ -321,6 +321,8 @@
     "lastRefreshedMessage": "ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಿದ ದಿನಾಂಕ: {{dateTime}}",
     "serverUnavailableTryLater": "ಸರ್ವರ್ ನಿರ್ವಹಣೆಯಲ್ಲಿದೆ. ದಯವಿಟ್ಟು ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     "subjectTypes": "ವಿಷಯದ ಪ್ರಕಾರಗಳು",
-    "exitFromProgram": "{{program}} ಇಂದ ಹೊರತುಪಡಿಸಿ"
+    "exitFromProgram": "{{program}} ಇಂದ ಹೊರತುಪಡಿಸಿ",
+    "selectAllLabel": "ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆಮಾಡಿ",
+    "unselectAllLabel": "ಎಲ್ಲಾ ಆಯ್ಕೆ ರದ್ದುಮಾಡಿ"
   }
 }

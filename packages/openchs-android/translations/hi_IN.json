@@ -385,6 +385,8 @@
     "lastRefreshedMessage": "अंतिम अद्यतन तारीख: {{dateTime}}",
     "serverUnavailableTryLater": "सर्वर रखरखाव के अधीन है। कृपया कुछ समय बाद पुनः प्रयास करें",
     "subjectTypes": "सब्जेक्ट प्रकार",
-    "exitFromProgram": "{{program}} से बाहर करें"
+    "exitFromProgram": "{{program}} से बाहर करें",
+    "selectAllLabel": "सबका चयन करें",
+    "unselectAllLabel": "सभी को अचयनित करें"
   }
 }

@@ -310,6 +310,8 @@
     "lastRefreshedMessage": "शेवटचे रीफ्रेश केले: {{dateTime}}",
     "serverUnavailableTryLater": "देखभाल अंतर्गत सर्व्हर. कृपया काही वेळाने पुन्हा प्रयत्न करा",
     "subjectTypes": "सब्जेक्टचे प्रकार",
-    "exitFromProgram": "{{program}} प्रोग्रामधून बाहेर करा"
+    "exitFromProgram": "{{program}} प्रोग्रामधून बाहेर करा",
+    "selectAllLabel": "सर्व निवडा",
+    "unselectAllLabel": "सर्व निवड रद्द करा"
   }
 }

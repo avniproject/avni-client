@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import AbstractFormElement from "./AbstractFormElement";
-import {StyleSheet, TouchableOpacity, View} from "react-native";
+import {StyleSheet, TouchableOpacity, View, Text} from "react-native";
 import {Checkbox as CheckBox} from "native-base";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import GroupSubjectService from "../../../service/GroupSubjectService";
@@ -10,13 +10,25 @@ import {Concept} from 'openchs-models';
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import SubjectInfoCard from "../../common/SubjectInfoCard";
 import Separator from "../../primitives/Separator";
+import MessageService from "../../../service/MessageService";
 
 class AttendanceFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
+        this.I18n = context.getService(MessageService).getI18n();
+        const groupsSubjects = this.getGroupsSubjects();
+        const subjectUUIDs = _.get(this.props.value, 'answer');
+        this.state = {
+            selected: _.size(groupsSubjects) === _.size(subjectUUIDs),
+        };
     }
 
-    renderSubject({memberSubject}, subjectUUIDs, index) {
+    getGroupsSubjects() {
+        const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
+        return this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
+    }
+
+    renderSubject({memberSubject}, subjectUUIDs) {
         const onPress = () => this.dispatchAction(this.props.actionName, {
             formElement: this.props.element, answerUUID: memberSubject.uuid
         });
@@ -35,15 +47,45 @@ class AttendanceFormElement extends AbstractFormElement {
         </TouchableOpacity>)
     }
 
-    render() {
-        const subjectTypeUUID = _.get(this.props, 'element.concept').recordValueByKey(Concept.keys.subjectTypeUUID);
-        const groupsSubjects = this.getService(GroupSubjectService).getAllByGroupSubjectUUID(this.props.subjectUUID, subjectTypeUUID).map(_.identity);
+    handleSelectPress = (groupsSubjects, subjectUUIDs) => {
+        const { selected } = this.state;
+        this.setState({ selected: !selected }, () => {
+            const isNeedOperation = !selected;
+            _.forEach(groupsSubjects, ({ memberSubject }) => {
+                const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
+                if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
+                    this.dispatchAction(this.props.actionName, {
+                        formElement: this.props.element,
+                        answerUUID: memberSubject.uuid
+                    });
+                }
+            });
+        });
+    };
+
+
+    componentDidUpdate(prevProps, prevState) {
+        const groupsSubjects = this.getGroupsSubjects();
         const subjectUUIDs = _.get(this.props.value, 'answer');
+        const shouldSelectAll = _.size(subjectUUIDs) === _.size(groupsSubjects);
+        if (shouldSelectAll !== prevState.selected) {
+            this.setState({ selected: shouldSelectAll });
+        }
+    }
+
+    render() {
+        const groupsSubjects = this.getGroupsSubjects();
+        const groupSize = _.size(groupsSubjects);
+        const subjectUUIDs = _.get(this.props.value, 'answer');
+        const selectAllLabel = this.state.selected ? this.I18n.t("unselectAllLabel") : this.I18n.t("selectAllLabel");
         return (
             <Fragment>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
+                {groupSize>0 && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs)}>
+                    <Text style={{color: 'blue', textAlign: 'right', textDecorationLine: 'underline'}} >{selectAllLabel}</Text>
+                </TouchableOpacity>}
                 { _.map(groupsSubjects, (groupSubject, index) =>
-                    this.renderSubject(groupSubject, subjectUUIDs, index)
+                    this.renderSubject(groupSubject, subjectUUIDs)
                 )}
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </Fragment>
