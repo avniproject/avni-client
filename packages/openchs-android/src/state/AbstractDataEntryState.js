@@ -199,6 +199,26 @@ class AbstractDataEntryState {
         return this;
     }
 
+    async _handleNextInternal2Async(action, context) {
+        if (action.popVerificationVew)
+            action.popVerificationVewFunc();
+        this.moveNext();
+        const formElementStatuses = ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        this.observationsHolder.removeNonApplicableObs(this.formElementGroup.getFormElements(), this.filteredFormElements);
+        this.observationsHolder.updatePrimitiveCodedObs(this.filteredFormElements, formElementStatuses);
+        if (ObservationsHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, this.formElementGroup.getFormElements())) {
+            ObservationsHolderActions.updateFormElements(this.formElementGroup, this, context);
+        }
+        if (this.hasNoFormElements()) {
+            General.logDebug("AbstractDataEntryState", "handleNext - No form elements here. Moving to next screen");
+            return this.handleNextAsync(action, context);
+        }
+        const formElementRuleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
+        this.handleValidationResults(formElementRuleValidationErrors, context);
+        if (_.isFunction(action.movedNext)) action.movedNext(this);
+        return this;
+    }
+
     handleNext(action, context) {
         this._handleNextInternal1(context);
 
@@ -240,7 +260,8 @@ class AbstractDataEntryState {
             this._handleLastPageValidationResults(validationResults, context, ruleService, action);
             return this;
         }
-        return this._handleNextInternal2(action, context);
+        await this._handleNextInternal2Async(action, context);
+        return this;
     }
 
     _handleLastPageValidationResults(validationResults, context, ruleService, action) {
