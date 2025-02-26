@@ -10,7 +10,7 @@ class AvniError {
         const avniError = new AvniError();
         avniError.userMessage = userMessage;
         avniError.reportingText = reportingText;
-        avniError.showOnlyUserMessage = showOnlyUserMessage;
+        avniError.showOnlyUserMessage = !reportingText || showOnlyUserMessage;
         return avniError;
     }
 
