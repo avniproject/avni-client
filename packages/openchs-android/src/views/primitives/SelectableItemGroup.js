@@ -8,6 +8,7 @@ import Styles from "./Styles";
 import _ from 'lodash';
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import SelectableItem from "./SelectableItem";
+import SubjectInfoCard from '../common/SubjectInfoCard';
 
 class SelectableItemGroup extends React.Component {
     static defaultProps = {
@@ -74,6 +75,7 @@ class SelectableItemGroup extends React.Component {
         const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return labelValuePairs.map(radioLabelValue => {
             const checked = selectionFn(radioLabelValue.value);
+            const individual = radioLabelValue.subject;
             return <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                    checked={checked}
                                    multiSelect={multiSelect}
@@ -82,13 +84,16 @@ class SelectableItemGroup extends React.Component {
                                    key={radioLabelValue.label}
                                    currentLocale={locale}
                                    style={{
-                                       paddingHorizontal: Distances.HorizontalSpacingBetweenOptionItems,
+                                       paddingHorizontal: Distances.HorizontalSmallSpacingBetweenOptionItems,
+                                       paddingVertical: Distances.VerticalSmallSpacingBetweenOptionItems,
                                        justifyContent: "center"
                                    }}
                                    disabled={disabled}
                                    value={radioLabelValue.value}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
-            />;
+            >
+                <SubjectInfoCard individual={individual} hideEnrolments={false}/>
+            </SelectableItem>;
         });
     }
 

@@ -1,11 +1,13 @@
 import PropTypes from "prop-types";
-import {StyleSheet, Text, TouchableOpacity} from "react-native";
+import {StyleSheet, Text} from "react-native";
 import Colors from "./Colors";
 import Styles from "./Styles";
 import React from "react";
 import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import MIcon from 'react-native-vector-icons/MaterialIcons';
+import FIcon from 'react-native-vector-icons/FontAwesome';
 import _ from 'lodash';
+import {View} from 'native-base';
 
 const icons = {
     "radio": {
@@ -47,10 +49,19 @@ class SelectableItem extends React.Component {
 
     constructor(props, context) {
         super(props, context);
+        this.state = {
+            showAdditionalDetails: false
+        };
+        this.toggleAdditionalDetailsDisplay = this.toggleAdditionalDetailsDisplay.bind(this)
+    }
+
+    toggleAdditionalDetailsDisplay() {
+        this.setState((state) => ({showAdditionalDetails: !state.showAdditionalDetails}));
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext): boolean {
         if (this.props.checked !== nextProps.checked) return true;
+        if (this.state.showAdditionalDetails !== nextState.showAdditionalDetails) return true;
         return (this.props.displayText !== nextProps.displayText) ||
             (_.isNil(this.props.validationResult) !== _.isNil(nextProps.validationResult)) ||
             (this.props.abnormal !== nextProps.abnormal);
@@ -78,14 +89,25 @@ class SelectableItem extends React.Component {
         const onPress = () => onPressed(value);
         const iconColor = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         const iconName = icons[multiSelect ? "checkbox" : "radio"][checked ? "checked" : "unchecked"];
+        const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
         return (
             <Pressable onPress={onPress}
-                       style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container]} disabled={disabled}>
-                <Icon.Button iconStyle={{marginLeft: -10}} name={iconName} backgroundColor="white" color={iconColor} onPress={onPress} disabled={disabled}>
-                    <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
-                        {displayText}
-                    </Text>
-                </Icon.Button>
+                       style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container, ]} disabled={disabled}>
+                <MIcon.Button iconStyle={{marginLeft: -10}} name={iconName}
+                              backgroundColor={backgroundColor}
+                              color={iconColor} onPress={onPress} disabled={disabled}>
+                    <View style={{flexDirection: 'column', width: '82%', overflow: 'hidden'}}>
+                        {this.state.showAdditionalDetails ? <>{this.props.children}</> :
+                          <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
+                            {displayText}
+                        </Text>}
+                    </View>
+                    {this.props.children && <FIcon.Button name={this.state.showAdditionalDetails ? "caret-up" : "caret-down"} size={18}
+                                                          backgroundColor={backgroundColor}
+                                                          borderRadius={10} color={Colors.AccentColor}
+                                                          iconStyle={{marginTop: -10}}
+                                                          onPress={this.toggleAdditionalDetailsDisplay}/>}
+                </MIcon.Button>
             </Pressable>
         );
     }
