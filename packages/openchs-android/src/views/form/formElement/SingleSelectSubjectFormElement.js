@@ -52,7 +52,7 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
 
     renderSelectUI(subject, subjectOptions) {
         const valueLabelPairs = subjectOptions
-            .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
+            .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false, subject));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
 
         return (
@@ -60,7 +60,7 @@ class SingleSelectSubjectFormElement extends SubjectFormElement {
                 <SelectableItemGroup
                     multiSelect={false}
                     allowRadioUnselect={true}
-                    inPairs={true}
+                    inPairs={false}
                     locale={currentLocale}
                     I18n={this.I18n}
                     onPress={(value) => this.toggleFormElementAnswerSelection(value)}

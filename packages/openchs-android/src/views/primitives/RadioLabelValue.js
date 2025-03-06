@@ -1,8 +1,9 @@
 class RadioLabelValue {
-    constructor(label, value, abnormal = false) {
+    constructor(label, value, abnormal = false, subject = null) {
         this.label = label;
         this.value = value;
         this.abnormal = abnormal;
+        this.subject = subject;
     }
 }
 
