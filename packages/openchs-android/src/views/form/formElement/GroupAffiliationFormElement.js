@@ -44,7 +44,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
 
     render() {
         const groupSubjectObservation = this.props.groupSubjectObservation;
-        const valueLabelPairs = this.groupsToShow().map((subject) => new RadioLabelValue(subject.nameString, subject.uuid));
+        const valueLabelPairs = this.groupsToShow().map((subject) => new RadioLabelValue(subject.nameString, subject.uuid, false, subject));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
 
         return (
@@ -54,7 +54,7 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                     <SelectableItemGroup
                         allowRadioUnselect={true}
                         multiSelect={false}
-                        inPairs={true}
+                        inPairs={false}
                         locale={currentLocale}
                         I18n={this.I18n}
                         onPress={(value) => this.onPress(value)}
@@ -64,7 +64,8 @@ class GroupAffiliationFormElement extends AbstractFormElement {
                         validationError={this.props.validationResult}
                         labelValuePairs={valueLabelPairs}
                         skipLabel={true}
-                    />
+                    >
+                    </SelectableItemGroup>
 
                 }
             </View>);
