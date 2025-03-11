@@ -92,7 +92,7 @@ class SelectableItemGroup extends React.Component {
                                    value={radioLabelValue.value}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             >
-                <SubjectInfoCard individual={individual} hideEnrolments={false}/>
+                {individual && <SubjectInfoCard individual={individual} hideEnrolments={false}/>}
             </SelectableItem>;
         });
     }
