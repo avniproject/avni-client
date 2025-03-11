@@ -500,16 +500,16 @@ else
 endif
 
 deploy_platform_translations_staging:
-	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$(OPENCHS_STAGING_ADMIN_PASSWORD)
+	make deploy_translations server=https://staging.avniproject.org port=443 username=admin password=$$OPENCHS_STAGING_ADMIN_PASSWORD
 
 deploy_platform_translations_gramin_staging:
-	make deploy_translations server=https://staging.rwb.avniproject.org port=443 username=admin password=$(GRAMIN_PROD_ADMIN_PASSWORD)
+	make deploy_translations server=https://staging.rwb.avniproject.org port=443 username=admin password=$$GRAMIN_PROD_ADMIN_PASSWORD
 
 deploy_platform_translations_uat:
-	make deploy_translations server=https://uat.avniproject.org port=443 username=admin password=$(password)
+	make deploy_translations server=https://uat.avniproject.org port=443 username=admin password=$$password
 
 deploy_platform_translations_prerelease:
-	make deploy_translations server=https://prerelease.avniproject.org port=443 username=admin password=$(OPENCHS_PRERELEASE_ADMIN_PASSWORD)
+	make deploy_translations server=https://prerelease.avniproject.org port=443 username=admin password=$$OPENCHS_PRERELEASE_ADMIN_PASSWORD
 
 deploy_platform_translations_for_flavor_live:
 	make deploy_translations server=$(flavor_server_url) port=443 username=admin password=$$$(prod_admin_password_env_var_name)
@@ -519,4 +519,4 @@ deploy_platform_translations_live_for_all_flavors:
 	make deploy_platform_translations_for_flavor_live flavor='generic'
 
 deploy_platform_translations_local_live:
-	make deploy_translations server=http://localhost port=8021 username=$(username) password=$(password)
+	make deploy_translations server=http://localhost port=8021 username=$(username) password=$$password
