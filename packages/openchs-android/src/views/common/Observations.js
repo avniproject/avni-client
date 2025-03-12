@@ -153,7 +153,17 @@ class Observations extends AbstractComponent {
             encounterService
         });
 
-        if (Concept.dataType.Media.includes(renderType)) {
+        if (renderType === Concept.dataType.ImageV2) {
+            const allMediaURIs = _.map(displayable.displayValue, mediaObject => mediaObject.uri);
+            return (
+                <View style={this.styles.observationColumn}>
+                    <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {_.map(allMediaURIs, (value, index) =>
+                            <ExpandableMedia key={index} source={value} type={renderType} relatedMediaURIs={allMediaURIs}/>)}
+                    </View>
+                </View>
+            );
+        } else if (Concept.dataType.Media.includes(renderType)) {
             const allMediaURIs = _.split(displayable.displayValue, ',');
             return (
                 <View style={this.styles.observationColumn}>

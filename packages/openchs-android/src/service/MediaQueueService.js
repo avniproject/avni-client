@@ -1,6 +1,6 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
+import {Concept, Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnrolment} from 'openchs-models';
 import General from "../utility/General";
 import _ from 'lodash';
 import {get, isHttpRequestSuccessful} from '../framework/http/requests';
@@ -66,9 +66,15 @@ class MediaQueueService extends BaseService {
             this.addToQueue(entity, schemaName, entity.getProfilePicture(), 'Profile-Pics', "profilePicture")
         }
         _.forEach(entity.findMediaObservations(), (observation) => {
-            _.forEach(_.flatten([observation.getValue()]), filename => {
-                this.addToQueue(entity, schemaName, filename, observation.concept.datatype, "observations", observation.concept.uuid)
-            })
+            if (observation.concept.datatype === Concept.dataType.ImageV2) {
+                _.forEach(JSON.parse(observation.getValue()), mediaObject => {
+                    this.addToQueue(entity, schemaName, mediaObject.uri, observation.concept.datatype, "observations", observation.concept.uuid)
+                })
+            } else {
+                _.forEach(_.flatten([observation.getValue()]), filename => {
+                    this.addToQueue(entity, schemaName, filename, observation.concept.datatype, "observations", observation.concept.uuid)
+                })
+            }
         });
     }
 
@@ -81,6 +87,7 @@ class MediaQueueService extends BaseService {
     getDirByType(mediaQueueItem) {
         switch (mediaQueueItem.type) {
             case 'Image':
+            case 'ImageV2':
                 return FileSystem.getImagesDir();
             case 'Profile-Pics':
                 return FileSystem.getProfilePicsDir();

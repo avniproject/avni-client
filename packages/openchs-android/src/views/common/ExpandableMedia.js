@@ -118,7 +118,7 @@ export default class ExpandableMedia extends AbstractFormElement {
             case 'Video' :
                 return ExpandableVideo;
             case 'Image' :
-                return ExpandableImage;
+            case 'ImageV2':
             case 'Profile-Pics' :
                 return ExpandableImage;
             case 'Audio' :
