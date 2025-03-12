@@ -511,6 +511,8 @@
     "lastRefreshedMessage": "Last refreshed on: {{dateTime}}",
     "serverUnavailableTryLater": "Server under maintenance. Please try again after sometime",
     "subjectTypes": "Subject Types",
-    "exitFromProgram": "exit from {{program}}"
+    "exitFromProgram": "exit from {{program}}",
+    "selectAllLabel": "Select All",
+    "unselectAllLabel": "Unselect All"
   }
 }
