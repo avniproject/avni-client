@@ -27,7 +27,10 @@ class AddressLevelsState {
                 }]);
                 return acc;
             }, {}));
-        const sortedLevels = _.orderBy(unsortedLevels, ([levelKey, value]) => levelKey, ['desc']);
+        const sortedLevels = _.orderBy(unsortedLevels, ([levelKey, value]) => {
+            const level = parseInt(levelKey.split("->")[0]);
+            return level;
+        }, ['desc']);
         this.levels = sortedLevels.map(([levelKey, levels]) => {
             const levelType = levels[0].type;
             const other = _.find(levels, (level) => _.startsWith(level.name, "Other"));
