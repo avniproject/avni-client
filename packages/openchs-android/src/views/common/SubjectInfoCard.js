@@ -107,7 +107,7 @@ class SubjectInfoCard extends AbstractComponent {
         const i18n = this.I18n;
         const {individual, hideEnrolments, renderDraftString} = this.props;
         const conceptService = this.getService(ConceptService);
-        const iconContainerStyle = {minHeight: 72, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start'};
+        const iconContainerStyle = {marginLeft: 5, minHeight: 72, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start'};
         const enrolledPrograms = _.filter(individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 

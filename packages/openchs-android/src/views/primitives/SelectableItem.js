@@ -83,6 +83,7 @@ class SelectableItem extends React.Component {
             content: SelectableItem.styles.content,
             container: [style]
         };
+        const additionalDetailsContainerStyle = (textColor === Colors.InputNormal) ? {} : {borderColor: textColor, borderWidth: 1};
         const renderStyle = chunked ? chunkedStyle : singleStyle;
         const isExtraHeightRequired = _.includes(['te_IN'], currentLocale);
         const extraLineHeight = isExtraHeightRequired ? {lineHeight: 20} : {};
@@ -97,15 +98,15 @@ class SelectableItem extends React.Component {
                               backgroundColor={backgroundColor}
                               color={iconColor} onPress={onPress} disabled={disabled}>
                     <View style={{flexDirection: 'column', width: '82%', overflow: 'hidden'}}>
-                        {this.state.showAdditionalDetails ? <>{this.props.children}</> :
+                        {this.state.showAdditionalDetails ? <View  style={additionalDetailsContainerStyle}>{this.props.children}</View> :
                           <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
                             {displayText}
                         </Text>}
                     </View>
                     {this.props.children && <FIcon.Button name={this.state.showAdditionalDetails ? "caret-up" : "caret-down"} size={18}
-                                                          backgroundColor={backgroundColor}
+                                                          backgroundColor={Colors.FilterButtonColor}
                                                           borderRadius={10} color={Colors.AccentColor}
-                                                          iconStyle={{marginTop: -10}}
+                                                          iconStyle={{marginTop: -2, marginRight: 0}}
                                                           onPress={this.toggleAdditionalDetailsDisplay}/>}
                 </MIcon.Button>
             </Pressable>
