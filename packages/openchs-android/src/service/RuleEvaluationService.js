@@ -684,17 +684,17 @@ class RuleEvaluationService extends BaseService {
                 .reduce((all, curr) => all.concat(curr), [])
                 .reduce(this.updateMapUsingKeyPattern(), mapOfFormElementStatuses);
         }
-        this.setFormElementsVisibilityAsParent(mapOfFormElementStatuses,applicableFormElements);
+        this.hideChildIfParentHidden(mapOfFormElementStatuses,applicableFormElements);
         return [...mapOfFormElementStatuses.values()];
     }
 
-    setFormElementsVisibilityAsParent(mapOfFormElementStatuses,applicableFormElements){
+    hideChildIfParentHidden(mapOfFormElementStatuses, applicableFormElements){
         const childFormElements = _.filter(applicableFormElements,(fe)=>!_.isNull(fe.groupUuid));
         if(_.size(childFormElements)>0){
             _.forEach(childFormElements,({uuid,groupUuid,questionGroupIndex})=>{
                 const parent = mapOfFormElementStatuses.get(`${groupUuid}-${questionGroupIndex || 0}`);
                 const child = mapOfFormElementStatuses.get(`${uuid}-${questionGroupIndex || 0}`);
-                if(parent && child) {
+                if(parent && child && parent.visibility === false) {
                     child.visibility = parent.visibility;
                 }
             })
