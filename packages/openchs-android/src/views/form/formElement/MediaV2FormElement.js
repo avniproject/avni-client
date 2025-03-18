@@ -15,6 +15,7 @@ import PropTypes from "prop-types";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import DeviceInfo from "react-native-device-info";
+import NetInfo from "@react-native-community/netinfo";
 
 const styles = StyleSheet.create({
     icon: {
@@ -60,6 +61,9 @@ export default class MediaV2FormElement extends AbstractFormElement {
     componentDidMount() {
         DeviceInfo.isLocationEnabled()
             .then(systemLocationEnabled => this.setState(state => ({...state, systemLocationEnabled})));
+        DeviceInfo.getAvailableLocationProviders()
+            .then((availableLocationProviders) => this.setState(state => ({...state, availableLocationProviders})));
+        NetInfo.fetch().then(({type, isWifiEnabled}) => this.setState(state => ({...state, connectionType: type, isWifiEnabled})));
     }
 
     get isImage() {
@@ -91,6 +95,11 @@ export default class MediaV2FormElement extends AbstractFormElement {
     populateImageMetadata(fileName, tags) {
         return {
             uri: fileName,
+            mode: this.state.mode,
+            systemLocationEnabled: this.state.systemLocationEnabled,
+            availableLocationProviders: this.state.availableLocationProviders,
+            connectionType: this.state.connectionType,
+            isWifiEnabled: this.state.isWifiEnabled,
             latitude: _.get(tags, 'gps.Latitude'),
             longitude: _.get(tags, 'gps.Longitude'),
             deviceModel: _.get(tags, 'exif.Model.description'),
@@ -208,6 +217,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
     }
 
     onUpdateObservations(mediaObjects) {
+        General.logDebugTemp('mediaObjects', mediaObjects);
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
