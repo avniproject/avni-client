@@ -33,6 +33,8 @@ class SubjectFormElement extends AbstractFormElement {
                 }
             });
             return _.sortBy(subjectOptions, ['nameString']);
+        } else {
+            return this.individualService.getAllBySubjectTypeUUID(this.subjectTypeUUID());
         }
     }
 

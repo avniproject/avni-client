@@ -53,12 +53,12 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
     renderSelectUI(subjectUUIDs, subjectOptions) {
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const valueLabelPairs = subjectOptions
-            .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false));
+            .map((subject) => new RadioLabelValue(subject.nameStringWithUniqueAttribute, subject.uuid, false, subject));
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <SelectableItemGroup
                     multiSelect={true}
-                    inPairs={true}
+                    inPairs={false}
                     locale={currentLocale}
                     I18n={this.I18n}
                     onPress={(value) => this.toggleFormElementAnswerSelection(value)}

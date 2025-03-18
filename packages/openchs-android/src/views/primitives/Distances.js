@@ -45,7 +45,9 @@ class Distances {
     static VerticalSpacingBetweenFormElements = 20;
     static VerticalSpacingDisplaySections = 16;
     static VerticalSpacingBetweenOptionItems = DGS.resizeHeight(8);
+    static VerticalSmallSpacingBetweenOptionItems = DGS.resizeHeight(2);
     static HorizontalSpacingBetweenOptionItems = 20;
+    static HorizontalSmallSpacingBetweenOptionItems = 8;
 }
 
 export default Distances;

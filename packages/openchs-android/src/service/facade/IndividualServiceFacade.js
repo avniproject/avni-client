@@ -14,6 +14,11 @@ class IndividualServiceFacade {
         return GlobalContext.getInstance().beanRegistry.getService(IndividualService)
             .findByUUID(uuid);
     }
+
+    findAllSubjectsWithMobileNumberForType(mobileNumber, subjectTypeUUID) {
+        return GlobalContext.getInstance().beanRegistry.getService(IndividualService)
+          .findAllWithMobileNumber(mobileNumber, subjectTypeUUID);
+    }
 }
 
 const individualServiceFacade = new IndividualServiceFacade();

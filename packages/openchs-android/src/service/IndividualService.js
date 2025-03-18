@@ -760,10 +760,10 @@ class IndividualService extends BaseService {
             .sorted('name');
     }
 
-    findAllWithMobileNumber(mobileNumber) {
+    findAllWithMobileNumber(mobileNumber, subjectTypeUUID = null) {
         const toMatchMobileNumber = _.toString(mobileNumber).slice(-10);
-        const probableSubjects = this.getAllNonVoided()
-            .filtered(`(observations.concept.keyValues.key = "${KeyValue.PrimaryContactKey}" or observations.concept.keyValues.key = "${KeyValue.ContactNumberKey}") and (observations.valueJSON CONTAINS "${toMatchMobileNumber}")`);
+        const allSubjects = subjectTypeUUID ? this.getAllBySubjectTypeUUID(subjectTypeUUID) : this.getAllNonVoided();
+        const probableSubjects = allSubjects.filtered(`(observations.concept.keyValues.key = "${KeyValue.PrimaryContactKey}" or observations.concept.keyValues.key = "${KeyValue.ContactNumberKey}") and (observations.valueJSON CONTAINS "${toMatchMobileNumber}")`);
         return probableSubjects.filter((subject) => {
             return _.toString(subject.getMobileNumber()).slice(-10) === toMatchMobileNumber;
         });
