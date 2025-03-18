@@ -161,7 +161,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
                 const ruleDecisions = ruleFunc({
-                    params: _.merge({decisions: defaultDecisions, entity, entityContext, services: this.services}, this.getCommonParams()),
+                    params: _.merge({decisions: defaultDecisions, entity, entityContext}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
                 const decisionsMap = this.validateDecisions(ruleDecisions, form.uuid, individualUUID);
@@ -237,7 +237,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 const ruleFunc = eval(worklistUpdationRule);
                 return ruleFunc({
-                    params: _.merge({context, workLists, services: this.services}, this.getCommonParams()),
+                    params: _.merge({context, workLists}, this.getCommonParams()),
                     imports: {rulesConfig, common, lodash, moment, models, globalFn: this.globalRuleFunction}
                 });
             } catch (e) {
@@ -260,7 +260,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 const ruleFunc = eval(form.editFormRule);
                 const ruleResponse = ruleFunc({
-                    params: _.merge({entity, form, services: this.services}, this.getCommonParams()),
+                    params: _.merge({entity, form}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
                 return EditFormRuleResponse.createEditRuleResponse(ruleResponse);
@@ -354,7 +354,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(subjectType.subjectSummaryRule);
                 let summaries = ruleFunc({
-                    params: _.merge({summaries: [], individual, context, services: this.services}, this.getCommonParams()),
+                    params: _.merge({summaries: [], individual, context}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
                 summaries = this.validateSummaries(summaries, subjectType.uuid, this.getIndividualUUID(individual, entityName));
@@ -386,7 +386,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(subjectType.programEligibilityCheckRule);
             const subjectProgramEligibilityStatuses = await ruleFunc({
-                params: _.merge({individual, programs, authToken, services: this.services}, this.getCommonParams()),
+                params: _.merge({individual, programs, authToken}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
             const validStatuses = this.validatedStatuses(subjectProgramEligibilityStatuses);
@@ -424,7 +424,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(program.enrolmentSummaryRule);
             let summaries = ruleFunc({
-                params: _.merge({summaries: [], programEnrolment: enrolment, services: this.services}, this.getCommonParams()),
+                params: _.merge({summaries: [], programEnrolment: enrolment}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
             summaries = this.validateSummaries(summaries, enrolment.uuid, enrolment.individual.uuid);
@@ -473,7 +473,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
-                params: _.merge({entity, entityContext, services: this.services}, this.getCommonParams()),
+                params: _.merge({entity, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
@@ -501,7 +501,7 @@ class RuleEvaluationService extends BaseService {
             const authToken = await authService.getAuthProviderService().getAuthToken();
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
-                params: _.merge({entity, entityContext, services: this.services, authToken: authToken}, this.getCommonParams()),
+                params: _.merge({entity, entityContext, authToken: authToken}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
@@ -532,7 +532,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.visitScheduleRule);
                 const nextVisits = ruleFunc({
-                    params: _.merge({visitSchedule: scheduledVisits, entity, entityContext, services: this.services}, this.getCommonParams()),
+                    params: _.merge({visitSchedule: scheduledVisits, entity, entityContext}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
                 this.checkIfScheduledVisitsAreValid(nextVisits);
@@ -573,7 +573,7 @@ class RuleEvaluationService extends BaseService {
             try {
                 const ruleFunc = eval(form.checklistsRule);
                 const allChecklists = ruleFunc({
-                    params: _.merge({entity, checklistDetails: allChecklistDetails, services: this.services}, this.getCommonParams()),
+                    params: _.merge({entity, checklistDetails: allChecklistDetails}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
                 return allChecklists;
@@ -611,7 +611,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElementGroup.rule);
             return ruleFunc({
-                params: _.merge({formElementGroup, entity, services: this.services, entityContext}, this.getCommonParams()),
+                params: _.merge({formElementGroup, entity, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
@@ -713,7 +713,7 @@ class RuleEvaluationService extends BaseService {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const ruleFunc = eval(formElement.rule);
             return ruleFunc({
-                params: _.merge({formElement, entity, questionGroupIndex, services: this.services, entityContext}, this.getCommonParams()),
+                params: _.merge({formElement, entity, questionGroupIndex, entityContext}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
         } catch (e) {
@@ -754,7 +754,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(encounterType.encounterEligibilityCheckRule)
                 return ruleFunc({
-                    params: _.merge({entity: individual, services: this.services}, this.getCommonParams()),
+                    params: _.merge({entity: individual}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
@@ -777,7 +777,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.enrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: _.merge({entity: individual, program, services: this.services}, this.getCommonParams()),
+                    params: _.merge({entity: individual, program}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
@@ -798,7 +798,7 @@ class RuleEvaluationService extends BaseService {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(program.manualEnrolmentEligibilityCheckRule);
                 return ruleFunc({
-                    params: _.merge({entity: subjectProgramEligibility, subject, program, services: this.services}, this.getCommonParams()),
+                    params: _.merge({entity: subjectProgramEligibility, subject, program}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
             } catch (e) {
@@ -816,7 +816,7 @@ class RuleEvaluationService extends BaseService {
         try {
             const ruleFunc = eval(reportCard.query);
             const result = ruleFunc({
-                params: _.merge({db: this.db, ruleInput: ruleInput}, this.getCommonParams()),
+                params: _.merge({ruleInput: ruleInput}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
             return result;
@@ -909,7 +909,7 @@ class RuleEvaluationService extends BaseService {
         try {
             const ruleFunc = eval(linkFunction);
             return ruleFunc({
-                params: _.merge({moment: moment, token: authToken}, this.getCommonParams())
+                params: _.merge({moment: moment, token: authToken}, this.getCommonParams(true))
             });
         } catch (e) {
             General.logDebug("Rule-Failure", e);
@@ -921,12 +921,13 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getCommonParams() {
+    getCommonParams(excludeDBAccess = false) {
         const user = this.getService(UserInfoService).getUserInfo();
         const myUserGroups = this.getService(PrivilegeService).ownedGroups();
-        return {user, myUserGroups};
-    }
 
+        return excludeDBAccess ? {user, myUserGroups} :
+          {db: this.db, services: this.services, user, myUserGroups};
+    }
 }
 
 export default RuleEvaluationService;
