@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 function adjustForDisplayedLevels(allCurrentLevels, selectedLevel, newLevels) {
-    const toRemove = allCurrentLevels.filter(l => !_.isEmpty(l.locationMappings) && l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
+    const toRemove = allCurrentLevels.filter(l => l.level < selectedLevel.level && l.parentUuid !== selectedLevel.parentUuid);
     return new AddressLevelsState(allCurrentLevels)
         .removeLevels(toRemove)
         .addLevels(newLevels)

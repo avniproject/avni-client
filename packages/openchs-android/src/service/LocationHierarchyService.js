@@ -8,6 +8,11 @@ class LocationHierarchyService extends BaseAddressLevelService {
         super(db, beanStore);
     }
 
+    getAllRootParents() {
+        return this.findAll(this.getSchema())
+            .filtered('voided = false and parentUuid = null');
+    }
+
     getSchema() {
         return LocationHierarchy.schema.name;
     }
