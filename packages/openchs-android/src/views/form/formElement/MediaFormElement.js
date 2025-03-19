@@ -90,17 +90,20 @@ export default class MediaFormElement extends AbstractFormElement {
         return value;
     }
 
-    async launchCamera(onUpdateObservations) {
-        this.setState({ mode: Mode.Camera });
-
-        const options = {
+    getDefaultOptions() {
+        return ({
             mediaType: this.isVideo ? 'video' : 'photo',
             maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
             maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
-            videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
-            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)
-        };
+            videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY)
+        });
+    }
+
+    async launchCamera(onUpdateObservations) {
+        this.setState({ mode: Mode.Camera });
+        const options = { ...this.getDefaultOptions(),
+            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
         if (await this.isPermissionGranted()) {
             launchCamera(options,
                 (response) => this.addMediaFromPicker(response, onUpdateObservations));
@@ -109,9 +112,7 @@ export default class MediaFormElement extends AbstractFormElement {
 
     async launchMediaLibrary(onUpdateObservations) {
         this.setState({mode: Mode.MediaLibrary});
-
-        const options = {
-            mediaType: this.isVideo ? 'video' : 'photo',
+        const options = { ...this.getDefaultOptions(),
             selectionLimit: this.props.element.isMultiSelect() ? 0 : 1
         };
         if (await this.isPermissionGranted()) {
