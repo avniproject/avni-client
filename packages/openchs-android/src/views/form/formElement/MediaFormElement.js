@@ -85,8 +85,25 @@ export default class MediaFormElement extends AbstractFormElement {
     getFromKeyValue(key, defaultVal) {
         let keyVal = this.props.element.keyValues.find(keyVal => keyVal.key === key);
         let value = keyVal ? keyVal.getValue() : defaultVal;
-        if (key === 'videoQuality' && ['low', 'high'].indexOf(value) === -1)
-            throw Error("videoQuality must be either of 'low' or 'high'");
+        if (key === 'videoQuality') {
+            const videoQualityIndex = ['low', 'high'].indexOf(value);
+            if(videoQualityIndex === -1) {
+                throw Error("videoQuality must be either of 'low' or 'high'");
+            } else {
+                /**
+                 * https://developer.android.com/reference/android/provider/MediaStore#EXTRA_VIDEO_QUALITY
+                 *
+                 * The name of the Intent-extra used to control the quality of a recorded video.
+                 * This is an integer property. Currently value 0 means low quality, suitable for MMS messages,
+                 * and value 1 means high quality. In the future other quality levels may be added.
+                 *
+                 * Returning "0"/"1" instead of "low"/"high",
+                 * as sending "low"/"high" was not altering quality of video-capture, but "0"/"1" did.
+                 */
+                return videoQualityIndex.toString();
+            }
+        }
+
         return value;
     }
 
