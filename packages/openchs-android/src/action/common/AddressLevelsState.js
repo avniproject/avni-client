@@ -83,15 +83,9 @@ class AddressLevelsState {
 
     selectLevel(selectedLevel, newLevels = []) {
         const allCurrentLevels = this._asList();
-        if (_.isEmpty(selectedLevel.locationMappings)) {
-            allCurrentLevels.forEach(l => {
-                l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false;
-            });
-        } else {
-            allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
-                l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
-            });
-        }
+        allCurrentLevels.filter(it => it.level === selectedLevel.level).forEach(l => {
+            l.isSelected = l.uuid === selectedLevel.uuid ? !l.isSelected : false
+        });
         return adjustForDisplayedLevels(allCurrentLevels, selectedLevel, newLevels);
     }
 
