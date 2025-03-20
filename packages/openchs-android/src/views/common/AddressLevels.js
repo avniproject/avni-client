@@ -20,6 +20,7 @@ import {Individual} from 'openchs-models';
 class AddressLevels extends AbstractComponent {
     static propTypes = {
         multiSelect: PropTypes.bool,
+        exclusive: PropTypes.bool,
         onSelect: PropTypes.func,
         onLowestLevel: PropTypes.func,
         validationError: PropTypes.object,
@@ -82,7 +83,7 @@ class AddressLevels extends AbstractComponent {
         }
         const parentList = this.addressLevelService.getParentsOfLeaf(lowestSelectedLevel, this.props.maxLevelTypeUUID).concat([lowestSelectedLevel]);
         return parentList.reduce((acc, parent) =>
-            this.selectAddressLevel(acc, parent.type, parent.uuid, true), {data: addressLevelState});
+            this.selectAddressLevel(acc, parent.type, parent.uuid, !_.isNil(this.props.exclusive) ? this.props.exclusive : true), {data: addressLevelState});
     }
 
     UNSAFE_componentWillMount() {
@@ -127,7 +128,7 @@ class AddressLevels extends AbstractComponent {
     render() {
         if (!this.props) return null;
 
-        General.logDebug(this.viewName(), 'render');
+        General.logDebug(this.viewName(), 'render', this.state.data.levels);
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const userHint = ` ${this.props.userHintText}`;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
@@ -135,13 +136,13 @@ class AddressLevels extends AbstractComponent {
                 <AutocompleteSearchWithLabel
                     key={idx}
                     options={levels}
-                    onSelectedItemChange={(uuid) => this.onSelect(levelType, uuid, !this.props.multiSelect)}
+                    onSelectedItemChange={(uuid) => this.onSelect(levelType, uuid, !_.isNil(this.props.exclusive) ? this.props.exclusive : !this.props.multiSelect)}
                     selectionFn={level => level.isSelected}
                     multiSelect={this.props.multiSelect}
                     labelKey={levelType}
                 /> :
                 <AddressLevel
-                    onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
+                    onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !_.isNil(this.props.exclusive) ? this.props.exclusive : !this.props.multiSelect)}
                     key={idx}
                     validationError={this.props.validationError}
                     levelType={levelType}
