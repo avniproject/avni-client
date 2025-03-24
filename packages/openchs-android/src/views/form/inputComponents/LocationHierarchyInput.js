@@ -40,7 +40,6 @@ class LocationHierarchyInput extends AbstractComponent {
         return <AddressLevels
             selectedLowestLevel={lowestAddressLevel}
             multiSelect={false}
-            exclusive={false}
             onLowestLevel={(lowestSelectedAddresses) => onSelect(lowestSelectedAddresses)}
             skipLabel={true}
             minLevelTypeUUIDs={this.minLevelTypeUUIDs()}
