@@ -128,7 +128,7 @@ class AddressLevels extends AbstractComponent {
     render() {
         if (!this.props) return null;
 
-        General.logDebug(this.viewName(), 'render');
+        General.logDebug(this.viewName(), 'render', this.state.data.levels);
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const userHint = ` ${this.props.userHintText}`;
         let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
