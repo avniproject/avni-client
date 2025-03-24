@@ -63,7 +63,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
             .then(systemLocationEnabled => this.setState(state => ({...state, systemLocationEnabled})));
         DeviceInfo.getAvailableLocationProviders()
             .then((availableLocationProviders) => this.setState(state => ({...state, availableLocationProviders})));
-        NetInfo.fetch().then(({type, isWifiEnabled}) => this.setState(state => ({...state, connectionType: type, isWifiEnabled})));
+        NetInfo.fetch().then(({type, isWifiEnabled, details}) => this.setState(state => ({...state, connectionType: type, isWifiEnabled, cellularGeneration: _.get(details, 'cellularGeneration') })));
     }
 
     get isImage() {
@@ -99,9 +99,12 @@ export default class MediaV2FormElement extends AbstractFormElement {
             systemLocationEnabled: this.state.systemLocationEnabled,
             availableLocationProviders: this.state.availableLocationProviders,
             connectionType: this.state.connectionType,
-            isWifiEnabled: this.state.isWifiEnabled,
+            wifiEnabled: this.state.isWifiEnabled,
+            cellularGeneration: this.state.cellularGeneration,
             latitude: _.get(tags, 'gps.Latitude'),
             longitude: _.get(tags, 'gps.Longitude'),
+            gpsDOP: _.get(tags, 'exif.GPSDOP.description'),
+            gpsProcessingMethod: _.get(tags, 'exif.GPSProcessingMethod.description'),
             deviceModel: _.get(tags, 'exif.Model.description'),
             deviceMake: _.get(tags, 'exif.Make.description')
         }
@@ -217,7 +220,6 @@ export default class MediaV2FormElement extends AbstractFormElement {
     }
 
     onUpdateObservations(mediaObjects) {
-        General.logDebugTemp('mediaObjects', mediaObjects);
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
