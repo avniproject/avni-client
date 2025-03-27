@@ -49,8 +49,8 @@ class AttendanceFormElement extends AbstractFormElement {
 
     handleSelectPress = (groupsSubjects, subjectUUIDs) => {
         const { selected } = this.state;
-        this.setState({ selected: !selected }, () => {
-            const isNeedOperation = !selected;
+        const isNeedOperation = !selected;
+        this.setState({ selected: isNeedOperation }, () => {
             _.forEach(groupsSubjects, ({ memberSubject }) => {
                 const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
                 if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
