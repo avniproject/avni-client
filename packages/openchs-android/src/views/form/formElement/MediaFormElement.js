@@ -85,22 +85,42 @@ export default class MediaFormElement extends AbstractFormElement {
     getFromKeyValue(key, defaultVal) {
         let keyVal = this.props.element.keyValues.find(keyVal => keyVal.key === key);
         let value = keyVal ? keyVal.getValue() : defaultVal;
-        if (key === 'videoQuality' && ['low', 'high'].indexOf(value) === -1)
-            throw Error("videoQuality must be either of 'low' or 'high'");
+        if (key === 'videoQuality') {
+            const videoQualityIndex = ['low', 'high'].indexOf(value);
+            if(videoQualityIndex === -1) {
+                throw Error("videoQuality must be either of 'low' or 'high'");
+            } else {
+                /**
+                 * https://developer.android.com/reference/android/provider/MediaStore#EXTRA_VIDEO_QUALITY
+                 *
+                 * The name of the Intent-extra used to control the quality of a recorded video.
+                 * This is an integer property. Currently value 0 means low quality, suitable for MMS messages,
+                 * and value 1 means high quality. In the future other quality levels may be added.
+                 *
+                 * Returning "0"/"1" instead of "low"/"high",
+                 * as sending "low"/"high" was not altering quality of video-capture, but "0"/"1" did.
+                 */
+                return videoQualityIndex.toString();
+            }
+        }
+
         return value;
     }
 
-    async launchCamera(onUpdateObservations) {
-        this.setState({ mode: Mode.Camera });
-
-        const options = {
+    getDefaultOptions() {
+        return ({
             mediaType: this.isVideo ? 'video' : 'photo',
             maxWidth: this.getFromKeyValue('maxWidth', DEFAULT_IMG_WIDTH),
             maxHeight: this.getFromKeyValue('maxHeight', DEFAULT_IMG_HEIGHT),
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
-            videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
-            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)
-        };
+            videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY)
+        });
+    }
+
+    async launchCamera(onUpdateObservations) {
+        this.setState({ mode: Mode.Camera });
+        const options = { ...this.getDefaultOptions(),
+            durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT)};
         if (await this.isPermissionGranted()) {
             launchCamera(options,
                 (response) => this.addMediaFromPicker(response, onUpdateObservations));
@@ -109,9 +129,7 @@ export default class MediaFormElement extends AbstractFormElement {
 
     async launchMediaLibrary(onUpdateObservations) {
         this.setState({mode: Mode.MediaLibrary});
-
-        const options = {
-            mediaType: this.isVideo ? 'video' : 'photo',
+        const options = { ...this.getDefaultOptions(),
             selectionLimit: this.props.element.isMultiSelect() ? 0 : 1
         };
         if (await this.isPermissionGranted()) {

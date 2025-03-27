@@ -6,7 +6,6 @@ import {Concept} from "openchs-models";
 import PropTypes from "prop-types";
 import _ from "lodash";
 import AddressLevels from "../../common/AddressLevels";
-import General from "../../../utility/General";
 
 class LocationHierarchyInput extends AbstractComponent {
     constructor(props, context) {
