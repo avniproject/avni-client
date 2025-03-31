@@ -187,6 +187,10 @@ export class SubjectRegisterActions {
         }
         return subject;
     }
+
+    static onUseThisState(state, action, context) {
+        return action.state;
+    }
 }
 
 const actions = {
@@ -194,6 +198,7 @@ const actions = {
     NEXT: "SubjectRegisterActions.NEXT",
     SUMMARY_PAGE: "SubjectRegisterActions.SUMMARY_PAGE",
     PREVIOUS: "SubjectRegisterActions.PREVIOUS",
+    USE_THIS_STATE: "SubjectRegisterActions.REGISTRATION_USE_THIS_STATE",
     REGISTRATION_ENTER_REGISTRATION_DATE: "SubjectRegisterActions.REGISTRATION_ENTER_REGISTRATION_DATE",
     REGISTRATION_ENTER_NAME: "REGISTRATION_ENTER_NAME",
     REGISTRATION_ENTER_ADDRESS_LEVEL: "SubjectRegisterActions.REGISTRATION_ENTER_ADDRESS_LEVEL",
@@ -222,6 +227,7 @@ const actions = {
 export default new Map([
     [actions.ON_LOAD, SubjectRegisterActions.onLoad],
     [actions.NEXT, SubjectRegisterActions.onNext],
+    [actions.USE_THIS_STATE, SubjectRegisterActions.onUseThisState],
     [actions.SUMMARY_PAGE, SubjectRegisterActions.onSummaryPage],
     [actions.PREVIOUS, SubjectRegisterActions.onPrevious],
     [actions.REGISTRATION_ENTER_REGISTRATION_DATE, SubjectRegisterActions.enterRegistrationDate],

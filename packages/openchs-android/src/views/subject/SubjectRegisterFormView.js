@@ -3,19 +3,19 @@ import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
-import {Actions} from "../../action/individual/PersonRegisterActions";
+import {Actions} from "../../action/subject/SubjectRegisterActions";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import AppHeader from "../common/AppHeader";
 import FormElementGroup from "../form/FormElementGroup";
 import WizardButtons from "../common/WizardButtons";
-import PersonRegisterViewsMixin from "./PersonRegisterViewsMixin";
+import SubjectRegisterViewsMixin from "./SubjectRegisterViewsMixin";
 import {ObservationsHolder} from 'avni-models';
 import General from "../../utility/General";
 import Distances from "../primitives/Distances";
 import CHSContainer from "../common/CHSContainer";
 import CHSContent from "../common/CHSContent";
 import _ from "lodash";
-import PersonRegisterView from "./PersonRegisterView";
+import SubjectRegisterView from "./SubjectRegisterView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 import {RejectionMessage} from "../approval/RejectionMessage";
@@ -23,27 +23,27 @@ import SummaryButton from "../common/SummaryButton";
 import UserInfoService from "../../service/UserInfoService";
 import Timer from "../common/Timer";
 import BackgroundTimer from "react-native-background-timer";
-import {WorkItem} from 'openchs-models';
+import {WorkItem} from 'avni-models';
 
-@Path('/PersonRegisterFormView')
-class PersonRegisterFormView extends AbstractComponent {
+@Path('/SubjectRegisterFormView')
+class SubjectRegisterFormView extends AbstractComponent {
     static propTypes = {};
 
     viewName() {
-        return "PersonRegisterFormView";
+        return "SubjectRegisterFormView";
     }
 
     constructor(props, context) {
-        super(props, context, Reducers.reducerKeys.personRegister);
+        super(props, context, Reducers.reducerKeys.subject);
         this.scrollRef = React.createRef();
     }
 
     UNSAFE_componentWillMount() {
         const params = this.props.params;
         if (params.pageNumber) {
-            this.dispatchAction(Actions.ON_FORM_LOAD,
+            this.dispatchAction(Actions.ON_LOAD,
                 {
-                    individualUUID: params.individualUUID,
+                    subjectUUID: params.subjectUUID,
                     workLists: params.workLists,
                     isDraftEntity: params.isDraftEntity,
                     pageNumber: params.pageNumber,
@@ -56,7 +56,7 @@ class PersonRegisterFormView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    getTitleForGroupSubject(){
+    getTitleForGroupSubject() {
         const currentWorkItem = this.state.workListState.workLists.getCurrentWorkItem();
         if (_.includes([WorkItem.type.HOUSEHOLD, WorkItem.type.ADD_MEMBER], currentWorkItem.type)) {
             const {headOfHousehold} = currentWorkItem.parameters;
@@ -74,8 +74,7 @@ class PersonRegisterFormView extends AbstractComponent {
 
     get registrationType() {
         const workListName = _.get(this.state, 'workListState.workLists.currentWorkList.name');
-        const regName = workListName === 'Enrolment' ? _.get(_.find(this.state.workListState.workLists.currentWorkList.workItems, wl => wl.type === 'PROGRAM_ENROLMENT'), "parameters.programName") : workListName;
-        return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || regName || 'REG_DISPLAY-Individual';
+        return this.getTitleForGroupSubject() || this.getTitleForSubjectRegistration() || workListName || `REG_DISPLAY-${this.state.subject.subjectType.name}`;
     }
 
     onHardwareBackPress() {
@@ -95,7 +94,7 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 
     onAppHeaderBack(saveDraftOn) {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
+        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView, SubjectRegisterFormView]);
         saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
@@ -122,30 +121,31 @@ class PersonRegisterFormView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
-        const subjectType = this.state.individual.subjectType;
+        const subjectType = this.state.subject.subjectType;
         const userInfoService = this.context.getService(UserInfoService);
         const displayTimer = this.state.timerState && this.state.timerState.displayTimer(this.state.formElementGroup);
         return (
             <CHSContainer>
                 <CHSContent>
-                    <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
-                        <AppHeader title={title}
-                                   func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
-                        {displayTimer ?
+                    <ScrollView ref={this.scrollRef}
+                                keyboardShouldPersistTaps="handled">
+                    <AppHeader title={title}
+                               func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
+                    {displayTimer ?
                             <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.individual.latestEntityApprovalStatus}/>
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
-                            <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
+                            <SummaryButton onPress={() => SubjectRegisterViewsMixin.summary(this)}/>
                         </View>
                         <View style={{backgroundColor: '#ffffff', flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             {_.get(this.state, 'timerState.displayQuestions', true) &&
-                            <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
-                                              group={this.state.formElementGroup}
-                                              actions={Actions}
-                                              filteredFormElements={this.state.filteredFormElements}
-                                              validationResults={this.state.validationResults}
-                                              formElementsUserState={this.state.formElementsUserState}
-                                              dataEntryDate={this.state.individual.registrationDate}
+                              <FormElementGroup observationHolder={new ObservationsHolder(this.state.subject.observations)}
+                                            group={this.state.formElementGroup}
+                                            actions={Actions}
+                                            filteredFormElements={this.state.filteredFormElements}
+                                            validationResults={this.state.validationResults}
+                                            formElementsUserState={this.state.formElementsUserState}
+                                            dataEntryDate={this.state.subject.registrationDate}
                                               onValidationError={(x, y) => this.scrollToPosition(x, y)}
                                               groupAffiliation={this.state.groupAffiliation}
                                               syncRegistrationConcept1UUID={subjectType.syncRegistrationConcept1}
@@ -153,14 +153,14 @@ class PersonRegisterFormView extends AbstractComponent {
                                               allowedSyncConcept1Values={userInfoService.getSyncConcept1Values(subjectType)}
                                               allowedSyncConcept2Values={userInfoService.getSyncConcept2Values(subjectType)}
                             />}
-                            {!displayTimer &&
+                    {!displayTimer &&
                             <WizardButtons
                                 previous={{
                                     func: () => this.previous(),
                                     label: this.I18n.t('previous')
                                 }}
                                 next={{
-                                    func: () => PersonRegisterViewsMixin.next(this),
+                                    func: () => SubjectRegisterViewsMixin.next(this),
                                     label: this.I18n.t('next')
                                 }}
                             />}
@@ -172,4 +172,4 @@ class PersonRegisterFormView extends AbstractComponent {
     }
 }
 
-export default PersonRegisterFormView;
+export default SubjectRegisterFormView;
