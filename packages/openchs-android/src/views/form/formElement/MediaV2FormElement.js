@@ -16,6 +16,7 @@ import FormElementLabelWithDocumentation from "../../common/FormElementLabelWith
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import DeviceInfo from "react-native-device-info";
 import NetInfo from "@react-native-community/netinfo";
+import DeviceLocation from "../../../utility/DeviceLocation";
 
 const styles = StyleSheet.create({
     icon: {
@@ -60,10 +61,14 @@ export default class MediaV2FormElement extends AbstractFormElement {
 
     componentDidMount() {
         DeviceInfo.isLocationEnabled()
-            .then(systemLocationEnabled => this.setState(state => ({...state, systemLocationEnabled})));
+            .then(systemLocationEnabled => {
+                this.setState(state => ({...state, systemLocationEnabled}));
+            });
         DeviceInfo.getAvailableLocationProviders()
             .then((availableLocationProviders) => this.setState(state => ({...state, availableLocationProviders})));
-        NetInfo.fetch().then(({type, isWifiEnabled, details}) => this.setState(state => ({...state, connectionType: type, isWifiEnabled, cellularGeneration: _.get(details, 'cellularGeneration') })));
+        NetInfo.fetch().then(({type, isWifiEnabled, details}) => this.setState(state => ({
+            ...state, connectionType: type, isWifiEnabled, cellularGeneration: _.get(details, 'cellularGeneration')
+        })));
     }
 
     get isImage() {
@@ -79,6 +84,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
             const directory = FileSystem.getImagesDir();
             const fileSystemAction = this.state.mode === Mode.Camera ? fs.moveFile : fs.copyFile;
             _.get(response, 'assets').map(asset => {
+                // General.logDebugTemp('addMediaFromPicker asset', _.omit(asset, ['base64']));
                 const ext = asset.uri.split('.').pop();
                 const fileName = `${General.randomUUID()}.${ext}`;
                 let tags;
@@ -101,8 +107,10 @@ export default class MediaV2FormElement extends AbstractFormElement {
             connectionType: this.state.connectionType,
             wifiEnabled: this.state.isWifiEnabled,
             cellularGeneration: this.state.cellularGeneration,
-            latitude: _.get(tags, 'gps.Latitude'),
-            longitude: _.get(tags, 'gps.Longitude'),
+            latitude: _.get(tags, 'gps.Latitude') || _.get(this.state.deviceLocation, 'coords.latitude'),
+            longitude: _.get(tags, 'gps.Longitude') || _.get(this.state.deviceLocation, 'coords.longitude'),
+            locationInExif: !_.isNil(_.get(tags, 'gps.Latitude')),
+            locationAccuracy: _.get(this.state.deviceLocation, 'coords.accuracy'),
             gpsDOP: _.get(tags, 'exif.GPSDOP.description'),
             gpsProcessingMethod: _.get(tags, 'exif.GPSProcessingMethod.description'),
             deviceModel: _.get(tags, 'exif.Model.description'),
@@ -113,8 +121,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
     getFromKeyValue(key, defaultVal) {
         let keyVal = this.props.element.keyValues.find(keyVal => keyVal.key === key);
         let value = keyVal ? keyVal.getValue() : defaultVal;
-        if (key === 'videoQuality' && ['low', 'high'].indexOf(value) === -1)
-            throw Error("videoQuality must be either of 'low' or 'high'");
+        if (key === 'videoQuality' && ['low', 'high'].indexOf(value) === -1) throw Error("videoQuality must be either of 'low' or 'high'");
         return value;
     }
 
@@ -124,12 +131,15 @@ export default class MediaV2FormElement extends AbstractFormElement {
         return value;
     }
 
-    includeExif() {
+    includeLocationInfo() {
         return this.isImage && this.getFromConceptKeyValue('captureLocationInformation', false)
     }
 
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
+        if (this.includeLocationInfo()) {
+            DeviceLocation.getPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
+        }
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
@@ -138,7 +148,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
             videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT),
-            includeBase64: this.includeExif()
+            includeBase64: this.includeLocationInfo()
         };
 
         if (await this.isPermissionGranted()) {
@@ -147,12 +157,12 @@ export default class MediaV2FormElement extends AbstractFormElement {
     }
 
     async launchMediaLibrary(onUpdateObservations) {
-        this.setState(state => ({...state, mode: Mode.MediaLibrary}));
+        this.setState(state => ({...state, mode: Mode.MediaLibrary, deviceLocation: null}));
 
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
             selectionLimit: this.props.element.isMultiSelect() ? 0 : 1,
-            includeBase64: this.includeExif()
+            includeBase64: this.includeLocationInfo()
         };
 
         if (await this.isPermissionGranted()) {
@@ -163,7 +173,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
     async isPermissionGranted() {
         const apiLevel = await DeviceInfo.getApiLevel();
 
-        const permissionRequest = await PermissionsAndroid.requestMultiple(apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ? [PermissionsAndroid.PERMISSIONS.CAMERA] : [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA]);
+        const permissionRequest = await PermissionsAndroid.requestMultiple(apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ? [PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION] : [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION]);
 
         return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
@@ -171,19 +181,19 @@ export default class MediaV2FormElement extends AbstractFormElement {
     showMedia(mediaObjects, onClearAnswer) {
         return !_.isNil(mediaObjects) && _.map(mediaObjects, mediaObject => {
             const locationPresentInMetadata = !_.isNil(mediaObject.latitude) && !_.isNil(mediaObject.longitude);
-            const warningMessage = locationPresentInMetadata ? null : this.state.systemLocationEnabled ? 'Location not found. Enable your camera\'s location and mobile network, then retake the photo. If already enabled, try again.' : 'Enable your mobile and camera location setting, then retake the photo.';
-            return (
-                <>
-                    <View style={[styles.contentRow, styles.imageRow]}>
-                        <ExpandableMedia source={mediaObject.uri} type={this.props.element.concept.datatype}/>
-                        <TouchableNativeFeedback onPress={() => onClearAnswer()}>
-                            <Icon name={"backspace"} style={[styles.icon]}/>
-                        </TouchableNativeFeedback>
-                    </View>
-                    <View>
-                        <Text style={{color: Colors.ValidationError}}>{warningMessage && this.I18n.t(warningMessage)}</Text>
-                    </View>
-                </>)
+            const warningMessage = locationPresentInMetadata ? null : !this.state.systemLocationEnabled ? 'Location not found. Enable your camera\'s location and mobile network, then retake the photo. If already enabled, try again.' : 'Enable your mobile and camera location setting, then retake the photo.';
+            return (<>
+                <View style={[styles.contentRow, styles.imageRow]}>
+                    <ExpandableMedia source={mediaObject.uri} type={this.props.element.concept.datatype}/>
+                    <TouchableNativeFeedback onPress={() => onClearAnswer()}>
+                        <Icon name={"backspace"} style={[styles.icon]}/>
+                    </TouchableNativeFeedback>
+                </View>
+                <View>
+                    <Text
+                        style={{color: Colors.ValidationError}}>{warningMessage && this.I18n.t(warningMessage)}</Text>
+                </View>
+            </>)
         });
     }
 
