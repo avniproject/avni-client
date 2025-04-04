@@ -132,7 +132,9 @@ export default class MediaV2FormElement extends AbstractFormElement {
     }
 
     includeLocationInfo() {
-        return this.isImage && this.getFromConceptKeyValue('captureLocationInformation', false)
+        const locationCaptureEnabled = this.isImage && this.getFromConceptKeyValue('captureLocationInformation', false);
+        General.logDebug('MV2FE.includeLocationInfo', locationCaptureEnabled);
+        return locationCaptureEnabled;
     }
 
     async launchCamera(onUpdateObservations) {
@@ -180,6 +182,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
 
     showMedia(mediaObjects, onClearAnswer) {
         return !_.isNil(mediaObjects) && _.map(mediaObjects, mediaObject => {
+            // General.logDebugTemp('MV2FE.showMedia', mediaObject, mediaObject);
             const locationPresentInMetadata = !_.isNil(mediaObject.latitude) && !_.isNil(mediaObject.longitude);
             const warningMessage = locationPresentInMetadata ? null : !this.state.systemLocationEnabled ? 'Location not found. Enable your camera\'s location and mobile network, then retake the photo. If already enabled, try again.' : 'Enable your mobile and camera location setting, then retake the photo.';
             return (<>
@@ -189,10 +192,10 @@ export default class MediaV2FormElement extends AbstractFormElement {
                         <Icon name={"backspace"} style={[styles.icon]}/>
                     </TouchableNativeFeedback>
                 </View>
-                <View>
+                {this.includeLocationInfo() && !_.isNil(warningMessage) && <View>
                     <Text
-                        style={{color: Colors.ValidationError}}>{warningMessage && this.I18n.t(warningMessage)}</Text>
-                </View>
+                        style={{color: Colors.ValidationError}}>{this.I18n.t(warningMessage)}</Text>
+                </View>}
             </>)
         });
     }
