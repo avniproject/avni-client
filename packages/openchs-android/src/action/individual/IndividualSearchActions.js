@@ -132,6 +132,7 @@ export class IndividualSearchActions {
         const searchAddressLevels = lowestSelectedAddressLevels
             .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), [])
             .concat(newState.addressLevelState.selectedAddresses);
+        General.logDebug("IndividualSearchActions", `Effective address filters: ${JSON.stringify(_.countBy((searchAddressLevels), "type"))}`);
         newState.searchCriteria.toggleLowestAddresses(searchAddressLevels);
         const selectedCustomFilterForSubjectType = _.mapValues(newState.searchCriteria.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === state.searchCriteria.subjectType.uuid);
