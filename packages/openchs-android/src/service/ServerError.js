@@ -38,7 +38,7 @@ function getServerStatusMessageKey(serverError) {
 }
 
 const knownServerStatusMessages = ['serverUnavailableTryLater'];
-const knownServerExceptionMessages = ['NoCatchmentFound'];
+const knownServerExceptionMessages = ['NoCatchmentFound', 'CatchmentTooLarge'];
 
 export function getAvniError(serverError, i18n) {
     const statusCode = getStatusCode(serverError);
