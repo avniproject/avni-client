@@ -184,7 +184,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
         return !_.isNil(mediaObjects) && _.map(mediaObjects, mediaObject => {
             // General.logDebugTemp('MV2FE.showMedia', mediaObject, mediaObject);
             const locationPresentInMetadata = !_.isNil(mediaObject.latitude) && !_.isNil(mediaObject.longitude);
-            const warningMessage = locationPresentInMetadata ? null : !this.state.systemLocationEnabled ? 'Location not found. Enable your camera\'s location and mobile network, then retake the photo. If already enabled, try again.' : 'Enable your mobile and camera location setting, then retake the photo.';
+            const warningMessage = locationPresentInMetadata ? null : !this.state.systemLocationEnabled ? 'Location not found. Enable your camera\'s location and mobile network, then retake the photo. If already enabled, try again.' : 'Enable your mobile and camera location setting, then retake the photo. If already enabled, try again.';
             return (<>
                 <View style={[styles.contentRow, styles.imageRow]}>
                     <ExpandableMedia source={mediaObject.uri} type={this.props.element.concept.datatype}/>
