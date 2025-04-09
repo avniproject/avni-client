@@ -55,7 +55,7 @@ class IndividualSearchView extends AbstractComponent {
     searchIndividual() {
         if (this.customFilterService.errorNotPresent(this.state.selectedCustomFilters, this.state.searchCriteria.subjectType.uuid)) {
             this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
-            this.applySearch();
+            setTimeout(() => this.applySearch(), 0);
         }
     }
 
