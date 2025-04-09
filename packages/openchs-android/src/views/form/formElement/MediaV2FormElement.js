@@ -113,8 +113,8 @@ export default class MediaV2FormElement extends AbstractFormElement {
             locationAccuracy: _.get(this.state.deviceLocation, 'coords.accuracy'),
             gpsDOP: _.get(tags, 'exif.GPSDOP.description'),
             gpsProcessingMethod: _.get(tags, 'exif.GPSProcessingMethod.description'),
-            deviceModel: _.get(tags, 'exif.Model.description'),
-            deviceMake: _.get(tags, 'exif.Make.description')
+            deviceModel: _.get(tags, 'exif.Model.description') || DeviceInfo.getModel(),
+            deviceMake: _.get(tags, 'exif.Make.description') || DeviceInfo.getBrand()
         }
     }
 
