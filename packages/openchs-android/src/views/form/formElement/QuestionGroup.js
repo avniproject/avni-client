@@ -43,7 +43,8 @@ class QuestionGroup extends AbstractFormElement {
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
         questionGroupIndex: PropTypes.number,
-        actions: PropTypes.object
+        actions: PropTypes.object,
+        subjectUUID: PropTypes.string
     };
 
     static defaultProps = {
@@ -229,6 +230,7 @@ class QuestionGroup extends AbstractFormElement {
                     }
                     if (dataType === dataTypes.Subject && fe.isSingleSelect()) {
                         return <SingleSelectSubjectLandingFormElement
+                          subjectUUID={this.props.subjectUUID}
                           element={fe}
                           value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new SingleCodedValue())}
                           {...commonProps}
@@ -236,6 +238,7 @@ class QuestionGroup extends AbstractFormElement {
                     }
                     if (dataType === dataTypes.Subject && fe.isMultiSelect()) {
                         return <MultiSelectSubjectLandingFormElement
+                          subjectUUID={this.props.subjectUUID}
                           element={fe}
                           value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new MultipleCodedValues())}
                           {...commonProps}

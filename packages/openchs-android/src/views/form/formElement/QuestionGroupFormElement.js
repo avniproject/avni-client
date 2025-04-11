@@ -14,7 +14,8 @@ class QuestionGroupFormElement extends AbstractFormElement {
         observationHolder: PropTypes.object,
         validationResults: PropTypes.array,
         filteredFormElements: PropTypes.array,
-        actions: PropTypes.object
+        actions: PropTypes.object,
+        subjectUUID: PropTypes.string
     };
 
 
@@ -32,6 +33,7 @@ class QuestionGroupFormElement extends AbstractFormElement {
                     validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}
                     questionGroupIndex={0}
+                    subjectUUID={this.props.subjectUUID}    
                 />
             </View>
         )
