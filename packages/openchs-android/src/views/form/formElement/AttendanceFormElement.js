@@ -29,9 +29,15 @@ class AttendanceFormElement extends AbstractFormElement {
     }
 
     renderSubject({memberSubject}, subjectUUIDs) {
-        const onPress = () => this.dispatchAction(this.props.actionName, {
-            formElement: this.props.element, answerUUID: memberSubject.uuid
-        });
+        const onPress = () => {
+            this.dispatchAction(this.props.actionName, {
+                formElement: this.props.element, 
+                answerUUID: memberSubject.uuid,
+                parentFormElement: this.props.parentElement, 
+                questionGroupIndex: this.props.questionGroupIndex
+            });
+        };
+        const isChecked = _.includes(subjectUUIDs, memberSubject.uuid);
         return (<TouchableOpacity style={{paddingVertical: 5}} onPress={onPress}>
 
             <View key={memberSubject.uuid}
@@ -40,7 +46,7 @@ class AttendanceFormElement extends AbstractFormElement {
                     <SubjectInfoCard individual={memberSubject}/>
                 </View>
                 <View style={{flex: .2, alignItems: 'flex-end', marginRight: 15}}>
-                    <CheckBox onPress={onPress} isChecked={_.includes(subjectUUIDs, memberSubject.uuid)}/>
+                    <CheckBox onPress={onPress} isChecked={isChecked}/>
                 </View>
             </View>
             <Separator backgroundColor={Colors.InputBorderNormal}/>
@@ -50,13 +56,17 @@ class AttendanceFormElement extends AbstractFormElement {
     handleSelectPress = (groupsSubjects, subjectUUIDs) => {
         const { selected } = this.state;
         const isNeedOperation = !selected;
+        
         this.setState({ selected: isNeedOperation }, () => {
             _.forEach(groupsSubjects, ({ memberSubject }) => {
                 const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
+                
                 if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
                     this.dispatchAction(this.props.actionName, {
                         formElement: this.props.element,
-                        answerUUID: memberSubject.uuid
+                        answerUUID: memberSubject.uuid,
+                        parentFormElement: this.props.parentElement,
+                        questionGroupIndex: this.props.questionGroupIndex
                     });
                 }
             });
@@ -68,6 +78,7 @@ class AttendanceFormElement extends AbstractFormElement {
         const groupsSubjects = this.getGroupsSubjects();
         const subjectUUIDs = _.get(this.props.value, 'answer');
         const shouldSelectAll = _.size(subjectUUIDs) === _.size(groupsSubjects);
+        
         if (shouldSelectAll !== prevState.selected) {
             this.setState({ selected: shouldSelectAll });
         }
@@ -76,12 +87,13 @@ class AttendanceFormElement extends AbstractFormElement {
     render() {
         const groupsSubjects = this.getGroupsSubjects();
         const groupSize = _.size(groupsSubjects);
-        const subjectUUIDs = _.get(this.props.value, 'answer');
+        const subjectUUIDs = _.get(this.props.value, 'answer') || [];
         const selectAllLabel = this.state.selected ? this.I18n.t("unselectAllLabel") : this.I18n.t("selectAllLabel");
+        
         return (
             <Fragment>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
-                {groupSize>0 && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs)}>
+                {groupSize>0 && this.props.element.isMultiSelect() && <TouchableOpacity onPress={()=>this.handleSelectPress(groupsSubjects,subjectUUIDs)}>
                     <Text style={{color: 'blue', textAlign: 'right', textDecorationLine: 'underline'}} >{selectAllLabel}</Text>
                 </TouchableOpacity>}
                 { _.map(groupsSubjects, (groupSubject, index) =>
