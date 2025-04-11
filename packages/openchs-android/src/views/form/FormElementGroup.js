@@ -307,7 +307,6 @@ class FormElementGroup extends AbstractComponent {
                                 actions={this.props.actions}
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
-                                subjectUUID={this.props.subjectUUID}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if (formElement.concept.datatype === Concept.dataType.Encounter && formElement.isSingleSelect()) {
                             return this.wrap(<SingleSelectEncounterFormElement
@@ -338,7 +337,6 @@ class FormElementGroup extends AbstractComponent {
                                 actions={this.props.actions}
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
-                                subjectUUID={this.props.subjectUUID}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                     })

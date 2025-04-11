@@ -20,8 +20,7 @@ class RepeatableFormElement extends AbstractFormElement {
         formElementsUserState: PropTypes.object,
         observationHolder: PropTypes.object,
         filteredFormElements: PropTypes.array,
-        actions: PropTypes.object,
-        subjectUUID: PropTypes.string
+        actions: PropTypes.object
     };
 
     static defaultProps = {
@@ -77,7 +76,6 @@ class RepeatableFormElement extends AbstractFormElement {
                     validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}
                     extraContainerStyle={{marginVertical: 0}}
-                    subjectUUID={this.props.subjectUUID}
                 />
             </Fragment>
         )
