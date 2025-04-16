@@ -60,6 +60,7 @@ class GeolocationFormElement extends AbstractComponent {
         return false;
     }
 
+    //TODO: Refactor to reuse common code in DeviceLocation.js
     async getPosition() {
         const hasPermission = await this.askLocationPermission();
         if (hasPermission) {

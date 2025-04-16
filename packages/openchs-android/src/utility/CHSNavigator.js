@@ -45,6 +45,7 @@ import moment from "moment";
 import ManualProgramEligibilityView from "../views/program/ManualProgramEligibilityView";
 import FormMappingService from "../service/FormMappingService";
 import RuleEvaluationService from "../service/RuleEvaluationService";
+import SubjectRegisterFormView from '../views/subject/SubjectRegisterFormView';
 
 
 class CHSNavigator {
@@ -191,8 +192,14 @@ class CHSNavigator {
                     TypedTransition.from(source).with({...params}).to(PersonRegisterView)
                 }
             }
-        } else if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
-            TypedTransition.from(source).with({...params, pageNumber}).to(SubjectRegisterView)
+        } else {
+            if (SubjectRegisterView.canLoad({uuid, subjectTypeName}, source)) {
+                if (pageNumber > 0 && canMoveToNextView) {
+                    TypedTransition.from(source).with({...params, pageNumber: pageNumber + 1}).to(SubjectRegisterFormView)
+                } else {
+                    TypedTransition.from(source).with({...params}).to(SubjectRegisterView)
+                }
+            }
         }
     }
 
