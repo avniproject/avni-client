@@ -137,7 +137,7 @@ class PersonRegisterFormView extends AbstractComponent {
                         <View style={{flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             <SummaryButton onPress={() => PersonRegisterViewsMixin.summary(this)}/>
                         </View>
-                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
+                        <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                             {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
                                               group={this.state.formElementGroup}

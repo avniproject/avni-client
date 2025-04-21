@@ -9,7 +9,6 @@ import {ValidationResult} from "openchs-models";
 import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import TimerState from "./TimerState";
-import General from '../utility/General';
 
 class SubjectRegistrationState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, subject, isNewEntity, filteredFormElements, subjectType, workLists, timerState, group) {
@@ -42,12 +41,11 @@ class SubjectRegistrationState extends AbstractDataEntryState {
 
     static createOnLoad(subject, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, minLevelTypeUUIDs, isSaveDraftOn, groupAffiliationState, context, group) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
-        const wizard = new Wizard(form.numberOfPages+1, indexOfGroup+1, 1);
         const timerState = formElementGroup.timed && isNewEntity ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         let state = new SubjectRegistrationState(
             [],
-          new StaticFormElementGroup(form),
-            wizard,
+            formElementGroup,
+            new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup),
             subject,
             isNewEntity,
             filteredFormElements,
@@ -71,7 +69,7 @@ class SubjectRegistrationState extends AbstractDataEntryState {
         let state = new SubjectRegistrationState(
             [],
             new StaticFormElementGroup(form),
-            new Wizard(1, 2, 1),
+            new Wizard(1),
             subject,
             isNewEntity,
             [],
@@ -114,13 +112,6 @@ class SubjectRegistrationState extends AbstractDataEntryState {
 
     get observationsHolder() {
         return new ObservationsHolder(this.subject.observations);
-    }
-
-    movePrevious() {
-        this.wizard.movePrevious();
-        this.formElementGroup = this.wizard.isNonFormPage() ?
-            new StaticFormElementGroup(this.formElementGroup.form) :
-            this.formElementGroup.previous();
     }
 
     get staticFormElementIds() {

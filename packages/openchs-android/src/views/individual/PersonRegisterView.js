@@ -113,6 +113,7 @@ class PersonRegisterView extends AbstractComponent {
     render() {
         General.logDebug(this.viewName(), `render`);
         const profilePicFormElement = new StaticFormElement("profilePicture", false, 'Profile-Pics', []);
+        const editing = !_.isNil(this.props.params.individualUUID);
         const title = `${this.I18n.t(this.registrationType)} ${this.I18n.t('registration')}`;
         {this.displayMessage(this.props.params.message)}
         return (
@@ -131,7 +132,7 @@ class PersonRegisterView extends AbstractComponent {
                             actionName={Actions.REGISTRATION_SET_LOCATION}
                             errorActionName={Actions.SET_LOCATION_ERROR}
                             location={this.state.individual.registrationLocation}
-                            editing={this.props.params.editing}
+                            editing={editing}
                             validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_LOCATION)}/>
                         <RegistrationDateFormElement date={this.state.individual.registrationDate}
                                                      validationResult={AbstractDataEntryState.getValidationError(this.state, Individual.validationKeys.REGISTRATION_DATE)}
