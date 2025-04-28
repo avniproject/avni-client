@@ -139,7 +139,8 @@ export default class MediaV2FormElement extends AbstractFormElement {
 
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
-        if (this.includeLocationInfo()) {
+        const includeLocationInfoValue = this.includeLocationInfo();
+        if (includeLocationInfoValue) {
             DeviceLocation.getPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
         }
 
@@ -150,10 +151,10 @@ export default class MediaV2FormElement extends AbstractFormElement {
             quality: this.getFromKeyValue('imageQuality', DEFAULT_IMG_QUALITY),
             videoQuality: this.getFromKeyValue('videoQuality', DEFAULT_VIDEO_QUALITY),
             durationLimit: this.getFromKeyValue('durationLimitInSecs', DEFAULT_DURATION_LIMIT),
-            includeBase64: this.includeLocationInfo()
+            includeBase64: includeLocationInfoValue
         };
 
-        if (await this.isPermissionGranted()) {
+        if (await this.isPermissionGranted(includeLocationInfoValue)) {
             launchCamera(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
     }
@@ -161,21 +162,27 @@ export default class MediaV2FormElement extends AbstractFormElement {
     async launchMediaLibrary(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.MediaLibrary, deviceLocation: null}));
 
+        const includeLocationInfoValue = this.includeLocationInfo();
         const options = {
             mediaType: this.isVideo ? 'video' : 'photo',
             selectionLimit: this.props.element.isMultiSelect() ? 0 : 1,
-            includeBase64: this.includeLocationInfo()
+            includeBase64: includeLocationInfoValue
         };
 
-        if (await this.isPermissionGranted()) {
+        if (await this.isPermissionGranted(includeLocationInfoValue)) {
             launchImageLibrary(options, (response) => this.addMediaFromPicker(response, onUpdateObservations));
         }
     }
 
-    async isPermissionGranted() {
+    async isPermissionGranted(includeLocationInfoValue) {
         const apiLevel = await DeviceInfo.getApiLevel();
+        const aboveStoragePermissionsDeprecationAPILevel = [PermissionsAndroid.PERMISSIONS.CAMERA];
+        const belowStoragePermissionsDeprecationAPILevel = [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA];
+        const permissions = (apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) ? aboveStoragePermissionsDeprecationAPILevel : belowStoragePermissionsDeprecationAPILevel;
+        const accessLocationPermissions = [PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION];
+        includeLocationInfoValue && permissions.push(...accessLocationPermissions);
 
-        const permissionRequest = await PermissionsAndroid.requestMultiple(apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ? [PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] : [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION]);
+        const permissionRequest = await PermissionsAndroid.requestMultiple(permissions);
 
         return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
