@@ -175,7 +175,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
     async isPermissionGranted() {
         const apiLevel = await DeviceInfo.getApiLevel();
 
-        const permissionRequest = await PermissionsAndroid.requestMultiple(apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ? [PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION] : [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION]);
+        const permissionRequest = await PermissionsAndroid.requestMultiple(apiLevel >= General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL ? [PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION] : [PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.ACCESS_MEDIA_LOCATION, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION]);
 
         return _.every(permissionRequest, permission => permission === PermissionsAndroid.RESULTS.GRANTED);
     }
