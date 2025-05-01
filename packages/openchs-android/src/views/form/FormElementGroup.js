@@ -42,6 +42,7 @@ import RepeatableFormElement from "./formElement/RepeatableFormElement";
 import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
 import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 import MediaV2FormElement from "./formElement/MediaV2FormElement";
+import Colors from "../primitives/Colors";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -116,12 +117,22 @@ class FormElementGroup extends AbstractComponent {
             .value();
         const erroredUUID = firstErroredFE && firstErroredFE.uuid;
         const formElements = _.isNil(this.props.filteredFormElements) ? this.props.group.getFormElements() : this.props.filteredFormElements;
+        const unsupportedFormElements = formElements.filter(fe => !_.includes(_.values(Concept.dataType), fe.concept.datatype));
         return (<View>
                 {formElements.length < 1 ? <View/> :
                     <Text
                         style={[Styles.formGroupLabel, this.props.group.styles, {paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge}]}>
                         {this.I18n.t(this.props.group.name)}
                     </Text>
+                }
+                {
+                    unsupportedFormElements.length > 0 ?
+                        <Text style={[Styles.formLabel, {
+                            paddingHorizontal: Distances.ScaledContainerHorizontalDistanceFromEdge,
+                            color: Colors.ValidationError
+                        }]}>
+                            {this.I18n.t("Please update the app to access new features.")}
+                        </Text> : <View/>
                 }
                 {
                     formElements.filter(fm => !fm.isQuestionGroup()).map((formElement, idx) => {
