@@ -131,4 +131,8 @@ export default class FileSystem {
             General.logError("FileSystem", e);
         }
     }
+
+    static async getRealmDBSize() {
+        return await fs.stat(`${fs.DocumentDirectoryPath}/default.realm`).then(fileInfo => fileInfo.size);
+    }
 }
