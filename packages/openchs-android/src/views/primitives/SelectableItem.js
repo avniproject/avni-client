@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import {StyleSheet, Text} from "react-native";
+import {StyleSheet, Text, Image, TouchableWithoutFeedback} from "react-native";
 import Colors from "./Colors";
 import Styles from "./Styles";
 import React from "react";
@@ -8,6 +8,9 @@ import MIcon from 'react-native-vector-icons/MaterialIcons';
 import FIcon from 'react-native-vector-icons/FontAwesome';
 import _ from 'lodash';
 import {View} from 'native-base';
+import MediaService from "../../service/MediaService";
+import AvniModel from "../common/AvniModel";
+import MediaContent from "../common/MediaContent";
 
 const icons = {
     "radio": {
@@ -37,7 +40,9 @@ class SelectableItem extends React.Component {
         chunked: PropTypes.bool,
         value: PropTypes.any,
         currentLocale: PropTypes.string,
-        disabled: PropTypes.bool
+        disabled: PropTypes.bool,
+        mediaType: PropTypes.string,
+        mediaUrl: PropTypes.string,
     };
 
     static styles = StyleSheet.create({
@@ -91,6 +96,9 @@ class SelectableItem extends React.Component {
         const iconColor = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         const iconName = icons[multiSelect ? "checkbox" : "radio"][checked ? "checked" : "unchecked"];
         const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
+        const mediaType = this.props.mediaType;
+        const mediaUrl = this.props.mediaUrl;
+        console.log('mediaType', mediaType, 'mediaUrl', mediaUrl);
         return (
             <Pressable onPress={onPress}
                        style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container, ]} disabled={disabled}>
@@ -98,10 +106,13 @@ class SelectableItem extends React.Component {
                               backgroundColor={backgroundColor}
                               color={iconColor} onPress={onPress} disabled={disabled}>
                     <View style={{flexDirection: 'column', width: '82%', overflow: 'hidden'}}>
-                        {this.state.showAdditionalDetails ? <View  style={additionalDetailsContainerStyle}>{this.props.children}</View> :
-                          <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
-                            {displayText}
-                        </Text>}
+                        {this.state.showAdditionalDetails ? <View style={additionalDetailsContainerStyle}>{this.props.children}</View> :
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={[Styles.formBodyText, { color: textColor, fontSize: 16, flex: 0.95 }, extraLineHeight]}>
+                                    {displayText}
+                                </Text>
+                                {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} />}
+                            </View>}
                     </View>
                     {this.props.children && <FIcon.Button name={this.state.showAdditionalDetails ? "caret-up" : "caret-down"} size={18}
                                                           backgroundColor={Colors.FilterButtonColor}

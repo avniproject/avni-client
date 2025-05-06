@@ -43,14 +43,15 @@ class SelectFormElement extends AbstractFormElement {
         const disabled = this.props.element.editable === false;
         const answers = disabled ? this.getSelectedAnswers() : this.getAnswers();
         const valueLabelPairs = answers
-            .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal));
+            .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal, answer.subject, answer.concept.mediaType, answer.concept.mediaUrl));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
+        const hasMediaContent = this.props.element.concept.hasMedia();
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element} />
                 <SelectableItemGroup
                     multiSelect={this.props.multiSelect}
-                    inPairs={true}
+                    inPairs={!hasMediaContent}
                     onPress={(value) => this.toggleFormElementAnswerSelection(value)}
                     selectionFn={this.props.isSelected}
                     labelKey={this.props.element.name}

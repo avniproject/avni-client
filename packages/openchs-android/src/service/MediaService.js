@@ -34,7 +34,7 @@ class MediaService extends BaseService {
             })
             .then((res) => {
                 General.logDebug("MediaService", `The file saved to :${res.path()}`);
-                return res;
+                return targetFilePath;
             });
     }
 

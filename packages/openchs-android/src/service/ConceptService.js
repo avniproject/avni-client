@@ -1,6 +1,6 @@
 import BaseService from "./BaseService.js";
 import Service from "../framework/bean/Service";
-import {Concept, Observation, ah} from 'avni-models';
+import {Concept, Observation, ah} from 'openchs-models';
 import _ from 'lodash';
 import General from "../utility/General";
 
@@ -37,6 +37,10 @@ class ConceptService extends BaseService {
         if (_.isNil(concept))
             throw Error(`No concept found for ${name}`);
         return concept;
+    }
+
+    getAllConceptsWithIcon() {
+        return this.getAllNonVoided().filtered('mediaUrl <> null and mediaType = "Image"').map(_.identity);
     }
 
     addDecisions(observations, decisions) {

@@ -74,8 +74,10 @@ class SelectableItemGroup extends React.Component {
     renderOptions() {
         const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
         return labelValuePairs.map(radioLabelValue => {
-            const checked = selectionFn(radioLabelValue.value);
+            const checked = selectionFn(radioLabelValue.value) || false;
             const individual = radioLabelValue.subject;
+            const mediaType = radioLabelValue.mediaType;
+            const mediaUrl = radioLabelValue.mediaUrl;
             return <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                    checked={checked}
                                    multiSelect={multiSelect}
@@ -90,6 +92,8 @@ class SelectableItemGroup extends React.Component {
                                    }}
                                    disabled={disabled}
                                    value={radioLabelValue.value}
+                                   mediaType={mediaType}
+                                   mediaUrl={mediaUrl}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             >
                 {individual && <SubjectInfoCard individual={individual} hideEnrolments={false}/>}

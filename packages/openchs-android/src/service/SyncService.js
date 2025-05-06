@@ -24,6 +24,7 @@ import {firebaseEvents, logEvent} from "../utility/Analytics";
 import MediaService from "./MediaService";
 import NewsService from "./news/NewsService";
 import ExtensionService from "./ExtensionService";
+import ConceptService from "./ConceptService";
 import EncryptionService from "./EncryptionService";
 import SubjectTypeService from "./SubjectTypeService";
 import {post} from "../framework/http/requests";
@@ -85,6 +86,7 @@ class SyncService extends BaseService {
         this.entityQueueService = this.getService(EntityQueueService);
         this.ruleService = this.getService(RuleService);
         this.mediaService = this.getService(MediaService);
+        this.conceptService = this.getService(ConceptService);
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
         this.subjectTypeService = this.getService(SubjectTypeService);
@@ -252,11 +254,34 @@ class SyncService extends BaseService {
         return Promise.all(_.map(newsWithImages, ({heroImage}) => this.mediaService.downloadFileIfRequired(heroImage, 'News')))
     }
 
-    downloadIcons() {
+    downloadSubjectTypeIcons() {
+        General.logDebug("SyncService", "Starting to download subject type icons");
         const subjectTypesWithIcons = this.subjectTypeService.getAllSubjectTypesWithIcon();
-        return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')))
+        General.logDebug("SyncService", `Found ${subjectTypesWithIcons.length} subject types with icons`);
+        return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')));
     }
 
+    downloadConceptIcons() {
+        General.logDebug("SyncService", "Starting to download concept icons");
+        const conceptsWithIcons = this.conceptService.getAllConceptsWithIcon();
+        General.logDebug("SyncService", `Found ${conceptsWithIcons.length} concepts with icons`);
+        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Icons')));
+    }
+
+    downloadIcons() {
+        General.logDebug("SyncService", "Starting downloadIcons method");
+        return Promise.all([
+            this.downloadSubjectTypeIcons(),
+            this.downloadConceptIcons()
+        ]).then(results => {
+            const [subjectTypeIconResults, conceptIconResults] = results;
+            General.logDebug("SyncService", `Downloaded ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
+            return [...subjectTypeIconResults, ...conceptIconResults];
+        }).catch(error => {
+            General.logError("SyncService", "Error in downloadIcons:", error);
+            throw error;
+        });
+    }
     updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {
         let syncDetailsWithPrivileges = this.entitySyncStatusService.removeRevokedPrivileges(allEntitiesMetaData, syncDetails);
         updateProgressSteps(allEntitiesMetaData, syncDetails);
