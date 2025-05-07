@@ -46,6 +46,8 @@ class SelectFormElement extends AbstractFormElement {
             .map((answer) => new RadioLabelValue(answer.concept.name, answer.concept.uuid, answer.abnormal, answer.subject, answer.concept.mediaType, answer.concept.mediaUrl));
         const currentLocale = this.getService(UserInfoService).getUserSettings().locale;
         const hasMediaContent = this.props.element.concept.hasMedia();
+        const mediaType = hasMediaContent ? this.props.element.concept.mediaType : null;
+        const mediaUrl = hasMediaContent ? this.props.element.concept.mediaUrl : null;
         return (
             <View style={{flexDirection: 'column', paddingBottom: Distances.ScaledVerticalSpacingBetweenOptionItems}}>
                 <FormElementLabelWithDocumentation element={this.props.element} />
@@ -62,6 +64,8 @@ class SelectFormElement extends AbstractFormElement {
                     I18n={this.I18n}
                     locale={currentLocale}
                     skipLabel={true}
+                    mediaType={mediaType}
+                    mediaUrl={mediaUrl}
                 />
             </View>);
     }

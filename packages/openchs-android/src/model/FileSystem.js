@@ -39,6 +39,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
+                        .then(() => FileSystem.mkdir(FileSystem.getMetadataDir(), 'metadata'))
                         .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
                         .then(() => {
                             const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
@@ -92,6 +93,10 @@ export default class FileSystem {
 
     static getIconsDir() {
         return `${fs.ExternalDirectoryPath}/Avni/icons`;
+    }
+
+    static getMetadataDir() {
+        return `${fs.ExternalDirectoryPath}/Avni/metadata`;
     }
 
     static getProfilePicsDir() {

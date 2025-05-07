@@ -8,8 +8,6 @@ import MIcon from 'react-native-vector-icons/MaterialIcons';
 import FIcon from 'react-native-vector-icons/FontAwesome';
 import _ from 'lodash';
 import {View} from 'native-base';
-import MediaService from "../../service/MediaService";
-import AvniModel from "../common/AvniModel";
 import MediaContent from "../common/MediaContent";
 
 const icons = {
@@ -22,6 +20,9 @@ const icons = {
         "unchecked": "check-box-outline-blank"
     }
 }
+
+const CONTENT_WIDTH_WITH_MEDIA = '95%';
+const CONTENT_WIDTH_WITHOUT_MEDIA = '85%';
 
 class SelectableItem extends React.Component {
     static defaultProps = {
@@ -98,20 +99,23 @@ class SelectableItem extends React.Component {
         const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
         const mediaType = this.props.mediaType;
         const mediaUrl = this.props.mediaUrl;
-        console.log('mediaType', mediaType, 'mediaUrl', mediaUrl);
+        const hasMedia = mediaType && mediaUrl;
+        const additionalStylingForMedia = hasMedia ? { backgroundColor: Colors.GreyContentBackground, borderRadius: 5, padding: 2, marginVertical: 5, borderWidth: 1, borderColor: Colors.InputBorderNormal } : {};
         return (
             <Pressable onPress={onPress}
                        style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container, ]} disabled={disabled}>
-                <MIcon.Button iconStyle={{marginLeft: -10}} name={iconName}
+                <MIcon.Button iconStyle={{marginLeft: -6}} name={iconName}
                               backgroundColor={backgroundColor}
                               color={iconColor} onPress={onPress} disabled={disabled}>
-                    <View style={{flexDirection: 'column', width: '82%', overflow: 'hidden'}}>
+                    <View style={{marginLeft: -6, margin: hasMedia ? -10 : 0, flexDirection: 'column', width: hasMedia ? CONTENT_WIDTH_WITH_MEDIA : CONTENT_WIDTH_WITHOUT_MEDIA, overflow: 'hidden'}}>
                         {this.state.showAdditionalDetails ? <View style={additionalDetailsContainerStyle}>{this.props.children}</View> :
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...additionalStylingForMedia }}>
                                 <Text style={[Styles.formBodyText, { color: textColor, fontSize: 16, flex: 0.95 }, extraLineHeight]}>
                                     {displayText}
                                 </Text>
-                                {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} />}
+                                {hasMedia && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
+                                    <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} size={30} />
+                                </View>}
                             </View>}
                     </View>
                     {this.props.children && <FIcon.Button name={this.state.showAdditionalDetails ? "caret-up" : "caret-down"} size={18}

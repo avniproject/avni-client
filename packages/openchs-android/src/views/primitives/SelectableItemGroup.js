@@ -9,6 +9,7 @@ import _ from 'lodash';
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import SelectableItem from "./SelectableItem";
 import SubjectInfoCard from '../common/SubjectInfoCard';
+import MediaContent from '../common/MediaContent';
 
 class SelectableItemGroup extends React.Component {
     static defaultProps = {
@@ -103,18 +104,22 @@ class SelectableItemGroup extends React.Component {
 
     renderSingleValue() {
         const radioLabelValue = _.head(this.props.labelValuePairs);
+        const mediaType = radioLabelValue.mediaType;
+        const mediaUrl = radioLabelValue.mediaUrl;
         if (!this.props.selectionFn(radioLabelValue.value)) {
             this.props.onPress(radioLabelValue.value, radioLabelValue.label);
         }
         return (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={Styles.formLabel}>{this.props.I18n.t(radioLabelValue.label)}</Text>
+            {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} />}
+        </View>
         )
     }
 
     render() {
         const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-
         return (
             <View>
                 {!skipLabel &&

@@ -37,7 +37,7 @@ class MediaContent extends AbstractComponent {
         const { mediaUrl, mediaType } = this.props;
         
         if (mediaUrl && mediaType === 'Image') {
-            this.mediaService.downloadFileIfRequired(mediaUrl, 'Icons')
+            this.mediaService.downloadFileIfRequired(mediaUrl, 'Metadata')
                 .then(filePath => {
                     this.setState({ filePath });
                 })
@@ -61,12 +61,12 @@ class MediaContent extends AbstractComponent {
         }
         
         // Get the absolute path using MediaService
-        const absolutePath = this.mediaService.getAbsolutePath(mediaUrl, 'Icons');
+        const absolutePath = this.mediaService.getAbsolutePath(mediaUrl, 'Metadata');
         
         return (
             <Image 
                 source={{ uri: `file://${absolutePath}` }}
-                style={[{ height: size, width: size, borderRadius: 4 }, style]}
+                style={[{ height: size, width: size  }, style]}
             />
         );
     }
@@ -80,7 +80,7 @@ class MediaContent extends AbstractComponent {
         }
         
         // Get the absolute path using MediaService
-        const absolutePath = this.mediaService.getAbsolutePath(mediaUrl, 'Icons');
+        const absolutePath = this.mediaService.getAbsolutePath(mediaUrl, 'Metadata');
         
         return (
             <View style={{ marginTop: 5 }}>
@@ -90,7 +90,7 @@ class MediaContent extends AbstractComponent {
                 >
                     <Image 
                         source={{ uri: `file://${absolutePath}` }}
-                        style={{ height: 250, width: 250, backgroundColor: 'white', opacity: 0.8 }}
+                        style={{ height: 250, width: 250, backgroundColor: 'white', opacity: 1, borderRadius: 4, borderWidth: 1, borderColor: 'black'}}
                         resizeMode="contain"
                     />
                 </AvniModel>

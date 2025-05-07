@@ -47,6 +47,7 @@ class MediaService extends BaseService {
             ['News', FileSystem.getNewsDir],
             ['File', FileSystem.getFileDir],
             ['Icons', FileSystem.getIconsDir],
+            ['Metadata', FileSystem.getMetadataDir],
             ['Profile-Pics', FileSystem.getProfilePicsDir]
             ]);
         if (!uri) return '';

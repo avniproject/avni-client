@@ -265,7 +265,7 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", "Starting to download concept icons");
         const conceptsWithIcons = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithIcons.length} concepts with icons`);
-        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Icons')));
+        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Metadata')));
     }
 
     downloadIcons() {
