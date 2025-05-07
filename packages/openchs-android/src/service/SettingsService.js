@@ -41,7 +41,7 @@ class SettingsService extends BaseService {
 
             if (EnvironmentConfig.isDevMode()) {
                 settings.logLevel = General.LogLevel.Debug;
-                settings.pageSize = 5000;
+                settings.pageSize = InitialSettings.dev.pageSize;
                 settings.devSkipValidation = InitialSettings.dev.skipValidation;
             }
 
