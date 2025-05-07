@@ -34,10 +34,33 @@ class MediaService extends BaseService {
                 if (cb) cb(received, total);
             })
             .then((res) => {
-                // Check if the file was downloaded successfully and has content
-                if (res.info().status >= 200 && res.info().status < 300 && res.info().size > 330) {
-                    General.logDebug("MediaService", `The file saved to: ${res.path()}`);
-                    return targetFilePath;
+                // Check if the file was downloaded successfully
+                const status = res.info().status;
+                const size = res.info().size;
+                
+                General.logDebug("MediaService", `Download response: status=${status}, size=${size}, path=${res.path()}`);
+                
+                // If status is successful and either size is undefined (can't check) or size is reasonable
+                if (status >= 200 && status < 300 && (size === undefined || size > 0)) {
+                    // Verify the file exists and has content
+                    return fs.stat(targetFilePath)
+                        .then(stats => {
+                            if (stats.size > 0) {
+                                General.logDebug("MediaService", `The file saved to: ${res.path()} with size ${stats.size}`);
+                                return targetFilePath;
+                            } else {
+                                General.logDebug("MediaService", `File exists but has zero size: ${targetFilePath}`);
+                                return fs.unlink(targetFilePath).then(() => {
+                                    throw new Error('Downloaded file has zero size');
+                                });
+                            }
+                        })
+                        .catch(statError => {
+                            General.logDebug("MediaService", `Error checking file stats: ${statError.message}`);
+                            return fs.unlink(targetFilePath).then(() => {
+                                throw new Error(`Error verifying downloaded file: ${statError.message}`);
+                            });
+                        });
                 } else {
                     // If the file is empty or too small, delete it and throw an error
                     return fs.unlink(targetFilePath).then(() => {
@@ -140,13 +163,21 @@ class MediaService extends BaseService {
         return fs.exists(filePath);
     }
 
-    async downloadFileIfRequired(s3Key, type) {
+    async downloadFileIfRequired(s3Key, type, ignoreFetchErrors = true) {
         if (_.isNil(s3Key)) {
+            if (ignoreFetchErrors) {
+                General.logDebug('MediaService', 'Ignoring error: Missing s3Key');
+                return null;
+            }
             throw new Error('Cannot download media: Missing s3Key');
         }
         
         const filePathInDevice = this.getAbsolutePath(s3Key, type);
         if (!filePathInDevice) {
+            if (ignoreFetchErrors) {
+                General.logDebug('MediaService', `Ignoring error: Cannot determine file path for media: ${s3Key}, type: ${type}`);
+                return null;
+            }
             throw new Error(`Cannot determine file path for media: ${s3Key}, type: ${type}`);
         }
         
@@ -155,19 +186,35 @@ class MediaService extends BaseService {
             if (exists) {
                 // Verify the existing file is valid (not empty)
                 const fileStats = await fs.stat(filePathInDevice);
-                if (fileStats.size <= 330) {
+                if (fileStats.size <= 1024) {
                     // File exists but is likely an empty placeholder, delete and re-download
                     await fs.unlink(filePathInDevice);
-                    return await this.downloadMedia(s3Key, filePathInDevice);
+                    try {
+                        return await this.downloadMedia(s3Key, filePathInDevice);
+                    } catch (downloadError) {
+                        if (ignoreFetchErrors) {
+                            General.logDebug('MediaService', `Ignoring download error for ${s3Key}: ${downloadError.message}`);
+                            return null;
+                        }
+                        throw downloadError;
+                    }
                 }
                 return filePathInDevice;
             } else {
                 // File doesn't exist, download it
-                return await this.downloadMedia(s3Key, filePathInDevice);
+                try {
+                    return await this.downloadMedia(s3Key, filePathInDevice);
+                } catch (downloadError) {
+                    if (ignoreFetchErrors) {
+                        General.logDebug('MediaService', `Ignoring download error for ${s3Key}: ${downloadError.message}`);
+                        return null;
+                    }
+                    throw downloadError;
+                }
             }
         } catch (error) {
-            General.logDebug('ImageDownloadService', `Error while downloading image with s3 key ${s3Key}`);
-            General.logDebug('ImageDownloadService', error);
+            General.logDebug('MediaService', `Error while downloading image with s3 key ${s3Key}`);
+            General.logDebug('MediaService', error);
             
             // Make sure we don't leave partial files
             try {
@@ -176,11 +223,17 @@ class MediaService extends BaseService {
                     await fs.unlink(filePathInDevice);
                 }
             } catch (cleanupError) {
-                General.logDebug('ImageDownloadService', `Error cleaning up file: ${cleanupError.message}`);
+                General.logDebug('MediaService', `Error cleaning up partial file: ${cleanupError.message}`);
             }
             
-            // If the error is already categorized, just propagate it
-            if (error.type && error.details) {
+            // If we're ignoring fetch errors, return null instead of throwing
+            if (ignoreFetchErrors) {
+                General.logDebug('MediaService', `Ignoring error for ${s3Key} due to ignoreFetchErrors flag`);
+                return null;
+            }
+            
+            // Check if this is already an AvniError (from our own code)
+            if (error instanceof AvniError) {
                 throw error;
             }
             
@@ -211,7 +264,7 @@ class MediaService extends BaseService {
                 `Details: URL: ${s3Key}, Type: ${type}, Error Code: ${errorCode}, Error Status: ${errorStatus}` +
                 (errorMessage ? `\nTechnical: Failed to download media file: ${s3Key}.\nError: ${errorMessage}` : `\nTechnical: Failed to download media file: ${s3Key}.`) +
                 (errorStack ? `\nStack: ${errorStack}` : ``);
-            
+
             // Create an AvniError with user message and detailed reporting text
             const avniError = AvniError.create(userMessage, reportingText, false); // Set to false to ensure it's displayed
             avniError.type = errorType;

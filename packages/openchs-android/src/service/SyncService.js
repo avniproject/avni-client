@@ -265,21 +265,48 @@ class SyncService extends BaseService {
         General.logDebug("SyncService", "Starting to download concept icons");
         const conceptsWithIcons = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithIcons.length} concepts with icons`);
-        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Metadata')));
+        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Metadata', false)));
     }
 
     downloadIcons() {
         General.logDebug("SyncService", "Starting downloadIcons method");
-        return Promise.all([
+        
+        // Use Promise.allSettled instead of Promise.all to handle failures gracefully
+        return Promise.allSettled([
             this.downloadSubjectTypeIcons(),
             this.downloadConceptIcons()
         ]).then(results => {
-            const [subjectTypeIconResults, conceptIconResults] = results;
-            General.logDebug("SyncService", `Downloaded ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
+            // Filter out rejected promises and extract values from fulfilled ones
+            const [subjectTypeIconsResult, conceptIconsResult] = results;
+            
+            // Process subject type icons results
+            let subjectTypeIconResults = [];
+            if (subjectTypeIconsResult.status === 'fulfilled') {
+                subjectTypeIconResults = subjectTypeIconsResult.value.filter(path => path !== null);
+                General.logDebug("SyncService", `Successfully downloaded ${subjectTypeIconResults.length} subject type icons`);
+            } else {
+                General.logDebug("SyncService", `Error downloading subject type icons: ${subjectTypeIconsResult.reason}`);
+            }
+            
+            // Process concept icons results
+            let conceptIconResults = [];
+            if (conceptIconsResult.status === 'fulfilled') {
+                conceptIconResults = conceptIconsResult.value.filter(path => path !== null);
+                General.logDebug("SyncService", `Successfully downloaded ${conceptIconResults.length} concept icons`);
+            } else {
+                General.logDebug("SyncService", `Error downloading concept icons: ${conceptIconsResult.reason}`);
+            }
+            
+            // Log overall results
+            General.logDebug("SyncService", `Total downloaded: ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
+            
+            // Return all successful downloads
             return [...subjectTypeIconResults, ...conceptIconResults];
         }).catch(error => {
-            General.logError("SyncService", "Error in downloadIcons:", error);
-            throw error;
+            // This should rarely happen since we're using Promise.allSettled
+            General.logError("SyncService", "Unexpected error in downloadIcons:", error);
+            // Return empty array instead of throwing to prevent sync failure
+            return [];
         });
     }
     updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {
