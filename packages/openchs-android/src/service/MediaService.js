@@ -13,7 +13,7 @@ const MIN_FILE_SIZE_IN_BYTES = 1024;
 
 function categorizeAndThrowAvniError(error, s3Key, type) {
     let errorType = 'MediaDownloadError';
-    let userMessage = 'Unable to download media content.';
+    let userMessage = 'unableToFetchImagesError';
 
     // Check for network errors - with proper null checks
     const errorMessage = _.get(error, 'message', '');
@@ -24,7 +24,7 @@ function categorizeAndThrowAvniError(error, s3Key, type) {
       errorMessage.includes('ENOTFOUND')
     )) {
         errorType = 'MediaNetworkError';
-        userMessage = 'Network error while downloading media. Please check your internet connection.';
+        userMessage = 'syncTimeoutError';
     }
 
     // Extract more detailed error information
@@ -62,7 +62,7 @@ async function cleanUpPartialFiles(filePathInDevice) {
 
 function createNetworkAvniErrorDuringMediaDownload(error, url) {
     let errorType = 'MediaNetworkError';
-    let userMessage = 'Network error while downloading media content. Please check your internet connection.';
+    let userMessage = 'syncTimeoutError';
 
     // Extract error details for better reporting
     const errorMessage = error.message || 'Unknown error';
@@ -89,17 +89,14 @@ function createNetworkAvniErrorDuringMediaDownload(error, url) {
 function createMediaDownloadAvniError(res, url) {
     const status = res.info().status;
     let errorType = 'MediaDownloadError';
-    let userMessage = 'Unable to download media content.';
+    let userMessage = 'unableToFetchImagesError';
 
     if (status === 404) {
         errorType = 'MediaNotFound';
-        userMessage = 'Media content not found on server.';
     } else if (status === 403) {
         errorType = 'MediaAccessDenied';
-        userMessage = 'Access denied to media content.';
     } else if (status >= 500) {
         errorType = 'MediaServerError';
-        userMessage = 'Server error while accessing media content.';
     }
 
     // Create a user-friendly message and detailed reporting text
@@ -233,18 +230,19 @@ class MediaService extends BaseService {
     }
 
     async downloadFileIfRequired(s3Key, type, ignoreFetchErrors = true) {
-        if (_.isNil(s3Key)) {
-            General.logDebug('MediaService', 'Ignoring error: Missing s3Key');
-            return null;
-        }
-        
-        const filePathInDevice = this.getAbsolutePath(s3Key, type);
-        if (!filePathInDevice) {
-            General.logDebug('MediaService', `Cannot determine file path for media: ${s3Key}, type: ${type}`);
-            throw new Error(`Cannot determine file path for media: ${s3Key}, type: ${type}`);
-        }
-        
+        let filePathInDevice = '';
         try {
+            if (_.isNil(s3Key)) {
+                General.logDebug('MediaService', 'Ignoring error: Missing s3Key');
+                return null;
+            }
+
+            filePathInDevice = this.getAbsolutePath(s3Key, type);
+            if (!filePathInDevice) {
+                General.logDebug('MediaService', `Cannot determine file path for media: ${s3Key}, type: ${type}`);
+                throw new Error(`Cannot determine file path for media: ${s3Key}, type: ${type}`);
+            }
+
             const exists = await this.exists(filePathInDevice);
             if (exists) {
                 // Verify the existing file is valid (not empty)
@@ -274,6 +272,7 @@ class MediaService extends BaseService {
             
             // Check if this is already an AvniError (from our own code)
             if (error instanceof AvniError) {
+                error.userMessage = 'unableToFetchImagesError';
                 throw error;
             }
             
