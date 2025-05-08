@@ -19,7 +19,8 @@ class SelectableItemGroup extends React.Component {
         multiSelect: false,
         disabled: false,
         skipLabel: false,
-        allowUnselect: true
+        allowUnselect: true,
+        hasMediaContent: false
     };
 
     static propTypes = {
@@ -37,7 +38,8 @@ class SelectableItemGroup extends React.Component {
         skipLabel: PropTypes.bool,
         allowUnselect: PropTypes.bool,
         locale: PropTypes.string.isRequired,
-        disabled: PropTypes.bool
+        disabled: PropTypes.bool,
+        hasMediaContent: PropTypes.bool
     };
 
     onItemPressed(value, checked, label) {
@@ -73,7 +75,7 @@ class SelectableItemGroup extends React.Component {
     }
 
     renderOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
+        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale, hasMediaContent} = this.props;
         return labelValuePairs.map(radioLabelValue => {
             const checked = selectionFn(radioLabelValue.value) || false;
             const individual = radioLabelValue.subject;
@@ -95,6 +97,7 @@ class SelectableItemGroup extends React.Component {
                                    value={radioLabelValue.value}
                                    mediaType={mediaType}
                                    mediaUrl={mediaUrl}
+                                   hasMediaContent={hasMediaContent}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             >
                 {individual && <SubjectInfoCard individual={individual} hideEnrolments={false}/>}

@@ -28,6 +28,7 @@ class SelectableItem extends React.Component {
     static defaultProps = {
         chunked: false,
         disabled: false,
+        hasMediaContent: false,
     };
 
     static propTypes = {
@@ -44,6 +45,7 @@ class SelectableItem extends React.Component {
         disabled: PropTypes.bool,
         mediaType: PropTypes.string,
         mediaUrl: PropTypes.string,
+        hasMediaContent: PropTypes.bool
     };
 
     static styles = StyleSheet.create({
@@ -74,7 +76,7 @@ class SelectableItem extends React.Component {
     }
 
     render() {
-        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText} = this.props;
+        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText, hasMediaContent} = this.props;
 
         const textColor = _.isNil(validationResult)
             ? checked && abnormal
@@ -99,21 +101,20 @@ class SelectableItem extends React.Component {
         const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
         const mediaType = this.props.mediaType;
         const mediaUrl = this.props.mediaUrl;
-        const hasMedia = mediaType && mediaUrl;
-        const additionalStylingForMedia = hasMedia ? { backgroundColor: Colors.GreyContentBackground, borderRadius: 5, padding: 2, marginVertical: 5, borderWidth: 1, borderColor: Colors.InputBorderNormal } : {};
+        const additionalStylingForMedia = hasMediaContent ? { backgroundColor: Colors.GreyContentBackground, minHeight: 50, borderRadius: 5, padding: 2, marginVertical: 5, borderWidth: 1, borderColor: Colors.InputBorderNormal } : {};
         return (
             <Pressable onPress={onPress}
                        style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container, ]} disabled={disabled}>
                 <MIcon.Button iconStyle={{marginLeft: -6}} name={iconName}
                               backgroundColor={backgroundColor}
                               color={iconColor} onPress={onPress} disabled={disabled}>
-                    <View style={{marginLeft: -6, margin: hasMedia ? -10 : 0, flexDirection: 'column', width: hasMedia ? CONTENT_WIDTH_WITH_MEDIA : CONTENT_WIDTH_WITHOUT_MEDIA, overflow: 'hidden'}}>
+                    <View style={{marginLeft: -6, margin: hasMediaContent ? -10 : 0, flexDirection: 'column', width: hasMediaContent ? CONTENT_WIDTH_WITH_MEDIA : CONTENT_WIDTH_WITHOUT_MEDIA, overflow: 'hidden'}}>
                         {this.state.showAdditionalDetails ? <View style={additionalDetailsContainerStyle}>{this.props.children}</View> :
                           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...additionalStylingForMedia }}>
                                 <Text style={[Styles.formBodyText, { color: textColor, fontSize: 16, flex: 0.95 }, extraLineHeight]}>
                                     {displayText}
                                 </Text>
-                                {hasMedia && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
+                                {hasMediaContent && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
                                     <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} size={30} />
                                 </View>}
                             </View>}

@@ -66,6 +66,7 @@ class SelectFormElement extends AbstractFormElement {
                     skipLabel={true}
                     mediaType={mediaType}
                     mediaUrl={mediaUrl}
+                    hasMediaContent={hasMediaContent}
                 />
             </View>);
     }

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import MediaService from '../../service/MediaService';
 import AvniModel from './AvniModel';
-import General from '../../utility/General';
 
 class MediaContent extends AbstractComponent {
     static propTypes = {
@@ -75,7 +74,7 @@ class MediaContent extends AbstractComponent {
         const { expanded, filePath } = this.state;
         const { mediaType, mediaUrl } = this.props;
         
-        if (this.props.mediaType !== 'Image' || !filePath) {
+        if (mediaType !== 'Image' || !filePath) {
             return null;
         }
         
