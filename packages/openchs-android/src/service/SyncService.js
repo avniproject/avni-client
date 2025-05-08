@@ -271,42 +271,16 @@ class SyncService extends BaseService {
     downloadIcons() {
         General.logDebug("SyncService", "Starting downloadIcons method");
         
-        // Use Promise.allSettled instead of Promise.all to handle failures gracefully
-        return Promise.allSettled([
+        return Promise.all([
             this.downloadSubjectTypeIcons(),
             this.downloadConceptIcons()
         ]).then(results => {
-            // Filter out rejected promises and extract values from fulfilled ones
-            const [subjectTypeIconsResult, conceptIconsResult] = results;
-            
-            // Process subject type icons results
-            let subjectTypeIconResults = [];
-            if (subjectTypeIconsResult.status === 'fulfilled') {
-                subjectTypeIconResults = subjectTypeIconsResult.value.filter(path => path !== null);
-                General.logDebug("SyncService", `Successfully downloaded ${subjectTypeIconResults.length} subject type icons`);
-            } else {
-                General.logDebug("SyncService", `Error downloading subject type icons: ${subjectTypeIconsResult.reason}`);
-            }
-            
-            // Process concept icons results
-            let conceptIconResults = [];
-            if (conceptIconsResult.status === 'fulfilled') {
-                conceptIconResults = conceptIconsResult.value.filter(path => path !== null);
-                General.logDebug("SyncService", `Successfully downloaded ${conceptIconResults.length} concept icons`);
-            } else {
-                General.logDebug("SyncService", `Error downloading concept icons: ${conceptIconsResult.reason}`);
-            }
-            
-            // Log overall results
-            General.logDebug("SyncService", `Total downloaded: ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
-            
-            // Return all successful downloads
+            const [subjectTypeIconResults, conceptIconResults] = results;
+            General.logDebug("SyncService", `Downloaded ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
             return [...subjectTypeIconResults, ...conceptIconResults];
         }).catch(error => {
-            // This should rarely happen since we're using Promise.allSettled
-            General.logError("SyncService", "Unexpected error in downloadIcons:", error);
-            // Return empty array instead of throwing to prevent sync failure
-            return [];
+            General.logError("SyncService", "Error in downloadIcons:", error);
+            throw error;
         });
     }
     updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, syncDetails) {

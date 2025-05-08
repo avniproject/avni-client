@@ -9,6 +9,110 @@ import fs from 'react-native-fs';
 import _ from "lodash";
 import AvniError from "../framework/errorHandling/AvniError";
 
+const MIN_FILE_SIZE_IN_BYTES = 1024;
+
+function categorizeAndThrowAvniError(error, s3Key, type) {
+    let errorType = 'MediaDownloadError';
+    let userMessage = 'Unable to download media content.';
+
+    // Check for network errors - with proper null checks
+    const errorMessage = _.get(error, 'message', '');
+    if (errorMessage && (
+      errorMessage.includes('Network request failed') ||
+      errorMessage.includes('timeout') ||
+      errorMessage.includes('connection') ||
+      errorMessage.includes('ENOTFOUND')
+    )) {
+        errorType = 'MediaNetworkError';
+        userMessage = 'Network error while downloading media. Please check your internet connection.';
+    }
+
+    // Extract more detailed error information
+    const errorCode = _.get(error, 'code', 'N/A');
+    const errorStack = _.get(error, 'stack', '');
+    const errorStatus = _.get(error, 'status', '');
+
+    // Create a more comprehensive reporting text with all available details
+    const reportingText = `${userMessage} [URL: ${s3Key}, Type: ${type || 'unknown'}]\n` +
+      `Type: ${errorType}\n` +
+      `Details: URL: ${s3Key}, Type: ${type}, Error Code: ${errorCode}, Error Status: ${errorStatus}` +
+      (errorMessage ? `\nTechnical: Failed to download media file: ${s3Key}.\nError: ${errorMessage}` : `\nTechnical: Failed to download media file: ${s3Key}.`) +
+      (errorStack ? `\nStack: ${errorStack}` : ``);
+
+    // Create an AvniError with user message and detailed reporting text
+    const avniError = AvniError.create(userMessage, reportingText, false); // Set to false to ensure it's displayed
+    avniError.type = errorType;
+    avniError.mediaUrl = s3Key;
+    avniError.mediaType = type;
+    avniError.originalError = error;
+    General.logDebug('MediaService', `Throwing AvniError: ${userMessage}`);
+    throw avniError;
+}
+
+async function cleanUpPartialFiles(filePathInDevice) {
+    try {
+        const fileExists = await this.exists(filePathInDevice);
+        if (fileExists) {
+            await fs.unlink(filePathInDevice);
+        }
+    } catch (cleanupError) {
+        General.logDebug('MediaService', `Error cleaning up partial file: ${cleanupError.message}`);
+    }
+}
+
+function createNetworkAvniErrorDuringMediaDownload(error, url) {
+    let errorType = 'MediaNetworkError';
+    let userMessage = 'Network error while downloading media content. Please check your internet connection.';
+
+    // Extract error details for better reporting
+    const errorMessage = error.message || 'Unknown error';
+    const errorCode = error.code || 'N/A';
+    const errorStack = error.stack || '';
+
+    // Create a detailed reporting text
+    const reportingText = `${userMessage} [URL: ${url}]\n` +
+      `Type: ${errorType}\n` +
+      `Details: URL: ${url}, Error Code: ${errorCode}` +
+      (errorMessage ? `\nTechnical: Failed to download media file: ${url}.\nError: ${errorMessage}` : `\nTechnical: Failed to download media file: ${url}.`) +
+      (errorStack ? `\nStack: ${errorStack}` : ``);
+
+    // Create an AvniError with user message and detailed reporting text
+    const avniError = AvniError.create(userMessage, reportingText, false);
+    avniError.type = errorType;
+    avniError.mediaUrl = url;
+    avniError.originalError = error;
+
+    General.logDebug('MediaService', `Throwing AvniError for network error: ${errorMessage}`);
+    throw avniError;
+}
+
+function createMediaDownloadAvniError(res, url) {
+    const status = res.info().status;
+    let errorType = 'MediaDownloadError';
+    let userMessage = 'Unable to download media content.';
+
+    if (status === 404) {
+        errorType = 'MediaNotFound';
+        userMessage = 'Media content not found on server.';
+    } else if (status === 403) {
+        errorType = 'MediaAccessDenied';
+        userMessage = 'Access denied to media content.';
+    } else if (status >= 500) {
+        errorType = 'MediaServerError';
+        userMessage = 'Server error while accessing media content.';
+    }
+
+    // Create a user-friendly message and detailed reporting text
+    const reportingText = `${userMessage} [URL: ${url}]\nType: ${errorType}\nDetails: URL: ${url}, Status: ${status}, Size: ${res.info().size}\nTechnical: Downloaded file is invalid or empty: ${url}`;
+
+    // Create an AvniError with user message and detailed reporting text
+    const avniError = AvniError.create(userMessage, reportingText, false); // Set to false to ensure it's displayed
+    avniError.type = errorType;
+    avniError.mediaUrl = url;
+    General.logDebug('MediaService', `Throwing AvniError: ${userMessage}`);
+    throw avniError;
+}
+
 @Service("mediaService")
 class MediaService extends BaseService {
     constructor(db, context) {
@@ -41,7 +145,7 @@ class MediaService extends BaseService {
                 General.logDebug("MediaService", `Download response: status=${status}, size=${size}, path=${res.path()}`);
                 
                 // If status is successful and either size is undefined (can't check) or size is reasonable
-                if (status >= 200 && status < 300 && (size === undefined || size > 0)) {
+                if (status >= 200 && status < 300 && (size === undefined || size > MIN_FILE_SIZE_IN_BYTES)) {
                     // Verify the file exists and has content
                     return fs.stat(targetFilePath)
                         .then(stats => {
@@ -64,30 +168,7 @@ class MediaService extends BaseService {
                 } else {
                     // If the file is empty or too small, delete it and throw an error
                     return fs.unlink(targetFilePath).then(() => {
-                        const status = res.info().status;
-                        let errorType = 'MediaDownloadError';
-                        let userMessage = 'Unable to download media content.';
-                        
-                        if (status === 404) {
-                            errorType = 'MediaNotFound';
-                            userMessage = 'Media content not found on server.';
-                        } else if (status === 403) {
-                            errorType = 'MediaAccessDenied';
-                            userMessage = 'Access denied to media content.';
-                        } else if (status >= 500) {
-                            errorType = 'MediaServerError';
-                            userMessage = 'Server error while accessing media content.';
-                        }
-                        
-                        // Create a user-friendly message and detailed reporting text
-                        const reportingText = `${userMessage} [URL: ${url}]\nType: ${errorType}\nDetails: URL: ${url}, Status: ${status}, Size: ${res.info().size}\nTechnical: Downloaded file is invalid or empty: ${url}`;
-                        
-                        // Create an AvniError with user message and detailed reporting text
-                        const avniError = AvniError.create(userMessage, reportingText, false); // Set to false to ensure it's displayed
-                        avniError.type = errorType;
-                        avniError.mediaUrl = url;
-                        General.logDebug('MediaService', `Throwing AvniError: ${userMessage}`);
-                        throw avniError;
+                        createMediaDownloadAvniError(res, url);
                     });
                 }
             })
@@ -106,29 +187,7 @@ class MediaService extends BaseService {
                         }
                         
                         // Create a new AvniError with detailed information
-                        let errorType = 'MediaNetworkError';
-                        let userMessage = 'Network error while downloading media content. Please check your internet connection.';
-                        
-                        // Extract error details for better reporting
-                        const errorMessage = error.message || 'Unknown error';
-                        const errorCode = error.code || 'N/A';
-                        const errorStack = error.stack || '';
-                        
-                        // Create a detailed reporting text
-                        const reportingText = `${userMessage} [URL: ${url}]\n` +
-                            `Type: ${errorType}\n` +
-                            `Details: URL: ${url}, Error Code: ${errorCode}` +
-                            (errorMessage ? `\nTechnical: Failed to download media file: ${url}.\nError: ${errorMessage}` : `\nTechnical: Failed to download media file: ${url}.`) +
-                            (errorStack ? `\nStack: ${errorStack}` : ``);
-                        
-                        // Create an AvniError with user message and detailed reporting text
-                        const avniError = AvniError.create(userMessage, reportingText, false);
-                        avniError.type = errorType;
-                        avniError.mediaUrl = url;
-                        avniError.originalError = error;
-                        
-                        General.logDebug('MediaService', `Throwing AvniError for network error: ${errorMessage}`);
-                        throw avniError;
+                        createNetworkAvniErrorDuringMediaDownload(error, url);
                     });
             });
     }
@@ -153,8 +212,6 @@ class MediaService extends BaseService {
     getFileName(uri) {
         return _.get(uri.trim().match(/[0-9A-Fa-f-]{36}\.\w+$/), 0);
     }
-    
-
 
     exists(filePath) {
         if(_.isNil(filePath)) {
@@ -163,21 +220,27 @@ class MediaService extends BaseService {
         return fs.exists(filePath);
     }
 
-    async downloadFileIfRequired(s3Key, type, ignoreFetchErrors = true) {
-        if (_.isNil(s3Key)) {
+    async downloadMediaFromS3ToPath(s3Key, filePathInDevice, ignoreFetchErrors = true) {
+        try {
+            return await this.downloadMedia(s3Key, filePathInDevice);
+        } catch (downloadError) {
             if (ignoreFetchErrors) {
-                General.logDebug('MediaService', 'Ignoring error: Missing s3Key');
+                General.logDebug('MediaService', `Ignoring download error for ${s3Key}: ${downloadError.message}`);
                 return null;
             }
-            throw new Error('Cannot download media: Missing s3Key');
+            throw downloadError;
+        }
+    }
+
+    async downloadFileIfRequired(s3Key, type, ignoreFetchErrors = true) {
+        if (_.isNil(s3Key)) {
+            General.logDebug('MediaService', 'Ignoring error: Missing s3Key');
+            return null;
         }
         
         const filePathInDevice = this.getAbsolutePath(s3Key, type);
         if (!filePathInDevice) {
-            if (ignoreFetchErrors) {
-                General.logDebug('MediaService', `Ignoring error: Cannot determine file path for media: ${s3Key}, type: ${type}`);
-                return null;
-            }
+            General.logDebug('MediaService', `Cannot determine file path for media: ${s3Key}, type: ${type}`);
             throw new Error(`Cannot determine file path for media: ${s3Key}, type: ${type}`);
         }
         
@@ -186,46 +249,23 @@ class MediaService extends BaseService {
             if (exists) {
                 // Verify the existing file is valid (not empty)
                 const fileStats = await fs.stat(filePathInDevice);
-                if (fileStats.size <= 1024) {
+                if (fileStats.size <= MIN_FILE_SIZE_IN_BYTES) {
                     // File exists but is likely an empty placeholder, delete and re-download
                     await fs.unlink(filePathInDevice);
-                    try {
-                        return await this.downloadMedia(s3Key, filePathInDevice);
-                    } catch (downloadError) {
-                        if (ignoreFetchErrors) {
-                            General.logDebug('MediaService', `Ignoring download error for ${s3Key}: ${downloadError.message}`);
-                            return null;
-                        }
-                        throw downloadError;
-                    }
+                    return await this.downloadMediaFromS3ToPath(s3Key, filePathInDevice, ignoreFetchErrors);
                 }
                 return filePathInDevice;
             } else {
                 // File doesn't exist, download it
-                try {
-                    return await this.downloadMedia(s3Key, filePathInDevice);
-                } catch (downloadError) {
-                    if (ignoreFetchErrors) {
-                        General.logDebug('MediaService', `Ignoring download error for ${s3Key}: ${downloadError.message}`);
-                        return null;
-                    }
-                    throw downloadError;
-                }
+                return await this.downloadMediaFromS3ToPath(s3Key, filePathInDevice, ignoreFetchErrors);
             }
         } catch (error) {
             General.logDebug('MediaService', `Error while downloading image with s3 key ${s3Key}`);
             General.logDebug('MediaService', error);
             
             // Make sure we don't leave partial files
-            try {
-                const fileExists = await this.exists(filePathInDevice);
-                if (fileExists) {
-                    await fs.unlink(filePathInDevice);
-                }
-            } catch (cleanupError) {
-                General.logDebug('MediaService', `Error cleaning up partial file: ${cleanupError.message}`);
-            }
-            
+            await cleanUpPartialFiles.call(this, filePathInDevice);
+
             // If we're ignoring fetch errors, return null instead of throwing
             if (ignoreFetchErrors) {
                 General.logDebug('MediaService', `Ignoring error for ${s3Key} due to ignoreFetchErrors flag`);
@@ -238,41 +278,7 @@ class MediaService extends BaseService {
             }
             
             // Otherwise, categorize the error
-            let errorType = 'MediaDownloadError';
-            let userMessage = 'Unable to download media content.';
-            
-            // Check for network errors - with proper null checks
-            const errorMessage = _.get(error, 'message', '');
-            if (errorMessage && (
-                errorMessage.includes('Network request failed') || 
-                errorMessage.includes('timeout') || 
-                errorMessage.includes('connection') ||
-                errorMessage.includes('ENOTFOUND')
-            )) {
-                errorType = 'MediaNetworkError';
-                userMessage = 'Network error while downloading media. Please check your internet connection.';
-            }
-            
-            // Extract more detailed error information
-            const errorCode = _.get(error, 'code', 'N/A');
-            const errorStack = _.get(error, 'stack', '');
-            const errorStatus = _.get(error, 'status', '');
-            
-            // Create a more comprehensive reporting text with all available details
-            const reportingText = `${userMessage} [URL: ${s3Key}, Type: ${type || 'unknown'}]\n` +
-                `Type: ${errorType}\n` +
-                `Details: URL: ${s3Key}, Type: ${type}, Error Code: ${errorCode}, Error Status: ${errorStatus}` +
-                (errorMessage ? `\nTechnical: Failed to download media file: ${s3Key}.\nError: ${errorMessage}` : `\nTechnical: Failed to download media file: ${s3Key}.`) +
-                (errorStack ? `\nStack: ${errorStack}` : ``);
-
-            // Create an AvniError with user message and detailed reporting text
-            const avniError = AvniError.create(userMessage, reportingText, false); // Set to false to ensure it's displayed
-            avniError.type = errorType;
-            avniError.mediaUrl = s3Key;
-            avniError.mediaType = type;
-            avniError.originalError = error;
-            General.logDebug('MediaService', `Throwing AvniError: ${userMessage}`);
-            throw avniError;
+            categorizeAndThrowAvniError(error, s3Key, type);
         }
     }
 }
