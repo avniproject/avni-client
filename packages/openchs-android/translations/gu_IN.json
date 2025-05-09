@@ -228,6 +228,7 @@
     "internetConnectionError": "કોઈ ઇન્ટરનેટ કનેક્શન નથી. ઇન્ટરનેટથી કનેક્ટ કરો.",
     "syncServerError": "કેટલીક ભૂલ આવી છે. થોડીવાર પછી પ્રયત્ન કરો.",
     "syncTimeoutError": "માફ કરશો તે ખૂબ લાંબો સમય લઈ રહ્યું છે. કૃપા કરીને તમારું ઇન્ટરનેટ કનેક્શન તપાસો.",
+    "unableToFetchImagesError": "છબીઓ મેળવી શકાઈ નથી.",
     "proceedEncounter": "{{enc}} પર આગળ વધો",
     "enrolIntoProgram": "{{program}} માં નોંધણી કરો",
     "anotherRegistration": "અન્ય {{subject}} માં નોંધણી કરો",
