@@ -42,7 +42,7 @@ class ProgramEncounterCancelActions {
             throw new Error(`No form setup for EncounterType: ${programEncounter.encounterType}`);
         }
 
-        programEncounter.cancelDateTime = programEncounter.cancelDateTime || new Date();
+        programEncounter.cancelDateTime = new Date();
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => ProgramEncounterCancelActions.filterFormElements(formElementGroup, context, programEncounter).length !== 0);
