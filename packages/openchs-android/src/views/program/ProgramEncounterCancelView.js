@@ -79,34 +79,13 @@ class ProgramEncounterCancelView extends AbstractComponent {
             CHSNavigator.navigateToProgramEnrolmentDashboardView(source, encounter.individual.uuid, encounter.programEnrolment.uuid, true, null, this.I18n.t('encounterCancelledMsg', {encounterName: this.I18n.t(encounter.encounterType.displayName)}));
     }
     getNextParams(popVerificationVew) {
-        // Add basic null check for programEncounter
-        if (_.isNil(this.state.programEncounter)) {
-            console.error('ProgramEncounterCancelView.getNextParams: programEncounter is undefined');
-            return {
-                completed: () => {},
-                popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
-                phoneNumberObservation: null,
-                popVerificationVew,
-                verifyPhoneNumber: () => {},
-                movedNext: this.scrollToTop
-            };
-        }
-
-        const cancelObservations = this.state.programEncounter.cancelObservations || [];
-        const phoneNumberObservation = _.find(cancelObservations, obs => obs && obs.isPhoneNumberVerificationRequired && obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        
+        const phoneNumberObservation = _.find(this.state.programEncounter.cancelObservations, obs => obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
         return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
-                // Basic null check for state
-                if (_.isNil(state) || _.isNil(state.programEncounter)) {
-                    console.error('ProgramEncounterCancelView.getNextParams.completed: state or state.programEncounter is undefined');
-                    return;
-                }
-                
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
                 const form = this.getCancelEncounterForm();
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations || [], Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.programEncounter.isRejectedEntity && state.programEncounter.isRejectedEntity(), state.programEncounter.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.programEncounter.individual, state.programEncounter.cancelObservations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.programEncounter.isRejectedEntity(), state.programEncounter.latestEntityApprovalStatus);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
