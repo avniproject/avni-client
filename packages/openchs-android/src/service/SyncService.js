@@ -44,6 +44,7 @@ import {
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 import DeviceInfo from "react-native-device-info";
+import FileSystem from "../model/FileSystem";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -103,7 +104,8 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
-        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource});
+        const appInfo = await this.getAppInfo();
+        this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
             .then(() => Promise.resolve(progressBarStatus.onSyncComplete()))
@@ -422,6 +424,14 @@ class SyncService extends BaseService {
         } else {
             this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         }
+    }
+
+    async getAppInfo() {
+        const appInfo = {};
+        appInfo.dbSize = await FileSystem.getRealmDBSize();
+        appInfo.observationCount = this.getObservationCount();
+        appInfo.pointCount = this.getPointCount();
+        return appInfo;
     }
 }
 
