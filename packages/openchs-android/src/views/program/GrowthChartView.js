@@ -11,6 +11,7 @@ import moment from 'moment';
 import _ from 'lodash';
 import Styles from '../primitives/Styles';
 import CHSContainer from "../common/CHSContainer";
+import IndividualService from '../../service/IndividualService';
 
 @Path('/GrowthChartView')
 class GrowthChartView extends AbstractComponent {
@@ -150,13 +151,24 @@ class GrowthChartView extends AbstractComponent {
         const enrolmentEntity = this.getEnrolmentEntity();
         const individual = enrolmentEntity.individual;
 
-        const individualEntityObservations=this.getObservationsForEntity(individual,xAxisConceptName, yAxisConceptName, suffix);
-        individualEntityObservations.pointInEntity && individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
+        const individualEntityObservations = this.getObservationsForEntity(individual, xAxisConceptName, yAxisConceptName, suffix);
+        if (individualEntityObservations.pointInEntity) {
+            individualEntityObservations.entityObservations.unshift(individualEntityObservations.pointInEntity);
+        }
 
-        const enrolmentEntityObservations=this.getObservationsForEntity(enrolmentEntity,xAxisConceptName, yAxisConceptName, suffix);
-        enrolmentEntityObservations.pointInEntity && enrolmentEntityObservations.entityObservations.unshift(enrolmentEntityObservations.pointInEntity);
+        // Aggregate data for all enrolments
+        const enrolments = this.getAllEnrolmentsForIndividual();
+        let allEnrolmentObservations = [];
+        enrolments.forEach(enrolment => {
+            const enrolmentEntityObservations = this.getObservationsForEntity(enrolment, xAxisConceptName, yAxisConceptName, suffix);
+            if (enrolmentEntityObservations.pointInEntity) {
+                enrolmentEntityObservations.entityObservations.unshift(enrolmentEntityObservations.pointInEntity);
+            }
+            allEnrolmentObservations = allEnrolmentObservations.concat(enrolmentEntityObservations.entityObservations);
+        });
 
-        const entityObservations = [...individualEntityObservations.entityObservations,...enrolmentEntityObservations.entityObservations];
+        // Combine individual and all enrolment observations
+        const entityObservations = [...individualEntityObservations.entityObservations, ...allEnrolmentObservations];
         return this.addConfig(_.sortBy(_.compact(entityObservations), 'x'), "data");
     }
 
@@ -168,6 +180,14 @@ class GrowthChartView extends AbstractComponent {
         const pointInEntity = this.getPoint(xInEntity, yInEntity, markerInEntity);
         return {entity, entityObservations, xInEntity, yInEntity, markerInEntity,pointInEntity};
     }
+
+    getAllEnrolmentsForIndividual = () => {
+        const enrolmentEntity = this.getEnrolmentEntity();
+        //Fetch the enrolments after performing individualService DB reload of individual
+        const individualService = this.context.getService(IndividualService);
+        const individual = individualService.findByUUID(enrolmentEntity.individual.uuid);
+        return (individual && individual.enrolments) ? individual.enrolments : [enrolmentEntity];
+    };
 
     getEnrolmentEntity = () => {
         return this.props.params.enrolment;
