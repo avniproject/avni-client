@@ -1,0 +1,42 @@
+# Avni Client Windsurf Rules
+version: 1.0.0
+
+# Tech Stack
+  - React Native mobile application
+  - JavaScript
+  - Realm for local database
+  - Redux for state management
+
+# Architecture
+  - Building blocks: View, Component, Service, and Domain
+  - Views can have Private or Project components
+  - Service classes handle server calls and local database operations
+  - Domain models are separate from UI components
+
+# Code Style
+  - Use descriptive function and variable names
+  - Keep functions small and focused
+  - Extract complex logic into separate utility functions
+  - Avoid deep nesting of functions and control structures
+
+# React Native Practices
+  - Use class components with proper lifecycle methods
+  - Follow React Native performance best practices
+  - Minimize use of inline styles
+  - Use proper error handling for async operations
+
+# Mobile-Specific Considerations
+  - App supports offline-first operations with sync capabilities
+  - Handle network connectivity changes gracefully
+  - Optimize for battery and data usage
+  - Consider memory constraints on mobile devices
+
+# Error Handling
+  - When catching server error calls in the view, always rethrow the error
+  - Provide meaningful error messages to users
+  - Log errors appropriately for debugging
+
+# Functional Description
+  - Avni is a offline-first mobile data collection platform for field workers
+  - Features include form-based data collection, subject registration, and program management
+  - Supports working in areas with limited or no connectivity
