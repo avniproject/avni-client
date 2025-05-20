@@ -25,6 +25,7 @@ import PersonRegisterView from "./individual/PersonRegisterView";
 import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
 import PropTypes from "prop-types";
+import Styles from "./primitives/Styles";
 
 class RegisterView extends AbstractComponent {
     static propTypes = {
@@ -184,7 +185,7 @@ class RegisterView extends AbstractComponent {
         });
 
         return (
-            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
+            <CHSContainer style={{backgroundColor: Colors.GreyContentBackground, marginBottom: Styles.HeightOfBottomBar}}>
                 <AppHeader title={this.I18n.t("register")} hideBackButton={this.props.hideBackButton} hideIcon={true}/>
                 <CHSContent>
                     <ScrollView keyboardShouldPersistTaps="handled">
