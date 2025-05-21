@@ -19,6 +19,13 @@
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="*/*" />
+        </intent>
+    </queries>
+
     <application
             android:name=".MainApplication"
             android:roundIcon="@mipmap/openchs_launcher_round"
