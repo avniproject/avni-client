@@ -36,6 +36,16 @@ class LandingView extends AbstractComponent {
         menuProps: PropTypes.object
     };
 
+    static layoutConstants = {
+        bottomBarHeight: 80,
+        itemHeight: 70,
+        textContainerHeight: 24,
+        iconSize: 30,
+        iconMarginBottom: 4,
+        minItemWidth: 80,
+        textWidthRatio: 0.9,
+    };
+
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.landingView);
     }
@@ -56,23 +66,51 @@ class LandingView extends AbstractComponent {
         return super.UNSAFE_componentWillMount();
     }
 
-    renderBottomBarItem(icon, menuMessageKey, pressHandler, isSelected, idx) {
-        return _.isNil(menuMessageKey) ? null :
-            (<View key={idx} style={[{
+    renderBottomBarItem(icon, menuMessageKey, pressHandler, isSelected, idx, itemWidth) {
+        const { layoutConstants } = LandingView;
+        return _.isNil(menuMessageKey) ? null : (
+            <View key={idx} style={{
                 alignItems: 'center',
+                justifyContent: 'center',
                 flexDirection: 'column',
-            }, isSelected && {borderBottomWidth: 2, borderColor: Colors.iconSelectedColor, marginBottom: 1}]}>
-                <TouchableOpacity style={{height: 35, width: 35}} onPress={pressHandler}>
+                paddingVertical: 5,
+                borderBottomWidth: isSelected ? 2 : 0,
+                borderColor: isSelected ? Colors.iconSelectedColor : 'transparent',
+                width: itemWidth,
+                height: layoutConstants.itemHeight,
+            }}
+            >
+                <TouchableOpacity style={{height: layoutConstants.iconSize,
+                    width: layoutConstants.iconSize,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: layoutConstants.iconMarginBottom,
+                }}
+                                  onPress={pressHandler}
+                >
                     {icon}
                 </TouchableOpacity>
-                <Text style={{
-                    fontSize: Styles.smallerTextSize,
-                    fontStyle: 'normal',
-                    color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
-                    lineHeight: 12,
-                    alignSelf: 'center', paddingTop: 3
-                }}>{menuMessageKey}</Text>
-            </View>);
+                <View
+                    style={{
+                        width: itemWidth * layoutConstants.textWidthRatio,
+                        height: layoutConstants.textContainerHeight,
+                        justifyContent: 'flex-start'
+                    }}
+                >
+                    <Text
+                        style={{
+                            fontSize: Styles.smallerTextSize - 1,
+                            fontStyle: 'normal',
+                            color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
+                            textAlign: 'center',
+                            lineHeight: 12,
+                        }}
+                    >
+                        {menuMessageKey}
+                    </Text>
+                </View>
+            </View>
+        );
     }
 
     Icon(iconName, iconStyle, isSelected, renderDot = false, iconType = 'MaterialCommunityIcons') {
@@ -80,38 +118,45 @@ class LandingView extends AbstractComponent {
             ...iconStyle,
             color: Colors.iconSelectedColor
         } : iconStyle) : MenuView.iconStyle;
-        return renderDot ? this.IconWithDot(iconName, style) : <AvniIcon name={iconName} style={style} type={iconType}/>
+        return renderDot ? this.IconWithDot(iconName, style) : <AvniIcon name={iconName} style={style} type={iconType} />;
     }
 
     IconWithDot(iconName, iconStyle) {
-        return <View style={{flexDirection: 'row', flex: 1}}>
-            <MCIIcon name={iconName} style={[iconStyle, {fontSize: 30}]}/>
-            <EntypoIcon name={'dot-single'}
-                        style={{fontSize: 25, color: Colors.BadgeColor, position: 'absolute', top: -6, right: -6}}/>
-        </View>
+        return (<View style={{flexDirection: 'row', flex: 1}}>
+                <MCIIcon name={iconName} style={[iconStyle, {fontSize: 30}]} />
+                <EntypoIcon
+                    name={'dot-single'}
+                    style={{fontSize: 25, color: Colors.BadgeColor, position: 'absolute', top: -6, right: -6}}
+                />
+            </View>
+        );
     }
 
     static barIconStyle = {color: Colors.bottomBarIconColor, opacity: 0.8, alignSelf: 'center', fontSize: 33};
 
     renderCustomDashboard(startSync) {
-        return <CustomDashboardView
-            startSync={startSync && this.state.syncRequired}
-            icon={(name, style) => this.Icon(name, style)}
-            title={'home'}
-            hideBackButton={true}
-            renderSync={true}
-            customDashboardType={CustomDashboardType.Primary}
-            onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
-            showSearch={true}
-        />
+        return (
+            <CustomDashboardView
+                startSync={startSync && this.state.syncRequired}
+                icon={(name, style) => this.Icon(name, style)}
+                title={'home'}
+                hideBackButton={true}
+                renderSync={true}
+                customDashboardType={CustomDashboardType.Primary}
+                onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+                showSearch={true}
+            />
+        );
     }
 
     renderDefaultDashboard(startSync) {
-        return <MyDashboardView
-            startSync={startSync && this.state.syncRequired}
-            icon={(name, style) => this.Icon(name, style)}
-            onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
-        />
+        return (
+            <MyDashboardView
+                startSync={startSync && this.state.syncRequired}
+                icon={(name, style) => this.Icon(name, style)}
+                onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+            />
+        );
     }
 
     renderDashboard(startSync) {
@@ -125,22 +170,37 @@ class LandingView extends AbstractComponent {
 
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
-        const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name)
+        const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name);
         const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, previouslySelectedSubjectTypeUUID);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
-        const registerMenuItem = displayRegister ? [this.Icon(registerIcon, LandingView.barIconStyle, register), this.I18n.t("register"),
-            previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)), register] : [];
-        const moreMenu = [this.Icon("menu", LandingView.barIconStyle, menu, renderDot), this.I18n.t("More"), () => this.dispatchAction(Actions.ON_MENU_CLICK), menu];
+        const registerMenuItem = displayRegister ? [
+            this.Icon(registerIcon, LandingView.barIconStyle, register),
+            this.I18n.t("register"),
+            previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)),
+            register
+        ] : [];
+        const moreMenu = [
+            this.Icon("menu", LandingView.barIconStyle, menu, renderDot),
+            this.I18n.t("More"),
+            () => this.dispatchAction(Actions.ON_MENU_CLICK),
+            menu
+        ];
         const bottomBarIcons = [
             [this.Icon("home", LandingView.barIconStyle, home), this.I18n.t("home"), () => this.dispatchAction(Actions.ON_HOME_CLICK), home]
         ];
         if (!_.isNil(secondaryDashboard)) {
             bottomBarIcons.push([this.Icon("dashboard", LandingView.barIconStyle, secondaryDashboardSelected, false, "MaterialIcons"),
-                _.truncate(this.I18n.t(secondaryDashboard.name), {'length': 14}), () => this.dispatchAction(Actions.ON_SECONDARY_DASHBOARD_CLICK), secondaryDashboardSelected]);
+                this.I18n.t(secondaryDashboard.name),
+                () => this.dispatchAction(Actions.ON_SECONDARY_DASHBOARD_CLICK),
+                secondaryDashboardSelected
+            ]);
         }
         bottomBarIcons.push(registerMenuItem);
         bottomBarIcons.push(moreMenu);
+
+        const screenWidth = Dimensions.get('window').width;
+        const itemWidth = Math.max(screenWidth / bottomBarIcons.length, LandingView.layoutConstants.minItemWidth);
 
         return (
             <CHSContainer>
@@ -162,19 +222,19 @@ class LandingView extends AbstractComponent {
                 />}
 
                 <View style={{
-                    height: Styles.HeightOfBottomBar,
+                    height: LandingView.layoutConstants.bottomBarHeight,
                     position: 'absolute',
                     bottom: 0,
                     width: '100%',
                     backgroundColor: Colors.bottomBarColor,
                     flexDirection: 'row',
-                    justifyContent: 'space-around',
+                    justifyContent: 'space-evenly',
                     elevation: 3,
                     alignItems: 'center',
                     borderTopWidth: StyleSheet.hairlineWidth,
                     borderTopColor: Colors.Separator
                 }}>
-                    {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarItem(icon, display, cb, isSelected, idx))}
+                    {bottomBarIcons.map(([icon, display, cb, isSelected], idx) => this.renderBottomBarItem(icon, display, cb, isSelected, idx, itemWidth))}
                 </View>
             </CHSContainer>
         );
