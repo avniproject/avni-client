@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import AutoHeightWebView from 'react-native-autoheight-webview';
 import AvniIcon from './AvniIcon';
 import _ from 'lodash';
+import MediaContent from './MediaContent';
 
 class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {
@@ -30,12 +31,15 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     }
 
     labelDisplay() {
-        const moreTextForLabel = _.isNil(this.props.moreTextForLabel) ? '' : this.props.moreTextForLabel;
+        const { mediaType, mediaUrl } = this.props.element.concept;
         return (
-            <Text style={[Styles.formLabel, {
-                flex: 8,
-                lineHeight: Styles.normalTextSize + 16
-            }]}>{this.label}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={[Styles.formLabel, {
+                    flex: 8,
+                    lineHeight: Styles.normalTextSize + 16
+                }]}>{this.label}</Text>
+                {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} style={{marginRight: 20, marginBottom: 5}}/>}
+            </View>
         );
     }
 

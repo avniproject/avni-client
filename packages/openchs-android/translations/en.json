@@ -229,6 +229,7 @@
     "internetConnectionError": "No internet connection. Please connect to internet.",
     "syncServerError": "An error has occurred. Please try after sometime.",
     "syncTimeoutError": "Sorry it's taking too long. Please check your internet connection.",
+    "unableToFetchImagesError": "Unable to fetch images.",
     "proceedEncounter": "proceed to {{enc}}",
     "enrolIntoProgram": "enrol into {{program}}",
     "anotherRegistration": "register another {{subject}}",

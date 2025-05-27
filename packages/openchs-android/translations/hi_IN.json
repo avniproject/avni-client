@@ -237,6 +237,7 @@
     "anotherRegistration": "एक और {{subject}} रजिस्टर करें",
     "saveAnd": "सेव करें और",
     "syncTimeoutError": "क्षमा करें यह बहुत समय ले रहा है। कृपया अपने इंटरनेट कनेक्शन की जाँच करें।",
+    "unableToFetchImagesError": "तस्वीरों को लाने में अक्षम.",
     "registrationSavedMsg": "रजिसस्ट्रेशन पूरा हुआ",
     "enrolmentSavedMsg": "{{programName}} एनरोलमेण्ट सेव हुआ",
     "enrolmentExitMsg": "{{programName}} प्रोग्राम से बाहर हुआ",

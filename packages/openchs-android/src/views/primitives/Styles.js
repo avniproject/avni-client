@@ -36,6 +36,7 @@ Styles.VerticalSpacingBetweenFormElements = 20;
 Styles.VerticalSpacingBetweenInGroupFormElements = 4;
 Styles.VerticalSpacingDisplaySections = 16;
 Styles.VerticalSpacingBetweenOptionItems = 20;
+Styles.HeightOfBottomBar = 55;
 
 Styles.programProfileHeading = {
     fontSize: Styles.normalTextSize,

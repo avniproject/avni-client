@@ -39,6 +39,7 @@ export default class FileSystem {
                         .then(() => FileSystem.mkdir(FileSystem.getExtensionsDir(), 'extensions'))
                         .then(() => FileSystem.mkdir(FileSystem.getFileDir(), 'file'))
                         .then(() => FileSystem.mkdir(FileSystem.getIconsDir(), 'icons'))
+                        .then(() => FileSystem.mkdir(FileSystem.getMetadataDir(), 'metadata'))
                         .then(() => FileSystem.mkdir(FileSystem.getProfilePicsDir(), 'profile-pics'))
                         .then(() => {
                             const olderBasePath = `${fs.ExternalStorageDirectoryPath}/OpenCHS`;
@@ -94,6 +95,10 @@ export default class FileSystem {
         return `${fs.ExternalDirectoryPath}/Avni/icons`;
     }
 
+    static getMetadataDir() {
+        return `${fs.ExternalDirectoryPath}/Avni/metadata`;
+    }
+
     static getProfilePicsDir() {
         return `${fs.ExternalDirectoryPath}/Avni/profile-pics`;
     }
@@ -130,5 +135,9 @@ export default class FileSystem {
             General.logDebug("FileSystem", "Got error while migrating older files");
             General.logError("FileSystem", e);
         }
+    }
+
+    static async getRealmDBSize() {
+        return await fs.stat(`${fs.DocumentDirectoryPath}/default.realm`).then(fileInfo => fileInfo.size);
     }
 }

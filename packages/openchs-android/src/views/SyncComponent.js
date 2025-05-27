@@ -59,13 +59,21 @@ class SyncComponent extends AbstractComponent {
         this.setState({syncStarted: false});
         !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
+        const isAvniError = error instanceof AvniError;
+        
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
-        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError) {
+        if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
+        
         this.dispatchAction(SyncActions.ON_ERROR);
         if (isIgnorableSyncError) return;
-        if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
+        
+        // First check if it's an AvniError - this should be handled first to ensure user-friendly messages
+        if (isAvniError) {
+            General.logDebug(this.viewName(), "Handling AvniError with user message: " + error.userMessage);
+            this.ErrorAlert(error);
+        } else if (error instanceof AuthenticationError && error.authErrCode !== 'NetworkingError') {
             General.logError(this.viewName(), "Could not authenticate");
             General.logError(this.viewName(), error);
             General.logError(this.viewName(), "Redirecting to login view");
@@ -89,7 +97,8 @@ class SyncComponent extends AbstractComponent {
     }
 
     ErrorAlert(avniError) {
-        Alert.alert(this.I18n.t("syncError"), avniError.getDisplayMessage(), [
+        const userMessage = avniError.userMessage || this.I18n.t("unknownError");
+        Alert.alert(this.I18n.t("syncError"), userMessage, [
                 {
                     text: this.I18n.t('tryAgain'),
                     onPress: () => this.sync()

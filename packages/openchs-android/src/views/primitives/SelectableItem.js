@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import {StyleSheet, Text} from "react-native";
+import {StyleSheet, Text, Image, TouchableWithoutFeedback} from "react-native";
 import Colors from "./Colors";
 import Styles from "./Styles";
 import React from "react";
@@ -8,6 +8,7 @@ import MIcon from 'react-native-vector-icons/MaterialIcons';
 import FIcon from 'react-native-vector-icons/FontAwesome';
 import _ from 'lodash';
 import {View} from 'native-base';
+import MediaContent from "../common/MediaContent";
 
 const icons = {
     "radio": {
@@ -20,10 +21,14 @@ const icons = {
     }
 }
 
+const CONTENT_WIDTH_WITH_MEDIA = '95%';
+const CONTENT_WIDTH_WITHOUT_MEDIA = '85%';
+
 class SelectableItem extends React.Component {
     static defaultProps = {
         chunked: false,
         disabled: false,
+        hasMediaContent: false,
     };
 
     static propTypes = {
@@ -37,7 +42,10 @@ class SelectableItem extends React.Component {
         chunked: PropTypes.bool,
         value: PropTypes.any,
         currentLocale: PropTypes.string,
-        disabled: PropTypes.bool
+        disabled: PropTypes.bool,
+        mediaType: PropTypes.string,
+        mediaUrl: PropTypes.string,
+        hasMediaContent: PropTypes.bool
     };
 
     static styles = StyleSheet.create({
@@ -68,7 +76,7 @@ class SelectableItem extends React.Component {
     }
 
     render() {
-        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText} = this.props;
+        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText, hasMediaContent} = this.props;
 
         const textColor = _.isNil(validationResult)
             ? checked && abnormal
@@ -91,17 +99,25 @@ class SelectableItem extends React.Component {
         const iconColor = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         const iconName = icons[multiSelect ? "checkbox" : "radio"][checked ? "checked" : "unchecked"];
         const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
+        const mediaType = this.props.mediaType;
+        const mediaUrl = this.props.mediaUrl;
+        const additionalStylingForMedia = hasMediaContent ? { backgroundColor: Colors.GreyContentBackground, minHeight: 50, borderRadius: 5, padding: 2, marginVertical: 5, borderWidth: 1, borderColor: Colors.InputBorderNormal } : {};
         return (
             <Pressable onPress={onPress}
                        style={({pressed}) => [{backgroundColor: pressed ? 'red' : 'white'}, renderStyle.container, ]} disabled={disabled}>
-                <MIcon.Button iconStyle={{marginLeft: -10}} name={iconName}
+                <MIcon.Button iconStyle={{marginLeft: -6}} name={iconName}
                               backgroundColor={backgroundColor}
                               color={iconColor} onPress={onPress} disabled={disabled}>
-                    <View style={{flexDirection: 'column', width: '82%', overflow: 'hidden'}}>
-                        {this.state.showAdditionalDetails ? <View  style={additionalDetailsContainerStyle}>{this.props.children}</View> :
-                          <Text style={[Styles.formBodyText, {color: textColor, fontSize: 16, flex: 0.95}, extraLineHeight]}>
-                            {displayText}
-                        </Text>}
+                    <View style={{marginLeft: -6, margin: hasMediaContent ? -10 : 0, flexDirection: 'column', width: hasMediaContent ? CONTENT_WIDTH_WITH_MEDIA : CONTENT_WIDTH_WITHOUT_MEDIA, overflow: 'hidden'}}>
+                        {this.state.showAdditionalDetails ? <View style={additionalDetailsContainerStyle}>{this.props.children}</View> :
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', ...additionalStylingForMedia }}>
+                                <Text style={[Styles.formBodyText, { color: textColor, fontSize: 16, flex: 0.95 }, extraLineHeight]}>
+                                    {displayText}
+                                </Text>
+                                {hasMediaContent && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
+                                    <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} size={30} />
+                                </View>}
+                            </View>}
                     </View>
                     {this.props.children && <FIcon.Button name={this.state.showAdditionalDetails ? "caret-up" : "caret-down"} size={18}
                                                           backgroundColor={Colors.FilterButtonColor}

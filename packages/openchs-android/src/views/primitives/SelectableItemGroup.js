@@ -9,6 +9,7 @@ import _ from 'lodash';
 import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import SelectableItem from "./SelectableItem";
 import SubjectInfoCard from '../common/SubjectInfoCard';
+import MediaContent from '../common/MediaContent';
 
 class SelectableItemGroup extends React.Component {
     static defaultProps = {
@@ -18,7 +19,8 @@ class SelectableItemGroup extends React.Component {
         multiSelect: false,
         disabled: false,
         skipLabel: false,
-        allowUnselect: true
+        allowUnselect: true,
+        hasMediaContent: false
     };
 
     static propTypes = {
@@ -36,7 +38,8 @@ class SelectableItemGroup extends React.Component {
         skipLabel: PropTypes.bool,
         allowUnselect: PropTypes.bool,
         locale: PropTypes.string.isRequired,
-        disabled: PropTypes.bool
+        disabled: PropTypes.bool,
+        hasMediaContent: PropTypes.bool
     };
 
     onItemPressed(value, checked, label) {
@@ -72,10 +75,12 @@ class SelectableItemGroup extends React.Component {
     }
 
     renderOptions() {
-        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale} = this.props;
+        const {labelValuePairs, I18n, validationError, disabled, selectionFn, multiSelect, locale, hasMediaContent} = this.props;
         return labelValuePairs.map(radioLabelValue => {
-            const checked = selectionFn(radioLabelValue.value);
+            const checked = selectionFn(radioLabelValue.value) || false;
             const individual = radioLabelValue.subject;
+            const mediaType = radioLabelValue.mediaType;
+            const mediaUrl = radioLabelValue.mediaUrl;
             return <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                    checked={checked}
                                    multiSelect={multiSelect}
@@ -90,6 +95,9 @@ class SelectableItemGroup extends React.Component {
                                    }}
                                    disabled={disabled}
                                    value={radioLabelValue.value}
+                                   mediaType={mediaType}
+                                   mediaUrl={mediaUrl}
+                                   hasMediaContent={hasMediaContent}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             >
                 {individual && <SubjectInfoCard individual={individual} hideEnrolments={false}/>}
@@ -99,18 +107,22 @@ class SelectableItemGroup extends React.Component {
 
     renderSingleValue() {
         const radioLabelValue = _.head(this.props.labelValuePairs);
+        const mediaType = radioLabelValue.mediaType;
+        const mediaUrl = radioLabelValue.mediaUrl;
         if (!this.props.selectionFn(radioLabelValue.value)) {
             this.props.onPress(radioLabelValue.value, radioLabelValue.label);
         }
         return (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={Styles.formLabel}>{this.props.I18n.t(radioLabelValue.label)}</Text>
+            {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} />}
+        </View>
         )
     }
 
     render() {
         const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
-
         return (
             <View>
                 {!skipLabel &&

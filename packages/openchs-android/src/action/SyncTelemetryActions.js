@@ -11,6 +11,7 @@ class SyncTelemetryActions {
         syncTelemetry.androidVersion = DeviceInfo.getSystemVersion();
         syncTelemetry.deviceName = DeviceInfo.getDeviceId();
         syncTelemetry.deviceInfo = "{}";
+        syncTelemetry.appInfo = "{}";
         return {syncTelemetry};
     }
 
@@ -22,6 +23,7 @@ class SyncTelemetryActions {
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);
+        syncTelemetry.appInfo = JSON.stringify(action.appInfo);
         syncTelemetry.syncSource = action.syncSource
         return newState;
     }

@@ -1,4 +1,4 @@
-﻿{
+{
   "platform": "Android",
   "language": "ta_IN",
   "translations": {
@@ -227,6 +227,7 @@
     "internetConnectionError": "இணைய இணைப்பு இல்லை. இணையத்துடன் இணைக்கவும்.",
     "syncServerError": "ஒரு பிழை ஏற்பட்டது. சிறிது நேரம் கழித்து முயற்சி செய்யவும்.",
     "syncTimeoutError": "மன்னிக்கவும், இது அதிக நேரம் எடுக்கும். உங்கள் இணைய இணைப்பைச் சரிபார்க்கவும்.",
+    "unableToFetchImagesError": "படங்களைப் பெற முடியவில்லை.",
     "proceedEncounter": "தொடர {{enc}}",
     "enrolIntoProgram": "{{program}} இல் பதிவு செய்",
     "anotherRegistration": "மற்றொரு {{subject}}-ஐ பதிவுசெய்யவும்",

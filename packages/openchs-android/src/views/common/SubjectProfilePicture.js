@@ -53,7 +53,10 @@ class SubjectProfilePicture extends AbstractComponent {
         const isSubjectProfileIconSetup = isProfilePictureAllowed && !isEmpty(this.props.individual.profilePicture);
         isSubjectProfileIconSetup && this.getService(MediaService)
             .downloadFileIfRequired(this.props.individual.profilePicture, 'Profile-Pics')
-            .then(url => this.setState({loadProfilePic: true}));
+            .then(url => this.setState({loadProfilePic: true}))
+            .catch(error => {
+                  console.error('Error loading Profile-Pic:', error);
+            });
         return super.UNSAFE_componentWillMount();
     }
 

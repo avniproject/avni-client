@@ -162,7 +162,7 @@ class LandingView extends AbstractComponent {
                 />}
 
                 <View style={{
-                    height: 55,
+                    height: Styles.HeightOfBottomBar,
                     position: 'absolute',
                     bottom: 0,
                     width: '100%',
