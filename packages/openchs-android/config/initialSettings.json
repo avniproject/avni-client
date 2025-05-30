@@ -1,9 +1,9 @@
 {
   "logLevel": 1,
   "locale": "en",
-  "pageSize": 100,
+  "pageSize": 1000,
   "dev": {
-    "pageSize": 100,
+    "pageSize": 1000,
     "skipValidation": false
   }
 }
