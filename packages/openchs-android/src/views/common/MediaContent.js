@@ -20,11 +20,12 @@ class MediaContent extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.mediaService = this.getService(MediaService);
         this.state = {
             expanded: false,
-            filePath: null
+            filePath: props.mediaUrl ? this.mediaService.getAbsolutePath(props.mediaUrl, 'Metadata') : null,
+            imageAspectRatio: 1 // Default aspect ratio until image loads
         };
-        this.mediaService = this.getService(MediaService);
     }
 
     UNSAFE_componentWillMount() {
@@ -87,11 +88,35 @@ class MediaContent extends AbstractComponent {
                     dismiss={() => this.toggleExpand(false)} 
                     visible={expanded}
                 >
-                    <Image 
-                        source={{ uri: `file://${absolutePath}` }}
-                        style={{ height: 250, width: 250, backgroundColor: 'white', opacity: 1, borderRadius: 4, borderWidth: 1, borderColor: 'black'}}
-                        resizeMode="contain"
-                    />
+                    <View style={{ 
+                        backgroundColor: 'white', 
+                        borderRadius: 4, 
+                        borderWidth: 1, 
+                        borderColor: 'black',
+                        padding: 4,
+                        maxHeight: '80%', // Limit to 80% of the screen height
+                        maxWidth: '90%',  // Limit to 90% of the screen width
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <Image 
+                            source={{ uri: `file://${absolutePath}` }}
+                            style={{
+                                width: '100%',
+                                height: undefined,
+                                aspectRatio: 1, // This will be overridden when the image loads
+                                maxHeight: '100%',
+                            }}
+                            resizeMode="contain"
+                            // Override aspectRatio with actual image dimensions once loaded
+                            onLoad={(event) => {
+                                const { width, height } = event.nativeEvent.source;
+                                if (width && height) {
+                                    this.setState({ imageAspectRatio: width / height });
+                                }
+                            }}
+                        />
+                    </View>
                 </AvniModel>
                 
                 <TouchableWithoutFeedback onPress={() => this.toggleExpand(true)}>
