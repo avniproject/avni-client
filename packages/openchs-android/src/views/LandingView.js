@@ -13,7 +13,7 @@ import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
 import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
