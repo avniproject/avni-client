@@ -89,7 +89,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                     flexDirection: 'row',
                     alignItems: 'flex-start',
                 }}>
-                    {this.labelDisplay()}
+                    <View style={{flex: 8}}>{this.labelDisplay()}</View>
                     <View style={{flex: 2, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-start'}}>
                         <TouchableNativeFeedback
                             background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
