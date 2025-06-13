@@ -9,6 +9,7 @@ import AutoHeightWebView from 'react-native-autoheight-webview';
 import AvniIcon from './AvniIcon';
 import _ from 'lodash';
 import MediaContent from './MediaContent';
+import DocumentationHtmlRenderer from '../../utility/DocumentationHtmlRenderer';
 
 class FormElementLabelWithDocumentation extends AbstractComponent {
     static propTypes = {
@@ -51,37 +52,15 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
         
         const {width} = Dimensions.get('window');
         const containerWidth = this.props.isTableView ? (width - 16) / 2.2 : width - 16;
-        // Add base styles for links and ensure they open in external browser
-        const htmlToRender = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta http-equiv="content-type" content="text/html; charset=utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-            <style>
-                body { margin-top: -18px !important; margin-bottom: -18px !important; }
-                a { color: #007AFF; text-decoration: underline; }
-                a:visited { color: #5856D6; }
-                img { max-width: 100%; height: auto; }
-            </style>
-            <script>
-                document.addEventListener('click', function(e) {
-                    var target = e.target;
-                    while(target && target.tagName !== 'A') {
-                        target = target.parentNode;
-                    }
-                    if (target && target.tagName === 'A') {
-                        e.preventDefault();
-                        window.ReactNativeWebView.postMessage(target.href);
-                    }
-                }, false);
-            </script>
-        </head>
-        <body>
-            ${contentHtml || '<p>No content available</p>'}
-        </body>
-        </html>
-        `;
+        
+        // Use DocumentationHtmlRenderer to create the HTML content
+        const htmlToRender = DocumentationHtmlRenderer.createDocumentationHtml({
+            contentHtml,
+            // Use the theme colors from the app
+            linkColor: Colors.LinkColor || '#007AFF',
+            visitedLinkColor: Colors.LinkVisitedColor || '#5856D6',
+            bodyMarginFix: true
+        });
         
         return (
             <Fragment>
