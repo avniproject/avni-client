@@ -1,6 +1,5 @@
 import moment from "moment";
 import _ from "lodash";
-import {BaseEntity} from 'avni-models';
 
 class IndividualSearchCriteria {
     //to be made configurable perhaps later
@@ -37,9 +36,9 @@ class IndividualSearchCriteria {
             criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}" OR name contains[c] "${trimmedKeyword}")`);
         }
 
-        if (this.lowestAddressLevels.length !== 0) {
+        if (!_.isEmpty(this.searchAddressLevels)) {
             let addressLevelCriteria = [];
-            this.lowestAddressLevels.forEach((addressLevel) => {
+            this.searchAddressLevels.forEach((addressLevel) => {
                 addressLevelCriteria.push(`lowestAddressLevel.uuid == "${addressLevel.uuid}"`)
             });
             criteria.push("( " + addressLevelCriteria.join(" OR ") + ")");
@@ -100,6 +99,10 @@ class IndividualSearchCriteria {
 
     toggleLowestAddresses(lowestAddresses) {
         this.lowestAddressLevels = lowestAddresses;
+    }
+
+    toggleSearchAddresses(searchAddresses) {
+        this.searchAddressLevels = searchAddresses;
     }
 
     getMaxDateOfBirth() {
