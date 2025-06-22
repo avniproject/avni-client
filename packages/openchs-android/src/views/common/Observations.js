@@ -1,4 +1,4 @@
-import {Text, TouchableOpacity, View} from "react-native";
+import {Text, TouchableOpacity, View, Image} from "react-native";
 import ListView from "deprecated-react-native-listview";
 import PropTypes from 'prop-types';
 import React, {Fragment} from "react";
@@ -22,6 +22,7 @@ import EncounterService from "../../service/EncounterService";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PhoneCall from "../../model/PhoneCall";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
+import SignatureFormElement from "../form/formElement/SignatureFormElement";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -161,6 +162,13 @@ class Observations extends AbstractComponent {
                         {_.map(allMediaURIs, (value, index) =>
                             <ExpandableMedia key={index} source={value} type={renderType} relatedMediaURIs={allMediaURIs}/>)}
                     </View>
+                </View>
+            );
+        } else if (renderType === Concept.dataType.Signature) {
+            return (
+                <View style={this.styles.observationColumn}>
+                    <Image width={100} height={100} source={{uri: `file://${SignatureFormElement.signatureFileDirectory}/${observationModel.getValueWrapper().getValue()}`}}/>
+                    <Text></Text>
                 </View>
             );
         } else if (Concept.dataType.Media.includes(renderType)) {
