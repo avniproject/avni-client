@@ -11,6 +11,7 @@ import EntityService from "../../service/EntityService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupAffiliationState from '../../state/GroupAffiliationState';
 import {EditFormRuleResponse} from "rules-config";
+import General from "../../utility/General";
 
 class IndividualRegistrationDetailsActions {
     static getInitialState() {
@@ -146,6 +147,27 @@ class IndividualRegistrationDetailsActions {
                 isEnrolmentEligible: isStatusEligible && _.includes(eligibleProgramsUUID, program.uuid)
             }
         });
+    }
+
+    static checkMemberAdditionEligibility(member, group, context) {
+        if (!member || !group || !group.subjectType) {
+            return { eligible: false };
+        }
+            
+        if (_.isEmpty(group.subjectType.memberAdditionEligibilityCheckRule)) {
+            return { eligible: true };
+        }
+        
+        try {
+            const ruleEvaluationService = context.get(RuleEvaluationService);
+            return ruleEvaluationService.getMemberAdditionEligibilityStatus(member, group, context);
+        } catch (error) {
+            General.logDebug('IndividualRegistrationDetailsActions',
+                `[DEBUG] EXCEPTION in checkMemberAdditionEligibility: ${error.message}`);
+            General.logDebug('IndividualRegistrationDetailsActions', 
+                `[DEBUG] STACK: ${error.stack}`);
+            throw error;
+        }
     }
 }
 

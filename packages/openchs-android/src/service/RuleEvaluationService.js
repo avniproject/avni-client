@@ -380,6 +380,34 @@ class RuleEvaluationService extends BaseService {
             individualService.existsByUuid(subjectUUID) && programService.existsByUuid(programUUID));
     }
 
+    getMemberAdditionEligibilityStatus(member, group, context) {
+        if(!member || !group || !group.subjectType) {
+             return { eligible: false };
+        }
+        const subjectType = group.subjectType;
+        if (_.isEmpty(subjectType.memberAdditionEligibilityCheckRule)) {
+            return { eligible: true };
+        }
+        try {
+            const ruleFunc = eval(subjectType.memberAdditionEligibilityCheckRule);
+            let memberAdditionEligibilityStatus = ruleFunc({
+                params: _.merge({member, group, context}, this.getCommonParams()),
+                imports: getImports(this.globalRuleFunction)
+            });
+            
+            General.logDebug("RuleEvaluationService", `[DEBUG] Rule execution complete. Result: ${JSON.stringify(memberAdditionEligibilityStatus)}`);
+            return memberAdditionEligibilityStatus;
+        } catch (e) {
+            General.logDebug("Rule-Failure", `[DEBUG] EXCEPTION in getMemberAdditionEligibilityStatus: ${e.message}`);
+            General.logDebug("Rule-Failure", `[DEBUG] STACK: ${e.stack}`);
+            General.logDebug("Rule-Failure",
+                `Member Addition Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
+            this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(group, 'Group'),
+                'MemberAdditionEligibilityCheck', subjectType.uuid, 'Group', group.uuid);
+            throw Error(e.message);
+        }
+    }
+
     async getSubjectProgramEligibilityStatuses(individual, programs, authToken) {
         const subjectType = individual.subjectType;
         try {

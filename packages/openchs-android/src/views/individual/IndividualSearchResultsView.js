@@ -29,7 +29,6 @@ class IndividualSearchResultRow extends Component {
     render() {
         const {item, onResultRowPress} = this.props;
         const individual = new Individual(item);
-        General.logDebug("IndividualSearchResultRow", `${individual.name}`);
         return <TouchableNativeFeedback key={individual.uuid} onPress={() => onResultRowPress(individual)}
                                         background={TouchableNativeFeedback.SelectableBackground()}>
             <View>

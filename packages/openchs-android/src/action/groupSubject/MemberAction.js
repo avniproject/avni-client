@@ -5,6 +5,7 @@ import EntityService from "../../service/EntityService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
 import IndividualRelationGenderMappingService from "../../service/relationship/IndividualRelationGenderMappingService";
 import General from '../../utility/General';
+import {IndividualRegistrationDetailsActions} from "../individual/IndividualRegistrationDetailsActions";
 
 export class MemberAction {
 
@@ -124,9 +125,25 @@ export class MemberAction {
     }
 
     static handleValidationResults(state, validationResults) {
-        validationResults.forEach((validationResult) => {
-            MemberAction.handleValidationResult(state, validationResult);
-        });
+        state.validationResults = validationResults.filter(validationResult => !validationResult.success);
+    }
+    
+    static checkMemberEligibility(member, group, context) {
+        try {
+            const eligibilityStatus = IndividualRegistrationDetailsActions.checkMemberAdditionEligibility(
+                member, group, context
+            );
+            
+            return {
+                eligible: eligibilityStatus.eligible,
+                messageKey: eligibilityStatus.message || 'memberNotEligibleMessage'
+            };
+        } catch (error) {
+            return {
+                eligible: false,
+                messageKey: 'memberEligibilityCheckError'
+            };
+        }
     }
 
     static validateFieldForEmpty(value, key) {
@@ -184,14 +201,60 @@ export class MemberAction {
     }
 
     static addMember(state, action, context) {
+        const allValidationResults = [];
         const newState = MemberAction.clone(state);
         newState.member.memberSubject = action.value;
         newState.individualRelative.relative = action.value;
+        
         const groupSubjects = newState.member.groupSubject.groupSubjects;
-        const alreadyPresent = _.find(groupSubjects, groupSubject => groupSubject.memberSubject.uuid === newState.member.memberSubject.uuid && groupSubject.voided === false);
-        const validationError = !_.isEmpty(alreadyPresent) ? ValidationResult.failure('GROUP_MEMBER', 'memberAlreadyAddedMessage') : ValidationResult.successful('GROUP_MEMBER');
-        const validationResults = newState.member.groupRole.isHouseholdMember ? [...MemberAction.validateRelative(newState, context), validationError] : [validationError];
-        MemberAction.checkValidationErrors(newState, validationResults);
+        
+        // Check if member is already present in the group
+        const alreadyPresent = _.find(groupSubjects, groupSubject => 
+            groupSubject.memberSubject.uuid === newState.member.memberSubject.uuid && 
+            groupSubject.voided === false);
+        
+        const validationError = !_.isEmpty(alreadyPresent) ? 
+            ValidationResult.failure('GROUP_MEMBER', 'memberAlreadyAddedMessage') : 
+            ValidationResult.successful('GROUP_MEMBER');
+
+        // Add the member validation error for already present member
+        if (validationError && !validationError.success) {
+            allValidationResults.push(validationError);
+        }
+
+        // Check member addition eligibility
+        const eligibilityResult = MemberAction.checkMemberEligibility(newState.member.memberSubject, newState.member.groupSubject, context);
+        if (!eligibilityResult.eligible) {
+            allValidationResults.push(ValidationResult.failure('GROUP_MEMBER', eligibilityResult.messageKey));
+        }
+        
+        // Get validation results from relation validation if applicable
+        const relationValidationResults = newState.member.groupRole.isHouseholdMember ? 
+            MemberAction.validateRelative(newState, context) : [];
+        allValidationResults.push(...relationValidationResults);
+
+        
+        // Add role validation error
+        const roleValidationError = MemberAction.validateFieldForEmpty(newState.member.groupRole, 'ROLE');
+        if (!roleValidationError.success) {
+            allValidationResults.push(roleValidationError);
+        }
+        
+        // Check role member count limit
+        if (newState.member.groupRole) {
+            const groupSubjects = newState.member.groupSubject.groupSubjects;
+            const currentMemberCount = _.filter(groupSubjects, groupSubject => 
+                groupSubject.voided === false && 
+                groupSubject.groupRole.uuid === newState.member.groupRole.uuid
+            ).length;
+            const maximumNumberOfMembers = newState.member.groupRole.maximumNumberOfMembers;
+            if (currentMemberCount === maximumNumberOfMembers) {
+                allValidationResults.push(ValidationResult.failure('ROLE', 'maxLimitReachedMsg'));
+            }
+        }
+        
+        // Set all validation errors in state
+        MemberAction.handleValidationResults(newState, allValidationResults);
         return newState;
     }
 

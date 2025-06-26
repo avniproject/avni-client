@@ -79,7 +79,10 @@ class AddNewMemberView extends AbstractComponent {
     save(cb) {
         if (this.state.member.memberSubject.voided) {
             Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
-                this.I18n.t("voidedIndividualAlertMessage"));
+              this.I18n.t("voidedIndividualAlertMessage"));
+        } else if (!_.isEmpty(this.state.validationResults)) {
+            Alert.alert(this.I18n.t("validationResult"),
+              this.I18n.t(this.state.validationResults[0].messageKey));
         } else {
             this.dispatchAction(Actions.ON_SAVE, {cb});
         }
@@ -117,10 +120,15 @@ class AddNewMemberView extends AbstractComponent {
             return this.save(cb);
         } else {
             const memberSubject = this.state.member.memberSubject;
-            if (!_.isEmpty(this.state.validationResults)) {
-                return;
+            if (this.state.member.memberSubject.voided) {
+                Alert.alert(this.I18n.t("voidedIndividualAlertTitle"),
+                  this.I18n.t("voidedIndividualAlertMessage"));
+            } else if (!_.isEmpty(this.state.validationResults)) {
+                Alert.alert(this.I18n.t("validationResult"),
+                  this.I18n.t(this.state.validationResults[0].messageKey));
+            } else {
+                CHSNavigator.navigateToRegisterView(this, {workLists: WorklistsFactory.createForAddMemberWizardLastPage(memberSubject, this.state.member, this.state.individualRelative, this.isHeadOfHousehold(), this.state.relativeGender)});
             }
-            CHSNavigator.navigateToRegisterView(this, {workLists: WorklistsFactory.createForAddMemberWizardLastPage(memberSubject, this.state.member, this.state.individualRelative, this.isHeadOfHousehold(), this.state.relativeGender)});
         }
     }
 
