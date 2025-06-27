@@ -13,7 +13,7 @@ import {LandingViewActionsNames as Actions} from "../action/LandingViewActions";
 import Reducers from "../reducer";
 import Styles from "./primitives/Styles";
 import MyDashboardView from "./mydashbaord/MyDashboardView";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Dimensions, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import EntityService from "../service/EntityService";
 import {SubjectType} from "avni-models";
 import _ from "lodash";
@@ -25,7 +25,6 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import NewsService from "../service/news/NewsService";
-import { Dimensions } from 'react-native';
 import LocalCacheService from '../service/LocalCacheService';
 import {CustomDashboardType} from "../service/customDashboard/CustomDashboardService";
 
