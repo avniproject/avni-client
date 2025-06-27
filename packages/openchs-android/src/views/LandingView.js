@@ -25,7 +25,6 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import PrivilegeService from "../service/PrivilegeService";
 import CustomDashboardView from "./customDashboard/CustomDashboardView";
 import NewsService from "../service/news/NewsService";
-import { Dimensions } from 'react-native';
 import LocalCacheService from '../service/LocalCacheService';
 import {CustomDashboardType} from "../service/customDashboard/CustomDashboardService";
 
