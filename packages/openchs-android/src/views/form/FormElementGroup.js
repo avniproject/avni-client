@@ -43,6 +43,7 @@ import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounte
 import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 import MediaV2FormElement from "./formElement/MediaV2FormElement";
 import Colors from "../primitives/Colors";
+import SignatureFormElement from "./formElement/SignatureFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -218,6 +219,14 @@ class FormElementGroup extends AbstractComponent {
                                 element={formElement}
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
+                                validationResult={validationResult}
+                            />, uniqueKey, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Signature) {
+                            return this.wrap(<SignatureFormElement
+                                key={uniqueKey}
+                                element={formElement}
+                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.ImageV2].includes(formElement.concept.datatype)) {
