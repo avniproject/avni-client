@@ -123,8 +123,8 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                     {this.renderCompletedVisits()}
                 </View>
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
-                {this.state.editFormRuleResponse.isEditDisallowed() &&
-                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
+                {this.state.editFormRuleResponse.isDisallowed() &&
+                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>
         );
     }

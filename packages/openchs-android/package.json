@@ -102,7 +102,7 @@
     "realm": "11.8.0",
     "redux": "4.2.0",
     "rn-fetch-blob": "0.13.0-beta-1",
-    "rules-config": "github:openchs/rules-config#982bb007c4f759639063159196edee386b48cac3",
+    "rules-config": "github:openchs/rules-config#d4f61391a74a00140d67cdde3aabaf7b7eeb47d6",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",
     "uuid": "^9.0.1"

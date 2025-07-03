@@ -36,7 +36,7 @@ import IndividualService from "./IndividualService";
 import EncounterService from "./EncounterService";
 import EntityService from "./EntityService";
 import * as rulesConfig from "rules-config";
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import moment from "moment";
 import GroupSubjectService from "./GroupSubjectService";
 import ProgramService from "./program/ProgramService";
@@ -255,7 +255,7 @@ class RuleEvaluationService extends BaseService {
 
     runEditFormRule(form, entity, entityName) {
         if (_.isEmpty(form.editFormRule)) {
-            return EditFormRuleResponse.createEditAllowedResponse();
+            return ActionEligibilityResponse.createAllowedResponse();
         } else {
             try {
                 const ruleFunc = eval(form.editFormRule);
@@ -263,11 +263,11 @@ class RuleEvaluationService extends BaseService {
                     params: _.merge({entity, form}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
-                return EditFormRuleResponse.createEditRuleResponse(ruleResponse);
+                return ActionEligibilityResponse.createRuleResponse(ruleResponse);
             } catch (e) {
                 General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
-                return EditFormRuleResponse.createEditAllowedResponse();
+                return ActionEligibilityResponse.createAllowedResponse();
             }
         }
     }
@@ -382,21 +382,33 @@ class RuleEvaluationService extends BaseService {
 
     getMemberAdditionEligibilityStatus(member, group, context) {
         if(!member || !group || !group.subjectType) {
-             return { eligible: false };
+            const eligibilityObj = { 
+                eligible: {
+                    value: false,
+                    message: "missingEligibilityDataMessage"
+                } 
+            };
+            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
         }
         const subjectType = group.subjectType;
         if (_.isEmpty(subjectType.memberAdditionEligibilityCheckRule)) {
-            return { eligible: true };
+            const eligibilityObj = { 
+                eligible: {
+                    value: true,
+                    message: "noEligibilityRuleDefinedMessage"
+                }
+            };
+            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
         }
         try {
             const ruleFunc = eval(subjectType.memberAdditionEligibilityCheckRule);
-            let memberAdditionEligibilityStatus = ruleFunc({
+            let ruleResult = ruleFunc({
                 params: _.merge({member, group, context}, this.getCommonParams()),
                 imports: getImports(this.globalRuleFunction)
             });
             
-            General.logDebug("RuleEvaluationService", `[DEBUG] Rule execution complete. Result: ${JSON.stringify(memberAdditionEligibilityStatus)}`);
-            return memberAdditionEligibilityStatus;
+            General.logDebug("RuleEvaluationService", `[DEBUG] Rule execution complete. Result: ${JSON.stringify(ruleResult)}`);
+            return ActionEligibilityResponse.createRuleResponse(ruleResult);
         } catch (e) {
             General.logDebug("Rule-Failure", `[DEBUG] EXCEPTION in getMemberAdditionEligibilityStatus: ${e.message}`);
             General.logDebug("Rule-Failure", `[DEBUG] STACK: ${e.stack}`);

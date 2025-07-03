@@ -10,7 +10,7 @@ import SubjectProgramEligibilityService from "../../service/program/SubjectProgr
 import EntityService from "../../service/EntityService";
 import FormMappingService from "../../service/FormMappingService";
 import GroupAffiliationState from '../../state/GroupAffiliationState';
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import General from "../../utility/General";
 
 class IndividualRegistrationDetailsActions {
@@ -20,7 +20,7 @@ class IndividualRegistrationDetailsActions {
             subjectProgramEligibilityStatuses: [],
             displayIndicator: false,
             groupAffiliationState: new GroupAffiliationState(),
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
 
@@ -53,7 +53,7 @@ class IndividualRegistrationDetailsActions {
         const registrationForm = context.get(FormMappingService).findRegistrationForm(state.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(registrationForm, state.individual, 'Individual');
         const newState = {...state};
-        if (editFormRuleResponse.isEditAllowed())
+        if (editFormRuleResponse.isAllowed())
             action.continueRegistrationEdit();
         else
             newState.editFormRuleResponse = editFormRuleResponse;
@@ -61,7 +61,7 @@ class IndividualRegistrationDetailsActions {
     }
 
     static onEditErrorShown(state) {
-        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+        return {...state, editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()}
     }
 
     static onDeleteRelative(state, action, context) {
@@ -151,11 +151,23 @@ class IndividualRegistrationDetailsActions {
 
     static checkMemberAdditionEligibility(member, group, context) {
         if (!member || !group || !group.subjectType) {
-            return { eligible: false };
+            const eligibilityObj = { 
+                eligible: {
+                    value: false,
+                    message: "missingEligibilityDataMessage"
+                }
+            };
+            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
         }
             
         if (_.isEmpty(group.subjectType.memberAdditionEligibilityCheckRule)) {
-            return { eligible: true };
+            const eligibilityObj = { 
+                eligible: {
+                    value: true,
+                    message: "noEligibilityRuleDefinedMessage"
+                }
+            };
+            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
         }
         
         try {

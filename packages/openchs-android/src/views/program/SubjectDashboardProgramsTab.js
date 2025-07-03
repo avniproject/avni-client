@@ -271,8 +271,8 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                             primaryAction={this.getPrimaryEnrolmentContextAction(hasExitPrivilege)}/>
                     </View>
                 </TouchableOpacity>
-                {this.state.editFormRuleResponse.isEditDisallowed() &&
-                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessageKey())}
+                {this.state.editFormRuleResponse.isDisallowed() &&
+                    <AvniToast message={this.I18n.t(this.state.editFormRuleResponse.getMessage())}
                                onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View></View>);
     }

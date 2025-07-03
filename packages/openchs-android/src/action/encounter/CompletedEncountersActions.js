@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import FormMappingService from "../../service/FormMappingService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
@@ -10,7 +10,7 @@ class CompletedEncountersActions {
             encountersInfo: [],
             encounterTypes: [],
             selectedEncounterTypes: [],
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
 
@@ -41,7 +41,7 @@ class CompletedEncountersActions {
         const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType, formType, encounter.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, encounter, encounter.getName());
 
-        if (editFormRuleResponse.isEditAllowed()) {
+        if (editFormRuleResponse.isAllowed()) {
             action.onEncounterEditAllowed();
             return state;
         } else {
@@ -52,7 +52,7 @@ class CompletedEncountersActions {
     }
 
     static onEditEncounterViaFormElementGroupErrorShown(state) {
-        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+        return {...state, editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()}
     }
 }
 

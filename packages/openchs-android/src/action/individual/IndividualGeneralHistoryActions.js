@@ -10,7 +10,7 @@ import PrivilegeService from "../../service/PrivilegeService";
 import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {Form} from "openchs-models";
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 
 export class IndividualGeneralHistoryActions {
@@ -20,7 +20,7 @@ export class IndividualGeneralHistoryActions {
             encounterTypes: [],
             displayActionSelector: false,
             draftEncounters: [],
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
 
@@ -107,7 +107,7 @@ export class IndividualGeneralHistoryActions {
         const form = context.get(FormMappingService).findFormForEncounterType(action.encounter.encounterType, formType, state.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, action.encounter, 'Encounter');
 
-        if (editFormRuleResponse.isEditAllowed()) {
+        if (editFormRuleResponse.isAllowed()) {
             action.onEncounterEditAllowed();
             return state;
         } else {
@@ -118,7 +118,7 @@ export class IndividualGeneralHistoryActions {
     }
 
     static onEditErrorShown(state) {
-        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+        return {...state, editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()}
     }
 
     static onRender(state, action, context) {

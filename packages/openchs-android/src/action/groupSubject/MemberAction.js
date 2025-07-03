@@ -1,5 +1,6 @@
 import GroupSubjectService from "../../service/GroupSubjectService";
-import _ from "lodash";
+import _ from 'lodash';
+import {ActionEligibilityResponse} from "rules-config";
 import {IndividualRelation, IndividualRelative, ValidationResult} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import IndividualRelationshipService from "../../service/relationship/IndividualRelationshipService";
@@ -130,19 +131,15 @@ export class MemberAction {
     
     static checkMemberEligibility(member, group, context) {
         try {
-            const eligibilityStatus = IndividualRegistrationDetailsActions.checkMemberAdditionEligibility(
+            return IndividualRegistrationDetailsActions.checkMemberAdditionEligibility(
                 member, group, context
             );
-            
-            return {
-                eligible: eligibilityStatus.eligible,
-                messageKey: eligibilityStatus.message || 'memberNotEligibleMessage'
-            };
         } catch (error) {
-            return {
-                eligible: false,
-                messageKey: 'memberEligibilityCheckError'
+            const eligibilityObj =  {
+                value: false,
+                message: 'memberEligibilityCheckError'
             };
+            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
         }
     }
 
@@ -224,8 +221,8 @@ export class MemberAction {
 
         // Check member addition eligibility
         const eligibilityResult = MemberAction.checkMemberEligibility(newState.member.memberSubject, newState.member.groupSubject, context);
-        if (!eligibilityResult.eligible) {
-            allValidationResults.push(ValidationResult.failure('GROUP_MEMBER', eligibilityResult.messageKey));
+        if (eligibilityResult.isDisallowed()) {
+            allValidationResults.push(ValidationResult.failure('GROUP_MEMBER', eligibilityResult.getMessage()));
         }
         
         // Get validation results from relation validation if applicable

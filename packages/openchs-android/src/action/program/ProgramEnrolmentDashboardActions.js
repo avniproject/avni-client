@@ -14,7 +14,7 @@ import UserInfoService from "../../service/UserInfoService";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import IndividualService from "../../service/IndividualService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import {Form} from "openchs-models";
 
 class ProgramEnrolmentDashboardActions {
@@ -36,7 +36,7 @@ class ProgramEnrolmentDashboardActions {
             displayActionSelector: false,
             expandEnrolmentInfo: false,
             completedEncounters: [],
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
 
@@ -181,7 +181,7 @@ class ProgramEnrolmentDashboardActions {
         const form = context.get(FormMappingService).findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, enrolment, 'ProgramEnrolment');
 
-        if (!editFormRuleResponse.isEditAllowed()) {
+        if (!editFormRuleResponse.isAllowed()) {
             const newState = {...state};
             newState.editFormRuleResponse = editFormRuleResponse;
             return newState;
@@ -207,7 +207,7 @@ class ProgramEnrolmentDashboardActions {
         const form = context.get(FormMappingService).findFormForEncounterType(encounter.encounterType, formType, state.enrolment.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, encounter, 'ProgramEncounter');
 
-        if (editFormRuleResponse.isEditAllowed()) {
+        if (editFormRuleResponse.isAllowed()) {
             action.onEncounterEditAllowed();
             return state;
         } else {
@@ -218,7 +218,7 @@ class ProgramEnrolmentDashboardActions {
     }
 
     static onEditErrorShown(state) {
-        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+        return {...state, editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()}
     }
 
     static onEditEnrolmentExit(state, action, context) {
@@ -227,7 +227,7 @@ class ProgramEnrolmentDashboardActions {
 
         const form = context.get(FormMappingService).findFormForProgramExit(enrolment.program, enrolment.individual.subjectType);
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(form, enrolment, 'ProgramEnrolment');
-        if (!editFormRuleResponse.isEditAllowed()) {
+        if (!editFormRuleResponse.isAllowed()) {
             const newState = {...state};
             newState.editFormRuleResponse = editFormRuleResponse;
             return newState;

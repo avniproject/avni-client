@@ -1,7 +1,7 @@
 import EntityService from "../../service/EntityService";
 import _ from 'lodash';
 import {ProgramEnrolment, Checklist} from 'avni-models';
-import {EditFormRuleResponse} from "rules-config";
+import {ActionEligibilityResponse} from "rules-config";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 
 function clone(state) {
@@ -19,7 +19,7 @@ function clone(state) {
 class ChecklistActions {
     static getInitialState() {
         return {
-            editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()
+            editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
 
@@ -70,7 +70,7 @@ class ChecklistActions {
     static onChecklistItemEdit(state, action, context) {
         const editFormRuleResponse = context.get(RuleEvaluationService).runEditFormRule(action.checklistItem.detail.form, action.checklistItem, 'ChecklistItem');
 
-        if (editFormRuleResponse.isEditAllowed()) {
+        if (editFormRuleResponse.isAllowed()) {
             action.onContinueChecklistItemEdit();
             return state;
         } else {
@@ -81,7 +81,7 @@ class ChecklistActions {
     }
 
     static onChecklistItemEditErrorShown(state) {
-        return {...state, editFormRuleResponse: EditFormRuleResponse.createEditAllowedResponse()}
+        return {...state, editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()}
     }
 }
 

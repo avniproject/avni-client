@@ -395,8 +395,8 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                 </View>
                 {displayGeneralEncounterInfo && <SubjectDashboardGeneralTab {...this.props}/>}
                 <Separator height={110} backgroundColor={Colors.WhiteContentBackground}/>
-                {editFormRuleResponse.isEditDisallowed() &&
-                    <AvniToast message={this.I18n.t(editFormRuleResponse.getMessageKey())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
+                {editFormRuleResponse.isDisallowed() &&
+                    <AvniToast message={this.I18n.t(editFormRuleResponse.getMessage())} onAutoClose={() => this.dispatchAction(Actions.ON_EDIT_ERROR_SHOWN)}/>}
             </View>
         );
     }
