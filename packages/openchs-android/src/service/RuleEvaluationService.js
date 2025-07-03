@@ -382,23 +382,11 @@ class RuleEvaluationService extends BaseService {
 
     getMemberAdditionEligibilityStatus(member, group, context) {
         if(!member || !group || !group.subjectType) {
-            const eligibilityObj = { 
-                eligible: {
-                    value: false,
-                    message: "missingEligibilityDataMessage"
-                } 
-            };
-            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
+            return ActionEligibilityResponse.createDisallowedResponse("missingEligibilityDataMessage");
         }
         const subjectType = group.subjectType;
         if (_.isEmpty(subjectType.memberAdditionEligibilityCheckRule)) {
-            const eligibilityObj = { 
-                eligible: {
-                    value: true,
-                    message: "noEligibilityRuleDefinedMessage"
-                }
-            };
-            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
+            return ActionEligibilityResponse.createAllowedResponse();
         }
         try {
             const ruleFunc = eval(subjectType.memberAdditionEligibilityCheckRule);

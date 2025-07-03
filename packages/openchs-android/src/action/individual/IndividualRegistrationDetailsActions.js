@@ -150,26 +150,6 @@ class IndividualRegistrationDetailsActions {
     }
 
     static checkMemberAdditionEligibility(member, group, context) {
-        if (!member || !group || !group.subjectType) {
-            const eligibilityObj = { 
-                eligible: {
-                    value: false,
-                    message: "missingEligibilityDataMessage"
-                }
-            };
-            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
-        }
-            
-        if (_.isEmpty(group.subjectType.memberAdditionEligibilityCheckRule)) {
-            const eligibilityObj = { 
-                eligible: {
-                    value: true,
-                    message: "noEligibilityRuleDefinedMessage"
-                }
-            };
-            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
-        }
-        
         try {
             const ruleEvaluationService = context.get(RuleEvaluationService);
             return ruleEvaluationService.getMemberAdditionEligibilityStatus(member, group, context);

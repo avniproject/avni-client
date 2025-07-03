@@ -135,11 +135,7 @@ export class MemberAction {
                 member, group, context
             );
         } catch (error) {
-            const eligibilityObj =  {
-                value: false,
-                message: 'memberEligibilityCheckError'
-            };
-            return ActionEligibilityResponse.createRuleResponse(eligibilityObj);
+            return ActionEligibilityResponse.createDisallowedResponse("memberEligibilityCheckError");
         }
     }
 
