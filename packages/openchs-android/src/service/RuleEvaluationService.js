@@ -267,7 +267,7 @@ class RuleEvaluationService extends BaseService {
             } catch (e) {
                 General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
-                return ActionEligibilityResponse.createAllowedResponse();
+                return ActionEligibilityResponse.createDisallowedResponse("queryExecutionError");
             }
         }
     }
