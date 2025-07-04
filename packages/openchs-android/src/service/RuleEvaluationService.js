@@ -398,12 +398,10 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("RuleEvaluationService", `[DEBUG] Rule execution complete. Result: ${JSON.stringify(ruleResult)}`);
             return ActionEligibilityResponse.createRuleResponse(ruleResult);
         } catch (e) {
-            General.logDebug("Rule-Failure", `[DEBUG] EXCEPTION in getMemberAdditionEligibilityStatus: ${e.message}`);
-            General.logDebug("Rule-Failure", `[DEBUG] STACK: ${e.stack}`);
             General.logDebug("Rule-Failure",
                 `Member Addition Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
-            this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(group, 'Group'),
-                'MemberAdditionEligibilityCheck', subjectType.uuid, 'Group', group.uuid);
+            this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(member, 'Individual'),
+                'MemberAdditionEligibilityCheck', subjectType.uuid, 'Individual', this.getIndividualUUID(group, 'Individual'));
             throw Error(e.message);
         }
     }

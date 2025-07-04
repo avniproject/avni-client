@@ -150,16 +150,7 @@ class IndividualRegistrationDetailsActions {
     }
 
     static checkMemberAdditionEligibility(member, group, context) {
-        try {
-            const ruleEvaluationService = context.get(RuleEvaluationService);
-            return ruleEvaluationService.getMemberAdditionEligibilityStatus(member, group, context);
-        } catch (error) {
-            General.logDebug('IndividualRegistrationDetailsActions',
-                `[DEBUG] EXCEPTION in checkMemberAdditionEligibility: ${error.message}`);
-            General.logDebug('IndividualRegistrationDetailsActions', 
-                `[DEBUG] STACK: ${error.stack}`);
-            throw error;
-        }
+        return context.get(RuleEvaluationService).getMemberAdditionEligibilityStatus(member, group, context);
     }
 }
 
