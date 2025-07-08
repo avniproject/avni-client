@@ -68,7 +68,7 @@ export class EncounterActions {
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
         let editableEncounter = action.encounter;
         const draftEncounter = context.get(DraftEncounterService).findByUUID(action.encounter.uuid);
-        if (draftEncounter) {
+        if (state.saveDrafts && draftEncounter) {
             editableEncounter = draftEncounter.constructEncounter();
         }
 
@@ -107,7 +107,7 @@ export class EncounterActions {
     static onNext(state, action, context) {
         const newState = state.clone();
         newState.handleNext(action, context);
-        if (isSaveDraftOn(context)) {
+        if (state.saveDrafts && isSaveDraftOn(context)) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context)
         }
         return newState;
@@ -119,7 +119,7 @@ export class EncounterActions {
 
     static onPrevious(state, action, context) {
         let newState = state.clone().handlePrevious(action, context);
-        if (isSaveDraftOn(context)) {
+        if (state.saveDrafts && isSaveDraftOn(context)) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
         }
         return newState;
