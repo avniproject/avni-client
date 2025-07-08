@@ -135,7 +135,7 @@ export class MemberAction {
                 member, group, context
             );
         } catch (error) {
-            return ActionEligibilityResponse.createDisallowedResponse("queryExecutionError");
+            return ActionEligibilityResponse.createAllowedResponse();
         }
     }
 

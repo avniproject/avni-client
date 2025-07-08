@@ -399,8 +399,6 @@
     "rejectRequestTitle": "Reject {{entityName}} request for the subject {{subjectName}} ?",
     "rejectRequestMsg": "Please mention the reason below:",
     "verifyNumber": "Verify number",
-    "missingEligibilityDataMessage": "Required data is missing for eligibility check",
-    "incorrectEligibilityRuleDefinedMessage": "Incorrect eligibility rules defined",
     "news": "News",
     "readNewsBroadcast": "Read news broadcast",
     "deleteMessageTitle": "Delete the comment",

@@ -267,7 +267,7 @@ class RuleEvaluationService extends BaseService {
             } catch (e) {
                 General.logDebug("Rule-Failure", `EditFormRule failed: ${JSONStringify(e)}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName), 'EditForm', form.uuid, entityName, entity.uuid);
-                return ActionEligibilityResponse.createDisallowedResponse("queryExecutionError");
+                return ActionEligibilityResponse.createAllowedResponse();
             }
         }
     }
@@ -381,9 +381,6 @@ class RuleEvaluationService extends BaseService {
     }
 
     getMemberAdditionEligibilityStatus(member, group, context) {
-        if(!member || !group || !group.subjectType) {
-            return ActionEligibilityResponse.createDisallowedResponse("missingEligibilityDataMessage");
-        }
         const subjectType = group.subjectType;
         if (_.isEmpty(subjectType.memberAdditionEligibilityCheckRule)) {
             return ActionEligibilityResponse.createAllowedResponse();
@@ -402,7 +399,7 @@ class RuleEvaluationService extends BaseService {
                 `Member Addition Eligibility Rule failed for: ${subjectType.name} Subject type ${e.message} ${e.stack}`);
             this.saveFailedRules(e, subjectType.uuid, this.getIndividualUUID(member, 'Individual'),
                 'MemberAdditionEligibilityCheck', subjectType.uuid, 'Individual', this.getIndividualUUID(group, 'Individual'));
-            throw Error(e.message);
+            return ActionEligibilityResponse.createAllowedResponse();
         }
     }
 
