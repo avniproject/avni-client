@@ -95,7 +95,7 @@ class SubjectRegisterFormView extends AbstractComponent {
 
     onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [SubjectRegisterView, SubjectRegisterFormView]);
-        saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     shouldComponentUpdate(nextProps, nextState) {

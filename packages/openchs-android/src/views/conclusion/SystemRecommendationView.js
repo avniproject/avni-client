@@ -38,7 +38,6 @@ import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import AvniIcon from "../common/AvniIcon";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
-import {Form} from "openchs-models";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -172,13 +171,8 @@ class SystemRecommendationView extends AbstractComponent {
         const onYesPress = () => {
             this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
             CHSNavigator.navigateToFirstPage(this, wizardViews);
-        };
-        const formType = (this.props.form && this.props.form.formType);
-        const messageKey = (
-            [Form.formTypes.Encounter, Form.formTypes.IndividualProfile, Form.formTypes.IndividualEncounterCancellation]
-                .includes(formType)
-        ) ? 'encounterOrIndividualBackPressMessage' : 'backPressMessage';
-        isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(messageKey), onYesPress, this.I18n);
+        }
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     doDisplayScrollButton() {
@@ -202,9 +196,9 @@ class SystemRecommendationView extends AbstractComponent {
                             {!_.isNil(this.props.individual) && this.profile()}
                             <View style={{flexDirection: 'column', marginHorizontal: Distances.ContentDistanceFromEdge}}>
                                 {displayScrollButton &&
-                                <Button style={{alignSelf: "flex-end", backgroundColor: Colors.AccentColor}}
-                                        leftIcon={<AvniIcon type="MaterialIcons" name="arrow-circle-down" color={Colors.TextOnPrimaryColor} style={{fontSize: 20}}/>}
-                                        onPress={() => this.scrollToBottom()}>{this.I18n.t("scrollToBottomToSave")}</Button>}
+                                    <Button style={{alignSelf: "flex-end", backgroundColor: Colors.AccentColor}}
+                                            leftIcon={<AvniIcon type="MaterialIcons" name="arrow-circle-down" color={Colors.TextOnPrimaryColor} style={{fontSize: 20}}/>}
+                                            onPress={() => this.scrollToBottom()}>{this.I18n.t("scrollToBottomToSave")}</Button>}
                                 <View style={this.scaleStyle({paddingVertical: 12, flexDirection: 'column'})}>
                                     {
                                         this.props.validationErrors.map((validationResult, index) => {
@@ -228,7 +222,7 @@ class SystemRecommendationView extends AbstractComponent {
                                 <NextScheduledVisitsForOtherSubjects nextScheduledVisits={this.props.nextScheduledVisits.filter(nsv => !_.isNil(nsv.subject))}
                                                                      title={this.I18n.t('visitsBeingScheduledForOthers')}/>
                                 {!_.isNil(this.props.individual) &&
-                                <GroupAffiliationInformation individual={this.props.individual} affiliatedGroups={this.props.affiliatedGroups} I18n={this.I18n}/>}
+                                    <GroupAffiliationInformation individual={this.props.individual} affiliatedGroups={this.props.affiliatedGroups} I18n={this.I18n}/>}
                                 <Observations observations={this.props.observations} form={this.props.form}
                                               title={this.I18n.t('observations')}/>
                                 <WizardButtons previous={{
