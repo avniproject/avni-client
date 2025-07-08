@@ -123,14 +123,14 @@ class IndividualEncounterView extends AbstractComponent {
         this.state.wizard.isFirstPage() ? this.goBack() : this.dispatchAction(Actions.PREVIOUS, {cb: this.scrollToTop});
     }
 
-    onAppHeaderBack() {
+    onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => {
             this.dispatchAction(IGHActions.ON_RENDER, {
                 individualUUID: this.props.individualUUID || this.props.encounter.individual.uuid
             });
             CHSNavigator.navigateToFirstPage(this, [IndividualEncounterView]);
         }
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
     onStartTimer() {
@@ -160,7 +160,7 @@ class IndividualEncounterView extends AbstractComponent {
             <CHSContainer>
                 <CHSContent>
                     <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
-                    <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
+                    <AppHeader title={title} func={() => this.onAppHeaderBack(this.state.saveDrafts)} displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     {this.state.wizard.isFirstFormPage() ?

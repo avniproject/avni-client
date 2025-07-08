@@ -17,6 +17,7 @@ class EncounterActionState extends AbstractDataEntryState {
         this.messageDisplayed = messageDisplayed;
         this.loadPullDownView = false;
         this.allElementsFilledForImmutableEncounter = false;
+        this.saveDrafts = isDraft;
     }
 
     getEntity() {
@@ -38,6 +39,7 @@ class EncounterActionState extends AbstractDataEntryState {
         if(newState.previousEncountersDisplayed){
             newState.previousEncounters = this.previousEncounters;
         }
+        newState.saveDrafts = this.saveDrafts;
         super.clone(newState);
         return newState;
     }
