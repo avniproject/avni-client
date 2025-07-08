@@ -172,7 +172,7 @@ class SystemRecommendationView extends AbstractComponent {
             this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
             CHSNavigator.navigateToFirstPage(this, wizardViews);
         }
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
     }
 
     doDisplayScrollButton() {
