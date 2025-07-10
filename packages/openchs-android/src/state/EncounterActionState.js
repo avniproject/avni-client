@@ -8,16 +8,18 @@ import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import TimerState from "./TimerState";
 import DraftEncounterService from "../service/draft/DraftEncounterService";
+import OrganisationConfigService from '../service/OrganisationConfigService';
 
 class EncounterActionState extends AbstractDataEntryState {
-    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft) {
+    constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts) {
         super(validationResults, formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow, isDraft);
         this.encounter = encounter;
         this.previousEncountersDisplayed = false;
         this.messageDisplayed = messageDisplayed;
         this.loadPullDownView = false;
         this.allElementsFilledForImmutableEncounter = false;
-        this.saveDrafts = isDraft;
+        this.saveDrafts = saveDrafts;
+        console.log('EncounterActionState.constructor', isDraft, 'isFirstFlow', isFirstFlow, 'isNewEntity', isNewEntity, 'saveDrafts', saveDrafts);
     }
 
     getEntity() {
@@ -65,7 +67,9 @@ class EncounterActionState extends AbstractDataEntryState {
         const isFirstFlow = isNewEntity || !action.editing;
 
         const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
-        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft);
+        const saveDrafts = isDraft || (isFirstFlow && context.get(OrganisationConfigService).isSaveDraftOn());
+        console.log('this.saveDrafts', this.saveDrafts, 'isDraft', isDraft, 'isFirstFlow', isFirstFlow);
+        let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);
