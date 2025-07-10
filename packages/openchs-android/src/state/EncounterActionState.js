@@ -19,7 +19,6 @@ class EncounterActionState extends AbstractDataEntryState {
         this.loadPullDownView = false;
         this.allElementsFilledForImmutableEncounter = false;
         this.saveDrafts = saveDrafts;
-        console.log('EncounterActionState.constructor', isDraft, 'isFirstFlow', isFirstFlow, 'isNewEntity', isNewEntity, 'saveDrafts', saveDrafts);
     }
 
     getEntity() {
@@ -68,7 +67,6 @@ class EncounterActionState extends AbstractDataEntryState {
 
         const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
         const saveDrafts = isDraft || (isFirstFlow && context.get(OrganisationConfigService).isSaveDraftOn());
-        console.log('this.saveDrafts', this.saveDrafts, 'isDraft', isDraft, 'isFirstFlow', isFirstFlow);
         let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
