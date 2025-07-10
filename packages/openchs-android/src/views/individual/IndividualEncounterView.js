@@ -90,7 +90,8 @@ class IndividualEncounterView extends AbstractComponent {
                     popVerificationVew,
                     this.state.encounter.isRejectedEntity(),
                     this.state.encounter.latestEntityApprovalStatus,
-                    fromSDV
+                    fromSDV,
+                    newState.saveDrafts
                 );
             },
             popVerificationVewFunc: () => TypedTransition.from(this).popToBookmark(),
