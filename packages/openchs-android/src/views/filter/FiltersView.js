@@ -90,6 +90,7 @@ class FilterView extends AbstractComponent {
             generalEncounterTypes: this.props.generalEncounterTypes,
             selectedGeneralEncounterTypes: this.props.selectedGeneralEncounterTypes,
             selectedCustomFilters: this.props.selectedCustomFilters,
+            selectedLocations: this.props.selectedLocations,
             subjectTypes,
             selectedSubjectType
         });

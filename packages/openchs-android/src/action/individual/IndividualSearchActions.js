@@ -132,7 +132,7 @@ export class IndividualSearchActions {
         const searchAddressLevels = lowestSelectedAddressLevels
             .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), [])
             .concat(newState.addressLevelState.selectedAddresses);
-        newState.searchCriteria.toggleLowestAddresses(searchAddressLevels);
+        newState.searchCriteria.toggleSearchAddresses(searchAddressLevels);
         const selectedCustomFilterForSubjectType = _.mapValues(newState.searchCriteria.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === state.searchCriteria.subjectType.uuid);
             return s.length === 0 ? [] : s

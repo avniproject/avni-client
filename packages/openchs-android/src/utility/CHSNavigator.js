@@ -215,7 +215,7 @@ class CHSNavigator {
         }).to(IndividualEncounterView, true);
     }
 
-    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV) {
+    static navigateToSystemRecommendationViewFromEncounterWizard(source, decisions, ruleValidationErrors, encounter, action, headerMessage, form, workListState, message, nextScheduledVisits, popVerificationVew, isRejectedEntity, entityApprovalStatus, fromSDV, saveDrafts) {
         const onSaveCallback = (source) => {
             TypedTransition
                 .from(source)
@@ -264,7 +264,7 @@ class CHSNavigator {
             form,
             workListState,
             message,
-            false,
+            saveDrafts,
             popVerificationVew,
             isRejectedEntity,
             entityApprovalStatus,
