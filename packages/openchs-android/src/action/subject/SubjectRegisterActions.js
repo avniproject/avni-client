@@ -182,7 +182,7 @@ export class SubjectRegisterActions {
         const currentWorkItem = action.workLists.getCurrentWorkItem();
         const groupSubject = _.get(currentWorkItem, 'parameters.member.groupSubject');
         if (isNewEntity && groupSubject && (groupSubject.isHousehold() || groupSubject.isGroup())) {
-            individual.lowestAddressLevel = _.get(groupSubject, 'lowestAddressLevel');
+            subject.lowestAddressLevel = _.get(groupSubject, 'lowestAddressLevel');
         }
 
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
