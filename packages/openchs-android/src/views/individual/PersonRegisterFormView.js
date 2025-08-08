@@ -96,7 +96,7 @@ class PersonRegisterFormView extends AbstractComponent {
 
     onAppHeaderBack(saveDraftOn) {
         const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [PersonRegisterView, PersonRegisterFormView]);
-        saveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
     shouldComponentUpdate(nextProps, nextState) {

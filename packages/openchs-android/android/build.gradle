@@ -3,10 +3,10 @@
 buildscript {
 
     ext {
-        buildToolsVersion = "35.0.0"
+        buildToolsVersion = "34.0.0"
         minSdkVersion = 21
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        compileSdkVersion = 34
+        targetSdkVersion = 34
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
         kotlinVersion = '1.6.21'
@@ -61,7 +61,7 @@ subprojects {
         project ->
             if (project.hasProperty("android")) {
                 android {
-                    compileSdkVersion = 35
+                    compileSdkVersion = 34
                 }
             }
     }

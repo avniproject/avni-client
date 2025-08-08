@@ -30,10 +30,12 @@ class FiltersActions {
 
     static onLoad(state, action, context) {
         const generalEncounterTypes = context.get(FormMappingService).findEncounterTypesForSubjectType(action.selectedSubjectType);
+        const newLocationSearchCriteria = action.locationSearchCriteria.clone();
+        newLocationSearchCriteria.toggleLowestAddresses(action.selectedLocations)
         return {
             ...state,
             filters: FiltersActions.cloneFilters(action.filters),
-            locationSearchCriteria: action.locationSearchCriteria,
+            locationSearchCriteria: newLocationSearchCriteria,
             addressLevelState: action.addressLevelState,
             selectedCustomFilters: action.selectedCustomFilters,
             filterDate: {value: action.filterDate.value},

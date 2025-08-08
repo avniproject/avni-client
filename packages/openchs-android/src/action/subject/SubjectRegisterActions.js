@@ -180,6 +180,11 @@ export class SubjectRegisterActions {
             subject = subjectFromDB.cloneForEdit();
         }
         const currentWorkItem = action.workLists.getCurrentWorkItem();
+        const groupSubject = _.get(currentWorkItem, 'parameters.member.groupSubject');
+        if (isNewEntity && groupSubject && (groupSubject.isHousehold() || groupSubject.isGroup())) {
+            subject.lowestAddressLevel = _.get(groupSubject, 'lowestAddressLevel');
+        }
+
         const subjectType = context.get(EntityService).findByKey('name', currentWorkItem.parameters.subjectTypeName, SubjectType.schema.name);
 
         if (_.isEmpty(subject.subjectType.name)) {
