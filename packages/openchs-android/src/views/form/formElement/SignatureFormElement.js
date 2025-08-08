@@ -59,7 +59,7 @@ class SignatureFormElement extends AbstractFormElement {
             formElement: this.props.element,
             parentFormElement: this.props.parentElement,
             questionGroupIndex: this.props.questionGroupIndex,
-            answerUUID: fileName
+            answer: fileName,
         });
     }
 

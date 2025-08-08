@@ -225,7 +225,7 @@ class FormElementGroup extends AbstractComponent {
                             return this.wrap(<SignatureFormElement
                                 key={uniqueKey}
                                 element={formElement}
-                                actionName={this.props.actions["TOGGLE_SINGLESELECT_ANSWER"]}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
                             />, uniqueKey, formElement.uuid === erroredUUID);
