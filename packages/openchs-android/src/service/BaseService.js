@@ -1,4 +1,3 @@
-// @flow
 import _ from "lodash";
 import General from "../utility/General";
 import RealmQueryService from "./query/RealmQueryService";

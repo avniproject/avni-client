@@ -1,4 +1,3 @@
-// @flow
 import {Encounter, EncounterType, Individual, Program, ProgramEncounter, ProgramEnrolment, SubjectType, WorkItem} from 'avni-models';
 import TypedTransition from "../framework/routing/TypedTransition";
 import ProgramEnrolmentView from "../views/program/ProgramEnrolmentView";

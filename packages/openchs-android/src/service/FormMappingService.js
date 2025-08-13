@@ -1,4 +1,3 @@
-// @flow
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import {EncounterType, Form, FormMapping, Program, SubjectType} from "openchs-models";

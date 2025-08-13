@@ -1,4 +1,3 @@
-// @flow
 import {Form, Observation, PrimitiveValue, ValidationResult} from 'avni-models';
 import EntityService from "../../service/EntityService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";

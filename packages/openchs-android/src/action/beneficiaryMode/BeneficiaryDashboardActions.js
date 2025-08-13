@@ -1,4 +1,3 @@
-// @flow
 import {Form, ValidationResult} from 'avni-models';
 import {Action} from "../util";
 import IndividualService from "../../service/IndividualService";

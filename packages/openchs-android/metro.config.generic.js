@@ -5,7 +5,7 @@ const config = {
     projectRoot: path.resolve(__dirname),
     watchFolders: [],
     transformer: {
-        hermesParser: false,
+        hermesParser: false, //https://github.com/facebook/hermes/issues/1549#issuecomment-2478698376
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,

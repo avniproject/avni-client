@@ -1,4 +1,3 @@
-// @flow
 import PropTypes from "prop-types";
 import React from "react";
 import {SectionList, StyleSheet, Text, ToastAndroid, TouchableNativeFeedback, View} from "react-native";
