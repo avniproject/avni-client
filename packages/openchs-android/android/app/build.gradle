@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services'
 
@@ -52,6 +53,8 @@ react {
     //
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
+    /* Autolinking */
+    autolinkLibrariesWithApp()
 }
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
@@ -75,7 +78,7 @@ def enableProguardInReleaseBuilds = true
 android {
     ndkVersion rootProject.ext.ndkVersion
     namespace "com.openchsclient"
-
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -226,9 +229,7 @@ dependencies {
     implementation project(':react-native-zip-archive')
     implementation project(':react-native-webview')
     implementation project(':react-native-immediate-phone-call')
-    implementation (project(':rn-fetch-blob')) {
-        exclude group: 'com.squareup.okhttp3'
-    }
+    implementation (project(':rn-fetch-blob'))
     implementation project(':react-native-image-picker')
     implementation project(':react-native-fs')
     implementation project(':react-native-geolocation-service')
@@ -251,13 +252,14 @@ dependencies {
     } else {
         implementation('org.webkit:android-jsc:+')
     }
+}
 
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
+configurations.all {
+    resolutionStrategy {
+        force 'com.squareup.okhttp3:okhttp:4.9.3'
+        force 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+        force 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     }
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
 }
 
 // Run this once to be able to run the application with BUCK
@@ -267,4 +269,4 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+//apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

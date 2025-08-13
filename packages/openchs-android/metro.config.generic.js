@@ -1,7 +1,11 @@
-var path = require("path");
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const path = require('path');
 
-module.exports = {
+const config = {
+    projectRoot: path.resolve(__dirname),
+    watchFolders: [],
     transformer: {
+        hermesParser: false,
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,
@@ -14,9 +18,7 @@ module.exports = {
             "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),
         }
     },
-
-    projectRoot: path.resolve(__dirname),
-    watchFolders: [],
-
     resetCache: true
 };
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
