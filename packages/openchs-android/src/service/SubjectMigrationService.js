@@ -141,6 +141,12 @@ class SubjectMigrationService extends BaseService {
                 _.forEach(enrolment.encounters, (programEncounter) => {
                     // PROGRAM ENCOUNTER
                     // PROGRAM ENCOUNTER children (others)
+                    db.delete(programEncounter.observations);
+                    db.delete(programEncounter.cancelObservations);
+
+                    this.safeDelete(programEncounter.encounterLocation);
+                    this.safeDelete(programEncounter.cancelLocation);
+
                     db.delete(programEncounter.approvalStatuses);
                 });
                 db.delete(enrolment.encounters);
@@ -154,6 +160,12 @@ class SubjectMigrationService extends BaseService {
                     db.delete(checklist.items);
                 });
                 // ENROLMENT children (others)
+                db.delete(enrolment.observations);
+                db.delete(enrolment.programExitObservations);
+
+                this.safeDelete(enrolment.enrolmentLocation);
+                this.safeDelete(enrolment.exitLocation);
+
                 db.delete(enrolment.checklists);
                 db.delete(enrolment.approvalStatuses);
             });
@@ -168,6 +180,8 @@ class SubjectMigrationService extends BaseService {
 
             // SUBJECT children (others)
             db.delete(this.getService(IndividualRelationshipService).findBySubject(subject));
+            db.delete(subject.observations);
+            this.safeDelete(subject.registrationLocation);
             db.delete(subject.comments);
             db.delete(subject.groupSubjects);
             db.delete(subject.groups);
