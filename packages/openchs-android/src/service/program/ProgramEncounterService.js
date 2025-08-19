@@ -31,7 +31,7 @@ class ProgramEncounterService extends BaseService {
     _saveEncounter(programEncounter, db) {
         const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), programEncounter)
         programEncounter.updateAudit(this.getUserInfo(), this.isNew(programEncounter), isGettingFilled);
-        programEncounter = db.create(ProgramEncounter.schema.name, programEncounter, true);
+        programEncounter = db.create(ProgramEncounter.schema.name, programEncounter, Realm.UpdateMode.Modified);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
         db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));

@@ -86,7 +86,7 @@ class ProgramEnrolmentService extends BaseService {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
-            programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            programEnrolment = db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), isNew);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -120,7 +120,7 @@ class ProgramEnrolmentService extends BaseService {
         this.db.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, db, programEnrolment.program.uuid);
-            db.create(ProgramEnrolment.schema.name, programEnrolment, true);
+            db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), false);
             db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual, db));

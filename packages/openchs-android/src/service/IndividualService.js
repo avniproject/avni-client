@@ -235,7 +235,7 @@ class IndividualService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, db, individual.subjectType.uuid);
             individual.updateAudit(this.getUserInfo(), isNew);
-            const saved = db.create(Individual.schema.name, individual, true);
+            const saved = db.create(Individual.schema.name, individual, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);

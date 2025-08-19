@@ -53,7 +53,7 @@ class EncounterService extends BaseService {
         // Checks whether unsaved encounter is filled but saved encounter is not filled
         const isGettingFilled = encounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), encounter)
         encounter.updateAudit(this.getUserInfo(), this.isNew(encounter), isGettingFilled);
-        encounter = db.create(Encounter.schema.name, encounter, true);
+        encounter = db.create(Encounter.schema.name, encounter, Realm.UpdateMode.Modified);
         const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         individual.addEncounter(encounter);
         db.create(EntityQueue.schema.name, EntityQueue.create(encounter, Encounter.schema.name));
