@@ -228,10 +228,6 @@ class BaseService {
         });
     }
 
-    safeDelete(object) {
-        if(!_.isNil(object)) this.db.delete(object);
-    }
-
     getObservationCount() {
         return this.getCount(Observation.schema.name);
     }
