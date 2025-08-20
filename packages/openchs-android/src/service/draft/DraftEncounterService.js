@@ -36,7 +36,16 @@ class DraftEncounterService extends BaseService {
         const db = this.db;
         const draft = this.findByUUID(encounterUUID);
         if (draft) {
-            db.write(() => db.delete(draft));
+            db.write(() => {
+                    db.delete(draft.observations);
+                    db.delete(draft.cancelObservations);
+
+                    this.safeDelete(draft.encounterLocation);
+                    this.safeDelete(draft.cancelLocation);
+
+                    db.delete(draft);
+                }
+            );
         }
     }
 }

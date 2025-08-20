@@ -29,7 +29,11 @@ class DraftSubjectService extends BaseService {
         const db = this.db;
         const draftSubject = this.findByUUID(subjectUUID);
         if (draftSubject) {
-            db.write(() => db.delete(draftSubject));
+            db.write(() => {
+                db.delete(draftSubject.observations);
+                this.safeDelete(draftSubject.registrationLocation);
+                db.delete(draftSubject);
+            });
         }
     }
 }

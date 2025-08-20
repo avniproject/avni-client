@@ -174,6 +174,12 @@ class SubjectMigrationService extends BaseService {
             _.forEach(subject.encounters, (encounter) => {
                 // ENCOUNTER
                 // ENCOUNTER children (others)
+                db.delete(encounter.observations);
+                db.delete(encounter.cancelObservations);
+
+                this.safeDelete(encounter.encounterLocation);
+                this.safeDelete(encounter.cancelLocation);
+
                 db.delete(encounter.approvalStatuses);
             });
             db.delete(subject.encounters);
