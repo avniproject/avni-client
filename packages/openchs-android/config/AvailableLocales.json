@@ -68,5 +68,10 @@
     "locale": "as_IN",
     "displayText": "Assamese",
     "uuid": "4b2f995b-f252-4207-bbe1-80cde2d90b67"
+  },
+  {
+    "locale": "brx_IN",
+    "displayText": "Bodo",
+    "uuid": "c5b4c9b6-9b4c-4c3f-8e4c-8e9e4b3b3e9e"
   }
 ]

@@ -19,6 +19,18 @@ class IndividualServiceFacade {
         return GlobalContext.getInstance().beanRegistry.getService(IndividualService)
           .findAllWithMobileNumber(mobileNumber, subjectTypeUUID);
     }
+
+    getSubjects(subjectTypeName, realmFilter) {
+        const individualService = GlobalContext.getInstance().beanRegistry.getService(IndividualService);
+        let subjects = individualService.getAllNonVoided()
+            .filtered('subjectType.name = $0', subjectTypeName);
+
+        if (realmFilter) {
+            subjects = subjects.filtered(realmFilter);
+        }
+
+        return subjects.map(_.identity);
+    }
 }
 
 const individualServiceFacade = new IndividualServiceFacade();
