@@ -4,6 +4,7 @@ import BaseService from "./BaseService";
 import EntityService from "./EntityService";
 import EntitySyncStatusService from "./EntitySyncStatusService";
 import SettingsService from "./SettingsService";
+
 import {
     EntityMetaData,
     EntitySyncStatus,
@@ -27,6 +28,7 @@ import ExtensionService from "./ExtensionService";
 import ConceptService from "./ConceptService";
 import EncryptionService from "./EncryptionService";
 import SubjectTypeService from "./SubjectTypeService";
+import MetricsService from "./MetricsService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
@@ -45,7 +47,6 @@ import {
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 import DeviceInfo from "react-native-device-info";
-import FileSystem from "../model/FileSystem";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -91,6 +92,7 @@ class SyncService extends BaseService {
         this.newsService = this.getService(NewsService);
         this.extensionService = this.getService(ExtensionService);
         this.subjectTypeService = this.getService(SubjectTypeService);
+        this.metricsService = this.getService(MetricsService);
     }
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
@@ -106,7 +108,7 @@ class SyncService extends BaseService {
 
         const mediaUploadRequired = this.mediaQueueService.isMediaUploadRequired();
         const updatedSyncSource = this.getUpdatedSyncSource(syncSource);
-        const appInfo = await this.getAppInfo();
+        const appInfo = await this.metricsService.getAppInfo();
         this.dispatchAction(SyncTelemetryActions.START_SYNC, {connectionInfo, syncSource: updatedSyncSource, appInfo});
         const syncCompleted = () => Promise.resolve(this.dispatchAction(SyncTelemetryActions.SYNC_COMPLETED))
             .then(() => this.telemetrySync(allEntitiesMetaData, onProgressPerEntity))
@@ -450,14 +452,6 @@ class SyncService extends BaseService {
         } else {
             this.dispatchAction(MyDashboardActionNames.ON_LOAD);
         }
-    }
-
-    async getAppInfo() {
-        const appInfo = {};
-        appInfo.dbSize = await FileSystem.getRealmDBSize();
-        appInfo.observationCount = this.getObservationCount();
-        appInfo.pointCount = this.getPointCount();
-        return appInfo;
     }
 }
 

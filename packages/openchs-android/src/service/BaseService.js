@@ -2,7 +2,6 @@
 import _ from "lodash";
 import General from "../utility/General";
 import RealmQueryService from "./query/RealmQueryService";
-import {Observation, Point} from "openchs-models";
 
 /*
 All methods with entity/entities in their name are to be used for disconnected objects. The ones without these terms are for connected objects.
@@ -227,17 +226,9 @@ class BaseService {
             db.delete(all);
         });
     }
-
+    
     safeDelete(object) {
         if(!_.isNil(object)) this.db.delete(object);
-    }
-
-    getObservationCount() {
-        return this.getCount(Observation.schema.name);
-    }
-
-    getPointCount() {
-        return this.getCount(Point.schema.name);
     }
 }
 
