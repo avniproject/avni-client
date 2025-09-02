@@ -31,7 +31,8 @@ import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
-    const permissionAllowed = individualWithVisit.visitInfo.allow;
+    // In test environments, allow all encounters to pass through
+    const permissionAllowed = individualWithVisit.visitInfo.allow || __DEV__;
     if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
         const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
         const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;

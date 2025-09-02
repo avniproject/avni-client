@@ -18,6 +18,7 @@ class TestProgramFactory {
     program.colour = colour;
     program.allowMultipleEnrolments = allowMultipleEnrolments;
     program.manualEligibilityCheckRequired = manualEligibilityCheckRequired;
+    program.showGrowthChart = false;
     return program;
   }
 }

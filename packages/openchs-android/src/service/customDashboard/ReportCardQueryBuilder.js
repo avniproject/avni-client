@@ -10,7 +10,11 @@ class ReportCardQueryBuilder {
         const programQuery = RealmQueryService.orKeyValueQuery("programEnrolment.program.uuid", programs.map((x) => x.uuid));
         const encounterTypeQuery = RealmQueryService.orKeyValueQuery("encounterType.uuid", encounterTypes.map((x) => x.uuid));
         const activeEnrolmentQuery = "programEnrolment.programExitDateTime = null";
-        return RealmQueryService.andQuery([subjectTypeQuery, programQuery, encounterTypeQuery, activeEnrolmentQuery]);
+        const queries = [subjectTypeQuery, programQuery, encounterTypeQuery];
+        if (programs.length > 0) {
+            queries.push(activeEnrolmentQuery);
+        }
+        return RealmQueryService.andQuery(queries);
     }
 
     static getGeneralEncounterCriteriaForReportCard(reportCard) {
@@ -31,7 +35,11 @@ class ReportCardQueryBuilder {
         const subjectTypeQuery = RealmQueryService.orKeyValueQuery("individual.subjectType.uuid", subjectTypes.map((x) => x.uuid));
         const programQuery = RealmQueryService.orKeyValueQuery("program.uuid", programs.map((x) => x.uuid));
         const activeEnrolmentQuery = "programExitDateTime = null";
-        return RealmQueryService.andQuery([subjectTypeQuery, programQuery, activeEnrolmentQuery]);
+        const queries = [subjectTypeQuery];
+        if (programs.length > 0) {
+            queries.push(programQuery, activeEnrolmentQuery);
+        }
+        return RealmQueryService.andQuery(queries);
     }
 
     static getSubjectCriteriaForReportCard(reportCard) {

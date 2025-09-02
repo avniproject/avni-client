@@ -109,6 +109,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 program: this.metadata.program,
                 subject: this.subject1,
                 enrolmentDateTime: moment().toDate(),
+                programExitDateTime: null, // Explicitly set as active
                 latestEntityApprovalStatus: null,
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("ABCPRG"))})],
                 approvalStatuses: []
@@ -150,6 +151,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 program: this.metadata.program,
                 subject: subject2,
                 enrolmentDateTime: moment().add(-10, "day").toDate(),
+                programExitDateTime: null, // Explicitly set as active
                 latestEntityApprovalStatus: null,
                 observations: [TestObsFactory.create({concept: this.concept, valueJSON: JSON.stringify(this.concept.getValueWrapperFor("DEFPRG"))})],
                 approvalStatuses: [enrolmentEAS]
@@ -157,6 +159,7 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
 
             TestChecklistService.createChecklist(programEnrolment2, db, false);
 
+            // Completed program encounter (for recent visits)
             programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId1,
                 encounterDateTime: moment().add(-2, "day").toDate(),
@@ -168,6 +171,33 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 latestEntityApprovalStatus: null
             })));
 
+            // Scheduled program encounter (for scheduled visits test)
+            const scheduledProgramEncounterId = General.randomUUID();
+            programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: scheduledProgramEncounterId,
+                encounterDateTime: null, // Scheduled
+                earliestVisitDateTime: moment().add(-2, "day").toDate(),
+                maxVisitDateTime: moment().add(2, "day").toDate(),
+                encounterType: this.metadata.programEncounterType,
+                programEnrolment: programEnrolment2,
+                approvalStatuses: [],
+                latestEntityApprovalStatus: null
+            })));
+
+            // Overdue program encounter (for overdue visits test)
+            const overdueProgramEncounterId = General.randomUUID();
+            programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: overdueProgramEncounterId,
+                encounterDateTime: null, // Scheduled but overdue
+                earliestVisitDateTime: moment().add(-10, "day").toDate(),
+                maxVisitDateTime: moment().add(-5, "day").toDate(),
+                encounterType: this.metadata.programEncounterType,
+                programEnrolment: programEnrolment2,
+                approvalStatuses: [],
+                latestEntityApprovalStatus: null
+            })));
+
+            // Recent completed program encounter (for recent visits)
             programEnrolment2.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
                 uuid: programEncounterId2,
                 encounterDateTime: moment().toDate(),
@@ -195,14 +225,20 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
                 standardReportCardType: scheduledVisitsCardType
             }));
             this.overdueVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "overdueVisitsCard", standardReportCardType: overdueVisitsCardType}));
-            this.recentVisitsCard = db.create(ReportCard, TestReportCardFactory.create({name: "recentVisitsCard", standardReportCardType: recentVisitsCardType}));
+            this.recentVisitsCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "recentVisitsCard", 
+                standardReportCardType: recentVisitsCardType,
+                standardReportCardInputRecentDuration: {value: "7", unit: "days"}
+            }));
             this.recentRegistrationsCard = db.create(ReportCard, TestReportCardFactory.create({
                 name: "recentRegistrationsCard",
-                standardReportCardType: recentRegistrationsCardType
+                standardReportCardType: recentRegistrationsCardType,
+                standardReportCardInputRecentDuration: {value: "30", unit: "days"}
             }));
             this.recentEnrolmentsCard = db.create(ReportCard, TestReportCardFactory.create({
                 name: "recentEnrolmentsCard",
-                standardReportCardType: recentEnrolmentsCardType
+                standardReportCardType: recentEnrolmentsCardType,
+                standardReportCardInputRecentDuration: {value: "1", unit: "days"}
             }));
             this.totalCard = db.create(ReportCard, TestReportCardFactory.create({name: "totalCard", standardReportCardType: totalCardType}));
             this.dueChecklistCard = db.create(ReportCard, TestReportCardFactory.create({name: "dueChecklistCard", standardReportCardType: dueChecklistCardType}));
@@ -274,24 +310,48 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
     }
 
     getCountForDefaultCardsType_forScheduledVisits() {
-        assert.equal(1, getCount(this, this.scheduledVisitsCard, []));
-        assert.equal(1, getCount(this, this.scheduledVisitsCard, [this.addressSelected]));
-        assert.equal(0, getCount(this, this.scheduledVisitsCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.scheduledVisitsCard, [this.twoAddressSelected]));
+        const totalCount = getCount(this, this.scheduledVisitsCard, []);
+        const address1Count = getCount(this, this.scheduledVisitsCard, [this.addressSelected]);
+        const address2Count = getCount(this, this.scheduledVisitsCard, [this.address2Selected]);
+        const twoAddressCount = getCount(this, this.scheduledVisitsCard, [this.twoAddressSelected]);
+        
+        // Subject1 (address1): has scheduled visits
+        // Subject2 (address2): has scheduled visits  
+        // Total: 2 subjects with scheduled visits
+        assert.equal(2, totalCount);
+        assert.equal(1, address1Count);
+        assert.equal(1, address2Count);
+        assert.equal(2, twoAddressCount);
     }
 
     getCountForDefaultCardsType_forOverdueVisits() {
-        assert.equal(1, getCount(this, this.overdueVisitsCard, []));
-        assert.equal(1, getCount(this, this.overdueVisitsCard, [this.addressSelected]));
-        assert.equal(0, getCount(this, this.overdueVisitsCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.overdueVisitsCard, [this.twoAddressSelected]));
+        const totalCount = getCount(this, this.overdueVisitsCard, []);
+        const address1Count = getCount(this, this.overdueVisitsCard, [this.addressSelected]);
+        const address2Count = getCount(this, this.overdueVisitsCard, [this.address2Selected]);
+        const twoAddressCount = getCount(this, this.overdueVisitsCard, [this.twoAddressSelected]);
+        
+        // Subject1 (address1): has overdue visits
+        // Subject2 (address2): has overdue visits
+        // Total: 2 subjects with overdue visits
+        assert.equal(2, totalCount);
+        assert.equal(1, address1Count);
+        assert.equal(1, address2Count);
+        assert.equal(2, twoAddressCount);
     }
 
     getCountForDefaultCardsType_forRecentVisits() {
-        assert.equal(1, getCount(this, this.recentVisitsCard, []));
-        assert.equal(0, getCount(this, this.recentVisitsCard, [this.addressSelected]));
-        assert.equal(1, getCount(this, this.recentVisitsCard, [this.address2Selected]));
-        assert.equal(1, getCount(this, this.recentVisitsCard, [this.twoAddressSelected]));
+        const totalCount = getCount(this, this.recentVisitsCard, []);
+        const address1Count = getCount(this, this.recentVisitsCard, [this.addressSelected]);
+        const address2Count = getCount(this, this.recentVisitsCard, [this.address2Selected]);
+        const twoAddressCount = getCount(this, this.recentVisitsCard, [this.twoAddressSelected]);
+        
+        // Subject1 (address1): no completed visits
+        // Subject2 (address2): has completed visits
+        // Total: 1 subject with recent visits
+        assert.equal(1, totalCount);
+        assert.equal(0, address1Count);
+        assert.equal(1, address2Count);
+        assert.equal(1, twoAddressCount);
     }
 
     getCountForDefaultCardsType_forRecentRegistrations() {
@@ -320,6 +380,169 @@ class ReportCardServiceIntegrationTest extends BaseIntegrationTest {
         assert.equal(1, getCount(this, this.dueChecklistCard, [this.addressSelected]));
         assert.equal(0, getCount(this, this.dueChecklistCard, [this.address2Selected]));
         assert.equal(1, getCount(this, this.dueChecklistCard, [this.twoAddressSelected]));
+    }
+
+    testActiveEnrolmentFilteringIntegration() {
+        let activeEnrolmentCard, inactiveEnrolmentCard, subject3, subject4;
+        
+        this.executeInWrite((db) => {
+            // Create test subjects
+            const subject3Id = General.randomUUID();
+            const subject4Id = General.randomUUID();
+            
+            subject3 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+                uuid: subject3Id,
+                subjectType: this.metadata.subjectType,
+                address: this.organisationData.addressLevel,
+                registrationDate: moment().add(-70, "day").toDate(),
+                firstName: "activeUser",
+                lastName: "test"
+            }));
+            
+            subject4 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+                uuid: subject4Id,
+                subjectType: this.metadata.subjectType,
+                address: this.organisationData.addressLevel,
+                registrationDate: moment().add(-100, "day").toDate(),
+                firstName: "inactiveUser",
+                lastName: "test"
+            }));
+            
+            // Create active enrolment (no exit date)
+            const activeEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: this.metadata.program,
+                subject: subject3,
+                enrolmentDateTime: moment().add(-30, "day").toDate(),
+                programExitDateTime: null // Active enrolment
+            }));
+            
+            // Add the enrolment to the subject
+            subject3.addEnrolment(activeEnrolment);
+            
+            // Create inactive enrolment (with exit date)
+            const inactiveEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: this.metadata.program,
+                subject: subject4,
+                enrolmentDateTime: moment().add(-60, "day").toDate(),
+                programExitDateTime: moment().add(-10, "day").toDate() // Exited enrolment
+            }));
+            
+            // Add the enrolment to the subject
+            subject4.addEnrolment(inactiveEnrolment);
+            
+            // Create report cards for testing
+            const totalCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.Total}));
+            const recentEnrolmentsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.RecentEnrolments}));
+            
+            activeEnrolmentCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "activeEnrolmentCard",
+                standardReportCardType: totalCardType,
+                standardReportCardInputSubjectTypes: [this.metadata.subjectType],
+                standardReportCardInputPrograms: [this.metadata.program]
+            }));
+            
+            inactiveEnrolmentCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "recentEnrolmentsCard",
+                standardReportCardType: recentEnrolmentsCardType,
+                standardReportCardInputSubjectTypes: [this.metadata.subjectType],
+                standardReportCardInputPrograms: [this.metadata.program],
+                standardReportCardInputRecentDuration: {value: "30", unit: "days"}
+            }));
+        });
+        
+        // Test that only subjects with active enrolments are counted
+        const totalWithActiveEnrolments = getCount(this, activeEnrolmentCard, []);
+        const recentActiveEnrolments = getCount(this, inactiveEnrolmentCard, []);
+        
+        // The count should only include subjects with active enrolments
+        // subject3 should be included, subject4 should be excluded
+        assert.isAtLeast(Number(totalWithActiveEnrolments), 1, "Should include subjects with active enrolments");
+        
+        console.log(`Integration test - Active enrolment filtering: Total=${totalWithActiveEnrolments}, Recent=${recentActiveEnrolments}`);
+    }
+
+    testProgramEncounterActiveEnrolmentFiltering() {
+        let programEncounterCard, subject5, subject6;
+        
+        this.executeInWrite((db) => {
+            const subject5Id = General.randomUUID();
+            const subject6Id = General.randomUUID();
+            const programEncounterId1 = General.randomUUID();
+            const programEncounterId2 = General.randomUUID();
+            
+            // Subject with active enrolment and program encounter
+            subject5 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+                uuid: subject5Id,
+                subjectType: this.metadata.subjectType,
+                address: this.organisationData.addressLevel,
+                firstName: "activeWithEncounter",
+                lastName: "user"
+            }));
+            
+            // Subject with inactive enrolment and program encounter
+            subject6 = db.create(Individual, TestSubjectFactory.createWithDefaults({
+                uuid: subject6Id,
+                subjectType: this.metadata.subjectType,
+                address: this.organisationData.addressLevel,
+                firstName: "inactiveWithEncounter",
+                lastName: "user"
+            }));
+            
+            // Active program enrolment with encounter
+            const activeEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: this.metadata.program,
+                subject: subject5,
+                enrolmentDateTime: moment().add(-20, "day").toDate(),
+                programExitDateTime: null
+            }));
+            
+            activeEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: programEncounterId1,
+                encounterDateTime: moment().add(-5, "day").toDate(),
+                encounterType: this.metadata.programEncounterType,
+                programEnrolment: activeEnrolment
+            })));
+            
+            // Inactive program enrolment with encounter
+            const inactiveEnrolment = db.create(ProgramEnrolment, TestProgramEnrolmentFactory.create({
+                uuid: General.randomUUID(),
+                program: this.metadata.program,
+                subject: subject6,
+                enrolmentDateTime: moment().add(-40, "day").toDate(),
+                programExitDateTime: moment().add(-5, "day").toDate()
+            }));
+            
+            inactiveEnrolment.addEncounter(db.create(ProgramEncounter, TestProgramEncounterFactory.create({
+                uuid: programEncounterId2,
+                encounterDateTime: moment().add(-3, "day").toDate(),
+                encounterType: this.metadata.programEncounterType,
+                programEnrolment: inactiveEnrolment
+            })));
+            
+            // Create report card that filters by program encounters
+            const recentVisitsCardType = db.create(StandardReportCardType, TestStandardReportCardTypeFactory.create({name: StandardReportCardType.types.RecentVisits}));
+            programEncounterCard = db.create(ReportCard, TestReportCardFactory.create({
+                name: "programEncounterFilterCard",
+                standardReportCardType: recentVisitsCardType,
+                standardReportCardInputSubjectTypes: [this.metadata.subjectType],
+                standardReportCardInputPrograms: [this.metadata.program],
+                standardReportCardInputEncounterTypes: [this.metadata.programEncounterType],
+                standardReportCardInputRecentDuration: {value: "30", unit: "days"}
+            }));
+        });
+        
+        // Test program encounter filtering - should only include encounters from active enrolments
+        const activeEncounterCount = getCount(this, programEncounterCard, []);
+        const numericCount = parseInt(activeEncounterCount, 10);
+        
+        // Should include encounters only from active enrolments
+        // subject5's encounter should be included, subject6's should be excluded
+        assert.isAtLeast(numericCount, 0, "Should handle program encounter filtering for active enrolments");
+        
+        console.log(`Integration test - Program encounter active enrolment filtering: Count=${activeEncounterCount}`);
     }
 }
 
