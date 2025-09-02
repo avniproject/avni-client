@@ -7,7 +7,6 @@ class TestStandardReportCardTypeFactory {
         standardReportCardType.uuid = uuid;
         standardReportCardType.name = name;
         standardReportCardType.type = name;
-        standardReportCardType.d
         return standardReportCardType;
     }
 }
