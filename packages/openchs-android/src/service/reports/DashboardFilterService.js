@@ -45,10 +45,11 @@ class DashboardFilterService extends BaseService {
         const filterConfig = new DashboardFilterConfig();
         filterConfig.widget = obj.widget;
         filterConfig.type = obj.type;
-        filterConfig.subjectType = this.findByUUID(obj.subjectTypeUUID, SubjectType.schema.name);
+        filterConfig.subjectType = obj.subjectTypeUUID ? this.findByUUID(obj.subjectTypeUUID, SubjectType.schema.name) : null;
         if (obj.type === CustomFilter.type.GroupSubject) {
             filterConfig.groupSubjectTypeFilter = new GroupSubjectTypeFilter();
-            filterConfig.groupSubjectTypeFilter.subjectType = this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name);
+            filterConfig.groupSubjectTypeFilter.subjectType = obj.groupSubjectTypeFilter?.subjectTypeUUID ? 
+                this.findByUUID(obj.groupSubjectTypeFilter.subjectTypeUUID, SubjectType.schema.name) : null;
         } else if (obj.type === CustomFilter.type.Concept) {
             const observationBasedFilter = new ObservationBasedFilter();
             observationBasedFilter.scope = obj.observationBasedFilter.scope;
