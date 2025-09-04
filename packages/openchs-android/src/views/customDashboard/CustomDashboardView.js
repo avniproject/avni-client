@@ -178,13 +178,13 @@ class CustomDashboardView extends AbstractComponent {
         }
     });
 
+    static defaultProps = {
+        showSearch: false
+    };
+
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.customDashboard);
     }
-
-    defaultProps = {
-        showSearch: false
-    };
 
     viewName() {
         return 'CustomDashboardView';

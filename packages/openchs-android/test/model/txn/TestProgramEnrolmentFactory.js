@@ -8,6 +8,7 @@ class TestProgramEnrolmentFactory {
                   program,
                   subject,
                   enrolmentDateTime = moment().toDate(),
+                  programExitDateTime = null,
                   encounters = [],
                   checklists = [],
                   observations = [],
@@ -21,6 +22,7 @@ class TestProgramEnrolmentFactory {
     programEnrolment.checklists = checklists;
     programEnrolment.observations = observations;
     programEnrolment.enrolmentDateTime = enrolmentDateTime;
+    programEnrolment.programExitDateTime = programExitDateTime;
     programEnrolment.approvalStatuses = approvalStatuses;
     programEnrolment.setLatestEntityApprovalStatus(programEnrolment.latestEntityApprovalStatus);
     return programEnrolment;

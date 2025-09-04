@@ -242,7 +242,7 @@ class CustomFilterService extends BaseService {
                 if (widget === CustomFilter.widget.Range) {
                     return (obs) => obs.concept.uuid === concept.uuid && obs.getValue() >= selectedOption.minValue && obs.getValue() <= selectedOption.maxValue;
                 } else {
-                    const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${c.minValue}}') `).join(" OR ");
+                    const numericFilterQuery = _.map(selectedOptions, c => ` (concept.uuid == '${concept.uuid}' AND valueJSON CONTAINS[c] '"answer":${c.minValue}') `).join(" OR ");
                     return selectedOptions.length === 0 ? noQueryResultFunction : () => this.getObsSubQueryForQuery(numericFilterQuery);
                 }
             case (Concept.dataType.Date) :
