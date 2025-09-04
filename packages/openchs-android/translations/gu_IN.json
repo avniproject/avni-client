@@ -316,6 +316,7 @@
     "subjectTypes": "સબ્જેક્ટ પ્રકાર",
     "exitFromProgram": "{{program}} માંથી બહાર નીકાળો",
     "selectAllLabel": "બધા સિલેક્ટ કરો",
-    "unselectAllLabel": "બધા અનસિલેક્ટ કરો"
+    "unselectAllLabel": "બધા અનસિલેક્ટ કરો",
+    "alreadyEnrolledInProgram": "{{programName}} માં પહેલેથી જ નોંધણી કરાવી છે"
   }
 }

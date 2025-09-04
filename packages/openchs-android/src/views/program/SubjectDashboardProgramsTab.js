@@ -28,6 +28,7 @@ import Separator from "../primitives/Separator";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
+import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -119,16 +120,30 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     joinProgram() {
-        Alert.alert(
-            this.I18n.t('undoExitProgramTitle'),
-            this.I18n.t('undoExitProgramConfirmationMessage'),
-            [
-                {text: this.I18n.t('yes'), onPress: () => this.dispatchAction(Actions.ON_PROGRAM_REJOIN)},
-                {
-                    text: this.I18n.t('no'), onPress: _.noop, style: 'cancel'
-                }
-            ]
-        )
+        const isAlreadyEnrolledInSameProgram = _.includes(this.context.getService(ProgramEnrolmentService).getAllNonExitedEnrolmentsForSubject(this.state.enrolment.individual.uuid).map(enr => enr.program.uuid), this.state.enrolment.program.uuid);
+        const areMultipleEnrolmentsAllowedForProgram = this.state.enrolment.program.allowMultipleEnrolments;
+        if (isAlreadyEnrolledInSameProgram && !areMultipleEnrolmentsAllowedForProgram) {
+            Alert.alert(
+              this.I18n.t('undoExitProgramTitle'),
+              this.I18n.t('alreadyEnrolledInProgram', {programName: this.I18n.t(this.state.enrolment.program.displayName)}),
+              [
+                  {
+                      text: this.I18n.t('ok'), onPress: _.noop, style: 'cancel'
+                  }
+              ]
+            )
+        } else {
+            Alert.alert(
+              this.I18n.t('undoExitProgramTitle'),
+              this.I18n.t('undoExitProgramConfirmationMessage'),
+              [
+                  {text: this.I18n.t('yes'), onPress: () => this.dispatchAction(Actions.ON_PROGRAM_REJOIN)},
+                  {
+                      text: this.I18n.t('no'), onPress: _.noop, style: 'cancel'
+                  }
+              ]
+            )
+        }
     }
 
     getPrimaryEnrolmentContextAction(hasExitPrivilege) {

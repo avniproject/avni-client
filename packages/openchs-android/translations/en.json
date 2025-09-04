@@ -517,6 +517,7 @@
     "subjectTypes": "Subject Types",
     "exitFromProgram": "exit from {{program}}",
     "selectAllLabel": "Select All",
-    "unselectAllLabel": "Unselect All"
+    "unselectAllLabel": "Unselect All",
+    "alreadyEnrolledInProgram": "Already enrolled in {{programName}}"
   }
 }

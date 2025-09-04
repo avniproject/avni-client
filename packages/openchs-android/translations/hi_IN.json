@@ -388,6 +388,7 @@
     "subjectTypes": "सब्जेक्ट प्रकार",
     "exitFromProgram": "{{program}} से बाहर करें",
     "selectAllLabel": "सबका चयन करें",
-    "unselectAllLabel": "सभी को अचयनित करें"
+    "unselectAllLabel": "सभी को अचयनित करें",
+    "alreadyEnrolledInProgram": "{{programName}} में पहले से ही  एनरोल है"
   }
 }
