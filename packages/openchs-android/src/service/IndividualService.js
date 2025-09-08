@@ -293,9 +293,9 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        const viewVisitCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const allowedProgramEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'programEncounterTypeUuid');
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
 
         let programEncounters = [];
@@ -331,13 +331,13 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForViewVisit, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
+        const allowedGeneralEncounterTypeUuidsForViewVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
             encounters = this.db.objects(Encounter.schema.name)
@@ -368,7 +368,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForViewVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -383,8 +383,8 @@ class IndividualService extends BaseService {
 
     allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const privilegeService = this.getService(PrivilegeService);
-        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
+        const viewVisitCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        const allowedProgramEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
 
         let programEncounters = [];
@@ -418,13 +418,13 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForViewVisit, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
+        const allowedGeneralEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
             encounters = this.db.objects(Encounter.schema.name)
@@ -453,7 +453,7 @@ class IndividualService extends BaseService {
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForViewVisit, enc.encounterType.uuid)
                     }
                 };
             })
