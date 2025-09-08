@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { useScanBarcodes, BarcodeFormat } from "vision-camera-code-scanner";
@@ -9,6 +9,8 @@ const QRScanner = (props) => {
     const [hasPermission, setHasPermission] = useState(false);
     const [refresh, setRefresh] = useState(false);
     const [isScanning, setIsScanning] = useState(true);
+    const [hasScanned, setHasScanned] = useState(false);
+    const timeoutRef = useRef(null); // Store timeout reference
     const devices = useCameraDevices();
     const device = devices.back;
 
@@ -31,22 +33,38 @@ const QRScanner = (props) => {
         requestCameraPermission();
 
         // Auto close after 30 seconds if no scan
-        const timeout = setTimeout(() => {
-            props.onRead(null);
+        timeoutRef.current = setTimeout(() => {
+            if (!hasScanned) {
+                console.log("QRScanner: Auto-close timeout triggered");
+                props.onRead(null);
+            }
         }, 30 * 1000);
 
-        return () => clearTimeout(timeout);
-    }, []);
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+        };
+    }, []); // Remove hasScanned from dependencies to prevent re-creating timeout
 
     // Handle barcode detection
     useEffect(() => {
-        if (barcodes.length > 0 && isScanning) {
+        if (barcodes.length > 0 && isScanning && !hasScanned) {
             const scannedCode = barcodes[0].displayValue || barcodes[0].rawValue;
             console.log(`QR Code scanned:`, scannedCode);
+
+            // Clear the timeout immediately when scan is successful
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+
             setIsScanning(false); // Prevent multiple scans
+            setHasScanned(true); // Mark that we've successfully scanned
             props.onRead(scannedCode);
         }
-    }, [barcodes, isScanning]);
+    }, [barcodes, isScanning, hasScanned]);
 
     console.log("QRScanner render - device:", !!device, "hasPermission:", hasPermission, "devices:", devices);
 
