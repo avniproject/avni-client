@@ -4,6 +4,7 @@ import { Camera, useCameraDevices } from "react-native-vision-camera";
 import { useScanBarcodes, BarcodeFormat } from "vision-camera-code-scanner";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../../primitives/Colors";
+import I18n from 'i18n-js';
 
 const QRScanner = (props) => {
     const [hasPermission, setHasPermission] = useState(false);
@@ -73,7 +74,7 @@ const QRScanner = (props) => {
             <View style={styles.errorContainer}>
                 <Icon name="camera-off" size={64} color={Colors.ValidationError} />
                 <Text style={styles.errorText}>
-                    Camera not available or permission not granted
+                    {I18n.t('cameraNotAvailableOrPermissionNotGranted')}
                     {'\n'}Device: {device ? 'Found' : 'Not found'}
                     {'\n'}Permission: {hasPermission ? 'Granted' : 'Not granted'}
                     {'\n'}Devices: {JSON.stringify(Object.keys(devices || {}))}
@@ -82,7 +83,7 @@ const QRScanner = (props) => {
                     style={styles.closeButton}
                     onPress={() => props.onRead(null)}
                 >
-                    <Text style={styles.closeButtonText}>Close</Text>
+                    <Text style={styles.closeButtonText}>{I18n.t('CLOSE')}</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -105,7 +106,7 @@ const QRScanner = (props) => {
                 >
                     <Icon name="arrow-left" size={24} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Scan QR Code</Text>
+                <Text style={styles.headerTitle}>{I18n.t('scanQRCode')}</Text>
             </View>
 
             {/* Scanning overlay */}
@@ -117,7 +118,7 @@ const QRScanner = (props) => {
                     <View style={[styles.corner, styles.bottomRight]} />
                 </View>
                 <Text style={styles.instructionText}>
-                    {isScanning ? "Point your camera at a QR code" : "Processing..."}
+                    {isScanning ? I18n.t('pointCameraAtQR') : I18n.t('processing')}
                 </Text>
             </View>
 
@@ -127,7 +128,7 @@ const QRScanner = (props) => {
                     style={styles.closeButton}
                     onPress={() => props.onRead(null)}
                 >
-                    <Text style={styles.closeButtonText}>Close</Text>
+                    <Text style={styles.closeButtonText}>{I18n.t('CLOSE')}</Text>
                 </TouchableOpacity>
             </View>
         </View>
