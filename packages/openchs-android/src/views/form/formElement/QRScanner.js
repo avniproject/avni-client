@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Camera, useCameraDevices } from "react-native-vision-camera";
+import { useScanBarcodes, BarcodeFormat } from "vision-camera-code-scanner";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../../primitives/Colors";
 
 const QRScanner = (props) => {
     const [hasPermission, setHasPermission] = useState(false);
     const [refresh, setRefresh] = useState(false);
+    const [isScanning, setIsScanning] = useState(true);
     const devices = useCameraDevices();
     const device = devices.back;
+
+    const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE, BarcodeFormat.EAN_13], {
+        checkInverted: true,
+    });
 
     useEffect(() => {
         // exception case for device changes
@@ -32,8 +38,18 @@ const QRScanner = (props) => {
         return () => clearTimeout(timeout);
     }, []);
 
+    // Handle barcode detection
+    useEffect(() => {
+        if (barcodes.length > 0 && isScanning) {
+            const scannedCode = barcodes[0].displayValue || barcodes[0].rawValue;
+            console.log(`QR Code scanned:`, scannedCode);
+            setIsScanning(false); // Prevent multiple scans
+            props.onRead(scannedCode);
+        }
+    }, [barcodes, isScanning]);
+
     console.log("QRScanner render - device:", !!device, "hasPermission:", hasPermission, "devices:", devices);
-    
+
     if (device == null || !hasPermission) {
         return (
             <View style={styles.errorContainer}>
@@ -54,21 +70,15 @@ const QRScanner = (props) => {
         );
     }
 
-    const onReadCode = (event) => {
-        console.log(`QR Code scanned:`, event.nativeEvent.codeStringValue);
-        props.onRead(event.nativeEvent.codeStringValue);
-    };
-
     return (
         <View style={styles.container}>
             <Camera
                 style={StyleSheet.absoluteFill}
                 device={device}
                 isActive={true}
-                onReadCode={onReadCode}
-                codeTypes={['qr', 'ean-13']}
+                frameProcessor={frameProcessor}
             />
-            
+
             {/* Header with back button */}
             <View style={styles.header}>
                 <TouchableOpacity
@@ -89,7 +99,7 @@ const QRScanner = (props) => {
                     <View style={[styles.corner, styles.bottomRight]} />
                 </View>
                 <Text style={styles.instructionText}>
-                    Point your camera at a QR code
+                    {isScanning ? "Point your camera at a QR code" : "Processing..."}
                 </Text>
             </View>
 
