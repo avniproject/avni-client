@@ -108,7 +108,7 @@
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",
     "uuid": "^9.0.1",
-    "vision-camera-code-scanner": "^0.2.0"
+    "vision-camera-code-scanner": "0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
