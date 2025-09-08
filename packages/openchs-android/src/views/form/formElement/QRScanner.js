@@ -1,27 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {
-    Camera,
-    useCameraDevice,
-    useCodeScanner,
-} from "react-native-vision-camera";
+import { Camera, useCameraDevices } from "react-native-vision-camera";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Colors from "../../primitives/Colors";
 
 const QRScanner = (props) => {
     const [hasPermission, setHasPermission] = useState(false);
     const [refresh, setRefresh] = useState(false);
-    const device = useCameraDevice("back");
-    
-    const codeScanner = useCodeScanner({
-        codeTypes: ["qr", "ean-13"],
-        onCodeScanned: (codes) => {
-            if (codes && codes.length > 0) {
-                console.log(`QR Code scanned:`, codes[0].value);
-                props.onRead(codes[0].value);
-            }
-        },
-    });
+    const devices = useCameraDevices();
+    const device = devices.back;
 
     useEffect(() => {
         // exception case for device changes
@@ -32,7 +19,7 @@ const QRScanner = (props) => {
         const requestCameraPermission = async () => {
             const permission = await Camera.requestCameraPermission();
             console.log("Camera permission:", permission);
-            setHasPermission(permission === "granted");
+            setHasPermission(permission === "granted" || permission === "authorized");
         };
 
         requestCameraPermission();
@@ -45,12 +32,17 @@ const QRScanner = (props) => {
         return () => clearTimeout(timeout);
     }, []);
 
+    console.log("QRScanner render - device:", !!device, "hasPermission:", hasPermission, "devices:", devices);
+    
     if (device == null || !hasPermission) {
         return (
             <View style={styles.errorContainer}>
                 <Icon name="camera-off" size={64} color={Colors.ValidationError} />
                 <Text style={styles.errorText}>
                     Camera not available or permission not granted
+                    {'\n'}Device: {device ? 'Found' : 'Not found'}
+                    {'\n'}Permission: {hasPermission ? 'Granted' : 'Not granted'}
+                    {'\n'}Devices: {JSON.stringify(Object.keys(devices || {}))}
                 </Text>
                 <TouchableOpacity
                     style={styles.closeButton}
@@ -62,13 +54,19 @@ const QRScanner = (props) => {
         );
     }
 
+    const onReadCode = (event) => {
+        console.log(`QR Code scanned:`, event.nativeEvent.codeStringValue);
+        props.onRead(event.nativeEvent.codeStringValue);
+    };
+
     return (
         <View style={styles.container}>
             <Camera
-                codeScanner={codeScanner}
                 style={StyleSheet.absoluteFill}
                 device={device}
                 isActive={true}
+                onReadCode={onReadCode}
+                codeTypes={['qr', 'ean-13']}
             />
             
             {/* Header with back button */}

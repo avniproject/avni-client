@@ -27,8 +27,8 @@ class QRFormElement extends AbstractFormElement {
 
     displayValue() {
         const value = this.props.value.getValue();
-        return _.isNil(value) || value === '' 
-            ? this.I18n.t('tapToScanQR') 
+        return _.isNil(value) || value === ''
+            ? this.I18n.t('tapToScanQR')
             : value;
     }
 
@@ -72,9 +72,9 @@ class QRFormElement extends AbstractFormElement {
         return null;
     }
 
-    renderFormElement() {
+    render() {
         const hasValue = !_.isNil(this.props.value.getValue()) && this.props.value.getValue() !== '';
-        
+
         return (
             <View>
                 <FormElementLabelWithDocumentation element={this.props.element}/>
@@ -82,13 +82,13 @@ class QRFormElement extends AbstractFormElement {
                     <TouchableNativeFeedback onPress={() => this.openQRScanner()}
                                              background={TouchableNativeFeedback.SelectableBackground()}>
                         <View style={styles.qrInputContainer}>
-                            <Icon name="qrcode-scan" 
+                            <Icon name="qrcode-scan"
                                   style={[styles.qrIcon, {color: hasValue ? Colors.AccentColor : Colors.InputBorderNormal}]}/>
                             <Text style={[
                                 styles.qrText,
                                 {
-                                    color: _.isNil(this.props.validationResult) ? 
-                                        (hasValue ? Colors.InputNormal : Colors.InputBorderNormal) : 
+                                    color: _.isNil(this.props.validationResult) ?
+                                        (hasValue ? Colors.InputNormal : Colors.InputBorderNormal) :
                                         Colors.ValidationError,
                                     fontStyle: hasValue ? 'normal' : 'italic'
                                 }
@@ -100,7 +100,7 @@ class QRFormElement extends AbstractFormElement {
                     {this.renderRemoveButton()}
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
-                
+
                 <Modal
                     visible={this.state.showQRScanner}
                     animationType="slide"
