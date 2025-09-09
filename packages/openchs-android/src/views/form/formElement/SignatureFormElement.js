@@ -25,11 +25,10 @@ class SignatureFormElement extends AbstractFormElement {
 
     constructor(props, context) {
         super(props, context);
-        this.signatureRef = React.createRef();
     }
 
     get signatureFilename() {
-        return _.get(this, "props.value.answer");
+        return this.props.value?.getValue?.() ?? this.props.value?.answer;
     }
 
     updateValue(signatureValue) {
