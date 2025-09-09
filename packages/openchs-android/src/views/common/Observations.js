@@ -167,8 +167,11 @@ class Observations extends AbstractComponent {
         } else if (renderType === Concept.dataType.Signature) {
             return (
                 <View style={this.styles.observationColumn}>
-                    <Image width={100} height={100} source={{uri: `file://${SignatureFormElement.signatureFileDirectory}/${observationModel.getValueWrapper().getValue()}`}}/>
-                    <Text></Text>
+                    <Image
+                        style={{width: '100%', height: 100}}
+                        resizeMode="contain"
+                        source={{uri: `file://${SignatureFormElement.signatureFileDirectory}/${observationModel.getValueWrapper().getValue()}`}}
+                    />
                 </View>
             );
         } else if (Concept.dataType.Media.includes(renderType)) {
