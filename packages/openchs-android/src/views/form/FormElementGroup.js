@@ -60,6 +60,7 @@ class FormElementGroup extends AbstractComponent {
         syncRegistrationConcept2UUID: PropTypes.string,
         allowedSyncConcept1Values: PropTypes.array,
         allowedSyncConcept2Values: PropTypes.array,
+        scrollRef: PropTypes.object,
     };
 
     constructor(props, context) {
@@ -228,6 +229,7 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
                                 value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
                                 validationResult={validationResult}
+                                scrollRef={this.props.scrollRef}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.ImageV2].includes(formElement.concept.datatype)) {
                             return this.wrap(<MediaV2FormElement

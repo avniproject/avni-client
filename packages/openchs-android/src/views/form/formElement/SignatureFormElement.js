@@ -20,6 +20,7 @@ class SignatureFormElement extends AbstractFormElement {
         actionName: PropTypes.string.isRequired,
         value: PropTypes.object,
         validationResult: PropTypes.object,
+        scrollRef: PropTypes.object,
     };
 
     constructor(props, context) {
@@ -84,8 +85,15 @@ class SignatureFormElement extends AbstractFormElement {
         this.clearValue();
     };
 
+    handleBegin = () => {
+        this.props.scrollRef?.current?.setNativeProps(
+            {scrollEnabled: false}
+        );
+    };
     handleEnd = () => {
-        // Don't read signature on end, only when save is clicked
+        this.props.scrollRef?.current?.setNativeProps(
+            {scrollEnabled: true}
+        );
     };
 
     render() {
@@ -113,9 +121,10 @@ class SignatureFormElement extends AbstractFormElement {
                         </TouchableNativeFeedback>
                     </View>
                 ) : (
-                    <View style={[styles.signatureContainer, { borderColor: this.borderColor }]}>
+                    <View style={[styles.signatureContainer, {borderColor: this.borderColor}]}>
                         <SignatureCanvas
                             ref={this.signatureRef}
+                            onBegin={this.handleBegin}
                             onEnd={this.handleEnd}
                             onOK={this.handleSignatureData}
                             onEmpty={this.handleEmpty}

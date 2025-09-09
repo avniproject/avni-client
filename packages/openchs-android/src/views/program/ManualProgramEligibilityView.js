@@ -67,6 +67,7 @@ class ManualProgramEligibilityView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('manualProgramEligibility')} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup group={this.state.formElementGroup}
+                                          scrollRef={this.scrollRef}
                                           observationHolder={new ObservationsHolder(this.state.subjectProgramEligibility.observations)}
                                           actions={Actions}
                                           validationResults={this.state.validationResults}

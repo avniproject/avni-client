@@ -132,6 +132,7 @@ class ProgramFormComponent extends AbstractComponent {
                 <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                     {_.get(this.props.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup actions={Actions} group={this.props.state.formElementGroup}
+                                      scrollRef={this.scrollRef}
                                       observationHolder={this.props.state.applicableObservationsHolder}
                                       validationResults={this.props.state.validationResults}
                                       formElementsUserState={this.props.state.formElementsUserState}

@@ -140,6 +140,7 @@ class PersonRegisterFormView extends AbstractComponent {
                         <View style={{backgroundColor: '#ffffff', flexDirection: 'column', paddingHorizontal: Distances.ScaledContentDistanceFromEdge}}>
                             {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup observationHolder={new ObservationsHolder(this.state.individual.observations)}
+                                              scrollRef={this.scrollRef}
                                               group={this.state.formElementGroup}
                                               actions={Actions}
                                               filteredFormElements={this.state.filteredFormElements}
