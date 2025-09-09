@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import {StyleSheet, View, Image, TouchableNativeFeedback, Alert} from "react-native";
+import {StyleSheet, View, Image, TouchableNativeFeedback} from "react-native";
 import SignatureCanvas from "react-native-signature-canvas";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
@@ -9,7 +9,6 @@ import Colors from "../../primitives/Colors";
 import General from "../../../utility/General";
 import _ from "lodash";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import {ValidationResult} from "openchs-models";
 import { AlertMessage } from "../../common/AlertMessage";
 import FileSystem from "../../../model/FileSystem";
 import fs from 'react-native-fs';
@@ -32,7 +31,7 @@ class SignatureFormElement extends AbstractFormElement {
         return _.get(this, "props.value.answer");
     }
 
-    updateValue(signatureValue, validationResult = null) {
+    updateValue(signatureValue) {
         if (General.isNilOrEmpty(signatureValue)) {
             this.onUpdateObservations(null);
             return;
@@ -63,7 +62,13 @@ class SignatureFormElement extends AbstractFormElement {
         });
     }
 
-    clearAnswer() {
+    clearValue() {
+        const prevFile = this.signatureFilename;
+        if (prevFile) {
+            const prevPath = `${SignatureFormElement.signatureFileDirectory}/${prevFile}`;
+            fs.unlink(prevPath).catch(() => {
+            });
+        }
         this.updateValue(null);
     }
 
@@ -72,11 +77,11 @@ class SignatureFormElement extends AbstractFormElement {
     };
 
     handleEmpty = () => {
-        this.updateValue(null, ValidationResult.failure(this.props.element.uuid, this.I18n.t("signatureRequired")));
+        this.updateValue(null);
     };
 
     handleClear = () => {
-        this.clearAnswer();
+        this.clearValue();
     };
 
     handleEnd = () => {
@@ -103,12 +108,12 @@ class SignatureFormElement extends AbstractFormElement {
                             }}
                             source={{uri: `file://${SignatureFormElement.signatureFileDirectory}/${this.signatureFilename}`}}
                         />
-                        <TouchableNativeFeedback onPress={() => this.clearAnswer()}>
+                        <TouchableNativeFeedback onPress={() => this.clearValue()}>
                             <Icon name={"backspace"} style={[styles.icon]} />
                         </TouchableNativeFeedback>
                     </View>
                 ) : (
-                    <View style={styles.signatureContainer}>
+                    <View style={[styles.signatureContainer, { borderColor: this.borderColor }]}>
                         <SignatureCanvas
                             ref={this.signatureRef}
                             onEnd={this.handleEnd}
@@ -148,7 +153,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
         backgroundColor: Colors.InputBackground,
         borderWidth: 1,
-        borderColor: Colors.InputBorderNormal,
         borderRadius: 4,
         overflow: "hidden",
     },
