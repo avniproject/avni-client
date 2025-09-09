@@ -5,6 +5,8 @@
     "____COMMENT____": "Hindi translation for the application labels",
     "next": "अगला >>",
     "previous": "<< पिछला",
+    "clear": "साफ़ करें",
+    "signHere": "यहाँ साइन करें",
     "deleteConfirmation": "आपका डाटा डिलीट करना है?",
     "validationResult": "फॉर्म में गलती है",
     "numberAboveHiAbsolute": "{{limit}} के बराबर या {{limit}} से कम",

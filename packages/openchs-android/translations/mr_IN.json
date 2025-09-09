@@ -3,6 +3,8 @@
   "language": "mr_IN",
   "translations": {
     "____COMMENT____": "Marathi translation for the application labels",
+    "clear": "साफ करा",
+    "signHere": "येथे सही करा",
     "next": "पुढे >>",
     "previous": "<< मागे",
     "deleteConfirmation": "तुम्हाला सर्व डाटा डीलीट करावयाचा आहे का?",
