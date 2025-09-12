@@ -229,13 +229,37 @@ class CustomDashboardActions {
 // These are not reducers, just a code reuse mechanism
 export function performCustomDashboardActionAndRefresh(dispatcher, actionName, payload) {
     dispatcher.dispatchAction(actionName, payload);
-    setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+    // Prevent double execution by checking if refresh is already scheduled
+    if (!dispatcher._refreshScheduled) {
+        dispatcher._refreshScheduled = true;
+        setTimeout(() => {
+            try {
+                dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
+            } catch (error) {
+                General.logError('CustomDashboardActions', `Refresh count failed: ${error.message}`);
+            } finally {
+                dispatcher._refreshScheduled = false;
+            }
+        }, 500);
+    }
 }
 
 export function performCustomDashboardActionAndClearRefresh(dispatcher, actionName, payload) {
     dispatcher.dispatchAction(actionName, payload);
     dispatcher.dispatchAction(CustomDashboardActionNames.CLEAR_COUNTS);
-    setTimeout(() => dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT), 500);
+    // Prevent double execution by checking if refresh is already scheduled
+    if (!dispatcher._refreshScheduled) {
+        dispatcher._refreshScheduled = true;
+        setTimeout(() => {
+            try {
+                dispatcher.dispatchAction(CustomDashboardActionNames.REFRESH_COUNT);
+            } catch (error) {
+                General.logError('CustomDashboardActions', `Refresh count failed: ${error.message}`);
+            } finally {
+                dispatcher._refreshScheduled = false;
+            }
+        }, 500);
+    }
 }
 
 
