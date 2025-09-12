@@ -28,6 +28,7 @@ import _ from "lodash";
 import SingleSelectFilterModel from "../../model/SingleSelectFilterModel";
 import {Checkbox} from "native-base";
 import UserInfoService from "../../service/UserInfoService";
+import QRSearchFormElement from "./QRSearchFormElement";
 
 @Path('/individualSearch')
 class IndividualSearchView extends AbstractComponent {
@@ -120,6 +121,11 @@ class IndividualSearchView extends AbstractComponent {
                                                  style={Styles.simpleTextFormElement}
                                                  value={new PrimitiveValue(this.state.searchCriteria.obsKeyword)}
                                                  multiline={false}/> : null}
+                            <QRSearchFormElement
+                                actionName={Actions.ENTER_QR_CRITERIA}
+                                value={this.state.searchCriteria.qrValue}
+                                style={Styles.simpleTextFormElement}
+                            />
                             {!_.isEmpty(topLevelFilters) ?
                                 <CustomFilters filters={topLevelFilters}
                                                selectedCustomFilters={this.state.selectedCustomFilters}

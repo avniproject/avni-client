@@ -36,6 +36,11 @@ class IndividualSearchCriteria {
             criteria.push(`(observations.valueJSON contains[c] "${trimmedKeyword}" OR enrolments.observations.valueJSON contains[c] "${trimmedKeyword}" OR name contains[c] "${trimmedKeyword}")`);
         }
 
+        if (!_.isEmpty(this.qrValue)) {
+            let trimmedQrValue = this.qrValue.trim();
+            criteria.push(`(observations.valueJSON contains[c] "${trimmedQrValue}" AND observations.concept.datatype = "QR")`);
+        }
+
         if (!_.isEmpty(this.searchAddressLevels)) {
             let addressLevelCriteria = [];
             this.searchAddressLevels.forEach((addressLevel) => {
@@ -81,6 +86,10 @@ class IndividualSearchCriteria {
         this.includeVoided = includeVoided;
     }
 
+    addQrCriteria(qrValue) {
+        this.qrValue = qrValue;
+    }
+
     addGenderCriteria(genders) {
         this.genders = genders;
     }
@@ -121,6 +130,7 @@ class IndividualSearchCriteria {
         individualSearchCriteria.name = this.name;
         individualSearchCriteria.ageInYears = this.ageInYears;
         individualSearchCriteria.obsKeyword = this.obsKeyword;
+        individualSearchCriteria.qrValue = this.qrValue;
         individualSearchCriteria.includeVoided = this.includeVoided;
         individualSearchCriteria.subjectType = this.subjectType;
         individualSearchCriteria.allowedSubjectUUIDs = this.allowedSubjectUUIDs;
