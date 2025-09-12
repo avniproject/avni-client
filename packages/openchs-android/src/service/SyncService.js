@@ -96,6 +96,47 @@ class SyncService extends BaseService {
     }
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
+        // Mutex protection to prevent concurrent sync operations
+        if (SyncService.syncMutex) {
+            General.logInfo("SyncService", `Sync already in progress, skipping ${syncSource} sync`);
+            
+            // Simulate a quick completion to dismiss the progress modal properly
+            if (trackProgress) {
+                // Show brief message that sync is already running
+                trackProgress({
+                    message: 'Sync already in progress...',
+                    progress: 0.5,
+                    syncing: true
+                });
+                
+                // Wait a moment then complete
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                trackProgress({
+                    message: 'Sync already running in background',
+                    progress: 1,
+                    syncing: false
+                });
+            }
+            
+            return Promise.resolve(syncSource);
+        }
+        
+        SyncService.syncMutex = true;
+        General.logInfo("SyncService", `Starting ${syncSource} sync with mutex protection`);
+        
+        try {
+            return await this._performSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation);
+        } catch (error) {
+            General.logError("SyncService", `Sync failed: ${error.message}`);
+            throw error;
+        } finally {
+            SyncService.syncMutex = false;
+            General.logInfo("SyncService", `Completed ${syncSource} sync, mutex released`);
+        }
+    }
+
+    async _performSync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
         General.logDebug("SyncService", "sync");
         this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
