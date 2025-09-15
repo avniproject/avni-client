@@ -17,7 +17,6 @@ import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
-import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 import AvniError from "../framework/errorHandling/AvniError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
@@ -156,24 +155,22 @@ class SyncComponent extends AbstractComponent {
         }
         this.setState(({syncStarted}) => {
             if (!syncStarted) {
-                this.startSync();
+                // Use setTimeout to avoid setState during render cycle
+                setTimeout(() => this.startSync(), 0);
                 return {syncStarted: true}
             }
         });
     }
 
     /**
-     * As part of manual sync,
-     * we'll first replace the "background-sync" job with a "dummy sync" job,
-     * perform manual-sync and then,
-     * replace the "dummy sync" job again with "background-sync" job.
-     *
-     * In react-native-background-worker, when we schedule a job with same jobKey(Name) as an existing job,
-     * it replaces the old one with new one. Therefore, above specified steps are supposed to fulfill our need to NOT run
-     * background-sync in parallel with manual-sync.
-     *
-     * This is done, as we do not have a way to cancel jobs by name directly in react-native-background-worker.
-     * We could only cancel by id, but we do not want to store job id in db.
+     * Initiates manual sync triggered by user action.
+     * 
+     * Sync coordination is handled by SyncService's queue-based approach:
+     * - If background sync is running, manual sync is queued and waits for completion
+     * - If another manual sync is running, appropriate UI feedback is shown
+     * - Background sync jobs continue on their scheduled intervals independently,
+     *   it skips actual processing if another sync is running
+     * 
      * @returns {Promise<void>}
      */
     async startSync() {
@@ -184,8 +181,8 @@ class SyncComponent extends AbstractComponent {
             //sending connection info like this because this returns promise and not possible in the action
             let connectionInfo;
             await NetInfo.fetch().then((x) => connectionInfo = x);
-            await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
-            syncService.sync(
+            // No longer need to schedule dummy job - queue-based sync handles coordination
+            const syncResult = await syncService.sync(
                 EntityMetaData.model(),
                 (progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity) => this.progressBarUpdate(progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity),
                 (message) => this.messageCallBack(message),
@@ -193,8 +190,13 @@ class SyncComponent extends AbstractComponent {
                 this.state.startTime,
                 SyncService.syncSources.SYNC_BUTTON,
                 () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
-            ).catch(onError)
-                .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
+            ).catch(onError);
+            
+            // If sync was debounced (no actual sync happened), reset UI state only
+            if (syncResult === SyncService.syncSources.SYNC_BUTTON && this.state.syncing) {
+                this.dispatchAction(SyncActions.POST_SYNC);
+                this.setState({syncStarted: false});
+            }
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
