@@ -193,7 +193,8 @@ class SyncComponent extends AbstractComponent {
             ).catch(onError);
             
             // If sync was debounced (no actual sync happened), reset UI state only
-            if (syncResult === SyncService.syncSources.SYNC_BUTTON && this.state.syncing) {
+            // Check if sync returned immediately without progress updates (debounced case)
+            if (syncResult === SyncService.syncSources.SYNC_BUTTON && this.state.syncing && this.state.progress === 0) {
                 this.dispatchAction(SyncActions.POST_SYNC);
                 this.setState({syncStarted: false});
             }
