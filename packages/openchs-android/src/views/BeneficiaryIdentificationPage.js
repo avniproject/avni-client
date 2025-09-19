@@ -64,6 +64,7 @@ class BeneficiaryIdentificationPage extends AbstractComponent {
                 <AppHeader title={'BeneficiaryIdentification'} hideBackButton={true} renderExitBeneficiaryMode/>
                 <View style={{flexDirection: 'column'}}>
                     <FormElementGroup
+                        scrollRef={this.scrollRef}
                         observationHolder={new ObservationsHolder(this.state.observations)}
                         group={this.state.formElementGroup}
                         actions={Actions.Names}

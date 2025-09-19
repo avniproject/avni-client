@@ -3,6 +3,8 @@
   "language": "gu_IN",
   "translations": {
     "____COMMENT____": "Gujarati translation for the application labels",
+    "clear": "સાફ કરો",
+    "signHere": "અહીં સહી કરો",
     "name": "નામ",
     "age": "ઉંમર",
     "obsKeyword": "અન્ય ડેટા",

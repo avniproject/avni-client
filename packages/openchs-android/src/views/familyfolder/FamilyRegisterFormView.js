@@ -52,6 +52,7 @@ class FamilyRegisterFormView extends AbstractComponent {
                     <AppHeader title={this.I18n.t('registration')} func={() => this.previous()}/>
                     <View style={{flexDirection: 'column'}}>
                         <FormElementGroup observationHolder={new ObservationsHolder(this.state.family.observations)}
+                                          scrollRef={this.scrollRef}
                                           group={this.state.formElementGroup}
                                           actions={Actions} validationResults={this.state.validationResults}
                                           formElementsUserState={this.state.formElementsUserState}

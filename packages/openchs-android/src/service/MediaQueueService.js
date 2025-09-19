@@ -88,6 +88,7 @@ class MediaQueueService extends BaseService {
         switch (mediaQueueItem.type) {
             case 'Image':
             case 'ImageV2':
+            case 'Signature':
                 return FileSystem.getImagesDir();
             case 'Profile-Pics':
                 return FileSystem.getProfilePicsDir();

@@ -214,6 +214,7 @@ class ProgramEncounterView extends AbstractComponent {
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                             <FormElementGroup
+                            scrollRef={this.scrollRef}
                             observationHolder={new ObservationsHolder(this.state.programEncounter.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}

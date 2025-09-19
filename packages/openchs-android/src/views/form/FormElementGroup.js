@@ -43,6 +43,7 @@ import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounte
 import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 import MediaV2FormElement from "./formElement/MediaV2FormElement";
 import Colors from "../primitives/Colors";
+import SignatureFormElement from "./formElement/SignatureFormElement";
 
 class FormElementGroup extends AbstractComponent {
     static propTypes = {
@@ -59,6 +60,7 @@ class FormElementGroup extends AbstractComponent {
         syncRegistrationConcept2UUID: PropTypes.string,
         allowedSyncConcept1Values: PropTypes.array,
         allowedSyncConcept2Values: PropTypes.array,
+        scrollRef: PropTypes.object,
     };
 
     constructor(props, context) {
@@ -219,6 +221,15 @@ class FormElementGroup extends AbstractComponent {
                                 actionName={this.props.actions["TOGGLE_MULTISELECT_ANSWER"]}
                                 value={this.getSelectedAnswer(formElement.concept, new MultipleCodedValues())}
                                 validationResult={validationResult}
+                            />, uniqueKey, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Signature) {
+                            return this.wrap(<SignatureFormElement
+                                key={uniqueKey}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
+                                scrollRef={this.props.scrollRef}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         } else if ([Concept.dataType.ImageV2].includes(formElement.concept.datatype)) {
                             return this.wrap(<MediaV2FormElement

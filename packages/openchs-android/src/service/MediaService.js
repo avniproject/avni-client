@@ -138,9 +138,9 @@ class MediaService extends BaseService {
                 // Check if the file was downloaded successfully
                 const status = res.info().status;
                 const size = res.info().size;
-                
+
                 General.logDebug("MediaService", `Download response: status=${status}, size=${size}, path=${res.path()}`);
-                
+
                 // If status is successful and either size is undefined (can't check) or size is reasonable
                 if (status >= 200 && status < 300 && (size === undefined || size > MIN_FILE_SIZE_IN_BYTES)) {
                     // Verify the file exists and has content
@@ -182,7 +182,7 @@ class MediaService extends BaseService {
                         if (error instanceof AvniError) {
                             throw error; // Re-throw existing AvniError
                         }
-                        
+
                         // Create a new AvniError with detailed information
                         createNetworkAvniErrorDuringMediaDownload(error, url);
                     });
@@ -194,6 +194,7 @@ class MediaService extends BaseService {
             ['Video', FileSystem.getVideosDir],
             ['Image', FileSystem.getImagesDir],
             ['ImageV2', FileSystem.getImagesDir],
+            ['Signature', FileSystem.getImagesDir],
             ['Audio', FileSystem.getAudioDir],
             ['News', FileSystem.getNewsDir],
             ['File', FileSystem.getFileDir],
@@ -260,7 +261,7 @@ class MediaService extends BaseService {
         } catch (error) {
             General.logDebug('MediaService', `Error while downloading image with s3 key ${s3Key}`);
             General.logDebug('MediaService', error);
-            
+
             // Make sure we don't leave partial files
             await cleanUpPartialFiles.call(this, filePathInDevice);
 
@@ -269,13 +270,13 @@ class MediaService extends BaseService {
                 General.logDebug('MediaService', `Ignoring error for ${s3Key} due to ignoreFetchErrors flag`);
                 return null;
             }
-            
+
             // Check if this is already an AvniError (from our own code)
             if (error instanceof AvniError) {
                 error.userMessage = 'unableToFetchImagesError';
                 throw error;
             }
-            
+
             // Otherwise, categorize the error
             categorizeAndThrowAvniError(error, s3Key, type);
         }

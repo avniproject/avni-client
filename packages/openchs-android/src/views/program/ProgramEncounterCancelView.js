@@ -94,7 +94,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
 
         const cancelObservations = this.state.programEncounter.cancelObservations || [];
         const phoneNumberObservation = _.find(cancelObservations, obs => obs && obs.isPhoneNumberVerificationRequired && obs.isPhoneNumberVerificationRequired(this.state.filteredFormElements));
-        
+
         return {
             completed: (state, decisions, ruleValidationErrors, checklists, nextScheduledVisits) => {
                 // Basic null check for state
@@ -102,7 +102,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     console.error('ProgramEncounterCancelView.getNextParams.completed: state or state.programEncounter is undefined');
                     return;
                 }
-                
+
                 const onSaveCallback = (source) => this.onSaveCallback(source, state.programEncounter);
                 const headerMessage = this._header(state.programEncounter);
                 const form = this.getCancelEncounterForm();
@@ -167,6 +167,7 @@ class ProgramEncounterCancelView extends AbstractComponent {
                     </View>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup
+                            scrollRef={this.scrollRef}
                             observationHolder={new ObservationsHolder(this.state.programEncounter.cancelObservations)}
                             group={this.state.formElementGroup}
                             actions={Actions}
