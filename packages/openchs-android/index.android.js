@@ -1,3 +1,4 @@
+import 'react-native-reanimated';
 /* @flow */
 import {AppRegistry} from 'react-native';
 // import App from './integrationTest/RealmIssuesApp';
