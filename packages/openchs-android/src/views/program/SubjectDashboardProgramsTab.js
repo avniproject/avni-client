@@ -137,7 +137,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
               this.I18n.t('undoExitProgramTitle'),
               this.I18n.t('undoExitProgramConfirmationMessage'),
               [
-                  {text: this.I18n.t('yes'), onPress: () => this.dispatchAction(Actions.ON_PROGRAM_REJOIN)},
+                  {
+                      text: this.I18n.t('yes'), onPress: () => {
+                          this.dispatchAction(Actions.ON_PROGRAM_REJOIN);
+                          CHSNavigator.navigateToBeneficiaryDashboard(this, this.props);
+                      }
+                  },
                   {
                       text: this.I18n.t('no'), onPress: _.noop, style: 'cancel'
                   }
