@@ -28,7 +28,7 @@ class DraftEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(draftEncounter.observations);
 
         return this.db.write(() => {
-            return db.create(DraftEncounter.schema.name, draftEncounter, true);
+            return db.create(DraftEncounter.schema.name, draftEncounter, Realm.UpdateMode.Modified);
         });
     }
 
