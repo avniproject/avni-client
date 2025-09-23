@@ -20,7 +20,7 @@ class DraftSubjectService extends BaseService {
         ObservationsHolder.convertObsForSave(subject.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(subject.subjectType);
         this.db.write(() => {
-            const saved = db.create(DraftSubject.schema.name, subject, true);
+            const saved = db.create(DraftSubject.schema.name, subject, Realm.UpdateMode.Modified);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, subject.observations);
         });
     }
