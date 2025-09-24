@@ -47,7 +47,6 @@ class Sync extends BaseTask {
             General.logInfo("Sync", "Getting SyncService");
             const syncService = globalContext.beanRegistry.getService("syncService");
 
-            // Set background sync status immediately to prevent manual sync during startup
             dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: true});
             General.logInfo("Sync", "Getting connection info");
             let connectionInfo;
