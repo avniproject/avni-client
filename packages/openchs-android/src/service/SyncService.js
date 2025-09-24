@@ -78,9 +78,6 @@ class SyncService extends BaseService {
         SYNC_BUTTON: 'manual'
     };
 
-    static syncQueue = [];
-    static currentSync = null;
-
     init() {
         this.entitySyncStatusService = this.getService(EntitySyncStatusService);
         this.entityService = this.getService(EntityService);
@@ -99,141 +96,34 @@ class SyncService extends BaseService {
     }
 
     async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
-        const isManualSync = syncSource === SyncService.syncSources.SYNC_BUTTON;
-        const isFullSync = syncSource === SyncService.syncSources.SYNC_BUTTON || syncSource === SyncService.syncSources.BACKGROUND_JOB;
-        const isUploadOnlySync = syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
-        
-        // Check if sync is already running
-        if (SyncService.currentSync) {
-            General.logInfo("SyncService", `Sync already in progress (${SyncService.currentSync.syncSource}), handling ${syncSource} sync`);
+        // Mutex protection to prevent concurrent sync operations
+        if (SyncService.syncMutex) {
+            General.logInfo("SyncService", `Sync already in progress, skipping ${syncSource} sync`);
             
-            const currentIsFullSync = SyncService.currentSync.syncSource === SyncService.syncSources.SYNC_BUTTON || 
-                                    SyncService.currentSync.syncSource === SyncService.syncSources.BACKGROUND_JOB;
-            const currentIsUploadOnly = SyncService.currentSync.syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
-            
-            if (currentIsFullSync && isFullSync) {
-                // Full sync running and another full sync requested - debounce (skip)
-                General.logInfo("SyncService", "Full sync already running - debouncing new full sync request");
-                // Don't call trackProgress for debounced syncs to avoid showing any modal
-                return Promise.resolve(syncSource);
-            }
-            
-            if (currentIsUploadOnly && isFullSync) {
-                // Upload-only sync running and full sync requested - queue it
-                General.logInfo("SyncService", `${isManualSync ? 'Manual' : 'Background'} full sync queued - waiting for upload-only sync to complete`);
-                return this._queueSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation);
-            }
-            
-            if (currentIsFullSync && isUploadOnlySync) {
-                // Full sync running and upload-only requested - skip upload-only
-                General.logInfo("SyncService", "Upload-only sync skipped - full sync already running");
-                return Promise.resolve(syncSource);
-            }
-            
-            if (currentIsUploadOnly && isUploadOnlySync) {
-                // Upload-only sync running and another upload-only requested - skip
-                General.logInfo("SyncService", "Upload-only sync skipped - another upload-only sync already running");
-                return Promise.resolve(syncSource);
-            }
-        }
-        
-        // No sync running - start new sync
-        return this._startSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation);
-    }
-    
-    async _queueSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation) {
-        // Show immediate feedback that sync is queued
-        if (trackProgress) {
-            trackProgress({ message: 'Waiting for background sync to complete...', progress: 0.1, syncing: true });
-        }
-        
-        // Add to queue with timeout protection
-        const queuedSync = {
-            allEntitiesMetaData,
-            trackProgress,
-            statusMessageCallBack,
-            connectionInfo,
-            syncStartTime,
-            syncSource,
-            userConfirmation,
-            promise: null,
-            queuedAt: Date.now(),
-            timeoutId: null
-        };
-        
-        SyncService.syncQueue.push(queuedSync);
-        
-        // Create a promise that resolves when this queued sync completes
-        return new Promise((resolve, reject) => {
-            queuedSync.promise = { resolve, reject };
-            
-            // Add timeout protection for queue wait time only (not sync execution time)
-            // Based on Avni sync patterns: automated sync runs hourly, normal sync should complete within 2-3 minutes
-            queuedSync.timeoutId = setTimeout(() => {
-                // Only timeout if sync hasn't started processing yet
-                const index = SyncService.syncQueue.indexOf(queuedSync);
-                if (index > -1) {
-                    // Still in queue - background sync may have crashed or stuck
-                    SyncService.syncQueue.splice(index, 1);
-                    reject(new Error('Background sync appears stuck - queued sync timed out after 3 minutes'));
-                }
-                // If not in queue anymore, sync is processing - let it complete naturally
-            }, 3 * 60 * 1000); // 3 minutes for queue wait - normal incremental sync should complete faster
-        });
-    }
-    
-    async _processQueuedSyncs() {
-        // Process only the first queued sync (FIFO)
-        while (SyncService.syncQueue.length > 0) {
-            const queuedSync = SyncService.syncQueue.shift();
-            
-            // Safety check for corrupted queue entries
-            if (!queuedSync || !queuedSync.promise) {
-                General.logError("SyncService", "Corrupted queue entry found, skipping");
-                continue;
-            }
-            
-            General.logInfo("SyncService", "Processing queued manual sync");
-            
-            try {
-                // Clear timeout since we're processing the sync
-                if (queuedSync.timeoutId) {
-                    clearTimeout(queuedSync.timeoutId);
-                }
+            // Simulate a quick completion to dismiss the progress modal properly
+            if (trackProgress) {
+                // Show brief message that sync is already running
+                trackProgress({
+                    message: 'Sync already in progress...',
+                    progress: 0.5,
+                    syncing: true
+                });
                 
-                const result = await this._startSync(
-                    queuedSync.allEntitiesMetaData,
-                    queuedSync.trackProgress,
-                    queuedSync.statusMessageCallBack,
-                    queuedSync.connectionInfo,
-                    queuedSync.syncStartTime,
-                    queuedSync.syncSource,
-                    queuedSync.userConfirmation
-                );
-                queuedSync.promise.resolve(result);
-                break; // Process only one queued sync at a time
-            } catch (error) {
-                General.logError("SyncService", `Queued sync failed: ${error.message}`);
-                if (queuedSync.timeoutId) {
-                    clearTimeout(queuedSync.timeoutId);
-                }
-                queuedSync.promise.reject(error);
-                break; // Stop processing on error to avoid cascade failures
+                // Wait a moment then complete
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                trackProgress({
+                    message: 'Sync already running in background',
+                    progress: 1,
+                    syncing: false
+                });
             }
+            
+            return Promise.resolve(syncSource);
         }
-    }
-    
-    async _startSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation) {
-        const isBackgroundSync = syncSource === SyncService.syncSources.BACKGROUND_JOB || syncSource === SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB;
         
-        SyncService.currentSync = {
-            syncSource,
-            isBackground: isBackgroundSync,
-            cancelled: false,
-            startTime: Date.now()
-        };
-        
-        General.logInfo("SyncService", `Starting ${syncSource} sync`);
+        SyncService.syncMutex = true;
+        General.logInfo("SyncService", `Starting ${syncSource} sync with mutex protection`);
         
         try {
             return await this._performSync(allEntitiesMetaData, trackProgress, statusMessageCallBack, connectionInfo, syncStartTime, syncSource, userConfirmation);
@@ -241,16 +131,8 @@ class SyncService extends BaseService {
             General.logError("SyncService", `Sync failed: ${error.message}`);
             throw error;
         } finally {
-            SyncService.currentSync = null;
-            General.logInfo("SyncService", `Completed ${syncSource} sync`);
-            
-            // Process any queued syncs after completion - with error protection
-            try {
-                await this._processQueuedSyncs();
-            } catch (queueError) {
-                General.logError("SyncService", `Queue processing failed: ${queueError.message}`);
-                // Don't rethrow - queue errors shouldn't affect main sync completion
-            }
+            SyncService.syncMutex = false;
+            General.logInfo("SyncService", `Completed ${syncSource} sync, mutex released`);
         }
     }
 
