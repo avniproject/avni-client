@@ -521,7 +521,12 @@ class RuleEvaluationService extends BaseService {
         try {
             let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
             const authService = this.context.getService(AuthService);
-            const authToken = await authService.getAuthProviderService().getAuthToken();
+            let authToken;
+            try {
+                authToken = await authService.getAuthProviderService().getAuthToken();
+            } catch (e) {
+                General.logWarn('RuleEvaluationService', 'Error getting authToken', e)
+            }
             const ruleFunc = eval(form.validationRule);
             return ruleFunc({
                 params: _.merge({entity, entityContext, authToken: authToken}, this.getCommonParams()),
