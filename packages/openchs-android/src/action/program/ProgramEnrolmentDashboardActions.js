@@ -315,8 +315,9 @@ class ProgramEnrolmentDashboardActions {
     static onProgramReJoin(state, action, context) {
         const newState = ProgramEnrolmentDashboardActions.clone(state);
         const programEnrolment = context.get(EntityService).findByUUID(state.enrolment.uuid, ProgramEnrolment.schema.name);
+        const oldExitObservations = programEnrolment.programExitObservations;
         const newProgramEnrolmentWithExitRemoved = ProgramEnrolmentDashboardActions.cloneEnrolmentForRejoin(programEnrolment);
-        context.get(ProgramEnrolmentService).reJoinProgram(newProgramEnrolmentWithExitRemoved);
+        context.get(ProgramEnrolmentService).reJoinProgram(newProgramEnrolmentWithExitRemoved, oldExitObservations);
         newState.enrolment = newProgramEnrolmentWithExitRemoved;
         return newState;
     }

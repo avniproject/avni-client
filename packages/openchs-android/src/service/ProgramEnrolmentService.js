@@ -131,11 +131,14 @@ class ProgramEnrolmentService extends BaseService {
         return this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
     }
 
-    reJoinProgram(programEnrolment) {
+    reJoinProgram(programEnrolment, oldExitObservations) {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
-        const entityService = this.getService(EntityService);
         programEnrolment.updateAudit(this.getUserInfo(), false);
-        entityService.saveAndPushToEntityQueue(programEnrolment, ProgramEnrolment.schema.name);
+        this.db.write(() => {
+            this.db.delete(oldExitObservations);
+            this.db.create(ProgramEnrolment.schema.name, programEnrolment, Realm.UpdateMode.Modified);
+            this.db.create(EntityQueue.schema.name, EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
+        });
     }
 
     getAllNonExitedEnrolmentsForSubject(subjectUUID) {
