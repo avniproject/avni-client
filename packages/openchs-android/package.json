@@ -35,7 +35,7 @@
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.18.2",
+    "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-clipboard/clipboard": "^1.12.1",
     "@react-native-community/datetimepicker": "^6.5.0",
     "@react-native-community/netinfo": "9.3.0",
@@ -112,6 +112,7 @@
     "@babel/plugin-proposal-decorators": "7.18.9",
     "@babel/plugin-proposal-object-rest-spread": "7.18.9",
     "@babel/runtime": "^7.20.0",
+    "@react-native-community/cli": "latest",
     "babel-jest": "^29.2.1",
     "bugsnag-sourcemaps": "1.3.0",
     "chai": "4.3.6",
@@ -126,8 +127,7 @@
     "patch-package": "6.5.0",
     "react-addons-test-utils": "15.6.2",
     "react-dom": "18.2.0",
-    "react-test-renderer": "18.2.0",
-    "@react-native-community/cli": "latest"
+    "react-test-renderer": "18.2.0"
   },
   "engines": {
     "node": ">=16"
