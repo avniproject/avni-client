@@ -109,7 +109,7 @@ targetSdkVersion = 35
 - `realm@11.10.2` → Latest compatible version
 - `react-native-charts-wrapper@0.5.9` → Potential Android 15 compatibility issues
 - `bugsnag-react-native@2.23.10` → Update for new architecture support
-- `@react-native-firebase/*@15.2.0` → Update for Android 15
+- `@react-native-firebase/@15.2.0` → Update for Android 15
 
 **Medium-Risk Dependencies:**
 - `react-native-device-info@10.0.2` → Android 15 permission changes
@@ -223,7 +223,7 @@ org.gradle.jvmargs=-Xmx4096M
 ./gradlew assembleLfeTeachNagalandRelease
 ```
 
-**Functional Testing (Following Avni's offline-first architecture):**
+**Functional Testing (Following Avni offline-first architecture):**
 - **Subject registration flows**
 - **Form-based data collection**  
 - **Offline sync capabilities**
