@@ -1,0 +1,22 @@
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const path = require('path');
+
+const defaultConfig = getDefaultConfig(__dirname);
+
+const config = {
+    resolver: {
+        extraNodeModules: {
+            "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),
+            // Polyfill Node.js modules that don't exist in React Native
+            'bindings': path.resolve(__dirname, 'polyfills/bindings.js'),
+            'crypto': path.resolve(__dirname, 'polyfills/crypto.js'),
+            'fs': path.resolve(__dirname, 'polyfills/bindings.js'),
+            'path': require.resolve('path-browserify'),
+        },
+    },
+    projectRoot: path.resolve(__dirname),
+    watchFolders: [],
+    resetCache: true
+};
+
+module.exports = mergeConfig(defaultConfig, config);
