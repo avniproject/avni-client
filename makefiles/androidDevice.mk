@@ -50,10 +50,10 @@ else
 endif
 
 # Run application from the code
-_run_app:
+_run_app: prebuild
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Debug" --appId "$(app_android_package_name)"
-_run_app_release:
+_run_app_release: prebuild
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
 

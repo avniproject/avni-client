@@ -4,6 +4,16 @@ const path = require('path');
 const defaultConfig = getDefaultConfig(__dirname);
 
 const config = {
+    transformer: {
+        babelTransformerPath: require.resolve('metro-babel-transformer'),
+        hermesParser: false,  // disables Hermes parser
+        getTransformOptions: async () => ({
+            transform: {
+                experimentalImportSupport: false,
+                inlineRequires: true,
+            },
+        }),
+    },
     resolver: {
         extraNodeModules: {
             "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),

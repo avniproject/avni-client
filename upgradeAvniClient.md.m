@@ -736,3 +736,9 @@ cd packages/openchs-android && npx patch-package --error-on-fail
 ---
 
 This plan leverages the existing Avni architecture patterns and addresses the specific challenges of an offline-first mobile data collection platform while ensuring Android 15 compliance.
+
+-------
+
+## 2 Pending issues to work on:
+  - During apply_patch, 3 patches apply fail, where packages work with new version, review if the patches had special code, which needs to be ported.?
+  - cp of metro config is needed not only during apk / bundle create, also during run_app
