@@ -25,7 +25,8 @@ class MainApplication : Application(), ReactApplication {
         }
 
         override fun getPackages(): List<ReactPackage> {
-            val packages = PackageList(this).packages.toMutableList()
+            // Use CustomPackageList - autolinking disabled, manual package selection
+            val packages = CustomPackageList(this).packages.toMutableList()
             // Add TamperCheckPackage if available
             try {
                 val aClass = Class.forName("com.openchsclient.TamperCheckPackage")

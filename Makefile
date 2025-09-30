@@ -169,11 +169,11 @@ metro_clean: ## If you get react-native-keychain error
 restore_metro_config: ## Restore metro.config.js from backup (needed after clean operations)
 	cd packages/openchs-android && cp metro.config.js.final-working-version metro.config.js
 
-create_apk: restore_metro_config prebuild
+create_apk: restore_metro_config
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor)Release --stacktrace --w
 
-create_bundle: restore_metro_config prebuild
+create_bundle: restore_metro_config
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
 
@@ -269,7 +269,7 @@ release_perf_without_clean: as_perf
 	enableSeparateBuildPerCPUArchitecture=false make release
 release_perf: renew_env release_perf_without_clean
 
-release-offline: prebuild
+release-offline:
 	cd packages/openchs-android/android; ./gradlew --offline assembleRelease
 # </release>
 
@@ -381,15 +381,15 @@ build_env:
 	export NODE_OPTIONS=--max_old_space_size=4096
 	cd packages/openchs-android && npm install --legacy-peer-deps
 
-prebuild: ## Generate autolinking.json required for gradle operations
-	cd packages/openchs-android && npm run prebuild
+_prebuild_disabled: ## Autolinking disabled - using pure CustomPackageList
+	@echo "Autolinking disabled - using CustomPackageList approach"
 
-clean_app: prebuild
+clean_app:
 	cd packages/openchs-android/android && ./gradlew clean
 
 build: build_env clean_app build_app
 
-build_app: prebuild
+build_app:
 	cd packages/openchs-android/android && ./gradlew assembleDebug
 # </env>
 
@@ -408,7 +408,7 @@ run_packager:
 
 
 # sometimes there are errors for which we need to run the following to get the exact problem
-run_app_debug: setup_hosts prebuild
+run_app_debug: setup_hosts
 	cd packages/openchs-android/android && ./gradlew installDebug --stacktrace
 # </app>
 

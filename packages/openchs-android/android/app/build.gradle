@@ -56,7 +56,8 @@ react {
     //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
     // hermesFlags = ["-O", "-output-source-map"]
 
-    /* Autolinking handled by settings.gradle in RN 0.81.4 */
+    /* Autolinking disabled - using CustomPackageList with reference from generated PackageList */
+    // autolinkLibrariesWithApp()
 }
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
