@@ -592,4 +592,147 @@ transformer: {
 
 ---
 
+## 🚨 CRITICAL PRESERVATION NOTES: Git-Ignored & Modified Files
+
+### 📋 **MUST PRESERVE: Modified Git-Ignored Files**
+
+**❗ Critical Risk**: These files contain our upgrade changes but are git-ignored and will be lost:
+
+#### **1. Metro Configuration (CRITICAL)**
+```bash
+# File: packages/openchs-android/metro.config.js (GIT-IGNORED!)
+# Location: Line 100 in .gitignore
+
+# Current working configuration:
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const path = require('path');
+
+const defaultConfig = getDefaultConfig(__dirname);
+
+const config = {
+    resolver: {
+        extraNodeModules: {
+            "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),
+            // Polyfill Node.js modules that don't exist in React Native
+            'bindings': path.resolve(__dirname, 'polyfills/bindings.js'),
+            'crypto': path.resolve(__dirname, 'polyfills/crypto.js'),
+            'fs': path.resolve(__dirname, 'polyfills/bindings.js'),
+            'path': require.resolve('path-browserify'),
+        },
+    },
+    projectRoot: path.resolve(__dirname),
+    watchFolders: [],
+    resetCache: true
+};
+
+module.exports = mergeConfig(defaultConfig, config);
+```
+
+**Backup Created**: `metro.config.js.upgrade-backup`
+
+#### **2. Configuration Files Status**
+```bash
+# These files are properly tracked in git:
+✅ packages/openchs-android/babel.config.js (tracked)
+✅ packages/openchs-android/react-native.config.js (tracked)  
+✅ packages/openchs-android/package.json (tracked)
+✅ packages/openchs-android/android/app/build.gradle (tracked)
+✅ packages/openchs-android/android/build.gradle (tracked)
+✅ packages/openchs-android/android/gradle.properties (tracked)
+
+# These are git-ignored but may contain changes:
+🚨 packages/openchs-android/metro.config.js (IGNORED - CRITICAL!)
+⚠️  packages/openchs-android/src/framework/Config.js (IGNORED)
+```
+
+### **🔧 Node.js Polyfills (Must Preserve)**
+
+**Location**: `packages/openchs-android/polyfills/`
+- ✅ `bindings.js` - Polyfill for native bindings module
+- ✅ `crypto.js` - Polyfill for Node.js crypto module
+
+**These files are properly committed and tracked.**
+
+### **⚠️ Failed Patch Applications**
+
+**From Memory Analysis** (3 failed patches identified):
+
+#### **Patch Version Mismatches** (Fixed in package.json):
+1. **@react-native-clipboard/clipboard**: `1.12.1` → `1.16.3` 
+   - **Status**: ✅ Fixed by updating package.json version
+   - **Verification**: Check patches/react-native-clipboard-clipboard*.patch
+
+2. **jail-monkey**: `2.8.0` → `2.8.4`
+   - **Status**: ✅ Fixed by updating package.json version  
+   - **Verification**: Check patches/jail-monkey*.patch
+
+3. **react-native-keychain**: `8.1.1` → `8.2.0`
+   - **Status**: ✅ Fixed by updating package.json version
+   - **Verification**: Check patches/react-native-keychain*.patch
+
+**Current Patch Status**: All patches now apply successfully after version alignment.
+
+### **📋 Complete File Preservation Checklist**
+
+#### **Critical Files to Document/Backup Before Any Reset:**
+
+```bash
+# 1. Metro Configuration (MOST CRITICAL)
+cp packages/openchs-android/metro.config.js packages/openchs-android/metro.config.js.rn081-upgrade
+
+# 2. Node.js Polyfills (Already committed)
+ls packages/openchs-android/polyfills/
+# - bindings.js
+# - crypto.js
+
+# 3. Gradle Configuration (Already committed)  
+# - android/app/build.gradle (gradle plugin, Hermes settings)
+# - android/build.gradle (Kotlin plugin)
+# - android/gradle.properties (Hermes enabled)
+
+# 4. Package Configuration (Already committed)
+# - package.json (dependency versions)
+# - babel.config.js (React Native preset)
+
+# 5. Code Changes (Already committed)
+# - Decorator removal in Action files
+# - Service registration conversions  
+# - Path registration conversions
+```
+
+#### **Verification Commands:**
+```bash
+# Check all critical files exist:
+ls -la packages/openchs-android/metro.config.js*
+ls -la packages/openchs-android/polyfills/
+git log --oneline -10 # Verify commits are present
+
+# Verify patches apply:
+cd packages/openchs-android && npx patch-package --error-on-fail
+```
+
+### **🎯 Recovery Instructions**
+
+**If Metro Config is Lost:**
+
+1. **Restore from backup:**
+   ```bash
+   cp packages/openchs-android/metro.config.js.upgrade-backup packages/openchs-android/metro.config.js
+   ```
+
+2. **Or recreate using this exact configuration** (see Metro Configuration section above)
+
+3. **Verify polyfills exist:**
+   ```bash
+   ls packages/openchs-android/polyfills/bindings.js
+   ls packages/openchs-android/polyfills/crypto.js
+   ```
+
+**Recovery Priority**: 
+1. 🔴 **Metro config** (enables React Native 0.81.4 bundling)
+2. 🟡 **Polyfills** (enables Realm/crypto dependencies)
+3. 🟢 **Other configs** (already in git)
+
+---
+
 This plan leverages the existing Avni architecture patterns and addresses the specific challenges of an offline-first mobile data collection platform while ensuring Android 15 compliance.
