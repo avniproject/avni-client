@@ -37,13 +37,11 @@ class MainApplication : Application(), ReactApplication {
             return packages
         }
 
-        override fun isNewArchEnabled(): Boolean {
-            return BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-        }
+        override val isNewArchEnabled: Boolean
+            get() = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
 
-        override fun isHermesEnabled(): Boolean {
-            return BuildConfig.IS_HERMES_ENABLED
-        }
+        override val isHermesEnabled: Boolean
+            get() = BuildConfig.IS_HERMES_ENABLED
     }
 
     override val reactHost: ReactHost?

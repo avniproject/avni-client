@@ -4,12 +4,12 @@ buildscript {
 
     ext {
         buildToolsVersion = "35.0.0"
-        minSdkVersion = 21
+        minSdkVersion = 24
         compileSdkVersion = 35
         targetSdkVersion = 35
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
-        kotlinVersion = '1.9.10'
+        kotlinVersion = '2.1.0'
 
         // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
         ndkVersion = "23.1.7779620"
