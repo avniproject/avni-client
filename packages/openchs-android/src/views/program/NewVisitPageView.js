@@ -12,7 +12,6 @@ import NewVisitMenuView from "./NewVisitMenuView";
 import CHSNavigator from "../../utility/CHSNavigator";
 import {AvniAlert} from "../common/AvniAlert";
 
-@Path("/NewVisitPageView")
 class NewVisitPageView extends AbstractComponent {
     static propTypes = {
         params: PropTypes.object.isRequired,
@@ -45,5 +44,8 @@ class NewVisitPageView extends AbstractComponent {
         );
     }
 }
+
+// Manually register path (replacing @Path decorator)
+Path("/NewVisitPageView")(NewVisitPageView);
 
 export default NewVisitPageView;
