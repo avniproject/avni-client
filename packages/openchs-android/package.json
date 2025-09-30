@@ -29,14 +29,17 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "npx jetify"
+    "postinstall": "npx jetify",
+    "prebuild": "mkdir -p android/build/generated/autolinking && npx react-native config --platform android > android/build/generated/autolinking/autolinking.json",
+    "build:android": "npm run prebuild && cd android && ./gradlew assembleRelease",
+    "build:android-debug": "npm run prebuild && cd android && ./gradlew assembleDebug"
   },
   "dependencies-comment": [
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.2.0",
-    "@react-native-clipboard/clipboard": "^1.12.1",
+    "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/datetimepicker": "^6.5.0",
     "@react-native-community/netinfo": "9.3.0",
     "@react-native-community/progress-bar-android": "^1.0.5",
@@ -57,7 +60,7 @@
     "i18n-js": "3.9.2",
     "immutable": "4.1.0",
     "invariant": "2.2.4",
-    "jail-monkey": "^2.8.0",
+    "jail-monkey": "^2.8.4",
     "jshashes": "1.0.8",
     "jwt-decode": "^3.1.2",
     "lodash": "4.17.21",
@@ -86,7 +89,7 @@
     "react-native-image-zoom-viewer": "3.0.1",
     "react-native-immediate-phone-call": "^2.0.0",
     "react-native-keep-awake": "^4.0.0",
-    "react-native-keychain": "^8.1.1",
+    "react-native-keychain": "^8.2.0",
     "react-native-mime-types": "2.3.0",
     "react-native-randombytes": "^3.6.1",
     "react-native-restart": "0.0.24",

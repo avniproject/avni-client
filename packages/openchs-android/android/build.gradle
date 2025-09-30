@@ -66,3 +66,38 @@ subprojects {
             }
     }
 }
+
+// Workaround for React Native 0.81.4 autolinking issue
+// Generate autolinking.json before any tasks that depend on it
+task generateAutolinkingConfig(type: Exec) {
+    description = 'Generate autolinking configuration for React Native 0.81.4'
+    group = 'react-native'
+    
+    // Ensure output directory exists
+    doFirst {
+        mkdir "${rootDir}/build/generated/autolinking"
+    }
+    
+    workingDir rootDir.parentFile
+    executable = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npx.cmd' : 'npx'
+    args = ['react-native', 'config', '--platform', 'android']
+    standardOutput = new FileOutputStream("${rootDir}/build/generated/autolinking/autolinking.json")
+    
+    // Only run if the file doesn't exist or is older than react-native.config.js
+    File autolinkingFile = file("${rootDir}/build/generated/autolinking/autolinking.json")
+    File configFile = file("${rootDir.parentFile}/react-native.config.js")
+    
+    inputs.file configFile
+    outputs.file autolinkingFile
+}
+
+// Ensure autolinking config is generated before any build tasks
+allprojects {
+    afterEvaluate { project ->
+        if (project.name == 'app') {
+            project.tasks.matching { it.name.startsWith('generate') || it.name.contains('Build') }.configureEach {
+                dependsOn(generateAutolinkingConfig)
+            }
+        }
+    }
+}

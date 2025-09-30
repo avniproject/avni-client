@@ -22,7 +22,6 @@ class StartProgramActions {
         }
     }
 
-    @Action('StartProgramActions.onLoad')
     static onLoad(state, action, context) {
         const formMappingService = context.get(FormMappingService);
         const privilegeService = context.get(PrivilegeService);
@@ -73,6 +72,9 @@ class StartProgramActions {
         return newState;
     }
 }
+
+// Manually assign Action ID (replacing @Action decorator)
+StartProgramActions.onLoad.Id = 'StartProgramActions.onLoad';
 
 const StartProgramActionsNames = {};
 

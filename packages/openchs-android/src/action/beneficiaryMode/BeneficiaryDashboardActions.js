@@ -9,7 +9,6 @@ export default class BeneficiaryDashboardActions {
         return {};
     }
 
-    @Action('BDA.onLoad')
     static onLoad(state: Object, action: Object, context: Map) {
         const newState = {...state};
         newState.beneficiary = action.beneficiary || context.get(IndividualService).findByUUID(action.beneficiaryUUID);
@@ -23,7 +22,6 @@ export default class BeneficiaryDashboardActions {
         return newState;
     }
 
-    @Action('BDA.onEncounterToggle')
     static onEncounterToggle(state, action) {
         const newState = {...state};
         newState.completedEncounters = _.reject(newState.completedEncounters,
@@ -32,7 +30,6 @@ export default class BeneficiaryDashboardActions {
         return newState;
     }
 
-    @Action('BDA.onGeneralEncounterToggle')
     static onGeneralEncounterToggle(state, action) {
         const newState = {...state};
         newState.completedGeneralEncounters = _.reject(newState.completedGeneralEncounters,
@@ -41,6 +38,11 @@ export default class BeneficiaryDashboardActions {
         return newState;
     }
 }
+
+// Manually assign Action IDs (replacing @Action decorators)
+BeneficiaryDashboardActions.onLoad.Id = 'BDA.onLoad';
+BeneficiaryDashboardActions.onEncounterToggle.Id = 'BDA.onEncounterToggle';
+BeneficiaryDashboardActions.onGeneralEncounterToggle.Id = 'BDA.onGeneralEncounterToggle';
 
 const actions = BeneficiaryDashboardActions.Names = {
 };
