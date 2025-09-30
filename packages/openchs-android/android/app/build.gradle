@@ -225,21 +225,9 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-file-viewer')
-    implementation project(':react-native-keep-awake')
-    implementation project(':react-native-document-picker')
-    implementation project(':react-native-zip-archive')
-    implementation project(':react-native-webview')
-    implementation project(':react-native-immediate-phone-call')
-    implementation (project(':rn-fetch-blob')) {
-        exclude group: 'com.squareup.okhttp3'
-    }
-    implementation project(':react-native-image-picker')
-    implementation project(':react-native-fs')
-    implementation project(':react-native-geolocation-service')
+    // Autolinking handles React Native packages automatically in 0.81.4
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
-    implementation project(':react-native-device-info')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'com.facebook.soloader:soloader:0.10.5'
