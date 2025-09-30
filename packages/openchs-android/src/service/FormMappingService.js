@@ -14,6 +14,7 @@ function getEncounterTypeCriteria(subjectType, formType, entityCriteria) {
     return criteria;
 }
 
+@Service("FormMappingService")
 class FormMappingService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
@@ -268,8 +269,5 @@ class FormMappingService extends BaseService {
             .filtered('subjectType = $0', subjectType);
     }
 }
-
-// Manually register service (replacing @Service decorator)
-Service("FormMappingService")(FormMappingService);
 
 export default FormMappingService;
