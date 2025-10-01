@@ -6,6 +6,8 @@
     "next": "NEXT",
     "previous": "PREVIOUS",
     "save": "SAVE",
+    "clear": "Clear",
+    "signHere": "Sign here",
     "deleteConfirmation": "Do you want to delete all saved sessions?",
     "validationResult": "Validation Error",
     "numericValueValidation": "Is not a valid number",

@@ -195,6 +195,7 @@ class IndividualEncounterView extends AbstractComponent {
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         {_.get(this.state, 'timerState.displayQuestions', true) &&
                         <FormElementGroup group={this.state.formElementGroup}
+                                          scrollRef={this.scrollRef}
                                           observationHolder={new ObservationsHolder(this.state.encounter.observations)}
                                           actions={Actions}
                                           validationResults={this.state.validationResults}

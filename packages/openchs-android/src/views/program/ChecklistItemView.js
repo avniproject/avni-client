@@ -93,6 +93,7 @@ class ChecklistItemView extends AbstractComponent {
                     </View>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup
+                            scrollRef={this.scrollRef}
                             observationHolder={new ObservationsHolder(this.state.checklistItem.observations)}
                             group={this.state.formElementGroup}
                             actions={Actions}

@@ -73,6 +73,7 @@ class TaskFormView extends AbstractComponent {
                     <AppHeader title={title} func={() => this.onAppHeaderBack()} displayHomePressWarning={true}/>
                     <View style={{backgroundColor: '#ffffff', flexDirection: 'column'}}>
                         <FormElementGroup group={this.state.formElementGroup}
+                                          scrollRef={this.scrollRef}
                                           observationHolder={new ObservationsHolder(this.state.task.observations)}
                                           actions={Actions}
                                           validationResults={this.state.validationResults}
