@@ -20,7 +20,7 @@ import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.reactnativedocumentpicker.RNDocumentPickerPackage;
+// import com.reactnativedocumentpicker.RNDocumentPickerPackage; // DISABLED - incompatible with RN 0.81.4
 import com.rnfs.RNFSPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -30,7 +30,6 @@ import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
-import io.realm.react.RealmReactPackage;
 
 @SuppressWarnings("deprecation")
 public class CustomPackageList {
@@ -72,7 +71,7 @@ public class CustomPackageList {
             new ReactNativeFirebaseAppPackage(),               // ✅ Firebase core
             BugsnagReactNative.getPackage(),                    // ✅ Error reporting
             new RNDeviceInfo(),                                 // ✅ Device information
-            new RNDocumentPickerPackage(),                      // ✅ Document picker
+            // new RNDocumentPickerPackage(),                   // DISABLED - incompatible with RN 0.81.4
             new RNFSPackage(),                                  // ✅ File system
             new RNFusedLocationPackage(),                       // ✅ Location services
             new ImagePickerPackage(),                           // ✅ Image picker
@@ -81,8 +80,8 @@ public class CustomPackageList {
             new SafeAreaContextPackage(),                       // ✅ Safe area (Android 15 essential)
             new SvgPackage(),                                   // ✅ SVG support
             new VectorIconsPackage(),                           // ✅ Icon fonts
-            new RNCWebViewPackage(),                            // ✅ WebView component
-            new RealmReactPackage()                             // ✅ Database
+            new RNCWebViewPackage()                             // ✅ WebView component
+            // new RealmReactPackage()                          // DISABLED - Requires NDK 27 (separate task)
             
             // Phase 2: Will add "verify compatibility" packages incrementally
         ));
