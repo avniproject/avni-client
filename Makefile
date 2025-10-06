@@ -167,13 +167,14 @@ metro_clean: ## If you get react-native-keychain error
 
 
 restore_metro_config: ## Restore metro.config.js from backup (needed after clean operations)
-	cd packages/openchs-android && cp metro.config.js.final-working-version metro.config.js
+	@echo "Metro config managed by metro_config target per flavor - backup restore deprecated"
+	@echo "Use 'make metro_config flavor=<flavor>' to set config for specific flavor"
 
-create_apk: restore_metro_config
+create_apk: metro_config
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor)Release --stacktrace --w
 
-create_bundle: restore_metro_config
+create_bundle: metro_config
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
 

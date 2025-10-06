@@ -50,10 +50,11 @@ else
 endif
 
 # Run application from the code
-_run_app: prebuild
+# Note: prebuild removed - autolinking now handled by Gradle task automatically
+_run_app:
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Debug" --appId "$(app_android_package_name)"
-_run_app_release: prebuild
+_run_app_release:
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
 
