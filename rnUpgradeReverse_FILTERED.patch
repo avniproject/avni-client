@@ -1,0 +1,16 @@
+Index: upgradeAvniClient.md.m
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/upgradeAvniClient.md.m b/upgradeAvniClient.md.m
+deleted file mode 100644
+--- a/upgradeAvniClient.md.m	(revision 33c950b870a5589f69ee7de2be6a869119d7dcb0)
++++ /dev/null	(revision 33c950b870a5589f69ee7de2be6a869119d7dcb0)
+
+Index: packages/openchs-android/test-autolinking.js
+===================================================================
+diff --git a/packages/openchs-android/test-autolinking.js b/packages/openchs-android/test-autolinking.js
+deleted file mode 100644
+--- a/packages/openchs-android/test-autolinking.js
++++ /dev/null
