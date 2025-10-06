@@ -62,6 +62,8 @@ android {
             }
         }
         multiDexEnabled true
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
+        buildConfigField "boolean", "IS_HERMES_ENABLED", hermesEnabled.toBoolean().toString()
     }
 
     splits {
@@ -197,7 +199,7 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.8.1'
 
     if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android:0.81.4")
+        implementation("com.facebook.react:hermes-android:$rootProject.ext.reactNativeVersion")
     } else {
         implementation('io.github.react-native-community:jsc-android:2026004.+')
     }

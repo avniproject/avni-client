@@ -38,11 +38,8 @@ class MainApplication : Application(), ReactApplication {
             return packages
         }
 
-        override val isNewArchEnabled: Boolean
-            get() = false // New Architecture disabled for RN 0.81.4
-
-        override val isHermesEnabled: Boolean
-            get() = true // Hermes enabled (from gradle.properties)
+        override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
+        override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
     }
 
     override val reactHost: ReactHost?

@@ -11,6 +11,7 @@ buildscript {
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
         kotlinVersion = '2.1.0'
         kspVersion = '2.1.0-1.0.29' // KSP compatible with Kotlin 2.1.0
+        reactNativeVersion = '0.81.4' // Centralized React Native version
 
         // NDK 27 required for Realm prebuilt binaries compatibility
         ndkVersion = "27.1.12297006"
@@ -70,14 +71,14 @@ subprojects {
 allprojects {
     configurations.all {
         resolutionStrategy {
-            // Redirect react-native artifact requests to react-android (RN 0.81.4 manual linking)
+            // Redirect react-native artifact requests to react-android (RN manual linking)
             dependencySubstitution {
-                substitute module('com.facebook.react:react-native') using module('com.facebook.react:react-android:0.81.4')
+                substitute module('com.facebook.react:react-native') using module("com.facebook.react:react-android:$reactNativeVersion")
             }
             
             // Force explicit versions for React Native artifacts
-            force 'com.facebook.react:react-android:0.81.4'
-            force 'com.facebook.react:hermes-android:0.81.4'
+            force "com.facebook.react:react-android:$reactNativeVersion"
+            force "com.facebook.react:hermes-android:$reactNativeVersion"
         }
     }
 

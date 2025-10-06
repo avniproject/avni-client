@@ -1,15 +1,15 @@
 package com.openchsclient;
 
 import android.app.Application;
-import android.content.Context;
-import android.content.res.Resources;
+import android.util.Log;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.shell.MainPackageConfig;
 import com.facebook.react.shell.MainReactPackage;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 // High-confidence packages - officially supported with RN 0.81.4 + Android 15
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
@@ -59,31 +59,61 @@ public class CustomPackageList {
     // Simplified - remove methods that cause access issues
 
     public ArrayList<ReactPackage> getPackages() {
-        return new ArrayList<>(Arrays.<ReactPackage>asList(
-            new MainReactPackage(mConfig),
+        ArrayList<ReactPackage> packages = new ArrayList<>();
+    
+        try {
+            packages.add(new MainReactPackage(mConfig));
             
             // Phase 1: High-confidence packages (officially supported)
-            new AsyncStoragePackage(),                           // ✅ Essential data storage
-            new ClipboardPackage(),                             // ✅ Clipboard functionality  
-            new RNDateTimePickerPackage(),                      // ✅ Date/time picker
-            new NetInfoPackage(),                               // ✅ Network status
-            new ReactNativeFirebaseAnalyticsPackage(),         // ✅ Firebase analytics
-            new ReactNativeFirebaseAppPackage(),               // ✅ Firebase core
-            BugsnagReactNative.getPackage(),                    // ✅ Error reporting
-            new RNDeviceInfo(),                                 // ✅ Device information
+            packages.add(new AsyncStoragePackage());                           // ✅ Essential data storage
+            packages.add(new ClipboardPackage());                             // ✅ Clipboard functionality  
+            packages.add(new RNDateTimePickerPackage());                      // ✅ Date/time picker
+            packages.add(new NetInfoPackage());                               // ✅ Network status
+            packages.add(new ReactNativeFirebaseAnalyticsPackage());         // ✅ Firebase analytics
+            packages.add(new ReactNativeFirebaseAppPackage());               // ✅ Firebase core
+            packages.add(BugsnagReactNative.getPackage());                    // ✅ Error reporting
+            packages.add(new RNDeviceInfo());                                 // ✅ Device information
             // new RNDocumentPickerPackage(),                   // DISABLED - incompatible with RN 0.81.4
-            new RNFSPackage(),                                  // ✅ File system
-            new RNFusedLocationPackage(),                       // ✅ Location services
-            new ImagePickerPackage(),                           // ✅ Image picker
-            new KCKeepAwakePackage(),                           // ✅ Keep screen awake
-            new KeychainPackage(),                              // ✅ Secure storage
-            new SafeAreaContextPackage(),                       // ✅ Safe area (Android 15 essential)
-            new SvgPackage(),                                   // ✅ SVG support
-            new VectorIconsPackage(),                           // ✅ Icon fonts
-            new RNCWebViewPackage()                             // ✅ WebView component
-            // new RealmReactPackage()                          // DISABLED - Requires NDK 27 (separate task)
+            packages.add(new RNFSPackage());                                  // ✅ File system
+            packages.add(new RNFusedLocationPackage());                       // ✅ Location services
+            packages.add(new ImagePickerPackage());                           // ✅ Image picker
+            packages.add(new KCKeepAwakePackage());                           // ✅ Keep screen awake
+            packages.add(new KeychainPackage());                              // ✅ Secure storage
+            packages.add(new SafeAreaContextPackage());                       // ✅ Safe area (Android 15 essential)
+            packages.add(new SvgPackage());                                   // ✅ SVG support
+            packages.add(new VectorIconsPackage());                           // ✅ Icon fonts
+            packages.add(new RNCWebViewPackage());                             // ✅ WebView component
             
-            // Phase 2: Will add "verify compatibility" packages incrementally
-        ));
+            /* ============================================
+             * TEMPORARILY DISABLED PACKAGES
+             * ============================================
+             * 
+             * 1. REALM (realm@20.2.0)
+             *    Status: Requires NDK 27.1.12297006
+             *    Reason: Prebuilt C++ libraries compiled with NDK 27
+             *    Re-enable steps:
+             *      - Install NDK 27 via Android Studio SDK Manager
+             *      - Uncomment in settings.gradle (line ~61-63)
+             *      - Uncomment in app/build.gradle (line ~228)
+             *      - Uncomment below: new RealmReactPackage()
+             * 
+             * 2. REACT-NATIVE-DOCUMENT-PICKER (9.1.1)
+             *    Status: Incompatible with RN 0.81.4
+             *    Reason: GuardedResultAsyncTask class removed in RN 0.81.4
+             *    Re-enable steps:
+             *      - Update to RN 0.81.4-compatible version
+             *      - Or manually patch the package
+             *      - Uncomment in settings.gradle (line ~30-32)
+             *      - Uncomment in app/build.gradle (line ~217)
+             *      - Uncomment below: new RNDocumentPickerPackage()
+             */
+            // new RNDocumentPickerPackage()  // DISABLED - See above
+            // new RealmReactPackage()        // DISABLED - See above
+            Log.i("CustomPackageList", "Successfully loaded " + packages.size() + " packages");
+        } catch (Exception e) {
+            Log.e("CustomPackageList", "Error loading packages", e);
+            throw e;
+        }
+        return packages;
     }
 }

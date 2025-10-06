@@ -154,13 +154,12 @@ as_staging_gramin_dev: ; $(call _create_config,staging_gramin_dev)
 
 as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
-release_clean: ## If you get dex errors - handle permission issues gracefully
-	-sudo rm -rf packages/openchs-android/android/app/build 2>/dev/null || rm -rf packages/openchs-android/android/app/build 2>/dev/null || true
-	-sudo rm -rf packages/openchs-android/android/build 2>/dev/null || rm -rf packages/openchs-android/android/build 2>/dev/null || true
+release_clean: ## If you get dex errors
+	rm -rf packages/openchs-android/android/app/build
 	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
 	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
-	-sudo rm -rf packages/openchs-android/android/.gradle 2>/dev/null || rm -rf packages/openchs-android/android/.gradle 2>/dev/null || true
+	rm -rf packages/openchs-android/android/.gradle
 
 metro_clean: ## If you get react-native-keychain error
 	watchman watch-del './packages/openchs-android' ; watchman watch-project './packages/openchs-android'
@@ -355,31 +354,21 @@ open_location_bundles:
 
 # <env>
 clean_packager_cache:
-	-watchman watch-del-all && rm -rf $(TMPDIR)/react-* 2>/dev/null || true
-	-sudo rm -rf /tmp/metro-* 2>/dev/null || rm -rf /tmp/metro-* 2>/dev/null || true
-	-sudo rm -rf /tmp/haste-* 2>/dev/null || rm -rf /tmp/haste-* 2>/dev/null || true
-	-sudo rm -rf ~/.metro 2>/dev/null || rm -rf ~/.metro 2>/dev/null || true
-	cd packages/openchs-android && rm -rf .metro-health-check* 2>/dev/null || true
-	cd packages/openchs-android && ( sudo rm -rf node_modules/.cache 2>/dev/null || rm -rf node_modules/.cache 2>/dev/null || true )
+	-watchman watch-del-all && rm -rf $(TMPDIR)/react-*
+	rm -rf /tmp/metro-*
+	rm -rf /tmp/haste-*
 
 clean_env: release_clean metro_clean
-	-sudo rm -rf packages/openchs-android/node_modules 2>/dev/null || rm -rf packages/openchs-android/node_modules 2>/dev/null || true
-	-sudo rm -rf packages/openchs-org/node_modules 2>/dev/null || rm -rf packages/openchs-org/node_modules 2>/dev/null || true
-	-sudo rm -rf packages/unminifiy/node_modules 2>/dev/null || rm -rf packages/unminifiy/node_modules 2>/dev/null || true
-	-sudo rm -rf packages/utilities/node_modules 2>/dev/null || rm -rf packages/utilities/node_modules 2>/dev/null || true
+	rm -rf packages/openchs-android/node_modules
+	rm -rf packages/openchs-org/node_modules
+	rm -rf packages/unminifiy/node_modules
+	rm -rf packages/utilities/node_modules
 
 remove_package_locks:
 	rm package-lock.json packages/openchs-android/package-lock.json
 
 clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
-
-fix_permissions: ## Fix root-owned files from previous sudo operations
-	@echo "Fixing permissions for build directories..."
-	-sudo chown -R $(USER):$(shell id -gn) packages/openchs-android/android/ 2>/dev/null || true
-	-sudo chown -R $(USER):$(shell id -gn) packages/openchs-android/node_modules/ 2>/dev/null || true
-	-sudo chown -R $(USER):$(shell id -gn) /tmp/metro-* /tmp/haste-* ~/.metro 2>/dev/null || true
-	@echo "Permission fix complete"
 
 setup_env:
 	npm install -g jest@20.0.1
