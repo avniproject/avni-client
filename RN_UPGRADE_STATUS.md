@@ -105,6 +105,19 @@ Build Strategy:  Pure Manual Linking
 
 ---
 
+## ✅ Recently Fixed Issues
+
+### 1. Make Command Failures (FIXED - 2025-10-06)
+- **Issue**: `make run_app`, `make release`, and other commands failing with "No rule to make target 'prebuild'" error
+- **Root Cause**: 
+  - `prebuild` target was removed during RN 0.81.4 upgrade (autolinking now automatic via Gradle)
+  - `restore_metro_config` referenced non-existent backup file
+- **Solution**: 
+  - Removed `prebuild` dependencies from `_run_app` and `_run_app_release` targets
+  - Updated `create_apk` and `create_bundle` to use `metro_config` instead of `restore_metro_config`
+  - All make commands now functional
+- **Details**: See `MAKEFILE_FIXES.md`
+
 ## 🚧 Known Issues & Workarounds
 
 ### 1. Autolinking Challenges (RESOLVED via Manual Linking)
@@ -398,14 +411,19 @@ make clean_all deps build_app
 
 ### Development Commands
 ```bash
-# Start Metro bundler
-make run_app_generic
+# Set Metro config for flavor (REQUIRED before running)
+make metro_config flavor=generic
+make metro_config flavor=lfe
 
-# Run on device
-make run_app_generic
+# Start app in development mode
+make run_app flavor=generic
+make run_app flavor=lfe
 
-# Generate autolinking config (if needed)
-npm run prebuild
+# Run release build
+make run_app_release flavor=generic
+
+# Start Metro bundler separately
+cd packages/openchs-android && npm start
 ```
 
 ### Troubleshooting
