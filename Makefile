@@ -359,7 +359,6 @@ clean_packager_cache:
 	rm -rf /tmp/haste-*
 
 clean_env: release_clean metro_clean
-	rm -rf packages/openchs-android/node_modules
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
 	rm -rf packages/utilities/node_modules

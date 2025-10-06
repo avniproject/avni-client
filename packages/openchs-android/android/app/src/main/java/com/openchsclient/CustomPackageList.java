@@ -20,7 +20,7 @@ import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
-// import com.reactnativedocumentpicker.RNDocumentPickerPackage; // DISABLED - incompatible with RN 0.81.4
+import com.reactnativedocumentpicker.RNDocumentPickerPackage;
 import com.rnfs.RNFSPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -60,20 +60,19 @@ public class CustomPackageList {
 
     public ArrayList<ReactPackage> getPackages() {
         ArrayList<ReactPackage> packages = new ArrayList<>();
-    
+
         try {
             packages.add(new MainReactPackage(mConfig));
-            
+
             // Phase 1: High-confidence packages (officially supported)
             packages.add(new AsyncStoragePackage());                           // ✅ Essential data storage
-            packages.add(new ClipboardPackage());                             // ✅ Clipboard functionality  
+            packages.add(new ClipboardPackage());                             // ✅ Clipboard functionality
             packages.add(new RNDateTimePickerPackage());                      // ✅ Date/time picker
             packages.add(new NetInfoPackage());                               // ✅ Network status
             packages.add(new ReactNativeFirebaseAnalyticsPackage());         // ✅ Firebase analytics
             packages.add(new ReactNativeFirebaseAppPackage());               // ✅ Firebase core
             packages.add(BugsnagReactNative.getPackage());                    // ✅ Error reporting
             packages.add(new RNDeviceInfo());                                 // ✅ Device information
-            // new RNDocumentPickerPackage(),                   // DISABLED - incompatible with RN 0.81.4
             packages.add(new RNFSPackage());                                  // ✅ File system
             packages.add(new RNFusedLocationPackage());                       // ✅ Location services
             packages.add(new ImagePickerPackage());                           // ✅ Image picker
@@ -83,11 +82,12 @@ public class CustomPackageList {
             packages.add(new SvgPackage());                                   // ✅ SVG support
             packages.add(new VectorIconsPackage());                           // ✅ Icon fonts
             packages.add(new RNCWebViewPackage());                             // ✅ WebView component
-            
+            packages.add(new RNDocumentPickerPackage());                             // ✅ WebView component
+
             /* ============================================
              * TEMPORARILY DISABLED PACKAGES
              * ============================================
-             * 
+             *
              * 1. REALM (realm@20.2.0)
              *    Status: Requires NDK 27.1.12297006
              *    Reason: Prebuilt C++ libraries compiled with NDK 27
@@ -96,18 +96,8 @@ public class CustomPackageList {
              *      - Uncomment in settings.gradle (line ~61-63)
              *      - Uncomment in app/build.gradle (line ~228)
              *      - Uncomment below: new RealmReactPackage()
-             * 
-             * 2. REACT-NATIVE-DOCUMENT-PICKER (9.1.1)
-             *    Status: Incompatible with RN 0.81.4
-             *    Reason: GuardedResultAsyncTask class removed in RN 0.81.4
-             *    Re-enable steps:
-             *      - Update to RN 0.81.4-compatible version
-             *      - Or manually patch the package
-             *      - Uncomment in settings.gradle (line ~30-32)
-             *      - Uncomment in app/build.gradle (line ~217)
-             *      - Uncomment below: new RNDocumentPickerPackage()
+             *
              */
-            // new RNDocumentPickerPackage()  // DISABLED - See above
             // new RealmReactPackage()        // DISABLED - See above
             Log.i("CustomPackageList", "Successfully loaded " + packages.size() + " packages");
         } catch (Exception e) {

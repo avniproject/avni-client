@@ -213,8 +213,7 @@ dependencies {
     implementation project(':@react-native-firebase_app')
     implementation project(':bugsnag-react-native')
     implementation project(':react-native-device-info')
-    // TEMPORARILY DISABLED - Incompatible with RN 0.81.4
-    // implementation project(':react-native-document-picker')
+    implementation project(':@react-native-documents_picker')
     implementation project(':react-native-fs')
     implementation project(':react-native-geolocation-service')
     implementation project(':react-native-image-picker')
