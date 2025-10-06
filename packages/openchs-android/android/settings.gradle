@@ -2,13 +2,18 @@ rootProject.name = 'Avni'
 include ':app'
 
 // ============================================================================
-// PURE MANUAL LINKING STRATEGY (React Native 0.81.4)
+// HYBRID LINKING STRATEGY (React Native 0.81.4)
 // ============================================================================
-// Rationale: React Native 0.81.4 autolinking had packageName detection issues
-//            (see git history for autolinking troubleshooting details)
-// Decision:  Use manual linking for full control and predictability
-// Trade-off: More verbose, requires manual maintenance when adding packages
+// Strategy: React Native core uses autolinking for native libraries
+//           Third-party packages use manual linking for control
+// Rationale: RN 0.81.4 core native libs (e.g., libreact_featureflagsjni.so)
+//            require autolinking, but third-party packages need manual control
+// Benefits: Best of both worlds - RN core stability + package control
 //
+
+// React Native 0.81.4 core native libraries need to be built
+// We'll rely on the React Gradle plugin in app/build.gradle to build them
+// while keeping package autolinking disabled
 // TO ADD A NEW PACKAGE:
 // 1. Add to settings.gradle below (include + projectDir)
 // 2. Add to app/build.gradle dependencies section (implementation project)
@@ -70,6 +75,6 @@ project(':react-native-vector-icons').projectDir = new File(rootProject.projectD
 include ':react-native-webview'
 project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
 
-// TEMPORARILY DISABLED - Requires NDK 27.1.12297006 (separate task)
+// TEMPORARILY DISABLED - NDK 27 C++ ABI compatibility issue (2025-10-06)
 // include ':realm'
 // project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules/realm/binding/android')

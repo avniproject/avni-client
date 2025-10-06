@@ -20,7 +20,7 @@ import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
 import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
 import com.bugsnag.BugsnagReactNative;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.reactnativedocumentpicker.RNDocumentPickerPackage;
+// @react-native-documents/picker uses new architecture - no manual package needed
 import com.rnfs.RNFSPackage;
 import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -78,27 +78,24 @@ public class CustomPackageList {
             packages.add(new ImagePickerPackage());                           // ✅ Image picker
             packages.add(new KCKeepAwakePackage());                           // ✅ Keep screen awake
             packages.add(new KeychainPackage());                              // ✅ Secure storage
-            packages.add(new SafeAreaContextPackage());                       // ✅ Safe area (Android 15 essential)
+            packages.add(new SafeAreaContextPackage());                       // ✅ Safe area handling
             packages.add(new SvgPackage());                                   // ✅ SVG support
-            packages.add(new VectorIconsPackage());                           // ✅ Icon fonts
-            packages.add(new RNCWebViewPackage());                             // ✅ WebView component
-            packages.add(new RNDocumentPickerPackage());                             // ✅ WebView component
-
-            /* ============================================
-             * TEMPORARILY DISABLED PACKAGES
+            packages.add(new VectorIconsPackage());                           // ✅ Vector icons
+            packages.add(new RNCWebViewPackage());                            // ✅ WebView component
+            // @react-native-documents/picker uses new architecture - auto-registered
+            
+            /*
+             * REALM (realm@20.2.0) - TEMPORARILY DISABLED
              * ============================================
-             *
-             * 1. REALM (realm@20.2.0)
-             *    Status: Requires NDK 27.1.12297006
-             *    Reason: Prebuilt C++ libraries compiled with NDK 27
-             *    Re-enable steps:
-             *      - Install NDK 27 via Android Studio SDK Manager
-             *      - Uncomment in settings.gradle (line ~61-63)
-             *      - Uncomment in app/build.gradle (line ~228)
-             *      - Uncomment below: new RealmReactPackage()
-             *
+             * Issue: NDK 27 C++ ABI compatibility problem
+             * Error: Prebuilt libraries have linking conflicts with NDK 27
+             * Status: ⚠️ DISABLED (2025-10-06)
+             * Next Steps: 
+             *   - Try Realm 21.x or 22.x (newer versions with NDK 27 support)
+             *   - Consider downgrading to NDK 25 if newer Realm versions unavailable
+             *   - Alternative: Use different database solution temporarily
              */
-            // new RealmReactPackage()        // DISABLED - See above
+            // packages.add(new RealmReactPackage());                        // ⚠️ DISABLED - See above
             Log.i("CustomPackageList", "Successfully loaded " + packages.size() + " packages");
         } catch (Exception e) {
             Log.e("CustomPackageList", "Error loading packages", e);

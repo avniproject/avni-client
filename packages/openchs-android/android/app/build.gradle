@@ -9,11 +9,16 @@ googleServices {
 }
 
 /**
- * Pure manual linking - no React Native Gradle Plugin
- * All packages manually linked in settings.gradle and dependencies below
+ * React Native 0.81.4 with Hermes + Manual Linking
+ * Strategy: Use Hermes engine with proper native library packaging
+ * All packages manually linked via CustomPackageList for full control
  */
 
-/* The react block is commented out properly here if needed; for now, it remains commented*/
+/**
+ * Hermes will be enabled via gradle.properties: hermesEnabled=true
+ * Autolinking controlled via gradle.properties: android.enableAutolinking=true  
+ * Third-party packages excluded via react-native.config.js
+ */
 
 // Apply fonts from react-native-vector-icons
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
@@ -32,13 +37,12 @@ def enableSeparateBuildPerCPUArchitecture = System.getenv("enableSeparateBuildPe
  * Run Proguard to shrink the Java bytecode in release builds.
  */
 def enableProguardInReleaseBuilds = true
-
 android {
     ndkVersion rootProject.ext.ndkVersion
     namespace 'com.openchsclient'
     compileSdkVersion rootProject.ext.compileSdkVersion
     
-    // JVM target compatibility for Kotlin and Java (Java 17 required for RN 0.81.4)
+    // JVM target compatibility for Kotlin and Java
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -46,6 +50,25 @@ android {
     
     kotlinOptions {
         jvmTarget = '17'
+    }
+    
+    // Hermes Engine: Ensure all React Native native libraries are properly packaged
+    packagingOptions {
+        pickFirst '**/libreact_devsupportjni.so'
+        pickFirst '**/libreact_featureflagsjni.so' 
+        pickFirst '**/libreact_codegen_rncore.so'
+        pickFirst '**/libreact_debug.so'
+        pickFirst '**/libreact_render_debug.so'
+        pickFirst '**/libhermes.so'
+        pickFirst '**/libhermes-executor-debug.so'
+        pickFirst '**/libhermes-inspector.so'
+        pickFirst '**/libc++_shared.so'
+        pickFirst '**/libfbjni.so'
+        pickFirst '**/libfolly_json.so'
+        pickFirst '**/libglog.so'
+        pickFirst '**/libreact_nativemodule_core.so'
+        pickFirst '**/libturbomodulejsijni.so'
+        pickFirst '**/libruntimeexecutor.so'
     }
 
     defaultConfig {
@@ -187,9 +210,9 @@ dependencies {
     // Manual linking - all packages explicitly declared
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
-    // React Native core - explicit version for manual linking
-    implementation("com.facebook.react:react-android:0.81.4")
-    implementation 'com.facebook.soloader:soloader:0.10.5'
+    // React Native core - single dependency to avoid conflicts
+    implementation("com.facebook.react:react-android:$rootProject.ext.reactNativeVersion")
+    
     implementation 'androidx.multidex:multidex:2.0.1' // updated androidx multidex version
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
@@ -197,11 +220,14 @@ dependencies {
 
     // Required to avoid crash on Android 12 API 31
     implementation 'androidx.work:work-runtime:2.8.1'
-
+    
+    // Hermes Engine - React Native 0.81.4 specific configuration
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android:$rootProject.ext.reactNativeVersion")
+        // Note: hermes-engine artifact may not exist separately in RN 0.81.4
+        // Hermes is bundled within hermes-android dependency
     } else {
-        implementation('io.github.react-native-community:jsc-android:2026004.+')
+        implementation('org.webkit:android-jsc:+') // JSC latest version
     }
     
     // Manually add dependencies for CustomPackageList packages
@@ -223,7 +249,7 @@ dependencies {
     implementation project(':react-native-svg')
     implementation project(':react-native-vector-icons')
     implementation project(':react-native-webview')
-    // TEMPORARILY DISABLED - Requires NDK 27.1.12297006 (separate task)
+    // TEMPORARILY DISABLED - NDK 27 C++ ABI compatibility issue (2025-10-06)
     // implementation project(':realm')
 }
 

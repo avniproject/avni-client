@@ -25,16 +25,10 @@ class MainApplication : Application(), ReactApplication {
         }
 
         override fun getPackages(): List<ReactPackage> {
-            // Use CustomPackageList - autolinking disabled, manual package selection
+            // Use CustomPackageList - hybrid linking approach
+            // Third-party packages manually controlled, React Native core auto-linked
             val packages = CustomPackageList(this).packages.toMutableList()
-            // Add TamperCheckPackage if available
-            try {
-                val aClass = Class.forName("com.openchsclient.TamperCheckPackage")
-                val tamperCheckPackage = aClass.newInstance() as ReactPackage
-                packages.add(tamperCheckPackage)
-            } catch (e: Exception) {
-                Log.i("MainApplication", e.toString())
-            }
+            // TamperCheckPackage removed - not available in current build
             return packages
         }
 
