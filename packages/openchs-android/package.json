@@ -16,13 +16,12 @@
       "<rootDir>/test/**/*Test.js"
     ],
     "transformIgnorePatterns": [
-      "!<rootDir>\\/node_modules\\/react-native-i18n/"
+      "node_modules/(?!(react-native|@react-native|react-native-vector-icons)/)"
     ],
     "setupFiles": [
       "<rootDir>/test/jestSetupFile.js"
     ]
   },
-  "license": "AGPL-3.0",
   "scripts": {
     "start": "npx react-native start",
     "test": "jest",
@@ -85,13 +84,13 @@
     "react-native-fs": "2.20.0",
     "react-native-geolocation-service": "^5.3.1",
     "react-native-get-random-values": "^1.11.0",
-    "react-native-i18n": "2.0.15",
     "react-native-image-picker": "^8.2.1",
     "react-native-image-zoom-viewer": "3.0.1",
     "react-native-immediate-phone-call": "2.0.0",
     "react-native-keep-awake": "4.0.0",
     "react-native-keychain": "^10.0.0",
     "react-native-mime-types": "2.5.0",
+    "react-native-nitro-modules": "^0.29.8",
     "react-native-randombytes": "^3.6.2",
     "react-native-restart": "0.0.27",
     "react-native-safe-area-context": "^5.6.1",

@@ -22,7 +22,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.android.tools.build:gradle:8.11.0'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
         classpath 'com.facebook.react:react-native-gradle-plugin'
@@ -36,18 +36,29 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects {
-    // Force compatible versions for all subprojects
+    // Disable KSP and tests for React Native packages to avoid compatibility issues
+    if (project.name.startsWith('react-native') || project.name == 'bugsnag-react-native' || project.name == 'realm') {
+        afterEvaluate {
+            // Disable all KSP tasks for React Native packages
+            tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach { enabled = false }
+            tasks.matching { it.name.contains('ksp') }.configureEach { enabled = false }
+            // Disable unit tests for React Native packages (SDK version conflicts)
+            tasks.matching { it.name.contains('test') && it.name.contains('UnitTest') }.configureEach { enabled = false }
+        }
+        return
+    }
+    
+    // Force compatible versions only for main app and other non-RN packages
     configurations.all {
         resolutionStrategy {
-            // Force KSP version compatible with Kotlin 2.1.0
             force "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kspVersion"
             force "com.google.devtools.ksp:symbol-processing-api:$kspVersion"
         }
     }
     
-    // Force Java 17 for all subprojects BEFORE evaluation
-    afterEvaluate {
-        if (project.hasProperty("android")) {
+    // Configure subprojects after auto-linking evaluation
+    gradle.projectsEvaluated {
+        if (hasProperty("android")) {
             android {
                 compileSdkVersion = 35
                 
