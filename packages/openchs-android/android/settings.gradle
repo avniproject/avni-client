@@ -1,9 +1,6 @@
+pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 rootProject.name = 'Avni'
-
-// ============================================================================
-// AUTO-LINKING ENABLED (React Native 0.81.4)
-// ============================================================================
-// All packages are auto-linked via React Native Gradle Plugin (com.facebook.react)
-// Applied in app/build.gradle - no manual package includes needed
-
 include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')

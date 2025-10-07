@@ -25,7 +25,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.1.1'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
-        classpath "com.facebook.react:react-native-gradle-plugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kspVersion"
         // NOTE: Do not place your application dependencies here; they belong
@@ -33,7 +32,6 @@ buildscript {
     }
 }
 
-// Apply React Native root project plugin for auto-linking support
 apply plugin: "com.facebook.react.rootproject"
 
 subprojects {
