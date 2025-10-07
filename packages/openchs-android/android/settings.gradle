@@ -3,10 +3,7 @@ rootProject.name = 'Avni'
 // ============================================================================
 // AUTO-LINKING ENABLED (React Native 0.81.4)
 // ============================================================================
-// All packages are auto-linked via React Native Gradle Plugin
-// No manual package includes needed - React Native handles everything
-
-apply from: file("../node_modules/@react-native/gradle-plugin/libraries.gradle")
+// All packages are auto-linked via React Native Gradle Plugin (com.facebook.react)
+// Applied in app/build.gradle - no manual package includes needed
 
 include ':app'
-project(':app').projectDir = new File(rootProject.projectDir, 'app')

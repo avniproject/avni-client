@@ -25,13 +25,16 @@ buildscript {
         classpath 'com.android.tools.build:gradle:8.1.1'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
-        // React Native gradle plugin is handled via includeBuild in settings.gradle
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath "com.facebook.react:react-native-gradle-plugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:$kspVersion"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
     }
 }
+
+// Apply React Native root project plugin for auto-linking support
+apply plugin: "com.facebook.react.rootproject"
 
 subprojects {
     // Force compatible versions for all subprojects
@@ -108,52 +111,5 @@ allprojects {
     }
 }
 
-// React Native 0.81.4 autolinking workaround - Generate autolinking.json from react-native config
-task generateAutolinkingConfig {
-    description = 'Generate autolinking configuration from react-native config'
-    group = 'react-native'
-    
-    def autolinkingFile = file("${rootDir}/build/generated/autolinking/autolinking.json")
-    def configFile = file("${rootDir.parentFile}/react-native.config.js")
-    
-    inputs.file configFile
-    outputs.file autolinkingFile
-    
-    doLast {
-        // Ensure output directory exists
-        autolinkingFile.parentFile.mkdirs()
-        
-        // Execute react-native config command
-        def command = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npx.cmd' : 'npx'
-        def process = [command, 'react-native', 'config', '--platform', 'android'].execute(null, file("${rootDir.parentFile}"))
-        
-        // Capture output
-        def output = process.text
-        
-        // Write to file
-        autolinkingFile.text = output
-        
-        println "✅ Generated autolinking.json from react-native config (CustomPackageList packages enabled)"
-    }
-}
-
-// Ensure autolinking config is generated before any build tasks that need it
-// This is the proven working approach from successful builds
-allprojects {
-    afterEvaluate { project ->
-        if (project.name == 'app') {
-            // Configure all tasks that might need autolinking.json
-            project.tasks.configureEach { task ->
-                if (task.name.contains('generateAutolinkingPackageList') ||
-                    task.name.contains('generateReactNativeEntryPoint') ||
-                    task.name.contains('preBuild') ||
-                    task.name.contains('Build') ||
-                    task.name.startsWith('assemble') ||
-                    task.name.startsWith('bundle') ||
-                    task.name.startsWith('generate')) {
-                    task.dependsOn(generateAutolinkingConfig)
-                }
-            }
-        }
-    }
-}
+// Auto-linking handled automatically by React Native Gradle Plugin
+// No manual configuration needed
