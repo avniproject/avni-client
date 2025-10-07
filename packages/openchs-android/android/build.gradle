@@ -56,6 +56,12 @@ subprojects {
                     sourceCompatibility = JavaVersion.VERSION_17
                     targetCompatibility = JavaVersion.VERSION_17
                 }
+                
+                // CRITICAL: Force NDK 27 for Realm module to match prebuilt binaries
+                if (project.name == 'realm') {
+                    ndkVersion = rootProject.ext.ndkVersion
+                    println "✅ Forcing Realm module to use NDK ${rootProject.ext.ndkVersion}"
+                }
             }
         }
         

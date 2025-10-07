@@ -30,6 +30,7 @@ import com.th3rdwave.safeareacontext.SafeAreaContextPackage;
 import com.horcrux.svg.SvgPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
+import io.realm.react.RealmReactPackage;
 
 @SuppressWarnings("deprecation")
 public class CustomPackageList {
@@ -84,18 +85,8 @@ public class CustomPackageList {
             packages.add(new RNCWebViewPackage());                            // ✅ WebView component
             // @react-native-documents/picker uses new architecture - auto-registered
             
-            /*
-             * REALM (realm@20.2.0) - TEMPORARILY DISABLED
-             * ============================================
-             * Issue: NDK 27 C++ ABI compatibility problem
-             * Error: Prebuilt libraries have linking conflicts with NDK 27
-             * Status: ⚠️ DISABLED (2025-10-06)
-             * Next Steps: 
-             *   - Try Realm 21.x or 22.x (newer versions with NDK 27 support)
-             *   - Consider downgrading to NDK 25 if newer Realm versions unavailable
-             *   - Alternative: Use different database solution temporarily
-             */
-            // packages.add(new RealmReactPackage());                        // ⚠️ DISABLED - See above
+            // REALM (realm@20.2.0) - Re-enabled with NDK 27.1.12297006 (2025-10-07)
+            packages.add(new RealmReactPackage());                            // ✅ Database storage
             Log.i("CustomPackageList", "Successfully loaded " + packages.size() + " packages");
         } catch (Exception e) {
             Log.e("CustomPackageList", "Error loading packages", e);
