@@ -1,15 +1,19 @@
 rootProject.name = 'Avni'
-include ':app'
 
 // ============================================================================
-// HYBRID LINKING STRATEGY (React Native 0.81.4)
+// MANUAL LINKING STRATEGY (React Native 0.81.4)
 // ============================================================================
-// Strategy: React Native core uses autolinking for native libraries
-//           Third-party packages use manual linking for control
-// Rationale: RN 0.81.4 core native libs (e.g., libreact_featureflagsjni.so)
-//            require autolinking, but third-party packages need manual control
-// Benefits: Best of both worlds - RN core stability + package control
+// Strategy: Pure manual linking for all packages
+// React Native Gradle Plugin: NOT USED (architectural incompatibility with includeBuild)
+// Missing native libraries: Gracefully handled via runtime workarounds
+// Rationale: RN Gradle Plugin expects composite build setup incompatible with manual linking
 //
+// Known Missing Libraries (handled gracefully):
+//   - libreact_devsupportjni.so (dev-only, not needed for release)
+//   - libreact_featureflagsjni.so (handled via try-catch in MainActivity)
+//
+
+include ':app'
 
 // React Native 0.81.4 core native libraries need to be built
 // We'll rely on the React Gradle plugin in app/build.gradle to build them

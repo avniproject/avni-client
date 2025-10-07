@@ -18,11 +18,8 @@ buildscript {
     }
 
     repositories {
+        google()
         mavenCentral()
-        maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.1.1'

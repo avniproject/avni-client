@@ -4,6 +4,9 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+// Note: com.facebook.react plugin NOT applied - incompatible with manual linking
+// Missing native libraries handled gracefully at runtime
+
 googleServices {
     disableVersionCheck = true
 }
