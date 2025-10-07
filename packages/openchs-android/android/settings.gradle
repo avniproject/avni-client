@@ -1,84 +1,12 @@
 rootProject.name = 'Avni'
 
 // ============================================================================
-// MANUAL LINKING STRATEGY (React Native 0.81.4)
+// AUTO-LINKING ENABLED (React Native 0.81.4)
 // ============================================================================
-// Strategy: Pure manual linking for all packages
-// React Native Gradle Plugin: NOT USED (architectural incompatibility with includeBuild)
-// Missing native libraries: Gracefully handled via runtime workarounds
-// Rationale: RN Gradle Plugin expects composite build setup incompatible with manual linking
-//
-// Known Missing Libraries (handled gracefully):
-//   - libreact_devsupportjni.so (dev-only, not needed for release)
-//   - libreact_featureflagsjni.so (handled via try-catch in MainActivity)
-//
+// All packages are auto-linked via React Native Gradle Plugin
+// No manual package includes needed - React Native handles everything
+
+apply from: file("../node_modules/@react-native/gradle-plugin/libraries.gradle")
 
 include ':app'
-
-// React Native 0.81.4 core native libraries need to be built
-// We'll rely on the React Gradle plugin in app/build.gradle to build them
-// while keeping package autolinking disabled
-// TO ADD A NEW PACKAGE:
-// 1. Add to settings.gradle below (include + projectDir)
-// 2. Add to app/build.gradle dependencies section (implementation project)
-// 3. Add to CustomPackageList.java getPackages() method (new PackageConstructor())
-//
-// Manually included Android modules for CustomPackageList packages
-// These must match the packages registered in CustomPackageList.java
-include ':@react-native-async-storage_async-storage'
-project(':@react-native-async-storage_async-storage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-async-storage/async-storage/android')
-
-include ':@react-native-clipboard_clipboard'
-project(':@react-native-clipboard_clipboard').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-clipboard/clipboard/android')
-
-include ':@react-native-community_datetimepicker'
-project(':@react-native-community_datetimepicker').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/datetimepicker/android')
-
-include ':@react-native-community_netinfo'
-project(':@react-native-community_netinfo').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/netinfo/android')
-
-include ':@react-native-firebase_analytics'
-project(':@react-native-firebase_analytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/analytics/android')
-
-include ':@react-native-firebase_app'
-project(':@react-native-firebase_app').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/app/android')
-
-include ':bugsnag-react-native'
-project(':bugsnag-react-native').projectDir = new File(rootProject.projectDir, '../node_modules/bugsnag-react-native/android')
-
-include ':react-native-device-info'
-project(':react-native-device-info').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-device-info/android')
-
-include ':@react-native-documents_picker'
-project(':@react-native-documents_picker').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-documents/picker/android')
-
-include ':react-native-fs'
-project(':react-native-fs').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-fs/android')
-
-include ':react-native-geolocation-service'
-project(':react-native-geolocation-service').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-geolocation-service/android')
-
-include ':react-native-image-picker'
-project(':react-native-image-picker').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-image-picker/android')
-
-include ':react-native-keep-awake'
-project(':react-native-keep-awake').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keep-awake/android')
-
-include ':react-native-keychain'
-project(':react-native-keychain').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-keychain/android')
-
-include ':react-native-safe-area-context'
-project(':react-native-safe-area-context').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-safe-area-context/android')
-
-include ':react-native-svg'
-project(':react-native-svg').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-svg/android')
-
-include ':react-native-vector-icons'
-project(':react-native-vector-icons').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-vector-icons/android')
-
-include ':react-native-webview'
-project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
-
-// Re-enabled with NDK 27.1.12297006 (2025-10-07)
-include ':realm'
-project(':realm').projectDir = new File(rootProject.projectDir, '../node_modules/realm/binding/android')
+project(':app').projectDir = new File(rootProject.projectDir, 'app')

@@ -1,26 +1,18 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.facebook.react")
     id("com.google.gms.google-services")
 }
-
-// Note: com.facebook.react plugin NOT applied - incompatible with manual linking
-// Missing native libraries handled gracefully at runtime
 
 googleServices {
     disableVersionCheck = true
 }
 
 /**
- * React Native 0.81.4 with Hermes + Manual Linking
- * Strategy: Use Hermes engine with proper native library packaging
- * All packages manually linked via CustomPackageList for full control
- */
-
-/**
- * Hermes will be enabled via gradle.properties: hermesEnabled=true
- * Autolinking controlled via gradle.properties: android.enableAutolinking=true  
- * Third-party packages excluded via react-native.config.js
+ * React Native 0.81.4 with Hermes + Auto-linking
+ * Strategy: Use React Native Gradle Plugin for automatic package linking
+ * All packages auto-linked via PackageList
  */
 
 // Apply fonts from react-native-vector-icons
