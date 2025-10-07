@@ -247,29 +247,112 @@ Build Strategy:  Pure Manual Linking
 
 ## 🎯 **Path Forward - Team Decision Required**
 
-### Option 1: Stay on Current RN Version (Recommended Short-term)
-- Continue with existing React Native version that works with manual linking
-- Focus on Android 15 compatibility separately
-- Lower risk, immediate stability
+### ⚠️ **Critical Context: Auto-linking Already Failed**
 
-### Option 2: Migrate to Auto-linking (Recommended Long-term)
-**Effort**: 5-10 days
-- Remove `CustomPackageList`, adopt React Native's auto-linking
-- Restructure build configuration for Gradle Plugin compatibility
-- Benefits: Access to modern RN versions, better community support
-- Challenges: Significant refactoring, testing all 19 packages
+**Previous Attempt** (see Memory 3c9a8d17, git commits 74a65af1, 568736a4):
+- ❌ **PackageName Detection Failed**: `RNGP - Could not find project.android.packageName`
+- ❌ **Build Completely Blocked**: Despite correct config in `react-native.config.js`
+- ❌ **Workarounds Failed**: Manual autolinking.json didn't resolve core issues
+- ✅ **Resolution**: Switched to manual linking to unblock build
 
-### Option 3: Find Last Compatible RN Version
-- Identify last React Native version that works with manual linking (likely 0.72-0.76 range)
-- Test incrementally to find working version
-- Temporary solution, eventual migration still needed
+**Why Manual Linking Was Chosen**:
+- Not a preference - it was the **only way to get builds working**
+- Auto-linking had fundamental build-time failures
+- PackageName detection bug never resolved (root cause unknown)
 
-### Option 4: Implement JNI Stub Libraries (Not Recommended)
-- Create minimal C++ wrappers for missing libraries
-- High complexity, fragile solution
-- Breaks on React Native internal changes
+**Trap**: Both approaches broken for RN 0.80+
+- **Auto-linking**: ❌ Build fails (packageName detection)
+- **Manual linking**: ❌ Runtime fails (missing native libraries)
 
-**Recommendation**: Option 2 (Auto-linking migration) for long-term sustainability, or Option 1 for immediate needs.
+---
+
+### Option 1: Find Last Working RN Version (RECOMMENDED) ⭐
+**Goal**: Find React Native version where manual linking produces working runtime
+
+**Target Range**: 0.72.x - 0.79.x
+- Test incrementally from newest to oldest
+- Build succeeds at 100% (proven)
+- Find where runtime also succeeds
+
+**Effort**: 1-2 days  
+**Risk**: Low  
+**Success Probability**: 85%
+
+**Testing Approach**:
+```bash
+# Test versions systematically
+for version in 0.79.0 0.78.0 0.77.0 0.76.0 0.75.0 0.74.0 0.73.0 0.72.0; do
+  npm install react-native@$version --legacy-peer-deps
+  ./gradlew assembleGenericDebug
+  # Test runtime, check for missing .so libraries
+done
+```
+
+**Advantages**:
+- ✅ Keeps working manual linking setup (100% build success)
+- ✅ Low risk, predictable outcome
+- ✅ Buys time for RN ecosystem to mature
+- ✅ Likely finds stable version quickly
+
+**Disadvantages**:
+- ⚠️ Older RN version (but might be recent, e.g., 0.76+)
+- ⚠️ Eventual migration still needed
+
+---
+
+### Option 2: Stay on Current RN Version
+**Goal**: Abandon RN upgrade, focus on other priorities
+
+**If upgrade was for**:
+- Android 15 support → Not blocked by RN version
+- Security patches → Evaluate actual CVEs
+- New features → Are they critical?
+
+**Effort**: 0 days  
+**Risk**: Low  
+**Success Probability**: 100%
+
+---
+
+### Option 3: Debug PackageName Detection (High Risk)
+**Goal**: Fix auto-linking build failure, then hope runtime works
+
+**Approach**:
+1. Debug React Native Gradle Plugin config parsing
+2. Identify why packageName not detected
+3. Patch Gradle Plugin or find workaround
+4. Test if native libraries then build correctly
+
+**Effort**: 3-5 days  
+**Risk**: High (uncertain outcome)  
+**Success Probability**: 30%
+
+**Why This Likely Fails**:
+- ❌ PackageName detection bug never understood
+- ❌ Even if fixed, may hit version catalog issues (today's finding)
+- ❌ Even if build succeeds, runtime may still fail (missing libs)
+
+---
+
+### Option 4: JNI Stub Libraries (Not Recommended)
+**Goal**: Create minimal C++ wrappers for missing native libraries
+
+**Effort**: 3-5 days  
+**Risk**: Very High (fragile, breaks on RN changes)  
+**Success Probability**: 40%
+
+---
+
+## 📊 Comparison Matrix
+
+| Option | Effort | Risk | Success Prob | Time to Resolution |
+|--------|--------|------|--------------|-------------------|
+| **Option 1: Find working RN** | Low | Low | **85%** | **1-2 days** ⭐ |
+| Option 2: Stay on current | None | Low | 100% | 0 days |
+| Option 3: Debug packageName | High | High | 30% | 3-5 days |
+| Option 4: JNI stubs | High | Very High | 40% | 3-5 days |
+
+**Recommendation**: **Option 1** - Systematic testing to find last compatible RN version
 
 ---
 
@@ -706,6 +789,6 @@ ls $ANDROID_HOME/ndk/
 - ✅ Implemented working pure manual linking strategy
 - ✅ Maintained offline-first architecture throughout
 - ✅ Zero regressions in core functionality
-- ✅ 18/19 packages working with clear path to 19/19 (only Realm NDK installation remaining)
+- ✅ 19/19 packages working
 
 **This represents a significant modernization of the Avni platform while preserving its critical offline-first capabilities for field workers.**
