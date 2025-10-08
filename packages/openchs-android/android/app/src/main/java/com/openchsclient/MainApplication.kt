@@ -10,12 +10,11 @@ import android.util.Log
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
 
@@ -41,11 +40,7 @@ class MainApplication : Application(), ReactApplication {
 
     override fun onCreate() {
         super.onCreate()
-        SoLoader.init(this, false)
-        // New Architecture disabled for RN 0.81.4 (offline-first architecture)
-        // if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-        //     load()
-        // }
+        loadReactNative(this)
     }
 
     override fun registerReceiver(receiver: BroadcastReceiver?, filter: IntentFilter): Intent? {
