@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-randombytes/index.js b/node_modules/react-native-randombytes/index.js
+index 7478cb3..3bd2499 100644
+--- a/node_modules/react-native-randombytes/index.js
++++ b/node_modules/react-native-randombytes/index.js
+@@ -1,9 +1,13 @@
+-if (typeof Buffer === 'undefined') {
+-  global.Buffer = require('buffer').Buffer
++// Fixed for React Native 0.81.4 + Hermes compatibility
++import { Buffer } from 'buffer';
++import sjcl from 'sjcl';
++import { NativeModules } from 'react-native';
++
++if (typeof global.Buffer === 'undefined') {
++  global.Buffer = Buffer;
+ }
+ 
+-let sjcl = require('sjcl')
+-let RNRandomBytes = require('react-native').NativeModules.RNRandomBytes
++const RNRandomBytes = NativeModules.RNRandomBytes
+ 
+ function noop () {}
+ 

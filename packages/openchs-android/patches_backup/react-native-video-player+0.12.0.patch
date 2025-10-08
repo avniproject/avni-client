@@ -17,7 +17,7 @@ index 61c3f94..71ec0ad 100644
    }
  }
  
-+const {ImagePropTypes} = require('deprecated-react-native-prop-types');
++import {ImagePropTypes} from 'deprecated-react-native-prop-types';
 +
  VideoPlayer.propTypes = {
    video: Video.propTypes.source,
