@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Image, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import Colors from './views/primitives/Colors';
-const App = require('./App').default;
+import App from './App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getJSON } from './framework/http/requests';
 import _ from "lodash";

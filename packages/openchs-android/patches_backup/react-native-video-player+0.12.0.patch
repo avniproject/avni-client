@@ -10,14 +10,14 @@ index 61c3f94..71ec0ad 100644
  import Icon from 'react-native-vector-icons/MaterialIcons';
  import Video from 'react-native-video'; // eslint-disable-line
 +import {ViewPropTypes} from 'deprecated-react-native-prop-types';
- 
+
  const BackgroundImage = ImageBackground || Image; // fall back to Image if RN < 0.46
- 
+
 @@ -592,10 +593,12 @@ export default class VideoPlayer extends Component {
    }
  }
- 
-+const {ImagePropTypes} = require('deprecated-react-native-prop-types');
+
++import {ImagePropTypes} from 'deprecated-react-native-prop-types';
 +
  VideoPlayer.propTypes = {
    video: Video.propTypes.source,

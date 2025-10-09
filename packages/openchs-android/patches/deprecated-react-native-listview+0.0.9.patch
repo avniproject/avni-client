@@ -1,0 +1,68 @@
+diff --git a/node_modules/deprecated-react-native-listview/InternalListViewType.js b/node_modules/deprecated-react-native-listview/InternalListViewType.js
+index fe4d1db..25fbff4 100644
+--- a/node_modules/deprecated-react-native-listview/InternalListViewType.js
++++ b/node_modules/deprecated-react-native-listview/InternalListViewType.js
+@@ -8,8 +8,9 @@
+  * @flow
+  */
+
+-const React = require('react');
+-const ListViewDataSource = require('./ListViewDataSource');
++// Fixed for React Native 0.81.4 + Hermes compatibility
++import React from 'react';
++import ListViewDataSource from './ListViewDataSource';
+
+ // This class is purely a facsimile of ListView so that we can
+ // properly type it with Flow before migrating ListView off of
+diff --git a/node_modules/deprecated-react-native-listview/index.js b/node_modules/deprecated-react-native-listview/index.js
+index 4a6c4fe..0854b23 100644
+--- a/node_modules/deprecated-react-native-listview/index.js
++++ b/node_modules/deprecated-react-native-listview/index.js
+@@ -10,18 +10,22 @@
+
+ 'use strict';
+
+-const InternalListViewType = require('./InternalListViewType');
+-const ListViewDataSource = require('./ListViewDataSource');
+-const React = require('react');
+-const ReactNative = require('react-native');
++// Fixed for React Native 0.81.4 + Hermes compatibility - Convert ALL requires to imports
++import InternalListViewType from './InternalListViewType';
++import ListViewDataSource from './ListViewDataSource';
++import React from 'react';
++import * as ReactNative from 'react-native';
++import ScrollResponderMixin from './ScrollResponder';
++import StaticRenderer from './StaticRenderer';
++import cloneReferencedElement from 'react-clone-referenced-element';
++import createReactClass from 'create-react-class';
++import isEmpty from './isEmpty';
++import warning from 'fbjs/lib/warning';
++import invariant from 'invariant';
++
+ const Platform = ReactNative.Platform;
+ const ScrollView = ReactNative.ScrollView;
+-const ScrollResponderMixin = require('./ScrollResponder').Mixin;
+-const StaticRenderer = require('./StaticRenderer');
+ const View = ReactNative.View;
+-const cloneReferencedElement = require('react-clone-referenced-element');
+-const createReactClass = require('create-react-class');
+-const isEmpty = require('./isEmpty');
+
+ import type {Props as ScrollViewProps} from 'react-native/Libraries/Components/ScrollView/ScrollView';
+
+@@ -404,7 +408,6 @@ const ListView = createReactClass({
+       const rowIDs = allRowIDs[sectionIdx];
+       if (rowIDs.length === 0) {
+         if (this.props.enableEmptySections === undefined) {
+-          const warning = require('fbjs/lib/warning');
+           warning(
+             false,
+             'In next release empty section headers will be rendered.' +
+@@ -412,7 +415,6 @@ const ListView = createReactClass({
+           );
+           continue;
+         } else {
+-          const invariant = require('invariant');
+           invariant(
+             this.props.enableEmptySections,
+             "In next release 'enableEmptySections' flag will be deprecated, empty section headers will always be rendered." +

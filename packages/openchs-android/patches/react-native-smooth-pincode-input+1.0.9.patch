@@ -11,18 +11,18 @@ index 0a00f22..05f5a17 100644
 +  I18nManager
  } from 'react-native';
  import * as Animatable from 'react-native-animatable';
-+const {ViewPropTypes, TextPropTypes} = require('deprecated-react-native-prop-types');
- 
++import {ViewPropTypes, TextPropTypes} from 'deprecated-react-native-prop-types';
+
  const styles = StyleSheet.create({
    containerDefault: {},
 @@ -292,8 +292,8 @@ SmoothPinCodeInput.propTypes = {
    cellStyleFocused: ViewPropTypes.style,
    cellStyleFilled: ViewPropTypes.style,
- 
+
 -  textStyle: Text.propTypes.style,
 -  textStyleFocused: Text.propTypes.style,
 +  textStyle: TextPropTypes,
 +  textStyleFocused: TextPropTypes,
- 
+
    animated: PropTypes.bool,
    animationFocused: PropTypes.oneOfType([
