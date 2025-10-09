@@ -1,8 +1,112 @@
 # React Native 0.81.4 + Android 15 Upgrade - Status & Next Steps
 
-**Last Updated**: 2025-10-08 (18:02 IST)  
-**Current Status**: 🚨 **BLOCKED ON METRO BUNDLING ISSUE** - require() not available at bundle initialization  
+**Last Updated**: 2025-10-09 (12:52 IST)  
+**Current Status**: 🔄 **HERMES CONFIGURATION ANALYSIS COMPLETE** - TypeScript bundling fixed, runtime require() issue identified  
 **Branch**: `migrate-to-autolink-20251007`
+
+---
+
+## 🔍 **HERMES + TYPESCRIPT CONFIGURATION ANALYSIS (2025-10-09)**
+
+### 🎯 **CRITICAL DISCOVERY: Hermes vs JSC Engine Constraints**
+
+**⚠️ IMPORTANT**: JSC engine cannot be used in this project - would cause massive compatibility issues with existing codebase and packages. Hermes is **mandatory** for React Native 0.81.4.
+
+### 🔍 **Configuration Matrix & Error Analysis**
+
+| **Config #** | **Hermes Enabled** | **Hermes Parser** | **Transformer** | **Source Exts** | **Babel Preset** | **AsyncStorage Patch** | **Build Result** | **Runtime Result** | **Primary Error** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1** | ✅ true | ❌ false | metro-babel-transformer | js,jsx | @react-native/babel-preset | ❌ No | ❌ FAIL | - | `SyntaxError: ';' expected (270:49)` AsyncStorage TS |
+| **2** | ✅ true | ❌ false | metro-babel-transformer | js,jsx,ts,tsx | @react-native/babel-preset | ❌ No | ❌ FAIL | - | `SyntaxError: ';' expected (270:49)` AsyncStorage TS |
+| **3** | ✅ true | ❌ false | metro-babel-transformer | js,jsx,ts,tsx | @react-native/babel-preset | ✅ lib/commonjs | ✅ SUCCESS | ❌ CRASH | `Property 'require' doesn't exist` |
+| **4** | ✅ true | ✅ true | metro-babel-transformer | js,jsx,ts,tsx | @react-native/babel-preset | ❌ No | ❌ FAIL | - | Hermes parser + decorators conflict |
+| **5** | ✅ true | ❌ false | metro-babel-transformer | js,jsx,ts,tsx | hermes-stable profile | ❌ No | ✅ SUCCESS | ❌ CRASH | `Property 'require' doesn't exist` |
+| **6** | ❌ false | ❌ false | metro-babel-transformer | js,jsx,ts,tsx | @react-native/babel-preset | ❌ No | ✅ SUCCESS | ✅ SUCCESS | **WORKS (JSC engine) - BUT CANNOT USE** |
+| **7** | ❌ false | N/A | metro-babel-transformer | js,jsx,ts,tsx | hermes-stable profile | ❌ No | ✅ SUCCESS | ✅ SUCCESS | **WORKS but hermes-stable unused - CANNOT USE** |
+
+### 📊 **Error Pattern Analysis**
+
+#### 🔴 **TypeScript Bundling Errors**
+```
+SyntaxError: ';' expected (270:49) in AsyncStorage.native.ts
+Promise<readonly KeyValuePair[]>
+```
+- **Cause**: Hermes parser can't handle TypeScript generics
+- **Occurs When**: `sourceExts` includes `.ts` but no proper TS handling
+- **Solution**: Either patch AsyncStorage OR use proper TS transformer
+
+#### 🔴 **Runtime Require Errors**
+```
+Property 'require' doesn't exist
+ReferenceError at index.android.bundle:1:90891
+```
+- **Cause**: Hermes missing `require` polyfill in runtime context
+- **Occurs When**: `hermesEnabled=true` but bundling doesn't include require polyfill
+- **Related**: `libreact_featureflagsjni.so` missing library issue
+
+#### 🔴 **Decorator Syntax Errors**
+```
+SyntaxError: unrecognized character '@' in BeneficiaryIdentificationActions.js
+```
+- **Cause**: Hermes parser doesn't support decorators
+- **Occurs When**: `hermesParser=true` + decorator usage
+- **Solution**: `hermesParser=false` + proper Babel handling
+
+### 🎯 **CURRENT WORKING CONFIGURATION (Config #5)**
+
+**Status**: ✅ **Build SUCCESS** | ❌ **Runtime CRASH**
+
+```javascript
+// gradle.properties
+hermesEnabled=true
+
+// metro.config.js
+transformer: {
+    babelTransformerPath: require.resolve('metro-babel-transformer'),
+    unstable_allowRequireContext: true,
+    getTransformOptions: async () => ({
+        transform: {
+            experimentalImportSupport: false,
+            inlineRequires: true,
+        },
+    }),
+},
+resolver: {
+    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'json'], // Handle TypeScript files
+    extraNodeModules: { /* polyfills */ }
+}
+
+// babel.config.js  
+presets: [
+    ['@react-native/babel-preset', {
+        unstable_transformProfile: 'hermes-stable'
+    }]
+],
+plugins: [
+    ["@babel/plugin-proposal-decorators", {"legacy": true}],
+    ["@babel/plugin-transform-runtime", { "helpers": false, "regenerator": false }],
+    "@babel/plugin-proposal-object-rest-spread"
+]
+```
+
+### 🚨 **CRITICAL CONSTRAINT: HERMES MANDATORY**
+
+**Why JSC Cannot Be Used**:
+- ❌ **Package Compatibility**: Many RN 0.81.4 packages optimized for Hermes
+- ❌ **Performance Requirements**: Field workers need Hermes performance benefits
+- ❌ **Bundle Size**: JSC significantly increases APK size
+- ❌ **Memory Usage**: Higher memory footprint with JSC unacceptable for low-end devices
+- ❌ **React Native 0.81.4**: Core RN 0.81.4 architecture expects Hermes
+
+### 🎯 **NEXT STEPS: RESOLVE HERMES RUNTIME REQUIRE() ISSUE**
+
+**Focus Areas**:
+1. **Feature Flags Library**: Research `libreact_featureflagsjni.so` dependency resolution
+2. **Require Polyfill**: Implement proper `require()` polyfill in Hermes runtime
+3. **React Native Gradle Plugin**: Investigate missing native library integration
+4. **Custom ReactActivityDelegate**: Enhance error handling for missing libraries
+
+**Goal**: Achieve Config #5 with runtime success while maintaining Hermes engine.
 
 ---
 
