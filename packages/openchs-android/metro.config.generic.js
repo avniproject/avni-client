@@ -5,8 +5,10 @@ const defaultConfig = getDefaultConfig(__dirname);
 
 const config = {
     transformer: {
-        babelTransformerPath: require.resolve('metro-babel-transformer'),
-        hermesParser: false,  // disables Hermes parser
+        // CRITICAL: Do NOT use hermesParser - it bypasses Babel's module transformation
+        hermesParser: false,
+        // which breaks require() function availability in the runtime
+        babelTransformerPath: require.resolve('@react-native/metro-babel-transformer'),
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,
@@ -15,6 +17,9 @@ const config = {
         }),
     },
     resolver: {
+        // CRITICAL: Include TypeScript extensions for proper transpilation
+        sourceExts: ['js', 'jsx', 'ts', 'tsx', 'json'],
+
         extraNodeModules: {
             "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),
             // Polyfill Node.js modules that don't exist in React Native
@@ -23,7 +28,23 @@ const config = {
             'fs': path.resolve(__dirname, 'polyfills/bindings.js'),
             'path': require.resolve('path-browserify'),
         },
+
+        // Ensure @babel/runtime helpers resolve properly
+        resolveRequest: (context, moduleName, platform) => {
+            if (moduleName.startsWith('@babel/runtime/helpers/')) {
+                try {
+                    return {
+                        filePath: require.resolve(moduleName, {paths: [context.originModulePath]}),
+                        type: 'sourceFile',
+                    };
+                } catch (e) {
+                    // Fallback to default resolution
+                }
+            }
+            return context.resolveRequest(context, moduleName, platform);
+        },
     },
+
     projectRoot: path.resolve(__dirname),
     watchFolders: [],
     resetCache: true
