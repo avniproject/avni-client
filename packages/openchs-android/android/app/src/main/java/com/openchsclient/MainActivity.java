@@ -8,6 +8,11 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
 
+/**
+ * React Native 0.79.2 MainActivity
+ * With autolinking enabled, core libraries (libreact_*.so) are built correctly
+ * Standard ReactActivity approach now works
+ */
 public class MainActivity extends ReactActivity {
 
     /**

@@ -6,16 +6,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.util.Log
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
-import com.facebook.react.ReactHost
-import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
-import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.soloader.SoLoader
 
+/**
+ * React Native 0.79.2 MainApplication
+ * Note: ReactHost and loadReactNative() are RN 0.81+ APIs, not available in 0.79.2
+ */
 class MainApplication : Application(), ReactApplication {
 
     private val mReactNativeHost: ReactNativeHost = object : DefaultReactNativeHost(this) {
@@ -32,15 +33,22 @@ class MainApplication : Application(), ReactApplication {
         override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
     }
 
-    override val reactHost: ReactHost?
-        get() = getDefaultReactHost(applicationContext, reactNativeHost)
-
     override val reactNativeHost: ReactNativeHost
         get() = mReactNativeHost
 
     override fun onCreate() {
         super.onCreate()
-        loadReactNative(this)
+        
+        // STEP 1: Initialize SoLoader first
+        SoLoader.init(this, false)
+        
+        // Preload Hermes libraries before React Native initializes
+        SoLoaderFix.preloadLibraries()
+        
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+            // Load new architecture entry point if enabled
+            com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load()
+        }
     }
 
     override fun registerReceiver(receiver: BroadcastReceiver?, filter: IntentFilter): Intent? {

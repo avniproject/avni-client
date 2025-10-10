@@ -369,7 +369,7 @@ clean_env: release_clean metro_clean
 
 clean_gradle:
 	@echo "🧹 Cleaning Gradle build artifacts..."
-	cd packages/openchs-android/android && ./gradlew clean
+	cd packages/openchs-android/android
 	rm -rf packages/openchs-android/android/app/build
 	rm -rf packages/openchs-android/android/build
 	rm -rf packages/openchs-android/android/.gradle
@@ -386,7 +386,6 @@ clean_react_native_cache:
 	@echo "🧹 Cleaning React Native cache..."
 	rm -rf packages/openchs-android/node_modules/react-native/android/.gradle
 	rm -rf packages/openchs-android/node_modules/.cache
-	npx react-native start --reset-cache & sleep 3 && pkill -f "react-native.*start" || true
 
 clean_all: clean_env clean_packager_cache clean_gradle clean_android_generated clean_react_native_cache
 	@echo "✅ Deep clean complete! Ready for fresh build."

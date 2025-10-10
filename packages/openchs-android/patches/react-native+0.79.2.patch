@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/hermes/reactexecutor/HermesExecutor.kt b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/hermes/reactexecutor/HermesExecutor.kt
+index c737b56..d7ac567 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/hermes/reactexecutor/HermesExecutor.kt
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/hermes/reactexecutor/HermesExecutor.kt
+@@ -31,7 +31,16 @@ public class HermesExecutor internal constructor(enableDebugger: Boolean, debugg
+       if (mode == null) {
+         // libhermes must be loaded explicitly to invoke its JNI_OnLoad.
+         SoLoader.loadLibrary("hermes")
+-        SoLoader.loadLibrary("hermes_executor")
++        
++        // In RN 0.79+, hermes_executor is merged into libreactnative.so
++        // Try to load it, but don't fail if it doesn't exist
++        try {
++          SoLoader.loadLibrary("hermes_executor")
++        } catch (e: UnsatisfiedLinkError) {
++          // Merged library mode - hermes_executor is in libreactnative.so
++          android.util.Log.i("HermesExecutor", "Using merged Hermes executor from libreactnative.so")
++        }
++        
+         // libhermes_executor is built differently for Debug & Release so we load the proper mode.
+         mode = if (ReactBuildConfig.DEBUG) "Debug" else "Release"
+       }
