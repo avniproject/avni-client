@@ -119,6 +119,11 @@ android {
         pickFirst '**/libturbomodulejsijni.so'
         pickFirst '**/libruntimeexecutor.so'
         
+        // Realm v12 bundles React Native libraries - pick React Native core versions
+        pickFirst '**/libreactnative.so'
+        pickFirst '**/libjsi.so'
+        pickFirst '**/libjscexecutor.so'
+        
         // Fix duplicate META-INF files from OkHttp3 and jspecify dependencies
         exclude 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
         exclude 'META-INF/DEPENDENCIES'
