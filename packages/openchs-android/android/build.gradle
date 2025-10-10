@@ -9,7 +9,7 @@ buildscript {
         targetSdkVersion = 35
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
-        kotlinVersion = '1.9.10' // Baseline Kotlin version for app module (packages can override)
+        kotlinVersion = '2.1.20' // Primary Kotlin version for app and packages
         reactNativeVersion = '0.81.4' // Centralized React Native version
 
         // NDK 27 required for Realm prebuilt binaries compatibility
@@ -26,9 +26,18 @@ buildscript {
         classpath 'de.undercouch:gradle-download-task:4.1.2'
         classpath 'com.facebook.react:react-native-gradle-plugin'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        // Note: Packages like AsyncStorage will use their own Kotlin/KSP versions via buildscript
+        // Compatible KSP version for Kotlin 2.1.20
+        classpath "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-2.0.1"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+    }
+    
+    // Force KSP version resolution in buildscript classpath
+    configurations.classpath {
+        resolutionStrategy {
+            force "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-2.0.1"
+            force "com.google.devtools.ksp:symbol-processing-api:2.1.20-2.0.1"
+        }
     }
 }
 
@@ -36,7 +45,10 @@ apply plugin: "com.facebook.react.rootproject"
 
 subprojects {
     // Disable KSP and tests for React Native packages to avoid compatibility issues
-    if (project.name.startsWith('react-native') || project.name == 'bugsnag-react-native' || project.name == 'realm') {
+    // EXCEPTION: AsyncStorage needs kapt for Room annotation processing
+    if ((project.name.startsWith('react-native') && !project.name.contains('async-storage')) 
+        || project.name == 'bugsnag-react-native' 
+        || project.name == 'realm') {
         afterEvaluate {
             // Disable all KSP tasks for React Native packages
             tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach { enabled = false }
@@ -53,6 +65,21 @@ subprojects {
     //         // Each package can use its own KSP version compatible with its Kotlin version
     //     }
     // }
+
+    // AsyncStorage uses KSP with Kotlin 2.1.20 - ensure proper Kotlin compilation
+    if (project.name.contains('async-storage')) {
+        afterEvaluate {
+            // Ensure Kotlin tasks use compatible settings
+            tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                kotlinOptions {
+                    jvmTarget = '17'
+                    languageVersion = '2.1'
+                    apiVersion = '2.1'
+                }
+            }
+            println "✅ AsyncStorage configured with Kotlin 2.1.20 + Room 2.8.2 + KSP 2.1.20-2.0.1"
+        }
+    }
 
     // Configure subprojects after auto-linking evaluation
     gradle.projectsEvaluated {
@@ -77,10 +104,9 @@ subprojects {
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile.class).configureEach {
             kotlinOptions {
                 jvmTarget = '17'
-                // Force Kotlin language version 1.9 for KSP compatibility
-                // AsyncStorage uses Kotlin 2.1.20 but its KSP expects language version 1.9
-                languageVersion = '1.9'
-                apiVersion = '1.9'
+                // Kotlin 2.1.20 with modern language features
+                languageVersion = '2.1'
+                apiVersion = '2.1'
             }
         }
     }
@@ -97,6 +123,17 @@ allprojects {
             // Force explicit versions for React Native artifacts
             force "com.facebook.react:react-android:$reactNativeVersion"
             force "com.facebook.react:hermes-android:$reactNativeVersion"
+            
+            // Force compatible KSP version for Kotlin 2.1.20
+            force "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-2.0.1"
+            force "com.google.devtools.ksp:symbol-processing-api:2.1.20-2.0.1"
+            force "com.google.devtools.ksp:symbol-processing:2.1.20-2.0.1"
+            
+            // Force Room 2.8.2 compatible with Kotlin 2.1.20 for AsyncStorage
+            force "androidx.room:room-runtime:2.8.2"
+            force "androidx.room:room-compiler:2.8.2"
+            force "androidx.room:room-ktx:2.8.2"
+            force "androidx.room:room-common:2.8.2"
         }
     }
 
