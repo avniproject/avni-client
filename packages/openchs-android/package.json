@@ -51,6 +51,7 @@
     "avni-health-modules": "^0.0.28",
     "base-64": "^1.0.0",
     "base64-arraybuffer": "^1.0.2",
+    "bindings": "^1.5.0",
     "bugsnag-react-native": "2.23.10",
     "color": "5.0.2",
     "create-react-class": "15.7.0",
