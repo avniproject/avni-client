@@ -2,6 +2,17 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const path = require('path');
 
 const config = {
+    transformer: {
+        // CRITICAL: Disable hermesParser to ensure Babel processes decorators
+        hermesParser: false,
+        babelTransformerPath: require.resolve('@react-native/metro-babel-transformer'),
+        getTransformOptions: async () => ({
+            transform: {
+                experimentalImportSupport: false,
+                inlineRequires: true,
+            },
+        }),
+    },
     resolver: {
         extraNodeModules: {
             "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),

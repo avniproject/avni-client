@@ -29,12 +29,13 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "npx jetify"
+    "postinstall": "bash scripts/patch-hermes-parser.sh && npx jetify"
   },
   "dependencies-comment": [
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"
   ],
   "dependencies": {
+    "@bugsnag/react-native": "8.0.0",
     "@react-native-async-storage/async-storage": "1.24.0",
     "@react-native-clipboard/clipboard": "1.16.0",
     "@react-native-community/datetimepicker": "8.4.5",
@@ -48,7 +49,6 @@
     "avni-health-modules": "^0.0.28",
     "base-64": "^1.0.0",
     "base64-arraybuffer": "^1.0.2",
-    "@bugsnag/react-native": "8.0.0",
     "color": "4.2.3",
     "create-react-class": "15.6.3",
     "deprecated-react-native-listview": "^0.0.8",
@@ -72,6 +72,7 @@
     "react-native-autoheight-webview": "1.6.3",
     "react-native-background-timer": "^2.4.1",
     "react-native-background-worker": "0.0.5",
+    "react-native-blob-util": "0.19.11",
     "react-native-charts-wrapper": "0.5.9",
     "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-device-info": "14.1.1",
@@ -101,7 +102,6 @@
     "react-native-zip-archive": "6.0.8",
     "realm": "11.10.2",
     "redux": "4.2.0",
-    "react-native-blob-util": "0.19.11",
     "rules-config": "github:openchs/rules-config#7f34ac91826bbaabb27bf9d86bf7cecb8710d1d8",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",

@@ -14,11 +14,11 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
+import com.facebook.soloader.SoLoader;
+import com.facebook.react.soloader.OpenSourceMergedSoMapping;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.facebook.react.soloader.OpenSourceMergedSoMapping;
-import com.facebook.soloader.SoLoader;
 import java.io.IOException;
 import java.util.List;
 
@@ -60,6 +60,7 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        
         try {
             SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
         } catch (IOException e) {
@@ -71,10 +72,10 @@ public class MainApplication extends Application implements ReactApplication {
             DefaultNewArchitectureEntryPoint.load();
         }
         
-        // Initialize Flipper for debug builds only
-        if (BuildConfig.DEBUG) {
-            ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
-        }
+        // Flipper disabled - React Native 0.76+ uses React DevTools instead
+        // if (BuildConfig.DEBUG) {
+        //     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+        // }
     }
 
     @Override

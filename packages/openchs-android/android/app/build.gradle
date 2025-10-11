@@ -219,12 +219,7 @@ dependencies {
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'org.jetbrains:annotations:16.0.2'
 
-    // Flipper dependencies for debugging (debug builds only)
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group: "com.squareup.okhttp3", module: "okhttp"
-    }
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FRESCO_PLUGIN_VERSION}")
+    // Flipper removed - React Native 0.76+ uses React DevTools instead
 }
 
 // Run this once to be able to run the application with BUCK
