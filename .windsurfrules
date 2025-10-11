@@ -1,6 +1,9 @@
 # Avni Client Windsurf Rules
 version: 1.0.0
 
+# Instructions
+- Do not create new markdown document for every step
+
 # Tech Stack
   - React Native mobile application
   - JavaScript

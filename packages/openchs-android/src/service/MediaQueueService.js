@@ -4,7 +4,7 @@ import {Concept, Encounter, Individual, MediaQueue, ProgramEncounter, ProgramEnr
 import General from "../utility/General";
 import _ from 'lodash';
 import {get, isHttpRequestSuccessful} from '../framework/http/requests';
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'react-native-blob-util';
 import FileSystem from "../model/FileSystem";
 import fs from 'react-native-fs';
 import IndividualService from "./IndividualService";

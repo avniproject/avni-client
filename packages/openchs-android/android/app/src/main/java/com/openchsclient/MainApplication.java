@@ -1,41 +1,24 @@
 package com.openchsclient;
 
 import android.app.Application;
-
-import com.brentvatne.react.ReactVideoPackage;
-import com.bugsnag.BugsnagReactNative;
-import com.facebook.react.ReactApplication;
-import com.ocetnik.timer.BackgroundTimerPackage;
-import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
-import com.corbt.keepawake.KCKeepAwakePackage;
-import com.rnziparchive.RNZipArchivePackage;
-import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
-import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.amazonaws.RNAWSCognitoPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.rnfs.RNFSPackage;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.ReactPackage;
-import com.facebook.react.shell.MainReactPackage;
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-import com.facebook.react.defaults.DefaultReactNativeHost;
-
 import android.content.Context;
-import android.util.Log;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import org.jetbrains.annotations.Nullable;
-import com.facebook.react.*;
+import android.util.Log;
+
+import com.facebook.react.PackageList;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 
-import java.lang.reflect.InvocationTargetException;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
-import java.lang.ClassLoader;
 
 public class MainApplication extends Application implements ReactApplication {
 
