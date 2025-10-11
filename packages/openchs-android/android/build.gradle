@@ -45,9 +45,10 @@ apply plugin: "com.facebook.react.rootproject"
 
 subprojects {
     // Disable KSP and tests for React Native packages to avoid compatibility issues
-    // EXCEPTIONS: AsyncStorage needs KSP for Room, Realm needs full compilation
+    // EXCEPTION: AsyncStorage needs kapt for Room annotation processing
     if ((project.name.startsWith('react-native') && !project.name.contains('async-storage')) 
-        || project.name == 'bugsnag-react-native') {
+        || project.name == 'bugsnag-react-native' 
+        || project.name == 'realm') {
         afterEvaluate {
             // Disable all KSP tasks for React Native packages
             tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach { enabled = false }
