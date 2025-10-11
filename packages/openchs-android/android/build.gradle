@@ -120,14 +120,11 @@ subprojects {
 allprojects {
     configurations.all {
         resolutionStrategy {
-            // Redirect react-native artifact requests to react-android (RN manual linking)
-            dependencySubstitution {
-                substitute module('com.facebook.react:react-native') using module("com.facebook.react:react-android:$reactNativeVersion")
-            }
 
             // Force explicit versions for React Native artifacts
             // Note: In RN 0.79+, Hermes is merged into react-android, no separate hermes-android
             force "com.facebook.react:react-android:$reactNativeVersion"
+            force "com.facebook.react:hermes-android:$reactNativeVersion" 
             
             // Force compatible KSP version for Kotlin 2.1.20
             force "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-2.0.1"
