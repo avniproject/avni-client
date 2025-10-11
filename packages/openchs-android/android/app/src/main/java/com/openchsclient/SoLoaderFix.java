@@ -12,12 +12,12 @@ public class SoLoaderFix {
             SoLoader.loadLibrary("hermes");
             Log.i(TAG, "Loaded libhermes.so");
             
-            // Try hermes_executor, ignore if fails (means it's merged into libreactnative.so in RN 0.79+)
+            // Try hermes_executor, ignore if fails (means it's merged)
             try {
                 SoLoader.loadLibrary("hermes_executor");
                 Log.i(TAG, "Loaded libhermes_executor.so (separate library mode)");
             } catch (UnsatisfiedLinkError e) {
-                Log.i(TAG, "hermes_executor not found - using merged mode (libhermes_executor.so merged into libreactnative.so)");
+                Log.i(TAG, "hermes_executor not found - using merged mode");
             }
             
             // Ensure reactnative is loaded (contains merged Hermes)

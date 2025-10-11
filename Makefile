@@ -375,10 +375,6 @@ clean_gradle:
 	rm -rf packages/openchs-android/android/.gradle
 	rm -rf packages/openchs-android/android/app/.cxx
 
-clean_gradle_cache: ## Fix "Could not read workspace metadata" Kotlin DSL cache corruption
-	@echo "🧹 Clearing corrupted Gradle Kotlin DSL caches..."
-	cd packages/openchs-android/android && ./clear-gradle-cache.sh
-
 clean_android_generated:
 	@echo "🧹 Cleaning Android generated files..."
 	rm -rf packages/openchs-android/android/app/build/generated
