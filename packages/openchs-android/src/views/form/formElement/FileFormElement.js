@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import DocumentPicker from "@react-native-documents/picker";
 import AbstractFormElement from "./AbstractFormElement";
 import Colors from "../../primitives/Colors";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';

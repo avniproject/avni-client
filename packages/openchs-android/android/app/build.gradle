@@ -63,7 +63,7 @@ android {
             }
         }
         multiDexEnabled true
-        
+
         buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
         buildConfigField("boolean", "IS_HERMES_ENABLED", "true")
     }
@@ -189,15 +189,23 @@ android {
 dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:hermes-android")
-    
+
     // Autolinking handles all React Native packages automatically
     // Keep Avni-specific native dependencies if any
-    
+
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
     implementation 'androidx.work:work-runtime:2.8.1'
     implementation 'org.jetbrains:annotations:16.0.2'
+
+    // Flipper dependencies for debugging (debug builds only)
+    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
+    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
+        exclude group: "com.squareup.okhttp3", module: "okhttp"
+    }
+
+    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FRESCO_PLUGIN_VERSION}")
 }
 
 // Run this once to be able to run the application with BUCK

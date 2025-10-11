@@ -4,4 +4,9 @@ module.exports = {
       packageName: 'com.openchsclient',
     },
   },
+  resolver: {
+    alias: {
+      'avni-models': 'openchs-models',
+    },
+  },
 };

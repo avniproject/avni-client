@@ -32,6 +32,15 @@ buildscript {
         // in the individual module build.gradle files
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
+    
+    // Force Kotlin version to avoid version conflicts
+    configurations.classpath {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+            force "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+        }
+    }
 }
 
 allprojects {
