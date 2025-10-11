@@ -10,7 +10,7 @@ import Colors from "../../primitives/Colors";
 import General from "../../../utility/General";
 import FileSystem from "../../../model/FileSystem";
 import fs from "react-native-fs";
-import DocumentPicker from "@react-native-documents/picker";
+import DocumentPicker from "react-native-document-picker";
 import AudioRecorderPlayer, {
     AudioEncoderAndroidType,
     AudioSourceAndroidType,

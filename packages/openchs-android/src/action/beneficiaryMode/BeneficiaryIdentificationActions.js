@@ -12,6 +12,7 @@ export default class BeneficiaryIdentificationActions {
         return new BeneficiaryIdentificationState([], undefined, []);
     }
 
+    @Action('BIA.onLoad')
     static onLoad(state: BeneficiaryIdentificationState, action: Object, context: Map) {
         const newState = new BeneficiaryIdentificationState([], undefined, []);
         const form = context.get(EntityService).findByKey('formType', 'BeneficiaryIdentification', Form.schema.name);
@@ -20,6 +21,7 @@ export default class BeneficiaryIdentificationActions {
         return newState;
     }
 
+    @Action('BIA.findIndividual')
     static findIndividual(state: BeneficiaryIdentificationState, action: Object, context: Map) {
         const individualService = context.get(IndividualService);
         const individual = individualService.filterBy(individual => {
@@ -50,10 +52,6 @@ export default class BeneficiaryIdentificationActions {
         return val && val.getReadableValue();
     }
 }
-
-// Manually assign Action IDs (replacing @Action decorators)
-BeneficiaryIdentificationActions.onLoad.Id = 'BIA.onLoad';
-BeneficiaryIdentificationActions.findIndividual.Id = 'BIA.findIndividual';
 
 const actions = BeneficiaryIdentificationActions.Names = {
     TOGGLE_MULTISELECT_ANSWER: "BIA.TOGGLE_MULTISELECT_ANSWER",

@@ -38,8 +38,6 @@ const jsoMetroPlugin = require("obfuscator-io-metro-plugin")(
 
 module.exports = {
     transformer: {
-        babelTransformerPath: require.resolve('metro-babel-transformer'),
-        hermesParser: false,  // disables Hermes parser
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,

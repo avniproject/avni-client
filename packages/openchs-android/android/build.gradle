@@ -3,125 +3,66 @@
 buildscript {
 
     ext {
-        buildToolsVersion = "35.0.0"
-        minSdkVersion = 24
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 21
+        compileSdkVersion = 34
+        targetSdkVersion = 34
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
-        kotlinVersion = '1.9.10' // Baseline Kotlin version for app module (packages can override)
-        reactNativeVersion = '0.81.4' // Centralized React Native version
+        kotlinVersion = '1.6.21'
 
-        // NDK 27 required for Realm prebuilt binaries compatibility
-        ndkVersion = "27.1.12297006"
+        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
+        ndkVersion = "23.1.7779620"
     }
 
     repositories {
-        google()
         mavenCentral()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.11.0'
+        classpath 'com.android.tools.build:gradle:8.1.1'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
-        classpath 'com.facebook.react:react-native-gradle-plugin'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        // Note: Packages like AsyncStorage will use their own Kotlin/KSP versions via buildscript
+        classpath('com.facebook.react:react-native-gradle-plugin')
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-    }
-}
-
-apply plugin: "com.facebook.react.rootproject"
-
-subprojects {
-    // Disable KSP and tests for React Native packages to avoid compatibility issues
-    if (project.name.startsWith('react-native') || project.name == 'bugsnag-react-native' || project.name == 'realm') {
-        afterEvaluate {
-            // Disable all KSP tasks for React Native packages
-            tasks.withType(org.jetbrains.kotlin.gradle.internal.KaptWithoutKotlincTask).configureEach { enabled = false }
-            tasks.matching { it.name.contains('ksp') }.configureEach { enabled = false }
-            // Disable unit tests for React Native packages (SDK version conflicts)
-            tasks.matching { it.name.contains('test') && it.name.contains('UnitTest') }.configureEach { enabled = false }
-        }
-        return
-    }
-
-    // Removed KSP version forcing - let each package manage its own KSP version
-    // configurations.all {
-    //     resolutionStrategy {
-    //         // Each package can use its own KSP version compatible with its Kotlin version
-    //     }
-    // }
-
-    // Configure subprojects after auto-linking evaluation
-    gradle.projectsEvaluated {
-        if (hasProperty("android")) {
-            android {
-                compileSdkVersion = 35
-
-                compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_17
-                    targetCompatibility = JavaVersion.VERSION_17
-                }
-
-                // CRITICAL: Force NDK 27 for Realm module to match prebuilt binaries
-                if (project.name == 'realm') {
-                    ndkVersion = rootProject.ext.ndkVersion
-                    println "✅ Forcing Realm module to use NDK ${rootProject.ext.ndkVersion}"
-                }
-            }
-        }
-
-        // Configure Kotlin JVM target and language version
-        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile.class).configureEach {
-            kotlinOptions {
-                jvmTarget = '17'
-                // Force Kotlin language version 1.9 for KSP compatibility
-                // AsyncStorage uses Kotlin 2.1.20 but its KSP expects language version 1.9
-                languageVersion = '1.9'
-                apiVersion = '1.9'
-            }
-        }
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 
 allprojects {
-    configurations.all {
-        resolutionStrategy {
-            // Redirect react-native artifact requests to react-android (RN manual linking)
-            dependencySubstitution {
-                substitute module('com.facebook.react:react-native') using module("com.facebook.react:react-android:$reactNativeVersion")
-            }
-
-            // Force explicit versions for React Native artifacts
-            force "com.facebook.react:react-android:$reactNativeVersion"
-            force "com.facebook.react:hermes-android:$reactNativeVersion"
-        }
-    }
 
     repositories {
         mavenLocal()
+        google()
+        mavenCentral()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
+            url "$rootDir/../node_modules/react-native/android"
         }
         maven {
             // Android JSC is installed from npm
             url("$rootDir/../node_modules/jsc-android/dist")
         }
-        mavenCentral {
-            // We don't want to fetch react-native from Maven Central as there are
-            // older versions over there.
-            content {
-                excludeGroup "com.facebook.react"
-            }
-        }
-        google()
-        maven { url 'https://repo1.maven.org/maven2' }
+        maven { url "https://jitpack.io" }
+        maven { url 'https://maven.google.com' }
+        maven { url "https://dl.google.com/dl/android/maven2/index.html" }
+        maven { url 'https://repo1.maven.org/maven2'}
         gradlePluginPortal()
     }
+
 }
 
-// Auto-linking handled automatically by React Native Gradle Plugin
-// No manual configuration needed
+subprojects {
+    afterEvaluate {
+        project ->
+            if (project.hasProperty("android")) {
+                android {
+                    compileSdkVersion = 34
+                }
+            }
+    }
+}
