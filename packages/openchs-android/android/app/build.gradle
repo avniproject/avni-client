@@ -183,16 +183,36 @@ android {
         lfe.java.srcDir 'src/common/java'
         lfeTeachNagaland.java.srcDir 'src/common/java'
         lfeTeachNagalandSecurity.java.srcDir 'src/common/java'
+        
+        // Include JNI libraries from libs directory
+        main {
+            jniLibs.srcDirs += ['libs']
+        }
+    }
+    
+    // Packaging options to prevent stripping Hermes libraries
+    packagingOptions {
+        pickFirst '**/libhermes_executor.so'
+        pickFirst '**/libhermes_inspector.so'
+        pickFirst '**/libhermesplatform.so'
     }
 }
 
 dependencies {
     implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:hermes-android")
-
+    
+    // Hermes engine - integrated through React Native Gradle plugin in 0.76.5
+    def hermesEnabled = (findProperty('hermesEnabled') ?: 'true').toBoolean()
+    if (hermesEnabled) {
+        implementation("com.facebook.react:hermes-android")
+    } else {
+        // JSC fallback - using JavaScriptCore from jsc-android
+        implementation("org.webkit:android-jsc:+")
+    }
+    
     // Autolinking handles all React Native packages automatically
     // Keep Avni-specific native dependencies if any
-
+    
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
@@ -204,7 +224,6 @@ dependencies {
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
         exclude group: "com.squareup.okhttp3", module: "okhttp"
     }
-
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FRESCO_PLUGIN_VERSION}")
 }
 
