@@ -354,42 +354,20 @@ open_location_bundles:
 
 # <env>
 clean_packager_cache:
-	@echo "🧹 Cleaning Metro bundler cache..."
 	-watchman watch-del-all && rm -rf $(TMPDIR)/react-*
 	rm -rf /tmp/metro-*
 	rm -rf /tmp/haste-*
-	rm -rf /tmp/metro_bundle.log
-	rm -rf /tmp/build_*.txt
 
 clean_env: release_clean metro_clean
-	@echo "🧹 Cleaning environment and node_modules..."
 	rm -rf packages/openchs-org/node_modules
 	rm -rf packages/unminifiy/node_modules
 	rm -rf packages/utilities/node_modules
 
-clean_gradle:
-	@echo "🧹 Cleaning Gradle build artifacts..."
-	cd packages/openchs-android/android && ./gradlew clean
-	rm -rf packages/openchs-android/android/app/build
-	rm -rf packages/openchs-android/android/build
-	rm -rf packages/openchs-android/android/.gradle
-	rm -rf packages/openchs-android/android/app/.cxx
+remove_package_locks:
+	rm package-lock.json packages/openchs-android/package-lock.json
 
-clean_android_generated:
-	@echo "🧹 Cleaning Android generated files..."
-	rm -rf packages/openchs-android/android/app/build/generated
-	rm -rf packages/openchs-android/android/build/generated
+clean_all:  clean_env clean_packager_cache
 	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle
-	rm -rf packages/openchs-android/android/app/src/main/assets/index.android.bundle.map
-
-clean_react_native_cache:
-	@echo "🧹 Cleaning React Native cache..."
-	rm -rf packages/openchs-android/node_modules/react-native/android/.gradle
-	rm -rf packages/openchs-android/node_modules/.cache
-	npx react-native start --reset-cache & sleep 3 && pkill -f "react-native.*start" || true
-
-clean_all: clean_env clean_packager_cache clean_gradle clean_android_generated clean_react_native_cache
-	@echo "✅ Deep clean complete! Ready for fresh build."
 
 setup_env:
 	npm install -g jest@20.0.1

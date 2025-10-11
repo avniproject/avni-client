@@ -103,7 +103,7 @@
     "react-native-video-player": "0.16.3",
     "react-native-webview": "^13.16.0",
     "react-native-zip-archive": "7.0.2",
-    "realm": "^12.15.0",
+    "realm": "^20.2.0",
     "redux": "5.0.1",
     "rn-fetch-blob": "0.13.0-beta-1",
     "rules-config": "github:openchs/rules-config#7f34ac91826bbaabb27bf9d86bf7cecb8710d1d8",
