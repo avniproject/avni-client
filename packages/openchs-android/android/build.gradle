@@ -10,10 +10,10 @@ buildscript {
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
         kotlinVersion = '2.1.20' // Primary Kotlin version for app and packages
-        reactNativeVersion = '0.79.2' // Centralized React Native version
+        reactNativeVersion = '0.81.4' // Centralized React Native version
 
-        // NDK 25 required for Realm 12.14.2 compatibility
-        ndkVersion = "25.2.9519653"
+        // NDK 27 required for Realm prebuilt binaries compatibility
+        ndkVersion = "27.1.12297006"
     }
 
     repositories {
@@ -91,16 +91,10 @@ subprojects {
                     targetCompatibility = JavaVersion.VERSION_17
                 }
 
-                // CRITICAL: Force NDK 25 for all modules to maintain ABI compatibility
+                // CRITICAL: Force NDK 27 for Realm module to match prebuilt binaries
                 if (project.name == 'realm') {
                     ndkVersion = rootProject.ext.ndkVersion
                     println "✅ Forcing Realm module to use NDK ${rootProject.ext.ndkVersion}"
-                }
-                
-                // Force nitro-modules and audio-recorder-player to use NDK 25 for compatibility
-                if (project.name == 'react-native-nitro-modules' || project.name == 'react-native-audio-recorder-player') {
-                    ndkVersion = rootProject.ext.ndkVersion
-                    println "✅ Forcing ${project.name} to use NDK ${rootProject.ext.ndkVersion} for ABI compatibility"
                 }
             }
         }
@@ -126,8 +120,8 @@ allprojects {
             }
 
             // Force explicit versions for React Native artifacts
-            // Note: In RN 0.79+, Hermes is merged into react-android, no separate hermes-android
             force "com.facebook.react:react-android:$reactNativeVersion"
+            force "com.facebook.react:hermes-android:$reactNativeVersion"
             
             // Force compatible KSP version for Kotlin 2.1.20
             force "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.20-2.0.1"

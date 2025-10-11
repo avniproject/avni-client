@@ -37,18 +37,8 @@ module.exports = {
     'react-native-vector-icons': {},
     'react-native-webview': {},
     
-    // REALM - Enable autolinking (working fine with NDK 25)
+    // REALM - Enable autolinking (working fine with NDK 27)
     'realm': {},
-    
-    // Using audio-recorder-player@3.6.14 (pre-Nitro) for NDK 25 compatibility
-    'react-native-audio-recorder-player': {},
-    
-    // EXCLUDED PACKAGES - Require NDK 27, conflict with Realm's NDK 25
-    'react-native-nitro-modules': {
-      platforms: {
-        android: null,
-      },
-    },
     
     // PACKAGES THAT MAY NEED MANUAL LINKING (if issues arise)
     // Uncomment and set to null if autolinking causes problems:
