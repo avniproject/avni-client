@@ -29,7 +29,8 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "bash scripts/patch-hermes-parser.sh && npx jetify"
+    "postinstall": "patch-package && bash scripts/patch-hermes-parser.sh && npx jetify",
+    "prebuild:android": "node scripts/generate-autolinking.js"
   },
   "dependencies-comment": [
     "react-native-safe-area-context and react-native-svg are peer dependencies of native base"

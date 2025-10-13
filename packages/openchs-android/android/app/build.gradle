@@ -15,6 +15,7 @@ googleServices {
  */
 react {
     debuggableVariants = ["genericDebug", "lfeDebug", "sakhiDebug"]
+    // Autolinking enabled - modules included via rn-modules.gradle
     autolinkLibrariesWithApp()
 }
 
