@@ -26,8 +26,8 @@ if (autolinkingJsonFile.exists()) {
             
             // Handle special cases for packages with non-standard directory structures
             if (!moduleDir.exists() && name == "realm") {
-                // Realm 11.x has android directory at react-native/android
-                moduleDir = new File(settingsDir, "../node_modules/realm/react-native/android")
+                // Realm 12.x has android directory at binding/android
+                moduleDir = new File(settingsDir, "../node_modules/realm/binding/android")
             }
             
             if (!moduleDir.exists()) {

@@ -4,6 +4,9 @@ version: 1.0.0
 # Instructions
 - Do not create new markdown document for every step
 
+#Openchs-models = avni-models
+Available in directory ../avni-models
+
 # Tech Stack
   - React Native mobile application
   - JavaScript
