@@ -39,8 +39,8 @@ class App extends Component {
 
     getContextValue = () => ({
         getDB: () => GlobalContext.getInstance().db,
-        getService: (serviceName) => {
-            return GlobalContext.getInstance().beanRegistry.getService(serviceName);
+        getService: (serviceClassOrName) => {
+            return GlobalContext.getInstance().beanRegistry.getService(serviceClassOrName);
         },
         getStore: () => GlobalContext.getInstance().reduxStore,
     });

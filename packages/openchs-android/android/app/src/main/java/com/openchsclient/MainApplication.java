@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.util.Log;
 
+import com.bugsnag.android.Bugsnag;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -60,6 +61,8 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        
+        Bugsnag.start(this);
         
         try {
             SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
