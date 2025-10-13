@@ -18,16 +18,11 @@ import moment from "moment";
 import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
+import ServiceContext from "./framework/context/ServiceContext";
 
 const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
-    static childContextTypes = {
-        getService: PropTypes.func.isRequired,
-        getDB: PropTypes.func.isRequired,
-        getStore: PropTypes.func.isRequired,
-    };
-
     constructor(props, context) {
         super(props, context);
         FileSystem.init();
@@ -42,7 +37,7 @@ class App extends Component {
         this.setState && this.setState({avniError: avniError});
     }
 
-    getChildContext = () => ({
+    getContextValue = () => ({
         getDB: () => GlobalContext.getInstance().db,
         getService: (serviceName) => {
             return GlobalContext.getInstance().beanRegistry.getService(serviceName);
@@ -138,9 +133,13 @@ class App extends Component {
     }
 
     render() {
-        return <AvniErrorBoundary>
-            {this.renderApp()}
-        </AvniErrorBoundary>;
+        return (
+            <ServiceContext.Provider value={this.getContextValue()}>
+                <AvniErrorBoundary>
+                    {this.renderApp()}
+                </AvniErrorBoundary>
+            </ServiceContext.Provider>
+        );
     }
 }
 

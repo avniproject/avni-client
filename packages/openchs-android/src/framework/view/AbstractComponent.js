@@ -8,13 +8,10 @@ import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
 import {logScreenEvent} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
+import ServiceContext from "../context/ServiceContext";
 
 class AbstractComponent extends Component {
-    static contextTypes = {
-        navigator: PropTypes.func.isRequired,
-        getService: PropTypes.func.isRequired,
-        getStore: PropTypes.func
-    };
+    static contextType = ServiceContext;
     static styles = StyleSheet.create({
         spinner: {
             justifyContent: 'center',
@@ -29,7 +26,6 @@ class AbstractComponent extends Component {
     constructor(props, context, topLevelStateVariable) {
         super(props, context);
         this.topLevelStateVariable = topLevelStateVariable;
-        this.I18n = context.getService(MessageService).getI18n();
         this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToPosition = this.scrollToPosition.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
@@ -37,6 +33,14 @@ class AbstractComponent extends Component {
 
     getService(Class) {
         return this.context.getService(Class);
+    }
+
+    // Lazy getter for I18n - initializes on first access
+    get I18n() {
+        if (!this._i18n) {
+            this._i18n = this.context.getService(MessageService).getI18n();
+        }
+        return this._i18n;
     }
 
     changeFocus() {
