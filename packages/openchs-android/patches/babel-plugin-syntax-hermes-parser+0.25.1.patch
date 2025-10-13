@@ -1,0 +1,16 @@
+diff --git a/node_modules/babel-plugin-syntax-hermes-parser/dist/index.js b/node_modules/babel-plugin-syntax-hermes-parser/dist/index.js
+index 1234567..abcdefg 100644
+--- a/node_modules/babel-plugin-syntax-hermes-parser/dist/index.js
++++ b/node_modules/babel-plugin-syntax-hermes-parser/dist/index.js
+@@ -53,6 +53,10 @@
+         }
+       }
+ 
++      // AVNI PATCH: Skip files with decorators (not supported by hermes-parser)
++      if (/@Action|@Service|@Path|@PathRoot|@autobind|@observable|@computed/.test(code)) {
++        return;
++      }
+       if (parseLangTypes === 'flow' && !/@flow/.test(code)) {
+         return;
+       }
+\ No newline at end of file
