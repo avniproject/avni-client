@@ -3,9 +3,7 @@ const path = require('path');
 
 const config = {
     transformer: {
-        // CRITICAL: Disable hermesParser to ensure Babel processes decorators
-        hermesParser: false,
-        babelTransformerPath: require.resolve('@react-native/metro-babel-transformer'),
+        // Use default transformer with hermes-parser (fixed in 0.76.4+)
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,

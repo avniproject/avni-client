@@ -29,7 +29,7 @@
     "test-ci": "jest --verbose --forceExit --maxWorkers=2 --ci",
     "coverage": "istanbul cover --report lcov _mocha --require ./node_modules/react-native-mock/mock.js --require src/test/testHelper.js $(find ./test -name '*Test.js')",
     "flow": "flow",
-    "postinstall": "patch-package && bash scripts/patch-hermes-parser.sh && npx jetify",
+    "postinstall": "patch-package && npx jetify",
     "prebuild:android": "node scripts/generate-autolinking.js"
   },
   "dependencies-comment": [
@@ -119,6 +119,7 @@
     "@react-native/babel-preset": "0.76.5",
     "@react-native/metro-config": "0.76.5",
     "babel-jest": "^29.2.1",
+    "babel-plugin-syntax-hermes-parser": "^0.25.1",
     "bugsnag-sourcemaps": "1.3.0",
     "chai": "4.3.6",
     "faker": "6.6.6",
