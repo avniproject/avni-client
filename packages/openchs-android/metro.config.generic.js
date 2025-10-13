@@ -3,7 +3,8 @@ const path = require('path');
 
 const config = {
     transformer: {
-        // Use default transformer with hermes-parser (fixed in 0.76.4+)
+        // Preset auto-configures parseLangTypes: 'flow' in hermes-parser
+        // Files without @flow annotations (decorator files) use Babel parser
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,
