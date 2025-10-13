@@ -76,3 +76,6 @@ subprojects {
             }
     }
 }
+
+// React Native Gradle Plugin - root project configuration for RN 0.76+
+apply plugin: "com.facebook.react.rootproject"
