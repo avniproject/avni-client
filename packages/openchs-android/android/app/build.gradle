@@ -21,6 +21,15 @@ react {
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 
+// Fix Gradle task dependency issue - lint task needs to depend on vector icons copy task
+afterEvaluate {
+    tasks.findAll { task ->
+        task.name.startsWith('generate') && task.name.endsWith('LintVitalReportModel')
+    }.each { lintTask ->
+        lintTask.dependsOn tasks.findByName('copyReactNativeVectorIconFonts')
+    }
+}
+
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
