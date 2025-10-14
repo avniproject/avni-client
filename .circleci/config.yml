@@ -57,6 +57,7 @@ jobs:
       - checkout
       - run: echo "Building with no_env"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -92,6 +93,7 @@ jobs:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -128,6 +130,7 @@ jobs:
       - checkout
       - run: echo "Building flavor gramin"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -164,6 +167,7 @@ jobs:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -213,6 +217,7 @@ jobs:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
@@ -277,6 +282,7 @@ jobs:
           fi
           echo "All keystore credentials validated"
       - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
