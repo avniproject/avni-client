@@ -6,7 +6,7 @@ const commentSchema = {
     primaryKey: "uuid",
     properties: {
         uuid: "string",
-        subject: {type: "Individual", optional: false}
+        subject: {type: "object", objectType: "Individual"}
     },
 };
 
