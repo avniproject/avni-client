@@ -201,10 +201,10 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
+          destination: << pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
-          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.map
 
   release_android_perf:
     docker:
