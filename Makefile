@@ -372,6 +372,7 @@ setup_env:
 build_env:
 	export NODE_OPTIONS=--max_old_space_size=4096
 	cd packages/openchs-android && npm install --legacy-peer-deps
+	cd packages/openchs-android && npm run prebuild:android
 
 clean_app:
 	cd packages/openchs-android/android && ./gradlew clean
