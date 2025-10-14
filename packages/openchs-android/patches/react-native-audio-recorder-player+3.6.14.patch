@@ -1,6 +1,8 @@
---- node_modules/react-native-audio-recorder-player/android/build.gradle.bak	2025-10-13 16:52:24
-+++ node_modules/react-native-audio-recorder-player/android/build.gradle	2025-10-13 16:52:28
-@@ -59,19 +59,6 @@
+diff --git a/node_modules/react-native-audio-recorder-player/android/build.gradle b/node_modules/react-native-audio-recorder-player/android/build.gradle
+index 6bb3aa2..5305277 100644
+--- a/node_modules/react-native-audio-recorder-player/android/build.gradle
++++ b/node_modules/react-native-audio-recorder-player/android/build.gradle
+@@ -59,19 +59,7 @@ dependencies {
    implementation 'com.facebook.react:react-native:+'
    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${safeExtGet('kotlinVersion', project.ext.kotlinVersion)}"
  
@@ -19,7 +21,7 @@
 -    implementation "androidx.annotation:annotation:$androidXAnnotation"
 -    implementation "androidx.browser:browser:$androidXBrowser"
 -  }
--}
 +  // Force AndroidX - no Support Library fallback
 +  implementation "androidx.annotation:annotation:1.8.0"
-+  implementation "androidx.browser:browser:1.8.0"}
++  implementation "androidx.browser:browser:1.8.0"
+ }
