@@ -1,4 +1,5 @@
 version: 2.1
+# Configuration for React Native 0.76.5, React 18.2, Node 20, Realm 12.14.2
 parameters:
   flavor:
     type: enum
@@ -21,51 +22,53 @@ orbs:
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:16.18.0
+      - image: cimg/node:20.19.5
     working_directory: ~/avni-client
     steps:
       - checkout
       - run: sudo apt-get install make
       - run: make deps_ci
+      - run: sudo npm i -g react-native-cli
       - save_cache:
           paths:
             - packages/openchs-android/node_modules
-          key: v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+          key: v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
 
   test_android:
     docker:
-      - image: cimg/node:16.18.0
+      - image: cimg/node:20.19.5
     working_directory: ~/avni-client
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-
       - run: sudo apt-get install make
       - run: make deps_ci
       - run: make ci test-android
 
   release_android_no_env:
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     steps:
       - checkout
       - run: echo "Building with no_env"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_no_env_universal_without_clean
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
           paths:
             - ~/.gradle
             - ~/.m2
@@ -80,7 +83,7 @@ jobs:
 
   release_android_staging:
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -88,19 +91,20 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_staging_dev_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
           paths:
             - ~/.gradle
             - ~/.m2
@@ -115,7 +119,7 @@ jobs:
 
   release_android_gramin_staging:
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -123,19 +127,20 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor gramin"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_gramin_staging_dev_without_clean
       - run: make deploy_platform_translations_gramin_staging
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
           paths:
             - ~/.gradle
             - ~/.m2
@@ -150,7 +155,7 @@ jobs:
 
   release_android_prerelease:
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -158,15 +163,16 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - aws-cli/setup:
           role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
           region: 'ap-south-1'
@@ -183,7 +189,7 @@ jobs:
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
       - run: make deploy_platform_translations_prerelease
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
           paths:
             - ~/.gradle
             - ~/.m2
@@ -191,14 +197,14 @@ jobs:
             - ~/avni-client/packages/openchs-android/android/.gradle
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.apk
+          destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
-          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.map
+          destination: sourcemap-<< pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.map
 
   release_android_perf:
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -206,19 +212,20 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_perf_without_clean
       - run: make deploy_platform_translations_prerelease
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
           paths:
             - ~/.gradle
             - ~/.m2
@@ -243,7 +250,7 @@ jobs:
         type: string
         default: << pipeline.parameters.flavor >>_KEY_ALIAS
     docker:
-      - image: cimg/android:2023.12-node
+      - image: cimg/android:2025.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -254,19 +261,36 @@ jobs:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
       - run: echo "Building versionCode << pipeline.parameters.versionCode >>; versionName << pipeline.parameters.versionName >>"
+      - run: |
+          # Validate keystore environment variables exist before starting build
+          if [ -z "$<< parameters.keystore_password >>" ]; then
+            echo "Error: Keystore password not set for flavor << pipeline.parameters.flavor >>"
+            exit 1
+          fi
+          if [ -z "$<< parameters.key_password >>" ]; then
+            echo "Error: Key password not set for flavor << pipeline.parameters.flavor >>"
+            exit 1
+          fi
+          if [ -z "$<< parameters.key_alias >>" ]; then
+            echo "Error: Key alias not set for flavor << pipeline.parameters.flavor >>"
+            exit 1
+          fi
+          echo "All keystore credentials validated"
+      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
+            - v2-dependencies-
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
-      - run: sudo npm i -g react-native-cli
+      # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
+      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - save_cache:
-          key: v1-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
+          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
           paths:
             - ~/.gradle
             - ~/.m2
@@ -278,7 +302,9 @@ jobs:
       - store_artifacts:
           path: packages/openchs-android/android/app/build/generated/sourcemaps/react/<< pipeline.parameters.flavor >>Release/index.android.bundle.map
           destination: sourcemap-<< pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.map
-      - run: make deploy_platform_translations_for_flavor_live
+      - store_artifacts:
+          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
+          destination: << pipeline.parameters.flavor >>-live_dev-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
       - run: curl -L https://github.com/google/bundletool/releases/download/1.15.1/bundletool-all-1.15.1.jar > ./bundletool.jar
       - run: java -jar ./bundletool.jar build-apks --bundle=packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab --output=avniuniversal.apks --mode=universal --ks=packages/openchs-android/android/app/<< pipeline.parameters.flavor >>-release-key.keystore --ks-pass=pass:$<< parameters.keystore_password >> --ks-key-alias=$<< parameters.key_alias >> --key-pass=pass:$<< parameters.key_password >>
       - store_artifacts:
@@ -290,13 +316,10 @@ jobs:
       - aws-s3/copy:
           from: avniuniversal.apks
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod/
-      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prod_dev/
-      - store_artifacts:
-          path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
-          destination: << pipeline.parameters.flavor >>-live_dev-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
+      - run: make deploy_platform_translations_for_flavor_live
 
 workflows:
   version: 2
@@ -360,6 +383,7 @@ workflows:
             - CIRCLECI_OIDC_AWS
           requires:
             - hold_live
+            - test_android
 
 notify:
   webhooks:
