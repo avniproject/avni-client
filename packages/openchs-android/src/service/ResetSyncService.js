@@ -6,7 +6,7 @@ import _ from 'lodash';
 import SubjectMigrationService from "./SubjectMigrationService";
 import IndividualService from "./IndividualService";
 import General from "../utility/General";
-import BackupRestoreRealmService from "./BackupRestoreRealm";
+import BackupRestoreRealmService from "./BackupRestoreRealmService";
 
 @Service('ResetSyncService')
 class ResetSyncService extends BaseService {

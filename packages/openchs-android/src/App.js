@@ -4,6 +4,10 @@ import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import './views';
 import _ from "lodash";
+
+// Import all services to ensure @Service decorators execute
+// Must be imported before GlobalContext.initialiseGlobalContext() is called
+import './service/AllServices';
 import {RegisterAndScheduleJobs} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";

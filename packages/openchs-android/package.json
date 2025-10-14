@@ -3,6 +3,10 @@
   "description": "Avni Field Worker's App",
   "version": "0.0.1",
   "private": false,
+  "sideEffects": [
+    "./src/service/AllServices.js",
+    "./src/service/**/*.js"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/OpenCHS/openchs-client.git"

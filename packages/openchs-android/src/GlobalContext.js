@@ -28,6 +28,27 @@ class GlobalContext {
     async initialiseGlobalContext(appStore, realmFactory) {
         this.db =  await realmFactory.createRealm();
         this.beanRegistry.init(this.db);
+        
+        // Runtime validation: Verify critical services are registered
+        const criticalServices = [
+            'entityService',
+            'individualService',
+            'syncService',
+            'customDashboardService',
+            'dashboardSectionCardMappingService'
+        ];
+        
+        const missingServices = criticalServices.filter(
+            serviceName => !this.beanRegistry.getService(serviceName)
+        );
+        
+        if (missingServices.length > 0) {
+            const errorMsg = `CRITICAL: Services not registered: ${missingServices.join(', ')}. ` +
+                           `Ensure src/service/AllServices.js is imported in App.js`;
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+        
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
         const restoreRealmService = this.beanRegistry.getService("backupAndRestoreService");

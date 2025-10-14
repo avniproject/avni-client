@@ -4,7 +4,7 @@ import { ValidationResult } from 'avni-models';
 import UserInfoService from "../service/UserInfoService";
 import _ from 'lodash';
 import { firebaseEvents, logEvent } from "../utility/Analytics";
-import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import SettingsService from "../service/SettingsService";
 import { IDP_PROVIDERS } from "../model/IdpProviders";
 
