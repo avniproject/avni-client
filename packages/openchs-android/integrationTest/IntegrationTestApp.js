@@ -1,3 +1,7 @@
+// Import all services to ensure @Service decorators execute
+// Must be imported before GlobalContext.initialiseGlobalContext() is called
+import '../src/service/AllServices';
+
 import {Button, LogBox, SectionList, StyleSheet, Text, View} from "react-native";
 import PropTypes from 'prop-types';
 import React, {Component} from 'react';

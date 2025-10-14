@@ -67,6 +67,23 @@ class BaseIntegrationTest {
     getAllEntities(type) {
         return this.getEntityService().findAll(type.schema.name);
     }
+
+    /**
+     * Dispatch an action and wait for async completion.
+     * Returns a Promise that resolves with the state after all async operations complete.
+     * This handles the async nature of Redux actions with side effects (rules, validation).
+     */
+    dispatchAndWaitForCompletion(action) {
+        return new Promise((resolve) => {
+            this.dispatch({
+                ...action,
+                onCompletion: () => {},
+                completed: (state) => {
+                    resolve(state);
+                }
+            });
+        });
+    }
 }
 
 class TestDb {
