@@ -73,7 +73,7 @@ jobs:
           fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make deps_ci disable_gradle_daemon release_no_env_universal_without_clean
+      - run: make apply_patch disable_gradle_daemon release_no_env_universal_without_clean
       - save_cache:
           key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
           paths:
@@ -121,7 +121,7 @@ jobs:
           fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make deps_ci disable_gradle_daemon release_staging_dev_without_clean
+      - run: make apply_patch disable_gradle_daemon release_staging_dev_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -170,7 +170,7 @@ jobs:
           fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make deps_ci disable_gradle_daemon release_gramin_staging_dev_without_clean
+      - run: make apply_patch disable_gradle_daemon release_gramin_staging_dev_without_clean
       - run: make deploy_platform_translations_gramin_staging
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
@@ -222,7 +222,7 @@ jobs:
       - aws-cli/setup:
           role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
           region: 'ap-south-1'
-      - run: make deps_ci disable_gradle_daemon release_prerelease_dev_without_clean
+      - run: make apply_patch disable_gradle_daemon release_prerelease_dev_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
@@ -281,7 +281,7 @@ jobs:
           fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make deps_ci disable_gradle_daemon release_perf_without_clean
+      - run: make apply_patch disable_gradle_daemon release_perf_without_clean
       - run: make deploy_platform_translations_prerelease
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
@@ -355,7 +355,7 @@ jobs:
           fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make deps_ci
+      - run: make apply_patch
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - save_cache:
