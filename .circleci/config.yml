@@ -33,6 +33,7 @@ commands:
             yes | sdkmanager --licenses || true
       - run:
           name: Install NDK with retry logic
+          shell: /bin/bash -e
           command: |
             if [ -d "$ANDROID_HOME/ndk/25.2.9519653" ]; then
               echo "NDK 25.2.9519653 already installed (from cache)"
@@ -43,7 +44,7 @@ commands:
             for i in 1 2 3; do
               echo "Attempt $i of 3"
               
-              # Use set -o pipefail to catch sdkmanager exit code, ignore yes SIGPIPE
+              # Use PIPESTATUS to get sdkmanager exit code, ignore yes SIGPIPE
               set +e
               yes | sdkmanager "ndk;25.2.9519653"
               SDKMANAGER_EXIT=${PIPESTATUS[1]}
