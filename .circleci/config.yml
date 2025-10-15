@@ -27,7 +27,18 @@ jobs:
     steps:
       - checkout
       - run: sudo apt-get install make
-      - run: make deps_ci
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
+            - v2-dependencies-
+      - run: |
+          echo "Checking if dependencies are already installed..."
+          if [ -d packages/openchs-android/node_modules ]; then
+            echo "Dependencies already cached, skipping deps_ci"
+          else
+            echo "Dependencies not found, running deps_ci..."
+            make deps_ci
+          fi
       - save_cache:
           paths:
             - packages/openchs-android/node_modules
