@@ -19,6 +19,54 @@ orbs:
   aws-cli: circleci/aws-cli@4.1.1
   aws-s3: circleci/aws-s3@4.0
 
+commands:
+  install_ndk:
+    description: "Install Android NDK 25.2.9519653 with caching and retry logic"
+    steps:
+      - restore_cache:
+          keys:
+            - ndk-25.2.9519653-v1
+      - run:
+          name: Install NDK with retry logic
+          command: |
+            if [ -d "$ANDROID_HOME/ndk/25.2.9519653" ]; then
+              echo "NDK 25.2.9519653 already installed (from cache)"
+              exit 0
+            fi
+            echo "Installing NDK with retry logic..."
+            for i in 1 2 3; do
+              echo "Attempt $i of 3"
+              if yes | sdkmanager "ndk;25.2.9519653"; then
+                echo "NDK installed successfully"
+                break
+              else
+                echo "NDK installation failed, retrying..."
+                rm -rf $ANDROID_HOME/ndk/25.2.9519653 2>/dev/null || true
+                sleep 5
+              fi
+              if [ $i -eq 3 ]; then
+                echo "Failed to install NDK after 3 attempts"
+                exit 1
+              fi
+            done
+      - save_cache:
+          key: ndk-25.2.9519653-v1
+          paths:
+            - ~/.android/ndk/25.2.9519653
+
+  setup_autolinking:
+    description: "Setup autolinking with caching"
+    steps:
+      - run:
+          name: Check autolinking cache
+          command: |
+            if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+              echo "Using cached autolinking configuration"
+            else
+              echo "Generating fresh autolinking configuration..."
+              cd packages/openchs-android && npm run prebuild:android
+            fi
+
 jobs:
   install_deps:
     docker:
@@ -65,7 +113,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Building with no_env"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
@@ -74,17 +122,10 @@ jobs:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch disable_gradle_daemon release_no_env_universal_without_clean
+      - run: make apply_patch release_no_env_universal_without_clean
       - save_cache:
           key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
           paths:
@@ -113,7 +154,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
@@ -122,17 +163,10 @@ jobs:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch disable_gradle_daemon release_staging_dev_without_clean
+      - run: make apply_patch release_staging_dev_without_clean
       - run: make deploy_platform_translations_staging
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
@@ -162,7 +196,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor gramin"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
@@ -171,17 +205,10 @@ jobs:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch disable_gradle_daemon release_gramin_staging_dev_without_clean
+      - run: make apply_patch release_gramin_staging_dev_without_clean
       - run: make deploy_platform_translations_gramin_staging
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
@@ -211,7 +238,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
@@ -220,27 +247,20 @@ jobs:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - aws-cli/setup:
           role_arn: 'arn:aws:iam::118388513628:role/CircleCI-OIDC'
           region: 'ap-south-1'
-      - run: make apply_patch disable_gradle_daemon release_prerelease_dev_without_clean
+      - run: make apply_patch release_prerelease_dev_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease_dev/
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
-      - run: make disable_gradle_daemon release_prerelease_without_clean
+      - run: make release_prerelease_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
@@ -273,7 +293,7 @@ jobs:
     steps:
       - checkout
       - run: echo "Building flavor << pipeline.parameters.flavor >>"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
@@ -282,17 +302,10 @@ jobs:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
-      - run: make apply_patch disable_gradle_daemon release_perf_without_clean
+      - run: make apply_patch release_perf_without_clean
       - run: make deploy_platform_translations_prerelease
       - save_cache:
           key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
@@ -350,20 +363,16 @@ jobs:
             exit 1
           fi
           echo "All keystore credentials validated"
-      - run: echo "y" | sdkmanager "ndk;25.2.9519653"
+      - install_ndk
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - restore_cache:
+          keys:
+            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
-      - run: |
-          echo "Checking autolinking cache..."
-          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
-            echo "Using cached autolinking configuration"
-          else
-            echo "Generating fresh autolinking configuration..."
-            cd packages/openchs-android && npm run prebuild:android
-          fi
+      - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make apply_patch
