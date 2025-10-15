@@ -28,7 +28,6 @@ jobs:
       - checkout
       - run: sudo apt-get install make
       - run: make deps_ci
-      - run: sudo npm i -g react-native-cli
       - save_cache:
           paths:
             - packages/openchs-android/node_modules
@@ -45,7 +44,6 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
             - v2-dependencies-
       - run: sudo apt-get install make
-      - run: make deps_ci
       - run: make ci test-android
 
   release_android_no_env:
@@ -63,18 +61,30 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_no_env_universal_without_clean
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-generic
+          key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
           paths:
             - ~/.gradle
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/generic/release/app-generic-release.apk
           destination: no_env-<< pipeline.git.revision >>.apk
@@ -99,8 +109,16 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-staging
+            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_staging_dev_without_clean
@@ -112,6 +130,10 @@ jobs:
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-staging_dev-<< pipeline.git.revision >>.apk
@@ -136,8 +158,16 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-gramin-staging
+            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_gramin_staging_dev_without_clean
@@ -149,6 +179,10 @@ jobs:
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/gramin/release/app-gramin-release.apk
           destination: gramin-staging_dev-<< pipeline.git.revision >>.apk
@@ -173,8 +207,16 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-prerelease
+            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - aws-cli/setup:
@@ -187,7 +229,7 @@ jobs:
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease_dev-<< pipeline.git.revision >>.apk
-      - run: make deps_ci disable_gradle_daemon release_prerelease_without_clean
+      - run: make disable_gradle_daemon release_prerelease_without_clean
       - aws-s3/copy:
           from: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           to: s3://samanvay/openchs/<< pipeline.number >>-<< pipeline.git.revision >>/prerelease/
@@ -199,6 +241,10 @@ jobs:
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-prerelease-<< pipeline.git.revision >>.apk
@@ -223,8 +269,16 @@ jobs:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-perf
+            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci disable_gradle_daemon release_perf_without_clean
@@ -236,6 +290,10 @@ jobs:
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/apk/<< pipeline.parameters.flavor >>/release/app-<< pipeline.parameters.flavor >>-release.apk
           destination: << pipeline.parameters.flavor >>-perf-<< pipeline.git.revision >>.apk
@@ -285,23 +343,32 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y ninja-build
       - restore_cache:
           keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-      - restore_cache:
-          keys:
-            - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
+            - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
             - v2-dependencies-
+      - run: |
+          echo "Checking autolinking cache..."
+          if [ -d packages/openchs-android/android/build/generated/autolinking ]; then
+            echo "Using cached autolinking configuration"
+          else
+            echo "Generating fresh autolinking configuration..."
+            cd packages/openchs-android && npm run prebuild:android
+          fi
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make deps_ci
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - save_cache:
-          key: v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}-live
+          key: v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
           paths:
             - ~/.gradle
             - ~/.m2
             - ~/avni-client/packages/openchs-android/android/app/.gradle
             - ~/avni-client/packages/openchs-android/android/.gradle
+      - save_cache:
+          key: v2-autolinking-{{ checksum "packages/openchs-android/package-lock.json" }}
+          paths:
+            - ~/avni-client/packages/openchs-android/android/build/generated/autolinking
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.aab
