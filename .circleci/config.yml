@@ -43,12 +43,17 @@ commands:
             for i in 1 2 3; do
               echo "Attempt $i of 3"
               
-              if yes | sdkmanager "ndk;25.2.9519653"; then
+              # Use set -o pipefail to catch sdkmanager exit code, ignore yes SIGPIPE
+              set +e
+              yes | sdkmanager "ndk;25.2.9519653"
+              SDKMANAGER_EXIT=${PIPESTATUS[1]}
+              set -e
+              
+              if [ $SDKMANAGER_EXIT -eq 0 ]; then
                 echo "✅ NDK installed successfully"
                 break
               else
-                EXIT_CODE=$?
-                echo "❌ NDK installation failed (exit code: $EXIT_CODE)"
+                echo "❌ NDK installation failed (sdkmanager exit code: $SDKMANAGER_EXIT)"
                 rm -rf $ANDROID_HOME/ndk/25.2.9519653 2>/dev/null || true
                 
                 if [ $i -eq 3 ]; then
