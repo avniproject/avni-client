@@ -50,7 +50,7 @@ jobs:
 
   release_android_no_env:
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     steps:
@@ -84,7 +84,7 @@ jobs:
 
   release_android_staging:
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -121,7 +121,7 @@ jobs:
 
   release_android_gramin_staging:
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -158,7 +158,7 @@ jobs:
 
   release_android_prerelease:
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -208,7 +208,7 @@ jobs:
 
   release_android_perf:
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
@@ -255,7 +255,7 @@ jobs:
         type: string
         default: << pipeline.parameters.flavor >>_KEY_ALIAS
     docker:
-      - image: cimg/android:2025.01-node
+      - image: cimg/android:2024.01-node
     working_directory: ~/avni-client
     resource_class: large
     environment:
