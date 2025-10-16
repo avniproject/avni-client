@@ -21,7 +21,15 @@ include makefiles/util.mk
 include makefiles/common.mk
 
 define _open_resource
-	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
+	@if [ -n "$$CIRCLECI" ] || [ -n "$$CI" ]; then \
+		echo "CI environment detected - skipping browser open: $1"; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open $1 >/dev/null 2>&1 || true; \
+	elif command -v open >/dev/null 2>&1; then \
+		open $1 || true; \
+	else \
+		echo "No browser command available - URL: $1"; \
+	fi
 endef
 
 ci:
@@ -115,7 +123,7 @@ define _upload_release_sourcemap
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
-	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps) || true
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps)
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
@@ -201,13 +209,13 @@ release_prod_all_flavors_without_clean: bundle_clean
 	$(call _copy_bundle,lfe)
 	make bundle_release_prod_without_clean flavor='generic'
 	$(call _copy_bundle,generic)
-	open packages/openchs-android/android/app/bundles
+	$(call _open_resource,packages/openchs-android/android/app/bundles)
 release_prod_all_flavors: bundle_clean
 	make bundle_release_prod flavor='generic'
 	$(call _copy_bundle,generic)
 	make bundle_release_prod flavor='lfe'
 	$(call _copy_bundle,lfe)
-	open packages/openchs-android/android/app/bundles
+	$(call _open_resource,packages/openchs-android/android/app/bundles)
 
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
@@ -342,10 +350,10 @@ local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
 openlocation_apk: ## Open location of built apk
-	open packages/openchs-android/android/app/build/outputs/apk
+	$(call _open_resource,packages/openchs-android/android/app/build/outputs/apk)
 
 open_location_bundles:
-	open packages/openchs-android/android/app/build/outputs/bundle/
+	$(call _open_resource,packages/openchs-android/android/app/build/outputs/bundle/)
 
 # <env>
 clean_packager_cache:
