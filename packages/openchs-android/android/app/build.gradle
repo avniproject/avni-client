@@ -88,6 +88,21 @@ android {
 
         }
     }
+    
+    bundle {
+        language {
+            // Disable split by language to generate single AAB
+            enableSplit = false
+        }
+        density {
+            // Disable split by density
+            enableSplit = false
+        }
+        abi {
+            // Enable split by ABI for smaller AABs
+            enableSplit = true
+        }
+    }
 
     signingConfigs {
         generic {
@@ -138,6 +153,11 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            // Signing config is set per flavor in productFlavors section
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
         }
     }
 

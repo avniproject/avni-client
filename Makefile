@@ -83,6 +83,7 @@ ifndef flavor
 	flavor:=generic
 endif
 flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
+flavor_capitalized:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
 
 ifeq ($(flavor), lfe)
 	sourcemap_file_path:=../../../../index.android.bundle.map
@@ -174,11 +175,11 @@ metro_clean: ## If you get react-native-keychain error
 
 create_apk:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor_capitalized)Release --stacktrace --w
 
 create_bundle:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor_capitalized)Release --stacktrace --w
 
 release: release_clean metro_config create_apk
 bundle_release: release_clean metro_config create_bundle
