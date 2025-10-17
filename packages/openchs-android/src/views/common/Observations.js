@@ -22,6 +22,7 @@ import EncounterService from "../../service/EncounterService";
 import CustomActivityIndicator from "../CustomActivityIndicator";
 import PhoneCall from "../../model/PhoneCall";
 import {TaskActionNames as Actions} from "../../action/task/TaskActions";
+import ErrorUtil from "../../framework/errorHandling/ErrorUtil";
 
 class Observations extends AbstractComponent {
     static propTypes = {
@@ -144,14 +145,21 @@ class Observations extends AbstractComponent {
             addressLevelService = this.getService(isWithinCatchment ? AddressLevelService : LocationHierarchyService);
         }
 
-        const displayable = Observation.valueForDisplay({
-            observation: observationModel,
-            conceptService,
-            subjectService,
-            addressLevelService,
-            i18n: this.I18n,
-            encounterService
-        });
+        let displayable;
+        try {
+            displayable = Observation.valueForDisplay({
+                observation: observationModel,
+                conceptService,
+                subjectService,
+                addressLevelService,
+                i18n: this.I18n,
+                encounterService
+            });
+        } catch (e) {
+            ErrorUtil.notifyBugsnag(new Error(`Error rendering observation. Observation: ${JSON.stringify(observationModel)}`, 'Observations'));
+            ErrorUtil.notifyBugsnag(e, 'Observations');
+            displayable = {displayValue: ''};
+        }
 
         if (renderType === Concept.dataType.ImageV2) {
             const allMediaURIs = _.map(displayable.displayValue, mediaObject => mediaObject.uri);
