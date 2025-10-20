@@ -32,14 +32,14 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
     }
 
     labelDisplay() {
-        const { mediaType, mediaUrl } = this.props.element.concept;
+        const media = this.props.element.concept.media || [];
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text style={[Styles.formLabel, {
                     flex: 8,
                     lineHeight: Styles.normalTextSize + 16
                 }]}>{this.label}</Text>
-                {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} style={{marginRight: 20, marginBottom: 5}}/>}
+                {media.length > 0 && <MediaContent media={media} style={{marginRight: 20, marginBottom: 5}}/>}
             </View>
         );
     }

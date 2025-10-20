@@ -40,7 +40,7 @@ class ConceptService extends BaseService {
     }
 
     getAllConceptsWithIcon() {
-        return this.getAllNonVoided().filtered('mediaUrl <> null and mediaType = "Image"').map(_.identity);
+        return this.getAllNonVoided().filtered('media.@size > 0').map(_.identity);
     }
 
     addDecisions(observations, decisions) {

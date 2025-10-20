@@ -1,11 +1,10 @@
 class RadioLabelValue {
-    constructor(label, value, abnormal = false, subject = null, mediaType = null, mediaUrl = null) {
+    constructor(label, value, abnormal = false, subject = null, media = []) {
         this.label = label;
         this.value = value;
         this.abnormal = abnormal;
         this.subject = subject;
-        this.mediaType = mediaType;
-        this.mediaUrl = mediaUrl;
+        this.media = media;
     }
 }
 

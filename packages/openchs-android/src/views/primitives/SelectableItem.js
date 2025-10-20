@@ -43,8 +43,7 @@ class SelectableItem extends React.Component {
         value: PropTypes.any,
         currentLocale: PropTypes.string,
         disabled: PropTypes.bool,
-        mediaType: PropTypes.string,
-        mediaUrl: PropTypes.string,
+        media: PropTypes.array,
         hasMediaContent: PropTypes.bool
     };
 
@@ -76,7 +75,7 @@ class SelectableItem extends React.Component {
     }
 
     render() {
-        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText, hasMediaContent} = this.props;
+        const {value, checked, chunked, abnormal, style, validationResult, onPressed, disabled, currentLocale, multiSelect, displayText, hasMediaContent, media} = this.props;
 
         const textColor = _.isNil(validationResult)
             ? checked && abnormal
@@ -99,8 +98,6 @@ class SelectableItem extends React.Component {
         const iconColor = disabled ? Colors.DisabledButtonColor : Colors.AccentColor;
         const iconName = icons[multiSelect ? "checkbox" : "radio"][checked ? "checked" : "unchecked"];
         const backgroundColor = this.props.children ? Colors.GreyContentBackground : Colors.WhiteContentBackground;
-        const mediaType = this.props.mediaType;
-        const mediaUrl = this.props.mediaUrl;
         const additionalStylingForMedia = hasMediaContent ? { backgroundColor: Colors.GreyContentBackground, minHeight: 50, borderRadius: 5, padding: 2, marginVertical: 5, borderWidth: 1, borderColor: Colors.InputBorderNormal } : {};
         return (
             <Pressable onPress={onPress}
@@ -115,7 +112,7 @@ class SelectableItem extends React.Component {
                                     {displayText}
                                 </Text>
                                 {hasMediaContent && <View style={{marginLeft: 'auto', paddingLeft: 10}}>
-                                    <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} size={30} />
+                                    <MediaContent media={media || []} size={30} />
                                 </View>}
                             </View>}
                     </View>

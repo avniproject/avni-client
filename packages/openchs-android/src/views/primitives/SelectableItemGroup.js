@@ -79,8 +79,7 @@ class SelectableItemGroup extends React.Component {
         return labelValuePairs.map(radioLabelValue => {
             const checked = selectionFn(radioLabelValue.value) || false;
             const individual = radioLabelValue.subject;
-            const mediaType = radioLabelValue.mediaType;
-            const mediaUrl = radioLabelValue.mediaUrl;
+            const media = radioLabelValue.media || [];
             return <SelectableItem displayText={I18n.t(radioLabelValue.label)}
                                    checked={checked}
                                    multiSelect={multiSelect}
@@ -95,8 +94,7 @@ class SelectableItemGroup extends React.Component {
                                    }}
                                    disabled={disabled}
                                    value={radioLabelValue.value}
-                                   mediaType={mediaType}
-                                   mediaUrl={mediaUrl}
+                                   media={media}
                                    hasMediaContent={hasMediaContent}
                                    onPressed={(value) => this.onItemPressed(value, checked, radioLabelValue.label)}
             >
@@ -107,15 +105,14 @@ class SelectableItemGroup extends React.Component {
 
     renderSingleValue() {
         const radioLabelValue = _.head(this.props.labelValuePairs);
-        const mediaType = radioLabelValue.mediaType;
-        const mediaUrl = radioLabelValue.mediaUrl;
+        const media = radioLabelValue.media || [];
         if (!this.props.selectionFn(radioLabelValue.value)) {
             this.props.onPress(radioLabelValue.value, radioLabelValue.label);
         }
         return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={Styles.formLabel}>{this.props.I18n.t(radioLabelValue.label)}</Text>
-            {mediaType && mediaUrl && <MediaContent mediaType={mediaType} mediaUrl={mediaUrl} />}
+            {media.length > 0 && <MediaContent media={media} />}
         </View>
         )
     }
