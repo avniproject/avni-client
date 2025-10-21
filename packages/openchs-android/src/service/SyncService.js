@@ -265,11 +265,35 @@ class SyncService extends BaseService {
         return Promise.all(_.map(subjectTypesWithIcons, ({iconFileS3Key}) => this.mediaService.downloadFileIfRequired(iconFileS3Key, 'Icons')));
     }
 
-    downloadConceptIcons() {
-        General.logDebug("SyncService", "Starting to download concept icons");
-        const conceptsWithIcons = this.conceptService.getAllConceptsWithIcon();
-        General.logDebug("SyncService", `Found ${conceptsWithIcons.length} concepts with icons`);
-        return Promise.all(_.map(conceptsWithIcons, ({mediaUrl}) => this.mediaService.downloadFileIfRequired(mediaUrl, 'Metadata', false)));
+    downloadConceptMedia() {
+        General.logDebug("SyncService", "Starting to download concept media (images and videos)");
+        const conceptsWithMedia = this.conceptService.getAllConceptsWithIcon();
+        General.logDebug("SyncService", `Found ${conceptsWithMedia.length} concepts with media`);
+        
+        const allMediaItems = [];
+        conceptsWithMedia.forEach(concept => {
+            if (concept.media && concept.media.length > 0) {
+                concept.media.forEach(mediaItem => {
+                    if (mediaItem.url) {
+                        allMediaItems.push({
+                            url: mediaItem.url,
+                            type: mediaItem.type,
+                            conceptName: concept.name
+                        });
+                    }
+                });
+            }
+        });
+        
+        General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
+        
+        return Promise.all(allMediaItems.map(mediaItem => {
+            return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
+                .catch(error => {
+                    General.logError("SyncService", `Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${mediaItem.url}`, error);
+                    throw new Error(`Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${error.message}`);
+                });
+        }));
     }
 
     downloadIcons() {
@@ -277,11 +301,11 @@ class SyncService extends BaseService {
         
         return Promise.all([
             this.downloadSubjectTypeIcons(),
-            this.downloadConceptIcons()
+            this.downloadConceptMedia()
         ]).then(results => {
-            const [subjectTypeIconResults, conceptIconResults] = results;
-            General.logDebug("SyncService", `Downloaded ${subjectTypeIconResults.length} subject type icons and ${conceptIconResults.length} concept icons`);
-            return [...subjectTypeIconResults, ...conceptIconResults];
+            const [subjectTypeIconResults, conceptMediaResults] = results;
+            General.logDebug("SyncService", `Downloaded ${subjectTypeIconResults.length} subject type icons and ${conceptMediaResults.length} concept media items`);
+            return [...subjectTypeIconResults, ...conceptMediaResults];
         }).catch(error => {
             General.logError("SyncService", "Error in downloadIcons:", error);
             throw error;
