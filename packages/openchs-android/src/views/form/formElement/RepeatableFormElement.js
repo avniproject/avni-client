@@ -66,10 +66,10 @@ class RepeatableFormElement extends AbstractFormElement {
         const isRemoveDisabled = this.props.value.size() <= 1;
         const questionGroupObs = this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel();
         
-        questionGroupObs.uuid = questionGroupObs.uuid || General.randomUUID();
+        questionGroupObs.uniqueRenderId = questionGroupObs.uuid || General.randomUUID();
         
         return (
-            <Fragment key={questionGroupObs.uuid}>
+            <Fragment key={questionGroupObs.uniqueRenderId}>
                 {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
