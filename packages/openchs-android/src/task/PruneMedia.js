@@ -1,5 +1,5 @@
-import {Concept} from 'avni-models';
-import fs from 'react-native-fs';
+import {Concept} from "avni-models";
+import fs from "react-native-fs";
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import BaseTask from "./BaseTask";
@@ -23,6 +23,14 @@ export const imageObservationDoesNotExist = (db) => (media) => {
     });
 };
 
+export const conceptMediaDoesNotExist = (db) => (media) => {
+    const matchingConcepts = db.objects(Concept.schema.name)
+        .filtered('media.@size > 0')
+        .filtered('ANY media.url CONTAINS[c] $0', media);
+    
+    return matchingConcepts.length === 0;
+};
+
 const deleteFile = (file) => {
     General.logInfo("PruneMedia", `Deleting ${file}`);
 
@@ -39,25 +47,35 @@ const deleteFile = (file) => {
         );
 };
 
-function pruneMedia(db, directory) {
+function pruneObservationMedia(db, directory) {
+    return pruneMedia(db, directory, imageObservationDoesNotExist(db));
+}
+
+function pruneConceptMedia(db, directory) {
+    return pruneMedia(db, directory, conceptMediaDoesNotExist(db));
+}
+
+function pruneMedia(db, directory, orphanDetector) {
     General.logInfo("PruneMedia", `Pruning ${directory}`);
 
     return fs.readdir(directory)
-        .then((images) => _.filter(images, imageObservationDoesNotExist(db)))
-        .then((images) => _.map(images, (image) => `${directory}/${image}`))
-        .then((deleteList) => _.forEach(deleteList, deleteFile)).then(() => General.logInfo("PruneMedia", `${directory} Com`)).then(() => Promise.resolve());
+        .then((allFiles) => _.filter(allFiles, orphanDetector))
+        .then((orphanedFiles) => _.map(orphanedFiles, (file) => `${directory}/${file}`))
+        .then((deleteList) => _.forEach(deleteList, deleteFile))
+        .then(() => General.logInfo("PruneMedia", `${directory} completed`))
+        .then(() => Promise.resolve());
 }
 
 class PruneMedia extends BaseTask {
     async execute() {
         try {
-            General.logInfo("PruneMedia", "PruneMedia job started");
             await this.initDependencies();
             const globalContext = GlobalContext.getInstance();
-            const pruneImageDir = pruneMedia(globalContext.db, FileSystem.getImagesDir());
-            const pruneVideoDir = pruneMedia(globalContext.db, FileSystem.getVideosDir());
+            const pruneImageDir = pruneObservationMedia(globalContext.db, FileSystem.getImagesDir());
+            const pruneVideoDir = pruneObservationMedia(globalContext.db, FileSystem.getVideosDir());
+            const pruneMetadataDir = pruneConceptMedia(globalContext.db, FileSystem.getMetadataDir());
 
-            return Promise.all(pruneImageDir, pruneVideoDir).catch((e) => {
+            return Promise.all([pruneImageDir, pruneVideoDir, pruneMetadataDir]).catch((e) => {
                 ErrorHandler.postScheduledJobError(e);
             });
         } catch (e) {
