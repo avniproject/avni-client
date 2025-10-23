@@ -207,6 +207,8 @@ class Observations extends AbstractComponent {
             )
         } else if (Concept.dataType.PhoneNumber === renderType) {
             return this.renderPhoneNumber(observationModel.getValueWrapper());
+        } else if (Concept.dataType.QR === renderType) {
+            return this.renderQRValue(displayable.displayValue);
         }
         return this.renderObservationText(isAbnormal, displayable.displayValue);
     }
@@ -218,6 +220,13 @@ class Observations extends AbstractComponent {
         return <View style={[this.styles.observationPhoneNumberContainer, this.styles.observationColumn]}>
             <Text style={this.styles.observationPhoneNumber}>{phoneNumber.getValue()}</Text>
             <MCIIcon name={iconName} style={[iconStyle, this.styles.iconStyle]}/>
+        </View>
+    }
+
+    renderQRValue(qrValue) {
+        return <View style={[this.styles.observationPhoneNumberContainer, this.styles.observationColumn]}>
+            <Text style={this.styles.observationPhoneNumber}>{qrValue}</Text>
+            <MCIIcon name="qrcode" style={[{color: Colors.AccentColor}, this.styles.iconStyle]}/>
         </View>
     }
 
