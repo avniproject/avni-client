@@ -51,7 +51,7 @@ function pruneObservationMedia(db, directory) {
     return pruneMedia(db, directory, imageObservationDoesNotExist(db));
 }
 
-function pruneConceptMedia(db, directory) {
+export function pruneConceptMedia(db, directory) {
     return pruneMedia(db, directory, conceptMediaDoesNotExist(db));
 }
 

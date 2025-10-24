@@ -47,6 +47,8 @@ import {
 import LocalCacheService from "./LocalCacheService";
 import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 import DeviceInfo from "react-native-device-info";
+import {pruneConceptMedia} from "../task/PruneMedia";
+import FileSystem from "../model/FileSystem";
 
 function transformResourceToEntity(entityMetaData, entityResources) {
     return (acc, resource) => {
@@ -116,6 +118,7 @@ class SyncService extends BaseService {
             .then(() => Promise.resolve(this.logSyncCompleteEvent(syncStartTime)))
             .then(() => this.clearDataIn([RuleFailureTelemetry]))
             .then(() => this.downloadNewsImages())
+            .then(() => pruneConceptMedia(this.db, FileSystem.getMetadataDir()))
             .then(() => {
                 return updatedSyncSource;
             });
