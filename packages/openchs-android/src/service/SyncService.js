@@ -266,6 +266,7 @@ class SyncService extends BaseService {
     }
 
     downloadConceptMedia() {
+        const PARALLEL_DOWNLOAD_COUNT = 1;
         General.logDebug("SyncService", "Starting to download concept media (images and videos)");
         const conceptsWithMedia = this.conceptService.getAllConceptsWithIcon();
         General.logDebug("SyncService", `Found ${conceptsWithMedia.length} concepts with media`);
@@ -286,14 +287,25 @@ class SyncService extends BaseService {
         });
         
         General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
+
+        const chunkedMediaItems = _.chunk(allMediaItems, PARALLEL_DOWNLOAD_COUNT);
         
-        return Promise.all(allMediaItems.map(mediaItem => {
-            return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
-                .catch(error => {
-                    General.logError("SyncService", `Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${mediaItem.url}`, error);
-                    throw new Error(`Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${error.message}`);
-                });
-        }));
+        const downloadChunk = (chunk) => {
+            return Promise.all(chunk.map(mediaItem => {
+                return this.mediaService.downloadFileIfRequired(mediaItem.url, 'Metadata', false)
+                    .catch(error => {
+                        General.logError("SyncService", `Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${mediaItem.url}`, error);
+                        throw new Error(`Failed to download ${mediaItem.type} for concept '${mediaItem.conceptName}': ${error.message}`);
+                    });
+            }));
+        };
+        
+        let promise = Promise.resolve();
+        chunkedMediaItems.forEach(chunk => {
+            promise = promise.then(() => downloadChunk(chunk));
+        });
+        
+        return promise;
     }
 
     downloadIcons() {
