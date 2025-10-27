@@ -130,8 +130,9 @@ export default class MediaFormElement extends AbstractFormElement {
 
     async launchMediaLibrary(onUpdateObservations) {
         this.setState({mode: Mode.MediaLibrary});
+        const isMultiSelect = this.props.element.isMultiSelect ? this.props.element.isMultiSelect() : false;
         const options = { ...this.getDefaultOptions(),
-            selectionLimit: this.props.element.isMultiSelect() ? 0 : 1
+            selectionLimit: isMultiSelect ? 0 : 1
         };
         if (await this.isPermissionGranted()) {
             launchImageLibrary(options,

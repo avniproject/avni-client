@@ -10,7 +10,7 @@ import Colors from "../../primitives/Colors";
 import General from "../../../utility/General";
 import FileSystem from "../../../model/FileSystem";
 import fs from "react-native-fs";
-import DocumentPicker from "@react-native-documents/picker";
+import { pick, types, errorCodes, isErrorWithCode } from "@react-native-documents/picker";
 import AudioRecorderPlayer, {
     AudioEncoderAndroidType,
     AudioSourceAndroidType,
@@ -95,11 +95,11 @@ class AudioFormElement extends AbstractFormElement {
 
     async uploadFromFileSystem() {
         const formElement = this.props.element;
-        const options = {type: DocumentPicker.types.audio, allowMultiSelection: formElement.isMultiSelect()};
+        const options = {type: types.audio, allowMultiSelection: formElement.isMultiSelect()};
         const fileName = `${General.randomUUID()}.mp3`;
         const directory = FileSystem.getAudioDir();
         if (await this.isPermissionGranted()) {
-            DocumentPicker.pick(options)
+            pick(options)
                 .then((response) => {
                     response.map(responseItem => {
                         const {uri, copyError, type} = responseItem;
@@ -112,7 +112,7 @@ class AudioFormElement extends AbstractFormElement {
                         }
                     })
                 }).catch(err => {
-                if (!DocumentPicker.isCancel(err)) {
+                if (!isErrorWithCode(err) || err.code !== errorCodes.OPERATION_CANCELED) {
                     //Throw error only when user does not cancel it using back press
                     throw err;
                 }
