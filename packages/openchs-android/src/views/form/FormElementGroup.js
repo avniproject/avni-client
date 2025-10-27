@@ -42,6 +42,7 @@ import RepeatableFormElement from "./formElement/RepeatableFormElement";
 import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
 import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 import MediaV2FormElement from "./formElement/MediaV2FormElement";
+import QRFormElement from "./formElement/QRFormElement";
 import Colors from "../primitives/Colors";
 
 class FormElementGroup extends AbstractComponent {
@@ -350,6 +351,14 @@ class FormElementGroup extends AbstractComponent {
                                 formElementsUserState={this.props.formElementsUserState}
                                 observationHolder={this.props.observationHolder}
                                 subjectUUID={this.props.subjectUUID}
+                            />, uniqueKey, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.QR) {
+                            return this.wrap(<QRFormElement
+                                key={uniqueKey}
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}
                             />, uniqueKey, formElement.uuid === erroredUUID);
                         }
                     })

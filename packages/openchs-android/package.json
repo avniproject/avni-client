@@ -89,6 +89,7 @@
     "react-native-keychain": "^8.1.1",
     "react-native-mime-types": "2.3.0",
     "react-native-randombytes": "^3.6.1",
+    "react-native-reanimated": "^3.5.4",
     "react-native-restart": "0.0.24",
     "react-native-safe-area-context": "4.3.1",
     "react-native-simple-dialogs": "1.5.0",
@@ -97,6 +98,7 @@
     "react-native-vector-icons": "9.2.0",
     "react-native-video": "5.2.1",
     "react-native-video-player": "0.12.0",
+    "react-native-vision-camera": "2.16.2",
     "react-native-webview": "11.23.0",
     "react-native-zip-archive": "6.0.8",
     "realm": "11.10.2",
@@ -105,13 +107,15 @@
     "rules-config": "github:openchs/rules-config#7f34ac91826bbaabb27bf9d86bf7cecb8710d1d8",
     "stacktrace-js": "2.0.2",
     "transducers-js": "0.4.174",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vision-camera-code-scanner": "0.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/plugin-proposal-decorators": "7.18.9",
     "@babel/plugin-proposal-object-rest-spread": "7.18.9",
     "@babel/runtime": "^7.20.0",
+    "@react-native-community/cli": "latest",
     "babel-jest": "^29.2.1",
     "bugsnag-sourcemaps": "1.3.0",
     "chai": "4.3.6",
@@ -126,8 +130,7 @@
     "patch-package": "6.5.0",
     "react-addons-test-utils": "15.6.2",
     "react-dom": "18.2.0",
-    "react-test-renderer": "18.2.0",
-    "@react-native-community/cli": "latest"
+    "react-test-renderer": "18.2.0"
   },
   "engines": {
     "node": ">=16"

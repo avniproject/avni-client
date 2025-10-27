@@ -85,6 +85,12 @@ export class IndividualSearchActions {
         return newState;
     };
 
+    static enterQrCriteria = function (state, action, beans) {
+        const newState = IndividualSearchActions.clone(state);
+        newState.searchCriteria.addQrCriteria(action.value);
+        return newState;
+    };
+
     static enterSubjectTypeCriteria = function (state, action, beans) {
         const newState = IndividualSearchActions.resetFilters(state);
         const selectedSubjectType = newState.subjectTypes.find(
@@ -199,6 +205,7 @@ const individualSearchActions = {
     ENTER_AGE_CRITERIA: "ENTER_AGE_CRITERIA",
     ENTER_OBS_CRITERIA: "ENTER_OBS_CRITERIA",
     ENTER_VOIDED_CRITERIA: "ENTER_VOIDED_CRITERIA",
+    ENTER_QR_CRITERIA: "ENTER_QR_CRITERIA",
     ENTER_SUBJECT_TYPE_CRITERIA: "ENTER_SUBJECT_TYPE_CRITERIA",
     TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL: "TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL",
     SEARCH_INDIVIDUALS: "SEARCH_INDIVIDUALS",
@@ -213,6 +220,7 @@ const individualSearchActionsMap = new Map([
     [individualSearchActions.ENTER_AGE_CRITERIA, IndividualSearchActions.enterAgeCriteria],
     [individualSearchActions.ENTER_OBS_CRITERIA, IndividualSearchActions.enterObsCriteria],
     [individualSearchActions.ENTER_VOIDED_CRITERIA, IndividualSearchActions.enterVoidedCriteria],
+    [individualSearchActions.ENTER_QR_CRITERIA, IndividualSearchActions.enterQrCriteria],
     [individualSearchActions.ENTER_SUBJECT_TYPE_CRITERIA, IndividualSearchActions.enterSubjectTypeCriteria],
     [individualSearchActions.SEARCH_INDIVIDUALS, IndividualSearchActions.searchIndividuals],
     [individualSearchActions.TOGGLE_INDIVIDUAL_SEARCH_ADDRESS_LEVEL, IndividualSearchActions.toggleAddressLevelCriteria],
