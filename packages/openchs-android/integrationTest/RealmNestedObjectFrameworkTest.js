@@ -59,7 +59,7 @@ class RealmNestedObjectFrameworkTest {
             },
             {
                 name: "Point",
-                nested: true,
+                embedded: true,
                 properties: {
                     x: "double",
                     y: "double"
@@ -81,7 +81,6 @@ class RealmNestedObjectFrameworkTest {
             },
             {
                 name: "Observation",
-                nested: true,
                 properties: {
                     uuid: "string",
                     value: "string",
@@ -293,4 +292,4 @@ class RealmNestedObjectFrameworkTest {
     }
 }
 
-export default RealmEmbeddedObjectFrameworkTest;
+export default RealmNestedObjectFrameworkTest;
