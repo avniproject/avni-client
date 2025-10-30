@@ -29,14 +29,16 @@ class DatabaseTest extends BaseIntegrationTest {
                 db.create(FormElementGroup, formElementGroup, false);
                 assert.fail("should have failed");
             } catch (error) {
-                assert.isTrue(error.message.includes("Attempting to create an object of type 'FormElementGroup'"));
+                console.log("Actual error message:", error.message);
+                assert.isTrue(error.message.includes("Attempting to create an object of type 'FormElementGroup'"), `Expected error message to contain 'Attempting to create an object of type FormElementGroup' but got: '${error.message}'`);
             }
 
             try {
                 db.create(Form, form, false);
                 assert.fail("should have failed");
             } catch (error) {
-                assert.isTrue(error.message.includes("Attempting to create an object of type 'Form'"));
+                console.log("Actual error message for Form:", error.message);
+                assert.isTrue(error.message.includes("Attempting to create an object of type 'Form'"), `Expected error message to contain 'Attempting to create an object of type Form' but got: '${error.message}'`);
             }
         });
 
@@ -56,7 +58,8 @@ class DatabaseTest extends BaseIntegrationTest {
                 db.create(Form, form, false);
                 assert.fail("should have failed");
             } catch (error) {
-                assert.isTrue(error.message.includes("Attempting to create an object of type 'Form'"));
+                console.log("Actual error message for plain Form:", error.message);
+                assert.isTrue(error.message.includes("Attempting to create an object of type 'Form'"), `Expected error message to contain 'Attempting to create an object of type Form' but got: '${error.message}'`);
             }
         });
     }

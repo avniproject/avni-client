@@ -21,7 +21,7 @@ class IndividualListView extends AbstractComponent {
         results: PropTypes.array.isRequired,
         totalSearchResultsCount: PropTypes.number.isRequired,
         headerTitle: PropTypes.string.isRequired,
-        indicatorActionName: PropTypes.func,
+        indicatorActionName: PropTypes.string,
         backFunction: PropTypes.func,
         iconName: PropTypes.string,
         iconFunction: PropTypes.func,

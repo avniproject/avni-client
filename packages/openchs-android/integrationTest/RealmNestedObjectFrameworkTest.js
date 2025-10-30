@@ -2,11 +2,11 @@ import { RealmProxy } from "openchs-models";
 import Realm from "realm";
 
 /**
- * Integration test that validates the framework-level embedded object handling
+ * Integration test that validates the framework-level nested object handling
  * Uses only RealmProxy - no manual utilities needed
  */
-class RealmEmbeddedObjectFrameworkTest {
-    
+class RealmNestedObjectFrameworkTest {
+
     constructor() {
         this.testResults = [];
         this.realm = null;
@@ -15,7 +15,7 @@ class RealmEmbeddedObjectFrameworkTest {
     async runValidation() {
         console.log("🔍 Framework Validation Test - Production Ready");
         console.log("================================================");
-        
+
         try {
             await this.setupProductionLikeRealm();
             await this.validateEncounterCreation();
@@ -25,7 +25,7 @@ class RealmEmbeddedObjectFrameworkTest {
         } catch (error) {
             this.addTestResult("Framework Validation", false, error.message);
         }
-        
+
         this.printResults();
         return this.testResults;
     }
@@ -45,7 +45,7 @@ class RealmEmbeddedObjectFrameworkTest {
                 }
             },
             {
-                name: "DraftEncounter", 
+                name: "DraftEncounter",
                 primaryKey: "uuid",
                 properties: {
                     uuid: "string",
@@ -59,7 +59,7 @@ class RealmEmbeddedObjectFrameworkTest {
             },
             {
                 name: "Point",
-                embedded: true,
+                nested: true,
                 properties: {
                     x: "double",
                     y: "double"
@@ -81,7 +81,7 @@ class RealmEmbeddedObjectFrameworkTest {
             },
             {
                 name: "Observation",
-                embedded: true,
+                nested: true,
                 properties: {
                     uuid: "string",
                     value: "string",
@@ -122,7 +122,7 @@ class RealmEmbeddedObjectFrameworkTest {
     async validateEncounterCreation() {
         try {
             this.realm.write(() => {
-                // Create encounter with embedded Point objects (like production)
+                // Create encounter with nested Point objects (like production)
                 const encounterData = {
                     uuid: "encounter-1",
                     encounterDateTime: new Date(),
@@ -136,20 +136,20 @@ class RealmEmbeddedObjectFrameworkTest {
                     ]
                 };
 
-                // This should automatically handle embedded objects via RealmProxy
+                // This should automatically handle nested objects via RealmProxy
                 const encounter = this.realmProxy.create("Encounter", encounterData);
-                
+
                 // Verify creation succeeded
                 const savedEncounter = this.realm.objectForPrimaryKey("Encounter", "encounter-1");
-                
-                this.addTestResult("Encounter Creation with Embedded Objects", 
-                    savedEncounter && 
+
+                this.addTestResult("Encounter Creation with Nested Objects",
+                    savedEncounter &&
                     savedEncounter.encounterLocation.x === 40.7128 &&
                     savedEncounter.observations.length === 2,
-                    "RealmProxy automatically handled Point and Observation embedded objects");
+                    "RealmProxy automatically handled Point and Observation nested objects");
             });
         } catch (error) {
-            this.addTestResult("Encounter Creation with Embedded Objects", false, error.message);
+            this.addTestResult("Encounter Creation with Nested Objects", false, error.message);
         }
     }
 
@@ -161,13 +161,13 @@ class RealmEmbeddedObjectFrameworkTest {
                     uuid: "et-1",
                     name: "General Checkup"
                 });
-                
+
                 const individual = this.realm.create("Individual", {
-                    uuid: "ind-1", 
+                    uuid: "ind-1",
                     name: "John Doe"
                 });
 
-                // Create draft encounter with embedded objects using Realm directly first
+                // Create draft encounter with nested objects using Realm directly first
                 const draftEncounterData = {
                     uuid: "draft-1",
                     encounterType: encounterType,
@@ -191,14 +191,14 @@ class RealmEmbeddedObjectFrameworkTest {
                 // Now test with RealmProxy (framework-level processing)
                 const draftEncounter = this.realmProxy.create("DraftEncounter", draftEncounterData);
                 const savedDraft = this.realm.objectForPrimaryKey("DraftEncounter", "draft-1");
-                
-                this.addTestResult("DraftEncounter Creation", 
-                    savedDraft && 
+
+                this.addTestResult("DraftEncounter Creation",
+                    savedDraft &&
                     savedDraft.encounterLocation.x === 42.3601 &&
                     savedDraft.cancelLocation.y === -122.4194 &&
                     savedDraft.observations.length === 1 &&
                     savedDraft.cancelObservations.length === 1,
-                    "RealmProxy handled complex DraftEncounter with multiple embedded object types");
+                    "RealmProxy handled complex DraftEncounter with multiple nested object types");
             });
         } catch (error) {
             this.addTestResult("DraftEncounter Creation", false, error.message);
@@ -210,7 +210,7 @@ class RealmEmbeddedObjectFrameworkTest {
             this.realm.write(() => {
                 // Test batch operations (like SubjectMigrationService)
                 const operations = [];
-                
+
                 for (let i = 0; i < 10; i++) {
                     const encounterData = {
                         uuid: `batch-encounter-${i}`,
@@ -224,17 +224,17 @@ class RealmEmbeddedObjectFrameworkTest {
                             { uuid: `batch-obs-${i}-2`, value: `value-${i}-2`, conceptName: `Concept ${i}-2` }
                         ]
                     };
-                    
+
                     const encounter = this.realmProxy.create("Encounter", encounterData);
                     operations.push(encounter);
                 }
-                
+
                 // Verify all created successfully
                 const count = this.realm.objects("Encounter").filtered("uuid BEGINSWITH 'batch-encounter-'").length;
-                
-                this.addTestResult("Complex Batch Operations", 
+
+                this.addTestResult("Complex Batch Operations",
                     count === 10,
-                    "RealmProxy handled batch creation with embedded objects automatically");
+                    "RealmProxy handled batch creation with nested objects automatically");
             });
         } catch (error) {
             this.addTestResult("Complex Batch Operations", false, error.message);
@@ -248,7 +248,7 @@ class RealmEmbeddedObjectFrameworkTest {
             });
             this.realm.close();
         }
-        
+
         try {
             await Realm.deleteFile({ path: "framework-validation.realm" });
         } catch (error) {
@@ -263,7 +263,7 @@ class RealmEmbeddedObjectFrameworkTest {
             message: message,
             timestamp: new Date().toISOString()
         });
-        
+
         const status = passed ? "✅" : "❌";
         console.log(`${status} ${testName}: ${message}`);
     }
@@ -272,21 +272,21 @@ class RealmEmbeddedObjectFrameworkTest {
         const passed = this.testResults.filter(r => r.passed).length;
         const failed = this.testResults.filter(r => !r.passed).length;
         const total = this.testResults.length;
-        
+
         console.log("\n🎯 FRAMEWORK VALIDATION RESULTS");
         console.log("===============================");
         console.log(`Total Tests: ${total}`);
         console.log(`Passed: ${passed} ✅`);
         console.log(`Failed: ${failed} ❌`);
         console.log(`Success Rate: ${((passed/total) * 100).toFixed(1)}%`);
-        
+
         console.log("\n🚀 PRODUCTION READY FEATURES:");
-        console.log("✅ Automatic embedded object processing");
+        console.log("✅ Automatic nested object processing");
         console.log("✅ Zero manual utility usage required");
         console.log("✅ Compatible with existing Encounter/DraftEncounter patterns");
         console.log("✅ Handles batch operations and complex scenarios");
         console.log("✅ Full Realm 12+ compatibility at framework level");
-        
+
         if (failed === 0) {
             console.log("\n🎉 Framework is PRODUCTION READY!");
         }

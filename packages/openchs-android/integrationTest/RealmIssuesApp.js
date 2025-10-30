@@ -1,11 +1,11 @@
 import {Component} from "react";
 import {View, Text, ScrollView} from "react-native";
-import RealmEmbeddedObjectFrameworkTest from "./RealmEmbeddedObjectFrameworkTest.js";
+import RealmNestedObjectFrameworkTest from "./RealmNestedObjectFrameworkTest.js";
 import { JSONStringify } from "openchs-models";
 
 /**
- * Realm Embedded Object Framework Validation App
- * Tests the production-ready framework-level embedded object handling
+ * Realm Nested Object Framework Validation App
+ * Tests the production-ready framework-level nested object handling
  */
 class RealmIssuesApp extends Component {
     
@@ -29,7 +29,7 @@ class RealmIssuesApp extends Component {
 
     async runFrameworkValidation() {
         try {
-            const frameworkTest = new RealmEmbeddedObjectFrameworkTest();
+            const frameworkTest = new RealmNestedObjectFrameworkTest();
             const results = await frameworkTest.runValidation();
             
             this.setState(prevState => ({
@@ -41,8 +41,8 @@ class RealmIssuesApp extends Component {
         }
     }
 
-    testEmbeddedObjectReferenceIssue() {
-        this.log("\n=== Test 1: Reproducing Embedded Object Reference Issue ===");
+    testNestedObjectReferenceIssue() {
+        this.log("\n=== Test 1: Reproducing Nested Object Reference Issue ===");
         
         try {
             const realmConfig = {
@@ -54,7 +54,7 @@ class RealmIssuesApp extends Component {
             const realm = new Realm(realmConfig);
             
             realm.write(() => {
-                // Create individual with embedded address
+                // Create individual with nested address
                 const individual = realm.create("IndividualWithAddress", {
                     uuid: "individual-1",
                     name: "John Doe",
@@ -65,20 +65,20 @@ class RealmIssuesApp extends Component {
                     }
                 });
                 
-                // Try to use the embedded object reference directly (this should fail in Realm 12)
+                // Try to use the nested object reference directly (this should fail in Realm 12)
                 try {
-                    const embeddedAddressRef = individual.address;
+                    const nestedAddressRef = individual.address;
                     
                     // This should cause the "unmanaged object" error in Realm 12
                     const document = realm.create("Document", {
                         uuid: "doc-1",
                         content: "Test document",
-                        metadata: embeddedAddressRef // This is the problematic line
+                        metadata: nestedAddressRef // This is the problematic line
                     });
                     
-                    this.log("❌ UNEXPECTED: Direct embedded object reference worked (should fail in Realm 12)");
+                    this.log("❌ UNEXPECTED: Direct nested object reference worked (should fail in Realm 12)");
                 } catch (error) {
-                    this.log(`✅ EXPECTED: Embedded object reference failed: ${error.message}`);
+                    this.log(`✅ EXPECTED: Nested object reference failed: ${error.message}`);
                 }
             });
             
@@ -101,7 +101,7 @@ class RealmIssuesApp extends Component {
             const realm = new Realm(realmConfig);
             
             realm.write(() => {
-                // Create individual with embedded address
+                // Create individual with nested address
                 const individual = realm.create("IndividualWithAddress", {
                     uuid: "individual-2",
                     name: "Jane Smith",
@@ -112,12 +112,12 @@ class RealmIssuesApp extends Component {
                     }
                 });
                 
-                // Fix 1: Deep copy the embedded object
-                const embeddedAddressRef = individual.address;
+                // Fix 1: Deep copy the nested object
+                const nestedAddressRef = individual.address;
                 const plainCopy = {
-                    street: embeddedAddressRef.street,
-                    city: embeddedAddressRef.city,
-                    zipCode: embeddedAddressRef.zipCode
+                    street: nestedAddressRef.street,
+                    city: nestedAddressRef.city,
+                    zipCode: nestedAddressRef.zipCode
                 };
                 
                 // Use the plain copy to create new object
@@ -155,7 +155,7 @@ class RealmIssuesApp extends Component {
             const realm = new Realm(realmConfig);
             
             realm.write(() => {
-                // Create individual with embedded address
+                // Create individual with nested address
                 const individual = realm.create("IndividualWithAddress", {
                     uuid: "individual-3",
                     name: "Bob Johnson",
@@ -167,8 +167,8 @@ class RealmIssuesApp extends Component {
                 });
                 
                 // Fix 2: Use toJSON() method
-                const embeddedAddressRef = individual.address;
-                const plainObject = embeddedAddressRef.toJSON();
+                const nestedAddressRef = individual.address;
+                const plainObject = nestedAddressRef.toJSON();
                 
                 // Use the plain object to create new object
                 const document = realm.create("Document", {
@@ -205,7 +205,7 @@ class RealmIssuesApp extends Component {
             const realm = new Realm(realmConfig);
             
             realm.write(() => {
-                // Create individual with embedded object
+                // Create individual with nested object
                 const individual = realm.create("IndividualWithAddress", {
                     uuid: "individual-4",
                     name: "Alice Brown",
@@ -218,16 +218,16 @@ class RealmIssuesApp extends Component {
                 
                 // Fix 3: Query for fresh reference
                 const freshIndividual = realm.objectForPrimaryKey("IndividualWithAddress", "individual-4");
-                const managedEmbedded = freshIndividual.address;
+                const managedNested = freshIndividual.address;
                 
                 // Now we can use the managed reference
-                managedEmbedded.street = "322 Elm St"; // Modify the managed embedded object
+                managedNested.street = "322 Elm St"; // Modify the managed nested object
                 
                 // Create document using the managed reference with deep copy
                 const plainCopy = {
-                    street: managedEmbedded.street,
-                    city: managedEmbedded.city,
-                    zipCode: managedEmbedded.zipCode
+                    street: managedNested.street,
+                    city: managedNested.city,
+                    zipCode: managedNested.zipCode
                 };
                 
                 const document = realm.create("Document", {
@@ -263,7 +263,7 @@ class RealmIssuesApp extends Component {
             Realm.deleteFile(realmConfig);
             const realm = new Realm(realmConfig);
             
-            // First transaction: create embedded object
+            // First transaction: create nested object
             realm.write(() => {
                 const individual = realm.create("IndividualWithAddress", {
                     uuid: "individual-5",
@@ -279,13 +279,13 @@ class RealmIssuesApp extends Component {
             // Second transaction: use the reference
             realm.write(() => {
                 const individual = realm.objectForPrimaryKey("IndividualWithAddress", "individual-5");
-                const embeddedRef = individual.address; // Now it's managed
+                const nestedRef = individual.address; // Now it's managed
                 
                 // Use deep copy approach in separate transaction
                 const plainCopy = {
-                    street: embeddedRef.street,
-                    city: embeddedRef.city,
-                    zipCode: embeddedRef.zipCode
+                    street: nestedRef.street,
+                    city: nestedRef.city,
+                    zipCode: nestedRef.zipCode
                 };
                 
                 const document = realm.create("Document", {
@@ -309,8 +309,8 @@ class RealmIssuesApp extends Component {
         }
     }
 
-    testComplexNestedEmbeddedObjects() {
-        this.log("\n=== Test 6: Complex Nested Embedded Objects ===");
+    testComplexNestedObjects() {
+        this.log("\n=== Test 6: Complex Nested Objects ===");
         
         try {
             const realmConfig = {
@@ -333,7 +333,7 @@ class RealmIssuesApp extends Component {
                     }
                 });
                 
-                // Create comment with embedded subject reference
+                // Create comment with nested subject reference
                 const comment = realm.create("Comment", {
                     uuid: "comment-6",
                     text: "Great post!",
@@ -343,7 +343,7 @@ class RealmIssuesApp extends Component {
                     }
                 });
                 
-                // Create post with embedded author and list of comments
+                // Create post with nested author and list of comments
                 const post = realm.create("Post", {
                     uuid: "post-6",
                     title: "Test Post",
@@ -354,16 +354,16 @@ class RealmIssuesApp extends Component {
                     comments: [comment]
                 });
                 
-                // Test modifying embedded objects through different paths
+                // Test modifying nested objects through different paths
                 individual.address.city = "Miami Beach";
                 
                 // Verify complex nested structure
                 if (post.author.name === "David Lee" && 
                     post.comments[0].subject.name === "David Lee" &&
                     individual.address.city === "Miami Beach") {
-                    this.log("✅ Complex nested embedded objects work correctly");
+                    this.log("✅ Complex nested objects work correctly");
                 } else {
-                    this.log("❌ Complex nested embedded objects failed");
+                    this.log("❌ Complex nested objects failed");
                 }
             });
             
@@ -377,10 +377,10 @@ class RealmIssuesApp extends Component {
         return (
             <View style={{ flex: 1, padding: 20 }}>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
-                    🚀 Realm Embedded Object Framework
+                    🚀 Realm Nested Object Framework
                 </Text>
                 <Text style={{ fontSize: 14, marginBottom: 20, color: '#666' }}>
-                    Production-ready automatic embedded object handling
+                    Production-ready automatic nested object handling
                 </Text>
                 <ScrollView style={{ flex: 1 }}>
                     <Text style={{ fontSize: 12, fontFamily: 'monospace', lineHeight: 18 }}>
