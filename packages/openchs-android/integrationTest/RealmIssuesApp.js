@@ -1,69 +1,14 @@
 import {Component} from "react";
 import {View, Text, ScrollView} from "react-native";
-import { RealmEmbeddedObjectUtils, EmbeddedObjectPatterns } from "openchs-models";
-import RealmEmbeddedObjectTestRunner from "./RealmEmbeddedObjectTestRunner";
+import RealmEmbeddedObjectFrameworkTest from "./RealmEmbeddedObjectFrameworkTest.js";
+import { JSONStringify } from "openchs-models";
 
-const commentSchema = {
-    name: "Comment",
-    primaryKey: "uuid",
-    properties: {
-        uuid: "string",
-        subject: {type: "object", objectType: "Individual"},
-        text: "string"
-    },
-};
-
-const individualSchema = {
-    name: "Individual",
-    primaryKey: "uuid",
-    properties: {
-        uuid: "string",
-        name: "string"
-    },
-};
-
-const postSchema = {
-    name: "Post",
-    primaryKey: "uuid",
-    properties: {
-        uuid: "string",
-        title: "string",
-        author: {type: "object", objectType: "Individual"},
-        comments: {type: "list", objectType: "Comment"}
-    },
-};
-
-const addressSchema = {
-    name: "Address",
-    embedded: true,
-    properties: {
-        street: "string",
-        city: "string",
-        zipCode: "string"
-    }
-};
-
-const individualWithAddressSchema = {
-    name: "IndividualWithAddress",
-    primaryKey: "uuid",
-    properties: {
-        uuid: "string",
-        name: "string",
-        address: {type: "object", objectType: "Address", optional: true}
-    },
-};
-
-const documentSchema = {
-    name: "Document",
-    primaryKey: "uuid",
-    properties: {
-        uuid: "string",
-        content: "string",
-        metadata: {type: "object", objectType: "Address", optional: true}
-    },
-};
-
+/**
+ * Realm Embedded Object Framework Validation App
+ * Tests the production-ready framework-level embedded object handling
+ */
 class RealmIssuesApp extends Component {
+    
     constructor(props) {
         super(props);
         this.state = {
@@ -72,7 +17,7 @@ class RealmIssuesApp extends Component {
     }
 
     componentDidMount() {
-        this.runComprehensiveTests();
+        this.runFrameworkValidation();
     }
 
     log(message) {
@@ -82,45 +27,17 @@ class RealmIssuesApp extends Component {
         }));
     }
 
-    async runComprehensiveTests() {
-        this.log("🚀 Starting Comprehensive Realm Embedded Object Tests");
-        this.log("=" .repeat(80));
-        
+    async runFrameworkValidation() {
         try {
-            // Initialize the comprehensive test runner
-            const testRunner = new RealmEmbeddedObjectTestRunner();
+            const frameworkTest = new RealmEmbeddedObjectFrameworkTest();
+            const results = await frameworkTest.runValidation();
             
-            // Run all tests
-            const results = await testRunner.runAllTests();
-            
-            // Add results to state
             this.setState(prevState => ({
                 testResults: [...prevState.testResults, ...results]
             }));
             
-            // Generate and display summary
-            const report = testRunner.generateReport();
-            this.log("\n" + "=".repeat(80));
-            this.log("📊 TEST SUMMARY");
-            this.log("=".repeat(80));
-            this.log(`Total Tests: ${report.summary.total}`);
-            this.log(`Passed: ${report.summary.passed} ✅`);
-            this.log(`Failed: ${report.summary.failed} ❌`);
-            this.log(`Warnings: ${report.summary.warnings} ⚠️`);
-            this.log("=".repeat(80));
-            
-            // Display recommended patterns
-            this.log("\n📚 RECOMMENDED PATTERNS FOR REALM 12+");
-            this.log("=".repeat(80));
-            this.log("1. ✅ Deep Copy Pattern: Most reliable for all scenarios");
-            this.log("2. ✅ toJSON() Pattern: Convenient and readable");
-            this.log("3. ✅ Fresh Reference Pattern: Best for modifications");
-            this.log("4. ✅ Separate Transactions Pattern: Clean separation of concerns");
-            this.log("5. ✅ Utility Functions: Use RealmEmbeddedObjectUtils for safety");
-            this.log("=".repeat(80));
-            
         } catch (error) {
-            this.log(`❌ Comprehensive test suite failed: ${error.message}`);
+            this.log(`❌ Framework validation failed: ${error.message}`);
         }
     }
 
@@ -458,48 +375,18 @@ class RealmIssuesApp extends Component {
 
     render() {
         return (
-            <View style={{padding: 20, flex: 1}}>
-                <Text style={{
-                    fontSize: 20, 
-                    fontWeight: 'bold', 
-                    color: '#333', 
-                    marginBottom: 10,
-                    borderBottomWidth: 2,
-                    borderBottomColor: '#007bff',
-                    paddingBottom: 10
-                }}>
-                    🧪 Realm Embedded Object Tests - Schema Version 204
+            <View style={{ flex: 1, padding: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+                    🚀 Realm Embedded Object Framework
                 </Text>
-                <ScrollView style={{
-                    backgroundColor: '#f8f9fa', 
-                    borderWidth: 1, 
-                    borderColor: '#dee2e6', 
-                    borderRadius: 5, 
-                    padding: 15,
-                    flex: 1
-                }}>
-                    <Text style={{
-                        fontFamily: 'monospace', 
-                        fontSize: 12, 
-                        color: '#333'
-                    }}>
-                        {this.state.testResults.join('\\n')}
+                <Text style={{ fontSize: 14, marginBottom: 20, color: '#666' }}>
+                    Production-ready automatic embedded object handling
+                </Text>
+                <ScrollView style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 12, fontFamily: 'monospace', lineHeight: 18 }}>
+                        {this.state.testResults.map((result, index) => `${ JSONStringify(result) || result}`).join('\n')}
                     </Text>
                 </ScrollView>
-                <View style={{marginTop: 20, padding: 15, backgroundColor: '#e9ecef', borderRadius: 5}}>
-                    <Text style={{fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: '#495057'}}>
-                        📋 Test Information
-                    </Text>
-                    <Text style={{fontSize: 14, color: '#6c757d', marginBottom: 5}}>
-                        <Text style={{fontWeight: 'bold'}}>Schema Version:</Text> 204 (matching Avni models)
-                    </Text>
-                    <Text style={{fontSize: 14, color: '#6c757d', marginBottom: 5}}>
-                        <Text style={{fontWeight: 'bold'}}>Realm Issue:</Text> Embedded object reference invalidation in Realm 12+
-                    </Text>
-                    <Text style={{fontSize: 14, color: '#6c757d'}}>
-                        <Text style={{fontWeight: 'bold'}}>Purpose:</Text> Reproduce issue and validate all recommended fixes
-                    </Text>
-                </View>
             </View>
         );
     }
