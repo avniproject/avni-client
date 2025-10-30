@@ -4,6 +4,7 @@ import GeolocationActions from "../common/GeolocationActions";
 import EntityService from "../../service/EntityService";
 import {DraftSubject, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import SubjectRegistrationState from '../../state/SubjectRegistrationState';
+import Wizard from '../../state/Wizard';
 import _ from 'lodash';
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
@@ -22,7 +23,7 @@ import AddressLevelService from '../../service/AddressLevelService';
 
 export class SubjectRegisterActions {
     static getInitialState(context) {
-        return new SubjectRegistrationState();
+        return new SubjectRegistrationState([], null, new Wizard(1, 2, 1), null, true, [], null, null, null, null);
     }
 
     static filterFormElements(formElementGroup, context, subject) {
