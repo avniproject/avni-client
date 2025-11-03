@@ -149,7 +149,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/android/app/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -190,7 +189,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -232,7 +230,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -274,7 +271,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -329,7 +325,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -399,7 +394,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-gradle-deps-{{ checksum "packages/openchs-android/android/build.gradle" }}
-            - v2-dependencies-
       - setup_autolinking
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
@@ -476,6 +470,7 @@ workflows:
               ignore:
                 - /^dependabot.*/
           requires:
+            - install_deps
             - test_android
       - release_android_gramin_staging:
           filters:
@@ -483,6 +478,7 @@ workflows:
               ignore:
                 - /^dependabot.*/
           requires:
+            - install_deps
             - hold_gramin_staging
       - release_android_no_env:
           filters:
@@ -490,19 +486,23 @@ workflows:
               ignore:
                 - /^dependabot.*/
           requires:
+            - install_deps
             - hold_no_env
       - release_android_prerelease:
           context:
             - CIRCLECI_OIDC_AWS
           requires:
+            - install_deps
             - hold_prerelease
       - release_android_perf:
           requires:
+            - install_deps
             - hold_perf
       - release_android_live:
           context:
             - CIRCLECI_OIDC_AWS
           requires:
+            - install_deps
             - hold_live
             - test_android
 
