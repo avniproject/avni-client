@@ -106,7 +106,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-            - v2-dependencies-
       - run: |
           echo "Checking if dependencies are already installed..."
           if [ -d packages/openchs-android/node_modules ]; then
@@ -129,7 +128,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-dependencies-{{ checksum "packages/openchs-android/package.json" }}
-            - v2-dependencies-
       - run: sudo apt-get install make
       - run: make ci test-android
 
