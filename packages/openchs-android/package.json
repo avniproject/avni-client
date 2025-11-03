@@ -1,6 +1,6 @@
 {
   "name": "openchs-android",
-  "description": "Avni Field Worker's App",
+  "description": "Avni Field Data Collection app",
   "version": "0.0.1",
   "private": false,
   "sideEffects": [
