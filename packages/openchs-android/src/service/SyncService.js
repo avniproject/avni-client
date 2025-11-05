@@ -290,6 +290,10 @@ class SyncService extends BaseService {
         });
         
         General.logDebug("SyncService", `Found ${allMediaItems.length} media items to download`);
+        
+        if (allMediaItems.length === 0) {
+            return Promise.resolve([]);
+        }
 
         const chunkedMediaItems = _.chunk(allMediaItems, PARALLEL_DOWNLOAD_COUNT);
         
