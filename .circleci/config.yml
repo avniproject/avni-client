@@ -396,14 +396,14 @@ jobs:
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make apply_patch
-      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run:
-          name: CPU Relief - Stop Gradle daemon and pause
+          name: CPU Relief - Stop Gradle daemon after patch (prevents OOM)
           command: |
             cd packages/openchs-android/android
             ./gradlew --stop || true
             sleep 10
-            echo "Gradle daemon stopped, CPU relieved"
+            echo "Gradle daemon stopped after patch, CPU/memory relieved"
+      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - store_artifacts:
           path: packages/openchs-android/android/app/build/outputs/bundle/<< pipeline.parameters.flavor >>Release/app-<< pipeline.parameters.flavor >>-release.aab
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>.aab
