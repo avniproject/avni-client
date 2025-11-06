@@ -3,7 +3,8 @@ import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
 import {DraftSubject, Gender, Individual, ObservationsHolder, Point, SubjectType} from "avni-models";
 import IndividualRegistrationState from "../../state/IndividualRegistrationState";
-import _ from 'lodash';
+import Wizard from "../../state/Wizard";
+import _ from "lodash";
 import GeolocationActions from "../common/GeolocationActions";
 import IdentifierAssignmentService from "../../service/IdentifierAssignmentService";
 import FormMappingService from "../../service/FormMappingService";
@@ -16,17 +17,15 @@ import GroupAffiliationState from "../../state/GroupAffiliationState";
 import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import TaskService from "../../service/task/TaskService";
-import General from '../../utility/General';
-import moment from 'moment';
-import AddressLevelService from '../../service/AddressLevelService';
+import General from "../../utility/General";
+import moment from "moment";
+import AddressLevelService from "../../service/AddressLevelService";
 
 export class PersonRegisterActions {
     static getInitialState(context) {
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
-        const state = new IndividualRegistrationState();
-        state.genders = gendersSortedByName;
-        return state;
+        return new IndividualRegistrationState([], null, new Wizard(1, 2, 1), gendersSortedByName, null, true, null, null, true, [], null, null, null);
     }
 
     static onLoad(state, action, context) {

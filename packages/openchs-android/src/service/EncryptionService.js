@@ -1,7 +1,8 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
 import OrganisationConfigService from "./OrganisationConfigService";
-import RealmFactory from "../framework/db/RealmFactory";
+// REMOVED: Circular dependency with RealmFactory - now lazy loaded in methods
+// import RealmFactory from "../framework/db/RealmFactory";
 import fs from "react-native-fs";
 
 import * as Keychain from 'react-native-keychain';
@@ -53,6 +54,8 @@ export default class EncryptionService extends BaseService {
         await fs.moveFile(newPath, oldPath);
 
         General.logDebug("EncryptionService", "Reinitializing the db");
+        // Lazy load to avoid circular dependency
+        const RealmFactory = require('../framework/db/RealmFactory').default;
         await GlobalContext.getInstance().reinitializeDatabase(RealmFactory);
         General.logDebug("EncryptionService", "Encryption completed");
     }
@@ -79,6 +82,8 @@ export default class EncryptionService extends BaseService {
         await this.resetEncryptionKey();
 
         General.logDebug("EncryptionService", "Reinitializing the db");
+        // Lazy load to avoid circular dependency
+        const RealmFactory = require('../framework/db/RealmFactory').default;
         await GlobalContext.getInstance().reinitializeDatabase(RealmFactory);
         General.logDebug("EncryptionService", "Decryption complete");
     }

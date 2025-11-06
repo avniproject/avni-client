@@ -238,7 +238,7 @@ class IndividualService extends BaseService {
             const saved = db.create(Individual.schema.name, individual, Realm.UpdateMode.Modified);
             db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
-            this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, individual);
+            this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, saved);
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved, db));
             this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
         });

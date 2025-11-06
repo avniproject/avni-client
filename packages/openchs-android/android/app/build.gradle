@@ -1,6 +1,10 @@
-apply plugin: "com.android.application"
-apply plugin: "com.facebook.react"
-apply plugin: 'com.google.gms.google-services'
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.facebook.react")
+    id("com.google.gms.google-services")
+    id("kotlin-kapt")
+}
 
 googleServices {
     disableVersionCheck = true
@@ -10,51 +14,21 @@ googleServices {
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
-    /* Folders */
-    //   The root of your project, i.e. where "package.json" lives. Default is '..'
-    // root = file("../")
-    //   The folder where the react-native NPM package is. Default is ../node_modules/react-native
-    // reactNativeDir = file("../node_modules/react-native")
-    //   The folder where the react-native Codegen package is. Default is ../node_modules/@react-native/codegen
-    // codegenDir = file("../node_modules/@react-native/codegen")
-    //   The cli.js file which is the React Native CLI entrypoint. Default is ../node_modules/react-native/cli.js
-    // cliFile = file("../node_modules/react-native/cli.js")
-
-    /* Variants */
-    //   The list of variants to that are debuggable. For those we're going to
-    //   skip the bundling of the JS bundle and the assets. By default is just 'debug'.
-    //   If you add flavors like lite, prod, etc. you'll have to list your debuggableVariants.
-     debuggableVariants = ["genericDebug", "lfeDebug", "sakhiDebug"]
-
-    /* Bundling */
-    //   A list containing the node command and its flags. Default is just 'node'.
-    // nodeExecutableAndArgs = ["node"]
-    //
-    //   The command to run when bundling. By default is 'bundle'
-    // bundleCommand = "ram-bundle"
-    //
-    //   The path to the CLI configuration file. Default is empty.
-    // bundleConfig = file(../rn-cli.config.js)
-    //
-    //   The name of the generated asset file containing your JS bundle
-    // bundleAssetName = "MyApplication.android.bundle"
-    //
-    //   The entry file for bundle generation. Default is 'index.android.js' or 'index.js'
-    // entryFile = file("../js/MyApplication.android.js")
-    //
-    //   A list of extra flags to pass to the 'bundle' commands.
-    //   See https://github.com/react-native-community/cli/blob/main/docs/commands.md#bundle
-//     extraPackagerArgs = ["--sourcemap-output", "$buildDir/generated/sourcemap.js"]
-
-    /* Hermes Commands */
-    //   The hermes compiler command to run. By default it is 'hermesc'
-    // hermesCommand = "$rootDir/my-custom-hermesc/bin/hermesc"
-    //
-    //   The list of flags to pass to the Hermes compiler. By default is "-O", "-output-source-map"
-    // hermesFlags = ["-O", "-output-source-map"]
+    debuggableVariants = ["genericDebug", "lfeDebug", "sakhiDebug"]
+    // Autolinking enabled - modules included via rn-modules.gradle
+    autolinkLibrariesWithApp()
 }
 
 apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
+// Fix Gradle task dependency issue - lint task needs to depend on vector icons copy task
+afterEvaluate {
+    tasks.findAll { task ->
+        task.name.startsWith('generate') && task.name.endsWith('LintVitalReportModel')
+    }.each { lintTask ->
+        lintTask.dependsOn tasks.findByName('copyReactNativeVectorIconFonts')
+    }
+}
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -73,14 +47,14 @@ def enableProguardInReleaseBuilds = true
 
 
 android {
+    compileSdk rootProject.ext.compileSdkVersion
     ndkVersion rootProject.ext.ndkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
     namespace "com.openchsclient"
-
-    compileSdkVersion rootProject.ext.compileSdkVersion
-
+    
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     defaultConfig {
@@ -99,6 +73,9 @@ android {
             }
         }
         multiDexEnabled true
+
+        buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false")
+        buildConfigField("boolean", "IS_HERMES_ENABLED", "true")
     }
 
     splits {
@@ -109,6 +86,21 @@ android {
             universalApk false
             // If true, also generate a universal APK. This does not affect generation of separate apk per cpu architecture. This is an add on apk that is generated for upload to other markets, such as APKFiles, which do not support multiple APKs for a single app.
 
+        }
+    }
+    
+    bundle {
+        language {
+            // Disable split by language to generate single AAB
+            enableSplit = false
+        }
+        density {
+            // Disable split by density
+            enableSplit = false
+        }
+        abi {
+            // Enable split by ABI for smaller AABs
+            enableSplit = true
         }
     }
 
@@ -161,6 +153,11 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            // Signing config is set per flavor in productFlavors section
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
         }
     }
 
@@ -216,48 +213,43 @@ android {
         lfe.java.srcDir 'src/common/java'
         lfeTeachNagaland.java.srcDir 'src/common/java'
         lfeTeachNagalandSecurity.java.srcDir 'src/common/java'
+        
+        // Include JNI libraries from libs directory
+        main {
+            jniLibs.srcDirs += ['libs']
+        }
+    }
+    
+    // Packaging options to prevent stripping Hermes libraries
+    packagingOptions {
+        pickFirst '**/libhermes_executor.so'
+        pickFirst '**/libhermes_inspector.so'
+        pickFirst '**/libhermesplatform.so'
     }
 }
 
 dependencies {
-    implementation project(':react-native-file-viewer')
-    implementation project(':react-native-keep-awake')
-    implementation project(':react-native-document-picker')
-    implementation project(':react-native-zip-archive')
-    implementation project(':react-native-webview')
-    implementation project(':react-native-immediate-phone-call')
-    implementation (project(':rn-fetch-blob')) {
-        exclude group: 'com.squareup.okhttp3'
-    }
-    implementation project(':react-native-image-picker')
-    implementation project(':react-native-fs')
-    implementation project(':react-native-geolocation-service')
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "androidx.appcompat:appcompat:${rootProject.ext.supportLibVersion}"
-    implementation project(':react-native-device-info')
-    // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'com.facebook.soloader:soloader:0.10.5'
-    implementation 'com.android.support:multidex:1.0.3'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
-    implementation 'org.jetbrains:annotations:16.0.2'
-
-    // required to avoid crash on Android 12 API 31
-    implementation 'androidx.work:work-runtime:2.8.1'
-
-    if (hermesEnabled.toBoolean()) {
+    
+    // Hermes engine - integrated through React Native Gradle plugin in 0.76.5
+    def hermesEnabled = (findProperty('hermesEnabled') ?: 'true').toBoolean()
+    if (hermesEnabled) {
         implementation("com.facebook.react:hermes-android")
     } else {
-        implementation('org.webkit:android-jsc:+')
+        // JSC fallback - using JavaScriptCore from jsc-android
+        implementation("org.webkit:android-jsc:+")
     }
+    
+    // Autolinking handles all React Native packages automatically
+    // Keep Avni-specific native dependencies if any
+    
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'
+    implementation 'androidx.work:work-runtime:2.8.1'
+    implementation 'org.jetbrains:annotations:16.0.2'
 
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}")
+    // Flipper removed - React Native 0.76+ uses React DevTools instead
 }
 
 // Run this once to be able to run the application with BUCK
@@ -266,5 +258,3 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.implementation
     into 'libs'
 }
-
-apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

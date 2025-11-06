@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- SYSTEM_ALERT_WINDOW removed - React Native 0.76+ DevTools doesn't need overlay permission -->
 
     <application android:usesCleartextTraffic="true" tools:targetApi="34" tools:ignore="GoogleAppIndexingWarning" />
 </manifest>

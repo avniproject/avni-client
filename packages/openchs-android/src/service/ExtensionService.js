@@ -6,7 +6,7 @@ import MediaService from "./MediaService";
 import FileSystem from "../model/FileSystem";
 import General from "../utility/General";
 import Service from "../framework/bean/Service";
-import RNFetchBlob from "rn-fetch-blob";
+import RNFetchBlob from "react-native-blob-util";
 import AuthService from "./AuthService";
 import fs from 'react-native-fs';
 import { IDP_PROVIDERS } from "../model/IdpProviders";

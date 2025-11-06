@@ -40,11 +40,15 @@ const duckCheckNativeRealmCollection = function (obj) {
         && !_.isNil(_.get(obj, "snapshot")));
 }
 
+const duckCheckForBaseEntity = function (obj) {
+    return obj instanceof BaseEntity || (obj && obj.that && typeof obj.that === 'object');
+}
+
 function duckCheckForError(obj) {
     return obj.stack && obj.message;
 }
 
-const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, objectKey) {
+const JSONStringifyInternal = function (obj, depth, objectMap, arrayWidth, objectKey) {
     if (depth === 0)
         return "BELOW_DEPTH";
     // Boolean and Number behave in a same way and String we need to add extra quotes
@@ -68,6 +72,11 @@ const JSONStringifyInternal = function (obj, depth, objectMap: Map, arrayWidth, 
 
     if (duckCheckNativeRealmCollection(obj, objectKey)) {
         return "<realm-collection>";
+    }
+
+    // Check if it's a BaseEntity (Avni model object) and serialize only the 'that' wrapper
+    if (duckCheckForBaseEntity(obj)) {
+        return '{"that":{}}';
     }
 
     // Recursive function call for Object to handle nested Object

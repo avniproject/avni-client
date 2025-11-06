@@ -22,3 +22,4 @@ android/fastlane/metadata/android/en-GB/changelogs
 /android/app/src/main/assets/index.android.bundle
 
 .watchman*
+/android-rn-0.72.8-backup

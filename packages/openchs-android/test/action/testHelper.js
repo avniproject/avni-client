@@ -1,7 +1,7 @@
 var RN = require('react-native');
 
 RN.NativeModules['RNI18n'] = {'locale': 'en_GB'};
-RN.NativeModules['RNFetchBlob'] = {'locale': 'en_GB'};
+RN.NativeModules['ReactNativeBlobUtil'] = {'locale': 'en_GB'};
 
 const es6Modules = ['react-native-fetch-blob', 'native-base', 'react-native', 'victory-native'];
 

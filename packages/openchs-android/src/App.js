@@ -4,6 +4,10 @@ import React, {Component} from 'react';
 import PathRegistry from './framework/routing/PathRegistry';
 import './views';
 import _ from "lodash";
+
+// Import all services to ensure @Service decorators execute
+// Must be imported before GlobalContext.initialiseGlobalContext() is called
+import './service/AllServices';
 import {RegisterAndScheduleJobs} from "./AvniBackgroundJob";
 import ErrorHandler from "./utility/ErrorHandler";
 import FileSystem from "./model/FileSystem";
@@ -18,16 +22,11 @@ import moment from "moment";
 import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
+import ServiceContext from "./framework/context/ServiceContext";
 
 const {TamperCheckModule} = NativeModules;
 
 class App extends Component {
-    static childContextTypes = {
-        getService: PropTypes.func.isRequired,
-        getDB: PropTypes.func.isRequired,
-        getStore: PropTypes.func.isRequired,
-    };
-
     constructor(props, context) {
         super(props, context);
         FileSystem.init();
@@ -42,10 +41,10 @@ class App extends Component {
         this.setState && this.setState({avniError: avniError});
     }
 
-    getChildContext = () => ({
+    getContextValue = () => ({
         getDB: () => GlobalContext.getInstance().db,
-        getService: (serviceName) => {
-            return GlobalContext.getInstance().beanRegistry.getService(serviceName);
+        getService: (serviceClassOrName) => {
+            return GlobalContext.getInstance().beanRegistry.getService(serviceClassOrName);
         },
         getStore: () => GlobalContext.getInstance().reduxStore,
     });
@@ -138,9 +137,13 @@ class App extends Component {
     }
 
     render() {
-        return <AvniErrorBoundary>
-            {this.renderApp()}
-        </AvniErrorBoundary>;
+        return (
+            <ServiceContext.Provider value={this.getContextValue()}>
+                <AvniErrorBoundary>
+                    {this.renderApp()}
+                </AvniErrorBoundary>
+            </ServiceContext.Provider>
+        );
     }
 }
 

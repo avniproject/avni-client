@@ -1,19 +1,8 @@
-require("@babel/register");
-
-module.exports = function (api) {
-    api.cache(true);
-
-    const presets = [
-        "module:metro-react-native-babel-preset"
-    ];
-    const plugins = [
-        ["@babel/plugin-proposal-decorators", {"legacy": true}],
-        "@babel/plugin-proposal-object-rest-spread"
-        ]
-    ;
-
-    return {
-        presets,
-        plugins
-    };
+// React Native 0.76.5 Babel configuration
+// Preset auto-configures parseLangTypes: 'flow' to skip decorator files
+module.exports = {
+  presets: ['module:@react-native/babel-preset'],
+  plugins: [
+    ['@babel/plugin-proposal-decorators', {legacy: true}],
+  ],
 };

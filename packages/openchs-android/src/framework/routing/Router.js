@@ -4,14 +4,11 @@ import {BackHandler, View} from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components';
 import General from "../../utility/General";
 import _ from 'lodash';
+import ServiceContext from '../context/ServiceContext';
 
 export default class Router extends Component {
     static propTypes = {
         initialRoute: PropTypes.object.isRequired,
-    };
-
-    static childContextTypes = {
-        navigator: PropTypes.func.isRequired,
     };
 
     onInitialScreen = true;
@@ -29,10 +26,6 @@ export default class Router extends Component {
         this.routeElementMap = {};
         this.renderScene = this.renderScene.bind(this);
     }
-
-    getChildContext = () => ({
-        navigator: () => this.navigator,
-    });
 
     componentDidMount = () => {
         BackHandler.addEventListener('backPress', () => {
@@ -112,13 +105,19 @@ export default class Router extends Component {
 
     render() {
         return (
-            <Navigator
-                onWillFocus={(route) => this.willFocus(route)}
-                onDidFocus={(route) => this.didFocus(route)}
-                initialRoute={this.props.initialRoute}
-                renderScene={this.renderScene}
-                configureScene={this.configureScene}
-            />
+            <ServiceContext.Consumer>
+                {(parentContext) => (
+                    <ServiceContext.Provider value={{...parentContext, navigator: () => this.navigator}}>
+                        <Navigator
+                            onWillFocus={(route) => this.willFocus(route)}
+                            onDidFocus={(route) => this.didFocus(route)}
+                            initialRoute={this.props.initialRoute}
+                            renderScene={this.renderScene}
+                            configureScene={this.configureScene}
+                        />
+                    </ServiceContext.Provider>
+                )}
+            </ServiceContext.Consumer>
         );
     }
 }

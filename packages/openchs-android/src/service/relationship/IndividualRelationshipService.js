@@ -88,7 +88,10 @@ class IndividualRelationshipService extends BaseService {
     }
 
     findBySubject(subject) {
-        return this.getAll().filtered('individualA = $0 or individualB = $0', subject);
+        if (_.isNil(subject)) {
+            return [];
+        }
+        return this.getAll().filtered('individualA.uuid = $0 or individualB.uuid = $0', subject.uuid);
     }
 
 }

@@ -4,7 +4,7 @@ import Path, { PathRoot } from "../framework/routing/Path";
 import AuthService from "../service/AuthService";
 import CHSNavigator from "../utility/CHSNavigator";
 import BeneficiaryModePinService from "../service/BeneficiaryModePinService";
-import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import General from "../utility/General";
 import HomeScreenView from "./HomeScreenView";
 import ExtensionService from "../service/ExtensionService";

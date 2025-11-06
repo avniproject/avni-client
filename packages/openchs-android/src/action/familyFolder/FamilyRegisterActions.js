@@ -1,18 +1,17 @@
 import FamilyService from "../../service/FamilyService";
 import ObservationsHolderActions from "../common/ObservationsHolderActions";
 import EntityService from "../../service/EntityService";
-import {Family, Gender} from 'avni-models';
+import {Family, Gender} from "avni-models";
 import FamilyRegistrationState from "../../state/FamilyRegistrationState";
-import _ from 'lodash';
-import AddressLevelService from '../../service/AddressLevelService';
+import Wizard from "../../state/Wizard";
+import _ from "lodash";
+import AddressLevelService from "../../service/AddressLevelService";
 
 export class FamilyRegisterActions {
     static getInitialState(context) {
         // const form = context.get(EntityService).findByKey('formType', Form.formTypes.IndividualProfile, Form.schema.name);
         const genders = context.get(EntityService).getAll(Gender.schema.name);
-        const state = new FamilyRegistrationState();
-        state.genders = genders;
-        return state;
+        return new FamilyRegistrationState([], null, new Wizard(1, 2, 1), genders, null, true, [], null);
     }
 
     static onLoad(state, action, context) {

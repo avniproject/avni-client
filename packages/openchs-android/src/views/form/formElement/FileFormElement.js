@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import DocumentPicker from 'react-native-document-picker';
+import { pick, types, errorCodes, isErrorWithCode } from "@react-native-documents/picker";
 import AbstractFormElement from "./AbstractFormElement";
 import Colors from "../../primitives/Colors";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -67,11 +67,11 @@ class FileFormElement extends AbstractFormElement {
 
     async selectFile(onUpdateObservations) {
         const formElement = this.props.element;
-        const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [DocumentPicker.types.allFiles] : formElement.allowedTypes;
+        const applicableTypes = _.isEmpty(formElement.allowedTypes) ? [types.allFiles] : formElement.allowedTypes;
         const options = {type: applicableTypes, allowMultiSelection: formElement.isMultiSelect()};
         const directory = FileSystem.getFileDir();
         if (await this.isPermissionGranted()) {
-            DocumentPicker.pick(options)
+            pick(options)
                 .then((response) => {
                     response.map(responseItem => {
                         const {uri, copyError, type, name, size} = responseItem;
@@ -87,7 +87,7 @@ class FileFormElement extends AbstractFormElement {
                     });
                 })
                 .catch(err => {
-                    if (!DocumentPicker.isCancel(err)) {
+                    if (!isErrorWithCode(err) || err.code !== errorCodes.OPERATION_CANCELED) {
                         AlertMessage(this.I18n.t("FileSelectionErrorTitle"), err.message);
                     }
                 })

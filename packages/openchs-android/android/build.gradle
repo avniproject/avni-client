@@ -4,15 +4,16 @@ buildscript {
 
     ext {
         buildToolsVersion = "34.0.0"
-        minSdkVersion = 21
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
         supportLibVersion = "1.2.0"
-        googlePlayServicesVersion = "16.0.0" //Without this the react-native-device-info crashes
-        kotlinVersion = '1.6.21'
+        googlePlayServicesVersion = "18.0.0" // Updated for better compatibility
+        kotlinVersion = '1.9.22'
+        reactNativeVersion = '0.76.5'
 
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
+        // NDK 25 required for Realm 11.10.2 compatibility
+        ndkVersion = "25.2.9519653"
     }
 
     repositories {
@@ -30,6 +31,15 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+    
+    // Force Kotlin version to avoid version conflicts
+    configurations.classpath {
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+            force "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+        }
     }
 }
 
@@ -61,8 +71,11 @@ subprojects {
         project ->
             if (project.hasProperty("android")) {
                 android {
-                    compileSdkVersion = 34
+                    compileSdkVersion = 35
                 }
             }
     }
 }
+
+// React Native Gradle Plugin - root project configuration for RN 0.76+
+apply plugin: "com.facebook.react.rootproject"

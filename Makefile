@@ -21,7 +21,15 @@ include makefiles/util.mk
 include makefiles/common.mk
 
 define _open_resource
-	$(if $(shell command -v xdg-open 2> /dev/null),xdg-open $1 >/dev/null 2>&1,open $1)
+	@if [ -n "$$CIRCLECI" ] || [ -n "$$CI" ]; then \
+		echo "CI environment detected - skipping browser open: $1"; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open $1 >/dev/null 2>&1 || true; \
+	elif command -v open >/dev/null 2>&1; then \
+		open $1 || true; \
+	else \
+		echo "No browser command available - URL: $1"; \
+	fi
 endef
 
 ci:
@@ -75,6 +83,7 @@ ifndef flavor
 	flavor:=generic
 endif
 flavor_folder_uppercase_path:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
+flavor_capitalized:=$(shell echo "$(flavor)" | awk '{print toupper(substr($$0,1,1)) (substr($$0,2))}')
 
 ifeq ($(flavor), lfe)
 	sourcemap_file_path:=../../../../index.android.bundle.map
@@ -115,7 +124,7 @@ define _upload_release_sourcemap
 		--overwrite \
 		--minified-url "index.android.bundle" \
 		--upload-sources
-	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps) || true
+	$(call _open_resource,https://app.bugsnag.com/settings/samanvay-research-and-development-foundation/projects/$(bugsnag_project_name)/source-maps)
 endef
 
 upload-release-sourcemap: ##Uploads release sourcemap to Bugsnag
@@ -166,11 +175,11 @@ metro_clean: ## If you get react-native-keychain error
 
 create_apk:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor_capitalized)Release --stacktrace
 
 create_bundle:
 	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
-	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor)Release --stacktrace --w
+	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor_capitalized)Release --stacktrace
 
 release: release_clean metro_config create_apk
 bundle_release: release_clean metro_config create_bundle
@@ -201,13 +210,13 @@ release_prod_all_flavors_without_clean: bundle_clean
 	$(call _copy_bundle,lfe)
 	make bundle_release_prod_without_clean flavor='generic'
 	$(call _copy_bundle,generic)
-	open packages/openchs-android/android/app/bundles
+	$(call _open_resource,packages/openchs-android/android/app/bundles)
 release_prod_all_flavors: bundle_clean
 	make bundle_release_prod flavor='generic'
 	$(call _copy_bundle,generic)
 	make bundle_release_prod flavor='lfe'
 	$(call _copy_bundle,lfe)
-	open packages/openchs-android/android/app/bundles
+	$(call _open_resource,packages/openchs-android/android/app/bundles)
 
 release_staging_playstore_without_clean: as_staging release
 release_staging_playstore: renew_env release_staging_playstore_without_clean
@@ -342,10 +351,10 @@ local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
 
 openlocation_apk: ## Open location of built apk
-	open packages/openchs-android/android/app/build/outputs/apk
+	$(call _open_resource,packages/openchs-android/android/app/build/outputs/apk)
 
 open_location_bundles:
-	open packages/openchs-android/android/app/build/outputs/bundle/
+	$(call _open_resource,packages/openchs-android/android/app/build/outputs/bundle/)
 
 # <env>
 clean_packager_cache:
@@ -372,6 +381,7 @@ setup_env:
 build_env:
 	export NODE_OPTIONS=--max_old_space_size=4096
 	cd packages/openchs-android && npm install --legacy-peer-deps
+	cd packages/openchs-android && npm run prebuild:android
 
 clean_app:
 	cd packages/openchs-android/android && ./gradlew clean
@@ -386,7 +396,8 @@ build: build_env build_app
 build_env_ci:
 	export NODE_OPTIONS=--max_old_space_size=2048
 	cd packages/openchs-android && npm install --legacy-peer-deps
-# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=4 -Xms1024m -Xmx4096M -XX:MaxMetaspaceSize=2g -XX:+UseParallelGC"
+	cd packages/openchs-android && npm run prebuild:android
+# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1 -Xms1024m -Xmx4096M -XX:MaxMetaspaceSize=2g -XX:+UseParallelGC"
 #   GRADLE_OPTS set via circleci env vars ui
 
 # <packager>

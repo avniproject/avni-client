@@ -86,6 +86,7 @@ class GrowthChartView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.chartRef = React.createRef();
     }
 
     graphForSelection(prevState, selectedGraph) {
@@ -413,7 +414,7 @@ class GrowthChartView extends AbstractComponent {
                                 dragDecelerationFrictionCoef={0.99}
                                 keepPositionOnRotation={false}
                                 xAxis={{ position: 'BOTTOM', labelCount: 5}}
-                                ref="chart"
+                                ref={this.chartRef}
                             />
                             <Text style={styles.xAxisTitle}>{xAxisTitle}</Text>
                         </View>

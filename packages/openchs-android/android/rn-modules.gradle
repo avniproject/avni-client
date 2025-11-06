@@ -1,0 +1,50 @@
+// Dynamically include React Native modules for autolinking
+// This script includes all native modules discovered by the React Native CLI
+
+import groovy.json.JsonSlurper
+
+def autolinkingJsonFile = new File(settingsDir, "build/generated/autolinking/autolinking.json")
+
+if (autolinkingJsonFile.exists()) {
+    def autolinkingConfig = new JsonSlurper().parseText(autolinkingJsonFile.text)
+    
+    println "🔗 Including React Native native modules from autolinking.json..."
+    
+    autolinkingConfig.dependencies.each { name, config ->
+        if (config.platforms?.android) {
+            def androidConfig = config.platforms.android
+            
+            // Generate Gradle project name from package name
+            // e.g., @bugsnag/react-native -> bugsnag_react-native
+            def projectName = name.replaceAll('@', '').replaceAll('/', '_')
+            
+            // Include the native module project
+            include ":${projectName}"
+            
+            // Set the project directory
+            def moduleDir = new File(settingsDir, "../node_modules/${name}/android")
+            
+            // Handle special cases for packages with non-standard directory structures
+            if (!moduleDir.exists() && name == "realm") {
+                // Realm 12.x has android directory at binding/android
+                moduleDir = new File(settingsDir, "../node_modules/realm/binding/android")
+            }
+            
+            if (!moduleDir.exists()) {
+                // Try alternative path for scoped packages
+                moduleDir = new File(settingsDir, "../node_modules/${name.replaceAll('@', '').replaceAll('/', '_')}/android")
+            }
+            
+            if (moduleDir.exists()) {
+                project(":${projectName}").projectDir = moduleDir
+                println "  ✓ Included: :${projectName} -> ${moduleDir.path}"
+            } else {
+                println "  ⚠️  Warning: Module directory not found for ${name}"
+            }
+        }
+    }
+    
+    println "✅ React Native module inclusion complete"
+} else {
+    println "⚠️  autolinking.json not found. Run 'npm run prebuild:android' first."
+}

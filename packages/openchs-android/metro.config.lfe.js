@@ -38,6 +38,9 @@ const jsoMetroPlugin = require("obfuscator-io-metro-plugin")(
 
 module.exports = {
     transformer: {
+        // CRITICAL: Disable hermesParser to ensure Babel processes decorators
+        hermesParser: false,
+        babelTransformerPath: require.resolve('@react-native/metro-babel-transformer'),
         getTransformOptions: async () => ({
             transform: {
                 experimentalImportSupport: false,
@@ -49,6 +52,10 @@ module.exports = {
     resolver: {
         extraNodeModules: {
             "avni-models": path.resolve(__dirname, "node_modules/openchs-models"),
+            // Polyfills for Node.js modules
+            'bindings': path.resolve(__dirname, 'polyfills/bindings.js'),
+            'crypto': path.resolve(__dirname, 'polyfills/crypto.js'),
+            'fs': path.resolve(__dirname, 'polyfills/bindings.js'),
         }
     },
 

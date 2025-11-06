@@ -1,6 +1,6 @@
 import UserInfoService from "../service/UserInfoService";
 import SettingsService from "../service/SettingsService";
-import BackupRestoreRealmService from "../service/BackupRestoreRealm";
+import BackupRestoreRealmService from "../service/BackupRestoreRealmService";
 import SyncTelemetryService from "../service/SyncTelemetryService";
 import EntitySyncStatusService from "../service/EntitySyncStatusService";
 import General from "../utility/General";

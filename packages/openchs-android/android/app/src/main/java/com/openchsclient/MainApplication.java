@@ -1,41 +1,27 @@
 package com.openchsclient;
 
 import android.app.Application;
-
-import com.brentvatne.react.ReactVideoPackage;
-import com.bugsnag.BugsnagReactNative;
-import com.facebook.react.ReactApplication;
-import com.ocetnik.timer.BackgroundTimerPackage;
-import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
-import com.corbt.keepawake.KCKeepAwakePackage;
-import com.rnziparchive.RNZipArchivePackage;
-import io.invertase.firebase.analytics.ReactNativeFirebaseAnalyticsPackage;
-import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
-import com.github.wumke.RNImmediatePhoneCall.RNImmediatePhoneCallPackage;
-import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.amazonaws.RNAWSCognitoPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
-import com.imagepicker.ImagePickerPackage;
-import com.rnfs.RNFSPackage;
-import com.facebook.react.ReactNativeHost;
-import com.facebook.react.ReactPackage;
-import com.facebook.react.shell.MainReactPackage;
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-import com.facebook.react.defaults.DefaultReactNativeHost;
-
 import android.content.Context;
-import android.util.Log;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import org.jetbrains.annotations.Nullable;
-import com.facebook.react.*;
-import com.facebook.soloader.SoLoader;
+import android.util.Log;
 
-import java.lang.reflect.InvocationTargetException;
+import com.bugsnag.android.Bugsnag;
+import com.facebook.react.PackageList;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.ReactPackage;
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+import com.facebook.react.defaults.DefaultReactNativeHost;
+import com.facebook.soloader.SoLoader;
+import com.facebook.react.soloader.OpenSourceMergedSoMapping;
+
+import org.jetbrains.annotations.Nullable;
+
+import java.io.IOException;
 import java.util.List;
-import java.lang.ClassLoader;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -75,12 +61,24 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        SoLoader.init(this, /* native exopackage */ false);
+        
+        Bugsnag.start(this);
+        
+        try {
+            SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load();
         }
-        ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+        
+        // Flipper disabled - React Native 0.76+ uses React DevTools instead
+        // if (BuildConfig.DEBUG) {
+        //     ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+        // }
     }
 
     @Override

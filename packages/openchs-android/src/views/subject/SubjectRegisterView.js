@@ -115,7 +115,7 @@ class SubjectRegisterView extends AbstractComponent {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return nextState.wizard.isNonFormPage();
+        return nextState.wizard && nextState.wizard.isNonFormPage();
     }
 
     displayMessage(message) {

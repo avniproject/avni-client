@@ -31,7 +31,7 @@ import moment from "moment";
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
 
-@Service("backupAndRestoreService")
+@Service("backupRestoreRealmService")
 export default class BackupRestoreRealmService extends BaseService {
     constructor(db, context) {
         super(db, context);
@@ -96,7 +96,7 @@ export default class BackupRestoreRealmService extends BaseService {
         const prevSettings = this.getPreviousSettings(settingsService);
         const prevUserInfo = UserInfo.fromResource({username: prevSettings.userId, organisationName: 'dummy', name: prevSettings.userId});
 
-        General.logInfo("BackupRestoreRealm", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
+        General.logInfo("BackupRestoreRealmService", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
         cb(1, "restoreCheckDb");
         return get(`${settingsService.getSettings().serverURL}/media/mobileDatabaseBackupUrl/exists`)
@@ -125,7 +125,7 @@ export default class BackupRestoreRealmService extends BaseService {
                         .then(() => fs.readDir(downloadedUncompressedDir))
                         .then((files) => _.find(files, (file) => file.name.endsWith("realm")).path)
                         .then((fullFilePath) => {
-                            General.logInfo("BackupRestoreRealm", `Replacing realm file with: ${fullFilePath}`);
+                            General.logInfo("BackupRestoreRealmService", `Replacing realm file with: ${fullFilePath}`);
                             return fs.copyFile(fullFilePath, REALM_FILE_FULL_PATH);
                         })
                         .then(() => {
@@ -182,7 +182,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             cb(100, "restoreComplete");
                         })
                         .catch((error) => {
-                            General.logErrorAsInfo("BackupRestoreRealm", error);
+                            General.logErrorAsInfo("BackupRestoreRealmService", error);
                             cb(100, "restoreFailed", true, error);
                         });
                 } else {
@@ -190,7 +190,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 }
             })
             .catch((error) => {
-                General.logErrorAsInfo("BackupRestoreRealm", error);
+                General.logErrorAsInfo("BackupRestoreRealmService", error);
                 cb(100, "restoreFailed", true, error);
             });
     }
