@@ -34,3 +34,15 @@ jest.mock('react-native-blob-util', () => ({
     path: () => '/mock/path',
   })),
 }));
+// Mock Realm
+jest.mock('realm', () => {
+  return class MockRealm {
+    constructor() {
+      this.objects = jest.fn().mockReturnValue([]);
+      this.write = jest.fn(callback => callback());
+      this.delete = jest.fn();
+      this.close = jest.fn();
+    }
+    static open = jest.fn(() => new MockRealm());
+  };
+});
