@@ -26,12 +26,17 @@ class GroupSubjectService extends BaseService {
 
     addMember(groupSubject, addRelative, individualRelative) {
         const db = this.db;
+        const alreadyAMember = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject).filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid));
         const groupSubjectEntity = GroupSubject.create(groupSubject);
         this.db.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
                 this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative, db)
             }
-            this.saveGroupSubject(db, groupSubjectEntity);
+            if (!alreadyAMember) {
+                this.saveGroupSubject(db, groupSubjectEntity);
+            } else {
+                General.logDebug('GroupSubjectService', 'addMember', 'Member already exists. Not creating duplicate.');
+            }
         });
     }
 
