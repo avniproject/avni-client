@@ -22,7 +22,6 @@ function dispatchAction(action, params) {
 
 class Sync extends BaseTask {
     async execute() {
-
         try {
             General.logInfo("Sync", "Starting background sync");
             const globalContext = GlobalContext.getInstance();
@@ -44,23 +43,33 @@ class Sync extends BaseTask {
             }
 
             General.logInfo("Sync", "Starting SyncService");
-            General.logInfo("Sync", "Getting SyncService");
             const syncService = globalContext.beanRegistry.getService("syncService");
 
-            dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: true});
-            General.logInfo("Sync", "Getting connection info");
-            let connectionInfo;
-            await NetInfo.fetch().then((state) => connectionInfo = state);
-            General.logInfo("Sync", "Calling syncService.sync");
-            return syncService.sync(EntityMetaData.model(), (progress) => {
-                  General.logInfo("Sync", progress);
-              },
-              (message) => {
-              }, connectionInfo, Date.now(), SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, null)
-              .then(this.performPostBackgroundSyncActions(globalContext))
-              .catch((e) => {
-                  ErrorHandler.postScheduledJobError(e);
-              });
+            const lockId = syncService.acquireLock();
+            if (!lockId) {
+                General.logInfo("Sync", "Skipping auto-sync since manual sync is running");
+                return false;
+            }
+            try {
+                dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: true});
+                General.logInfo("Sync", "Getting connection info");
+                let connectionInfo;
+                await NetInfo.fetch().then((state) => connectionInfo = state);
+                General.logInfo("Sync", "Calling syncService.sync");
+                return syncService.sync(lockId, EntityMetaData.model(), (progress) => {
+                      General.logInfo("Sync", progress);
+                  },
+                  (message) => {
+                  }, connectionInfo, Date.now(), SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, null)
+                  .then(this.performPostBackgroundSyncActions(globalContext))
+                  .catch((e) => {
+                      ErrorHandler.postScheduledJobError(e);
+                  })
+                  .finally(syncService.releaseLock(lockId));
+            } finally {
+                syncService.releaseLock(lockId);
+            }
+
         } catch (e) {
             if (e instanceof AuthenticationError && e.code === NO_USER) {
                 return;
