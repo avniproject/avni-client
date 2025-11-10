@@ -97,7 +97,7 @@ commands:
   run_with_retry:
     description: "Run a command with retry logic"
     parameters:
-      name:
+      command_name:
         type: string
       command:
         type: string
@@ -434,7 +434,7 @@ jobs:
 #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run: echo "Building with GRADLE_OPTS=${GRADLE_OPTS}"
       - run_with_retry:
-          name: "Prod Bundle"
+          command_name: "Prod Bundle"
           command: "versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean"
           max_retries: 3
           delay_seconds: 10
@@ -461,7 +461,7 @@ jobs:
             echo "Gradle daemon stopped, CPU relieved before dev build"
 #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - run_with_retry:
-          name: "Prod Dev APK"
+          command_name: "Prod Dev APK"
           command: "versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean"
           max_retries: 3
           delay_seconds: 10
