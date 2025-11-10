@@ -109,7 +109,7 @@ commands:
         default: 10
     steps:
       - run:
-          name: << parameters.name >>
+          name: << parameters.command_name >>
           command: |
             n=0
             until [ "$n" -ge << parameters.max_retries >> ]
