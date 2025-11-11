@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import General from "../../utility/General";
-import VideoPlayer from 'react-native-video-player';
+import Video from 'react-native-video';
 import {TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import Colors from "../primitives/Colors";
@@ -20,15 +20,16 @@ class VideoPlayerWrapper extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            paused: false,
+            layout: {}
+        };
     }
 
     viewName() {
         return 'VideoPlayerWrapper';
     }
 
-    UNSAFE_componentWillMount() {
-        this.setState({layout:{}});
-    }
 
     componentWillUnmount() {
         this.props.onClose();
@@ -68,15 +69,15 @@ class VideoPlayerWrapper extends React.Component {
 
         return (
             <View onLayout={this.onLayout} style={{backgroundColor: 'black', flex: 1, justifyContent: 'center'}}>
-                <VideoPlayer
-                    endWithThumbnail
-                    video={{uri: this.props.uri}}
+                <Video
+                    source={{uri: this.props.uri}}
                     ref={r => this.player = r}
-                    onError={this.props.onError}
-                    onProgress={this.props.onProgress}
-                    pauseOnPress={true}
-                    autoplay={true}
-                    resizeMode={'cover'}
+                    style={{flex: 1}}
+                    controls={true}
+                    paused={this.state.paused}
+                    resizeMode={'contain'}
+                    onError={(error) => this.props.onError?.(error)}
+                    onProgress={(progress) => this.props.onProgress?.(progress)}
                 />
                 {this.showBackArrow()}
             </View>

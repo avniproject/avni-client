@@ -174,7 +174,7 @@ class MediaContent extends AbstractComponent {
                 {/* Icons Container - Side by Side */}
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {imageMedia && mediaPaths[imageMedia.url] && this.renderImageIcon(imageMedia)}
-                    {videoMedia && this.renderVideoIcon()}
+                    {videoMedia && mediaPaths[videoMedia.url] && this.renderVideoIcon()}
                 </View>
             </View>
         );

@@ -4,7 +4,7 @@ import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
 import General from "../../utility/General";
-import VideoPlayer from 'react-native-video-player';
+import Video from 'react-native-video';
 import {Alert, Text, TouchableHighlight, View} from 'react-native';
 import Distances from "../primitives/Distances";
 import _ from "lodash";
@@ -19,7 +19,10 @@ class VideoPlayerView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.videoList);
-        this.state = {layout: {}};
+        this.state = {
+            layout: {},
+            paused: false
+        };
     }
 
     viewName() {
@@ -72,15 +75,15 @@ class VideoPlayerView extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
 
         return (<View onLayout={this.onLayout} style={{backgroundColor: 'black', flex: 1, justifyContent: 'center'}}>
-            <VideoPlayer
-                endWithThumbnail
-                video={{uri: this.props.telemetric.video.filePath}}
+            <Video
+                source={{uri: this.props.telemetric.video.filePath}}
                 ref={r => this.player = r}
+                style={{flex: 1}}
+                controls={true}
+                paused={this.state.paused}
+                resizeMode={'contain'}
                 onError={this.onError}
                 onProgress={this.onProgress}
-                pauseOnPress={true}
-                autoplay={true}
-                resizeMode={'cover'}
             />
             <TouchableHighlight
                 underlayColor="transparent"
