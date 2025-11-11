@@ -425,7 +425,6 @@ jobs:
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make apply_patch
 #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
-      - run: echo "Building with GRADLE_OPTS=${GRADLE_OPTS}"
       - run_with_retry:
           command_name: "Prod Bundle"
           command: "versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean"

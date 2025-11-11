@@ -397,7 +397,7 @@ build_env_ci:
 	export NODE_OPTIONS=--max_old_space_size=2048
 	cd packages/openchs-android && npm install --legacy-peer-deps
 	cd packages/openchs-android && npm run prebuild:android
-# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1 -Xms1g -Xmx2g -XX:MaxMetaspaceSize=512m -XX:+UseParallelGC"
+# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1 -Xms1g -Xmx4g -XX:+UseParallelGC"
 #   GRADLE_OPTS set via circleci env vars ui
 
 # <packager>
