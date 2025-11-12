@@ -39,7 +39,7 @@ class IndividualDetails extends AbstractComponent {
             });
             return (
                 <TouchableNativeFeedback
-                    onPress={() => _.isNil(info.canPerform) || info.canPerform ? this.proceed(info.encounter) : _.noop()}
+                    onPress={() => this.proceed(info.encounter)}
                     key={i}
                     background={TouchableNativeFeedback.SelectableBackground()}
                 >
@@ -74,7 +74,7 @@ class IndividualDetails extends AbstractComponent {
                 _.includes(info.visit, this.props.header)
             ),
             info => {
-                return {visit: info.visit.slice(0, -1), encounter: info.encounter, color: info.color, canPerform: info.allowPerform};
+                return {visit: info.visit.slice(0, -1), encounter: info.encounter, color: info.color};
             }
         );
         const diffDateVisits = _.map(
@@ -82,7 +82,7 @@ class IndividualDetails extends AbstractComponent {
                 info => !_.includes(info.visit, this.props.header)
             ),
             info => {
-                return {visit: info.visit, encounter: info.encounter, color: info.color, canPerform: info.allowPerform};
+                return {visit: info.visit, encounter: info.encounter, color: info.color};
             }
         );
 
