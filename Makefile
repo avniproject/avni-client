@@ -165,7 +165,7 @@ as_gramin_staging: ; $(call _create_config,gramin_staging)
 as_gramin_staging_dev: ; $(call _create_config,gramin_staging_dev)
 release_clean: ## If you get dex errors
 	rm -rf packages/openchs-android/android/app/build
-	mkdir -p packages/openchs-android/android/app/build/generated/sourcemaps/react/release
+	mkdir -p packages/openchs-android/android/app/build/generated
 	rm -rf packages/openchs-android/default.realm.*
 	# https://github.com/facebook/react-native/issues/28954#issuecomment-632967679
 	rm -rf packages/openchs-android/android/.gradle
