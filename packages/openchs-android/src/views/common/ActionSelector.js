@@ -93,11 +93,13 @@ class ActionSelector extends AbstractComponent {
 
     contentContainer() {
         return (
-            <ScrollView style={{width: width + 0.7}} contentContainerStyle={[styles.modalBackground]}>
-                {this.closeButton()}
-                {this.heading()}
-                {this.actionButtons()}
-            </ScrollView>
+          <View style={{ maxHeight: '55%', width: width * 0.7 }}>
+              <ScrollView contentContainerStyle={[styles.modalBackground]}>
+                  {this.closeButton()}
+                  {this.heading()}
+                  {this.actionButtons()}
+              </ScrollView>
+          </View>
         );
     }
 
