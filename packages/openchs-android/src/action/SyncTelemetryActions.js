@@ -43,6 +43,7 @@ class SyncTelemetryActions {
         deviceInfo.isLocationEnabled = DeviceInfo.isLocationEnabledSync();
         deviceInfo.firstInstallTime = moment(DeviceInfo.getFirstInstallTimeSync()).format("DD MMM YYYY hh:mm a");
         deviceInfo.lastUpdateTime = moment(DeviceInfo.getLastUpdateTimeSync()).format("DD MMM YYYY hh:mm a");
+        deviceInfo.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         return deviceInfo;
     }
 
