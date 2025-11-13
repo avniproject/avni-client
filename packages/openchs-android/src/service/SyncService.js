@@ -93,30 +93,10 @@ class SyncService extends BaseService {
         this.extensionService = this.getService(ExtensionService);
         this.subjectTypeService = this.getService(SubjectTypeService);
         this.metricsService = this.getService(MetricsService);
-        this.syncLock = undefined;
     }
 
-    acquireLock() {
-        if (!this.syncLock) {
-            this.syncLock = General.randomUUID();
-            return this.syncLock;
-        }
-        return undefined;
-    }
-
-    releaseLock(lockId) {
-        if (this.syncLock === lockId) {
-            this.syncLock = undefined;
-        }
-    }
-
-
-    async sync(lockId, allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
-        //Run only a single instance of the sync process. Status of sync is available in Redux
-        if (this.syncLock !== lockId) {
-            return Promise.reject("Use acquireLock before calling this function");
-        }
-
+    async sync(allEntitiesMetaData, trackProgress, statusMessageCallBack = _.noop, connectionInfo, syncStartTime, syncSource = SyncService.syncSources.SYNC_BUTTON, userConfirmation) {
+        General.logDebug("SyncService", "sync");
         this.deviceId = await DeviceInfo.getAndroidId();
         const progressBarStatus = new ProgressbarStatus(trackProgress,
             AllSyncableEntityMetaData.getProgressSteps(this.mediaQueueService.isMediaUploadRequired(), allEntitiesMetaData, this.entityQueueService.getPresentEntities()));
@@ -294,7 +274,7 @@ class SyncService extends BaseService {
 
     downloadIcons() {
         General.logDebug("SyncService", "Starting downloadIcons method");
-
+        
         return Promise.all([
             this.downloadSubjectTypeIcons(),
             this.downloadConceptIcons()

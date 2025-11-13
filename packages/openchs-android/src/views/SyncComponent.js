@@ -27,6 +27,7 @@ class SyncComponent extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
+        this.state = {syncStarted: false};
     }
 
     viewName() {
@@ -48,24 +49,26 @@ class SyncComponent extends AbstractComponent {
     _postSync() {
         this.context.getService(SyncService).resetServicesAfterFullSyncCompletion(SyncService.syncSources.SYNC_BUTTON);
         this.dispatchAction(SyncActions.POST_SYNC);
+        this.setState({syncStarted: false});
         General.logInfo(this.viewName(), 'Sync completed dispatching reset');
     }
 
     _onError(error, ignoreBugsnag) {
         General.logError(`${this.viewName()}-Sync`, error);
         const isIgnorableSyncError = error instanceof IgnorableSyncError;
+        this.setState({syncStarted: false});
         !isIgnorableSyncError && this.dispatchAction(SyncTelemetryActions.SYNC_FAILED);
         const isServerError = error instanceof ServerError;
         const isAvniError = error instanceof AvniError;
-
+        
         //Do not notify bugsnag if it's a server error since it would have been notified on server bugsnag already.
         if (!ignoreBugsnag && !isServerError && !isIgnorableSyncError && !isAvniError) {
             ErrorUtil.notifyBugsnag(error, "SyncComponent");
         }
-
+        
         this.dispatchAction(SyncActions.ON_ERROR);
         if (isIgnorableSyncError) return;
-
+        
         // First check if it's an AvniError - this should be handled first to ensure user-friendly messages
         if (isAvniError) {
             General.logDebug(this.viewName(), "Handling AvniError with user message: " + error.userMessage);
@@ -151,7 +154,12 @@ class SyncComponent extends AbstractComponent {
             ToastAndroid.show(this.I18n.t('backgroundSyncInProgress'), ToastAndroid.SHORT);
             return;
         }
-        this.startSync();
+        this.setState(({syncStarted}) => {
+            if (!syncStarted) {
+                this.startSync();
+                return {syncStarted: true}
+            }
+        });
     }
 
     /**
@@ -169,35 +177,24 @@ class SyncComponent extends AbstractComponent {
      * @returns {Promise<void>}
      */
     async startSync() {
-        const syncService = this.context.getService(SyncService);
         if (this.state.isConnected) {
-            const lockId = syncService.acquireLock();
-            General.logDebug('acquired lock', lockId);
-            if (!lockId) {
-                ToastAndroid.show(this.I18n.t('backgroundSyncInProgress'), ToastAndroid.SHORT);
-                return;
-            }
-            try {
-                const onError = this._onError.bind(this);
-                this._preSync();
-                //sending connection info like this because this returns promise and not possible in the action
-                let connectionInfo;
-                await NetInfo.fetch().then((x) => connectionInfo = x);
-                await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
-                syncService.sync(
-                  lockId,
-                  EntityMetaData.model(),
-                  (progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity) => this.progressBarUpdate(progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity),
-                  (message) => this.messageCallBack(message),
-                  connectionInfo,
-                  this.state.startTime,
-                  SyncService.syncSources.SYNC_BUTTON,
-                  () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
-                ).catch(onError)
-                  .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
-            } finally {
-                syncService.releaseLock(lockId);
-            }
+            const syncService = this.context.getService(SyncService);
+            const onError = this._onError.bind(this);
+            this._preSync();
+            //sending connection info like this because this returns promise and not possible in the action
+            let connectionInfo;
+            await NetInfo.fetch().then((x) => connectionInfo = x);
+            await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
+            syncService.sync(
+                EntityMetaData.model(),
+                (progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity) => this.progressBarUpdate(progress, numberOfPagesProcessedForCurrentEntity, totalNumberOfPagesForCurrentEntity),
+                (message) => this.messageCallBack(message),
+                connectionInfo,
+                this.state.startTime,
+                SyncService.syncSources.SYNC_BUTTON,
+                () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
+            ).catch(onError)
+                .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
         } else {
             const ignoreBugsnag = true;
             this._onError(new Error('internetConnectionError'), ignoreBugsnag);
