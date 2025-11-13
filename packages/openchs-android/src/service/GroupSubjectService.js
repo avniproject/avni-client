@@ -53,7 +53,7 @@ class GroupSubjectService extends BaseService {
 
     saveGroupSubject(db, groupSubject) {
         const alreadyAMember = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject).filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid));
-        if (!groupSubject.voided && !alreadyAMember) {
+        if (groupSubject.voided || !alreadyAMember) {
             const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
             let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
             let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
