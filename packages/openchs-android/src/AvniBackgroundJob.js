@@ -1,10 +1,11 @@
 import DeleteDrafts from "./task/DeleteDrafts";
+import DummySync from "./task/DummySync";
 import Sync from "./task/Sync";
 import WorkManager from 'react-native-background-worker';
 import General from "./utility/General";
 import EnvironmentConfig from "./framework/EnvironmentConfig";
 
-const SYNC_JOB_KEY = "syncJob";
+const SYNC_JOB_KEY = "syncJob"; //Should be used for both SyncJobSchedule and DummySyncJobSchedule, so that one replaces another when scheduled
 
 const SyncJobSchedule = {
   jobKey: SYNC_JOB_KEY,
@@ -13,6 +14,15 @@ const SyncJobSchedule = {
   persist: true,
   exact: true,
   job: async() => await Sync.execute()
+};
+
+const DummySyncJobSchedule = {
+  jobKey: SYNC_JOB_KEY,
+  timeout: 10,
+  period: 60,
+  persist: true,
+  exact: true,
+  job: async() => await DummySync.execute()
 };
 
 const DeleteDraftsJobSchedule = {
@@ -33,6 +43,18 @@ export const RegisterAndScheduleJobs = function () {
   Schedule(SyncJobSchedule)
     .then(() => General.logInfo("AvniBackgroundJob-SyncJob", "Successfully scheduled"))
     .catch(err => General.logError("AvniBackgroundJob-SyncJob", err));
+};
+
+export const ScheduleDummySyncJob = function () {
+  return Schedule(DummySyncJobSchedule)
+    .then(() => General.logInfo("AvniBackgroundJob-DummySyncJob", "Successfully scheduled dummy to replace syncJob"))
+    .catch(err => General.logError("AvniBackgroundJob-DummySyncJob", err));
+};
+
+export const ScheduleSyncJob = function () {
+  Schedule(SyncJobSchedule)
+    .then(() => General.logInfo("AvniBackgroundJob-SyncJobSchedule", "Successfully scheduled"))
+    .catch(err => General.logError("AvniBackgroundJob-SyncJobSchedule", err));
 };
 
 const Schedule = ({

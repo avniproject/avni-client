@@ -17,6 +17,7 @@ import React from "react";
 import ProgressBarView from "./ProgressBarView";
 import Reducers from "../reducer";
 import AsyncAlert from "./common/AsyncAlert";
+import {ScheduleDummySyncJob, ScheduleSyncJob} from "../AvniBackgroundJob";
 import AvniError from "../framework/errorHandling/AvniError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
@@ -182,6 +183,7 @@ class SyncComponent extends AbstractComponent {
                 //sending connection info like this because this returns promise and not possible in the action
                 let connectionInfo;
                 await NetInfo.fetch().then((x) => connectionInfo = x);
+                await ScheduleDummySyncJob(); //Replace background-sync Job with a Dummy No-op job
                 syncService.sync(
                   lockId,
                   EntityMetaData.model(),
@@ -191,7 +193,8 @@ class SyncComponent extends AbstractComponent {
                   this.state.startTime,
                   SyncService.syncSources.SYNC_BUTTON,
                   () => AsyncAlert('resetSyncTitle', 'resetSyncDetails', this.I18n)
-                ).catch(onError);
+                ).catch(onError)
+                  .finally(ScheduleSyncJob);//Replace Dummy No-op job with valid background-sync job
             } finally {
                 syncService.releaseLock(lockId);
             }
