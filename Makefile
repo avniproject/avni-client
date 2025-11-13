@@ -174,11 +174,11 @@ metro_clean: ## If you get react-native-keychain error
 	watchman watch-del './packages/openchs-android' ; watchman watch-project './packages/openchs-android'
 
 create_apk:
-	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
+	#cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew assemble$(flavor_capitalized)Release --stacktrace
 
 create_bundle:
-	cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
+	#cd packages/openchs-android; npx react-native bundle --platform android --dev false --entry-file index.android.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && rm -rf android/app/src/main/res/drawable-* && rm -rf android/app/src/main/res/raw/*
 	cd packages/openchs-android/android; GRADLE_OPTS="$(if $(GRADLE_OPTS),$(GRADLE_OPTS),-Xmx1024m -Xms1024m)" ./gradlew bundle$(flavor_capitalized)Release --stacktrace
 
 release: release_clean metro_config create_apk
@@ -394,11 +394,14 @@ build: build_env build_app
 
 
 build_env_ci:
-	export NODE_OPTIONS=--max_old_space_size=2048
+	export NODE_OPTIONS=--max_old_space_size=1536
 	cd packages/openchs-android && npm install --legacy-peer-deps
 	cd packages/openchs-android && npm run prebuild:android
-# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1 -Xms1024m -Xmx4096M -XX:MaxMetaspaceSize=2g -XX:+UseParallelGC"
+# 	export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1 -Xms1g -Xmx4g -XX:+UseParallelGC"
 #   GRADLE_OPTS set via circleci env vars ui
+#   NODE_OPTIONS set as above in CI to limit peak memory used to more comfortable levels (~80% vs 100%) and results in reliable completion of build.
+
+
 
 # <packager>
 run_packager:

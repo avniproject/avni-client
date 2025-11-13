@@ -31,7 +31,7 @@ import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
-    const viewPermissionAllowed = individualWithVisit.visitInfo.allow;
+    const permissionAllowed = individualWithVisit.visitInfo.allow;
     if (individualsWithVisits.has(individualWithVisit.individual.uuid)) {
         const prevDate = individualsWithVisits.get(individualWithVisit.individual.uuid).visitInfo.sortingBy;
         const smallerDate = moment(prevDate).isBefore(individualWithVisit.visitInfo.sortingBy) ? prevDate : individualWithVisit.visitInfo.sortingBy;
@@ -42,13 +42,13 @@ function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
                 individual: individualWithVisit.individual,
                 visitInfo: {
                     uuid: individualWithVisit.individual.uuid,
-                    visitName: viewPermissionAllowed ? [...previousEntries, ...presentEntry] : previousEntries,
+                    visitName: permissionAllowed ? [...previousEntries, ...presentEntry] : previousEntries,
                     groupingBy: smallerDate && General.formatDate(smallerDate) || '',
                     sortingBy: smallerDate,
                 }
             })
     } else {
-        viewPermissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
+        permissionAllowed && individualsWithVisits.set(individualWithVisit.individual.uuid, individualWithVisit);
     }
     return individualsWithVisits;
 }
@@ -293,11 +293,9 @@ class IndividualService extends BaseService {
     }
 
     allScheduledVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
-        const viewVisitCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const performVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
+        const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const privilegeService = this.getService(PrivilegeService);
-        const allowedProgramEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'programEncounterTypeUuid');
-        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'programEncounterTypeUuid');
+        const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const {dateMidnight, dateMorning} = get24HoursDateRange(date);
 
         let programEncounters = [];
@@ -322,7 +320,6 @@ class IndividualService extends BaseService {
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
-                const allowPerform = privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid);
                 return {
                     individual,
                     visitInfo: {
@@ -330,19 +327,17 @@ class IndividualService extends BaseService {
                         visitName: [{
                             visit: [programName, visitName, General.formatDate(earliestVisitDateTime)],
                             encounter: enc,
-                            color: allowPerform ? Colors.AccentColor : Colors.DisabledButtonColor,
-                            allowPerform: allowPerform
+                            color: Colors.AccentColor,
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForViewVisit, enc.encounterType.uuid),
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForViewVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'encounterTypeUuid');
-        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performVisitCriteria, 'encounterTypeUuid');
+        const allowedGeneralEncounterTypeUuidsForPerformVisit = this.getService(PrivilegeService).allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
             encounters = this.db.objects(Encounter.schema.name)
@@ -362,7 +357,6 @@ class IndividualService extends BaseService {
                 const individual = enc.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const earliestVisitDateTime = enc.earliestVisitDateTime;
-                const allowPerform = privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid);
                 return {
                     individual,
                     visitInfo: {
@@ -370,12 +364,11 @@ class IndividualService extends BaseService {
                         visitName: [{
                             visit: [visitName, General.formatDate(earliestVisitDateTime)],
                             encounter: enc,
-                            color: allowPerform ? Colors.AccentColor : Colors.DisabledButtonColor,
-                            allowPerform: allowPerform
+                            color: Colors.AccentColor,
                         }],
                         groupingBy: General.formatDate(earliestVisitDateTime),
                         sortingBy: earliestVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForViewVisit, enc.encounterType.uuid),
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
@@ -390,8 +383,6 @@ class IndividualService extends BaseService {
 
     allOverdueVisitsIn(date, reportFilters, programEncounterCriteria, encounterCriteria, queryProgramEncounter = true, queryGeneralEncounter = true) {
         const privilegeService = this.getService(PrivilegeService);
-        const viewVisitCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
-        const allowedProgramEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'programEncounterTypeUuid');
         const performProgramVisitCriteria = `privilege.name = '${Privilege.privilegeName.performVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}'`;
         const allowedProgramEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'programEncounterTypeUuid');
         const dateMorning = moment(date).startOf('day').toDate();
@@ -416,7 +407,6 @@ class IndividualService extends BaseService {
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const programName = enc.programEnrolment.program.operationalProgramName || enc.programEnrolment.program.name;
                 const maxVisitDateTime = enc.maxVisitDateTime;
-                const allowPerform = privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid);
                 return {
                     individual,
                     visitInfo: {
@@ -424,18 +414,16 @@ class IndividualService extends BaseService {
                         visitName: [{
                             visit: [programName, visitName, General.formatDate(maxVisitDateTime)],
                             encounter: enc,
-                            color: allowPerform ? Colors.OverdueVisitColor : Colors.DisabledButtonColor,
-                            allowPerform: allowPerform
+                            color: '#d0011b',
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForViewVisit, enc.encounterType.uuid),
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedProgramEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             });
         }
 
-        const allowedGeneralEncounterTypeUuidsForViewVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(viewVisitCriteria, 'encounterTypeUuid');
         const allowedGeneralEncounterTypeUuidsForPerformVisit = privilegeService.allowedEntityTypeUUIDListForCriteria(performProgramVisitCriteria, 'encounterTypeUuid');
         let encounters = [];
         if (queryGeneralEncounter) {
@@ -454,7 +442,6 @@ class IndividualService extends BaseService {
                 const individual = enc.individual;
                 const visitName = enc.name || enc.encounterType.operationalEncounterTypeName;
                 const maxVisitDateTime = enc.maxVisitDateTime;
-                const allowPerform = privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid);
                 return {
                     individual,
                     visitInfo: {
@@ -462,12 +449,11 @@ class IndividualService extends BaseService {
                         visitName: [{
                             visit: [visitName, General.formatDate(maxVisitDateTime)],
                             encounter: enc,
-                            color: allowPerform ? Colors.OverdueVisitColor : Colors.DisabledButtonColor,
-                            allowPerform: allowPerform
+                            color: '#d0011b',
                         }],
                         groupingBy: General.formatDate(maxVisitDateTime),
                         sortingBy: maxVisitDateTime,
-                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForViewVisit, enc.encounterType.uuid),
+                        allow: privilegeService.hasAllPrivileges() || _.includes(allowedGeneralEncounterTypeUuidsForPerformVisit, enc.encounterType.uuid)
                     }
                 };
             })

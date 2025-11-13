@@ -52,13 +52,18 @@ class GroupSubjectService extends BaseService {
     }
 
     saveGroupSubject(db, groupSubject) {
-        const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
-        let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
-        let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
-        groupSubjectInd.addGroupSubject(savedGroupSubject);
-        memberSubjectInd.addGroup(savedGroupSubject);
-        db.create(EntityQueue.schema.name, EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
-        General.logDebug('GroupSubjectService', 'Member Saved');
+        const alreadyAMember = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject).filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid));
+        if (groupSubject.voided || !alreadyAMember) {
+            const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
+            let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
+            let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
+            groupSubjectInd.addGroupSubject(savedGroupSubject);
+            memberSubjectInd.addGroup(savedGroupSubject);
+            db.create(EntityQueue.schema.name, EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
+            General.logDebug('GroupSubjectService', 'Member Saved');
+        } else {
+            General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
+        }
     }
 
     getAllGroups(memberSubject) {

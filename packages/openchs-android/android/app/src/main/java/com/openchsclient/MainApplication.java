@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
 import com.bugsnag.android.Bugsnag;
+import com.bugsnag.android.Configuration;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -19,6 +22,9 @@ import com.facebook.soloader.SoLoader;
 import com.facebook.react.soloader.OpenSourceMergedSoMapping;
 
 import org.jetbrains.annotations.Nullable;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,11 +40,14 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected List<ReactPackage> getPackages() {
             List<ReactPackage> packages = new PackageList(this).getPackages();
+            // Add our custom ConfigPackage
+            packages.add(new ConfigPackage());
+            
             // for some reason, checking for the class in a separate method is throwing ClassNotFoundException,
             // so moved it here
             try {
                 Class<?> aClass = Class.forName("com.openchsclient.TamperCheckPackage");
-                ReactPackage tamperCheckPackage = (ReactPackage) aClass.newInstance();
+                ReactPackage tamperCheckPackage = (ReactPackage) aClass.getDeclaredConstructor().newInstance();
                 if (tamperCheckPackage != null) packages.add(tamperCheckPackage);
             } catch (Exception e) {
                 Log.i("MainApplication", e.toString());
@@ -62,7 +71,9 @@ public class MainApplication extends Application implements ReactApplication {
     public void onCreate() {
         super.onCreate();
         
-        Bugsnag.start(this);
+        // Don't initialize Bugsnag here - wait for JavaScript to provide environment
+        // Bugsnag will be initialized later via BugsnagInitializer module
+        Log.d("Bugsnag", "Bugsnag initialization deferred until JavaScript environment is available");
         
         try {
             SoLoader.init(this, OpenSourceMergedSoMapping.INSTANCE);
