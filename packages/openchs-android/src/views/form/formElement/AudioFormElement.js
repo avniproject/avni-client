@@ -159,7 +159,7 @@ class AudioFormElement extends AbstractFormElement {
                 </TouchableOpacity>
                 <View style={styles.audioContainer}>
                     <Text style={styles.txtRecordCounter}>{this.state.recordTime}</Text>
-                    <View style={[styles.contentRow, {justifyContent: 'flex-end', marginTop: 2}]}>
+                    <View style={[styles.contentRow, {justifyContent: 'flex-end', marginTop: -5}]}>
                         <TouchableOpacity disabled={stop} onPress={() => this.onStart()}>
                             <IonIcons name={'mic-circle'} style={[styles.icon, stop ? disabledColor : {}]}/>
                         </TouchableOpacity>

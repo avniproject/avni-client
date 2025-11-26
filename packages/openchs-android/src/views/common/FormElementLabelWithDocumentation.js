@@ -39,7 +39,7 @@ class FormElementLabelWithDocumentation extends AbstractComponent {
                     flex: 8,
                     lineHeight: Styles.normalTextSize + 16
                 }]}>{this.label}</Text>
-                {media.length > 0 && <MediaContent media={media} style={{marginRight: 20, marginBottom: 5}}/>}
+                {media.length > 0 && <MediaContent media={media} style={{marginBottom: 5}} size={36}/>}
             </View>
         );
     }

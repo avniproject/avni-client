@@ -112,7 +112,7 @@ class SelectableItemGroup extends React.Component {
         return (
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={Styles.formLabel}>{this.props.I18n.t(radioLabelValue.label)}</Text>
-            {media.length > 0 && <MediaContent media={media} />}
+            {media.length > 0 && <MediaContent media={media} size={30}/>}
         </View>
         )
     }
