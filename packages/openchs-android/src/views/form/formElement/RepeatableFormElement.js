@@ -8,7 +8,6 @@ import {QuestionGroup as QuestionGroupModel, RepeatableQuestionGroup} from 'avni
 import QuestionGroup from "./QuestionGroup";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import _ from "lodash";
-import General from "../../../utility/General";
 
 class RepeatableFormElement extends AbstractFormElement {
 
@@ -64,12 +63,8 @@ class RepeatableFormElement extends AbstractFormElement {
 
     renderQuestionGroup(questionGroupIndex) {
         const isRemoveDisabled = this.props.value.size() <= 1;
-        const questionGroupObs = this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel();
-        
-        questionGroupObs.uuid = questionGroupObs.uuid || General.randomUUID();
-        
         return (
-            <Fragment key={questionGroupObs.uuid}>
+            <Fragment key={questionGroupIndex}>
                 {this.actionButton('minus-circle', () => this.onRemove(questionGroupIndex), isRemoveDisabled, Colors.NegativeActionButtonColor)}
                 <QuestionGroup
                     questionGroupIndex={questionGroupIndex}
@@ -78,7 +73,7 @@ class RepeatableFormElement extends AbstractFormElement {
                     actions={this.props.actions}
                     formElementsUserState={this.props.formElementsUserState}
                     observationHolder={this.props.observationHolder}
-                    value={questionGroupObs}
+                    value={this.props.value.getGroupObservationAtIndex(questionGroupIndex) || new QuestionGroupModel()}
                     validationResults={this.props.validationResults}
                     filteredFormElements={this.props.filteredFormElements}
                     extraContainerStyle={{marginVertical: 0}}
