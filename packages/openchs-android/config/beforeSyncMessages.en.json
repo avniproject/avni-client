@@ -46,7 +46,7 @@
   "restoreNoDump": "No dump present, will sync fully from server",
   "performNormalSync": "Perform slow sync/धीमा सिंक करें",
   "copyErrorTryAgain": "Copy Error & Try Again",
-  "NoCatchmentFoundErrorMessage": "No catchment found for the user, please contact administrator.",
+  "NoCatchmentFoundErrorMessage": "Catchment not assigned to you/आपको कोई क्षेत्र निर्दिष्ट नहीं किया गया है",
   "FetchingChangedResource": "Fetching changed resources from the server",
   "goToSummary": "SUMMARY",
   "enterNewPasswordFor" : "Enter new password for {{userName}}"
