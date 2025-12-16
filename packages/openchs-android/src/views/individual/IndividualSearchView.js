@@ -160,7 +160,7 @@ class IndividualSearchView extends AbstractComponent {
                     </ScrollView>
                 </CHSContent>
 
-                <View style={{height: buttonHeight, position: 'absolute', bottom: 0, right: 35}}>
+                <View style={{height: buttonHeight, position: 'absolute', bottom: 20, right: 35}}>
                     <TouchableOpacity activeOpacity={0.5}
                                       onPress={() => this.searchIndividual()}
                                       style={{
