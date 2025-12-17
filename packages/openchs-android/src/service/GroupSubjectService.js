@@ -26,7 +26,16 @@ class GroupSubjectService extends BaseService {
 
     addMember(groupSubject, addRelative, individualRelative) {
         const db = this.db;
-        const groupSubjectEntity = GroupSubject.create(groupSubject);
+        const entityService = this.getService(EntityService);
+        const freshMember = {
+            uuid: groupSubject.uuid,
+            groupSubject: entityService.findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name),
+            memberSubject: entityService.findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name),
+            groupRole: entityService.findByUUID(groupSubject.groupRole.uuid, GroupRole.schema.name),
+            membershipStartDate: groupSubject.membershipStartDate,
+            membershipEndDate: groupSubject.membershipEndDate,
+        };
+        const groupSubjectEntity = GroupSubject.create(freshMember);
         this.db.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
                 this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative, db)
