@@ -39,7 +39,7 @@ class DurationDateFormElement extends AbstractFormElement {
     dateValidationError() {
         const date = this.props.dateValue?.getValue();
         if (!this.isDateValid(date)) {
-            return {messageKey: "Invalid date"};
+            return {messageKey: "invalidDate"};
         }
         return null;
     }

@@ -518,6 +518,7 @@
     "exitFromProgram": "exit from {{program}}",
     "selectAllLabel": "Select All",
     "unselectAllLabel": "Unselect All",
-    "alreadyEnrolledInProgram": "Already enrolled in {{programName}}"
+    "alreadyEnrolledInProgram": "Already enrolled in {{programName}}",
+    "invalidDate": "Invalid Date"
   }
 }
