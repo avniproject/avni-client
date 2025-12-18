@@ -28,13 +28,6 @@ class DurationDateFormElement extends AbstractFormElement {
         this.userSettings = context.getService(UserInfoService).getUserSettings();
     }
 
-    isDateValid(date) {
-        if (!date) return true;
-        const currentDate = new Date();
-        const yearDifference = Math.abs(currentDate.getFullYear() - date.getFullYear());
-        return yearDifference <= 2000;
-    }
-
     render() {
         return (
             <View>
@@ -78,31 +71,20 @@ class DurationDateFormElement extends AbstractFormElement {
                                        parentFormElement: this.props.parentElement,
                                        questionGroupIndex: this.props.questionGroupIndex
                                    })}/>
-                </View>
-                <Radio.Group
-                    name="durationUnit"
-                    value={this.props.duration.durationUnit}
-                    onChange={(value) => this.dispatchAction(this.props.actionName, {
-                        formElement: this.props.element,
-                        duration: this.props.duration.changeUnit(value),
-                        parentFormElement: this.props.parentElement,
-                        questionGroupIndex: this.props.questionGroupIndex
-                    })}
-                    style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 5}}>
                     {this.props.durationOptions.map((durationOption, index) => {
-                        return <View key={index} style={{flexDirection: 'row', alignItems: 'center', marginRight: 15}}>
-                            <Radio value={durationOption} style={{marginLeft:DGS.resizeWidth(20)}} color={Colors.AccentColor}/>
+                        return <Radio.Group key={index} style={{flexDirection: 'row'}}>
+                            <Radio style={{marginLeft:DGS.resizeWidth(20)}} selected={durationOption === this.props.duration.durationUnit}
+                                   onPress={() => this.dispatchAction(this.props.actionName, {
+                                       formElement: this.props.element,
+                                       duration: this.props.duration.changeUnit(durationOption),
+                                       parentFormElement: this.props.parentElement,
+                                       questionGroupIndex: this.props.questionGroupIndex
+                                   })} color={Colors.AccentColor}/>
                             <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
-                        </View>
+                        </Radio.Group>
                     })}
-                </Radio.Group>
-                {!this.isDateValid(this.props.dateValue?.getValue()) && (
-                    <View style={{marginTop: 5}}>
-                        <Text style={{color: Colors.ValidationError, fontSize: 12}}>
-                            {this.I18n.t("Invalid date")}
-                        </Text>
-                    </View>
-                )}
+
+                </View>
                 </View>
             </View>
         );
