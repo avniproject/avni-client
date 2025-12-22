@@ -314,6 +314,7 @@
     "exitFromProgram": "{{program}} प्रोग्रामधून बाहेर करा",
     "selectAllLabel": "सर्व निवडा",
     "unselectAllLabel": "सर्व निवड रद्द करा",
-    "alreadyEnrolledInProgram": "{{programName}} मध्ये आधीच इंरोलमेंट केली आहे"
+    "alreadyEnrolledInProgram": "{{programName}} मध्ये आधीच इंरोलमेंट केली आहे",
+    "invalidDate": "अवैध तारीख"
   }
 }
