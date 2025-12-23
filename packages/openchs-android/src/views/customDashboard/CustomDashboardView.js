@@ -416,6 +416,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
+        marginBottom: 16,
+        paddingBottom: 16
     },
     listContainer: {
         marginTop: 16
