@@ -17,7 +17,7 @@ function getAllowedViewProgramEncounterTypeUUIDs(privilegeService, subjectTypes,
     if (subjectTypes.length === 0 || programs.length === 0) return [];
 
     const viewProgramEncounterCriteria = `privilege.name = '${Privilege.privilegeName.viewVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND ${RealmQueryService.orKeyValueQuery('subjectTypeUuid', subjectTypes.map(x => x.uuid))} AND ${RealmQueryService.orKeyValueQuery('programUuid', programs.map(program => program.uuid))}`;
-    return privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramEncounterCriteria, 'encounterTypeUuid');
+    return privilegeService.allowedEntityTypeUUIDListForCriteria(viewProgramEncounterCriteria, 'programEncounterTypeUuid');
 }
 
 @Service("EncounterTypeService")
