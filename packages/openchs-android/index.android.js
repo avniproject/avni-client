@@ -4,6 +4,13 @@ import {AppRegistry} from 'react-native';
 // Initialize Bugsnag before anything else
 import './src/utility/bugsnag';
 
+// Initialize console log interception with file logging
+import FileLoggerService from './src/utility/FileLoggerService';
+import ConsoleLogInterceptorService from './src/utility/ConsoleLogInterceptorService';
+const fileLogger = new FileLoggerService();
+const consoleInterceptor = new ConsoleLogInterceptorService(fileLogger);
+consoleInterceptor.initialize();
+
 // Import ALL services before app initialization to ensure @Service decorators register them
 import './src/service/UserInfoService';
 import './src/service/SettingsService';

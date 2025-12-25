@@ -1,7 +1,6 @@
 import {Concept, Duration, Observation} from 'avni-models';
 import _ from 'lodash';
 import moment from "moment";
-import EnvironmentConfig from "../framework/EnvironmentConfig";
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
 import {JSONStringify} from "./JsonStringify";
@@ -20,8 +19,6 @@ function getDisplayMessage(obj) {
 }
 
 function log(source, messages, level, decorate = false) {
-    if (EnvironmentConfig.inNonDevMode()) return;
-
     try {
         const levelName = `${_.findKey(General.LogLevel, (value) => value === level)}`;
         const displayMessages = messages.map(getDisplayMessage);
@@ -224,8 +221,6 @@ class General {
     }
 
     static logError(source, error) {
-        if (EnvironmentConfig.inNonDevMode()) return;
-
         if (General.LogLevel.Error >= General.getCurrentLogLevel()) {
             if (error && error.stack) {
                 console["error"](source, `${error && error.message}, ${JSON.stringify(error)}`, error.stack);
@@ -236,8 +231,6 @@ class General {
     }
 
     static logErrorAsInfo(source, error) {
-        if (EnvironmentConfig.inNonDevMode()) return;
-
         if (General.LogLevel.Error >= General.getCurrentLogLevel())
             console.log(`[${source}]`, error.message, JSON.stringify(error));
     }
