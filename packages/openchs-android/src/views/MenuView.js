@@ -161,8 +161,8 @@ class MenuView extends AbstractComponent {
         }
     };
 
-    uploadDatabase() {
-        this.startUploadDatabase('uploadDatabase', 'uploadCatchmentDatabaseConfirmationMessage', MediaQueueService.DumpType.Adhoc);
+    uploadAppInfo() {
+        this.startUploadDatabase('uploadAppInfo', 'uploadAppInfoConfirmationMessage', MediaQueueService.DumpType.Adhoc);
     }
 
     startUploadDatabase(titleKey, messageKey, dumpType) {
@@ -277,7 +277,7 @@ class MenuView extends AbstractComponent {
     bindMenuActions() {
         const map = new Map();
         map.set("uploadCatchmentDatabase", () => this.uploadCatchmentDatabase());
-        map.set("uploadDatabase", () => this.uploadDatabase());
+        map.set("uploadAppInfo", () => this.uploadAppInfo());
         map.set("changePassword", () => this.changePasswordView());
         map.set("logout", () => this.logout());
         map.set("deleteData", () => this.onDelete());

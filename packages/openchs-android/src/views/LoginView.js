@@ -39,6 +39,7 @@ import EntityService from "../service/EntityService";
 import ServerError, {getAvniError} from "../service/ServerError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import { AlertMessage } from "./common/AlertMessage";
+import IssueUploadUtil from "../utility/IssueUploadUtil";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -167,18 +168,14 @@ class LoginView extends AbstractComponent {
                         source
                     })
                 },
-                {
-                    text: this.I18n.t("copyErrorTryAgain"),
-                    onPress: () => {
-                        General.logDebug("LoginView", avniError.reportingText);
-                        Clipboard.setString(avniError.reportingText);
-                        ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT);
-                        this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
-                            ...this.dumpRestoreAction.call(this),
-                            source
-                        });
-                    }
-                },
+                IssueUploadUtil.createUploadIssueInfoButton(
+                    this.context,
+                    this.I18n,
+                    avniError,
+                    "LoginView",
+                    () => this.setState({uploading: true}),
+                    () => this.setState({uploading: false})
+                ),
                 {
                     text: this.I18n.t('performNormalSync'),
                     onPress: () => this.loginComplete(source),

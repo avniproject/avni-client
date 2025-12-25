@@ -21,7 +21,7 @@ const UserMenus = [
     new StaticMenuItem("logout", "logout", "logout", StaticMenuItem.CustomActionMenuType)
 ];
 const SupportMenus = [
-    new StaticMenuItem("uploadDatabase", "backup-restore", "uploadDatabase", StaticMenuItem.CustomActionMenuType)
+    new StaticMenuItem("uploadAppInfo", "backup-restore", "uploadAppInfo", StaticMenuItem.CustomActionMenuType)
 ];
 const DevMenus = [
     new StaticMenuItem("deleteData", "delete", "Delete Data", StaticMenuItem.CustomActionMenuType),
@@ -51,7 +51,7 @@ class StaticMenuItemFactory {
 
     static getSupportMenus(context) {
         if(context.getService(OrganisationConfigService).isDbEncryptionEnabled())
-            this.removeMenuItem(SupportMenus, "uploadDatabase");
+            this.removeMenuItem(SupportMenus, "uploadAppInfo");
 
         return [...SupportMenus];
     }

@@ -27,6 +27,7 @@ import SubjectMigrationService from "./SubjectMigrationService";
 import FormMappingService from "./FormMappingService";
 import UserInfoService from './UserInfoService';
 import moment from "moment";
+import FileLoggerService from '../utility/FileLoggerService';
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
@@ -58,9 +59,12 @@ export default class BackupRestoreRealmService extends BaseService {
         let destFile = `${FileSystem.getBackupDir()}/${fileName}`;
         let destZipFile = `${FileSystem.getBackupDir()}/${fileName}.zip`;
         let mediaQueueService = this.getService(MediaQueueService);
+        const fileLoggerService = new FileLoggerService();
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         this.db.writeCopyTo({path: destFile});
-        zip(destFile, destZipFile)
+        
+        this._prepareBackupFiles(destFile, fileLoggerService)
+            .then((filesToZip) => zip(filesToZip, destZipFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
@@ -74,7 +78,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", "Removing database backup file created");
                 cb(97, "backupUploading");
             })
-            .then(() => removeBackupFile(destFile))
+            .then(() => this._cleanupBackupFiles(destFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Removing database backup compressed file created");
                 cb(99, "backupUploading");
@@ -280,6 +284,29 @@ export default class BackupRestoreRealmService extends BaseService {
                     this.getService(SubjectMigrationService).removeEntitiesFor({subjectUUID})
                 }
             })
+    }
+
+    async _prepareBackupFiles(realmDestFile, fileLoggerService) {
+        const filesToZip = [realmDestFile];
+        try {
+            const logFilePath = await fileLoggerService.getLogFilePath();
+            const logExists = await fs.exists(logFilePath);
+            if (logExists) {
+                const backupLogFile = `${FileSystem.getBackupDir()}/avni.log`;
+                await fs.copyFile(logFilePath, backupLogFile);
+                filesToZip.push(backupLogFile);
+                General.logDebug("BackupRestoreRealmService", `Including log file in backup: ${backupLogFile}`);
+            }
+        } catch (error) {
+            General.logWarn("BackupRestoreRealmService", `Could not include log file in backup: ${error.message}`);
+        }
+        return filesToZip;
+    }
+
+    async _cleanupBackupFiles(realmDestFile) {
+        await removeBackupFile(realmDestFile);
+        const backupLogFile = `${FileSystem.getBackupDir()}/avni.log`;
+        await removeBackupFile(backupLogFile).catch(() => {});
     }
 
 }

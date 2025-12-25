@@ -20,6 +20,7 @@ import AsyncAlert from "./common/AsyncAlert";
 import AvniError from "../framework/errorHandling/AvniError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
+import IssueUploadUtil from "../utility/IssueUploadUtil";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -104,14 +105,14 @@ class SyncComponent extends AbstractComponent {
                     onPress: _.noop,
                     style: 'cancel'
                 },
-                {
-                    text: this.I18n.t('copyErrorAndCancel'),
-                    onPress: () => {
-                        General.logDebug("SyncComponent", avniError.reportingText);
-                        Clipboard.setString(avniError.reportingText);
-                        ToastAndroid.show("reportCopiedReportByPasting", ToastAndroid.SHORT)
-                    }
-                }
+                IssueUploadUtil.createUploadIssueInfoButton(
+                    this.context,
+                    this.I18n,
+                    avniError,
+                    "SyncComponent",
+                    () => this.setState({uploading: true}),
+                    () => this.setState({uploading: false})
+                )
             ]
         );
     }
