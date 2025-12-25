@@ -8,6 +8,7 @@ import _ from "lodash";
 import BackupRestoreRealmService from "../../service/BackupRestoreRealmService";
 import MediaQueueService from "../../service/MediaQueueService";
 import General from "../../utility/General";
+import GlobalContext from "../../GlobalContext";
 
 export function ErrorDisplay({avniError, context}) {
     console.log("ErrorDisplay", "render", Config.allowServerURLConfig);
@@ -16,8 +17,11 @@ export function ErrorDisplay({avniError, context}) {
             console.log("ErrorDisplay", JSONStringify(avniError));
             Clipboard.setString(avniError.reportingText);
             
-            if (context) {
-                const backupRestoreService = context.getService(BackupRestoreRealmService);
+            // Try to get context from prop first, fallback to GlobalContext singleton
+            const serviceContext = context || (GlobalContext.getInstance().isInitialised() ? GlobalContext.getInstance().beanRegistry : null);
+            
+            if (serviceContext) {
+                const backupRestoreService = serviceContext.getService(BackupRestoreRealmService);
                 backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
                     General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                     if (percentDone === 100) {
@@ -30,21 +34,15 @@ export function ErrorDisplay({avniError, context}) {
                     }
                 });
             } else {
-                ToastAndroid.show("Upload not available", ToastAndroid.SHORT);
+                ToastAndroid.show("Upload not available - app not initialized", ToastAndroid.SHORT);
                 RNRestart.Restart();
             }
         };
 
         const buttons = [
-            {
-                text: "uploadIssueInfo",
-                onPress: uploadIssueInfo
-            },
-            {
-                text: "restart",
-                onPress: () => RNRestart.Restart()
-            },
-            {text: "close", onPress: _.noop}
+            {text: "Close", onPress: _.noop},
+            {text: "Restart", onPress: () => RNRestart.Restart()},
+            {text: "Upload & Restart", onPress: uploadIssueInfo}
         ];
         Alert.alert("App will restart now", avniError.getDisplayMessage(),
             buttons,
