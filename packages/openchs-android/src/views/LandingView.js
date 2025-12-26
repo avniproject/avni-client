@@ -53,19 +53,42 @@ class LandingView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
+        const componentMountTime = new Date();
+        General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+            General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
+            General.logDebug('LandingView', `About to dispatch ON_LOAD action with cachedSubjectTypeUUID: ${cachedSubjectTypeUUID}`);
             this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+            General.logDebug('LandingView', 'ON_LOAD action dispatched successfully');
         });
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
-        return super.UNSAFE_componentWillMount();
+        const result = super.UNSAFE_componentWillMount();
+        General.logDebug('LandingView', `UNSAFE_componentWillMount completed, total time: ${new Date() - componentMountTime} ms`);
+        return result;
     }
 
     renderBottomBarItem(icon, menuMessageKey, pressHandler, isSelected, idx, itemWidth) {
         const { layoutConstants } = LandingView;
+        const wrappedPressHandler = () => {
+            const buttonPressTime = new Date();
+            General.logWarn('LandingView', `BUTTON TOUCH DETECTED: ${menuMessageKey} at ${buttonPressTime.toISOString()}`);
+            General.logDebug('LandingView', `Button pressed: ${menuMessageKey}, isSelected: ${isSelected}, idx: ${idx}`);
+            if (pressHandler) {
+                try {
+                    General.logDebug('LandingView', `Calling press handler for ${menuMessageKey}...`);
+                    pressHandler();
+                    General.logDebug('LandingView', `Button action completed for ${menuMessageKey}, took ${new Date() - buttonPressTime} ms`);
+                } catch (error) {
+                    General.logError('LandingView', `Button action failed for ${menuMessageKey}: ${error.message}, stack: ${error.stack}`);
+                }
+            } else {
+                General.logWarn('LandingView', `No press handler for button: ${menuMessageKey}`);
+            }
+        };
         return _.isNil(menuMessageKey) ? null : (
             <View key={idx} style={{
                 alignItems: 'center',
@@ -84,7 +107,12 @@ class LandingView extends AbstractComponent {
                     justifyContent: 'center',
                     marginBottom: layoutConstants.iconMarginBottom,
                 }}
-                                  onPress={pressHandler}
+                                  onPress={() => {
+                                      General.logWarn('LandingView', `RAW TOUCH EVENT: ${menuMessageKey} `);
+                                      wrappedPressHandler();
+                                  }}
+                                  disabled={false}
+                                  activeOpacity={0.6}
                 >
                     {icon}
                 </TouchableOpacity>
@@ -162,22 +190,26 @@ class LandingView extends AbstractComponent {
     }
 
     render() {
-        General.logDebug("LandingView", "render");
+        const renderStartTime = new Date();
+        General.logDebug("LandingView", `render started - state: home:${this.state.home}, search:${this.state.search}, register:${this.state.register}, menu:${this.state.menu}, syncRequired:${this.state.syncRequired}`);
 
         const {previouslySelectedSubjectTypeUUID, register, search, menu, home, dashboard, secondaryDashboard, secondaryDashboardSelected} = this.state;
 
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
+        General.logDebug('LandingView', `render - displayRegister: ${displayRegister}, startSync: ${startSync}, syncRequired: ${this.state.syncRequired}`);
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name);
         const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, previouslySelectedSubjectTypeUUID);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
         const renderDot = this.getService(NewsService).isUnreadMoreThanZero();
+        const hasRegisterHandler = previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK));
         const registerMenuItem = displayRegister ? [
             this.Icon(registerIcon, LandingView.barIconStyle, register),
             this.I18n.t("register"),
-            previouslySelectedSubjectType && (() => this.dispatchAction(Actions.ON_REGISTER_CLICK)),
+            hasRegisterHandler,
             register
         ] : [];
+        General.logDebug('LandingView', `render - register setup: hasRegisterHandler: ${!!hasRegisterHandler}, previouslySelectedSubjectType: ${previouslySelectedSubjectType?.name}`);
         const moreMenu = [
             this.Icon("menu", LandingView.barIconStyle, menu, renderDot),
             this.I18n.t("More"),
@@ -200,24 +232,40 @@ class LandingView extends AbstractComponent {
         const screenWidth = Dimensions.get('window').width;
         const itemWidth = Math.max(screenWidth / bottomBarIcons.length, LandingView.layoutConstants.minItemWidth);
 
+        General.logDebug('LandingView', `render setup completed, rendering UI elements, took ${new Date() - renderStartTime} ms`);
         return (
             <CHSContainer>
-                {home && this.renderDashboard(startSync)}
-                {search && <IndividualSearchView
-                    onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                    buttonElevated={true}
-                    hideBackButton={true}/>}
-                {register && <RegisterView hideBackButton={true}/>}
-                {menu && <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>}
-                {secondaryDashboardSelected && <CustomDashboardView
-                    startSync={startSync && this.state.syncRequired}
-                    icon={(name, style) => this.Icon(name, style)}
-                    title={'home'}
-                    hideBackButton={true}
-                    renderSync={true}
-                    customDashboardType={CustomDashboardType.Secondary}
-                    onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
-                />}
+                {home && (function() {
+                    General.logDebug('LandingView', `render - Rendering dashboard with startSync: ${startSync}`);
+                    return this.renderDashboard(startSync);
+                }.bind(this)())}
+                {search && (function() {
+                    General.logDebug('LandingView', 'render - Rendering IndividualSearchView');
+                    return <IndividualSearchView
+                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                        buttonElevated={true}
+                        hideBackButton={true}/>;
+                }.bind(this)())}
+                {register && (function() {
+                    General.logDebug('LandingView', 'render - Rendering RegisterView');
+                    return <RegisterView hideBackButton={true}/>;
+                }.bind(this)())}
+                {menu && (function() {
+                    General.logDebug('LandingView', 'render - Rendering MenuView');
+                    return <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>;
+                }.bind(this)())}
+                {secondaryDashboardSelected && (function() {
+                    General.logDebug('LandingView', `render - Rendering secondary CustomDashboardView with startSync: ${startSync}`);
+                    return <CustomDashboardView
+                        startSync={startSync && this.state.syncRequired}
+                        icon={(name, style) => this.Icon(name, style)}
+                        title={'home'}
+                        hideBackButton={true}
+                        renderSync={true}
+                        customDashboardType={CustomDashboardType.Secondary}
+                        onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+                    />;
+                }.bind(this)())}
 
                 <View style={{
                     height: LandingView.layoutConstants.bottomBarHeight,

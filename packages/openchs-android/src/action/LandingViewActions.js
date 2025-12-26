@@ -33,12 +33,14 @@ class LandingViewActions {
     }
 
     static onLoad(state, action, context) {
+        const loadStartTime = new Date();
+        General.logDebug('LandingViewActions', `onLoad started - syncRequired: ${action.syncRequired}, cachedSubjectTypeUUID: ${action.cachedSubjectTypeUUID}`);
         const newState = reset(state);
         const syncRequired = _.isNil(action.syncRequired) ? true : action.syncRequired;
         const customDashboardService = context.get(CustomDashboardService);
         const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
         const secondaryDashboard = customDashboardService.getOneSecondaryDashboard();
-        return {
+        const result = {
             ...newState,
             dummy: !state.dummy,
             home: true,
@@ -47,9 +49,12 @@ class LandingViewActions {
             previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID || newState.previouslySelectedSubjectTypeUUID,
             secondaryDashboard: secondaryDashboard
         };
+        General.logDebug('LandingViewActions', `onLoad completed - renderCustomDashboard: ${renderCustomDashboard}, secondaryDashboard: ${secondaryDashboard?.name}, took ${new Date() - loadStartTime} ms`);
+        return result;
     }
 
     static onHomeClick(state) {
+        General.logDebug('LandingViewActions', `onHomeClick - previous state: home:${state.home}, search:${state.search}, register:${state.register}, menu:${state.menu}`);
         const newState = reset(state);
         return {
             ...newState,
@@ -59,6 +64,7 @@ class LandingViewActions {
     }
 
     static onSearchClick(state) {
+        General.logDebug('LandingViewActions', `onSearchClick - previous state: home:${state.home}, search:${state.search}, register:${state.register}, menu:${state.menu}`);
         const newState = reset(state);
         return {
             ...newState,
@@ -76,6 +82,7 @@ class LandingViewActions {
     }
 
     static onRegisterClick(state) {
+        General.logDebug('LandingViewActions', `onRegisterClick - previous state: home:${state.home}, search:${state.search}, register:${state.register}, menu:${state.menu}`);
         const newState = reset(state);
         return {
             ...newState,
@@ -85,6 +92,7 @@ class LandingViewActions {
     }
 
     static onMenuClick(state) {
+        General.logDebug('LandingViewActions', `onMenuClick - previous state: home:${state.home}, search:${state.search}, register:${state.register}, menu:${state.menu}`);
         const newState = reset(state);
         return {
             ...newState,
@@ -94,6 +102,7 @@ class LandingViewActions {
     }
 
     static onSecondaryDashboardClick(state) {
+        General.logDebug('LandingViewActions', `onSecondaryDashboardClick - previous state: home:${state.home}, secondaryDashboardSelected:${state.secondaryDashboardSelected}`);
         const newState = reset(state);
         return {
             ...newState,
