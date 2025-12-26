@@ -258,6 +258,18 @@ class IndividualService extends BaseService {
         });
     }
 
+    updateSubjectLocation(individual) {
+        const db = this.db;
+        individual.updateAudit(this.getUserInfo(), false);
+        this.db.write(() => {
+            db.create(Individual.schema.name, {
+                uuid: individual.uuid,
+                subjectLocation: individual.subjectLocation
+            }, Realm.UpdateMode.Modified);
+            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+        });
+    }
+
     eligiblePrograms(individualUUID) {
         const individual = this.findByUUID(individualUUID);
         const programs = this.getService(FormMappingService).findActiveProgramsForSubjectType(individual.subjectType);
