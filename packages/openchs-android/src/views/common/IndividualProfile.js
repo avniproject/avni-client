@@ -113,7 +113,7 @@ class IndividualProfile extends AbstractComponent {
                     const longitude = position.coords.longitude;
                     const accuracy = position.coords.accuracy;
                     
-                    const pointPosition = Point.newInstance(longitude, latitude);
+                    const pointPosition = Point.newInstance(latitude, longitude);
                     const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
                     
                     this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
