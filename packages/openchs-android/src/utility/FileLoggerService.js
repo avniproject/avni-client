@@ -1,7 +1,7 @@
 import RNFS from 'react-native-fs';
 import moment from 'moment';
 
-const LOG_DIR = `${RNFS.DocumentDirectoryPath}/logs`;
+const LOG_DIR = `${RNFS.ExternalDirectoryPath}/Avni/logs`;
 const LOG_FILE_NAME = 'avni.log';
 const LOG_FILE_PATH = `${LOG_DIR}/${LOG_FILE_NAME}`;
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB max
