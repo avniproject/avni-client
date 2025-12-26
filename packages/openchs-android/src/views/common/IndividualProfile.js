@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View, Alert} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -14,7 +14,8 @@ import DGS from "../primitives/DynamicGlobalStyles";
 import Styles from "../primitives/Styles";
 import ActionSelector from "./ActionSelector";
 import _ from "lodash";
-import {ProgramEnrolment, WorkItem, WorkList, WorkLists} from "avni-models";
+import {ProgramEnrolment, WorkItem, WorkList, WorkLists, SubjectLocation, Point} from "avni-models";
+import DeviceLocation from "../../utility/DeviceLocation";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
@@ -100,6 +101,39 @@ class IndividualProfile extends AbstractComponent {
             (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
+    captureLocation() {
+        this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: true});
+        
+        DeviceLocation.getPosition(
+            (position) => {
+                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
+                
+                try {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    const pointPosition = Point.newInstance(longitude, latitude);
+                    const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
+                    
+                    this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
+                        individual: this.props.individual,
+                        subjectLocation: subjectLocation
+                    });
+                    
+                    Alert.alert('Success', 'Location saved successfully. Download offline maps to navigate without internet.');
+                } catch (error) {
+                    Alert.alert('Error', 'Failed to save location. Please try again.');
+                }
+            },
+            false,
+            (error) => {
+                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
+            }
+        );
+    }
+
+
     componentDidMount() {
         if (this.props.displayOnly) return;
 
@@ -119,11 +153,27 @@ class IndividualProfile extends AbstractComponent {
 
     programProfileHeading() {
         const fullAddress = this.props.individual.fullAddress(this.I18n);
-        return this.props.individual.subjectType.isPerson() ?
-            <Text
-                style={Styles.programProfileSubheading}>{this.I18n.t(this.props.individual.gender.name)}, {this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, {fullAddress}</Text> :
-            <Text
-                style={Styles.programProfileSubheading}>{fullAddress}</Text>
+        const individualInfo = this.props.individual.subjectType.isPerson() ?
+            `${this.I18n.t(this.props.individual.gender.name)}, ${this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, ${fullAddress}` :
+            fullAddress;
+        
+        const showLocationIcon = !this.props.individual.subjectType.isUser();
+        
+        return (
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={Styles.programProfileSubheading}>
+                    {individualInfo}
+                </Text>
+                {showLocationIcon && (
+                    <MaterialIcon 
+                        name="add-location" 
+                        size={24}
+                        style={{color: Styles.accentColor, marginLeft: 8}}
+                        onPress={() => this.captureLocation()}
+                    />
+                )}
+            </View>
+        );
     }
 
     renderProfileActionButton(iconMode, displayTextMessageKey, onPress) {

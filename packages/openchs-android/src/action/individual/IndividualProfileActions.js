@@ -65,6 +65,19 @@ export class IndividualProfileActions {
         newState.displayProgressIndicator = action.displayProgressIndicator
         return newState;
     }
+
+    static saveSubjectLocation(state, action, context) {
+        try {
+            const individual = action.individual.cloneForEdit();
+            individual.subjectLocation = action.subjectLocation;
+            const individualService = context.get(IndividualService);
+            individualService.updateSubjectLocation(individual);
+        } catch (error) {
+            throw error;
+        }
+        return state;
+    }
+
 }
 
 const actions = {
@@ -72,7 +85,8 @@ const actions = {
     LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
     HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
     REFRESH_MESSAGE_COUNTS: "IPA.REFRESH_MESSAGE_COUNTS",
-    TOGGLE_PROGRESS_INDICATOR: "IPA.TOGGLE_PROGRESS_INDICATOR"
+    TOGGLE_PROGRESS_INDICATOR: "IPA.TOGGLE_PROGRESS_INDICATOR",
+    SAVE_SUBJECT_LOCATION: "IPA.SAVE_SUBJECT_LOCATION"
 };
 
 export default new Map([
@@ -80,7 +94,8 @@ export default new Map([
     [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
     [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
     [actions.REFRESH_MESSAGE_COUNTS, IndividualProfileActions.refreshMessageCounts],
-    [actions.TOGGLE_PROGRESS_INDICATOR, IndividualProfileActions.toggleProgressIndicator]
+    [actions.TOGGLE_PROGRESS_INDICATOR, IndividualProfileActions.toggleProgressIndicator],
+    [actions.SAVE_SUBJECT_LOCATION, IndividualProfileActions.saveSubjectLocation]
 ]);
 
 export {actions as Actions};
