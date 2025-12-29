@@ -555,6 +555,7 @@ class RuleEvaluationService extends BaseService {
         if (!_.isFunction(entity.getAllScheduledVisits) && [entity, form].some(_.isEmpty)) return defaultVisitSchedule;
         const scheduledVisits = entity.getAllScheduledVisits(entity);
         const rulesFromTheBundle = this.getAllRuleItemsFor(form, "VisitSchedule", "Form");
+        this.logVisitSchedulingHealth(entity, entityName, form, scheduledVisits);
         if (!_.isNil(form.visitScheduleRule) && !_.isEmpty(_.trim(form.visitScheduleRule))) {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
@@ -564,6 +565,8 @@ class RuleEvaluationService extends BaseService {
                     imports: getImports(this.globalRuleFunction)
                 });
                 this.checkIfScheduledVisitsAreValid(nextVisits);
+                this.logVisitGenerationResult(nextVisits, entity, entityName, 'form-rule');
+                
                 return nextVisits;
             } catch (e) {
                 General.logDebug("Rule-Failure", `Visit Schedule failed for form: ${form.uuid}`);
@@ -578,13 +581,268 @@ class RuleEvaluationService extends BaseService {
             General.logDebug("RuleEvaluationService - Next Visits", nextVisits);
             try {
                 this.checkIfScheduledVisitsAreValid(nextVisits);
+                this.logVisitGenerationResult(nextVisits, entity, entityName, 'bundle-rules');
                 return nextVisits;
             } catch (e) {
                 General.logDebug("Rule-Failure", `Visit Schedule (old) failed for form: ${form.uuid}`);
                 this.saveFailedRules(e, form.uuid, this.getIndividualUUID(entity, entityName));
             }
         }
+        
+        this.logVisitGenerationResult([], entity, entityName, 'no-rules');
         return defaultVisitSchedule;
+    }
+
+    logVisitSchedulingHealth(entity, entityName, form, scheduledVisits) {
+        const startTime = Date.now();
+        
+        try {
+            const memoryHealth = this.checkMemoryAndResourceHealth();
+            const dataCorruption = this.checkDataCorruption(entity, form, scheduledVisits);
+            const stateCorruption = this.checkStateCorruption(entity, entityName);
+            
+            General.logWarn("RuleEvaluationService", `VISIT SCHEDULING HEALTH: ${entityName} - ${entity.uuid}`);
+            
+            if (memoryHealth.issues.length > 0) {
+                General.logError("RuleEvaluationService", `MEMORY/RESOURCE ISSUES: ${memoryHealth.issues.join(', ')}`);
+            }
+            
+            if (dataCorruption.issues.length > 0) {
+                General.logError("RuleEvaluationService", `DATA CORRUPTION: ${dataCorruption.issues.join(', ')}`);
+            }
+            
+            if (stateCorruption.issues.length > 0) {
+                General.logError("RuleEvaluationService", `STATE CORRUPTION: ${stateCorruption.issues.join(', ')}`);
+            }
+            
+            General.logDebug("RuleEvaluationService", `Health check took: ${Date.now() - startTime}ms`);
+            
+        } catch (error) {
+            General.logError("RuleEvaluationService", `Visit scheduling health check failed: ${error.message}`);
+        }
+    }
+
+    checkMemoryAndResourceHealth() {
+        const issues = [];
+        
+        try {
+            if (global.performance && global.performance.memory) {
+                const memory = global.performance.memory;
+                const usageRatio = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
+                
+                if (usageRatio > 0.9) {
+                    issues.push(`High memory usage: ${Math.round(usageRatio * 100)}%`);
+                }
+                
+                General.logDebug("RuleEvaluationService", `Memory: ${Math.round(memory.usedJSHeapSize / 1024 / 1024)}MB / ${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)}MB`);
+            }
+            
+            if (this.db.isClosed) {
+                issues.push("Realm database is closed");
+            }
+            
+            if (this.db.isInTransaction) {
+                issues.push("Realm database stuck in transaction");
+            }
+            
+            try {
+                const testRead = this.db.objects('Individual').length;
+                General.logDebug("RuleEvaluationService", `DB read test: ${testRead} individuals`);
+            } catch (e) {
+                issues.push(`Cannot read from database: ${e.message}`);
+            }
+            
+        } catch (error) {
+            issues.push(`Memory check failed: ${error.message}`);
+        }
+        
+        return { issues };
+    }
+
+    checkDataCorruption(entity, form, scheduledVisits) {
+        const issues = [];
+        
+        try {
+            if (!entity || !entity.uuid) {
+                issues.push("Entity missing or has no UUID");
+            } else {
+                try {
+                    const dbEntity = this.db.objectForPrimaryKey(entity.constructor.schema.name, entity.uuid);
+                    if (!dbEntity) {
+                        issues.push(`Entity ${entity.uuid} not found in database`);
+                    }
+                } catch (e) {
+                    issues.push(`Cannot read entity from DB: ${e.message}`);
+                }
+            }
+            
+            if (!form || !form.uuid) {
+                issues.push("Form missing or has no UUID");
+            } else {
+                try {
+                    const dbForm = this.db.objectForPrimaryKey(form.constructor.schema.name, form.uuid);
+                    if (!dbForm) {
+                        issues.push(`Form ${form.uuid} not found in database`);
+                    } else if (!dbForm.visitScheduleRule && !this.getAllRuleItemsFor(form, "VisitSchedule", "Form").length) {
+                        issues.push("No visit schedule rules found for form");
+                    }
+                } catch (e) {
+                    issues.push(`Cannot read form from DB: ${e.message}`);
+                }
+            }
+            
+            if (!Array.isArray(scheduledVisits)) {
+                issues.push("Scheduled visits is not an array");
+            } else {
+                scheduledVisits.forEach((visit, idx) => {
+                    if (!visit || typeof visit !== 'object') {
+                        issues.push(`Visit ${idx} is not a valid object`);
+                    }
+                });
+            }
+            
+        } catch (error) {
+            issues.push(`Data corruption check failed: ${error.message}`);
+        }
+        
+        return { issues };
+    }
+
+    checkStateCorruption(entity, entityName) {
+        const issues = [];
+        
+        try {
+            if (typeof entity.getAllScheduledVisits !== 'function') {
+                issues.push(`${entityName} getAllScheduledVisits method missing`);
+            }
+            
+            if (typeof entity.getObservationValue !== 'function') {
+                issues.push(`${entityName} getObservationValue method missing`);
+            }
+            
+            if (!this.getService) {
+                issues.push("Service locator unavailable");
+            }
+            
+            try {
+                const testArray = [1, 2, 3];
+                const testResult = _.isEmpty(testArray);
+                if (testResult !== false) {
+                    issues.push("Lodash not functioning correctly");
+                }
+            } catch (e) {
+                issues.push(`Lodash error: ${e.message}`);
+            }
+            
+            try {
+                const testDate = moment();
+                if (!testDate.isValid || !testDate.isValid()) {
+                    issues.push("Moment.js not functioning correctly");
+                }
+            } catch (e) {
+                issues.push(`Moment.js error: ${e.message}`);
+            }
+            
+        } catch (error) {
+            issues.push(`${entityName} state corruption check failed: ${error.message}`);
+        }
+        
+        return { issues };
+    }
+
+    logVisitGenerationResult(nextVisits, entity, entityName, source) {
+        const startTime = Date.now();
+        
+        try {
+            const visitCount = nextVisits ? nextVisits.length : 0;
+            
+            if (visitCount === 0) {
+                General.logWarn("RuleEvaluationService", `NO VISITS GENERATED (${source}): ${entityName} - ${entity.uuid}`);
+                
+                if (source === 'no-rules') {
+                    General.logDebug("RuleEvaluationService", `No visit schedule rules found for this form`);
+                } else {
+                    General.logError("RuleEvaluationService", `Expected visits but none generated - possible rule execution failure`);
+                }
+            } else {
+                General.logWarn("RuleEvaluationService", `VISITS GENERATED (${source}): ${visitCount} visits for ${entityName} - ${entity.uuid}`);
+                
+                nextVisits.forEach((visit, index) => {
+                    const validationResults = this.validateGeneratedVisit(visit, index);
+                    
+                    General.logDebug("RuleEvaluationService", `  Visit ${index + 1}: "${visit.name}" (${visit.encounterType}) on ${visit.earliestDate}`);
+                    General.logDebug("RuleEvaluationService", `    Validation: ${validationResults.summary}`);
+                    
+                    if (validationResults.issues.length > 0) {
+                        General.logError("RuleEvaluationService", `    VISIT ISSUES: ${validationResults.issues.join(', ')}`);
+                    }
+                });
+                
+                const duplicateVisits = this.findDuplicateVisits(nextVisits);
+                if (duplicateVisits.length > 0) {
+                    General.logError("RuleEvaluationService", `DUPLICATE VISITS DETECTED: ${duplicateVisits.join(', ')}`);
+                }
+            }
+            
+            General.logDebug("RuleEvaluationService", `Visit result logging took: ${Date.now() - startTime}ms`);
+            
+        } catch (error) {
+            General.logError("RuleEvaluationService", `Error logging visit generation result: ${error.message}`);
+        }
+    }
+
+    validateGeneratedVisit(visit, index) {
+        const issues = [];
+        const validations = {};
+        
+        validations.hasName = !!(visit.name && visit.name.trim());
+        validations.hasEncounterType = !!(visit.encounterType && visit.encounterType.trim());
+        validations.hasValidDate = !!(visit.earliestDate && !isNaN(new Date(visit.earliestDate).getTime()));
+        validations.hasUuid = !!(visit.uuid);
+        
+        if (!validations.hasName) issues.push("missing name");
+        if (!validations.hasEncounterType) issues.push("missing encounterType");
+        if (!validations.hasValidDate) issues.push("invalid earliestDate");
+        if (!validations.hasUuid) issues.push("missing uuid");
+        
+        if (validations.hasValidDate) {
+            const visitDate = new Date(visit.earliestDate);
+            const now = new Date();
+            if (visitDate <= now) {
+                issues.push("visit date is in the past");
+                validations.futureDated = false;
+            } else {
+                validations.futureDated = true;
+            }
+        }
+        
+        if (visit.maxDate) {
+            validations.hasValidMaxDate = !isNaN(new Date(visit.maxDate).getTime());
+            if (!validations.hasValidMaxDate) {
+                issues.push("invalid maxDate");
+            }
+        }
+        
+        const summary = `name=${validations.hasName}, type=${validations.hasEncounterType}, date=${validations.hasValidDate}, uuid=${validations.hasUuid}`;
+        
+        return { issues, summary, validations };
+    }
+
+    findDuplicateVisits(visits) {
+        const duplicates = [];
+        const visitMap = new Map();
+        
+        visits.forEach((visit, index) => {
+            const key = `${visit.encounterType}-${visit.earliestDate}`;
+            
+            if (visitMap.has(key)) {
+                duplicates.push(`Visit ${index + 1} duplicates Visit ${visitMap.get(key) + 1} (${visit.encounterType} on ${visit.earliestDate})`);
+            } else {
+                visitMap.set(key, index);
+            }
+        });
+        
+        return duplicates;
     }
 
     checkIfScheduledVisitsAreValid(nextVisits) {
