@@ -63,7 +63,7 @@ export default class BackupRestoreRealmService extends BaseService {
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         this.db.writeCopyTo({path: destFile});
         
-        // Add timeout to prevent hanging - 5 minutes total, 2 minutes since last progress
+        // Add progress-based timeout to prevent hanging - only timeout if no progress
         let lastProgressTime = Date.now();
         const progressTimeoutPromise = new Promise((_, reject) => {
             const checkProgress = () => {
@@ -74,8 +74,6 @@ export default class BackupRestoreRealmService extends BaseService {
                 }
             };
             setTimeout(checkProgress, 30000);
-            // Hard timeout after 5 minutes
-            setTimeout(() => reject(new Error('Backup timeout after 5 minutes')), 300000);
         });
         
         const backupPromise = this._prepareBackupFiles(destFile, fileLoggerService)
@@ -105,6 +103,9 @@ export default class BackupRestoreRealmService extends BaseService {
         Promise.race([backupPromise, progressTimeoutPromise])
             .catch((error) => {
                 General.logError("BackupRestoreRealmService", error);
+                // Clean up files on error
+                removeBackupFile(destZipFile).catch(() => {});
+                this._cleanupBackupFiles(destFile).catch(() => {});
                 cb(100, "backupFailed");
             });
     }
