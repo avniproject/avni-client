@@ -99,9 +99,9 @@ class DurationDateFormElement extends AbstractFormElement {
                     })}
                     style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 5}}>
                     {this.props.durationOptions.map((durationOption, index) => {
-                        return <View key={index} style={{flexDirection: 'row', alignItems: 'center', marginRight: 15}}>
+                        return <View key={index} style={{flexDirection: 'row', alignItems: 'center', width: '45%', marginBottom: 8}}>
                             <Radio value={durationOption} style={{marginLeft:DGS.resizeWidth(20)}} color={Colors.AccentColor}/>
-                            <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
+                            <Text style={[DGS.formRadioText, {marginLeft: 8}]}>{this.I18n.t(durationOption)}</Text>
                         </View>
                     })}
                 </Radio.Group>
