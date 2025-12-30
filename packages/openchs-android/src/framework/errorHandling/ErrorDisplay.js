@@ -1,5 +1,5 @@
 import Config from "../Config";
-import {Alert, View, ToastAndroid} from "react-native";
+import {Alert, View} from "react-native";
 import React from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
@@ -26,15 +26,15 @@ export function ErrorDisplay({avniError, context}) {
                     General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                     if (percentDone === 100) {
                         if (message === "backupCompleted") {
-                            ToastAndroid.show("Upload successful", ToastAndroid.LONG);
+                            Alert.alert("Upload successful");
                         } else {
-                            ToastAndroid.show("Upload failed", ToastAndroid.LONG);
+                            Alert.alert("Upload failed");
                         }
                         RNRestart.Restart();
                     }
                 });
             } else {
-                ToastAndroid.show("Upload not available - app not initialized", ToastAndroid.SHORT);
+                Alert.alert("Upload not available - app not initialized");
                 RNRestart.Restart();
             }
         };

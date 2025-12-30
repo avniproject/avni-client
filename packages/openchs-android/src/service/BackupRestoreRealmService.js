@@ -63,7 +63,22 @@ export default class BackupRestoreRealmService extends BaseService {
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
         this.db.writeCopyTo({path: destFile});
         
-        this._prepareBackupFiles(destFile, fileLoggerService)
+        // Add timeout to prevent hanging - 5 minutes total, 2 minutes since last progress
+        let lastProgressTime = Date.now();
+        const progressTimeoutPromise = new Promise((_, reject) => {
+            const checkProgress = () => {
+                if (Date.now() - lastProgressTime > 120000) { // 2 minutes since last progress
+                    reject(new Error('Backup stalled - no progress for 2 minutes'));
+                } else {
+                    setTimeout(checkProgress, 30000); // Check every 30 seconds
+                }
+            };
+            setTimeout(checkProgress, 30000);
+            // Hard timeout after 5 minutes
+            setTimeout(() => reject(new Error('Backup timeout after 5 minutes')), 300000);
+        });
+        
+        const backupPromise = this._prepareBackupFiles(destFile, fileLoggerService)
             .then((filesToZip) => zip(filesToZip, destZipFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
@@ -72,6 +87,7 @@ export default class BackupRestoreRealmService extends BaseService {
             .then(() => mediaQueueService.getDumpUploadUrl(dumpType, `adhoc-dump-as-zip-${_.get(this.getService(UserInfoService).getUserInfo(), 'username')}-${General.randomUUID()}`))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
                 General.logDebug("BackupRestoreRealmService", `Upload in progress ${written}/${total}`);
+                lastProgressTime = Date.now(); // Update progress time
                 cb(10 + (97 - 10) * (written / total), "backupUploading");
             }))
             .then(() => {
@@ -84,10 +100,12 @@ export default class BackupRestoreRealmService extends BaseService {
                 cb(99, "backupUploading");
             })
             .then(() => removeBackupFile(destZipFile))
-            .then(() => cb(100, "backupCompleted"))
+            .then(() => cb(100, "backupCompleted"));
+        
+        Promise.race([backupPromise, progressTimeoutPromise])
             .catch((error) => {
                 General.logError("BackupRestoreRealmService", error);
-                throw error;
+                cb(100, "backupFailed");
             });
     }
 

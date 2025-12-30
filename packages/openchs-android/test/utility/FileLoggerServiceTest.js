@@ -223,7 +223,7 @@ describe('FileLoggerServiceTest', () => {
             await new Promise(resolve => setTimeout(resolve, 150));
             
             const logPath = mockRNFS.appendFile.mock.calls[0][0];
-            expect(logPath).to.equal('/mock/external/Avni/logs/avni.log');
+            expect(logPath).to.equal('/mock/documents/logs/avni.log');
         });
 
         it('should handle circular reference objects gracefully', async () => {
