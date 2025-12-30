@@ -597,22 +597,18 @@ class RuleEvaluationService extends BaseService {
         const startTime = Date.now();
         
         try {
-            const memoryHealth = this.checkMemoryAndResourceHealth();
-            const dataCorruption = this.checkDataCorruption(entity, form, scheduledVisits);
-            const stateCorruption = this.checkStateCorruption(entity, entityName);
+            General.logWarn("RuleEvaluationService", `>>>>>> VISIT SCHEDULING HEALTH: ${entityName} - ${entity.uuid} <<<<<<`);
             
-            General.logWarn("RuleEvaluationService", `VISIT SCHEDULING HEALTH: ${entityName} - ${entity.uuid}`);
-            
-            if (memoryHealth.issues.length > 0) {
-                General.logError("RuleEvaluationService", `MEMORY/RESOURCE ISSUES: ${memoryHealth.issues.join(', ')}`);
+            if (!entity || !entity.uuid) {
+                General.logError("RuleEvaluationService", `ENTITY ISSUE: Entity missing or has no UUID`);
             }
             
-            if (dataCorruption.issues.length > 0) {
-                General.logError("RuleEvaluationService", `DATA CORRUPTION: ${dataCorruption.issues.join(', ')}`);
+            if (!form || !form.uuid) {
+                General.logError("RuleEvaluationService", `FORM ISSUE: Form missing or has no UUID`);
             }
             
-            if (stateCorruption.issues.length > 0) {
-                General.logError("RuleEvaluationService", `STATE CORRUPTION: ${stateCorruption.issues.join(', ')}`);
+            if (!Array.isArray(scheduledVisits)) {
+                General.logError("RuleEvaluationService", `VISITS ISSUE: Scheduled visits is not an array`);
             }
             
             General.logDebug("RuleEvaluationService", `Health check took: ${Date.now() - startTime}ms`);
@@ -622,133 +618,6 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    checkMemoryAndResourceHealth() {
-        const issues = [];
-        
-        try {
-            if (global.performance && global.performance.memory) {
-                const memory = global.performance.memory;
-                const usageRatio = memory.usedJSHeapSize / memory.jsHeapSizeLimit;
-                
-                if (usageRatio > 0.9) {
-                    issues.push(`High memory usage: ${Math.round(usageRatio * 100)}%`);
-                }
-                
-                General.logDebug("RuleEvaluationService", `Memory: ${Math.round(memory.usedJSHeapSize / 1024 / 1024)}MB / ${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)}MB`);
-            }
-            
-            if (this.db.isClosed) {
-                issues.push("Realm database is closed");
-            }
-            
-            if (this.db.isInTransaction) {
-                issues.push("Realm database stuck in transaction");
-            }
-            
-            try {
-                const testRead = this.db.objects('Individual').length;
-                General.logDebug("RuleEvaluationService", `DB read test: ${testRead} individuals`);
-            } catch (e) {
-                issues.push(`Cannot read from database: ${e.message}`);
-            }
-            
-        } catch (error) {
-            issues.push(`Memory check failed: ${error.message}`);
-        }
-        
-        return { issues };
-    }
-
-    checkDataCorruption(entity, form, scheduledVisits) {
-        const issues = [];
-        
-        try {
-            if (!entity || !entity.uuid) {
-                issues.push("Entity missing or has no UUID");
-            } else {
-                try {
-                    const dbEntity = this.db.objectForPrimaryKey(entity.constructor.schema.name, entity.uuid);
-                    if (!dbEntity) {
-                        issues.push(`Entity ${entity.uuid} not found in database`);
-                    }
-                } catch (e) {
-                    issues.push(`Cannot read entity from DB: ${e.message}`);
-                }
-            }
-            
-            if (!form || !form.uuid) {
-                issues.push("Form missing or has no UUID");
-            } else {
-                try {
-                    const dbForm = this.db.objectForPrimaryKey(form.constructor.schema.name, form.uuid);
-                    if (!dbForm) {
-                        issues.push(`Form ${form.uuid} not found in database`);
-                    } else if (!dbForm.visitScheduleRule && !this.getAllRuleItemsFor(form, "VisitSchedule", "Form").length) {
-                        issues.push("No visit schedule rules found for form");
-                    }
-                } catch (e) {
-                    issues.push(`Cannot read form from DB: ${e.message}`);
-                }
-            }
-            
-            if (!Array.isArray(scheduledVisits)) {
-                issues.push("Scheduled visits is not an array");
-            } else {
-                scheduledVisits.forEach((visit, idx) => {
-                    if (!visit || typeof visit !== 'object') {
-                        issues.push(`Visit ${idx} is not a valid object`);
-                    }
-                });
-            }
-            
-        } catch (error) {
-            issues.push(`Data corruption check failed: ${error.message}`);
-        }
-        
-        return { issues };
-    }
-
-    checkStateCorruption(entity, entityName) {
-        const issues = [];
-        
-        try {
-            if (typeof entity.getAllScheduledVisits !== 'function') {
-                issues.push(`${entityName} getAllScheduledVisits method missing`);
-            }
-            
-            if (typeof entity.getObservationValue !== 'function') {
-                issues.push(`${entityName} getObservationValue method missing`);
-            }
-            
-            if (!this.getService) {
-                issues.push("Service locator unavailable");
-            }
-            
-            try {
-                const testArray = [1, 2, 3];
-                const testResult = _.isEmpty(testArray);
-                if (testResult !== false) {
-                    issues.push("Lodash not functioning correctly");
-                }
-            } catch (e) {
-                issues.push(`Lodash error: ${e.message}`);
-            }
-            
-            try {
-                const testDate = moment();
-                if (!testDate.isValid || !testDate.isValid()) {
-                    issues.push("Moment.js not functioning correctly");
-                }
-            } catch (e) {
-                issues.push(`Moment.js error: ${e.message}`);
-            }
-            
-        } catch (error) {
-            issues.push(`${entityName} state corruption check failed: ${error.message}`);
-        }
-        
-        return { issues };
-    }
 
     logVisitGenerationResult(nextVisits, entity, entityName, source) {
         const startTime = Date.now();
