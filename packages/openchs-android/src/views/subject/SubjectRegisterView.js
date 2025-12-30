@@ -144,7 +144,7 @@ class SubjectRegisterView extends AbstractComponent {
                     <AppHeader title={title}
                            func={() => this.onAppHeaderBack(this.state.saveDrafts)}
                            displayHomePressWarning={!this.state.saveDrafts}/>
-                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject?.latestEntityApprovalStatus}/>
+                        <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.subject.latestEntityApprovalStatus}/>
 
                         <GeolocationFormElement
                             actionName={Actions.SET_LOCATION}
