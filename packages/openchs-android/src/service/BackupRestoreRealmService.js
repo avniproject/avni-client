@@ -31,6 +31,7 @@ import FileLoggerService from '../utility/FileLoggerService';
 
 const REALM_FILE_NAME = "default.realm";
 const REALM_FILE_FULL_PATH = `${fs.DocumentDirectoryPath}/${REALM_FILE_NAME}`;
+const BACKUP_LOG_FILE = `${FileSystem.getBackupDir()}/avni.log`;
 
 @Service("backupRestoreRealmService")
 export default class BackupRestoreRealmService extends BaseService {
@@ -311,10 +312,9 @@ export default class BackupRestoreRealmService extends BaseService {
             const logFilePath = await fileLoggerService.getLogFilePath();
             const logExists = await fs.exists(logFilePath);
             if (logExists) {
-                const backupLogFile = `${FileSystem.getBackupDir()}/avni.log`;
-                await fs.copyFile(logFilePath, backupLogFile);
-                filesToZip.push(backupLogFile);
-                General.logDebug("BackupRestoreRealmService", `Including log file in backup: ${backupLogFile}`);
+                await fs.copyFile(logFilePath, BACKUP_LOG_FILE);
+                filesToZip.push(BACKUP_LOG_FILE);
+                General.logDebug("BackupRestoreRealmService", `Including log file in backup: ${BACKUP_LOG_FILE}`);
             }
         } catch (error) {
             General.logWarn("BackupRestoreRealmService", `Could not include log file in backup: ${error.message}`);
@@ -324,8 +324,7 @@ export default class BackupRestoreRealmService extends BaseService {
 
     async _cleanupBackupFiles(realmDestFile) {
         await removeBackupFile(realmDestFile);
-        const backupLogFile = `${FileSystem.getBackupDir()}/avni.log`;
-        await removeBackupFile(backupLogFile).catch(() => {});
+        await removeBackupFile(BACKUP_LOG_FILE).catch(() => {});
     }
 
 }
