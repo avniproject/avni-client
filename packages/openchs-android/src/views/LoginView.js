@@ -161,10 +161,9 @@ class LoginView extends AbstractComponent {
     }
 
     displayFailureAlert(avniError, source) {
-        // Show 3 buttons for all restore failures:
+        // Show 2 buttons for all restore failures:
         // 1. Upload & Restart - uploads logs and restarts
-        // 2. Restart - just restarts
-        // 3. Perform Slow Sync - proceeds with slow sync using original realm
+        // 2. Perform Slow Sync - proceeds with slow sync using original realm
         // (Original realm is restored on failure, so slow sync will work)
         const buttons = [
             IssueUploadUtil.createUploadIssueInfoButton(
@@ -175,7 +174,8 @@ class LoginView extends AbstractComponent {
                 () => this.setState({uploading: true}),
                 () => {
                     this.setState({uploading: false});
-                    setTimeout(() => RNRestart.Restart(), 2000);
+                    const RESTART_DELAY_MS = 2000;
+                    setTimeout(() => RNRestart.Restart(), RESTART_DELAY_MS);
                 },
                 this.state.userId
             ),

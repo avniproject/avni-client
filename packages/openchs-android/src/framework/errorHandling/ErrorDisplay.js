@@ -10,7 +10,7 @@ import MediaQueueService from "../../service/MediaQueueService";
 import General from "../../utility/General";
 import GlobalContext from "../../GlobalContext";
 
-export function ErrorDisplay({avniError, context}) {
+export function ErrorDisplay({avniError, context, username = null}) {
     console.log("ErrorDisplay", "render", Config.allowServerURLConfig);
     if (!Config.allowServerURLConfig) {
         const uploadIssueInfo = () => {
@@ -22,6 +22,7 @@ export function ErrorDisplay({avniError, context}) {
             
             if (serviceContext) {
                 const backupRestoreService = serviceContext.getService(BackupRestoreRealmService);
+                // Pass username to avoid realm access during login flow when realm may be corrupted
                 backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
                     General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                     if (percentDone === 100) {
@@ -32,7 +33,7 @@ export function ErrorDisplay({avniError, context}) {
                         }
                         RNRestart.Restart();
                     }
-                });
+                }, username);
             } else {
                 Alert.alert("Upload not available", "App not initialized. The app will restart.");
                 RNRestart.Restart();

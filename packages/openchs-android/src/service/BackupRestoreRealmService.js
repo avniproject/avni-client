@@ -81,7 +81,7 @@ export default class BackupRestoreRealmService extends BaseService {
         const username = this._getUsernameForBackup(providedUsername);
         const uploadFileName = `adhoc-dump-as-zip-${username}-${General.randomUUID()}`;
         
-        const backupPromise = this._prepareBackupFiles(destFile, fileLoggerService)
+        return this._prepareBackupFiles(destFile, fileLoggerService)
             .then((filesToZip) => zip(filesToZip, destZipFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
@@ -128,7 +128,7 @@ export default class BackupRestoreRealmService extends BaseService {
             return;
         }
         
-        const backupPromise = this._prepareLogsOnlyBackup(fileLoggerService)
+        return this._prepareLogsOnlyBackup(fileLoggerService)
             .then((filesToZip) => zip(filesToZip, logsOnlyFileName))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Logs-only backup created locally");
@@ -145,9 +145,7 @@ export default class BackupRestoreRealmService extends BaseService {
                     })
                     .then(() => removeBackupFile(logsOnlyFileName))
                     .then(() => cb(100, "backupCompleted"));
-            });
-        
-        backupPromise
+            })
             .catch((error) => {
                 General.logError("BackupRestoreRealmService", `Logs-only backup failed: ${error.message}`);
                 // Clean up files on error
@@ -157,7 +155,12 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _getUsernameForBackup(providedUsername = null) {
-        // use realm username
+        // Priority 1: Use provided username from login form (user input) - avoids realm access during login flow
+        if (providedUsername && providedUsername.trim()) {
+            return providedUsername.trim();
+        }
+        
+        // Priority 2: Try realm username (for non-login flows where user is already logged in)
         try {
             const realmUsername = _.get(this.getService(UserInfoService).getUserInfo(), 'username');
             if (realmUsername && realmUsername.trim()) {
@@ -165,10 +168,6 @@ export default class BackupRestoreRealmService extends BaseService {
             }
         } catch (error) {
             General.logWarn("BackupRestoreRealmService", `Cannot get username from realm: ${error.message}.`);
-            // Use provided username from login form (user input)
-            if (providedUsername && providedUsername.trim()) {
-                return providedUsername.trim();
-            }
         }
         
         // Final fallback
@@ -304,11 +303,13 @@ export default class BackupRestoreRealmService extends BaseService {
                         })
                         .catch(async (error) => {
                             General.logErrorAsInfo("BackupRestoreRealmService", error);
-                            // Restore original realm and cleanup on failure
+                            // Sequence is critical: restore realm file first, then cleanup, then reinitialize
+                            // 1. Restore original realm file to disk
                             await restoreOriginalRealm();
+                            // 2. Cleanup downloaded files
                             await removeBackupFile(downloadedFile);
                             await removeBackupFile(downloadedUncompressedDir);
-                            // Reopen the original realm after restoring it
+                            // 3. Reinitialize database connection (must happen after realm file is restored)
                             if (this.onRestoreFailure) {
                                 await this.onRestoreFailure();
                             }
@@ -441,6 +442,10 @@ export default class BackupRestoreRealmService extends BaseService {
             }
         } catch (error) {
             General.logWarn("BackupRestoreRealmService", `Could not include log file in logs-only backup: ${error.message}`);
+        }
+        
+        if (filesToZip.length === 0) {
+            throw new Error("No files available for logs-only backup");
         }
         return filesToZip;
     }
