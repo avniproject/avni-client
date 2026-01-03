@@ -40,6 +40,7 @@ import ServerError, {getAvniError} from "../service/ServerError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import { AlertMessage } from "./common/AlertMessage";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
+import RNRestart from 'react-native-restart';
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -160,29 +161,32 @@ class LoginView extends AbstractComponent {
     }
 
     displayFailureAlert(avniError, source) {
-        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), [
-                {
-                    text: this.I18n.t('tryAgain'),
-                    onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
-                        ...this.dumpRestoreAction.call(this),
-                        source
-                    })
+        // Show 3 buttons for all restore failures:
+        // 1. Upload & Restart - uploads logs and restarts
+        // 2. Restart - just restarts
+        // 3. Perform Slow Sync - proceeds with slow sync using original realm
+        // (Original realm is restored on failure, so slow sync will work)
+        const buttons = [
+            IssueUploadUtil.createUploadIssueInfoButton(
+                this.context,
+                this.I18n,
+                avniError,
+                "LoginView",
+                () => this.setState({uploading: true}),
+                () => {
+                    this.setState({uploading: false});
+                    setTimeout(() => RNRestart.Restart(), 2000);
                 },
-                IssueUploadUtil.createUploadIssueInfoButton(
-                    this.context,
-                    this.I18n,
-                    avniError,
-                    "LoginView",
-                    () => this.setState({uploading: true}),
-                    () => this.setState({uploading: false})
-                ),
-                {
-                    text: this.I18n.t('performNormalSync'),
-                    onPress: () => this.loginComplete(source),
-                    style: 'cancel'
-                }
-            ]
-        );
+                this.state.userId
+            ),
+            {
+                text: this.I18n.t('performNormalSync'),
+                onPress: () => this.loginComplete(source),
+                style: 'cancel'
+            }
+        ];
+        
+        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), buttons);
     }
 
     restoreFailureAlert(error, source) {

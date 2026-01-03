@@ -43,6 +43,10 @@ export default class BackupRestoreRealmService extends BaseService {
         this.dumpFileRestoreCompleted = dumpFileRestoreCompleted;
     }
 
+    subscribeOnRestoreFailure(onRestoreFailure) {
+        this.onRestoreFailure = onRestoreFailure;
+    }
+
     isDatabaseEverSynced() {
         return !this.isDatabaseNeverSynced();
     }
@@ -54,7 +58,7 @@ export default class BackupRestoreRealmService extends BaseService {
         return _.isNil(anEntity);
     }
 
-    backup(dumpType, cb) {
+    backup(dumpType, cb, providedUsername = null) {
         const fileName = dumpType === MediaQueueService.DumpType.Adhoc ? `adhoc-${General.randomUUID()}.realm` : `${General.randomUUID()}.realm`;
 
         let destFile = `${FileSystem.getBackupDir()}/${fileName}`;
@@ -62,20 +66,20 @@ export default class BackupRestoreRealmService extends BaseService {
         let mediaQueueService = this.getService(MediaQueueService);
         const fileLoggerService = new FileLoggerService();
         General.logInfo("BackupRestoreRealmService", `Dest: ${destFile}`);
-        this.db.writeCopyTo({path: destFile});
         
-        // Add progress-based timeout to prevent hanging - only timeout if no progress
-        let lastProgressTime = Date.now();
-        const progressTimeoutPromise = new Promise((_, reject) => {
-            const checkProgress = () => {
-                if (Date.now() - lastProgressTime > 120000) { // 2 minutes since last progress
-                    reject(new Error('Backup stalled - no progress for 2 minutes'));
-                } else {
-                    setTimeout(checkProgress, 30000); // Check every 30 seconds
-                }
-            };
-            setTimeout(checkProgress, 30000);
-        });
+        // Try to backup realm database
+        try {
+            this.db.writeCopyTo({path: destFile});
+            return this._performFullBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername);
+        } catch (error) {
+            General.logWarn("BackupRestoreRealmService", `Cannot backup realm database: ${error.message}. Falling back to logs-only backup.`);
+            return this._performLogsOnlyBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername);
+        }
+    }
+
+    _performFullBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername = null) {
+        const username = this._getUsernameForBackup(providedUsername);
+        const uploadFileName = `adhoc-dump-as-zip-${username}-${General.randomUUID()}`;
         
         const backupPromise = this._prepareBackupFiles(destFile, fileLoggerService)
             .then((filesToZip) => zip(filesToZip, destZipFile))
@@ -83,10 +87,9 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
             })
-            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, `adhoc-dump-as-zip-${_.get(this.getService(UserInfoService).getUserInfo(), 'username')}-${General.randomUUID()}`))
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, uploadFileName))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
                 General.logDebug("BackupRestoreRealmService", `Upload in progress ${written}/${total}`);
-                lastProgressTime = Date.now(); // Update progress time
                 cb(10 + (97 - 10) * (written / total), "backupUploading");
             }))
             .then(() => {
@@ -99,9 +102,7 @@ export default class BackupRestoreRealmService extends BaseService {
                 cb(99, "backupUploading");
             })
             .then(() => removeBackupFile(destZipFile))
-            .then(() => cb(100, "backupCompleted"));
-        
-        Promise.race([backupPromise, progressTimeoutPromise])
+            .then(() => cb(100, "backupCompleted"))
             .catch((error) => {
                 General.logError("BackupRestoreRealmService", error);
                 // Clean up files on error
@@ -111,14 +112,105 @@ export default class BackupRestoreRealmService extends BaseService {
             });
     }
 
+    _performLogsOnlyBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername = null) {
+        // Create logs-only backup without realm database
+        const logsOnlyFileName = destFile.replace('.realm', '-logs-only.zip');
+        
+        // Get username from login input or fallback
+        const username = this._getUsernameForBackup(providedUsername);
+        
+        // Get server URL from app config (fixed in APK)
+        const serverUrl = this._getServerUrl();
+        
+        if (!serverUrl) {
+            General.logError("BackupRestoreRealmService", "No server URL available for logs-only backup");
+            cb(100, "backupFailed");
+            return;
+        }
+        
+        const backupPromise = this._prepareLogsOnlyBackup(fileLoggerService)
+            .then((filesToZip) => zip(filesToZip, logsOnlyFileName))
+            .then(() => {
+                General.logDebug("BackupRestoreRealmService", "Logs-only backup created locally");
+                cb(10, "backupUploading");
+                const uploadUrl = `${serverUrl}/media/uploadUrl/adhoc-logs-only-${username}-${General.randomUUID()}`;
+                return get(uploadUrl)
+                    .then((url) => mediaQueueService.foregroundUpload(url, logsOnlyFileName, (written, total) => {
+                        General.logDebug("BackupRestoreRealmService", `Logs-only upload in progress ${written}/${total}`);
+                        cb(10 + (97 - 10) * (written / total), "backupUploading");
+                    }))
+                    .then(() => {
+                        General.logDebug("BackupRestoreRealmService", "Removing logs-only backup file created");
+                        cb(97, "backupUploading");
+                    })
+                    .then(() => removeBackupFile(logsOnlyFileName))
+                    .then(() => cb(100, "backupCompleted"));
+            });
+        
+        backupPromise
+            .catch((error) => {
+                General.logError("BackupRestoreRealmService", `Logs-only backup failed: ${error.message}`);
+                // Clean up files on error
+                removeBackupFile(logsOnlyFileName).catch(() => {});
+                cb(100, "backupFailed");
+            });
+    }
+
+    _getUsernameForBackup(providedUsername = null) {
+        // use realm username
+        try {
+            const realmUsername = _.get(this.getService(UserInfoService).getUserInfo(), 'username');
+            if (realmUsername && realmUsername.trim()) {
+                return realmUsername.trim();
+            }
+        } catch (error) {
+            General.logWarn("BackupRestoreRealmService", `Cannot get username from realm: ${error.message}.`);
+            // Use provided username from login form (user input)
+            if (providedUsername && providedUsername.trim()) {
+                return providedUsername.trim();
+            }
+        }
+        
+        // Final fallback
+        return "unknown-user";
+    }
+
+    _getServerUrl() {
+        // Get server URL from app config (fixed in APK)
+        const Config = require('../framework/Config');
+        return Config.SERVER_URL;
+    }
+
     restore(cb) {
         let settingsService = this.getService(SettingsService);
         let mediaService = this.getService(MediaService);
         let entitySyncStatusService = this.getService(EntitySyncStatusService);
         let downloadedFile = `${fs.DocumentDirectoryPath}/${General.randomUUID()}.zip`;
         let downloadedUncompressedDir = `${fs.DocumentDirectoryPath}/${General.randomUUID()}`;
+        const realmBackupPath = `${REALM_FILE_FULL_PATH}.backup`;
         const prevSettings = this.getPreviousSettings(settingsService);
         const prevUserInfo = UserInfo.fromResource({username: prevSettings.userId, organisationName: 'dummy', name: prevSettings.userId});
+
+        // Helper to restore original realm on failure
+        const restoreOriginalRealm = async () => {
+            try {
+                const backupExists = await fs.exists(realmBackupPath);
+                if (backupExists) {
+                    General.logInfo("BackupRestoreRealmService", "Restoring original realm from backup");
+                    await fs.unlink(REALM_FILE_FULL_PATH).catch(() => {});
+                    await fs.moveFile(realmBackupPath, REALM_FILE_FULL_PATH);
+                }
+            } catch (e) {
+                General.logError("BackupRestoreRealmService", `Failed to restore original realm: ${e.message}`);
+            }
+        };
+
+        // Helper to cleanup downloaded files
+        const cleanupDownloadedFiles = async () => {
+            await removeBackupFile(downloadedFile);
+            await removeBackupFile(downloadedUncompressedDir);
+            await removeBackupFile(realmBackupPath);
+        };
 
         General.logInfo("BackupRestoreRealmService", `To be downloaded file: ${downloadedFile}, Unzipped directory: ${downloadedUncompressedDir}, Realm file: ${REALM_FILE_FULL_PATH}`);
 
@@ -137,11 +229,17 @@ export default class BackupRestoreRealmService extends BaseService {
                         })
                         .then(() => unzip(downloadedFile, downloadedUncompressedDir))
                         .then(() => {
-                            General.logDebug("BackupRestoreRealmService", "Deleting local database");
+                            General.logDebug("BackupRestoreRealmService", "Backing up local database before replacing");
                             cb(89, "restoringDb");
                         })
                         .then(() => fs.exists(REALM_FILE_FULL_PATH))
-                        .then((exists) => exists && fs.unlink(REALM_FILE_FULL_PATH))
+                        .then(async (exists) => {
+                            if (exists) {
+                                // Backup original realm instead of deleting
+                                await fs.copyFile(REALM_FILE_FULL_PATH, realmBackupPath);
+                                await fs.unlink(REALM_FILE_FULL_PATH);
+                            }
+                        })
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Create database from downloaded file");
                             cb(90, "restoringDb");
@@ -165,8 +263,7 @@ export default class BackupRestoreRealmService extends BaseService {
                             cb(94, "restoringDb");
                         })
                         .then(() => entitySyncStatusService.setup())
-                        .then(() => removeBackupFile(downloadedFile))
-                        .then(() => removeBackupFile(downloadedUncompressedDir))
+                        .then(() => cleanupDownloadedFiles())
                         .then(() => {
                             General.logDebug("BackupRestoreRealmService", "Personalising database");
                             cb(97, "restoringDb");
@@ -205,8 +302,16 @@ export default class BackupRestoreRealmService extends BaseService {
                             General.logDebug("BackupRestoreRealmService", "Personalisation of database complete");
                             cb(100, "restoreComplete");
                         })
-                        .catch((error) => {
+                        .catch(async (error) => {
                             General.logErrorAsInfo("BackupRestoreRealmService", error);
+                            // Restore original realm and cleanup on failure
+                            await restoreOriginalRealm();
+                            await removeBackupFile(downloadedFile);
+                            await removeBackupFile(downloadedUncompressedDir);
+                            // Reopen the original realm after restoring it
+                            if (this.onRestoreFailure) {
+                                await this.onRestoreFailure();
+                            }
                             cb(100, "restoreFailed", true, error);
                         });
                 } else {
@@ -318,6 +423,24 @@ export default class BackupRestoreRealmService extends BaseService {
             }
         } catch (error) {
             General.logWarn("BackupRestoreRealmService", `Could not include log file in backup: ${error.message}`);
+        }
+        return filesToZip;
+    }
+
+    async _prepareLogsOnlyBackup(fileLoggerService) {
+        const filesToZip = [];
+        try {
+            const logFilePath = await fileLoggerService.getLogFilePath();
+            const logExists = await fs.exists(logFilePath);
+            if (logExists) {
+                await fs.copyFile(logFilePath, BACKUP_LOG_FILE);
+                filesToZip.push(BACKUP_LOG_FILE);
+                General.logDebug("BackupRestoreRealmService", `Including log file in logs-only backup: ${BACKUP_LOG_FILE}`);
+            } else {
+                General.logWarn("BackupRestoreRealmService", "No log file available for logs-only backup");
+            }
+        } catch (error) {
+            General.logWarn("BackupRestoreRealmService", `Could not include log file in logs-only backup: ${error.message}`);
         }
         return filesToZip;
     }

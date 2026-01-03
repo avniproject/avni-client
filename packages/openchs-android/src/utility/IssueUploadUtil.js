@@ -5,7 +5,7 @@ import MediaQueueService from '../service/MediaQueueService';
 import General from './General';
 
 class IssueUploadUtil {
-    static uploadIssueInfo(context, I18n, avniError, callerName, onStartUpload, onEndUpload) {
+    static uploadIssueInfo(context, I18n, avniError, callerName, onStartUpload, onEndUpload, username = null) {
         if (avniError && avniError.reportingText) {
             General.logDebug(callerName || "IssueUploadUtil", avniError.reportingText);
             Clipboard.setString(avniError.reportingText);
@@ -15,23 +15,23 @@ class IssueUploadUtil {
         if (onStartUpload) onStartUpload();
         
         const backupRestoreService = context.getService(BackupRestoreRealmService);
+        
         backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
             General.logDebug("IssueUploadUtil", `${percentDone}% - ${message}`);
             if (percentDone === 100) {
-                if (onEndUpload) onEndUpload();
-                if (message === "backupCompleted") {
-                    ToastAndroid.show(I18n.t('uploadSuccessful'), ToastAndroid.LONG);
-                } else {
+                // Only show error toast on failure, success proceeds silently to next action
+                if (message === "backupFailed") {
                     ToastAndroid.show(I18n.t('uploadFailed'), ToastAndroid.LONG);
                 }
+                if (onEndUpload) onEndUpload();
             }
-        });
+        }, username); // Pass username to backup service
     }
 
-    static createUploadIssueInfoButton(context, I18n, avniError, callerName, onStartUpload, onEndUpload) {
+    static createUploadIssueInfoButton(context, I18n, avniError, callerName, onStartUpload, onEndUpload, username = null) {
         return {
             text: I18n.t('uploadIssueInfo'),
-            onPress: () => IssueUploadUtil.uploadIssueInfo(context, I18n, avniError, callerName, onStartUpload, onEndUpload)
+            onPress: () => IssueUploadUtil.uploadIssueInfo(context, I18n, avniError, callerName, onStartUpload, onEndUpload, username)
         };
     }
 }

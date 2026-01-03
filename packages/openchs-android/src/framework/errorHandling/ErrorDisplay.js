@@ -26,15 +26,15 @@ export function ErrorDisplay({avniError, context}) {
                     General.logDebug("ErrorDisplay", `${percentDone}% - ${message}`);
                     if (percentDone === 100) {
                         if (message === "backupCompleted") {
-                            Alert.alert("Upload successful");
+                            Alert.alert("Upload successful", "Issue report uploaded successfully");
                         } else {
-                            Alert.alert("Upload failed");
+                            Alert.alert("Upload failed", "Could not upload issue report. The app will restart anyway.");
                         }
                         RNRestart.Restart();
                     }
                 });
             } else {
-                Alert.alert("Upload not available - app not initialized");
+                Alert.alert("Upload not available", "App not initialized. The app will restart.");
                 RNRestart.Restart();
             }
         };

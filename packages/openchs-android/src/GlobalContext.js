@@ -53,6 +53,7 @@ class GlobalContext {
         this.beanRegistry.setReduxStore(this.reduxStore);
         const restoreRealmService = this.beanRegistry.getService("backupRestoreRealmService");
         restoreRealmService.subscribeOnRestore(async () => await this.onDatabaseRecreated(realmFactory));
+        restoreRealmService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
         await initAnalytics(this.db);
     }
 
