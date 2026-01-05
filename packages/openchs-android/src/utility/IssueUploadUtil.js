@@ -19,9 +19,10 @@ class IssueUploadUtil {
         backupRestoreService.backup(MediaQueueService.DumpType.Adhoc, (percentDone, message) => {
             General.logDebug("IssueUploadUtil", `${percentDone}% - ${message}`);
             if (percentDone === 100) {
-                // Only show error toast on failure, success proceeds silently to next action
                 if (message === "backupFailed") {
                     ToastAndroid.show(I18n.t('uploadFailed'), ToastAndroid.LONG);
+                } else {
+                    ToastAndroid.show(I18n.t('uploadSuccessful'), ToastAndroid.LONG);
                 }
                 if (onEndUpload) onEndUpload();
             }
