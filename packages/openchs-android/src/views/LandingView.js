@@ -90,7 +90,7 @@ class LandingView extends AbstractComponent {
             }
         };
         return _.isNil(menuMessageKey) ? null : (
-            <View key={idx} style={{
+            <TouchableOpacity key={idx} style={{
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexDirection: 'column',
@@ -100,22 +100,21 @@ class LandingView extends AbstractComponent {
                 width: itemWidth,
                 height: layoutConstants.itemHeight,
             }}
+                  onPress={() => {
+                      General.logWarn('LandingView', `RAW TOUCH EVENT: ${menuMessageKey} `);
+                      wrappedPressHandler();
+                  }}
+                  disabled={false}
+                  activeOpacity={0.6}
             >
-                <TouchableOpacity style={{height: layoutConstants.iconSize,
+                <View style={{height: layoutConstants.iconSize,
                     width: layoutConstants.iconSize,
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: layoutConstants.iconMarginBottom,
-                }}
-                                  onPress={() => {
-                                      General.logWarn('LandingView', `RAW TOUCH EVENT: ${menuMessageKey} `);
-                                      wrappedPressHandler();
-                                  }}
-                                  disabled={false}
-                                  activeOpacity={0.6}
-                >
+                }}>
                     {icon}
-                </TouchableOpacity>
+                </View>
                 <View
                     style={{
                         width: itemWidth * layoutConstants.textWidthRatio,
@@ -135,7 +134,7 @@ class LandingView extends AbstractComponent {
                         {menuMessageKey}
                     </Text>
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     }
 
