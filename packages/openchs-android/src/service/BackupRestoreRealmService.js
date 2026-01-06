@@ -15,7 +15,7 @@ import {unzip, zip} from 'react-native-zip-archive';
 import Service from "../framework/bean/Service";
 import BaseService from "../service/BaseService";
 import MediaQueueService from "../service/MediaQueueService";
-import {get} from '../framework/http/requests';
+import {get, getJSON} from '../framework/http/requests';
 import SettingsService from "../service/SettingsService";
 import MediaService from "./MediaService";
 import _ from 'lodash';
@@ -80,12 +80,20 @@ export default class BackupRestoreRealmService extends BaseService {
     _performFullBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername = null) {
         const username = this._getUsernameForBackup(providedUsername);
         const uploadFileName = `adhoc-dump-as-zip-${username}-${General.randomUUID()}`;
+        const serverUrl = this._getServerUrl();
         
         return this._prepareBackupFiles(destFile, fileLoggerService)
             .then((filesToZip) => zip(filesToZip, destZipFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
+                // Pre-flight request to establish XSRF cookie before upload URL fetch
+                return getJSON(`${serverUrl}/me`)
+                    .then(() => General.logDebug("BackupRestoreRealmService", "Pre-flight request completed, XSRF cookie established"))
+                    .catch((error) => {
+                        General.logWarn("BackupRestoreRealmService", `Pre-flight request failed: ${error.message}`);
+                        throw error;
+            });
             })
             .then(() => mediaQueueService.getDumpUploadUrl(dumpType, uploadFileName))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
@@ -133,6 +141,15 @@ export default class BackupRestoreRealmService extends BaseService {
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Logs-only backup created locally");
                 cb(10, "backupUploading");
+                // Pre-flight request to establish XSRF cookie before upload URL fetch
+                return getJSON(`${serverUrl}/me`)
+                    .then(() => General.logDebug("BackupRestoreRealmService", "Pre-flight request completed, XSRF cookie established"))
+                    .catch((error) => {
+                        General.logWarn("BackupRestoreRealmService", `Pre-flight request failed: ${error.message}`);
+                        throw error;
+                });
+            })
+            .then(() => {
                 const uploadUrl = `${serverUrl}/media/uploadUrl/adhoc-logs-only-${username}-${General.randomUUID()}`;
                 // Use timeout for upload URL fetch to prevent hanging on network failures
                 return get(uploadUrl, false, false)
