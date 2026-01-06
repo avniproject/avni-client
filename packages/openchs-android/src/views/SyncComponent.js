@@ -27,6 +27,11 @@ class SyncComponent extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.syncComponentAction);
+        this.state = {
+            ...this.state,
+            uploadProgress: 0,
+            uploadMessage: ""
+        };
     }
 
     viewName() {
@@ -111,7 +116,8 @@ class SyncComponent extends AbstractComponent {
                     avniError,
                     "SyncComponent",
                     () => this.setState({uploading: true}),
-                    () => this.setState({uploading: false})
+                    () => this.setState({uploading: false}),
+                    (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message})
                 )
             ]
         );
@@ -203,6 +209,17 @@ class SyncComponent extends AbstractComponent {
     }
 
     renderSyncModal() {
+        // Show upload progress bar if uploading issue info
+        if (this.state.uploading) {
+            return <ProgressBarView
+                progress={this.state.uploadProgress / 100}
+                message={this.state.uploadMessage}
+                syncing={this.state.uploading}
+                onPress={_.noop}
+                notifyUserOnCompletion={false}
+            />;
+        }
+        // Show sync progress bar during normal sync
         return <ProgressBarView
             progress={this.state.progress}
             currentPageNumber={this.state.numberOfPagesProcessedForCurrentEntity}

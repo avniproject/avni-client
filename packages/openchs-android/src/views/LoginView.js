@@ -41,6 +41,7 @@ import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import { AlertMessage } from "./common/AlertMessage";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import RNRestart from 'react-native-restart';
+import ProgressBarView from "./ProgressBarView";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -48,6 +49,11 @@ class LoginView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.loginActions);
         this.safeLogin = this.safeLogin.bind(this);
         this.clearDataAndLogin = this.clearDataAndLogin.bind(this);
+        this.state = {
+            ...this.state,
+            uploadProgress: 0,
+            uploadMessage: ""
+        };
     }
 
     componentDidMount() {
@@ -177,6 +183,7 @@ class LoginView extends AbstractComponent {
                     const RESTART_DELAY_MS = 2000;
                     setTimeout(() => RNRestart.Restart(), RESTART_DELAY_MS);
                 },
+                (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message}),
                 this.state.userId
             ),
             {
@@ -203,6 +210,15 @@ class LoginView extends AbstractComponent {
         const {width, height} = Dimensions.get('window');
         return (
             <CHSContainer>
+                {this.state.uploading && (
+                    <ProgressBarView
+                        progress={this.state.uploadProgress / 100}
+                        message={this.state.uploadMessage}
+                        syncing={this.state.uploading}
+                        onPress={_.noop}
+                        notifyUserOnCompletion={false}
+                    />
+                )}
                 <ScrollView keyboardShouldPersistTaps="handled">
                     <DBRestoreProgress/>
                     <CHSContent>

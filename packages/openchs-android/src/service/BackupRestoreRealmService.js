@@ -134,7 +134,8 @@ export default class BackupRestoreRealmService extends BaseService {
                 General.logDebug("BackupRestoreRealmService", "Logs-only backup created locally");
                 cb(10, "backupUploading");
                 const uploadUrl = `${serverUrl}/media/uploadUrl/adhoc-logs-only-${username}-${General.randomUUID()}`;
-                return get(uploadUrl)
+                // Use timeout for upload URL fetch to prevent hanging on network failures
+                return get(uploadUrl, false, false)
                     .then((url) => mediaQueueService.foregroundUpload(url, logsOnlyFileName, (written, total) => {
                         General.logDebug("BackupRestoreRealmService", `Logs-only upload in progress ${written}/${total}`);
                         cb(10 + (97 - 10) * (written / total), "backupUploading");
