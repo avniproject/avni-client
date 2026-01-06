@@ -57,8 +57,7 @@ class BaseAddressLevelService extends BaseService {
         if (_.includes(levelTypeUUIDs, addressLevel.typeUuid)) return true;
         else {
             const childrenParent = this.getChildren(addressLevel.uuid);
-            if (_.isEmpty(childrenParent)) return false;
-            else return this.isTypeUUIDPresent(_.head(childrenParent), levelTypeUUIDs);
+            return !_.isEmpty(childrenParent) && _.some(childrenParent, child => this.isTypeUUIDPresent(child, levelTypeUUIDs));
         }
     }
 
