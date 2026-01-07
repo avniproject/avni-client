@@ -1,4 +1,4 @@
-import {Text, TextInput, View} from "react-native";
+import {Text, TextInput, View, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import {Radio} from "native-base";
@@ -99,10 +99,18 @@ class DurationDateFormElement extends AbstractFormElement {
                     })}
                     style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 5}}>
                     {this.props.durationOptions.map((durationOption, index) => {
-                        return <View key={index} style={{flexDirection: 'row', alignItems: 'center', width: '45%', marginBottom: 8}}>
+                        return <TouchableOpacity 
+                                key={index} 
+                                style={{flexDirection: 'row', alignItems: 'center', width: '45%', marginBottom: 8}}
+                                onPress={() => this.dispatchAction(this.props.actionName, {
+                                    formElement: this.props.element,
+                                    duration: this.props.duration.changeUnit(durationOption),
+                                    parentFormElement: this.props.parentElement,
+                                    questionGroupIndex: this.props.questionGroupIndex
+                                })}>
                             <Radio value={durationOption} style={{marginLeft:DGS.resizeWidth(20)}} color={Colors.AccentColor}/>
                             <Text style={[DGS.formRadioText, {marginLeft: 8}]}>{this.I18n.t(durationOption)}</Text>
-                        </View>
+                        </TouchableOpacity>
                     })}
                 </Radio.Group>
                 <ValidationErrorMessage validationResult={this.dateValidationError()}/>
