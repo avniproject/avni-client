@@ -80,20 +80,12 @@ export default class BackupRestoreRealmService extends BaseService {
     _performFullBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername = null) {
         const username = this._getUsernameForBackup(providedUsername);
         const uploadFileName = `adhoc-dump-as-zip-${username}-${General.randomUUID()}`;
-        const serverUrl = this._getServerUrl();
         
         return this._prepareBackupFiles(destFile, fileLoggerService)
             .then((filesToZip) => zip(filesToZip, destZipFile))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Getting upload location");
                 cb(10, "backupUploading");
-                // Pre-flight request to establish XSRF cookie before upload URL fetch
-                return getJSON(`${serverUrl}/me`)
-                    .then(() => General.logDebug("BackupRestoreRealmService", "Pre-flight request completed, XSRF cookie established"))
-                    .catch((error) => {
-                        General.logWarn("BackupRestoreRealmService", `Pre-flight request failed: ${error.message}`);
-                        throw error;
-            });
             })
             .then(() => mediaQueueService.getDumpUploadUrl(dumpType, uploadFileName))
             .then((url) => mediaQueueService.foregroundUpload(url, destZipFile, (written, total) => {
@@ -121,13 +113,8 @@ export default class BackupRestoreRealmService extends BaseService {
     }
 
     _performLogsOnlyBackup(destFile, destZipFile, fileLoggerService, mediaQueueService, dumpType, cb, providedUsername = null) {
-        // Create logs-only backup without realm database
         const logsOnlyFileName = destFile.replace('.realm', '-logs-only.zip');
-        
-        // Get username from login input or fallback
         const username = this._getUsernameForBackup(providedUsername);
-        
-        // Get server URL from app config (fixed in APK)
         const serverUrl = this._getServerUrl();
         
         if (!serverUrl) {
@@ -136,34 +123,25 @@ export default class BackupRestoreRealmService extends BaseService {
             return;
         }
         
+        const uploadFileName = `adhoc-logs-only-${username}-${General.randomUUID()}`;
         return this._prepareLogsOnlyBackup(fileLoggerService)
             .then((filesToZip) => zip(filesToZip, logsOnlyFileName))
             .then(() => {
                 General.logDebug("BackupRestoreRealmService", "Logs-only backup created locally");
                 cb(10, "backupUploading");
-                // Pre-flight request to establish XSRF cookie before upload URL fetch
-                return getJSON(`${serverUrl}/me`)
-                    .then(() => General.logDebug("BackupRestoreRealmService", "Pre-flight request completed, XSRF cookie established"))
-                    .catch((error) => {
-                        General.logWarn("BackupRestoreRealmService", `Pre-flight request failed: ${error.message}`);
-                        throw error;
-                });
+                
             })
+            .then(() => mediaQueueService.getDumpUploadUrl(dumpType, uploadFileName))
+            .then((url) => mediaQueueService.foregroundUpload(url, logsOnlyFileName, (written, total) => {
+                General.logDebug("BackupRestoreRealmService", `Logs-only upload in progress ${written}/${total}`);
+                cb(10 + (97 - 10) * (written / total), "backupUploading");
+            }))
             .then(() => {
-                const uploadUrl = `${serverUrl}/media/uploadUrl/adhoc-logs-only-${username}-${General.randomUUID()}`;
-                // Use timeout for upload URL fetch to prevent hanging on network failures
-                return get(uploadUrl, false, false)
-                    .then((url) => mediaQueueService.foregroundUpload(url, logsOnlyFileName, (written, total) => {
-                        General.logDebug("BackupRestoreRealmService", `Logs-only upload in progress ${written}/${total}`);
-                        cb(10 + (97 - 10) * (written / total), "backupUploading");
-                    }))
-                    .then(() => {
-                        General.logDebug("BackupRestoreRealmService", "Removing logs-only backup file created");
-                        cb(97, "backupUploading");
-                    })
-                    .then(() => removeBackupFile(logsOnlyFileName))
-                    .then(() => cb(100, "backupCompleted"));
+                General.logDebug("BackupRestoreRealmService", "Removing logs-only backup file created");
+                cb(97, "backupUploading");
             })
+            .then(() => removeBackupFile(logsOnlyFileName))
+            .then(() => cb(100, "backupCompleted"))
             .catch((error) => {
                 General.logError("BackupRestoreRealmService", `Logs-only backup failed: ${error.message}`);
                 // Clean up files on error

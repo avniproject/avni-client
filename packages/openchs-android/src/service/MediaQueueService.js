@@ -106,10 +106,11 @@ class MediaQueueService extends BaseService {
     }
 
     getDumpUploadUrl(dumpType, fileName) {
+        const serverUrl = this.getServerUrl();
         if (dumpType === MediaQueueService.DumpType.Catchment)
-            return get(`${this.getServerUrl()}/media/mobileDatabaseBackupUrl/upload`);
+            return get(`${serverUrl}/media/mobileDatabaseBackupUrl/upload`, false, false);
         else if (dumpType === MediaQueueService.DumpType.Adhoc)
-            return get(`${this.getServerUrl()}/media/uploadUrl/${fileName}`);
+            return get(`${serverUrl}/media/uploadUrl/${fileName}`, false, false);
     }
 
     getUploadUrl(mediaQueueItem) {
