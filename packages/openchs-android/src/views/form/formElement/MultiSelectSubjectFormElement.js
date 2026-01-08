@@ -42,8 +42,12 @@ class MultiSelectSubjectFormElement extends SubjectFormElement {
                     <FormElementLabelWithDocumentation element={this.props.element}/>
                     {this.renderSearchIcon()}
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                    {_.map(subjectUUIDs, subjectUUID => this.renderAnswer(this.individualService.findByUUID(subjectUUID)))}
+                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                    {_.map(subjectUUIDs, subjectUUID => 
+                        <View key={subjectUUID} style={{marginRight: 8, marginBottom: 8}}>
+                            {this.renderAnswer(this.individualService.findByUUID(subjectUUID))}
+                        </View>
+                    )}
                 </View>
                 <ValidationErrorMessage validationResult={this.props.validationResult}/>
             </View>
