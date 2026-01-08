@@ -197,6 +197,9 @@ class LoginView extends AbstractComponent {
     }
 
     restoreFailureAlert(error, source) {
+        // Hide the progress dialog before showing the failure alert
+        this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: 100, message: null});
+        
         if (error && error instanceof ServerError)
             getAvniError(error, this.I18n).then((avniError) => this.displayFailureAlert(avniError, source));
         else {
