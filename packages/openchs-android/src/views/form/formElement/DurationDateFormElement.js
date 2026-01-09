@@ -11,7 +11,6 @@ import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
 import UserInfoService from "../../../service/UserInfoService";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
-import ValidationErrorMessage from "../ValidationErrorMessage";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,21 +26,6 @@ class DurationDateFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         this.userSettings = context.getService(UserInfoService).getUserSettings();
-    }
-
-    isDateValid(date) {
-        if (!date) return true;
-        const currentDate = new Date();
-        const yearDifference = Math.abs(currentDate.getFullYear() - date.getFullYear());
-        return yearDifference <= 2000;
-    }
-
-    dateValidationError() {
-        const date = this.props.dateValue?.getValue();
-        if (!this.isDateValid(date)) {
-            return {messageKey: "invalidDate"};
-        }
-        return null;
     }
 
     render() {
@@ -113,7 +97,6 @@ class DurationDateFormElement extends AbstractFormElement {
                         </TouchableOpacity>
                     })}
                 </Radio.Group>
-                <ValidationErrorMessage validationResult={this.dateValidationError()}/>
                 </View>
             </View>
         );
