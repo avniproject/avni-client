@@ -63,7 +63,10 @@ function pruneMedia(db, directory, orphanDetector) {
         .then((orphanedFiles) => _.map(orphanedFiles, (file) => `${directory}/${file}`))
         .then((deleteList) => _.forEach(deleteList, deleteFile))
         .then(() => General.logInfo("PruneMedia", `${directory} completed`))
-        .then(() => Promise.resolve());
+        .then(() => Promise.resolve())
+        .catch((error) => {
+            General.logError("PruneMedia", `Error pruning ${directory}: ${error}`);
+        });
 }
 
 class PruneMedia extends BaseTask {
