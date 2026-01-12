@@ -1,7 +1,7 @@
 import RNFS from 'react-native-fs';
 import moment from 'moment';
 
-const LOG_DIR = `${RNFS.ExternalDirectoryPath}/Avni/logs`;
+const LOG_DIR = `${RNFS.DocumentDirectoryPath}/logs`;
 const LOG_FILE_NAME = 'avni.log';
 const LOG_FILE_PATH = `${LOG_DIR}/${LOG_FILE_NAME}`;
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15MB max
@@ -115,6 +115,17 @@ class FileLoggerService {
         }
     }
 
+    async ensureLogDirectoryExists() {
+        try {
+            const dirExists = await RNFS.exists(LOG_DIR);
+            if (!dirExists) {
+                await RNFS.mkdir(LOG_DIR);
+            }
+        } catch (error) {
+            console.error('FileLoggerService: Failed to ensure log directory exists', error);
+        }
+    }
+
     async processQueue() {
         if (this.isWriting || this.writeQueue.length === 0) return;
 
@@ -123,6 +134,7 @@ class FileLoggerService {
             const entries = this.writeQueue.splice(0, 100);
             const content = entries.join('\n') + '\n';
 
+            await this.ensureLogDirectoryExists();
             await this.trimLogFile();
             await RNFS.appendFile(LOG_FILE_PATH, content, 'utf8');
         } catch (error) {

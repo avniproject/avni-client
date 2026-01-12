@@ -25,7 +25,7 @@ export class PersonRegisterActions {
     static getInitialState(context) {
         const genders = context.get(EntityService).getAll(Gender.schema.name);
         const gendersSortedByName = _.sortBy(genders, "name");
-        return new IndividualRegistrationState([], null, new Wizard(1, 2, 1), gendersSortedByName, null, true, null, null, true, [], null, null, null);
+        return new IndividualRegistrationState([], null, new Wizard(1, 2, 1), gendersSortedByName, null, true, Individual.createEmptySubjectInstance(), null, true, [], null, null, null);
     }
 
     static onLoad(state, action, context) {

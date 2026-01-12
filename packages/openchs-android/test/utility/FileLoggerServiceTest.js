@@ -223,7 +223,7 @@ describe('FileLoggerServiceTest', () => {
             await new Promise(resolve => setTimeout(resolve, 150));
             
             const logPath = mockRNFS.appendFile.mock.calls[0][0];
-            expect(logPath).to.equal('/mock/external/Avni/logs/avni.log');
+            expect(logPath).to.equal('/mock/documents/logs/avni.log');
         });
 
         it('should handle circular reference objects gracefully', async () => {
@@ -277,6 +277,79 @@ describe('FileLoggerServiceTest', () => {
             
             await new Promise(resolve => setTimeout(resolve, 300));
             expect(mockRNFS.appendFile.mock.calls.length).to.be.greaterThan(0);
+        });
+    });
+
+    describe('Directory Recreation After Deletion', () => {
+        beforeEach(async () => {
+            mockRNFS.exists.mockResolvedValue(true);
+            mockRNFS.stat.mockResolvedValue({ size: 1000 });
+            await fileLoggerService.initialize();
+        });
+
+        it('should recreate log directory if deleted after initialization', async () => {
+            mockRNFS.exists
+                .mockResolvedValueOnce(false)  // ensureLogDirectoryExists - dir doesn't exist
+                .mockResolvedValueOnce(false); // trimLogFile - file doesn't exist
+            mockRNFS.mkdir.mockResolvedValue();
+
+            fileLoggerService.log('test after deletion');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            const mkdirCalls = mockRNFS.mkdir.mock.calls;
+            expect(mkdirCalls.length).to.be.greaterThan(0);
+            expect(mockRNFS.appendFile.mock.calls.length).to.be.greaterThan(0);
+        });
+
+        it('should continue logging after directory is recreated', async () => {
+            mockRNFS.exists
+                .mockResolvedValueOnce(false)  // First log - dir deleted
+                .mockResolvedValueOnce(false)  // trimLogFile
+                .mockResolvedValueOnce(true)   // Second log - dir exists now
+                .mockResolvedValueOnce(true);  // trimLogFile
+            mockRNFS.mkdir.mockResolvedValue();
+
+            fileLoggerService.log('first message');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            fileLoggerService.log('second message');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            expect(mockRNFS.appendFile.mock.calls.length).to.equal(2);
+        });
+
+        it('should not create directory if it already exists during write', async () => {
+            mockRNFS.exists.mockResolvedValue(true);
+            mockRNFS.mkdir.mockClear();
+
+            fileLoggerService.log('test');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            expect(mockRNFS.mkdir.mock.calls.length).to.equal(0);
+        });
+
+        it('should handle log file deletion (appendFile creates file if missing)', async () => {
+            mockRNFS.exists
+                .mockResolvedValueOnce(true)   // ensureLogDirectoryExists - dir exists
+                .mockResolvedValueOnce(false); // trimLogFile - file doesn't exist (deleted)
+            
+            fileLoggerService.log('test after file deletion');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            expect(mockRNFS.appendFile.mock.calls.length).to.equal(1);
+            const writtenContent = mockRNFS.appendFile.mock.calls[0][1];
+            expect(writtenContent).to.include('test after file deletion');
+        });
+
+        it('should handle both directory and file deletion', async () => {
+            mockRNFS.exists.mockResolvedValue(false); // Both dir and file don't exist
+            mockRNFS.mkdir.mockResolvedValue();
+
+            fileLoggerService.log('test after full deletion');
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            expect(mockRNFS.mkdir.mock.calls.length).to.be.greaterThan(0);
+            expect(mockRNFS.appendFile.mock.calls.length).to.equal(1);
         });
     });
 

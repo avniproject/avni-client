@@ -40,6 +40,8 @@ import ServerError, {getAvniError} from "../service/ServerError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import { AlertMessage } from "./common/AlertMessage";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
+import RNRestart from 'react-native-restart';
+import ProgressBarView from "./ProgressBarView";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -47,6 +49,11 @@ class LoginView extends AbstractComponent {
         super(props, context, Reducers.reducerKeys.loginActions);
         this.safeLogin = this.safeLogin.bind(this);
         this.clearDataAndLogin = this.clearDataAndLogin.bind(this);
+        this.state = {
+            ...this.state,
+            uploadProgress: 0,
+            uploadMessage: ""
+        };
     }
 
     componentDidMount() {
@@ -160,32 +167,39 @@ class LoginView extends AbstractComponent {
     }
 
     displayFailureAlert(avniError, source) {
-        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), [
-                {
-                    text: this.I18n.t('tryAgain'),
-                    onPress: () => this.dispatchAction(Actions.ON_DUMP_RESTORE_RETRY, {
-                        ...this.dumpRestoreAction.call(this),
-                        source
-                    })
+        // Show 2 buttons for all restore failures:
+        // 1. Upload & Restart - uploads logs and restarts
+        // 2. Perform Slow Sync - proceeds with slow sync using original realm
+        // (Original realm is restored on failure, so slow sync will work)
+        const buttons = [
+            IssueUploadUtil.createUploadIssueInfoButton(
+                this.context,
+                this.I18n,
+                avniError,
+                "LoginView",
+                () => this.setState({uploading: true}),
+                () => {
+                    this.setState({uploading: false});
+                    const RESTART_DELAY_MS = 2000;
+                    setTimeout(() => RNRestart.Restart(), RESTART_DELAY_MS);
                 },
-                IssueUploadUtil.createUploadIssueInfoButton(
-                    this.context,
-                    this.I18n,
-                    avniError,
-                    "LoginView",
-                    () => this.setState({uploading: true}),
-                    () => this.setState({uploading: false})
-                ),
-                {
-                    text: this.I18n.t('performNormalSync'),
-                    onPress: () => this.loginComplete(source),
-                    style: 'cancel'
-                }
-            ]
-        );
+                (percentDone, message) => this.setState({uploadProgress: percentDone, uploadMessage: message}),
+                this.state.userId
+            ),
+            {
+                text: this.I18n.t('performNormalSync'),
+                onPress: () => this.loginComplete(source),
+                style: 'cancel'
+            }
+        ];
+        
+        Alert.alert(this.I18n.t('restoreFailedTitle'), avniError.getDisplayMessage(), buttons);
     }
 
     restoreFailureAlert(error, source) {
+        // Hide the progress dialog before showing the failure alert
+        this.dispatchAction(Actions.ON_DUMP_RESTORING, {percentProgress: 100, message: null});
+        
         if (error && error instanceof ServerError)
             getAvniError(error, this.I18n).then((avniError) => this.displayFailureAlert(avniError, source));
         else {
@@ -199,6 +213,15 @@ class LoginView extends AbstractComponent {
         const {width, height} = Dimensions.get('window');
         return (
             <CHSContainer>
+                {this.state.uploading && (
+                    <ProgressBarView
+                        progress={this.state.uploadProgress / 100}
+                        message={this.state.uploadMessage}
+                        syncing={this.state.uploading}
+                        onPress={_.noop}
+                        notifyUserOnCompletion={false}
+                    />
+                )}
                 <ScrollView keyboardShouldPersistTaps="handled">
                     <DBRestoreProgress/>
                     <CHSContent>

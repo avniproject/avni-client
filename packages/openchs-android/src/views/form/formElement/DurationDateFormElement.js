@@ -1,4 +1,4 @@
-import {Text, TextInput, View} from "react-native";
+import {Text, TextInput, View, TouchableOpacity} from "react-native";
 import PropTypes from 'prop-types';
 import React from "react";
 import {Radio} from "native-base";
@@ -11,7 +11,6 @@ import Distances from "../../primitives/Distances";
 import Styles from "../../primitives/Styles";
 import UserInfoService from "../../../service/UserInfoService";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
-import ValidationErrorMessage from "../ValidationErrorMessage";
 
 class DurationDateFormElement extends AbstractFormElement {
     static propTypes = {
@@ -27,21 +26,6 @@ class DurationDateFormElement extends AbstractFormElement {
     constructor(props, context) {
         super(props, context);
         this.userSettings = context.getService(UserInfoService).getUserSettings();
-    }
-
-    isDateValid(date) {
-        if (!date) return true;
-        const currentDate = new Date();
-        const yearDifference = Math.abs(currentDate.getFullYear() - date.getFullYear());
-        return yearDifference <= 2000;
-    }
-
-    dateValidationError() {
-        const date = this.props.dateValue?.getValue();
-        if (!this.isDateValid(date)) {
-            return {messageKey: "invalidDate"};
-        }
-        return null;
     }
 
     render() {
@@ -99,13 +83,20 @@ class DurationDateFormElement extends AbstractFormElement {
                     })}
                     style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 5}}>
                     {this.props.durationOptions.map((durationOption, index) => {
-                        return <View key={index} style={{flexDirection: 'row', alignItems: 'center', marginRight: 15}}>
+                        return <TouchableOpacity 
+                                key={index} 
+                                style={{flexDirection: 'row', alignItems: 'center', width: '45%', marginBottom: 8}}
+                                onPress={() => this.dispatchAction(this.props.actionName, {
+                                    formElement: this.props.element,
+                                    duration: this.props.duration.changeUnit(durationOption),
+                                    parentFormElement: this.props.parentElement,
+                                    questionGroupIndex: this.props.questionGroupIndex
+                                })}>
                             <Radio value={durationOption} style={{marginLeft:DGS.resizeWidth(20)}} color={Colors.AccentColor}/>
-                            <Text style={DGS.formRadioText}>{this.I18n.t(durationOption)}</Text>
-                        </View>
+                            <Text style={[DGS.formRadioText, {marginLeft: 8}]}>{this.I18n.t(durationOption)}</Text>
+                        </TouchableOpacity>
                     })}
                 </Radio.Group>
-                <ValidationErrorMessage validationResult={this.dateValidationError()}/>
                 </View>
             </View>
         );

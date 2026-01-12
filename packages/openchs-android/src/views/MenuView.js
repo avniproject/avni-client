@@ -174,10 +174,19 @@ class MenuView extends AbstractComponent {
                     text: this.I18n.t('yes'), onPress: () => {
                         this.dispatchAction(MenuActionNames.ON_BACKUP_DUMP, {
                             dumpType: dumpType,
-                            onBackupDumpCb: (percentDone, message) => this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
-                                percentDone: percentDone,
-                                message: message
-                            })
+                            onBackupDumpCb: (percentDone, message) => {
+                                this.dispatchAction(MenuActionNames.ON_BACKUP_PROGRESS, {
+                                    percentDone: percentDone,
+                                    message: message
+                                });
+                                if (percentDone === 100) {
+                                    if (message === "backupCompleted") {
+                                        Alert.alert(this.I18n.t('uploadSuccessful'));
+                                    } else if (message === "backupFailed") {
+                                        Alert.alert(this.I18n.t('uploadFailed'));
+                                    }
+                                }
+                            }
                         });
                     }
                 },
