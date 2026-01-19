@@ -275,7 +275,18 @@ class IndividualProfile extends AbstractComponent {
     }
     
     navigateToLocation() {
-        //TODO: Complete this
+        const subjectLocation = this.props.individual.subjectLocation;
+        const lat = subjectLocation.latitude;
+        const lng = subjectLocation.longitude;
+        const url = `geo:${lat},${lng}?q=${lat},${lng}(${this.props.individual.nameString})`;
+
+        Linking.canOpenURL(url)
+            .then(() => {
+                    return Linking.openURL(url);
+            })
+            .catch(err => {
+                Alert.alert('Error', `Unable to open map application`);
+            });
 
     }
 
