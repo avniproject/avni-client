@@ -8,8 +8,9 @@ export class IndividualProfileActions {
         return {
             eligiblePrograms: [],
             displayActionSelector: false,
+            displayLocationOptions: false,
             commentsCount: 0,
-            displayProgressIndicator: false
+            displayProgressIndicator: false,
         };
     }
 
@@ -17,9 +18,10 @@ export class IndividualProfileActions {
         return {
             eligiblePrograms: state.eligiblePrograms.slice(),
             displayActionSelector: state.displayActionSelector,
+            displayLocationOptions: state.displayLocationOptions,
             commentsCount: state.commentsCount,
             programActions: state.programActions,
-            displayProgressIndicator: state.displayProgressIndicator
+            displayProgressIndicator: state.displayProgressIndicator,
         }
     }
 
@@ -32,6 +34,18 @@ export class IndividualProfileActions {
     static hideActionSelector(state) {
         const newState = IndividualProfileActions.clone(state);
         newState.displayActionSelector = false;
+        return newState;
+    }
+    
+    static showLocationOptions(state) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.displayLocationOptions = true;
+        return newState;
+    }
+    
+    static hideLocationOptions(state) {
+        const newState = IndividualProfileActions.clone(state);
+        newState.displayLocationOptions = false;
         return newState;
     }
 
@@ -67,15 +81,12 @@ export class IndividualProfileActions {
     }
 
     static saveSubjectLocation(state, action, context) {
-        try {
-            const individual = action.individual.cloneForEdit();
-            individual.subjectLocation = action.subjectLocation;
-            const individualService = context.get(IndividualService);
-            individualService.updateSubjectLocation(individual);
-        } catch (error) {
-            throw error;
-        }
-        return state;
+        const newState = IndividualProfileActions.clone(state);
+        const individual = action.individual.cloneForEdit();
+        individual.subjectLocation = action.subjectLocation;
+        const individualService = context.get(IndividualService);
+        individualService.updateSubjectLocation(individual);
+        return newState;
     }
 
 }
@@ -84,6 +95,8 @@ const actions = {
     INDIVIDUAL_SELECTED: "IPA.INDIVIDUAL_SELECTED",
     LAUNCH_ACTION_SELECTOR: "IPA.LAUNCH_ACTION_SELECTOR",
     HIDE_ACTION_SELECTOR: "IPA.HIDE_ACTION_SELECTOR",
+    SHOW_LOCATION_OPTIONS: "IPA.SHOW_LOCATION_OPTIONS",
+    HIDE_LOCATION_OPTIONS: "IPA.HIDE_LOCATION_OPTIONS",
     REFRESH_MESSAGE_COUNTS: "IPA.REFRESH_MESSAGE_COUNTS",
     TOGGLE_PROGRESS_INDICATOR: "IPA.TOGGLE_PROGRESS_INDICATOR",
     SAVE_SUBJECT_LOCATION: "IPA.SAVE_SUBJECT_LOCATION"
@@ -93,6 +106,8 @@ export default new Map([
     [actions.INDIVIDUAL_SELECTED, IndividualProfileActions.individualSelected],
     [actions.LAUNCH_ACTION_SELECTOR, IndividualProfileActions.launchActionSelector],
     [actions.HIDE_ACTION_SELECTOR, IndividualProfileActions.hideActionSelector],
+    [actions.SHOW_LOCATION_OPTIONS, IndividualProfileActions.showLocationOptions],
+    [actions.HIDE_LOCATION_OPTIONS, IndividualProfileActions.hideLocationOptions],
     [actions.REFRESH_MESSAGE_COUNTS, IndividualProfileActions.refreshMessageCounts],
     [actions.TOGGLE_PROGRESS_INDICATOR, IndividualProfileActions.toggleProgressIndicator],
     [actions.SAVE_SUBJECT_LOCATION, IndividualProfileActions.saveSubjectLocation]

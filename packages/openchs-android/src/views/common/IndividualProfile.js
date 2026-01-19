@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {TouchableNativeFeedback, TouchableOpacity, View, Alert} from "react-native";
+import {TouchableNativeFeedback, TouchableOpacity, View, Alert, Linking} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import {Text} from "native-base";
@@ -19,8 +19,6 @@ import DeviceLocation from "../../utility/DeviceLocation";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import GenericDashboardView from "../program/GenericDashboardView";
-import Menu from "../menu";
-import MenuItem from "../menu/MenuItem";
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import {MessageIcon} from "./MessageIcon";
 import CommentView from "../comment/CommentView";
@@ -62,7 +60,7 @@ class IndividualProfile extends AbstractComponent {
         if (number) {
             return (
                 <MaterialIcon name="call" size={30}
-                              style={{color: Styles.accentColor}}
+                              style={{color: Styles.accentColor, marginRight:15, marginLeft:15}}
                               onPress={() => this.makeCall(number)}/>
             );
         } else {
@@ -81,7 +79,7 @@ class IndividualProfile extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
                     <View>
                         <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 30}} color={Styles.accentColor}/>
+                                  style={{fontSize: 30, marginRight:15, marginLeft:15}} color={Styles.accentColor}/>
                     </View>
                 </TouchableNativeFeedback>
             </View>);
@@ -156,22 +154,12 @@ class IndividualProfile extends AbstractComponent {
         const individualInfo = this.props.individual.subjectType.isPerson() ?
             `${this.I18n.t(this.props.individual.gender.name)}, ${this.props.individual.getAgeAndDateOfBirthDisplay(this.I18n)}, ${fullAddress}` :
             fullAddress;
-        
-        const showLocationIcon = !this.props.individual.subjectType.isUser();
-        
+
         return (
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={Styles.programProfileSubheading}>
                     {individualInfo}
                 </Text>
-                {showLocationIcon && (
-                    <MaterialIcon 
-                        name="add-location" 
-                        size={24}
-                        style={{color: Styles.accentColor, marginLeft: 8}}
-                        onPress={() => this.captureLocation()}
-                    />
-                )}
             </View>
         );
     }
@@ -208,13 +196,6 @@ class IndividualProfile extends AbstractComponent {
             isHousehold: groupSubject.groupSubject.isHousehold(),
         }))
     }
-
-    setMenuRef = ref => {
-        this._menu = ref;
-    };
-    showMenu = () => {
-        this._menu.show();
-    };
 
     onMessagePress() {
         const individualUUID = this.props.individual.uuid;
@@ -273,6 +254,31 @@ class IndividualProfile extends AbstractComponent {
             <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
     }
 
+    renderSubjectLocationIcon() {
+        const showLocationIcon = !this.props.individual.subjectType.isUser();
+        if (!showLocationIcon) return null;
+        
+        const hasLocation = this.props.individual.subjectLocation != null;
+
+        return (
+            <MaterialIcon
+                name={hasLocation ? "location-on" : "add-location"}
+                size={24}
+                style={{color: Styles.accentColor, marginLeft: 15, marginRight:15}}
+                onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
+            />
+        )
+    }
+    
+    showLocationOptions() {
+        this.dispatchAction(Actions.SHOW_LOCATION_OPTIONS);
+    }
+    
+    navigateToLocation() {
+        //TODO: Complete this
+
+    }
+
     renderNameDirectly(programAction) {
         return this.renderProfileActionButton('add', this.I18n.t('enrolIn', {program: this.I18n.t(programAction.label)}), () => programAction.fn())
     }
@@ -306,9 +312,25 @@ class IndividualProfile extends AbstractComponent {
                                 visible={this.state.displayActionSelector}
                                 actions={this.state.programActions}
                             />
-                            <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
+                            <ActionSelector
+                                title={this.I18n.t("locationOptions")}
+                                hide={() => this.dispatchAction(Actions.HIDE_LOCATION_OPTIONS)}
+                                visible={this.state.displayLocationOptions}
+                                actions={[
+                                    {
+                                        fn: () => this.navigateToLocation(),
+                                        label: 'navigate',
+                                        backgroundColor: Styles.accentColor
+                                    },
+                                    {
+                                        fn: () => this.captureLocation(),
+                                        label: 'editLocation',
+                                        backgroundColor: Styles.accentColor
+                                    }
+                                ]}
+                            />
+                            <View style={{flexDirection: 'column', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
                                 <View style={{
-                                    paddingHorizontal: 20,
                                     justifyContent: 'center',
                                 }}>
                                     <SubjectProfilePicture
@@ -320,13 +342,14 @@ class IndividualProfile extends AbstractComponent {
                                         individual={this.props.individual}
                                     />
                                 </View>
-                                <View style={{flex: 1, paddingHorizontal: 5}}>
+                                <View style={{alignItems: 'center'}}>
                                     <Text
                                         style={Styles.programProfileHeading}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
                                     {this.programProfileHeading()}
                                 </View>
 
-                                <View style={{flexDirection: 'column', paddingRight: 15}}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    {this.renderSubjectLocationIcon()}
                                     {this.renderCommentIcon()}
                                     {this.renderCallButton()}
                                     {this.renderWhatsappButton(this.props.individual.uuid)}
