@@ -1,6 +1,6 @@
 import Config from "../Config";
 import {Alert, View} from "react-native";
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import RNRestart from "react-native-restart";
 import {JSONStringify} from "../../utility/JsonStringify";
 import _ from "lodash";
@@ -15,6 +15,7 @@ export function ErrorDisplay({avniError, context, username = null}) {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadMessage, setUploadMessage] = useState("");
+    const [showErrorAlert, setShowErrorAlert] = useState(true);
     
     // Lazy getter for I18n - initializes on first access
     const i18nRef = useRef(null);
@@ -36,10 +37,11 @@ export function ErrorDisplay({avniError, context, username = null}) {
     
     const uploadIssueInfo = () => {
         console.log("ErrorDisplay", JSONStringify(avniError));
+        setShowErrorAlert(false);
         
         // Try to get context from prop first, fallback to GlobalContext singleton
         const serviceContext = context || (GlobalContext.getInstance().isInitialised() ? GlobalContext.getInstance().beanRegistry : null);
-        
+                        
         if (serviceContext) {
             setIsUploading(true);
             const backupRestoreService = serviceContext.getService(BackupRestoreRealmService);
@@ -71,18 +73,23 @@ export function ErrorDisplay({avniError, context, username = null}) {
     };
 
     const buttons = [
-        {text: "Close", onPress: _.noop},
-        {text: "Restart", onPress: () => RNRestart.Restart()},
-        {text: "Upload & Restart", onPress: uploadIssueInfo}
+        {text: "Close", onPress: () => setShowErrorAlert(false)},
+        {text: "Restart", onPress: () => {
+            setShowErrorAlert(false);
+            RNRestart.Restart();
+        }},
+        {text: "Upload issue info", onPress: uploadIssueInfo}
     ];
     
-    // Show alert only if not in server URL config mode and not already uploading
-    if (!Config.allowServerURLConfig && !isUploading) {
-        Alert.alert("App will restart now", avniError.getDisplayMessage(),
-            buttons,
-            {cancelable: true}
-        );
-    }
+    // Use useEffect to show alert only when needed
+    useEffect(() => {
+        if (!Config.allowServerURLConfig && !isUploading && showErrorAlert) {
+            Alert.alert("App will restart now", avniError.getDisplayMessage(),
+                buttons,
+                {cancelable: true}
+            );
+        }
+    }, [Config.allowServerURLConfig, isUploading, showErrorAlert, avniError, buttons]);
     
     return (
         <View>
