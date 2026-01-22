@@ -11,7 +11,7 @@ export const MessageIcon = ({messageCount, onPress}) => {
         <MCIcon name={'message-text-outline'} size={30} style={{
             color: Styles.accentColor,
             alignSelf: 'center',
-            fontSize: 25,
+            fontSize: 40,
             marginRight: 15,
             marginLeft: 15
         }}/>;

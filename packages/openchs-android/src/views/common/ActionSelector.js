@@ -14,6 +14,7 @@ import MCIIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Styles from "../primitives/Styles";
 import _ from "lodash";
 import Colors from "../primitives/Colors";
+import AvniIcon from "./AvniIcon";
 
 const {width} = Dimensions.get('window');
 
@@ -128,24 +129,29 @@ class ActionSelector extends AbstractComponent {
                 action.backgroundColor || Colors.ActionButtonColor,
                 action.label,
                 Colors.TextOnPrimaryColor,
+                action.icon,
                 key
             )
         )
     }
 
-    actionButton(onPress, buttonColor, text, textColor, index) {
+    actionButton(onPress, buttonColor, text, textColor, icon, index) {
         return (
             <View key={index} style={{paddingTop: 10}}>
                 <TouchableNativeFeedback onPress={() => {
                     this.props.hide();
                     onPress();
                 }}>
-                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7}]}>
+                    <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7, alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 15}]}>
+                        <View style={{width: 50, alignItems: 'center'}}>
+                            {icon && <AvniIcon name={icon} color={textColor} style={{fontSize: 50}} />}
+                        </View>
                         <Text style={{
                             fontSize: 18,
                             color: textColor,
                             textAlign: 'center',
                             paddingVertical: 8,
+                            flex: 1
                         }}>{this.I18n.t(text)}</Text>
                     </View>
                 </TouchableNativeFeedback>

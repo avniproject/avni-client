@@ -141,7 +141,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
         this.setState(state => ({...state, mode: Mode.Camera}));
         const includeLocationInfoValue = this.includeLocationInfo();
         if (includeLocationInfoValue) {
-            DeviceLocation.getPosition((position) => this.setState(state => ({...state, deviceLocation: position})), true, null);
+            DeviceLocation.getPosition((position) => this.setState(state => ({...state, deviceLocation: position})), true, null,this.I18n);
         }
 
         const options = {

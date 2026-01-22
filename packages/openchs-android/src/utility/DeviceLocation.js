@@ -25,7 +25,7 @@ export default class DeviceLocation {
         return false;
     }
 
-    static async getPosition(successCallbackFn, silent = true, errorCallbackFn = null) {
+    static async getPosition(successCallbackFn, silent = true, errorCallbackFn = null, i18n) {
         const hasPermission = await this.askLocationPermission();
         if (hasPermission) {
             Geolocation.getCurrentPosition(
@@ -33,22 +33,27 @@ export default class DeviceLocation {
                     if (silent) {
                         successCallbackFn(position);
                     } else {
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
                         const accuracy = position.coords.accuracy;
 
                         Alert.alert(
-                            'Location Captured',
-                            `Latitude: ${latitude?.toFixed(6)}\nLongitude: ${longitude?.toFixed(6)}\nAccuracy: ${accuracy?.toFixed(2)} meters\n\nDo you want to save this location or capture again?`,
+                            i18n.t('saveLocation'),
+                            i18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}) ,
                             [
                                 { 
-                                    text: 'Capture Again', 
-                                    onPress: () => {
-                                        this.getPosition(successCallbackFn, silent);
+                                    text: i18n.t('cancel') ,
+                                    style: 'cancel',
+                                    onPress:()=>{
+                                        errorCallbackFn && errorCallbackFn();
                                     }
                                 },
                                 { 
-                                    text: 'Save Location', 
+                                    text: 'Retry',
+                                    onPress: () => {
+                                        this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                                    }
+                                },
+                                { 
+                                    text: 'Save Location',
                                     onPress: () => {
                                         successCallbackFn(position);
                                     }
@@ -81,7 +86,7 @@ export default class DeviceLocation {
                                     { 
                                         text: 'Try Again', 
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn);
+                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];
@@ -93,7 +98,7 @@ export default class DeviceLocation {
                                     { 
                                         text: 'Try Again', 
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn);
+                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];
@@ -105,7 +110,7 @@ export default class DeviceLocation {
                                     { 
                                         text: 'Try Again', 
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn);
+                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];

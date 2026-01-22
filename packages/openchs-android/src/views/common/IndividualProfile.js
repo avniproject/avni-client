@@ -59,15 +59,16 @@ class IndividualProfile extends AbstractComponent {
         const number = this.getMobileNoFromObservation();
         if (number) {
             return (
-                <MaterialIcon name="call" size={30}
-                              style={{color: Styles.accentColor, marginRight:15, marginLeft:15}}
-                              onPress={() => this.makeCall(number)}/>
-            );
+            <MaterialIcon name="call"
+                      style={{color: Styles.accentColor, marginRight:15, marginLeft:15, fontSize: 40}}
+                      onPress={() => this.makeCall(number)}/>
+        );
         } else {
             return (
                 <View/>
             );
         }
+
     }
 
     renderWhatsappButton(individualUUID) {
@@ -79,7 +80,7 @@ class IndividualProfile extends AbstractComponent {
                 <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
                     <View>
                         <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 30, marginRight:15, marginLeft:15}} color={Styles.accentColor}/>
+                                  style={{fontSize: 40, marginRight:15, marginLeft:15}} color={Styles.accentColor}/>
                     </View>
                 </TouchableNativeFeedback>
             </View>);
@@ -119,15 +120,16 @@ class IndividualProfile extends AbstractComponent {
                         subjectLocation: subjectLocation
                     });
                     
-                    Alert.alert('Success', 'Location saved successfully. Download offline maps to navigate without internet.');
+                    Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
                 } catch (error) {
-                    Alert.alert('Error', 'Failed to save location. Please try again.');
+                    Alert.alert('Error', this.I18n.t('locationSaveError'));
                 }
             },
             false,
             (error) => {
                 this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-            }
+            },
+            this.I18n
         );
     }
 
@@ -255,16 +257,12 @@ class IndividualProfile extends AbstractComponent {
     }
 
     renderSubjectLocationIcon() {
-        const showLocationIcon = !this.props.individual.subjectType.isUser();
-        if (!showLocationIcon) return null;
-        
         const hasLocation = this.props.individual.subjectLocation != null;
 
         return (
             <MaterialIcon
-                name={hasLocation ? "location-on" : "add-location"}
-                size={24}
-                style={{color: Styles.accentColor, marginLeft: 15, marginRight:15}}
+                name={hasLocation ? "location-on" : "add-location-alt"}
+                style={{color: Styles.accentColor, marginLeft: 15, marginRight:15, fontSize: 40}}
                 onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
             />
         )
@@ -331,12 +329,14 @@ class IndividualProfile extends AbstractComponent {
                                     {
                                         fn: () => this.navigateToLocation(),
                                         label: 'navigate',
-                                        backgroundColor: Styles.accentColor
+                                        backgroundColor: Styles.accentColor,
+                                        icon: 'map'
                                     },
                                     {
                                         fn: () => this.captureLocation(),
                                         label: 'editLocation',
-                                        backgroundColor: Styles.accentColor
+                                        backgroundColor: Styles.accentColor,
+                                        icon: 'edit-location'
                                     }
                                 ]}
                             />
@@ -345,7 +345,7 @@ class IndividualProfile extends AbstractComponent {
                                     justifyContent: 'center',
                                 }}>
                                     <SubjectProfilePicture
-                                        size={DGS.resizeWidth(75)}
+                                        size={DGS.resizeWidth(150)}
                                         subjectType={this.props.individual.subjectType}
                                         style={{alignSelf: 'center'}}
                                         round={true}

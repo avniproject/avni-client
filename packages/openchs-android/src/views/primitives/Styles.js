@@ -39,7 +39,7 @@ Styles.VerticalSpacingBetweenOptionItems = 20;
 Styles.HeightOfBottomBar = 55;
 
 Styles.programProfileHeading = {
-    fontSize: Styles.normalTextSize,
+    fontSize: Styles.titleSize,
     color: Styles.blackish,
     fontWeight: 'bold',
     lineHeight: Styles.normalTextSizeLineHeight
@@ -50,7 +50,7 @@ Styles.container = {
 };
 
 Styles.programProfileSubheading = {
-    fontSize: Styles.smallTextSize,
+    fontSize: Styles.normalTextSize,
     color: Styles.blackish,
     lineHeight: Styles.smallTextSizeLineHeight
 };

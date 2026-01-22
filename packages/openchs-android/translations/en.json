@@ -528,6 +528,7 @@
     "subjectLocationSaved": "Location saved successfully. Download offline maps to navigate without internet.",
     "saveLocation": "Save Location?",
     "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m",
-    "navigate": "Navigate"
+    "navigate": "Navigate",
+    "editLocation": "Edit Location"
   }
 }
