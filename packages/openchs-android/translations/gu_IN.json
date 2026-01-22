@@ -327,6 +327,7 @@
     "subjectLocationSaved": "સ્થાન સફળતાપૂર્વક સંગ્રહ થયેલ છે. ઇન્ટરનેટ વગર નેવિગેટ કરવા માટે ઓફલાઇન નકશો ડાઉનલોડ કરો.",
     "saveLocation": "સ્થાન સાચવ?",
     "locationFoundWithAccuracy": "ચોક્કસતા સાથે જગ્યા મળી {{accuracy}}મી",
-    "navigate": "માર્ગ બતાવો"
+    "navigate": "માર્ગ બતાવો",
+    "editLocation": "સ્થાન સંપાદવું કરો"
   }
 }
