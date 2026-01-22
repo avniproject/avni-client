@@ -57,8 +57,14 @@ class AbstractDataEntryState {
     }
 
     handleValidationResult(validationResult) {
-        _.remove(this.validationResults, (existingValidationResult) => existingValidationResult.formIdentifier === validationResult.formIdentifier
-            && existingValidationResult.questionGroupIndex === validationResult.questionGroupIndex);
+        _.remove(this.validationResults, (existingValidationResult) => {
+            const formIdentifierMatch = existingValidationResult.formIdentifier === validationResult.formIdentifier;
+            const questionGroupIndexMatch = 
+                _.isNil(existingValidationResult.questionGroupIndex) || 
+                _.isNil(validationResult.questionGroupIndex) || 
+                existingValidationResult.questionGroupIndex === validationResult.questionGroupIndex;
+            return formIdentifierMatch && questionGroupIndexMatch;
+        });
         if (!validationResult.success) {
             this.validationResults.push(validationResult);
         }
