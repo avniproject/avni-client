@@ -335,6 +335,7 @@
     "invalidDate": "தவறான தேதி",
     "subjectLocationSaved": "இடம் வெற்றிகரமாக சேமிக்கப்பட்டது. இணையம் இல்லாமல் வழிகாட்ட, ஆஃப்லைன் வரைபடங்களை பதிவிறக்குங்கள்.",
     "saveLocation": "இடத்தைச் சேமிக்க வேண்டுமா?",
-    "locationFoundWithAccuracy": "இடம் கண்டறியப்பட்டது (துல்லியம்:{{accuracy}}மீ). "
+    "locationFoundWithAccuracy": "இடம் கண்டறியப்பட்டது (துல்லியம்:{{accuracy}}மீ). ",
+    "navigate": "வழிகாட்டு"
   }
 }

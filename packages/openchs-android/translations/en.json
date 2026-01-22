@@ -527,6 +527,7 @@
     "invalidDate": "Invalid Date",
     "subjectLocationSaved": "Location saved successfully. Download offline maps to navigate without internet.",
     "saveLocation": "Save Location?",
-    "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m"
+    "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m",
+    "navigate": "Navigate"
   }
 }

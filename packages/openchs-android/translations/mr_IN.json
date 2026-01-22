@@ -323,6 +323,7 @@
     "invalidDate": "अवैध तारीख",
     "subjectLocationSaved": "स्थान सेव्ह केले. इंटरनेटशिवाय मार्ग पाहण्यासाठी करण्यासाठी ऑफलाइन नकाशे डाउनलोड करा.",
     "saveLocation": "स्थान सेव्ह करावे का?",
-    "locationFoundWithAccuracy": "अचूकतेने स्थान सापडले {{accuracy}}मीटर"
+    "locationFoundWithAccuracy": "अचूकतेने स्थान सापडले {{accuracy}}मीटर",
+    "navigate": "मार्ग दाखवा"
   }
 }

@@ -398,6 +398,7 @@
     "invalidDate": "अमान्य तारीख",
     "subjectLocationSaved": "लोकेशन सेव हो गई। बिना इंटरनेट के रास्ता दिखाने के लिए ऑफ़लाइन मैप डाउनलोड करें।",
     "saveLocation": "लोकेशन सेव करें?",
-    "locationFoundWithAccuracy": "लोकेशन मिल गई। सटीकता {{accuracy}}मी।"
+    "locationFoundWithAccuracy": "लोकेशन मिल गई। सटीकता {{accuracy}}मी।",
+    "navigate": "रास्ता दिखाओ"
   }
 }
