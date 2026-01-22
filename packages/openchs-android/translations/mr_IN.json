@@ -320,6 +320,9 @@
     "selectAllLabel": "सर्व निवडा",
     "unselectAllLabel": "सर्व निवड रद्द करा",
     "alreadyEnrolledInProgram": "{{programName}} मध्ये आधीच इंरोलमेंट केली आहे",
-    "invalidDate": "अवैध तारीख"
+    "invalidDate": "अवैध तारीख",
+    "subjectLocationSaved": "स्थान सेव्ह केले. इंटरनेटशिवाय मार्ग पाहण्यासाठी करण्यासाठी ऑफलाइन नकाशे डाउनलोड करा.",
+    "saveLocation": "स्थान सेव्ह करावे का?",
+    "locationFoundWithAccuracy": "अचूकतेने स्थान सापडले {{accuracy}}मीटर"
   }
 }

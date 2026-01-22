@@ -323,6 +323,9 @@
     "selectAllLabel": "બધા સિલેક્ટ કરો",
     "unselectAllLabel": "બધા અનસિલેક્ટ કરો",
     "alreadyEnrolledInProgram": "{{programName}} માં પહેલેથી જ નોંધણી કરાવી છે",
-    "invalidDate": "અયોગ્ય તારીખ"
+    "invalidDate": "અયોગ્ય તારીખ",
+    "subjectLocationSaved": "સ્થાન સફળતાપૂર્વક સંગ્રહ થયેલ છે. ઇન્ટરનેટ વગર નેવિગેટ કરવા માટે ઓફલાઇન નકશો ડાઉનલોડ કરો.",
+    "saveLocation": "સ્થાન સાચવ?",
+    "locationFoundWithAccuracy": "ચોક્કસતા સાથે જગ્યા મળી {{accuracy}}મી"
   }
 }

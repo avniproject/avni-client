@@ -524,6 +524,9 @@
     "selectAllLabel": "Select All",
     "unselectAllLabel": "Unselect All",
     "alreadyEnrolledInProgram": "Already enrolled in {{programName}}",
-    "invalidDate": "Invalid Date"
+    "invalidDate": "Invalid Date",
+    "subjectLocationSaved": "Location saved successfully. Download offline maps to navigate without internet.",
+    "saveLocation": "Save Location?",
+    "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m"
   }
 }

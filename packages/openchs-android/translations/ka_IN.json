@@ -331,6 +331,9 @@
     "selectAllLabel": "ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆಮಾಡಿ",
     "unselectAllLabel": "ಎಲ್ಲಾ ಆಯ್ಕೆ ರದ್ದುಮಾಡಿ",
     "alreadyEnrolledInProgram": "ಈಗಾಗಲೆ {{programName}} ಗೆ ದಾಖಲಾತಿಸಲಾಗಿದೆ",
-    "invalidDate": "ಅಮಾನ್ಯವಾದ ದಿನಾಂಕ"
+    "invalidDate": "ಅಮಾನ್ಯವಾದ ದಿನಾಂಕ",
+    "subjectLocationSaved": "ಸ್ಥಳವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ. ಇಂಟರ್ನೆಟ್ ಇಲ್ಲದೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ಆಫ್ ಲೈನ್ ನಕ್ಷೆಗಳನ್ನು ಡೌನ್ಲೋಡ್ ಮಾಡಿ.",
+    "saveLocation": "ಸ್ಥಳವನ್ನು ಉಳಿಸಬೇಕೆ?",
+    "locationFoundWithAccuracy": "ನಿಖರತೆಯೊಂದಿಗೆ ಕಂಡುಬಂದ ಸ್ಥಳ {{accuracy}} ಮೀ"
   }
 }
