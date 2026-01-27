@@ -8,12 +8,10 @@ import Styles from "../primitives/Styles";
 export const MessageIcon = ({messageCount, onPress}) => {
 
     const Icon = () =>
-        <MCIcon name={'message-text-outline'} size={30} style={{
+        <MCIcon name={'message-text-outline'} size={24} style={{
             color: Styles.accentColor,
             alignSelf: 'center',
-            fontSize: 40,
-            marginRight: 15,
-            marginLeft: 15
+            fontSize: 24,
         }}/>;
 
     return (

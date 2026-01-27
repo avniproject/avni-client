@@ -529,6 +529,7 @@
     "saveLocation": "Save Location?",
     "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m",
     "navigate": "Navigate",
-    "editLocation": "Edit Location"
+    "editLocation": "Edit Location",
+    "whatsApp": "WhatsApp"
   }
 }

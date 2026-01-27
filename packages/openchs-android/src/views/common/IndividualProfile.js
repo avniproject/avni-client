@@ -59,14 +59,21 @@ class IndividualProfile extends AbstractComponent {
         const number = this.getMobileNoFromObservation();
         if (number) {
             return (
-            <MaterialIcon name="call"
-                      style={{color: Styles.accentColor, marginRight:15, marginLeft:15, fontSize: 40}}
-                      onPress={() => this.makeCall(number)}/>
-        );
-        } else {
-            return (
-                <View/>
+                <TouchableOpacity 
+                    style={Styles.iconContainer}
+                    onPress={() => this.makeCall(number)}
+                >
+                    <View style={Styles.iconCircle}>
+                        <MaterialIcon name="call"
+                              style={{color: Styles.accentColor, fontSize: 24}}/>
+                    </View>
+                    <Text style={Styles.iconLabel}>
+                        {this.I18n.t('call')}
+                    </Text>
+                </TouchableOpacity>
             );
+        } else {
+            return null;
         }
 
     }
@@ -76,18 +83,22 @@ class IndividualProfile extends AbstractComponent {
         const {enableMessaging} = this.getService(OrganisationConfigService).getSettings();
 
         if (number && enableMessaging) {
-            return (<View>
-                <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
-                    <View>
-                        <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 40, marginRight:15, marginLeft:15}} color={Styles.accentColor}/>
-                    </View>
-                </TouchableNativeFeedback>
-            </View>);
-        } else {
             return (
-                <View/>
+                <TouchableOpacity 
+                    style={Styles.iconContainer}
+                    onPress={() => this.showWhatsappMessages(individualUUID)}
+                >
+                    <View style={Styles.iconCircle}>
+                        <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
+                                  style={{fontSize: 24}} color={Styles.accentColor}/>
+                    </View>
+                    <Text style={Styles.iconLabel}>
+                        {this.I18n.t('whatsApp')}
+                    </Text>
+                </TouchableOpacity>
             );
+        } else {
+            return null;
         }
     }
 
@@ -253,18 +264,37 @@ class IndividualProfile extends AbstractComponent {
     renderCommentIcon() {
         const {enableComments} = this.getService(OrganisationConfigService).getSettings();
         return enableComments ?
-            <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
+            <TouchableOpacity 
+                style={Styles.iconContainer}
+                onPress={this.onMessagePress.bind(this)}
+            >
+                <View style={[Styles.iconCircle]}>
+                    <MessageIcon messageCount={this.state.commentsCount} onPress={() => {}}/>
+                </View>
+                <Text style={Styles.iconLabel}>
+                    {this.I18n.t('openComments')}
+                </Text>
+            </TouchableOpacity> : null;
     }
 
     renderSubjectLocationIcon() {
         const hasLocation = this.props.individual.subjectLocation != null;
 
         return (
-            <MaterialIcon
-                name={hasLocation ? "location-on" : "add-location-alt"}
-                style={{color: Styles.accentColor, marginLeft: 15, marginRight:15, fontSize: 40}}
+            <TouchableOpacity 
+                style={Styles.iconContainer}
                 onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
-            />
+            >
+                <View style={Styles.iconCircle}>
+                    <MaterialIcon
+                        name={hasLocation ? "location-on" : "add-location-alt"}
+                        style={{color: Styles.accentColor, fontSize: 24}}
+                    />
+                </View>
+                <Text style={Styles.iconLabel}>
+                    {this.I18n.t("location")}
+                </Text>
+            </TouchableOpacity>
         )
     }
     
@@ -340,12 +370,32 @@ class IndividualProfile extends AbstractComponent {
                                     }
                                 ]}
                             />
-                            <View style={{flexDirection: 'column', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
+                            <View style={{
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                paddingTop: 5,
+                                paddingBottom: 24,
+                                paddingHorizontal: 20,
+                                backgroundColor: Styles.whiteColor,
+                                borderRadius: 16,
+                                marginTop: 16,
+                                marginRight: 16,
+                                marginLeft: 16,
+                                marginBottom: 8,
+                                shadowColor: '#000',
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 2,
+                                },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 8,
+                                elevation: 4
+                            }}>
                                 <View style={{
                                     justifyContent: 'center',
                                 }}>
                                     <SubjectProfilePicture
-                                        size={DGS.resizeWidth(150)}
+                                        size={DGS.resizeWidth(120)}
                                         subjectType={this.props.individual.subjectType}
                                         style={{alignSelf: 'center'}}
                                         round={true}
@@ -353,13 +403,22 @@ class IndividualProfile extends AbstractComponent {
                                         individual={this.props.individual}
                                     />
                                 </View>
-                                <View style={{alignItems: 'center'}}>
+                                <View style={{alignItems: 'center', marginBottom: 10}}>
                                     <Text
-                                        style={Styles.programProfileHeading}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
+                                        style={[Styles.programProfileHeading, {marginBottom: 8}]}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
                                     {this.programProfileHeading()}
                                 </View>
 
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'flex-start',
+                                    justifyContent: 'space-around',
+                                    width: '100%',
+                                    backgroundColor: Styles.greyBackground,
+                                    paddingVertical: 16,
+                                    paddingHorizontal: 16,
+                                    borderRadius: 12
+                                }}>
                                     {this.renderSubjectLocationIcon()}
                                     {this.renderCommentIcon()}
                                     {this.renderCallButton()}
