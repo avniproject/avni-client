@@ -1,6 +1,7 @@
 import Geolocation from "react-native-geolocation-service";
 import {PermissionsAndroid, Platform, Alert, Linking} from "react-native";
 import General from "./General";
+import _ from "lodash";
 
 export default class DeviceLocation {
     static async askLocationPermission() {
@@ -25,8 +26,8 @@ export default class DeviceLocation {
         return false;
     }
 
-    static async getPosition(successCallbackFn, silent = true, errorCallbackFn = null, i18n) {
-        const hasPermission = await this.askLocationPermission();
+    static getPosition = _.debounce(async function(successCallbackFn, silent = true, errorCallbackFn = null, i18n) {
+        const hasPermission = await DeviceLocation.askLocationPermission();
         if (hasPermission) {
             Geolocation.getCurrentPosition(
                 position => {
@@ -49,7 +50,7 @@ export default class DeviceLocation {
                                 { 
                                     text: 'Retry',
                                     onPress: () => {
-                                        this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                                        DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                     }
                                 },
                                 { 
@@ -83,10 +84,10 @@ export default class DeviceLocation {
                                 errorMessage = 'Location services are not available.';
                                 suggestions = [
                                     { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    { 
-                                        text: 'Try Again', 
+                                    {
+                                        text: 'Try Again',
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];
@@ -95,10 +96,10 @@ export default class DeviceLocation {
                                 errorMessage = 'Location request timed out.';
                                 suggestions = [
                                     { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    { 
-                                        text: 'Try Again', 
+                                    {
+                                        text: 'Try Again',
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];
@@ -107,10 +108,10 @@ export default class DeviceLocation {
                                 errorMessage = `Location error: ${error.message}`;
                                 suggestions = [
                                     { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    { 
-                                        text: 'Try Again', 
+                                    {
+                                        text: 'Try Again',
                                         onPress: () => {
-                                            this.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
                                         }
                                     }
                                 ];
@@ -131,6 +132,6 @@ export default class DeviceLocation {
                 }}
             ]);
         }
-    }
+    }, 1000, {leading: true, trailing: false});
 
 }
