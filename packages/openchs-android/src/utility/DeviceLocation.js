@@ -22,15 +22,15 @@ export default class DeviceLocation {
                 new Promise((_, reject) => setTimeout(() => reject(new Error('Permission request timeout')), 10000))
             ]);
 
-        if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
+            if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
 
-        if (status === PermissionsAndroid.RESULTS.DENIED) {
-            General.logWarn("DeviceLocation", "Location permission denied by user");
-        } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-            General.logWarn("DeviceLocation", "Location permission revoked by user");
-        }
+            if (status === PermissionsAndroid.RESULTS.DENIED) {
+                General.logWarn("DeviceLocation", "Location permission denied by user");
+            } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+                General.logWarn("DeviceLocation", "Location permission revoked by user");
+            }
 
-        return false;
+            return false;
         } catch (error) {
             General.logWarn("DeviceLocation", `Permission request failed: ${error.message}`);
             return false;
@@ -40,34 +40,22 @@ export default class DeviceLocation {
     static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn) {
         if (silent) {
             successCallbackFn(position);
-        } else {
-            const accuracy = position.coords.accuracy;
-            Alert.alert(
-                I18n.t('saveLocation'),
-                I18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}),
-                [
-                    {
-                        text: I18n.t('cancel'),
-                        style: 'cancel',
-                        onPress: () => {
-                            errorCallbackFn && errorCallbackFn();
-                        }
-                    },
-                    {
-                        text: I18n.t('tryAgain'),
-                        onPress: () => {
-                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn);
-                        }
-                    },
-                    {
-                        text: I18n.t('save'),
-                        onPress: () => {
-                            successCallbackFn(position);
-                        }
-                    }
-                ]
-            );
+            return;
         }
+        const suggestions = [
+            {text: I18n.t('cancel'), style: 'cancel', onPress: () => {
+                errorCallbackFn && errorCallbackFn();
+            }},
+            {text: I18n.t('tryAgain'), onPress: () => DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn)},
+            {text: I18n.t('save'), onPress: () => successCallbackFn(position)}
+        ];
+
+        const accuracy = position.coords.accuracy;
+        Alert.alert(
+            I18n.t('saveLocation'),
+            I18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}),
+            suggestions
+        );
     }
 
     static handleLocationError(error, silent, successCallbackFn, errorCallbackFn) {
