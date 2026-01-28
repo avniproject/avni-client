@@ -13,7 +13,13 @@ export default class DeviceLocation {
 
         if (hasPermission) return true;
 
-        const status = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        try {
+            const status = await Promise.race([
+                PermissionsAndroid.request(
+                    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+                ),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Permission request timeout')), 10000))
+            ]);
 
         if (status === PermissionsAndroid.RESULTS.GRANTED) return true;
 
@@ -24,113 +30,88 @@ export default class DeviceLocation {
         }
 
         return false;
+        } catch (error) {
+            General.logWarn("DeviceLocation", `Permission request failed: ${error.message}`);
+            return false;
+        }
+    }
+
+    static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, i18n) {
+        if (silent) {
+            successCallbackFn(position);
+        } else {
+            const accuracy = position.coords.accuracy;
+            Alert.alert(
+                i18n.t('saveLocation'),
+                i18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}),
+                [
+                    {
+                        text: i18n.t('cancel'),
+                        style: 'cancel',
+                        onPress: () => {
+                            errorCallbackFn && errorCallbackFn();
+                        }
+                    },
+                    {
+                        text: 'Retry',
+                        onPress: () => {
+                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                        }
+                    },
+                    {
+                        text: i18n.t('saveLocation').slice(0, -1),
+                        onPress: () => {
+                            successCallbackFn(position);
+                        }
+                    }
+                ]
+            );
+        }
+    }
+
+    static handleLocationError(error, silent, successCallbackFn, errorCallbackFn, i18n) {
+        General.logWarn("DeviceLocation.getPosition", error);
+        if (!silent) {
+            const errorMessage = `Location error: ${error.message}`;
+            const suggestions = [
+                { text: i18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
+                {
+                    text: i18n.t('tryAgain'),
+                    onPress: () => {
+                        DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
+                    }
+                }
+            ];
+            Alert.alert('Location Error', errorMessage, suggestions);
+        }
+    }
+
+    static handlePermissionDenied(errorCallbackFn, error = null, i18n = null) {
+        const permissionError = error || {code: 1, message: "Location permission denied"};
+        const cancelText = i18n ? i18n.t('cancel') : 'Cancel';
+
+        Alert.alert('Location Error', 'Location permission was denied.', [
+            { text: cancelText, style: 'cancel', onPress: () => {
+                    errorCallbackFn && errorCallbackFn(permissionError);
+                }},
+            { text: 'Open Settings', onPress: () => {
+                    Linking.openSettings();
+                    errorCallbackFn && errorCallbackFn(permissionError);
+                }}
+        ]);
     }
 
     static getPosition = _.debounce(async function(successCallbackFn, silent = true, errorCallbackFn = null, i18n) {
         const hasPermission = await DeviceLocation.askLocationPermission();
+
         if (hasPermission) {
             Geolocation.getCurrentPosition(
-                position => {
-                    if (silent) {
-                        successCallbackFn(position);
-                    } else {
-                        const accuracy = position.coords.accuracy;
-
-                        Alert.alert(
-                            i18n.t('saveLocation'),
-                            i18n.t('locationFoundWithAccuracy', {accuracy: accuracy?.toFixed(2)}) ,
-                            [
-                                { 
-                                    text: i18n.t('cancel') ,
-                                    style: 'cancel',
-                                    onPress:()=>{
-                                        errorCallbackFn && errorCallbackFn();
-                                    }
-                                },
-                                { 
-                                    text: 'Retry',
-                                    onPress: () => {
-                                        DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
-                                    }
-                                },
-                                { 
-                                    text: 'Save Location',
-                                    onPress: () => {
-                                        successCallbackFn(position);
-                                    }
-                                }
-                            ]
-                        );
-                    }
-                },
-                error => {
-                    General.logWarn("DeviceLocation.getPosition", error);
-                    if (!silent) {
-                        let errorMessage;
-                        let suggestions = [];
-
-                        switch(error.code) {
-                            case 1:
-                                errorMessage = 'Location permission was denied.';
-                                suggestions = [
-                                    { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    { text: 'Open Settings', onPress: () => {
-                                        Linking.openSettings();
-                                        errorCallbackFn && errorCallbackFn(error);
-                                    }}
-                                ];
-                                break;
-                            case 2:
-                                errorMessage = 'Location services are not available.';
-                                suggestions = [
-                                    { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    {
-                                        text: 'Try Again',
-                                        onPress: () => {
-                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
-                                        }
-                                    }
-                                ];
-                                break;
-                            case 3:
-                                errorMessage = 'Location request timed out.';
-                                suggestions = [
-                                    { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    {
-                                        text: 'Try Again',
-                                        onPress: () => {
-                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
-                                        }
-                                    }
-                                ];
-                                break;
-                            default:
-                                errorMessage = `Location error: ${error.message}`;
-                                suggestions = [
-                                    { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                                    {
-                                        text: 'Try Again',
-                                        onPress: () => {
-                                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, i18n);
-                                        }
-                                    }
-                                ];
-                        }
-
-                        Alert.alert('Location Error', errorMessage, suggestions);
-                    }
-                },
+                position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, i18n),
+                error => DeviceLocation.handleLocationError(error, silent, successCallbackFn, errorCallbackFn, i18n),
                 {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
             );
         } else if (!silent) {
-            const permissionError = {code: 1, message: "Location permission denied"};
-            Alert.alert('Location Error', 'Location permission was denied.', [
-                { text: 'Cancel', style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(permissionError) },
-                { text: 'Open Settings', onPress: () => {
-                    Linking.openSettings();
-                    errorCallbackFn && errorCallbackFn(permissionError);
-                }}
-            ]);
+            DeviceLocation.handlePermissionDenied(errorCallbackFn, null, i18n);
         }
     }, 1000, {leading: true, trailing: false});
 
