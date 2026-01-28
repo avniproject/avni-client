@@ -530,6 +530,9 @@
     "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m",
     "navigate": "Navigate",
     "editLocation": "Edit Location",
-    "whatsApp": "WhatsApp"
+    "whatsApp": "WhatsApp",
+    "locationPermissionRequired": "Location Permission Required",
+    "enableLocationPermission": "Enable location permission for this app to proceed.",
+    "openSettings": "Open Settings"
   }
 }

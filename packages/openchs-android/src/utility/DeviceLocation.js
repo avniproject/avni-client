@@ -83,18 +83,18 @@ export default class DeviceLocation {
                     }
                 }
             ];
-            Alert.alert('Location Error', errorMessage, suggestions);
+            Alert.alert(I18n.t('locationPermissionRequired'), errorMessage, suggestions);
         }
     }
 
     static handlePermissionDenied(errorCallbackFn, error = null) {
         const permissionError = error || {code: 1, message: "Location permission denied"};
 
-        Alert.alert('Location Error', 'Location permission was denied.', [
+        Alert.alert(I18n.t('locationPermissionRequired'), I18n.t('enableLocationPermission'), [
             { text: I18n.t('cancel'), style: 'cancel', onPress: () => {
                     errorCallbackFn && errorCallbackFn(permissionError);
                 }},
-            { text: 'Open Settings', onPress: () => {
+            { text: I18n.t('openSettings'), onPress: () => {
                     Linking.openSettings();
                     errorCallbackFn && errorCallbackFn(permissionError);
                 }}
