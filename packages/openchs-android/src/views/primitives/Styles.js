@@ -352,9 +352,9 @@ Styles.iconContainer = {
 };
 
 Styles.iconCircle = {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 45,
+    height: 45,
+    borderRadius: 22.5,
     backgroundColor: Styles.whiteColor,
     justifyContent: 'center',
     alignItems: 'center',

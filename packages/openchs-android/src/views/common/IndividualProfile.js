@@ -300,6 +300,93 @@ class IndividualProfile extends AbstractComponent {
     showLocationOptions() {
         this.dispatchAction(Actions.SHOW_LOCATION_OPTIONS);
     }
+
+    renderProfileSection() {
+        const allIcons = [
+            this.renderSubjectLocationIcon(),
+            this.renderCommentIcon(),
+            this.renderCallButton(),
+            this.renderWhatsappButton(this.props.individual.uuid)
+        ];
+        
+        const icons = allIcons.filter(icon => icon !== null);
+
+        const renderSubjectProfile = (size, style) => (
+            <SubjectProfilePicture
+                size={size}
+                subjectType={this.props.individual.subjectType}
+                style={style}
+                round={true}
+                allowEnlargementOnClick={true}
+                individual={this.props.individual}
+            />
+        );
+
+        const renderProfileText = (headingStyle) => (
+            <>
+                <Text style={headingStyle}>
+                    {this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}
+                </Text>
+                {this.programProfileHeading()}
+            </>
+        );
+
+        if (icons.length <= 1) {
+            return (
+                <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
+                    <View style={{paddingHorizontal: 20, justifyContent: 'center'}}>
+                        {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
+                    </View>
+                    <View style={{flex: 1, paddingHorizontal: 5}}>
+                        {renderProfileText(Styles.programProfileHeading)}
+                    </View>
+                    <View style={{flexDirection: 'column', paddingRight: 15}}>
+                        {icons}
+                    </View>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    paddingTop: 5,
+                    paddingBottom: 24,
+                    paddingHorizontal: 20,
+                    backgroundColor: Styles.whiteColor,
+                    borderRadius: 16,
+                    marginTop: 16,
+                    marginRight: 16,
+                    marginLeft: 16,
+                    marginBottom: 8,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                    elevation: 4
+                }}>
+                    <View style={{justifyContent: 'center'}}>
+                        {renderSubjectProfile(DGS.resizeWidth(120), {alignSelf: 'center'})}
+                    </View>
+                    <View style={{alignItems: 'center', marginBottom: 10}}>
+                        {renderProfileText([Styles.programProfileHeading, {marginBottom: 8}])}
+                    </View>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-around',
+                        width: '100%',
+                        backgroundColor: Styles.greyBackground,
+                        paddingVertical: 16,
+                        paddingHorizontal: 16,
+                        borderRadius: 12
+                    }}>
+                        {icons}
+                    </View>
+                </View>
+            );
+        }
+    }
     
     navigateToLocation() {
         const subjectLocation = this.props.individual.subjectLocation;
@@ -369,61 +456,7 @@ class IndividualProfile extends AbstractComponent {
                                     }
                                 ]}
                             />
-                            <View style={{
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                paddingTop: 5,
-                                paddingBottom: 24,
-                                paddingHorizontal: 20,
-                                backgroundColor: Styles.whiteColor,
-                                borderRadius: 16,
-                                marginTop: 16,
-                                marginRight: 16,
-                                marginLeft: 16,
-                                marginBottom: 8,
-                                shadowColor: '#000',
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 2,
-                                },
-                                shadowOpacity: 0.1,
-                                shadowRadius: 8,
-                                elevation: 4
-                            }}>
-                                <View style={{
-                                    justifyContent: 'center',
-                                }}>
-                                    <SubjectProfilePicture
-                                        size={DGS.resizeWidth(120)}
-                                        subjectType={this.props.individual.subjectType}
-                                        style={{alignSelf: 'center'}}
-                                        round={true}
-                                        allowEnlargementOnClick={true}
-                                        individual={this.props.individual}
-                                    />
-                                </View>
-                                <View style={{alignItems: 'center', marginBottom: 10}}>
-                                    <Text
-                                        style={[Styles.programProfileHeading, {marginBottom: 8}]}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
-                                    {this.programProfileHeading()}
-                                </View>
-
-                                <View style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'flex-start',
-                                    justifyContent: 'space-around',
-                                    width: '100%',
-                                    backgroundColor: Styles.greyBackground,
-                                    paddingVertical: 16,
-                                    paddingHorizontal: 16,
-                                    borderRadius: 12
-                                }}>
-                                    {this.renderSubjectLocationIcon()}
-                                    {this.renderCommentIcon()}
-                                    {this.renderCallButton()}
-                                    {this.renderWhatsappButton(this.props.individual.uuid)}
-                                </View>
-                            </View>
+                            {this.renderProfileSection()}
                             <View
                                 style={{
                                     flexDirection: 'row',
