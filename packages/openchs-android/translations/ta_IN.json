@@ -339,6 +339,8 @@
     "navigate": "வழிகாட்டு",
     "editLocation": "இடத்தை திருத்து",
     "locationPermissionRequired": "இருப்பிட அனுமதி தேவை",
-    "openSettings": "அமைப்புகளைத் திறக்கவும்"
+    "openSettings": "அமைப்புகளைத் திறக்கவும்",
+    "comments": "கருத்துகள்",
+    "whatsApp": "வாட்ஸ்அப்"
   }
 }

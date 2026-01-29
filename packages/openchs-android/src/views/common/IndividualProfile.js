@@ -271,7 +271,7 @@ class IndividualProfile extends AbstractComponent {
                     <MessageIcon messageCount={this.state.commentsCount} onPress={() => {}}/>
                 </View>
                 <Text style={Styles.iconLabel}>
-                    {this.I18n.t('openComments')}
+                    {this.I18n.t('comments')}
                 </Text>
             </TouchableOpacity> : null;
     }

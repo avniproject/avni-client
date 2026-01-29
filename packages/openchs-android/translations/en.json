@@ -532,6 +532,7 @@
     "editLocation": "Edit Location",
     "whatsApp": "WhatsApp",
     "locationPermissionRequired": "Location Permission Required",
-    "openSettings": "Open Settings"
+    "openSettings": "Open Settings",
+    "comments": "Comments"
   }
 }
