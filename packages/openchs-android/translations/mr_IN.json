@@ -325,6 +325,8 @@
     "saveLocation": "स्थान सेव्ह करावे का?",
     "locationFoundWithAccuracy": "अचूकतेने स्थान सापडले {{accuracy}}मीटर",
     "navigate": "मार्ग दाखवा",
-    "editLocation": "स्थान बदला"
+    "editLocation": "स्थान बदला",
+    "locationPermissionRequired": "लोकेशन परवानगी आवश्यक आहे",
+    "openSettings": "सेटिंग्ज उघडा"
   }
 }

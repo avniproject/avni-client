@@ -217,7 +217,7 @@
     "getLocation": "સ્થાન મેળવો",
     "gpsCoordinates": "જીપીએસ કોઓર્ડિનેટ્સ",
     "giveLocationPermissions": "સ્થાન મેળવો બટન પર ક્લિક કરો અને પૂછવામાં આવે ત્યારે પરવાનગીઓ આપો",
-    "giveLocationPermissionFromSettings": "કૃપા કરી ને Settings > Apps > OpenCHS માં જઈ ને OpenCHS ને લોકેશન ની પરવાનગી આપો",
+    "giveLocationPermissionFromSettings": "આગળ વધવા માટે આ એપ્લિકેશન માટે સ્થાન પરવાનગીને સક્રિય કરો.",
     "visitsBeingScheduled": "સુનિશ્ચિત થયેલી મુલાકાતો",
     "visitsBeingScheduledForOthers": "મુલાકાત અન્ય માટે સુનિશ્ચિત કરવામાં આવી રહી છે",
     "visitName": "મુલાકાત નું નામ",
@@ -328,6 +328,8 @@
     "saveLocation": "સ્થાન સાચવ?",
     "locationFoundWithAccuracy": "ચોક્કસતા સાથે જગ્યા મળી {{accuracy}}મી",
     "navigate": "માર્ગ બતાવો",
-    "editLocation": "સ્થાન સંપાદવું કરો"
+    "editLocation": "સ્થાન સંપાદવું કરો",
+    "locationPermissionRequired": "સ્થાન પરવાનગી જરૂરી છે",
+    "openSettings": "સેટિંગ્સ ખોલો"
   }
 }

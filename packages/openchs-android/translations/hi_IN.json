@@ -222,7 +222,7 @@
     "getLocation": "जीपीएस लोकेशन प्राप्त करें",
     "gpsCoordinates": "जीपीएस कोऑर्डिनेट्स",
     "giveLocationPermissions": "जीपीएस लोकेशन प्राप्त करें बटन पर क्लिक करें और पूछे जाने पर अनुमति दें",
-    "giveLocationPermissionFromSettings": "कृपया Settings > Apps > OpenCHS में जा के OpenCHS को लोकेशन की अनुमति दें",
+    "giveLocationPermissionFromSettings": "कृपया Settings > Apps > Avni में जा के Avni को लोकेशन की अनुमति दें",
     "visitsBeingScheduled": "आने वाले विजिट",
     "visitsBeingScheduledForOthers": "दूसरों के आने वाले विजिट",
     "visitName": "विज़िट का नाम",
@@ -400,6 +400,8 @@
     "saveLocation": "लोकेशन सेव करें?",
     "locationFoundWithAccuracy": "लोकेशन मिल गई। सटीकता {{accuracy}}मी।",
     "navigate": "रास्ता दिखाओ",
-    "editLocation": "लोकेशन बदलें"
+    "editLocation": "लोकेशन बदलें",
+    "locationPermissionRequired": "लोकेशन की अनुमति आवश्यक है",
+    "openSettings": "सेटिंग्स खोलें"
   }
 }

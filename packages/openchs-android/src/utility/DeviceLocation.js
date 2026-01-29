@@ -78,7 +78,7 @@ export default class DeviceLocation {
     static handlePermissionDenied(errorCallbackFn, error = null) {
         const permissionError = error || {code: 1, message: "Location permission denied"};
 
-        Alert.alert(I18n.t('locationPermissionRequired'), I18n.t('enableLocationPermission'), [
+        Alert.alert(I18n.t('locationPermissionRequired'), I18n.t('giveLocationPermissionFromSettings'), [
             { text: I18n.t('cancel'), style: 'cancel', onPress: () => {
                     errorCallbackFn && errorCallbackFn(permissionError);
                 }},

@@ -212,7 +212,7 @@
     "getLocation": "ಜಿಪಿಎಸ್ ಸ್ಥಳವನ್ನು ಪಡೆಯಿರಿ",
     "gpsCoordinates": "ಜಿಪಿಎಸ್ ಕಕ್ಷೆಗಳು",
     "giveLocationPermissions": "Get Location ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ ಮತ್ತು ಕೇಳಿದಾಗ ಅನುಮತಿಗಳನ್ನು ನೀಡಿ",
-    "giveLocationPermissionFromSettings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು > ಅಪ್ಲಿಕೇಶನ್‌ಗಳು > ಓಪನ್‌ಎಚ್‌ಎಸ್‌ನಿಂದ ಓಪನ್‌ಎಚ್‌ಎಸ್‌ಗೆ ದಯವಿಟ್ಟು ಸ್ಥಳ ಅನುಮತಿ ನೀಡಿ",
+    "giveLocationPermissionFromSettings": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಮುಂದುವರಿಯಲು ಸ್ಥಳ ಅನುಮತಿ ಸಕ್ರಿಯಗೊಳಿಸಿ.",
     "location": "ಸ್ಥಳ",
     "trackLocation": "ಸ್ಥಳವನ್ನು ಪತ್ತೆ ಮಾಡಿ",
     "visitsBeingScheduled": "ನಿಗದಿತ ಭೇಟಿಗಳು",
@@ -336,6 +336,8 @@
     "saveLocation": "ಸ್ಥಳವನ್ನು ಉಳಿಸಬೇಕೆ?",
     "locationFoundWithAccuracy": "ನಿಖರತೆಯೊಂದಿಗೆ ಕಂಡುಬಂದ ಸ್ಥಳ {{accuracy}} ಮೀ",
     "navigate": "ಮಾರ್ಗವನ್ನು ತೋರಿಸು",
-    "editLocation": "ಸ್ಥಳವನ್ನು ತಿದ್ದು"
+    "editLocation": "ಸ್ಥಳವನ್ನು ತಿದ್ದು",
+    "locationPermissionRequired": "ಸ್ಥಳ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ",
+    "openSettings": "ಸೆಟ್ಟಿಂಗ್ಸ್ ತೆರೆಯಿರಿ"
   }
 }
