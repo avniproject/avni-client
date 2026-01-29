@@ -65,7 +65,7 @@ class IndividualProfile extends AbstractComponent {
                 >
                     <View style={Styles.iconCircle}>
                         <MaterialIcon name="call"
-                              style={{color: Styles.accentColor, fontSize: 24}}/>
+                              style={{color: Styles.accentColor, fontSize: 32}}/>
                     </View>
                     <Text style={Styles.iconLabel}>
                         {this.I18n.t('call')}
@@ -90,7 +90,7 @@ class IndividualProfile extends AbstractComponent {
                 >
                     <View style={Styles.iconCircle}>
                         <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 24}} color={Styles.accentColor}/>
+                                  style={{fontSize: 36}} color={Styles.accentColor}/>
                     </View>
                     <Text style={Styles.iconLabel}>
                         {this.I18n.t('whatsApp')}
@@ -287,7 +287,7 @@ class IndividualProfile extends AbstractComponent {
                 <View style={Styles.iconCircle}>
                     <MaterialIcon
                         name={hasLocation ? "location-on" : "add-location-alt"}
-                        style={{color: Styles.accentColor, fontSize: 24}}
+                        style={{color: Styles.accentColor, fontSize: 32}}
                     />
                 </View>
                 <Text style={Styles.iconLabel}>
