@@ -107,7 +107,7 @@ export class EncounterActions {
     static onNext(state, action, context) {
         const newState = state.clone();
         newState.handleNext(action, context);
-        if (isSaveDraftOn(context)) {
+        if (state.saveDrafts) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context)
         }
         return newState;
@@ -119,7 +119,7 @@ export class EncounterActions {
 
     static onPrevious(state, action, context) {
         let newState = state.clone().handlePrevious(action, context);
-        if (isSaveDraftOn(context)) {
+        if (state.saveDrafts) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context);
         }
         return newState;
