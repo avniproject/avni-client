@@ -15,13 +15,11 @@ export const MessageIcon = ({messageCount, onPress}) => {
         }}/>;
 
     return (
-        <TouchableOpacity onPress={onPress}>
-            <Badge
-                hideWhenZero
-                number={messageCount || 0}
-                component={<Icon/>}
-                badgeLeftPosition={-7}
-                badgeTopPosition={-3}/>
-        </TouchableOpacity>
+        <Badge
+            hideWhenZero
+            number={messageCount || 0}
+            component={<Icon/>}
+            badgeLeftPosition={-7}
+            badgeTopPosition={-3}/>
     )
 };
