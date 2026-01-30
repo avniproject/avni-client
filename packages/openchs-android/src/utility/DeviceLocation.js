@@ -61,7 +61,6 @@ export default class DeviceLocation {
 
     static handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context) {
         General.logWarn("DeviceLocation.getPosition", error);
-        error.code=3
         if (!silent) {
             if (error.code === 1 || error.code === 2) {
                 DeviceLocation.handlePermissionDenied(errorCallbackFn, error);
