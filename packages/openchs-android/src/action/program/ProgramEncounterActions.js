@@ -41,10 +41,10 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType.name}`);
         }
 
-        // Check for existing draft and restore if found - lookup by enrolment + encounterType
+        // Check for existing draft and restore if found - handles both scheduled and unscheduled encounters
         const draftConfigService = context.get(DraftConfigService);
         const draftProgramEncounter = draftConfigService.shouldLoadDraft()
-            ? context.get(DraftProgramEncounterService).findByEnrolmentAndEncounterType(action.programEncounter.programEnrolment, action.programEncounter.encounterType)
+            ? context.get(DraftProgramEncounterService).findDraftFor(action.programEncounter)
             : null;
         const isDraft = !!draftProgramEncounter;
         let editableProgramEncounter = action.programEncounter;

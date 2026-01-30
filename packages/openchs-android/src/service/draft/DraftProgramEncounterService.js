@@ -36,17 +36,30 @@ class DraftProgramEncounterService extends BaseService {
     }
 
     /**
-     * Find draft by enrolment and encounterType (for unscheduled encounters)
+     * Find draft by enrolment and encounter type (for unscheduled encounters)
      * @param {ProgramEnrolment} programEnrolment
      * @param {EncounterType} encounterType
+     * @param {Date} earliestVisitDateTime
      * @returns {DraftProgramEncounter|null}
      */
-    findByEnrolmentAndEncounterType(programEnrolment, encounterType) {
+    findByEnrolmentAndEncounterType(programEnrolment, encounterType, earliestVisitDateTime = null) {
         if (!programEnrolment || !encounterType) return null;
-        const drafts = this.findAll().filtered(
-            `programEnrolment.uuid="${programEnrolment.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`
-        );
+        const query = earliestVisitDateTime 
+            ? `programEnrolment.uuid="${programEnrolment.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == $0`
+            : `programEnrolment.uuid="${programEnrolment.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`;
+        const drafts = this.findAll().filtered(query, earliestVisitDateTime);
         return drafts.length > 0 ? drafts[0] : null;
+    }
+
+    /**
+     * Find draft for a program encounter - handles both scheduled and unscheduled encounters
+     * Uses enrolment + encounterType + earliestVisitDateTime combination for lookup
+     * @param {ProgramEncounter} programEncounter
+     * @returns {DraftProgramEncounter|null}
+     */
+    findDraftFor(programEncounter) {
+        if (!programEncounter) return null;
+        return this.findByEnrolmentAndEncounterType(programEncounter.programEnrolment, programEncounter.encounterType, programEncounter.earliestVisitDateTime);
     }
 
     /**
@@ -57,8 +70,8 @@ class DraftProgramEncounterService extends BaseService {
     saveDraft(programEncounter) {
         const db = this.db;
         
-        // Find existing draft for same enrolment + encounterType to update it
-        const existingDraft = this.findByEnrolmentAndEncounterType(programEncounter.programEnrolment, programEncounter.encounterType);
+        // Find existing draft - handles both scheduled and unscheduled encounters
+        const existingDraft = this.findDraftFor(programEncounter);
         
         let draftProgramEncounter = DraftProgramEncounter.create(programEncounter);
         
