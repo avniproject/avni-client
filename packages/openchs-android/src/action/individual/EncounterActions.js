@@ -67,9 +67,9 @@ export class EncounterActions {
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
         let editableEncounter = action.encounter;
 
-        // Only look up draft if draft loading is enabled
+        // Only look up draft if draft loading is enabled - lookup by encounterType + individual
         const draftEncounter = shouldLoadDraft(context)
-            ? context.get(DraftEncounterService).findByUUID(action.encounter.uuid)
+            ? context.get(DraftEncounterService).findByIndividualAndEncounterType(action.encounter.individual, action.encounter.encounterType)
             : null;
         if (draftEncounter) {
             editableEncounter = draftEncounter.constructEncounter();

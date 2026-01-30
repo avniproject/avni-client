@@ -34,10 +34,10 @@ export class ProgramEnrolmentActions {
                     ? formMappingService.findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType)
                     : formMappingService.findFormForProgramExit(enrolment.program, enrolment.individual.subjectType);
 
-            // Check for existing draft and restore if found (only for enrolment, not exit)
+            // Check for existing draft and restore if found (only for enrolment, not exit) - lookup by individual+program
             const draftConfigService = context.get(DraftConfigService);
             const draftEnrolment = isProgramEnrolment && draftConfigService.shouldLoadDraft()
-                ? context.get(DraftEnrolmentService).findByUUID(action.enrolment.uuid)
+                ? context.get(DraftEnrolmentService).findByIndividualAndProgram(action.enrolment.individual, action.enrolment.program)
                 : null;
             const isDraft = !!draftEnrolment;
             let editableEnrolment = enrolment;

@@ -24,13 +24,36 @@ class DraftEnrolmentService extends BaseService {
     }
 
     /**
+     * Find draft by individual and program
+     * @param {Individual} individual
+     * @param {Program} program
+     * @returns {DraftEnrolment|null}
+     */
+    findByIndividualAndProgram(individual, program) {
+        if (!individual || !program) return null;
+        const drafts = this.findAll().filtered(
+            `individual.uuid="${individual.uuid}" AND program.uuid="${program.uuid}"`
+        );
+        return drafts.length > 0 ? drafts[0] : null;
+    }
+
+    /**
      * Save a program enrolment as draft
      * @param {ProgramEnrolment} enrolment
      * @returns {DraftEnrolment}
      */
     saveDraft(enrolment) {
         const db = this.db;
+        
+        // Find existing draft for same individual + program to update it
+        const existingDraft = this.findByIndividualAndProgram(enrolment.individual, enrolment.program);
+        
         let draftEnrolment = DraftEnrolment.create(enrolment);
+        
+        // If existing draft found, use its UUID to update instead of creating new
+        if (existingDraft) {
+            draftEnrolment.uuid = existingDraft.uuid;
+        }
 
         // Get clean references from DB to avoid detached object issues
         const cleanIndividualFromDB = this.findByUUID(enrolment.individual.uuid, Individual.schema.name);

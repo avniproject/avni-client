@@ -18,9 +18,26 @@ class DraftEncounterService extends BaseService {
         return individual? this.findAll().filtered(`individual.uuid="${individual.uuid}" AND earliestVisitDateTime == null`) : [];
     }
 
+    findByIndividualAndEncounterType(individual, encounterType) {
+        if (!individual || !encounterType) return null;
+        const drafts = this.findAll().filtered(
+            `individual.uuid="${individual.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`
+        );
+        return drafts.length > 0 ? drafts[0] : null;
+    }
+
     saveDraft(encounter) {
         const db = this.db;
+        
+        // Find existing draft for same individual + encounterType to update it
+        const existingDraft = this.findByIndividualAndEncounterType(encounter.individual, encounter.encounterType);
+        
         let draftEncounter = DraftEncounter.create(encounter);
+        
+        // If existing draft found, use its UUID to update instead of creating new
+        if (existingDraft) {
+            draftEncounter.uuid = existingDraft.uuid;
+        }
 
         const cleanIndividualFromDB = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         draftEncounter.individual = cleanIndividualFromDB;

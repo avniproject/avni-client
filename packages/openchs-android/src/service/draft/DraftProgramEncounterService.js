@@ -36,13 +36,36 @@ class DraftProgramEncounterService extends BaseService {
     }
 
     /**
+     * Find draft by enrolment and encounterType (for unscheduled encounters)
+     * @param {ProgramEnrolment} programEnrolment
+     * @param {EncounterType} encounterType
+     * @returns {DraftProgramEncounter|null}
+     */
+    findByEnrolmentAndEncounterType(programEnrolment, encounterType) {
+        if (!programEnrolment || !encounterType) return null;
+        const drafts = this.findAll().filtered(
+            `programEnrolment.uuid="${programEnrolment.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`
+        );
+        return drafts.length > 0 ? drafts[0] : null;
+    }
+
+    /**
      * Save a program encounter as draft
      * @param {ProgramEncounter} programEncounter
      * @returns {DraftProgramEncounter}
      */
     saveDraft(programEncounter) {
         const db = this.db;
+        
+        // Find existing draft for same enrolment + encounterType to update it
+        const existingDraft = this.findByEnrolmentAndEncounterType(programEncounter.programEnrolment, programEncounter.encounterType);
+        
         let draftProgramEncounter = DraftProgramEncounter.create(programEncounter);
+        
+        // If existing draft found, use its UUID to update instead of creating new
+        if (existingDraft) {
+            draftProgramEncounter.uuid = existingDraft.uuid;
+        }
 
         // Get clean programEnrolment reference from DB to avoid detached object issues
         const cleanEnrolmentFromDB = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
