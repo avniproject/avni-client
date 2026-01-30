@@ -38,7 +38,8 @@ export class IndividualGeneralHistoryActions {
         newState.displayActionSelector = false;
         const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
         newState.draftEncounters = context.get(DraftConfigService).shouldDisplayDrafts()
-            ? context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter())
+            ? context.get(DraftEncounterService).listUnScheduledDrafts(individual)
+                .map(draft => ({encounter: draft.constructEncounter(), expand: false}))
             : [];
         return {
             ...newState,
@@ -99,11 +100,19 @@ export class IndividualGeneralHistoryActions {
 
     static deleteDraft(state, action, context) {
         context.get(DraftEncounterService).deleteDraftByUUID(action.encounterUUID);
-        const draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(state.individual).map(draft => draft.constructEncounter())
+        const draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(state.individual)
+            .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
         return {
             ...state,
             draftEncounters
         };
+    }
+
+    static onToggleDraft(state, action) {
+        const nonEqual = _.filter(state.draftEncounters, (e) =>
+            !_.isEqualWith(e, action.encounterInfo, (e1, e2) => e1.encounter.uuid === e2.encounter.uuid));
+        const draftEncounters = [...nonEqual, action.encounterInfo];
+        return {...state, draftEncounters};
     }
 
     static onEditEncounter(state, action, context) {
@@ -130,7 +139,8 @@ export class IndividualGeneralHistoryActions {
         if (context.get(DraftConfigService).shouldDisplayDrafts() && !_.isNil(action.individualUUID)) {
             const newState = IndividualGeneralHistoryActions.clone(state);
             const individual = context.get(IndividualService).findByUUID(action.individualUUID);
-            newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());
+            newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual)
+                .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
             return newState;
         }
         return state;
@@ -141,6 +151,7 @@ const actions = {
     ON_LOAD: "IGHA.ON_LOAD",
     SHOW_MORE: "IGHA.SHOW_MORE",
     ON_TOGGLE: "IGHA.ON_TOGGLE",
+    ON_TOGGLE_DRAFT: "IGHA.ON_TOGGLE_DRAFT",
     HIDE_ENCOUNTER_SELECTOR: "IGHA.HIDE_ENCOUNTER_SELECTOR",
     LAUNCH_ENCOUNTER_SELECTOR: "IGHA.LAUNCH_ENCOUNTER_SELECTOR",
     DELETE_DRAFT: "IGHA.DELETE_DRAFT",
@@ -153,6 +164,7 @@ export default new Map([
     [actions.ON_LOAD, IndividualGeneralHistoryActions.onLoad],
     [actions.SHOW_MORE, IndividualGeneralHistoryActions.onShowMore],
     [actions.ON_TOGGLE, IndividualGeneralHistoryActions.onToggle],
+    [actions.ON_TOGGLE_DRAFT, IndividualGeneralHistoryActions.onToggleDraft],
     [actions.HIDE_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.hideEncounterSelector],
     [actions.LAUNCH_ENCOUNTER_SELECTOR, IndividualGeneralHistoryActions.launchEncounterSelector],
     [actions.DELETE_DRAFT, IndividualGeneralHistoryActions.deleteDraft],

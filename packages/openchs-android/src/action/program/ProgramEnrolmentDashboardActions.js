@@ -295,7 +295,7 @@ class ProgramEnrolmentDashboardActions {
         if (draftConfigService.shouldDisplayDrafts() && !_.isNil(enrolment) && !(enrolment instanceof NullProgramEnrolment)) {
             newState.draftProgramEncounters = context.get(DraftProgramEncounterService)
                 .listUnScheduledDrafts(enrolment)
-                .map(draft => draft.constructProgramEncounter());
+                .map(draft => ({encounter: draft.constructProgramEncounter(), expand: false}));
         } else {
             newState.draftProgramEncounters = [];
         }
@@ -347,11 +347,18 @@ class ProgramEnrolmentDashboardActions {
         context.get(DraftProgramEncounterService).deleteDraftByUUID(action.programEncounterUUID);
         const draftProgramEncounters = context.get(DraftProgramEncounterService)
             .listUnScheduledDrafts(state.enrolment)
-            .map(draft => draft.constructProgramEncounter());
+            .map(draft => ({encounter: draft.constructProgramEncounter(), expand: false}));
         return {
             ...state,
             draftProgramEncounters
         };
+    }
+
+    static onToggleDraft(state, action) {
+        const nonEqual = _.filter(state.draftProgramEncounters, (e) =>
+            !_.isEqualWith(e, action.encounterInfo, (e1, e2) => e1.encounter.uuid === e2.encounter.uuid));
+        const draftProgramEncounters = [...nonEqual, action.encounterInfo];
+        return {...state, draftProgramEncounters};
     }
 
     static ACTION_PREFIX = 'PEDA';
@@ -372,6 +379,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     HIDE_ENCOUNTER_SELECTOR: "PEDA.HIDE_ENCOUNTER_SELECTOR",
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
     ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
+    ON_TOGGLE_DRAFT: "PEDA.ON_TOGGLE_DRAFT",
     ON_PROGRAM_REJOIN: "PEDA.ON_PROGRAM_REJOIN",
     ON_EDIT_ERROR_SHOWN: "PEDA.ON_EDIT_ERROR_SHOWN",
     DELETE_DRAFT: "PEDA.DELETE_DRAFT"
@@ -396,6 +404,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.HIDE_ENCOUNTER_SELECTOR, ProgramEnrolmentDashboardActions.hideEncounterSelector],
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
     [ProgramEnrolmentDashboardActionsNames.ON_ENCOUNTER_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
+    [ProgramEnrolmentDashboardActionsNames.ON_TOGGLE_DRAFT, ProgramEnrolmentDashboardActions.onToggleDraft],
     [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_REJOIN, ProgramEnrolmentDashboardActions.onProgramReJoin],
     [ProgramEnrolmentDashboardActionsNames.DELETE_DRAFT, ProgramEnrolmentDashboardActions.deleteDraft],
 
