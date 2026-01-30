@@ -33,6 +33,8 @@ import DashboardFilterService from "../../../../src/service/reports/DashboardFil
 import StubbedDashboardFilterService from "../../service/stub/dashboard/StubbedDashboardFilterService";
 import CustomDashboardCacheService from '../../../../src/service/CustomDashboardCacheService';
 import StubbedCustomDashboardCacheService from '../../service/stub/dashboard/StubbedCustomDashboardCacheService';
+import DraftConfigService from "../../../../src/service/DraftConfigService";
+import StubbedDraftConfigService from "../../service/stub/StubbedDraftConfigService";
 
 class TestContext {
     static stubs = new Map([
@@ -52,7 +54,8 @@ class TestContext {
         [PrivilegeService, (serviceData) => new StubbedPrivilegeService(serviceData)],
         [OrganisationConfigService, (serviceData) => new StubbedOrganisationConfigService(serviceData)],
         [DashboardFilterService, (serviceData, capturedData) => new StubbedDashboardFilterService(serviceData, capturedData)],
-        [CustomDashboardCacheService, (serviceData) => new StubbedCustomDashboardCacheService(serviceData)]
+        [CustomDashboardCacheService, (serviceData) => new StubbedCustomDashboardCacheService(serviceData)],
+        [DraftConfigService, (serviceData) => new StubbedDraftConfigService(serviceData)]
     ]);
 
     constructor(serviceData, capturedData) {
