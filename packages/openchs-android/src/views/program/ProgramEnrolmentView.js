@@ -83,9 +83,14 @@ class ProgramEnrolmentView extends AbstractComponent {
         }
     }
 
-    onAppHeaderBack() {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    onAppHeaderBack(saveDraftOn) {
+        const onYesPress = () => {
+            if (saveDraftOn) {
+                this.dispatchAction(Actions.ON_BACK);
+            }
+            CHSNavigator.navigateToFirstPage(this, [ProgramEnrolmentView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
 
     render() {
@@ -94,7 +99,7 @@ class ProgramEnrolmentView extends AbstractComponent {
         return <ProgramFormComponent editing={this.state.isNewEntity}
                                      state={this.state}
                                      context={ProgramEnrolmentView.usageContext}
-                                     backFunction={() => this.onAppHeaderBack()}
+                                     backFunction={() => this.onAppHeaderBack(this.state.saveDrafts)}
                                      previous={() => this.previous()}/>;
     }
 }

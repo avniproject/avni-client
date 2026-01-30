@@ -39,8 +39,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return state;
     }
 
-    static createOnLoadStateForEmptyForm(programEncounter, form, isNewEntity, workLists, messageDisplayed) {
-        let state = new ProgramEncounterState(new StaticFormElementGroup(form), new Wizard(1), isNewEntity, programEncounter, [], workLists, messageDisplayed);
+    static createOnLoadStateForEmptyForm(programEncounter, form, isNewEntity, workLists, messageDisplayed, isDraft = false, saveDrafts = false) {
+        let state = new ProgramEncounterState(new StaticFormElementGroup(form), new Wizard(1), isNewEntity, programEncounter, [], workLists, messageDisplayed, null, isNewEntity, isDraft, saveDrafts);
         return state;
     }
 

@@ -159,6 +159,13 @@ export class ProgramEnrolmentActions {
         return newState;
     }
 
+    static onBack(state, action, context) {
+        if (state.saveDrafts && state.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            ProgramEnrolmentActions.saveDraftEnrolment(state.enrolment, [], context);
+        }
+        return state;
+    }
+
     static onSave(state, action, context) {
         const newState = state.clone();
         context.get(IndividualService).updateObservations(newState.enrolment.individual);
@@ -192,6 +199,7 @@ const actions = {
     NEXT: "PEA.NEXT",
     SUMMARY_PAGE: "PEA.SUMMARY_PAGE",
     PREVIOUS: "PEA.PREVIOUS",
+    ON_BACK: "PEA.ON_BACK",
     SAVE: "PEA.SAVE",
     DURATION_CHANGE: "PEA.DURATION_CHANGE",
     DATE_DURATION_CHANGE: "PEA.DATE_DURATION_CHANGE",
@@ -221,6 +229,7 @@ export default new Map([
     [actions.NEXT, ProgramEnrolmentActions.onNext],
     [actions.SUMMARY_PAGE, ProgramEnrolmentActions.onSummaryPage],
     [actions.PREVIOUS, ProgramEnrolmentActions.onPrevious],
+    [actions.ON_BACK, ProgramEnrolmentActions.onBack],
     [actions.SAVE, ProgramEnrolmentActions.onSave],
     [actions.SET_ENROLMENT_LOCATION, ProgramEnrolmentActions.setEnrolmentLocation],
     [actions.SET_EXIT_LOCATION, ProgramEnrolmentActions.setExitLocation],

@@ -119,7 +119,7 @@ class ProgramEncounterView extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(programEnrolment.program.displayName)}, ${this.I18n.t(encounterName)} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForEncounterType(this.state.programEncounter.encounterType, Form.formTypes.ProgramEncounter, this.state.programEncounter.programEnrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, onPreviousCallback);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, programEnrolment.individual, programEncounter.observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, state.saveDrafts, popVerificationVew, programEncounter.isRejectedEntity(), programEncounter.latestEntityApprovalStatus, onPreviousCallback);
             },
             popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -149,9 +149,14 @@ class ProgramEncounterView extends AbstractComponent {
         }
     }
 
-    onAppHeaderBack() {
-        const onYesPress = () => CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
-        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);
+    onAppHeaderBack(saveDraftOn) {
+        const onYesPress = () => {
+            if (saveDraftOn) {
+                this.dispatchAction(Actions.ON_BACK);
+            }
+            CHSNavigator.navigateToFirstPage(this, [ProgramEncounterView, NewVisitPageView]);
+        };
+        AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t(saveDraftOn ? 'backPressMessageSinglePage' : 'backPressMessage'), onYesPress, this.I18n);
     }
     onStartTimer() {
         this.dispatchAction(Actions.ON_START_TIMER,
@@ -184,8 +189,8 @@ class ProgramEncounterView extends AbstractComponent {
                 <CHSContent>
                     <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                     <AppHeader title={title}
-                               func={() => this.onAppHeaderBack()}
-                               displayHomePressWarning={true}/>
+                               func={() => this.onAppHeaderBack(this.state.saveDrafts)}
+                               displayHomePressWarning={!this.state.saveDrafts}/>
                     {displayTimer ?
                         <Timer timerState={this.state.timerState} onStartTimer={() => this.onStartTimer()} group={this.state.formElementGroup}/> : null}
                     <RejectionMessage I18n={this.I18n} entityApprovalStatus={this.state.programEncounter.latestEntityApprovalStatus}/>

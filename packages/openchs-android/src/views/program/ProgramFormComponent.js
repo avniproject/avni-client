@@ -53,7 +53,7 @@ class ProgramFormComponent extends AbstractComponent {
                 const headerMessage = `${this.I18n.t(state.enrolment.program.displayName)}, ${this.I18n.t(ProgramEnrolmentState.UsageKeys.Enrol ? 'enrol' : 'exit')} - ${this.I18n.t('summaryAndRecommendations')}`;
                 const formMappingService = this.context.getService(FormMappingService);
                 const form = formMappingService.findFormForProgramEnrolment(state.enrolment.program, state.enrolment.individual.subjectType);
-                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, false, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
+                CHSNavigator.navigateToSystemsRecommendationView(this, decisions, ruleValidationErrors, state.enrolment.individual, observations, Actions.SAVE, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, state.workListState, null, state.saveDrafts, popVerificationVew, state.enrolment.isRejectedEntity(), state.enrolment.latestEntityApprovalStatus);
             },
                 popVerificationVewFunc : () => TypedTransition.from(this).popToBookmark(),
             phoneNumberObservation,
@@ -98,7 +98,7 @@ class ProgramFormComponent extends AbstractComponent {
                 <ScrollView ref={this.scrollRef} keyboardShouldPersistTaps="handled">
                 <AppHeader
                     title={this.I18n.t('enrolInSpecificProgram', {program: this.I18n.t(this.props.state.enrolment.program.displayName)})}
-                    func={this.props.backFunction} displayHomePressWarning={true}/>
+                    func={this.props.backFunction} displayHomePressWarning={!this.props.state.saveDrafts}/>
                 {this.props.state.wizard.isFirstFormPage() &&
                 <IndividualProfile textColor={Colors.TextOnPrimaryColor}
                     viewContext={IndividualProfile.viewContext.Wizard} displayOnly={true}

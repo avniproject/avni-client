@@ -94,7 +94,7 @@ class ProgramEncounterActions {
         }));
 
         if (_.isNil(firstGroupWithAtLeastOneVisibleElement)) {
-            return ProgramEncounterState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists);
+            return ProgramEncounterState.createOnLoadStateForEmptyForm(encounterToPass, form, isNewEntity, workLists, null, isDraft, saveDrafts);
         }
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
@@ -134,6 +134,13 @@ class ProgramEncounterActions {
             ProgramEncounterActions.saveDraftProgramEncounter(newState.programEncounter, newState.validationResults, context);
         }
         return newState;
+    }
+
+    static onBack(state, action, context) {
+        if (state.saveDrafts) {
+            ProgramEncounterActions.saveDraftProgramEncounter(state.programEncounter, [], context);
+        }
+        return state;
     }
 
     static setEncounterLocation(state, action, context) {
@@ -211,6 +218,7 @@ const ProgramEncounterActionsNames = {
     PREVIOUS: 'PEncA.PREVIOUS',
     NEXT: 'PEncA.NEXT',
     SUMMARY_PAGE: 'PEncA.SUMMARY_PAGE',
+    ON_BACK: 'PEncA.ON_BACK',
     ENCOUNTER_DATE_TIME_CHANGED: "PEncA.ENROLMENT_DATE_TIME_CHANGED",
     SAVE: "PEncA.SAVE",
     SET_ENCOUNTER_LOCATION: "PEncA.SET_ENCOUNTER_LOCATION",
@@ -236,6 +244,7 @@ const ProgramEncounterActionsMap = new Map([
     [ProgramEncounterActionsNames.NEXT, ProgramEncounterActions.onNext],
     [ProgramEncounterActionsNames.SUMMARY_PAGE, ProgramEncounterActions.onSummaryPage],
     [ProgramEncounterActionsNames.PREVIOUS, ProgramEncounterActions.onPrevious],
+    [ProgramEncounterActionsNames.ON_BACK, ProgramEncounterActions.onBack],
     [ProgramEncounterActionsNames.ENCOUNTER_DATE_TIME_CHANGED, ProgramEncounterActions.encounterDateTimeChanged],
     [ProgramEncounterActionsNames.SAVE, ProgramEncounterActions.onSave],
     [ProgramEncounterActionsNames.SET_ENCOUNTER_LOCATION, ProgramEncounterActions.setEncounterLocation],
