@@ -32,7 +32,9 @@ class CollapsibleEncounter extends AbstractComponent {
         const encounter = encountersInfo.encounter.cloneForEdit();
         const editing = !encounter.isScheduled();
         encounter.encounterDateTime = _.isNil(encounter.encounterDateTime) ? new Date() : encounter.encounterDateTime;
-        if (!_.isNil(formElementGroupEditAction))
+        if (_.isNil(formElementGroupEditAction))
+            CHSNavigator.navigateToEncounterView(this, {encounter, editing, pageNumber});
+        else
             this.dispatchAction(formElementGroupEditAction, {
                 encounter,
                 formType,
