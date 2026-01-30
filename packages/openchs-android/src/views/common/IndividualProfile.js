@@ -139,7 +139,8 @@ class IndividualProfile extends AbstractComponent {
             false,
             (error) => {
                 this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-            }
+            },
+            this.context
         );
     }
 

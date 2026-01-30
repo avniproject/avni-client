@@ -3,6 +3,7 @@ import {PermissionsAndroid, Platform, Alert, Linking} from "react-native";
 import I18n from 'i18n-js';
 import General from "./General";
 import _ from "lodash";
+import IssueUploadUtil from "./IssueUploadUtil";
 
 export default class DeviceLocation {
     static async askLocationPermission() {
@@ -37,7 +38,7 @@ export default class DeviceLocation {
         }
     }
 
-    static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn) {
+    static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, context) {
         if (silent) {
             successCallbackFn(position);
             return;
@@ -46,7 +47,7 @@ export default class DeviceLocation {
             {text: I18n.t('cancel'), style: 'cancel', onPress: () => {
                 errorCallbackFn && errorCallbackFn();
             }},
-            {text: I18n.t('tryAgain'), onPress: () => DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn)},
+            {text: I18n.t('tryAgain'), onPress: () => DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, context)},
             {text: I18n.t('save'), onPress: () => successCallbackFn(position)}
         ];
 
@@ -58,26 +59,38 @@ export default class DeviceLocation {
         );
     }
 
-    static handleLocationError(error, silent, successCallbackFn, errorCallbackFn) {
+    static handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context) {
         General.logWarn("DeviceLocation.getPosition", error);
+        error.code=3
         if (!silent) {
-            const errorMessage = `Location error: ${error.message}`;
-            const suggestions = [
-                { text: I18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                {
-                    text: I18n.t('tryAgain'),
-                    onPress: () => {
-                        DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn);
+            if (error.code === 1 || error.code === 2) {
+                DeviceLocation.handlePermissionDenied(errorCallbackFn, error);
+            } else {
+                const errorMessage = `Location error: ${error.message}`;
+                const suggestions = [
+                    { text: I18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
+                    {
+                        text: I18n.t('tryAgain'),
+                        onPress: () => {
+                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, context);
+                        }
                     }
-                }
-            ];
-            Alert.alert(I18n.t('locationPermissionRequired'), errorMessage, suggestions);
+                ];
+                
+                suggestions.push(IssueUploadUtil.createUploadIssueInfoButton(
+                    context,
+                    I18n,
+                    error,
+                    "DeviceLocation"
+                ));
+                
+                Alert.alert(I18n.t('locationPermissionRequired'), errorMessage, suggestions);
+            }
         }
     }
 
     static handlePermissionDenied(errorCallbackFn, error = null) {
         const permissionError = error || {code: 1, message: "Location permission denied"};
-
         Alert.alert(I18n.t('locationPermissionRequired'), I18n.t('giveLocationPermissionFromSettings'), [
             { text: I18n.t('cancel'), style: 'cancel', onPress: () => {
                     errorCallbackFn && errorCallbackFn(permissionError);
@@ -89,13 +102,13 @@ export default class DeviceLocation {
         ]);
     }
 
-    static getPosition = _.debounce(async function(successCallbackFn, silent = true, errorCallbackFn = null) {
+    static getPosition = _.debounce(async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null) {
         const hasPermission = await DeviceLocation.askLocationPermission();
 
         if (hasPermission) {
             Geolocation.getCurrentPosition(
-                position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn),
-                error => DeviceLocation.handleLocationError(error, silent, successCallbackFn, errorCallbackFn),
+                position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, context),
+                error => DeviceLocation.handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context),
                 {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
             );
         } else if (!silent) {
