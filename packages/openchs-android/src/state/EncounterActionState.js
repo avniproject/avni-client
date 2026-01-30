@@ -8,7 +8,7 @@ import EntityService from "../service/EntityService";
 import ObservationHolderActions from "../action/common/ObservationsHolderActions";
 import TimerState from "./TimerState";
 import DraftEncounterService from "../service/draft/DraftEncounterService";
-import OrganisationConfigService from '../service/OrganisationConfigService';
+import DraftConfigService from "../service/DraftConfigService";
 
 class EncounterActionState extends AbstractDataEntryState {
     constructor(validationResults, formElementGroup, wizard, isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts) {
@@ -60,13 +60,17 @@ class EncounterActionState extends AbstractDataEntryState {
     }
 
     static createOnLoadState(encounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context, action) {
-        const draftEncounter = context.get(DraftEncounterService).findByUUID(action.encounter.uuid);
+        const draftConfigService = context.get(DraftConfigService);
+        // Only check for draft if draft loading is enabled
+        const draftEncounter = draftConfigService.shouldLoadDraft()
+            ? context.get(DraftEncounterService).findByUUID(action.encounter.uuid)
+            : null;
         const isDraft = !!draftEncounter;
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         const isFirstFlow = isNewEntity || !action.editing;
 
         const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
-        const saveDrafts = isDraft || (isFirstFlow && context.get(OrganisationConfigService).isSaveDraftOn());
+        const saveDrafts = draftConfigService.shouldSaveDraft(isFirstFlow, isDraft);
         let state = new EncounterActionState([], formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, encounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {

@@ -56,7 +56,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
                                     showCount={this.state.showCount}
                                     title={this.I18n.t('drafts')}
                                     emptyTitle={this.I18n.t('noDrafts')}
-                                    expandCollapseView={false}
+                                    expandCollapseView={true}
                                     containsDrafts={true}
                                     deleteDraft={(encounterUUID) => this.deleteDraft(encounterUUID)}
                                     hideIfEmpty={true}

@@ -11,6 +11,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
+import DraftConfigService from "../../service/DraftConfigService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
 import GroupAffiliationState from "../../state/GroupAffiliationState";
@@ -43,8 +44,7 @@ export class PersonRegisterActions {
         context.get(GroupSubjectService).populateGroups(individual.uuid, form, groupAffiliationState);
         const organisationConfigService = context.get(OrganisationConfigService);
         const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
-        const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
-        const saveDrafts = isNewEntity && isSaveDraftOn;
+        const saveDrafts = context.get(DraftConfigService).shouldSaveDraft(isNewEntity, action.isDraftEntity);
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
 
         let group;

@@ -16,6 +16,8 @@ import IndividualService from "../../service/IndividualService";
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {ActionEligibilityResponse} from "rules-config";
 import {Form} from "openchs-models";
+import DraftProgramEncounterService from "../../service/draft/DraftProgramEncounterService";
+import DraftConfigService from "../../service/DraftConfigService";
 
 class ProgramEnrolmentDashboardActions {
     static setEncounterType(encounterType) {
@@ -36,6 +38,7 @@ class ProgramEnrolmentDashboardActions {
             displayActionSelector: false,
             expandEnrolmentInfo: false,
             completedEncounters: [],
+            draftProgramEncounters: [],
             editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
@@ -287,6 +290,16 @@ class ProgramEnrolmentDashboardActions {
         newState.dashboardButtons = ProgramEnrolmentDashboardActions._addProgramConfig(newState.enrolment.program, context);
         newState.showCount = SettingsService.IncrementalEncounterDisplayCount;
 
+        // Load draft program encounters for this enrolment
+        const draftConfigService = context.get(DraftConfigService);
+        if (draftConfigService.shouldDisplayDrafts() && !_.isNil(enrolment) && !(enrolment instanceof NullProgramEnrolment)) {
+            newState.draftProgramEncounters = context.get(DraftProgramEncounterService)
+                .listUnScheduledDrafts(enrolment)
+                .map(draft => draft.constructProgramEncounter());
+        } else {
+            newState.draftProgramEncounters = [];
+        }
+
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
     }
 
@@ -330,6 +343,17 @@ class ProgramEnrolmentDashboardActions {
         return newProgramEnrolment;
     }
 
+    static deleteDraft(state, action, context) {
+        context.get(DraftProgramEncounterService).deleteDraftByUUID(action.programEncounterUUID);
+        const draftProgramEncounters = context.get(DraftProgramEncounterService)
+            .listUnScheduledDrafts(state.enrolment)
+            .map(draft => draft.constructProgramEncounter());
+        return {
+            ...state,
+            draftProgramEncounters
+        };
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -349,7 +373,8 @@ const ProgramEnrolmentDashboardActionsNames = {
     ON_ENROLMENT_TOGGLE: "PEDA.ON_ENROLMENT_TOGGLE",
     ON_ENCOUNTER_TOGGLE: "PEDA.ON_Encounter_TOGGLE",
     ON_PROGRAM_REJOIN: "PEDA.ON_PROGRAM_REJOIN",
-    ON_EDIT_ERROR_SHOWN: "PEDA.ON_EDIT_ERROR_SHOWN"
+    ON_EDIT_ERROR_SHOWN: "PEDA.ON_EDIT_ERROR_SHOWN",
+    DELETE_DRAFT: "PEDA.DELETE_DRAFT"
 };
 
 const ProgramEncounterTypeChoiceActionNames = new EntityTypeChoiceActionNames('PEDA');
@@ -372,6 +397,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_ENROLMENT_TOGGLE, ProgramEnrolmentDashboardActions.onEnrolmentToggle],
     [ProgramEnrolmentDashboardActionsNames.ON_ENCOUNTER_TOGGLE, ProgramEnrolmentDashboardActions.onEncounterToggle],
     [ProgramEnrolmentDashboardActionsNames.ON_PROGRAM_REJOIN, ProgramEnrolmentDashboardActions.onProgramReJoin],
+    [ProgramEnrolmentDashboardActionsNames.DELETE_DRAFT, ProgramEnrolmentDashboardActions.deleteDraft],
 
     [ProgramEncounterTypeChoiceActionNames.LAUNCH_CHOOSE_ENTITY_TYPE, ProgramEnrolmentDashboardActions.launchChooseProgramEncounterType],
     [ProgramEncounterTypeChoiceActionNames.ENTITY_TYPE_SELECTED, ProgramEnrolmentDashboardActions.onProgramEncounterTypeSelected],

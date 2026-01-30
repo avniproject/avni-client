@@ -10,11 +10,12 @@ import TimerState from "./TimerState";
 import General from "../utility/General";
 
 class ProgramEncounterState extends AbstractDataEntryState {
-    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow) {
-        super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow);
+    constructor(formElementGroup, wizard, isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft = false, saveDrafts = false) {
+        super([], formElementGroup, wizard, isNewEntity, filteredFormElements, workLists, timerState, isFirstFlow, isDraft);
         this.programEncounter = programEncounter;
         this.messageDisplayed = messageDisplayed;
         this.allElementsFilledForImmutableEncounter = false;
+        this.saveDrafts = saveDrafts;
     }
 
     getEntity() {
@@ -25,11 +26,12 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ProgramEncounter.schema.name;
     }
 
-    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context, editing) {
+    static createOnLoad(programEncounter, form, isNewEntity, formElementGroup, filteredFormElements, formElementStatuses, workLists, messageDisplayed, context, editing, isDraft = false, saveDrafts = false) {
         let indexOfGroup = _.findIndex(form.getFormElementGroups(), (feg) => feg.uuid === formElementGroup.uuid) + 1;
         const isFirstFlow = isNewEntity || !editing;
-        const timerState = formElementGroup.timed && isFirstFlow ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
-        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow);
+        // Timer is not initialized for draft flows
+        const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+        let state = new ProgramEncounterState(formElementGroup, new Wizard(form.numberOfPages, indexOfGroup, indexOfGroup), isNewEntity, programEncounter, filteredFormElements, workLists, messageDisplayed, timerState, isFirstFlow, isDraft, saveDrafts);
         state.observationsHolder.updatePrimitiveCodedObs(filteredFormElements, formElementStatuses);
         if (ObservationHolderActions.hasQuestionGroupWithValueInElementStatus(formElementStatuses, formElementGroup.getFormElements())) {
             ObservationHolderActions.updateFormElements(formElementGroup, state, context);
@@ -47,6 +49,7 @@ class ProgramEncounterState extends AbstractDataEntryState {
         programEncounterState.locationError = this.locationError;
         programEncounterState.programEncounter = this.programEncounter;
         programEncounterState.messageDisplayed = this.messageDisplayed;
+        programEncounterState.saveDrafts = this.saveDrafts;
         return programEncounterState;
     }
 

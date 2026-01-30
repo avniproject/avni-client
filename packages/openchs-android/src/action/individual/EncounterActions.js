@@ -14,7 +14,7 @@ import IndividualService from "../../service/IndividualService";
 import _ from "lodash";
 import {DraftEncounter, ObservationsHolder} from "openchs-models";
 import DraftEncounterService from '../../service/draft/DraftEncounterService';
-import OrganisationConfigService from "../../service/OrganisationConfigService";
+import DraftConfigService from "../../service/DraftConfigService";
 
 function getPreviousEncounter(action, form, context) {
     const previousEncounter = action.encounter.individual.findLastEncounterOfType(action.encounter, [action.encounter.encounterType.name]);
@@ -38,9 +38,8 @@ function getPreviousEncounter(action, form, context) {
     return action.encounter;
 }
 
-const isSaveDraftOn = (context) => {
-    const organisationConfigService = context.get(OrganisationConfigService);
-    return organisationConfigService.isSaveDraftOn()
+const shouldLoadDraft = (context) => {
+    return context.get(DraftConfigService).shouldLoadDraft();
 }
 
 export class EncounterActions {
@@ -67,7 +66,11 @@ export class EncounterActions {
 
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, Encounter.schema.name));
         let editableEncounter = action.encounter;
-        const draftEncounter = context.get(DraftEncounterService).findByUUID(action.encounter.uuid);
+
+        // Only look up draft if draft loading is enabled
+        const draftEncounter = shouldLoadDraft(context)
+            ? context.get(DraftEncounterService).findByUUID(action.encounter.uuid)
+            : null;
         if (draftEncounter) {
             editableEncounter = draftEncounter.constructEncounter();
         }
@@ -86,7 +89,7 @@ export class EncounterActions {
 
         const formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, Encounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         const filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = EncounterActionState.createOnLoadState(isSaveDraftOn(context) ? editableEncounter : encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action);
+        const newState = EncounterActionState.createOnLoadState(shouldLoadDraft(context) ? editableEncounter : encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action);
 
         if (action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;

@@ -90,6 +90,30 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         this.dispatchAction(Actions.ON_ENROLMENT_CHANGE, {enrolmentUUID: enrolmentUUID});
     }
 
+    deleteDraft(programEncounterUUID) {
+        this.dispatchAction(Actions.DELETE_DRAFT, {programEncounterUUID});
+    }
+
+    renderDraftVisits() {
+        const drafts = this.state.draftProgramEncounters;
+        const programEnrolment = this.state.enrolment;
+        return (<PreviousEncounters encounters={drafts}
+                                    allowedEncounterTypeUuidsForCancelVisit={[]}
+                                    allowedEncounterTypeUuidsForPerformVisit={[]}
+                                    formType={Form.formTypes.ProgramEncounter}
+                                    style={{marginBottom: 21}}
+                                    showPartial={false}
+                                    showCount={this.state.showCount}
+                                    title={this.I18n.t('drafts')}
+                                    emptyTitle={this.I18n.t('noDrafts')}
+                                    expandCollapseView={true}
+                                    containsDrafts={true}
+                                    deleteDraft={(programEncounterUUID) => this.deleteDraft(programEncounterUUID)}
+                                    hideIfEmpty={true}
+                                    subjectInfo={`${programEnrolment.individual.name}, ${programEnrolment.program.displayName}`}
+        />);
+    }
+
     getHeaderMessage(enrolment) {
         return (
             <View>
@@ -345,6 +369,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                         <View>
                             {this.renderSummary()}
                             {this.renderExitObservations()}
+                            {this.renderDraftVisits()}
                             {this.renderPlannedVisits(allowedEncounterTypeUuids)}
                             {this.renderEnrolmentDetails()}
                             {this.renderCompletedVisits()}

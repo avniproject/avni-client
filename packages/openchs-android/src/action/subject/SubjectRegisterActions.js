@@ -12,6 +12,7 @@ import FormMappingService from "../../service/FormMappingService";
 import GroupSubjectService from "../../service/GroupSubjectService";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DraftSubjectService from "../../service/draft/DraftSubjectService";
+import DraftConfigService from "../../service/DraftConfigService";
 import PhoneNumberVerificationActions from "../common/PhoneNumberVerificationActions";
 import GroupAffiliationState from "../../state/GroupAffiliationState";
 import GroupAffiliationActions from "../common/GroupAffiliationActions";
@@ -44,7 +45,7 @@ export class SubjectRegisterActions {
         }]), (formElementGroup) => SubjectRegisterActions.filterFormElements(formElementGroup, context, subject).length !== 0);
         const organisationConfigService = context.get(OrganisationConfigService);
         const customRegistrationLocations = organisationConfigService.getCustomRegistrationLocationsForSubjectType(subjectType.uuid);
-        const isSaveDraftOn = organisationConfigService.isSaveDraftOn();
+        const isSaveDraftOn = context.get(DraftConfigService).isDraftEnabled();
         const minLevelTypeUUIDs = !_.isEmpty(customRegistrationLocations) ? customRegistrationLocations.locationTypeUUIDs : [];
         const groupAffiliationState = new GroupAffiliationState();
 

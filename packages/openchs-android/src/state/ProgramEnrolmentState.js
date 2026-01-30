@@ -11,10 +11,11 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         Exit: 'Exit'
     };
 
-    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState, timerState) {
-        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists, timerState, isNewEnrolment);
+    constructor(validationResults, formElementGroup, wizard, usage, enrolment, isNewEnrolment, filteredFormElements, workLists, groupAffiliationState, timerState, isFirstFlow, isDraft = false, saveDrafts = false) {
+        super(validationResults, formElementGroup, wizard, isNewEnrolment, filteredFormElements, workLists, timerState, isFirstFlow, isDraft);
         this.usage = usage;
         this.enrolment = enrolment;
+        this.saveDrafts = saveDrafts;
         if (!_.isNil(enrolment)) {
             this.applicableObservationsHolder = new ObservationsHolder(ProgramEnrolmentState.UsageKeys.Enrol ? enrolment.observations : enrolment.programExitObservations);
         }
@@ -35,6 +36,7 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         newState.enrolment = this.enrolment;
         newState.newEnrolment = this.newEnrolment;
         newState.usage = this.usage;
+        newState.saveDrafts = this.saveDrafts;
         newState.applicableObservationsHolder = new ObservationsHolder(this.usage === ProgramEnrolmentState.UsageKeys.Enrol ? newState.enrolment.observations : newState.enrolment.programExitObservations);
         newState.groupAffiliation = this.groupAffiliation;
         return newState;

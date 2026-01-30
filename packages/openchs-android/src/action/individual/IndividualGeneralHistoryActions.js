@@ -11,7 +11,7 @@ import DraftEncounterService from '../../service/draft/DraftEncounterService';
 import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import {Form} from "openchs-models";
 import {ActionEligibilityResponse} from "rules-config";
-import OrganisationConfigService from "../../service/OrganisationConfigService";
+import DraftConfigService from "../../service/DraftConfigService";
 
 export class IndividualGeneralHistoryActions {
     static getInitialState() {
@@ -37,7 +37,9 @@ export class IndividualGeneralHistoryActions {
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
         const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
-        newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());
+        newState.draftEncounters = context.get(DraftConfigService).shouldDisplayDrafts()
+            ? context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter())
+            : [];
         return {
             ...newState,
             programsAvailable: context.get(ProgramService).programsAvailable,
@@ -122,8 +124,7 @@ export class IndividualGeneralHistoryActions {
     }
 
     static onRender(state, action, context) {
-        const organisationConfigService = context.get(OrganisationConfigService);
-        if (organisationConfigService.isSaveDraftOn() && !_.isNil(action.individualUUID)) {
+        if (context.get(DraftConfigService).shouldDisplayDrafts() && !_.isNil(action.individualUUID)) {
             const newState = IndividualGeneralHistoryActions.clone(state);
             const individual = context.get(IndividualService).findByUUID(action.individualUUID);
             newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual).map(draft => draft.constructEncounter());

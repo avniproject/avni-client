@@ -4,7 +4,7 @@ import FormMappingService from "../../service/FormMappingService";
 import Wizard from "../../state/Wizard";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import _ from "lodash";
-import {ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
+import {DraftEnrolment, ObservationsHolder, Point, ProgramEnrolment, StaticFormElementGroup} from "avni-models";
 import ConceptService from "../../service/ConceptService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -17,6 +17,8 @@ import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerState from "../../state/TimerState";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
+import DraftEnrolmentService from "../../service/draft/DraftEnrolmentService";
+import DraftConfigService from "../../service/DraftConfigService";
 
 export class ProgramEnrolmentActions {
     static getInitialState(context) {
@@ -32,31 +34,50 @@ export class ProgramEnrolmentActions {
                     ? formMappingService.findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType)
                     : formMappingService.findFormForProgramExit(enrolment.program, enrolment.individual.subjectType);
 
+            // Check for existing draft and restore if found (only for enrolment, not exit)
+            const draftConfigService = context.get(DraftConfigService);
+            const draftEnrolment = isProgramEnrolment && draftConfigService.shouldLoadDraft()
+                ? context.get(DraftEnrolmentService).findByUUID(action.enrolment.uuid)
+                : null;
+            const isDraft = !!draftEnrolment;
+            let editableEnrolment = enrolment;
+            if (draftEnrolment) {
+                editableEnrolment = draftEnrolment.constructEnrolment();
+                editableEnrolment.individual = enrolment.individual; // Keep current individual reference
+                editableEnrolment.program = enrolment.program; // Keep current program reference
+            }
+
             //Populate identifiers much before form elements are hidden or sent to rules.
             //This will enable the value to be used in rules
-            context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(enrolment.observations));
+            context.get(IdentifierAssignmentService).populateIdentifiers(form, new ObservationsHolder(editableEnrolment.observations));
             const groupAffiliationState = new GroupAffiliationState();
-            const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(enrolment.program, enrolment.individual.subjectType);
-            context.get(GroupSubjectService).populateGroups(enrolment.individual.uuid, enrolmentForm, groupAffiliationState);
-            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(enrolment.uuid);
+            const enrolmentForm = isProgramEnrolment ? form : formMappingService.findFormForProgramEnrolment(editableEnrolment.program, editableEnrolment.individual.subjectType);
+            context.get(GroupSubjectService).populateGroups(editableEnrolment.individual.uuid, enrolmentForm, groupAffiliationState);
+            const isNewEnrolment = !context.get(ProgramEnrolmentService).existsByUuid(editableEnrolment.uuid);
+            const isFirstFlow = isNewEnrolment || !action.editing;
+            const saveDrafts = isProgramEnrolment && draftConfigService.shouldSaveDraft(isFirstFlow, isDraft);
             const formElementGroup = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? new StaticFormElementGroup(form) : form.firstFormElementGroup;
             const numberOfPages = (_.isNil(form) || _.isNil(form.firstFormElementGroup)) ? 1 : form.numberOfPages;
             let formElementStatuses = context
                 .get(RuleEvaluationService)
-                .getFormElementsStatuses(enrolment, ProgramEnrolment.schema.name, formElementGroup);
+                .getFormElementsStatuses(editableEnrolment, ProgramEnrolment.schema.name, formElementGroup);
             let filteredElements = formElementGroup.filterElements(formElementStatuses);
-            const timerState = formElementGroup.timed && isNewEnrolment ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
+            // Timer is not initialized for draft flows
+            const timerState = formElementGroup.timed && isFirstFlow && !isDraft ? new TimerState(formElementGroup.startTime, formElementGroup.stayTime) : null;
             let programEnrolmentState = new ProgramEnrolmentState(
                 [],
                 formElementGroup,
                 new Wizard(numberOfPages),
                 action.usage,
-                enrolment,
+                editableEnrolment,
                 isNewEnrolment,
                 filteredElements,
                 action.workLists,
                 groupAffiliationState,
-                timerState
+                timerState,
+                isFirstFlow,
+                isDraft,
+                saveDrafts
             );
             programEnrolmentState = programEnrolmentState.clone();
             programEnrolmentState.observationsHolder.updatePrimitiveCodedObs(filteredElements, formElementStatuses);
@@ -111,17 +132,31 @@ export class ProgramEnrolmentActions {
         return newState;
     }
 
+    static saveDraftEnrolment(enrolment, validationResults, context) {
+        if (_.isEmpty(validationResults)) {
+            context.get(DraftEnrolmentService).saveDraft(enrolment);
+        }
+    }
+
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        const newState = state.clone();
+        newState.handleNext(action, context);
+        if (state.saveDrafts && state.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            ProgramEnrolmentActions.saveDraftEnrolment(newState.enrolment, newState.validationResults, context);
+        }
+        return newState;
     }
 
     static onSummaryPage(state, action, context) {
         return state.clone().handleSummaryPage(action, context);
     }
 
-
     static onPrevious(state, action, context) {
-        return state.clone().handlePrevious(action, context);
+        const newState = state.clone().handlePrevious(action, context);
+        if (state.saveDrafts && state.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
+            ProgramEnrolmentActions.saveDraftEnrolment(newState.enrolment, newState.validationResults, context);
+        }
+        return newState;
     }
 
     static onSave(state, action, context) {
@@ -133,6 +168,8 @@ export class ProgramEnrolmentActions {
                 .get(ConceptService)
                 .addDecisions(newState.enrolment.observations, action.decisions.enrolmentDecisions);
             newState.enrolment = service.enrol(newState.enrolment, action.checklists, action.nextScheduledVisits, action.skipCreatingPendingStatus, newState.groupAffiliation.groupSubjectObservations);
+            // Delete draft after successful enrolment
+            context.get(DraftEnrolmentService).deleteDraftByUUID(newState.enrolment.uuid);
         } else {
             context
                 .get(ConceptService)

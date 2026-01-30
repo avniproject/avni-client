@@ -4,7 +4,7 @@ import ObservationsHolderActions from '../common/ObservationsHolderActions';
 import ProgramEncounterService from "../../service/program/ProgramEncounterService";
 import _ from 'lodash';
 import EntityService from "../../service/EntityService";
-import {Point, ProgramEncounter, WorkList, WorkLists} from "avni-models";
+import {DraftProgramEncounter, Point, ProgramEncounter, WorkList, WorkLists} from "avni-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
 import RuleEvaluationService from "../../service/RuleEvaluationService";
 import GeolocationActions from "../common/GeolocationActions";
@@ -14,6 +14,8 @@ import QuickFormEditingActions from "../common/QuickFormEditingActions";
 import TimerActions from "../common/TimerActions";
 import IndividualService from "../../service/IndividualService";
 import {ObservationsHolder} from "openchs-models";
+import DraftProgramEncounterService from "../../service/draft/DraftProgramEncounterService";
+import DraftConfigService from "../../service/DraftConfigService";
 
 class ProgramEncounterActions {
     static getInitialState() {
@@ -39,12 +41,24 @@ class ProgramEncounterActions {
             throw new Error(`No form setup for EncounterType: ${action.programEncounter.encounterType.name}`);
         }
 
-        const encounterType = action.programEncounter.encounterType;
+        // Check for existing draft and restore if found
+        const draftConfigService = context.get(DraftConfigService);
+        const draftProgramEncounter = draftConfigService.shouldLoadDraft()
+            ? context.get(DraftProgramEncounterService).findByUUID(action.programEncounter.uuid)
+            : null;
+        const isDraft = !!draftProgramEncounter;
+        let editableProgramEncounter = action.programEncounter;
+        if (draftProgramEncounter) {
+            editableProgramEncounter = draftProgramEncounter.constructProgramEncounter();
+            editableProgramEncounter.programEnrolment = action.programEncounter.programEnrolment; // Keep current enrolment reference
+        }
+
+        const encounterType = editableProgramEncounter.encounterType;
         const getPreviousEncounter = () => {
-            const previousEncounter = action.programEncounter.programEnrolment.findLastEncounterOfType(action.programEncounter, [encounterType.name]);
+            const previousEncounter = editableProgramEncounter.programEnrolment.findLastEncounterOfType(editableProgramEncounter, [encounterType.name]);
             if (previousEncounter) {
-                action.programEncounter.observations = previousEncounter.cloneForEdit().observations;
-                const observationsHolder = new ObservationsHolder(action.programEncounter.observations);
+                editableProgramEncounter.observations = previousEncounter.cloneForEdit().observations;
+                const observationsHolder = new ObservationsHolder(editableProgramEncounter.observations);
                 let groupNo = 0;
                 const firstGroupWithAllVisibleElementsEmpty = _.find(form.getFormElementGroups(),
                     (formElementGroup) => {
@@ -59,15 +73,19 @@ class ProgramEncounterActions {
                 else
                     action.pageNumber = groupNo;
             }
-            return action.programEncounter;
+            return editableProgramEncounter;
         };
-        const encounterToPass = encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : action.programEncounter;
+        // If draft exists, use the draft data; otherwise use the immutable encounter logic
+        const encounterToPass = isDraft ? editableProgramEncounter :
+            (encounterType.immutable && _.isUndefined(action.pageNumber) ? getPreviousEncounter() : editableProgramEncounter);
 
         let firstGroupWithAtLeastOneVisibleElement = _.find(_.sortBy(form.nonVoidedFormElementGroups(), [function (o) {
             return o.displayOrder
         }]), (formElementGroup) => ProgramEncounterActions.filterFormElements(formElementGroup, context, encounterToPass).length !== 0);
 
         const isNewEntity = _.isNil(context.get(EntityService).findByUUID(encounterToPass.uuid, ProgramEncounter.schema.name));
+        const isFirstFlow = isNewEntity || !action.editing;
+        const saveDrafts = draftConfigService.shouldSaveDraft(isFirstFlow, isDraft);
 
         const workLists = action.workLists || new WorkLists(new WorkList('Enrolment').withEncounter({
             encounterType: encounterToPass.encounterType.name,
@@ -81,7 +99,7 @@ class ProgramEncounterActions {
 
         let formElementStatuses = context.get(RuleEvaluationService).getFormElementsStatuses(encounterToPass, ProgramEncounter.schema.name, firstGroupWithAtLeastOneVisibleElement);
         let filteredElements = firstGroupWithAtLeastOneVisibleElement.filterElements(formElementStatuses);
-        const newState = ProgramEncounterState.createOnLoad(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing);
+        const newState = ProgramEncounterState.createOnLoad(encounterToPass, form, isNewEntity, firstGroupWithAtLeastOneVisibleElement, filteredElements, formElementStatuses, workLists, null, context, action.editing, isDraft, saveDrafts);
 
         if(action.allElementsFilledForImmutableEncounter) {
             newState.allElementsFilledForImmutableEncounter = true;
@@ -91,8 +109,19 @@ class ProgramEncounterActions {
         return QuickFormEditingActions.moveToPage(newState, action, context, ProgramEncounterActions);
     }
 
+    static saveDraftProgramEncounter(programEncounter, validationResults, context) {
+        if (_.isEmpty(validationResults)) {
+            context.get(DraftProgramEncounterService).saveDraft(programEncounter);
+        }
+    }
+
     static onNext(state, action, context) {
-        return state.clone().handleNext(action, context);
+        const newState = state.clone();
+        newState.handleNext(action, context);
+        if (state.saveDrafts) {
+            ProgramEncounterActions.saveDraftProgramEncounter(newState.programEncounter, newState.validationResults, context);
+        }
+        return newState;
     }
 
     static onSummaryPage(state, action, context) {
@@ -100,7 +129,11 @@ class ProgramEncounterActions {
     }
 
     static onPrevious(state, action, context) {
-        return state.clone().handlePrevious(action, context);
+        const newState = state.clone().handlePrevious(action, context);
+        if (state.saveDrafts) {
+            ProgramEncounterActions.saveDraftProgramEncounter(newState.programEncounter, newState.validationResults, context);
+        }
+        return newState;
     }
 
     static setEncounterLocation(state, action, context) {
@@ -142,6 +175,9 @@ class ProgramEncounterActions {
         });
 
         service.saveOrUpdate(newState.programEncounter, scheduledVisits, action.skipCreatingPendingStatus);
+
+        // Delete draft after successful save
+        context.get(DraftProgramEncounterService).deleteDraftByUUID(newState.programEncounter.uuid);
 
         action.cb(newState.programEncounter, false);
         return newState;

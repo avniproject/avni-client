@@ -107,6 +107,9 @@ import './program/SubjectProgramEligibilityService';
 // Draft services
 import './draft/DraftEncounterService';
 import './draft/DraftSubjectService';
+import './draft/DraftEnrolmentService';
+import './draft/DraftProgramEncounterService';
+import './DraftConfigService';
 
 // Query services
 import './query/RealmQueryService';

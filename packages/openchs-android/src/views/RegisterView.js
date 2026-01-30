@@ -18,6 +18,7 @@ import PrivilegeService from "../service/PrivilegeService";
 import GroupSubjectService from "../service/GroupSubjectService";
 import UserInfoService from "../service/UserInfoService";
 import DraftSubjectService from "../service/draft/DraftSubjectService";
+import DraftConfigService from "../service/DraftConfigService";
 import IndividualDetailsCard from "./common/IndividualDetailsCard";
 import TypedTransition from "../framework/routing/TypedTransition";
 import SubjectRegisterView from "./subject/SubjectRegisterView";
@@ -26,6 +27,8 @@ import SubjectTypeIcon from "./common/SubjectTypeIcon";
 import Separator from "./primitives/Separator";
 import PropTypes from "prop-types";
 import Styles from "./primitives/Styles";
+import ContextAction from "./viewmodel/ContextAction";
+import ObservationsSectionOptions from "./common/ObservationsSectionOptions";
 
 class RegisterView extends AbstractComponent {
     static propTypes = {
@@ -37,6 +40,7 @@ class RegisterView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.userSettings = context.getService(UserInfoService).getUserSettings();
+        this.state = {};
     }
 
     UNSAFE_componentWillMount() {
@@ -124,23 +128,46 @@ class RegisterView extends AbstractComponent {
         );
     }
 
-    renderDraft(subject) {
+    deleteDraftSubject(uuid) {
+        this.context.getService(DraftSubjectService).deleteDraftByUUID(uuid);
+        this.setState({refresh: Date.now()});
+    }
+
+    openDraft(subject) {
         const subjectType = subject.subjectType;
+        TypedTransition.from(this).with({
+            subjectUUID: subject.uuid,
+            individualUUID: subject.uuid,
+            isDraftEntity: true,
+            workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
+        }).to(subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView);
+    }
+
+    renderDraft(subject) {
+        const actions = [
+            new ContextAction(this.I18n.t('delete'), () => this.deleteDraftSubject(subject.uuid), Colors.ValidationError)
+        ];
         return (
-            <TouchableNativeFeedback onPress={() => TypedTransition.from(this).with({
-                subjectUUID: subject.uuid,
-                individualUUID: subject.uuid,
-                isDraftEntity: true,
-                workLists: new WorkLists(new WorkList(this.I18n.t(`${subjectType.name}`)).withRegistration(subjectType.name))
-            }).to(subjectType.isPerson() ? PersonRegisterView : SubjectRegisterView)}>
-                <View>
-                    <IndividualDetailsCard individual={subject} renderDraftString/>
+            <View key={subject.uuid}>
+                <TouchableNativeFeedback onPress={() => this.openDraft(subject)}>
+                    <View>
+                        <IndividualDetailsCard individual={subject} renderDraftString/>
+                    </View>
+                </TouchableNativeFeedback>
+                <View style={{paddingHorizontal: 12, paddingBottom: 8}}>
+                    <ObservationsSectionOptions
+                        contextActions={actions}
+                        primaryAction={new ContextAction(this.I18n.t('do'), () => this.openDraft(subject), Colors.ScheduledVisitColor)}
+                    />
                 </View>
-            </TouchableNativeFeedback>
+            </View>
         )
     }
 
     renderDrafts() {
+        if (!this.context.getService(DraftConfigService).shouldDisplayDrafts()) {
+            return null;
+        }
         const draftSubjects = this.context.getService(DraftSubjectService).findAll().sorted('updatedOn', true);
         if (draftSubjects.length > 0) {
             return (
