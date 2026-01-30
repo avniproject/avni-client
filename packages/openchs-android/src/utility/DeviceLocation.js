@@ -113,6 +113,6 @@ export default class DeviceLocation {
         } else if (!silent) {
             DeviceLocation.handlePermissionDenied(errorCallbackFn, null);
         }
-    }, 1000, {leading: true, trailing: false});
+    }, 1000, {leading: true, trailing: true});
 
 }
