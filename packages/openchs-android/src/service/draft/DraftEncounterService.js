@@ -18,19 +18,48 @@ class DraftEncounterService extends BaseService {
         return individual? this.findAll().filtered(`individual.uuid="${individual.uuid}" AND earliestVisitDateTime == null`) : [];
     }
 
-    findByIndividualAndEncounterType(individual, encounterType) {
+    /**
+     * List all draft encounters for a given individual (both scheduled and unscheduled)
+     * @param {Individual} individual
+     * @returns {Results<DraftEncounter>}
+     */
+    listDraftsForIndividual(individual) {
+        return individual ?
+            this.findAll().filtered(`individual.uuid="${individual.uuid}"`) : [];
+    }
+
+    /**
+     * Find draft by individual and encounter type (for unscheduled encounters)
+     * @param {Individual} individual
+     * @param {EncounterType} encounterType
+     * @param {Date} earliestVisitDateTime
+     * @returns {DraftEncounter|null}
+     */
+    findByIndividualAndEncounterType(individual, encounterType, earliestVisitDateTime = null) {
         if (!individual || !encounterType) return null;
-        const drafts = this.findAll().filtered(
-            `individual.uuid="${individual.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`
-        );
+        const query = earliestVisitDateTime 
+            ? `individual.uuid="${individual.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == $0`
+            : `individual.uuid="${individual.uuid}" AND encounterType.uuid="${encounterType.uuid}" AND earliestVisitDateTime == null`;
+        const drafts = this.findAll().filtered(query, earliestVisitDateTime);
         return drafts.length > 0 ? drafts[0] : null;
+    }
+
+    /**
+     * Find draft for an encounter - handles both scheduled and unscheduled encounters
+     * Uses individual + encounterType + earliestVisitDateTime combination for lookup
+     * @param {Encounter} encounter
+     * @returns {DraftEncounter|null}
+     */
+    findDraftFor(encounter) {
+        if (!encounter) return null;
+        return this.findByIndividualAndEncounterType(encounter.individual, encounter.encounterType, encounter.earliestVisitDateTime);
     }
 
     saveDraft(encounter) {
         const db = this.db;
         
-        // Find existing draft for same individual + encounterType to update it
-        const existingDraft = this.findByIndividualAndEncounterType(encounter.individual, encounter.encounterType);
+        // Find existing draft - handles both scheduled and unscheduled encounters
+        const existingDraft = this.findDraftFor(encounter);
         
         let draftEncounter = DraftEncounter.create(encounter);
         

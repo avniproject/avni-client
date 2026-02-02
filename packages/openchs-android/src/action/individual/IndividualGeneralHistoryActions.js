@@ -19,7 +19,7 @@ export class IndividualGeneralHistoryActions {
             encounters: [],
             encounterTypes: [],
             displayActionSelector: false,
-            draftEncounters: [],
+            draftUnScheduledEncounters: [],
             editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
@@ -37,7 +37,7 @@ export class IndividualGeneralHistoryActions {
                 .isEligibleForEncounter(individual, encounterType));
         newState.displayActionSelector = false;
         const encounterActions = IndividualGeneralHistoryActions.getEncounterActions(newState, privilegeService, action);
-        newState.draftEncounters = context.get(DraftConfigService).shouldDisplayDrafts()
+        newState.draftUnScheduledEncounters = context.get(DraftConfigService).shouldDisplayDrafts()
             ? context.get(DraftEncounterService).listUnScheduledDrafts(individual)
                 .map(draft => ({encounter: draft.constructEncounter(), expand: false}))
             : [];
@@ -100,19 +100,19 @@ export class IndividualGeneralHistoryActions {
 
     static deleteDraft(state, action, context) {
         context.get(DraftEncounterService).deleteDraftByUUID(action.encounterUUID);
-        const draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(state.individual)
+        const draftUnScheduledEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(state.individual)
             .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
         return {
             ...state,
-            draftEncounters
+            draftUnScheduledEncounters
         };
     }
 
     static onToggleDraft(state, action) {
-        const nonEqual = _.filter(state.draftEncounters, (e) =>
+        const nonEqual = _.filter(state.draftUnScheduledEncounters, (e) =>
             !_.isEqualWith(e, action.encounterInfo, (e1, e2) => e1.encounter.uuid === e2.encounter.uuid));
-        const draftEncounters = [...nonEqual, action.encounterInfo];
-        return {...state, draftEncounters};
+        const draftUnScheduledEncounters = [...nonEqual, action.encounterInfo];
+        return {...state, draftUnScheduledEncounters};
     }
 
     static onEditEncounter(state, action, context) {
@@ -139,7 +139,7 @@ export class IndividualGeneralHistoryActions {
         if (context.get(DraftConfigService).shouldDisplayDrafts() && !_.isNil(action.individualUUID)) {
             const newState = IndividualGeneralHistoryActions.clone(state);
             const individual = context.get(IndividualService).findByUUID(action.individualUUID);
-            newState.draftEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual)
+            newState.draftUnScheduledEncounters = context.get(DraftEncounterService).listUnScheduledDrafts(individual)
                 .map(draft => ({encounter: draft.constructEncounter(), expand: false}));
             return newState;
         }

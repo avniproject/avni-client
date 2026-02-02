@@ -46,7 +46,7 @@ class SubjectDashboardGeneralTab extends AbstractComponent {
     }
 
     renderDraftVisits() {
-        const drafts = this.state.draftEncounters;
+        const drafts = this.state.draftUnScheduledEncounters;
         return (<PreviousEncounters encounters={drafts}
                                     allowedEncounterTypeUuidsForCancelVisit={[]}
                                     allowedEncounterTypeUuidsForPerformVisit={[]}

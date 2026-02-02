@@ -95,7 +95,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
     }
 
     renderDraftVisits() {
-        const drafts = this.state.draftProgramEncounters;
+        const drafts = this.state.draftUnScheduledProgramEncounters;
         const programEnrolment = this.state.enrolment;
         return (<PreviousEncounters encounters={drafts}
                                     allowedEncounterTypeUuidsForCancelVisit={[]}

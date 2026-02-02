@@ -38,7 +38,7 @@ class ProgramEnrolmentDashboardActions {
             displayActionSelector: false,
             expandEnrolmentInfo: false,
             completedEncounters: [],
-            draftProgramEncounters: [],
+            draftUnScheduledProgramEncounters: [],
             editFormRuleResponse: ActionEligibilityResponse.createAllowedResponse()
         };
     }
@@ -293,11 +293,11 @@ class ProgramEnrolmentDashboardActions {
         // Load draft program encounters for this enrolment
         const draftConfigService = context.get(DraftConfigService);
         if (draftConfigService.shouldDisplayDrafts() && !_.isNil(enrolment) && !(enrolment instanceof NullProgramEnrolment)) {
-            newState.draftProgramEncounters = context.get(DraftProgramEncounterService)
+            newState.draftUnScheduledProgramEncounters = context.get(DraftProgramEncounterService)
                 .listUnScheduledDrafts(enrolment)
                 .map(draft => ({encounter: draft.constructProgramEncounter(), expand: false}));
         } else {
-            newState.draftProgramEncounters = [];
+            newState.draftUnScheduledProgramEncounters = [];
         }
 
         return ProgramEnrolmentDashboardActions._setEncounterTypeState(newState, context);
@@ -345,20 +345,20 @@ class ProgramEnrolmentDashboardActions {
 
     static deleteDraft(state, action, context) {
         context.get(DraftProgramEncounterService).deleteDraftByUUID(action.programEncounterUUID);
-        const draftProgramEncounters = context.get(DraftProgramEncounterService)
+        const draftUnScheduledProgramEncounters = context.get(DraftProgramEncounterService)
             .listUnScheduledDrafts(state.enrolment)
             .map(draft => ({encounter: draft.constructProgramEncounter(), expand: false}));
         return {
             ...state,
-            draftProgramEncounters
+            draftUnScheduledProgramEncounters
         };
     }
 
     static onToggleDraft(state, action) {
-        const nonEqual = _.filter(state.draftProgramEncounters, (e) =>
+        const nonEqual = _.filter(state.draftUnScheduledProgramEncounters, (e) =>
             !_.isEqualWith(e, action.encounterInfo, (e1, e2) => e1.encounter.uuid === e2.encounter.uuid));
-        const draftProgramEncounters = [...nonEqual, action.encounterInfo];
-        return {...state, draftProgramEncounters};
+        const draftUnScheduledProgramEncounters = [...nonEqual, action.encounterInfo];
+        return {...state, draftUnScheduledProgramEncounters};
     }
 
     static ACTION_PREFIX = 'PEDA';
