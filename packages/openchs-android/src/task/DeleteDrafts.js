@@ -14,30 +14,44 @@ class DeleteDrafts extends BaseTask {
     }
 
     deleteDraftSubject(db, draft) {
-        db.delete(draft.observations);
+        if (draft.observations && draft.observations.length > 0) {
+            db.delete(draft.observations);
+        }
         this.safeDelete(db, draft.registrationLocation);
         db.delete(draft);
     }
 
     deleteDraftEncounter(db, draft) {
-        db.delete(draft.observations);
-        db.delete(draft.cancelObservations);
+        if (draft.observations && draft.observations.length > 0) {
+            db.delete(draft.observations);
+        }
+        if (draft.cancelObservations && draft.cancelObservations.length > 0) {
+            db.delete(draft.cancelObservations);
+        }
         this.safeDelete(db, draft.encounterLocation);
         this.safeDelete(db, draft.cancelLocation);
         db.delete(draft);
     }
 
     deleteDraftEnrolment(db, draft) {
-        db.delete(draft.observations);
-        db.delete(draft.programExitObservations);
+        if (draft.observations && draft.observations.length > 0) {
+            db.delete(draft.observations);
+        }
+        if (draft.programExitObservations && draft.programExitObservations.length > 0) {
+            db.delete(draft.programExitObservations);
+        }
         this.safeDelete(db, draft.enrolmentLocation);
         this.safeDelete(db, draft.exitLocation);
         db.delete(draft);
     }
 
     deleteDraftProgramEncounter(db, draft) {
-        db.delete(draft.observations);
-        db.delete(draft.cancelObservations);
+        if (draft.observations && draft.observations.length > 0) {
+            db.delete(draft.observations);
+        }
+        if (draft.cancelObservations && draft.cancelObservations.length > 0) {
+            db.delete(draft.cancelObservations);
+        }
         this.safeDelete(db, draft.encounterLocation);
         this.safeDelete(db, draft.cancelLocation);
         db.delete(draft);
@@ -56,22 +70,38 @@ class DeleteDrafts extends BaseTask {
             // Delete old DraftSubject records
             const oldDraftSubjects = db.objects(DraftSubject.schema.name).filtered('updatedOn <= $0', ttlDate);
             General.logInfo("DeleteDrafts", `Found ${oldDraftSubjects.length} DraftSubject records to delete`);
-            oldDraftSubjects.forEach(draft => db.write(() => this.deleteDraftSubject(db, draft)));
+            if (oldDraftSubjects.length > 0) {
+                db.write(() => {
+                    oldDraftSubjects.forEach(draft => this.deleteDraftSubject(db, draft));
+                });
+            }
 
             // Delete old DraftEncounter records
             const oldDraftEncounters = db.objects(DraftEncounter.schema.name).filtered('updatedOn <= $0', ttlDate);
             General.logInfo("DeleteDrafts", `Found ${oldDraftEncounters.length} DraftEncounter records to delete`);
-            oldDraftEncounters.forEach(draft => db.write(() => this.deleteDraftEncounter(db, draft)));
+            if (oldDraftEncounters.length > 0) {
+                db.write(() => {
+                    oldDraftEncounters.forEach(draft => this.deleteDraftEncounter(db, draft));
+                });
+            }
 
             // Delete old DraftEnrolment records
             const oldDraftEnrolments = db.objects(DraftEnrolment.schema.name).filtered('updatedOn <= $0', ttlDate);
             General.logInfo("DeleteDrafts", `Found ${oldDraftEnrolments.length} DraftEnrolment records to delete`);
-            oldDraftEnrolments.forEach(draft => db.write(() => this.deleteDraftEnrolment(db, draft)));
+            if (oldDraftEnrolments.length > 0) {
+                db.write(() => {
+                    oldDraftEnrolments.forEach(draft => this.deleteDraftEnrolment(db, draft));
+                });
+            }
 
             // Delete old DraftProgramEncounter records
             const oldDraftProgramEncounters = db.objects(DraftProgramEncounter.schema.name).filtered('updatedOn <= $0', ttlDate);
             General.logInfo("DeleteDrafts", `Found ${oldDraftProgramEncounters.length} DraftProgramEncounter records to delete`);
-            oldDraftProgramEncounters.forEach(draft => db.write(() => this.deleteDraftProgramEncounter(db, draft)));
+            if (oldDraftProgramEncounters.length > 0) {
+                db.write(() => {
+                    oldDraftProgramEncounters.forEach(draft => this.deleteDraftProgramEncounter(db, draft));
+                });
+            }
 
             General.logInfo("DeleteDrafts", "Completed");
         } catch (e) {
