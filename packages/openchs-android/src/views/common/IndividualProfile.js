@@ -114,34 +114,36 @@ class IndividualProfile extends AbstractComponent {
     captureLocation = _.debounce(() => {
         this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: true});
         
-        DeviceLocation.getPosition(
-            (position) => {
-                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-                
-                try {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
+        setTimeout(() => {
+            DeviceLocation.getPosition(
+                (position) => {
+                    this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
                     
-                    const pointPosition = Point.newInstance(latitude, longitude);
-                    const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
-                    
-                    this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
-                        individual: this.props.individual,
-                        subjectLocation: subjectLocation
-                    });
-                    
-                    Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
-                } catch (error) {
-                    Alert.alert('Error', this.I18n.t('locationSaveError'));
-                }
-            },
-            false,
-            (error) => {
-                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-            },
-            this.context
-        );
+                    try {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+                        
+                        const pointPosition = Point.newInstance(latitude, longitude);
+                        const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
+                        
+                        this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
+                            individual: this.props.individual,
+                            subjectLocation: subjectLocation
+                        });
+                        
+                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                    } catch (error) {
+                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                    }
+                },
+                false,
+                () => {
+                    this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
+                },
+                this.context
+            );
+        }, 50);
     }, 1000, {leading: true, trailing: false});
 
 
