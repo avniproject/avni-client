@@ -129,7 +129,7 @@ class RegisterView extends AbstractComponent {
     }
 
     deleteDraftSubject(uuid) {
-        this.context.getService(DraftSubjectService).deleteDraftByUUID(uuid);
+        this.context.getService(DraftSubjectService).deleteDraftSubjectByUUID(uuid);
         this.setState({refresh: Date.now()});
     }
 
@@ -145,7 +145,7 @@ class RegisterView extends AbstractComponent {
 
     renderDraft(subject) {
         const actions = [
-            new ContextAction(this.I18n.t('delete'), () => this.deleteDraftSubject(subject.uuid), Colors.ValidationError)
+            new ContextAction(this.I18n.t('do'), () => this.openDraft(subject), Colors.EditColor)
         ];
         return (
             <View key={subject.uuid}>
@@ -157,7 +157,7 @@ class RegisterView extends AbstractComponent {
                 <View style={{paddingHorizontal: 12, paddingBottom: 8}}>
                     <ObservationsSectionOptions
                         contextActions={actions}
-                        primaryAction={new ContextAction(this.I18n.t('do'), () => this.openDraft(subject), Colors.ScheduledVisitColor)}
+                        primaryAction={new ContextAction(this.I18n.t('delete'), () => this.deleteDraftSubject(subject.uuid), Colors.ValidationError)}
                     />
                 </View>
             </View>
