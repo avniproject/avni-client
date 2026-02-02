@@ -137,11 +137,15 @@ export default class MediaV2FormElement extends AbstractFormElement {
         return locationCaptureEnabled;
     }
 
+    debouncedGetPosition = _.debounce((callback) => {
+        DeviceLocation.getPosition(callback, true, null, this.context);
+    }, 1000, {leading: true, trailing: false});
+
     async launchCamera(onUpdateObservations) {
         this.setState(state => ({...state, mode: Mode.Camera}));
         const includeLocationInfoValue = this.includeLocationInfo();
         if (includeLocationInfoValue) {
-            DeviceLocation.getPosition((position) => this.setState(state => ({...state, deviceLocation: position})), true, null, this.context);
+            this.debouncedGetPosition((position) => this.setState(state => ({...state, deviceLocation: position})));
         }
 
         const options = {

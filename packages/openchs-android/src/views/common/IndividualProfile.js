@@ -111,7 +111,7 @@ class IndividualProfile extends AbstractComponent {
             (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
-    captureLocation() {
+    captureLocation = _.debounce(() => {
         this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: true});
         
         DeviceLocation.getPosition(
@@ -142,7 +142,7 @@ class IndividualProfile extends AbstractComponent {
             },
             this.context
         );
-    }
+    }, 1000, {leading: true, trailing: false});
 
 
     componentDidMount() {

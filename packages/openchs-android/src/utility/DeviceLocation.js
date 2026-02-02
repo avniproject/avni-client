@@ -101,7 +101,7 @@ export default class DeviceLocation {
         ]);
     }
 
-    static getPosition = _.debounce(async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null) {
+    static getPosition = async function(successCallbackFn, silent = true, errorCallbackFn = null, context = null) {
         const hasPermission = await DeviceLocation.askLocationPermission();
 
         if (hasPermission) {
@@ -113,6 +113,6 @@ export default class DeviceLocation {
         } else if (!silent) {
             DeviceLocation.handlePermissionDenied(errorCallbackFn, null);
         }
-    }, 1000, {leading: true, trailing: true});
+    };
 
 }
