@@ -19,7 +19,7 @@ export const MessageIcon = ({messageCount, onPress}) => {
             hideWhenZero
             number={messageCount || 0}
             component={<Icon/>}
-            badgeLeftPosition={-7}
-            badgeTopPosition={-3}/>
+            badgeLeftPosition={18}
+            badgeTopPosition={-2}/>
     )
 };
