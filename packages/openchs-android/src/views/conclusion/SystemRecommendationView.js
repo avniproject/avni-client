@@ -38,6 +38,7 @@ import GroupAffiliationInformation from "../common/GroupAffiliationInformation";
 import _ from 'lodash'
 import AvniIcon from "../common/AvniIcon";
 import {Actions as IGHActions} from "../../action/individual/IndividualGeneralHistoryActions";
+import {ProgramEnrolmentDashboardActionsNames as PEDActions} from "../../action/program/ProgramEnrolmentDashboardActions";
 
 @Path('/SystemRecommendationView')
 class SystemRecommendationView extends AbstractComponent {
@@ -46,18 +47,20 @@ class SystemRecommendationView extends AbstractComponent {
         saveActionName: PropTypes.string.isRequired,
         onSaveCallback: PropTypes.func.isRequired,
         onPreviousCallback: PropTypes.func,
-        decisions: PropTypes.any,
-        observations: PropTypes.array.isRequired,
-        validationErrors: PropTypes.array.isRequired,
+        form: PropTypes.object.isRequired,
+        decisions: PropTypes.object,
+        validationErrors: PropTypes.array,
+        observations: PropTypes.array,
         headerMessage: PropTypes.string,
         checklists: PropTypes.array,
         nextScheduledVisits: PropTypes.array,
-        form: PropTypes.object,
-        saveAndProceed: PropTypes.object,
+        message: PropTypes.string,
         workListState: PropTypes.object,
+        isSaveDraftOn: PropTypes.bool,
         isRejectedEntity: PropTypes.bool,
         entityApprovalStatus: PropTypes.object,
-        affiliatedGroups: PropTypes.array
+        affiliatedGroups: PropTypes.array,
+        enrolmentUUID: PropTypes.string
     };
 
     static defaultProps = {
@@ -169,7 +172,19 @@ class SystemRecommendationView extends AbstractComponent {
         const wizardViews = [PersonRegisterView, PersonRegisterFormView, SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, ProgramExitView, NewVisitPageView,
             ProgramEnrolmentView, IndividualEncounterView, ChecklistItemView, SubjectRegisterView];
         const onYesPress = () => {
-            this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
+            // Check if this is a program encounter based on saveActionName
+            const isProgramEncounter = this.props.saveActionName.startsWith('PEncA');
+            
+            if (isProgramEncounter) {
+                // For program encounters, use the enrolmentUUID if available
+                if (this.props.enrolmentUUID) {
+                    this.dispatchAction(PEDActions.ON_RENDER, {enrolmentUUID: this.props.enrolmentUUID});
+                }
+            } else {
+                // For individual encounters, refresh individual drafts
+                this.dispatchAction(IGHActions.ON_RENDER, {individualUUID: this.props.individual.uuid});
+            }
+            
             CHSNavigator.navigateToFirstPage(this, wizardViews);
         }
         isSaveDraftOn ? onYesPress() : AvniAlert(this.I18n.t('backPressTitle'), this.I18n.t('backPressMessage'), onYesPress, this.I18n);

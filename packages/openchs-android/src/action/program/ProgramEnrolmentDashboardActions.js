@@ -361,6 +361,20 @@ class ProgramEnrolmentDashboardActions {
         return {...state, draftUnScheduledProgramEncounters};
     }
 
+    static onRender(state, action, context) {
+        if (context.get(DraftConfigService).shouldDisplayDrafts() && !_.isNil(action.enrolmentUUID)) {
+            const newState = ProgramEnrolmentDashboardActions.clone(state);
+            const enrolment = context.get(ProgramEnrolmentService).findByUUID(action.enrolmentUUID);
+            if (enrolment) {
+                newState.draftUnScheduledProgramEncounters = context.get(DraftProgramEncounterService)
+                    .listUnScheduledDrafts(enrolment)
+                    .map(draft => ({encounter: draft.constructProgramEncounter(), expand: false}));
+            }
+            return newState;
+        }
+        return state;
+    }
+
     static ACTION_PREFIX = 'PEDA';
 }
 
@@ -368,6 +382,7 @@ const ProgramEnrolmentDashboardActionsNames = {
     ON_LOAD: 'PEDA.ON_LOAD',
     ON_LANDING: 'PEDA.ON_LANDING',
     ON_FOCUS: 'PEDA.ON_FOCUS',
+    ON_RENDER: 'PEDA.ON_RENDER',
     ON_EDIT_ENROLMENT: 'PEDA.ON_EDIT_ENROLMENT',
     ON_EDIT_PROGRAM_ENCOUNTER: 'PEDA.ON_EDIT_PROGRAM_ENCOUNTER',
     ON_EDIT_ENROLMENT_EXIT: 'PEDA.ON_EDIT_ENROLMENT_EXIT',
@@ -392,6 +407,7 @@ const ProgramEnrolmentDashboardActionsMap = new Map([
     [ProgramEnrolmentDashboardActionsNames.ON_LOAD, ProgramEnrolmentDashboardActions.onLoad],
     [ProgramEnrolmentDashboardActionsNames.ON_LANDING, ProgramEnrolmentDashboardActions.onLanding],
     [ProgramEnrolmentDashboardActionsNames.ON_FOCUS, ProgramEnrolmentDashboardActions.onFocus],
+    [ProgramEnrolmentDashboardActionsNames.ON_RENDER, ProgramEnrolmentDashboardActions.onRender],
     [ProgramEnrolmentDashboardActionsNames.RESET, ProgramEnrolmentDashboardActions.getInitialState],
     [ProgramEnrolmentDashboardActionsNames.SHOW_MORE, ProgramEnrolmentDashboardActions.onShowMore],
     [ProgramEnrolmentDashboardActionsNames.ON_EDIT_ENROLMENT, ProgramEnrolmentDashboardActions.onEditEnrolment],

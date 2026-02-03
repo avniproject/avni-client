@@ -272,7 +272,7 @@ class CHSNavigator {
         );
     }
 
-    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus, onPreviousCallback, affiliatedGroups = {}) {
+    static navigateToSystemsRecommendationView(source, decisions, validationErrors, individual, observations, saveActionName, onSaveCallback, headerMessage, checklists, nextScheduledVisits, form, workListState, message, isSaveDraftOn, popVerificationVew, isRejectedEntity, entityApprovalStatus, onPreviousCallback, affiliatedGroups = {}, enrolmentUUID = null) {
         TypedTransition.from(source).with({
             form,
             decisions,
@@ -290,7 +290,8 @@ class CHSNavigator {
             isRejectedEntity,
             entityApprovalStatus,
             onPreviousCallback,
-            affiliatedGroups
+            affiliatedGroups,
+            enrolmentUUID
         }).to(SystemRecommendationView, true, popVerificationVew);
     }
 
