@@ -89,6 +89,21 @@ class PreviousEncounters extends AbstractComponent {
     }
 
     encounterActions(encounter) {
+        const containsDrafts = this.props.containsDrafts || false;
+        
+        if (containsDrafts) {
+            const hasCreatePrivilege = this.privilegeService.hasAllPrivileges() || 
+                _.includes(this.props.allowedEncounterTypeUuidsForPerformVisit, encounter.encounterType.uuid);
+            
+            const actions = [new ContextAction('delete', () => this.deleteDraft(encounter), Colors.ValidationError)];
+            
+            if (hasCreatePrivilege) {
+                actions.push(new ContextAction('edit', () => this.editEncounter(encounter)));
+            }
+            
+            return actions;
+        }
+        
         return this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
     }
 
@@ -254,7 +269,7 @@ class PreviousEncounters extends AbstractComponent {
                                               cancelVisitAction={() => this.cancelVisitAction(encounter.encounter)}
                                               formType={this.props.formType}
                                               cancelFormType={this.props.cancelFormType}
-                                              isEditAllowed={() => this.isEditAllowed(encounter.encounter)}
+                                              isEditAllowed={() => this.props.containsDrafts || this.isEditAllowed(encounter.encounter)}
                                               formElementGroupEditAction={this.props.onEditEncounterActionName}
                         />
                         : this.renderNormalView(encounter)}
