@@ -102,8 +102,7 @@ export class EncounterActions {
 
     static saveDraftEncounter(encounter, validationResults, context) {
         if (_.isEmpty(validationResults)) {
-            const draftEncounter = DraftEncounter.create(encounter);
-            context.get(DraftEncounterService).saveDraft(draftEncounter);
+            context.get(DraftEncounterService).saveDraft(encounter);
         }
     }
 
