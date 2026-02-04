@@ -398,8 +398,9 @@ class IndividualProfile extends AbstractComponent {
     
     navigateToLocation() {
         const subjectLocation = this.props.individual.subjectLocation;
-        const lat = subjectLocation.latitude;
-        const lng = subjectLocation.longitude;
+        // TODO: This needs to be fixed eventually
+        const lat = subjectLocation.longitude;
+        const lng = subjectLocation.latitude;
         const url = `geo:${lat},${lng}?q=${lat},${lng}(${this.props.individual.nameString})`;
 
         Linking.canOpenURL(url)
@@ -446,7 +447,7 @@ class IndividualProfile extends AbstractComponent {
                                 actions={this.state.programActions}
                             />
                             <ActionSelector
-                                title={this.I18n.t("locationOptions")}
+                                title={""}
                                 hide={() => this.dispatchAction(Actions.HIDE_LOCATION_OPTIONS)}
                                 visible={this.state.displayLocationOptions}
                                 actions={[

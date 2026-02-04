@@ -108,7 +108,7 @@ export default class DeviceLocation {
             Geolocation.getCurrentPosition(
                 position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, context),
                 error => DeviceLocation.handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context),
-                {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
+                {enableHighAccuracy: true, timeout: 15000, maximumAge: 0}
             );
         } else if (!silent) {
             DeviceLocation.handlePermissionDenied(errorCallbackFn, null);
