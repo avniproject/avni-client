@@ -124,7 +124,7 @@ class IndividualProfile extends AbstractComponent {
                         const longitude = position.coords.longitude;
                         const accuracy = position.coords.accuracy;
                         
-                        const pointPosition = Point.newInstance(latitude, longitude);
+                        const pointPosition = Point.newInstance(longitude, latitude);
                         const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
                         
                         this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
@@ -398,9 +398,8 @@ class IndividualProfile extends AbstractComponent {
     
     navigateToLocation() {
         const subjectLocation = this.props.individual.subjectLocation;
-        // TODO: This needs to be fixed eventually
-        const lat = subjectLocation.longitude;
-        const lng = subjectLocation.latitude;
+        const lat = subjectLocation.latitude;
+        const lng = subjectLocation.longitude;
         const url = `geo:${lat},${lng}?q=${lat},${lng}(${this.props.individual.nameString})`;
 
         Linking.canOpenURL(url)
