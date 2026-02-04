@@ -38,7 +38,7 @@ export default class DeviceLocation {
         }
     }
 
-    static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, context) {
+    static handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn) {
         if (silent) {
             successCallbackFn(position);
             return;
@@ -47,7 +47,6 @@ export default class DeviceLocation {
             {text: I18n.t('cancel'), style: 'cancel', onPress: () => {
                 errorCallbackFn && errorCallbackFn();
             }},
-            {text: I18n.t('tryAgain'), onPress: () => DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, context)},
             {text: I18n.t('save'), onPress: () => successCallbackFn(position)}
         ];
 
@@ -67,13 +66,7 @@ export default class DeviceLocation {
             } else {
                 const errorMessage = `Location error: ${error.message}`;
                 const suggestions = [
-                    { text: I18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) },
-                    {
-                        text: I18n.t('tryAgain'),
-                        onPress: () => {
-                            DeviceLocation.getPosition(successCallbackFn, silent, errorCallbackFn, context);
-                        }
-                    }
+                    { text: I18n.t('cancel'), style: 'cancel', onPress: () => errorCallbackFn && errorCallbackFn(error) }
                 ];
                 
                 suggestions.push(IssueUploadUtil.createUploadIssueInfoButton(
@@ -106,7 +99,7 @@ export default class DeviceLocation {
 
         if (hasPermission) {
             Geolocation.getCurrentPosition(
-                position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn, context),
+                position => DeviceLocation.handleLocationSuccess(position, silent, successCallbackFn, errorCallbackFn),
                 error => DeviceLocation.handleLocationError(error, silent, successCallbackFn, errorCallbackFn, context),
                 {enableHighAccuracy: true, timeout: 15000, maximumAge: 0}
             );
