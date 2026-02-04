@@ -65,7 +65,7 @@ class IndividualProfile extends AbstractComponent {
                 >
                     <View style={Styles.iconCircle}>
                         <MaterialIcon name="call"
-                              style={{color: Styles.accentColor, fontSize: 32}}/>
+                              style={{color: Styles.accentColor, fontSize: 36}}/>
                     </View>
                     <Text style={Styles.iconLabel}>
                         {this.I18n.t('call')}
@@ -290,7 +290,7 @@ class IndividualProfile extends AbstractComponent {
                 <View style={Styles.iconCircle}>
                     <MaterialIcon
                         name={hasLocation ? "location-on" : "add-location-alt"}
-                        style={{color: Styles.accentColor, fontSize: 32}}
+                        style={{color: Styles.accentColor, fontSize: 36}}
                     />
                 </View>
                 <Text style={Styles.iconLabel}>
@@ -340,7 +340,7 @@ class IndividualProfile extends AbstractComponent {
                     <View style={{paddingHorizontal: 20, justifyContent: 'center'}}>
                         {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
                     </View>
-                    <View style={{flex: 1, paddingHorizontal: 5}}>
+                    <View style={{flex: 1, paddingHorizontal: 2}}>
                         {renderProfileText(Styles.programProfileHeading)}
                     </View>
                     <View style={{flexDirection: 'column', paddingRight: 15}}>
@@ -354,35 +354,40 @@ class IndividualProfile extends AbstractComponent {
                     flexDirection: 'column',
                     alignItems: 'center',
                     paddingTop: 5,
-                    paddingBottom: 24,
-                    paddingHorizontal: 20,
+                    paddingBottom: 2,
+                    paddingHorizontal: 12,
                     backgroundColor: Styles.whiteColor,
                     borderRadius: 16,
-                    marginTop: 16,
-                    marginRight: 16,
-                    marginLeft: 16,
-                    marginBottom: 8,
+                    borderWidth: 2,
+                    borderColor: Styles.greyBackground,
+                    marginTop: 12,
+                    marginRight: 12,
+                    marginLeft: 12,
+                    marginBottom: 2,
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.1,
                     shadowRadius: 8,
-                    elevation: 4
                 }}>
-                    <View style={{justifyContent: 'center'}}>
-                        {renderSubjectProfile(DGS.resizeWidth(120), {alignSelf: 'center'})}
-                    </View>
-                    <View style={{alignItems: 'center', marginBottom: 10}}>
-                        {renderProfileText([Styles.programProfileHeading, {marginBottom: 8}])}
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', width: '100%', paddingVertical: 8}}>
+                        <View style={{paddingRight: 16}}>
+                            {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
+                        </View>
+                        <View style={{flex: 1, justifyContent: 'center'}}>
+                            {renderProfileText(Styles.programProfileHeading)}
+                        </View>
                     </View>
                     <View style={{
                         flexDirection: 'row',
-                        alignItems: 'flex-start',
+                        alignItems: 'center',
                         justifyContent: 'space-around',
-                        width: '100%',
+                        width: '105%',
                         backgroundColor: Styles.greyBackground,
-                        paddingVertical: 16,
-                        paddingHorizontal: 16,
-                        borderRadius: 12
+                        paddingVertical: 6,
+                        paddingHorizontal: 2,
+                        borderRadius: 12,
+                        marginHorizontal: 2,
+                        marginBottom: 2
                     }}>
                         {icons}
                     </View>

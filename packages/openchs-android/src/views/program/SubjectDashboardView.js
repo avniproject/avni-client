@@ -88,6 +88,7 @@ class SubjectDashboardView extends AbstractComponent {
         return (
             <CHSContainer>
                 <CHSContent style={{backgroundColor: Colors.GreyContentBackground}}>
+                    <ScrollView style={{backgroundColor: Colors.WhiteContentBackground}}>
                     <View style={{backgroundColor: Styles.defaultBackground}}>
                         <AppHeader title={this.I18n.t('individualDashboard')} func={this.props.backFunction}/>
                         <IndividualProfile individual={this.state.individual}
@@ -97,7 +98,6 @@ class SubjectDashboardView extends AbstractComponent {
                                            hideEnrol={this.state.hideEnrol}
                         />
                     </View>
-                    <ScrollView style={{backgroundColor: Colors.WhiteContentBackground}}>
                         {this.state.individualProfile && (
                             <SubjectDashboardProfileTab
                                 params={{individualUUID: individualUUID, displayGeneralInfoInProfileTab: this.state.displayGeneralInfoInProfileTab}}/>

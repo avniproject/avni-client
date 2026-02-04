@@ -340,32 +340,20 @@ Styles.dashboardSubsectionTitleText = {
 Styles.iconLabel = {
     fontSize: 12,
     color: Styles.blackish,
-    marginTop: 8,
+    marginTop: 4,
     fontWeight: '600',
     textAlign: 'center'
 };
 
 Styles.iconContainer = {
     alignItems: 'center',
-    marginTop: 5,
+    marginTop: 0,
     minWidth: 70
 };
 
 Styles.iconCircle = {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    backgroundColor: Styles.whiteColor,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-        width: 0,
-        height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5
+    width: 36,
+    height: 36,
 };
 
 export default Styles;
