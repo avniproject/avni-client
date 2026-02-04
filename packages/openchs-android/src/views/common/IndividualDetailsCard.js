@@ -26,7 +26,7 @@ class IndividualDetailsCard extends AbstractComponent {
             }}
             >
                 <SubjectInfoCard individual={individual} renderDraftString={renderDraftString}/>
-                <Separator backgroundColor={Colors.InputBorderNormal}/>
+                {!renderDraftString && <Separator backgroundColor={Colors.InputBorderNormal}/>}
             </View>
         );
     }

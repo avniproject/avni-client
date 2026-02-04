@@ -154,12 +154,13 @@ class RegisterView extends AbstractComponent {
                         <IndividualDetailsCard individual={subject} renderDraftString/>
                     </View>
                 </TouchableNativeFeedback>
-                <View style={{paddingHorizontal: 12, paddingBottom: 8}}>
+                <View style={{paddingHorizontal: 12, paddingBottom: 2, marginTop: -10}}>
                     <ObservationsSectionOptions
                         contextActions={actions}
                         primaryAction={new ContextAction(this.I18n.t('delete'), () => this.deleteDraftSubject(subject.uuid), Colors.ValidationError)}
                     />
                 </View>
+                <Separator backgroundColor={Colors.InputBorderNormal}/>
             </View>
         )
     }
