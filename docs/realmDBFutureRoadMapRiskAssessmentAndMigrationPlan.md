@@ -20,7 +20,7 @@
 
 Monitor for additional triggers:
 - RN 0.77/0.78 incompatible with Realm → Begin full migration
-- Android 16 or iOS 19 breaks Realm native modules → Begin full migration  
+- Android 16 breaks Realm native modules → Begin full migration  
 - Security CVE with no patch in 14 days → Emergency migration
 
 ---
@@ -31,8 +31,6 @@ Monitor for additional triggers:
 |------|--------|----------|----------|
 | Create `DatabaseInterface` abstraction layer | 40-80 hours | **HIGH** | Enables faster migration if needed |
 | Document current Realm query patterns | 4-8 hours | Medium | Aids future migration |
-| Test Realm with RN 0.77 beta (when available) | 8-16 hours | **HIGH** | Early warning of breakage |
-| Pin Realm version in package.json | 5 minutes | Done | |
 
 **Expected Timeline with Abstraction Layer**:
 - Migration effort: ~800-900 hours (vs ~1,160 hours without abstraction)
