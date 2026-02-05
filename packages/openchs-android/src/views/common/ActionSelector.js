@@ -115,6 +115,9 @@ class ActionSelector extends AbstractComponent {
     }
 
     heading() {
+        if (!this.props.title || this.props.title.trim() === '') {
+            return null;
+        }
         return (
             <View style={{margin: 8}}>
                 <Text style={styles.heading}>{this.props.title}</Text>
