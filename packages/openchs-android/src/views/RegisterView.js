@@ -145,7 +145,7 @@ class RegisterView extends AbstractComponent {
 
     renderDraft(subject) {
         const actions = [
-            new ContextAction(this.I18n.t('do'), () => this.openDraft(subject), Colors.EditColor)
+            new ContextAction(this.I18n.t('do'), () => this.openDraft(subject), Colors.ActionButtonColor)
         ];
         return (
             <View key={subject.uuid}>
