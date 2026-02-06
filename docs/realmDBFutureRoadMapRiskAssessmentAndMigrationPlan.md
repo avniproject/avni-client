@@ -33,9 +33,66 @@ Monitor for additional triggers:
 | Document current Realm query patterns | 4-8 hours | Medium | Aids future migration |
 
 **Expected Timeline with Abstraction Layer**:
-- Migration effort: ~800-900 hours (vs ~1,160 hours without abstraction)
+- Migration effort: ~1,000-1,200 hours (vs ~1,400-1,600 hours without abstraction)
 - Can begin full migration within 2 weeks of critical trigger
-- Estimated completion: 6-8 months
+- Estimated completion: 7-9 months
+
+---
+
+## ⚠️ Critical Complexity: Rules Engine Query Dependencies
+
+**Business Logic Embedded in Realm Queries:**
+
+The avni-client rules engine has **declarative Realm queries embedded in rule definitions** stored on the server and executed on-device:
+
+```javascript
+// Example: Dashboard Report Card Rule
+{
+  "query": "Individual.filtered('gender.name = \"Female\" AND voided = false')",
+  "aggregation": "count"
+}
+
+// Example: Form Element Rule  
+{
+  "condition": "ProgramEnrolment.filtered('program.uuid = $uuid AND voided = false').length > 0",
+  "action": "show"
+}
+```
+
+**Affected Rule Types:**
+- Dashboard Report Cards (offline analytics/aggregation)
+- Form Element Rules (dynamic field visibility/behavior)
+- Form Element Group Rules (conditional sections)
+- Visit Scheduling Rules (Auto-schedule visit based on rules)
+- Program Eligibility Rules (enrollment logic)
+- Decision Rules (Optimization of rules execution to compute critical data points)
+- Edit Form Rules (dynamic edit constraints)
+- Validation Rules (Business constraints)
+
+**Migration Impact:**
+
+| Challenge | Complexity |
+|-----------|------------|
+| Query syntax translation | Realm query language → SQL/WatermelonDB queries |
+| Semantic equivalence | Each rule must produce identical results |
+| Testing scope | Requires production-like data for validation |
+| Potential refactoring | If WatermelonDB query capabilities differ |
+
+
+**Revised Effort Estimate:**
+- **Additional effort**: +200-300 hours for rule query translation/validation
+- **Total with abstraction**: ~1,000-1,200 hours (7-9 months)
+- **Total without abstraction**: ~1,400-1,600 hours (10-12 months)
+
+**Critical Requirement:**
+
+The `DatabaseInterface` abstraction layer must include a **query translation layer** that:
+1. Parses Realm query strings from rule definitions
+2. Translates to equivalent SQL/WatermelonDB queries
+3. Validates semantic equivalence with test data
+4. Supports incremental migration (dual-DB mode)
+
+This makes the abstraction layer even more critical—it's not just for service layer isolation, but for **preserving business logic correctness** across the migration.
 
 ---
 
