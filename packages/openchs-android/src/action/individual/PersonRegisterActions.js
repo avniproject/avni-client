@@ -174,8 +174,8 @@ export class PersonRegisterActions {
         const newStateForPromise = newState.clone();
         const newStatePromise = newStateForPromise.handleNextAsync(action, context);
         return newStatePromise.then(() => {
-            if (state.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
-                const draftIndividual = DraftSubject.create(state.individual);
+            if (newStateForPromise.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
+                const draftIndividual = DraftSubject.create(newStateForPromise.individual);
                 context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
             }
             action.onCompletion(newStateForPromise); //Used to update state in view
