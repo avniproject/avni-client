@@ -172,12 +172,12 @@ export class PersonRegisterActions {
     static onNextAsync(state, action, context) {
         const newState = state.clone();
         const newStateForPromise = newState.clone();
+        if (newStateForPromise.saveDrafts && !newStateForPromise.hasValidationError) {
+            const draftIndividual = DraftSubject.create(newStateForPromise.individual);
+            context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
+        }
         const newStatePromise = newStateForPromise.handleNextAsync(action, context);
         return newStatePromise.then(() => {
-            if (newStateForPromise.saveDrafts && _.isEmpty(newStateForPromise.validationResults)) {
-                const draftIndividual = DraftSubject.create(newStateForPromise.individual);
-                context.get(DraftSubjectService).saveDraftSubject(draftIndividual);
-            }
             action.onCompletion(newStateForPromise); //Used to update state in view
             return newStateForPromise; //Used to satisfy iteration checking for FE rule execution errors
         })

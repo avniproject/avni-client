@@ -120,7 +120,7 @@ export class SubjectRegisterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone().handleNext(action, context);
-        if (newState.saveDrafts && _.isEmpty(newState.validationResults)) {
+        if (newState.saveDrafts && !newState.hasValidationError) {
             const draftSubject = DraftSubject.create(newState.subject, newState.household.totalMembers);
             context.get(DraftSubjectService).saveDraftSubject(draftSubject);
         }
