@@ -1,5 +1,5 @@
 version: 2.1
-# Configuration for React Native 0.76.5, React 18.2, Node 20, Realm 12.14.2
+# Configuration for React Native 0.76.5, React 18.2, Node 20, Realm 12.14.2, NDK 27.1.12297006
 parameters:
   flavor:
     type: enum
@@ -21,11 +21,11 @@ orbs:
 
 commands:
   install_ndk:
-    description: "Install Android NDK 25.2.9519653 with caching and retry logic"
+    description: "Install Android NDK 27.1.12297006 with caching and retry logic"
     steps:
       - restore_cache:
           keys:
-            - ndk-25.2.9519653-v1
+            - ndk-27.1.12297006-v1
       - run:
           name: Accept Android SDK licenses
           command: |
@@ -35,28 +35,26 @@ commands:
           name: Install NDK with retry logic
           shell: /bin/bash -e
           command: |
-            if [ -d "$ANDROID_HOME/ndk/25.2.9519653" ]; then
-              echo "NDK 25.2.9519653 already installed (from cache)"
+            if [ -d "$ANDROID_HOME/ndk/27.1.12297006" ]; then
+              echo "NDK 27.1.12297006 already installed (from cache)"
               exit 0
             fi
             
             echo "=== Starting NDK Installation ==="
             for i in 1 2 3; do
               echo "Attempt $i of 3"
-              
+            
               # Use PIPESTATUS to get sdkmanager exit code, ignore yes SIGPIPE
               set +e
-              yes | sdkmanager "ndk;25.2.9519653"
+              yes | sdkmanager "ndk;27.1.12297006"
               SDKMANAGER_EXIT=${PIPESTATUS[1]}
-              set -e
-              
+              set -e            
               if [ $SDKMANAGER_EXIT -eq 0 ]; then
                 echo "✅ NDK installed successfully"
                 break
               else
                 echo "❌ NDK installation failed (sdkmanager exit code: $SDKMANAGER_EXIT)"
-                rm -rf $ANDROID_HOME/ndk/25.2.9519653 2>/dev/null || true
-                
+                rm -rf $ANDROID_HOME/ndk/27.1.12297006 2>/dev/null || true            
                 if [ $i -eq 3 ]; then
                   echo "=== Diagnostics ==="
                   echo "Available NDK versions:"
@@ -73,11 +71,11 @@ commands:
             done
             
             echo "Verifying installation..."
-            ls -la $ANDROID_HOME/ndk/25.2.9519653 || exit 1
+            ls -la $ANDROID_HOME/ndk/27.1.12297006 || exit 1
       - save_cache:
-          key: ndk-25.2.9519653-v1
+          key: ndk-27.1.12297006-v1
           paths:
-            - ~/android-sdk/ndk/25.2.9519653
+            - ~/android-sdk/ndk/27.1.12297006
 
   setup_autolinking:
     description: "Setup autolinking with caching"
@@ -424,7 +422,7 @@ jobs:
       - run: sudo chmod a+x packages/openchs-android/android/gradlew
       # react-native-cli deprecated - using npx with @react-native-community/cli from node_modules
       - run: make apply_patch
-#      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
+      #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean
       - run_with_retry:
           command_name: "Prod Bundle"
           command: "versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make bundle_release_prod_without_clean"
@@ -441,7 +439,7 @@ jobs:
       - store_artifacts:
           path: avniuniversal.apks
           destination: << pipeline.parameters.flavor >>-live-<< pipeline.parameters.versionName >>-<< pipeline.git.revision >>-apk.zip
-#      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
+      #      - run: versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean
       - run_with_retry:
           command_name: "Prod Dev APK"
           command: "versionName=<< pipeline.parameters.versionName >> versionCode=<< pipeline.parameters.versionCode >> make release_prod_dev_universal_without_clean"

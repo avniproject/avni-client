@@ -9,11 +9,11 @@ buildscript {
         targetSdkVersion = 35
         supportLibVersion = "1.2.0"
         googlePlayServicesVersion = "18.0.0" // Updated for better compatibility
-        kotlinVersion = '1.9.22'
+        kotlinVersion = '1.9.24'
         reactNativeVersion = '0.76.5'
 
-        // NDK 25 required for Realm 11.10.2 compatibility
-        ndkVersion = "25.2.9519653"
+        // NDK 27 required for 16KB page size support
+        ndkVersion = "27.1.12297006"
     }
 
     repositories {
@@ -24,7 +24,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.android.tools.build:gradle:8.5.2'
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'de.undercouch:gradle-download-task:4.1.2'
         classpath('com.facebook.react:react-native-gradle-plugin')
@@ -32,7 +32,7 @@ buildscript {
         // in the individual module build.gradle files
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
-    
+
     // Force Kotlin version to avoid version conflicts
     configurations.classpath {
         resolutionStrategy {
