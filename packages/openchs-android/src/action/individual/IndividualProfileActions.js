@@ -1,6 +1,7 @@
 import IndividualService from "../../service/IndividualService";
 import _ from "lodash";
 import CommentService from "../../service/comment/CommentService";
+import General from "../../utility/General";
 
 export class IndividualProfileActions {
 
@@ -81,12 +82,17 @@ export class IndividualProfileActions {
     }
 
     static saveSubjectLocation(state, action, context) {
-        const newState = IndividualProfileActions.clone(state);
-        const individual = action.individual.cloneForEdit();
-        individual.subjectLocation = action.subjectLocation;
-        const individualService = context.get(IndividualService);
-        individualService.updateSubjectLocation(individual);
-        return newState;
+        try {
+            const newState = IndividualProfileActions.clone(state);
+            const individual = action.individual.cloneForEdit();
+            individual.subjectLocation = action.subjectLocation;
+            const individualService = context.get(IndividualService);
+            individualService.updateSubjectLocation(individual);
+            return newState;
+        } catch (error) {
+            General.logError('IndividualProfileActions.saveSubjectLocation', error);
+            return IndividualProfileActions.clone(state);
+        }
     }
 
 }

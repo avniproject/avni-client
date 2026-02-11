@@ -182,7 +182,7 @@
     "getLocation": "जीपीएस लोकेशन मिळावा",
     "gpsCoordinates": "जीपीएस कोऑर्डिनेट्स",
     "giveLocationPermissions": "जीपीएस लोकेशन प्राप्त करावी व बटन वर क्लिक करावे आणि विचारल्यास अनुमति द्यावी",
-    "giveLocationPermissionFromSettings": "कृपया Settings > Apps > OpenCHS मध्ये जाऊन OpenCHS ला ठिकाणाची अनुमति द्या",
+    "giveLocationPermissionFromSettings": "कृपया Settings > Apps > Avni मध्ये जाऊन Avni ला ठिकाणाची अनुमति द्या",
     "Name": "नाव",
     "percentageDone": "टक्केवारी",
     "syncComplete": "संकालन पूर्ण",
@@ -325,6 +325,10 @@
     "saveLocation": "स्थान सेव्ह करावे का?",
     "locationFoundWithAccuracy": "अचूकतेने स्थान सापडले {{accuracy}}मीटर",
     "navigate": "मार्ग दाखवा",
-    "editLocation": "स्थान बदला"
+    "editLocation": "स्थान बदला",
+    "locationPermissionRequired": "लोकेशन परवानगी आवश्यक आहे",
+    "openSettings": "सेटिंग्ज उघडा",
+    "comments": "टिप्पण्या",
+    "whatsApp": "व्हॉट्सअॅप"
   }
 }

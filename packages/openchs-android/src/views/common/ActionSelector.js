@@ -115,6 +115,9 @@ class ActionSelector extends AbstractComponent {
     }
 
     heading() {
+        if (!this.props.title || this.props.title.trim() === '') {
+            return null;
+        }
         return (
             <View style={{margin: 8}}>
                 <Text style={styles.heading}>{this.props.title}</Text>
@@ -143,9 +146,9 @@ class ActionSelector extends AbstractComponent {
                     onPress();
                 }}>
                     <View style={[Styles.basicPrimaryButtonView, {flexDirection: 'row', backgroundColor: buttonColor, minHeight: 50, maxWidth: width * 0.7, alignItems: 'center', justifyContent: 'flex-start', paddingLeft: 15}]}>
-                        <View style={{width: 50, alignItems: 'center'}}>
-                            {icon && <AvniIcon name={icon} color={textColor} style={{fontSize: 50}} />}
-                        </View>
+                        {icon && <View style={{width: 50, alignItems: 'center'}}>
+                            <AvniIcon name={icon} color={textColor} style={{fontSize: 50}} />
+                        </View>}
                         <Text style={{
                             fontSize: 18,
                             color: textColor,

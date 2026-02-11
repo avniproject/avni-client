@@ -337,4 +337,23 @@ Styles.dashboardSubsectionTitleText = {
     letterSpacing: 0.1
 }
 
+Styles.iconLabel = {
+    fontSize: 12,
+    color: Styles.blackish,
+    marginTop: 4,
+    fontWeight: '600',
+    textAlign: 'center'
+};
+
+Styles.iconContainer = {
+    alignItems: 'center',
+    marginTop: 0,
+    minWidth: 70
+};
+
+Styles.iconCircle = {
+    width: 36,
+    height: 36,
+};
+
 export default Styles;

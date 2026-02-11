@@ -59,14 +59,21 @@ class IndividualProfile extends AbstractComponent {
         const number = this.getMobileNoFromObservation();
         if (number) {
             return (
-            <MaterialIcon name="call"
-                      style={{color: Styles.accentColor, marginRight:15, marginLeft:15, fontSize: 40}}
-                      onPress={() => this.makeCall(number)}/>
-        );
-        } else {
-            return (
-                <View/>
+                <TouchableOpacity 
+                    style={Styles.iconContainer}
+                    onPress={() => this.makeCall(number)}
+                >
+                    <View style={Styles.iconCircle}>
+                        <MaterialIcon name="call"
+                              style={{color: Styles.accentColor, fontSize: 36}}/>
+                    </View>
+                    <Text style={Styles.iconLabel}>
+                        {this.I18n.t('call')}
+                    </Text>
+                </TouchableOpacity>
             );
+        } else {
+            return null;
         }
 
     }
@@ -76,18 +83,22 @@ class IndividualProfile extends AbstractComponent {
         const {enableMessaging} = this.getService(OrganisationConfigService).getSettings();
 
         if (number && enableMessaging) {
-            return (<View>
-                <TouchableNativeFeedback onPress={() => this.showWhatsappMessages(individualUUID)}>
-                    <View>
-                        <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
-                                  style={{fontSize: 40, marginRight:15, marginLeft:15}} color={Styles.accentColor}/>
-                    </View>
-                </TouchableNativeFeedback>
-            </View>);
-        } else {
             return (
-                <View/>
+                <TouchableOpacity 
+                    style={Styles.iconContainer}
+                    onPress={() => this.showWhatsappMessages(individualUUID)}
+                >
+                    <View style={Styles.iconCircle}>
+                        <AvniIcon type="MaterialCommunityIcons" name="whatsapp"
+                                  style={{fontSize: 36}} color={Styles.accentColor}/>
+                    </View>
+                    <Text style={Styles.iconLabel}>
+                        {this.I18n.t('whatsApp')}
+                    </Text>
+                </TouchableOpacity>
             );
+        } else {
+            return null;
         }
     }
 
@@ -100,38 +111,40 @@ class IndividualProfile extends AbstractComponent {
             (displayProgressIndicator) => this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator}));
     }
 
-    captureLocation() {
+    captureLocation = _.debounce(() => {
         this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: true});
         
-        DeviceLocation.getPosition(
-            (position) => {
-                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-                
-                try {
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const accuracy = position.coords.accuracy;
+        setTimeout(() => {
+            DeviceLocation.getPosition(
+                (position) => {
+                    this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
                     
-                    const pointPosition = Point.newInstance(latitude, longitude);
-                    const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
-                    
-                    this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
-                        individual: this.props.individual,
-                        subjectLocation: subjectLocation
-                    });
-                    
-                    Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
-                } catch (error) {
-                    Alert.alert('Error', this.I18n.t('locationSaveError'));
-                }
-            },
-            false,
-            (error) => {
-                this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
-            },
-            this.I18n
-        );
-    }
+                    try {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        const accuracy = position.coords.accuracy;
+                        
+                        const pointPosition = Point.newInstance(longitude, latitude);
+                        const subjectLocation = SubjectLocation.newInstance(pointPosition, accuracy);
+                        
+                        this.dispatchAction(Actions.SAVE_SUBJECT_LOCATION, {
+                            individual: this.props.individual,
+                            subjectLocation: subjectLocation
+                        });
+                        
+                        Alert.alert('Success', this.I18n.t('subjectLocationSaved'));
+                    } catch (error) {
+                        Alert.alert('Error', this.I18n.t('locationSaveError'));
+                    }
+                },
+                false,
+                () => {
+                    this.dispatchAction(Actions.TOGGLE_PROGRESS_INDICATOR, {displayProgressIndicator: false});
+                },
+                this.context
+            );
+        }, 50);
+    }, 1000, {leading: true, trailing: false});
 
 
     componentDidMount() {
@@ -253,23 +266,134 @@ class IndividualProfile extends AbstractComponent {
     renderCommentIcon() {
         const {enableComments} = this.getService(OrganisationConfigService).getSettings();
         return enableComments ?
-            <MessageIcon messageCount={this.state.commentsCount} onPress={this.onMessagePress.bind(this)}/> : <View/>;
+            <TouchableOpacity 
+                style={Styles.iconContainer}
+                onPress={this.onMessagePress.bind(this)}
+            >
+                <View style={[Styles.iconCircle]}>
+                    <MessageIcon messageCount={this.state.commentsCount} onPress={() => {}}/>
+                </View>
+                <Text style={Styles.iconLabel}>
+                    {this.I18n.t('comments')}
+                </Text>
+            </TouchableOpacity> : null;
     }
 
     renderSubjectLocationIcon() {
         const hasLocation = this.props.individual.subjectLocation != null;
 
         return (
-            <MaterialIcon
-                name={hasLocation ? "location-on" : "add-location-alt"}
-                style={{color: Styles.accentColor, marginLeft: 15, marginRight:15, fontSize: 40}}
+            <TouchableOpacity 
+                style={Styles.iconContainer}
                 onPress={hasLocation ? () => this.showLocationOptions() : () => this.captureLocation()}
-            />
+            >
+                <View style={Styles.iconCircle}>
+                    <MaterialIcon
+                        name={hasLocation ? "location-on" : "add-location-alt"}
+                        style={{color: Styles.accentColor, fontSize: 36}}
+                    />
+                </View>
+                <Text style={Styles.iconLabel}>
+                    {this.I18n.t("location")}
+                </Text>
+            </TouchableOpacity>
         )
     }
     
     showLocationOptions() {
         this.dispatchAction(Actions.SHOW_LOCATION_OPTIONS);
+    }
+
+    renderProfileSection() {
+        const allIcons = [
+            this.renderSubjectLocationIcon(),
+            this.renderCommentIcon(),
+            this.renderCallButton(),
+            this.renderWhatsappButton(this.props.individual.uuid)
+        ];
+        
+        const icons = allIcons.filter(icon => icon !== null);
+
+        const renderSubjectProfile = (size, style) => (
+            <SubjectProfilePicture
+                size={size}
+                subjectType={this.props.individual.subjectType}
+                style={style}
+                round={true}
+                allowEnlargementOnClick={true}
+                individual={this.props.individual}
+            />
+        );
+
+        const renderProfileText = (headingStyle) => (
+            <>
+                <Text style={headingStyle}>
+                    {this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}
+                </Text>
+                {this.programProfileHeading()}
+            </>
+        );
+
+        if (icons.length <= 1) {
+            return (
+                <View style={{flexDirection: 'row', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
+                    <View style={{paddingHorizontal: 20, justifyContent: 'center'}}>
+                        {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
+                    </View>
+                    <View style={{flex: 1, paddingHorizontal: 2}}>
+                        {renderProfileText(Styles.programProfileHeading)}
+                    </View>
+                    <View style={{flexDirection: 'column', paddingRight: 15}}>
+                        {icons}
+                    </View>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    paddingTop: 5,
+                    paddingBottom: 2,
+                    paddingHorizontal: 12,
+                    backgroundColor: Styles.whiteColor,
+                    borderRadius: 16,
+                    borderWidth: 2,
+                    borderColor: Styles.greyBackground,
+                    marginTop: 12,
+                    marginRight: 12,
+                    marginLeft: 12,
+                    marginBottom: 2,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                }}>
+                    <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', width: '100%', paddingVertical: 8}}>
+                        <View style={{paddingRight: 16}}>
+                            {renderSubjectProfile(DGS.resizeWidth(75), {alignSelf: 'center'})}
+                        </View>
+                        <View style={{flex: 1, justifyContent: 'center'}}>
+                            {renderProfileText(Styles.programProfileHeading)}
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                        width: '105%',
+                        backgroundColor: Styles.greyBackground,
+                        paddingVertical: 6,
+                        paddingHorizontal: 2,
+                        borderRadius: 12,
+                        marginHorizontal: 2,
+                        marginBottom: 2
+                    }}>
+                        {icons}
+                    </View>
+                </View>
+            );
+        }
     }
     
     navigateToLocation() {
@@ -322,7 +446,7 @@ class IndividualProfile extends AbstractComponent {
                                 actions={this.state.programActions}
                             />
                             <ActionSelector
-                                title={this.I18n.t("locationOptions")}
+                                title={""}
                                 hide={() => this.dispatchAction(Actions.HIDE_LOCATION_OPTIONS)}
                                 visible={this.state.displayLocationOptions}
                                 actions={[
@@ -340,32 +464,7 @@ class IndividualProfile extends AbstractComponent {
                                     }
                                 ]}
                             />
-                            <View style={{flexDirection: 'column', alignItems: 'center', paddingTop: 10, paddingBottom: 10, backgroundColor: Styles.greyBackground}}>
-                                <View style={{
-                                    justifyContent: 'center',
-                                }}>
-                                    <SubjectProfilePicture
-                                        size={DGS.resizeWidth(150)}
-                                        subjectType={this.props.individual.subjectType}
-                                        style={{alignSelf: 'center'}}
-                                        round={true}
-                                        allowEnlargementOnClick={true}
-                                        individual={this.props.individual}
-                                    />
-                                </View>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text
-                                        style={Styles.programProfileHeading}>{this.props.individual.getTranslatedNameString(this.I18n)} {this.props.individual.id}</Text>
-                                    {this.programProfileHeading()}
-                                </View>
-
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    {this.renderSubjectLocationIcon()}
-                                    {this.renderCommentIcon()}
-                                    {this.renderCallButton()}
-                                    {this.renderWhatsappButton(this.props.individual.uuid)}
-                                </View>
-                            </View>
+                            {this.renderProfileSection()}
                             <View
                                 style={{
                                     flexDirection: 'row',

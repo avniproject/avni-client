@@ -214,7 +214,7 @@
     "getLocation": "Get GPS Location",
     "gpsCoordinates": "GPS Coordinates",
     "giveLocationPermissions": "Click on Get Location button and give permissions when asked",
-    "giveLocationPermissionFromSettings": "Please give location permission to OpenCHS from Settings > Apps > OpenCHS",
+    "giveLocationPermissionFromSettings": "Please enable location permission for Avni from Settings > Apps > Avni.",
     "location": "Location",
     "trackLocation": "Track Location",
     "autoSync": "Auto Sync",
@@ -529,6 +529,10 @@
     "saveLocation": "Save Location?",
     "locationFoundWithAccuracy": "Location found with accuracy {{accuracy}}m",
     "navigate": "Navigate",
-    "editLocation": "Edit Location"
+    "editLocation": "Edit Location",
+    "whatsApp": "WhatsApp",
+    "locationPermissionRequired": "Location Permission Required",
+    "openSettings": "Open Settings",
+    "comments": "Comments"
   }
 }

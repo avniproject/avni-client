@@ -8,22 +8,18 @@ import Styles from "../primitives/Styles";
 export const MessageIcon = ({messageCount, onPress}) => {
 
     const Icon = () =>
-        <MCIcon name={'message-text-outline'} size={30} style={{
+        <MCIcon name={'message-text-outline'} size={32} style={{
             color: Styles.accentColor,
             alignSelf: 'center',
-            fontSize: 40,
-            marginRight: 15,
-            marginLeft: 15
+            fontSize: 32,
         }}/>;
 
     return (
-        <TouchableOpacity onPress={onPress}>
-            <Badge
-                hideWhenZero
-                number={messageCount || 0}
-                component={<Icon/>}
-                badgeLeftPosition={-7}
-                badgeTopPosition={-3}/>
-        </TouchableOpacity>
+        <Badge
+            hideWhenZero
+            number={messageCount || 0}
+            component={<Icon/>}
+            badgeLeftPosition={18}
+            badgeTopPosition={-2}/>
     )
 };
