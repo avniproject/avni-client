@@ -376,7 +376,8 @@ class LandingView extends AbstractComponent {
                 }}
                 stopOnOutsideClick={true}
                 arrowColor={Colors.cardBackgroundColor}
-                tooltipStyle={{borderRadius: 10}}
+                stepNumberComponent={() => null}
+                tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
                 androidStatusBarVisible={true}
                 verticalOffset={0}
             >
