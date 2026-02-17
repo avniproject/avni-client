@@ -34,7 +34,6 @@ import CopilotTooltip from "./common/CopilotTooltip";
 
 const WalkthroughableView = walkthroughable(View);
 
-
 const CopilotStarter = ({shouldStart, onStop}) => {
     const {start, copilotEvents, totalStepsNumber, visible} = useCopilot();
     const onStopRef = React.useRef(onStop);
@@ -100,7 +99,9 @@ class LandingView extends AbstractComponent {
                 if (isGuideOn) {
                     LocalCacheService.hasRegisterButtonGuideBeenShown().then(alreadyShown => {
                         if (!alreadyShown) {
-                            if (this._isSyncModalVisible()) {
+                            const syncVisible = this._isSyncModalVisible();
+                            General.logDebug('LandingView', `Guide check - syncModalVisible: ${syncVisible}`);
+                            if (syncVisible) {
                                 this._guideReady = true;
                             } else {
                                 this.setState({showRegisterGuide: true});
@@ -120,9 +121,12 @@ class LandingView extends AbstractComponent {
     refreshState() {
         super.refreshState();
         if (this._guideReady && !this._isSyncModalVisible()) {
-            General.logDebug('LandingView', 'Sync modal dismissed, showing guide now');
+            General.logDebug('LandingView', 'Sync modal dismissed, showing guide after a small delay to let state stabalize');
             this._guideReady = false;
-            this.setState({showRegisterGuide: true});
+            setTimeout(() => {
+                General.logDebug('LandingView', 'State stabilized, showing guide now');
+                this.setState({showRegisterGuide: true});
+            }, 300);
         }
     }
 
@@ -356,7 +360,7 @@ class LandingView extends AbstractComponent {
         const showGuide = this.state.showRegisterGuide && displayRegister;
         const userName = this.context.getService(UserInfoService).getUserInfo().getDisplayUsername();
         const guideMessage = this.I18n.t("registerButtonGuideMessage", {userName});
-        General.logDebug('LandingView', `render setup completed, rendering UI elements, took ${new Date() - renderStartTime} ms`);
+        General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         return (
             <CopilotProvider
                 overlay="svg"
