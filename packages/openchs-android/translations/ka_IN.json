@@ -340,6 +340,7 @@
     "locationPermissionRequired": "ಸ್ಥಳ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ",
     "openSettings": "ಸೆಟ್ಟಿಂಗ್ಸ್ ತೆರೆಯಿರಿ",
     "comments": "ಪ್ರತಿಕ್ರಿಯೆಗಳು",
-    "whatsApp": "ವಾಟ್ಸ್ಆಪ್"
+    "whatsApp": "ವಾಟ್ಸ್ಆಪ್",
+    "registerButtonGuideMessage": "ಹಾಯ್ {username}, ಕೆಳಗೆ \"ನೋಂದಣಿ\" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡುವ ಮೂಲಕ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ನಮೂದಿಸಿ."
   }
 }

@@ -332,6 +332,7 @@
     "locationPermissionRequired": "સ્થાન પરવાનગી જરૂરી છે",
     "openSettings": "સેટિંગ્સ ખોલો",
     "comments": "ટિપ્પણીઓ",
-    "whatsApp": "વોટ્સએપ"
+    "whatsApp": "વોટ્સએપ",
+    "registerButtonGuideMessage": "નમસ્તે {username}, નીચે આપેલા \"રજીસ્ટર કરો\" બટન પર ક્લિક કરીને તમારો ડેટા દાખલ કરો."
   }
 }

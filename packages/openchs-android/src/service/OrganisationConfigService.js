@@ -70,6 +70,10 @@ class OrganisationConfigService extends BaseService {
     hasShowDueChecklistOnDashboard = () => {
         return !!this.getSettings().showDueChecklistOnDashboard;
     }
+
+    isGuideUserToRegisterButtonOn() {
+        return !!this.getSettings().guideUserToRegisterButton;
+    }
 }
 
 export default OrganisationConfigService;
