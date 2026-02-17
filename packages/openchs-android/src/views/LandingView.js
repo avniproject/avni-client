@@ -78,7 +78,7 @@ class LandingView extends AbstractComponent {
     constructor(props, context) {
         super(props, context, Reducers.reducerKeys.landingView);
         this._guideCheckDone = false;
-        this._guideReady = false;
+        this._wasSyncing = false;
         this.state = {
             ...this.state,
             showRegisterGuide: false,
@@ -90,27 +90,7 @@ class LandingView extends AbstractComponent {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (!this._guideCheckDone) {
-            const orgConfigService = this.context.getService(OrganisationConfigService);
-            const settings = orgConfigService.getSettings();
-            if (!_.isEmpty(settings)) {
-                this._guideCheckDone = true;
-                const isGuideOn = orgConfigService.isGuideUserToRegisterButtonOn();
-                if (isGuideOn) {
-                    LocalCacheService.hasRegisterButtonGuideBeenShown().then(alreadyShown => {
-                        if (!alreadyShown) {
-                            const syncVisible = this._isSyncModalVisible();
-                            General.logDebug('LandingView', `Guide check - syncModalVisible: ${syncVisible}`);
-                            if (syncVisible) {
-                                this._guideReady = true;
-                            } else {
-                                this.setState({showRegisterGuide: true});
-                            }
-                        }
-                    });
-                }
-            }
-        }
+        this._tryShowRegisterGuide();
     }
 
     _isSyncModalVisible() {
@@ -118,16 +98,34 @@ class LandingView extends AbstractComponent {
         return syncState && syncState.syncing;
     }
 
+    _tryShowRegisterGuide() {
+        if (this._guideCheckDone || this.state.showRegisterGuide) return;
+        if (this._isSyncModalVisible()) return;
+
+        const orgConfigService = this.context.getService(OrganisationConfigService);
+        const settings = orgConfigService.getSettings();
+        if (_.isEmpty(settings)) return;
+
+        this._guideCheckDone = true;
+        if (!orgConfigService.isGuideUserToRegisterButtonOn()) return;
+
+        LocalCacheService.hasRegisterButtonGuideBeenShown().then(alreadyShown => {
+            if (!alreadyShown) {
+                setTimeout(() => {
+                    this.setState({showRegisterGuide: true});
+                }, 300);
+            }
+        });
+    }
+
     refreshState() {
         super.refreshState();
-        if (this._guideReady && !this._isSyncModalVisible()) {
-            General.logDebug('LandingView', 'Sync modal dismissed, showing guide after a small delay to let state stabalize');
-            this._guideReady = false;
-            setTimeout(() => {
-                General.logDebug('LandingView', 'State stabilized, showing guide now');
-                this.setState({showRegisterGuide: true});
-            }, 300);
+        const isSyncing = this._isSyncModalVisible();
+        if (this._wasSyncing && !isSyncing) {
+            this._guideCheckDone = false;
         }
+        this._wasSyncing = isSyncing;
+        this._tryShowRegisterGuide();
     }
 
     UNSAFE_componentWillMount() {
