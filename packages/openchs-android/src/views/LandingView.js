@@ -414,7 +414,7 @@ class LandingView extends AbstractComponent {
                             const ry = 42;
                             return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
                         }}
-                        stopOnOutsideClick={true}
+                        stopOnOutsideClick={false}
                         arrowColor={Colors.cardBackgroundColor}
                         stepNumberComponent={() => null}
                         tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}

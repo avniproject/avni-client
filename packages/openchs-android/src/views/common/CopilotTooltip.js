@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 30,
         paddingVertical: 8,
+        elevation: 2,
     },
     okButtonText: {
         color: Colors.TextOnPrimaryColor,
