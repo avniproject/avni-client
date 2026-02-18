@@ -137,15 +137,22 @@ class LandingView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
+        const componentMountTime = new Date();
+        General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
+            General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
+            General.logDebug('LandingView', `About to dispatch ON_LOAD action with cachedSubjectTypeUUID: ${cachedSubjectTypeUUID}`);
             this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
+            General.logDebug('LandingView', 'ON_LOAD action dispatched successfully');
         });
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
-        return super.UNSAFE_componentWillMount();
+        const result = super.UNSAFE_componentWillMount();
+        General.logDebug('LandingView', `UNSAFE_componentWillMount completed, total time: ${new Date() - componentMountTime} ms`);
+        return result;
     }
 
     bottomBarItemStyle(isSelected, itemWidth) {
@@ -196,9 +203,19 @@ class LandingView extends AbstractComponent {
 
     wrappedPressHandler(pressHandler, menuMessageKey) {
         return () => {
+            const buttonPressTime = new Date();
+            General.logWarn('LandingView', `BUTTON TOUCH DETECTED: ${menuMessageKey} at ${buttonPressTime.toISOString()}`);
             General.logDebug('LandingView', `Button pressed: ${menuMessageKey}`);
             if (pressHandler) {
+                try {
+                    General.logDebug('LandingView', `Calling press handler for ${menuMessageKey}...`);
                 pressHandler();
+                    General.logDebug('LandingView', `Button action completed for ${menuMessageKey}, took ${new Date() - buttonPressTime} ms`);
+                } catch (error) {
+                    General.logError('LandingView', `Button action failed for ${menuMessageKey}: ${error.message}, stack: ${error.stack}`);
+                }
+            } else {
+                General.logWarn('LandingView', `No press handler for button: ${menuMessageKey}`);
             }
         };
     }
@@ -345,6 +362,7 @@ class LandingView extends AbstractComponent {
         const showGuide = this.state.showRegisterGuide && displayRegister;
         const userName = this.context.getService(UserInfoService).getUserInfo().getDisplayUsername();
         const guideMessage = this.I18n.t("registerButtonGuideMessage", {userName});
+        General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         const bottomBarContent = (
             <View style={{
                 height: LandingView.layoutConstants.bottomBarHeight,
