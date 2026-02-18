@@ -333,6 +333,6 @@
     "openSettings": "સેટિંગ્સ ખોલો",
     "comments": "ટિપ્પણીઓ",
     "whatsApp": "વોટ્સએપ",
-    "registerButtonGuideMessage": "નમસ્તે {{username}}, નીચે આપેલા \"રજીસ્ટર કરો\" બટન પર ક્લિક કરીને તમારો ડેટા દાખલ કરો."
+    "registerButtonGuideMessage": "નમસ્તે {{userName}}, નીચે આપેલા \"રજીસ્ટર કરો\" બટન પર ક્લિક કરીને તમારો ડેટા દાખલ કરો."
   }
 }
