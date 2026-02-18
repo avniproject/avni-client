@@ -189,6 +189,7 @@ class LandingView extends AbstractComponent {
                 }}>
                     <Text style={{
                         fontSize: Styles.smallerTextSize - 1,
+                        paddingTop: 2,
                         fontStyle: 'normal',
                         color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
                         textAlign: 'center',
@@ -258,6 +259,7 @@ class LandingView extends AbstractComponent {
                 }}>
                     <Text style={{
                         fontSize: Styles.smallerTextSize - 1,
+                        paddingTop: 2,
                         fontStyle: 'normal',
                         color: isSelected ? Colors.iconSelectedColor : Colors.bottomBarIconColor,
                         textAlign: 'center',
@@ -445,10 +447,6 @@ class LandingView extends AbstractComponent {
                             onStop={() => {
                                 this.setState({showRegisterGuide: false});
                                 LocalCacheService.markRegisterButtonGuideAsShown();
-                                // Navigate to register since the guide points at the register button.
-                                // Without this, the first tap is consumed by CopilotProvider's
-                                // stopOnOutsideClick overlay, dropping the button press.
-                                this.dispatchAction(Actions.ON_REGISTER_CLICK);
                             }}
                         />
                     </CopilotProvider>

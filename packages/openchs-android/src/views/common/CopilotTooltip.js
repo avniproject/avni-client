@@ -2,6 +2,7 @@ import React from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useCopilot} from "react-native-copilot";
 import Colors from "../primitives/Colors";
+import I18n from "i18n-js";
 
 const CopilotTooltip = () => {
     const {stop, currentStep} = useCopilot();
@@ -10,7 +11,7 @@ const CopilotTooltip = () => {
         <View style={styles.tooltipBubble}>
             <Text style={styles.tooltipText}>{currentStep?.text}</Text>
             <TouchableOpacity style={styles.okButton} onPress={() => stop()}>
-                <Text style={styles.okButtonText}>OK</Text>
+                <Text style={styles.okButtonText}>{I18n.t('ok')}</Text>
             </TouchableOpacity>
         </View>
     );
