@@ -119,7 +119,15 @@ class LandingView extends AbstractComponent {
     }
 
     refreshState() {
-        super.refreshState();
+        // Custom refresh: compare only Redux-managed keys to avoid unnecessary re-renders.
+        // super.refreshState() always triggers setState because this.state has 'showRegisterGuide'
+        // (local-only key) that the Redux landingView slice doesn't have, making objectsShallowEquals
+        // always return false.
+        const nextState = this.getContextState(this.topLevelStateVariable);
+        if (!General.objectsShallowEquals(nextState, _.omit(this.state, ['showRegisterGuide']))) {
+            this.setState({...nextState, showRegisterGuide: this.state.showRegisterGuide});
+        }
+
         const isSyncing = this._isSyncModalVisible();
         if (this._wasSyncing && !isSyncing) {
             this._guideCheckDone = false;
@@ -129,22 +137,15 @@ class LandingView extends AbstractComponent {
     }
 
     UNSAFE_componentWillMount() {
-        const componentMountTime = new Date();
-        General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
-            General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
-            General.logDebug('LandingView', `About to dispatch ON_LOAD action with cachedSubjectTypeUUID: ${cachedSubjectTypeUUID}`);
             this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
-            General.logDebug('LandingView', 'ON_LOAD action dispatched successfully');
         });
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
         });
 
-        const result = super.UNSAFE_componentWillMount();
-        General.logDebug('LandingView', `UNSAFE_componentWillMount completed, total time: ${new Date() - componentMountTime} ms`);
-        return result;
+        return super.UNSAFE_componentWillMount();
     }
 
     bottomBarItemStyle(isSelected, itemWidth) {
@@ -195,19 +196,9 @@ class LandingView extends AbstractComponent {
 
     wrappedPressHandler(pressHandler, menuMessageKey) {
         return () => {
-            const buttonPressTime = new Date();
-            General.logWarn('LandingView', `BUTTON TOUCH DETECTED: ${menuMessageKey} at ${buttonPressTime.toISOString()}`);
             General.logDebug('LandingView', `Button pressed: ${menuMessageKey}`);
             if (pressHandler) {
-                try {
-                    General.logDebug('LandingView', `Calling press handler for ${menuMessageKey}...`);
-                    pressHandler();
-                    General.logDebug('LandingView', `Button action completed for ${menuMessageKey}, took ${new Date() - buttonPressTime} ms`);
-                } catch (error) {
-                    General.logError('LandingView', `Button action failed for ${menuMessageKey}: ${error.message}, stack: ${error.stack}`);
-                }
-            } else {
-                General.logWarn('LandingView', `No press handler for button: ${menuMessageKey}`);
+                pressHandler();
             }
         };
     }
@@ -313,14 +304,11 @@ class LandingView extends AbstractComponent {
     }
 
     render() {
-        const renderStartTime = new Date();
-        General.logDebug("LandingView", `render started - state: home:${this.state.home}, search:${this.state.search}, register:${this.state.register}, menu:${this.state.menu}, syncRequired:${this.state.syncRequired}`);
 
         const {previouslySelectedSubjectTypeUUID, register, search, menu, home, dashboard, secondaryDashboard, secondaryDashboardSelected} = this.state;
 
         const displayRegister = this.context.getService(PrivilegeService).displayRegisterButton();
         const startSync = _.isNil(this.props.menuProps) ? false : this.props.menuProps.startSync;
-        General.logDebug('LandingView', `render - displayRegister: ${displayRegister}, startSync: ${startSync}, syncRequired: ${this.state.syncRequired}`);
         const subjectTypes = this.context.getService(EntityService).findAll(SubjectType.schema.name);
         const previouslySelectedSubjectType = LocalCacheService.getPreviouslySelectedSubjectType(subjectTypes, previouslySelectedSubjectTypeUUID);
         const registerIcon = _.isEmpty(subjectTypes) ? 'plus-box' : previouslySelectedSubjectType.registerIcon();
@@ -332,7 +320,6 @@ class LandingView extends AbstractComponent {
             hasRegisterHandler,
             register
         ] : [];
-        General.logDebug('LandingView', `render - register setup: hasRegisterHandler: ${!!hasRegisterHandler}, previouslySelectedSubjectType: ${previouslySelectedSubjectType?.name}`);
         const moreMenu = [
             this.Icon("menu", LandingView.barIconStyle, menu, renderDot),
             this.I18n.t("More"),
@@ -358,88 +345,97 @@ class LandingView extends AbstractComponent {
         const showGuide = this.state.showRegisterGuide && displayRegister;
         const userName = this.context.getService(UserInfoService).getUserInfo().getDisplayUsername();
         const guideMessage = this.I18n.t("registerButtonGuideMessage", {userName});
-        General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
-        return (
-            <CopilotProvider
-                overlay="svg"
-                animated={true}
-                backdropColor="rgba(0,0,0,0.57)"
-                tooltipComponent={CopilotTooltip}
-                svgMaskPath={({size, position, canvasSize}) => {
-                    const cx = position.x._value + size.x._value / 2;
-                    const cy = position.y._value + size.y._value / 2 + 16;
-                    const rx = 42;
-                    const ry = 42;
-                    return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
-                }}
-                stopOnOutsideClick={true}
-                arrowColor={Colors.cardBackgroundColor}
-                stepNumberComponent={() => null}
-                tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
-                androidStatusBarVisible={true}
-                verticalOffset={0}
-            >
-                <CHSContainer>
-                    {home && (function() {
-                        General.logDebug('LandingView', `render - Rendering dashboard with startSync: ${startSync}`);
-                        return this.renderDashboard(startSync);
-                    }.bind(this)())}
-                    {search && (function() {
-                        General.logDebug('LandingView', 'render - Rendering IndividualSearchView');
-                        return <IndividualSearchView
-                            onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
-                            buttonElevated={true}
-                            hideBackButton={true}/>;
-                    }.bind(this)())}
-                    {register && (function() {
-                        General.logDebug('LandingView', 'render - Rendering RegisterView');
-                        return <RegisterView hideBackButton={true}/>;
-                    }.bind(this)())}
-                    {menu && (function() {
-                        General.logDebug('LandingView', 'render - Rendering MenuView');
-                        return <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>;
-                    }.bind(this)())}
-                    {secondaryDashboardSelected && (function() {
-                        General.logDebug('LandingView', `render - Rendering secondary CustomDashboardView with startSync: ${startSync}`);
-                        return <CustomDashboardView
-                            startSync={startSync && this.state.syncRequired}
-                            icon={(name, style) => this.Icon(name, style)}
-                            title={'home'}
-                            hideBackButton={true}
-                            renderSync={true}
-                            customDashboardType={CustomDashboardType.Secondary}
-                            onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
-                        />;
-                    }.bind(this)())}
+        const bottomBarContent = (
+            <View style={{
+                height: LandingView.layoutConstants.bottomBarHeight,
+                position: 'absolute',
+                bottom: 0,
+                width: '100%',
+                backgroundColor: Colors.bottomBarColor,
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                elevation: 3,
+                alignItems: 'center',
+                borderTopWidth: StyleSheet.hairlineWidth,
+                borderTopColor: Colors.Separator
+            }}>
+                {bottomBarIcons.map(([icon, display, cb, isSelected], idx) =>
+                    showGuide && idx === registerButtonIndex
+                        ? this.renderWalkthroughBBItem(icon, display, cb, isSelected, idx, itemWidth, guideMessage)
+                        : this.renderBottomBarItem(icon, display, cb, isSelected, idx, itemWidth)
+                )}
+            </View>
+        );
 
-                    <View style={{
-                        height: LandingView.layoutConstants.bottomBarHeight,
-                        position: 'absolute',
-                        bottom: 0,
-                        width: '100%',
-                        backgroundColor: Colors.bottomBarColor,
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        elevation: 3,
-                        alignItems: 'center',
-                        borderTopWidth: StyleSheet.hairlineWidth,
-                        borderTopColor: Colors.Separator
-                    }}>
-                        {bottomBarIcons.map(([icon, display, cb, isSelected], idx) =>
-                            showGuide && idx === registerButtonIndex
-                                ? this.renderWalkthroughBBItem(icon, display, cb, isSelected, idx, itemWidth, guideMessage)
-                                : this.renderBottomBarItem(icon, display, cb, isSelected, idx, itemWidth)
-                        )}
-                    </View>
-                    <CopilotStarter
-                        shouldStart={showGuide}
-                        onStop={() => {
-                            this.setState({showRegisterGuide: false});
-                            LocalCacheService.markRegisterButtonGuideAsShown();
+        return (
+            <CHSContainer>
+                {home && (function() {
+                    General.logDebug('LandingView', `render - Rendering dashboard with startSync: ${startSync}`);
+                    return this.renderDashboard(startSync);
+                }.bind(this)())}
+                {search && (function() {
+                    General.logDebug('LandingView', 'render - Rendering IndividualSearchView');
+                    return <IndividualSearchView
+                        onIndividualSelection={(source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid)}
+                        buttonElevated={true}
+                        hideBackButton={true}/>;
+                }.bind(this)())}
+                {register && (function() {
+                    General.logDebug('LandingView', 'render - Rendering RegisterView');
+                    return <RegisterView hideBackButton={true}/>;
+                }.bind(this)())}
+                {menu && (function() {
+                    General.logDebug('LandingView', 'render - Rendering MenuView');
+                    return <MenuView menuIcon={(name, style) => this.Icon(name, style)}/>;
+                }.bind(this)())}
+                {secondaryDashboardSelected && (function() {
+                    General.logDebug('LandingView', `render - Rendering secondary CustomDashboardView with startSync: ${startSync}`);
+                    return <CustomDashboardView
+                        startSync={startSync && this.state.syncRequired}
+                        icon={(name, style) => this.Icon(name, style)}
+                        title={'home'}
+                        hideBackButton={true}
+                        renderSync={true}
+                        customDashboardType={CustomDashboardType.Secondary}
+                        onSearch={() => this.dispatchAction(Actions.ON_SEARCH_CLICK)}
+                    />;
+                }.bind(this)())}
+
+                {showGuide ? (
+                    <CopilotProvider
+                        overlay="svg"
+                        animated={false}
+                        backdropColor="rgba(0,0,0,0.57)"
+                        tooltipComponent={CopilotTooltip}
+                        svgMaskPath={({size, position, canvasSize}) => {
+                            const cx = position.x._value + size.x._value / 2;
+                            const cy = position.y._value + size.y._value / 2 + 16;
+                            const rx = 42;
+                            const ry = 42;
+                            return `M0,0H${canvasSize.x}V${canvasSize.y}H0V0Z M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 -${rx * 2},0`;
                         }}
-                    />
-                </CHSContainer>
-            </CopilotProvider>
+                        stopOnOutsideClick={true}
+                        arrowColor={Colors.cardBackgroundColor}
+                        stepNumberComponent={() => null}
+                        tooltipStyle={{borderRadius: 10, paddingHorizontal: 0, paddingTop: 0}}
+                        androidStatusBarVisible={true}
+                        verticalOffset={0}
+                    >
+                        {bottomBarContent}
+                        <CopilotStarter
+                            shouldStart={showGuide}
+                            onStop={() => {
+                                this.setState({showRegisterGuide: false});
+                                LocalCacheService.markRegisterButtonGuideAsShown();
+                                // Navigate to register since the guide points at the register button.
+                                // Without this, the first tap is consumed by CopilotProvider's
+                                // stopOnOutsideClick overlay, dropping the button press.
+                                this.dispatchAction(Actions.ON_REGISTER_CLICK);
+                            }}
+                        />
+                    </CopilotProvider>
+                ) : bottomBarContent}
+            </CHSContainer>
         );
     }
 }

@@ -329,6 +329,7 @@
     "locationPermissionRequired": "लोकेशन परवानगी आवश्यक आहे",
     "openSettings": "सेटिंग्ज उघडा",
     "comments": "टिप्पण्या",
-    "whatsApp": "व्हॉट्सअॅप"
+    "whatsApp": "व्हॉट्सअॅप",
+    "registerButtonGuideMessage": "हाय {username}, खाली \"कृपया नोंद करा\" बटण टॅप करून डाटा भरा."
   }
 }
