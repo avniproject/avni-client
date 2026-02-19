@@ -39,10 +39,19 @@ export const logEvent = (name, params) => {
     }
 };
 
+// Track screen load time
+let screenLoadStartTime = Date.now();
+
 export const logScreenEvent = (screenName) => {
     if (logAnalytics) {
+        const timeTaken = Date.now() - screenLoadStartTime;
         setUserProperties()
-            .then(() => firebaseAnalytics.logScreenView({screen_name: screenName, screen_class: screenName}));
+            .then(() => firebaseAnalytics.logScreenView({
+                screen_name: screenName, 
+                screen_class: screenName,
+                time_taken_ms: timeTaken  // ADD THIS
+            }));
+        screenLoadStartTime = Date.now(); // reset for next screen
     }
 };
 
