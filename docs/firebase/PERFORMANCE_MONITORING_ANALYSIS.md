@@ -30,7 +30,7 @@
 ```
 Firebase Analytics
     ↓ (BigQuery export)
-BigQuery dataset (analytics_events)
+BigQuery dataset (analytics_259495760)
     ↓ (native connector)
 Metabase
     ↓
@@ -41,7 +41,7 @@ Dashboards: usage hotspots, slow screens by org, performance trends
 
 1. **Enable BigQuery export** in Firebase Console
    - URL: https://console.firebase.google.com/project/avni-be4b7/settings/integrations
-   - Click "Export to BigQuery" → Dataset: `analytics_events`
+   - Click "Export to BigQuery" → Dataset: `analytics_259495760`
    - Wait 24-48 hours for first data batch
 
 2. **Add screen performance timing** to Firebase events
@@ -64,7 +64,7 @@ Dashboards: usage hotspots, slow screens by org, performance trends
    ```
 
 4. **Create Metabase dashboards** from BigQuery
-   - Connect Metabase to `avni-be4b7` project's `analytics_events` dataset
+   - Connect Metabase to `avni-be4b7` project's `analytics_259495760` dataset
    - Build queries for:
      - Slowest screens (7 days)
      - Usage hotspots by organisation

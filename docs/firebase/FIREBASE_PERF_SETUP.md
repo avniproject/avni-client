@@ -10,7 +10,7 @@ For each project (`avni-be4b7`, `lfe-teach`):
 
 1. Open https://console.firebase.google.com/project/avni-be4b7/settings/integrations
 2. Link Google Analytics (if not already linked)
-3. Enable "Export to BigQuery" → dataset: `analytics_events`
+3. Enable "Export to BigQuery" → dataset: `analytics_259495760`
 4. Wait 24-48 hours for first data batch
 
 ### 2. Create GCP Service Account
@@ -56,7 +56,7 @@ SELECT
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organization_id') as org_id,
   COUNT(*) as event_count,
   COUNT(DISTINCT user_pseudo_id) as unique_users
-FROM `avni-be4b7.analytics_events.events_*`
+FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
 GROUP BY screen, org_id
 ORDER BY event_count DESC
@@ -70,7 +70,7 @@ SELECT
   COUNT(*) as views,
   ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') AS FLOAT64))) as avg_ms,
   ROUND(PERCENTILE_CONT(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') AS FLOAT64), 0.95) OVER(PARTITION BY event_name)) as p95_ms
-FROM `avni-be4b7.analytics_events.events_*`
+FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') IS NOT NULL
 GROUP BY org_id, screen
@@ -84,7 +84,7 @@ SELECT
   DATE(TIMESTAMP_MICROS(event_timestamp)) as date,
   event_name as screen,
   ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') AS FLOAT64))) as avg_ms
-FROM `avni-be4b7.analytics_events.events_*`
+FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') IS NOT NULL
 GROUP BY date, screen

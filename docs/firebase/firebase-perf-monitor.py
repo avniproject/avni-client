@@ -20,7 +20,7 @@ import sys
 from datetime import datetime
 
 PROJECT_ID = "avni-be4b7"
-DATASET_ID = "analytics_events"
+DATASET_ID = "analytics_259495760"
 CREDS_PATH = os.path.expanduser("~/.gcp/avni-be4b7-sa.json")
 
 # ---------------------------------------------------------------------------
@@ -135,24 +135,24 @@ def cmd_check():
 
 QUERIES = {
     "screens": {
-        "title": "SLOWEST SCREENS (Last 7 Days)",
+        "title": "SLOWEST SCREENS (Last 7 Days) - Requires time_taken logging",
         "sql": f"""
 SELECT
   DATE(TIMESTAMP_MICROS(event_timestamp)) as date,
   (SELECT value.string_value FROM UNNEST(user_properties)
-   WHERE key = 'organization_id') as org_id,
+   WHERE key = 'organisation') as organisation,
   event_name as screen,
   COUNT(*) as views,
   ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as avg_ms,
+           WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms,
   ROUND(PERCENTILE_CONT(
     CAST((SELECT value.int_value FROM UNNEST(event_params)
-          WHERE key = 'time_taken') AS FLOAT64), 0.95)
+          WHERE key = 'time_taken_ms') AS FLOAT64), 0.95)
     OVER(PARTITION BY event_name)) as p95_ms
 FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
-WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') IS NOT NULL
-GROUP BY date, org_id, screen
+WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
+  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+GROUP BY date, organisation, screen
 HAVING COUNT(*) >= 5
 ORDER BY avg_ms DESC
 LIMIT 50
@@ -163,21 +163,16 @@ LIMIT 50
         "sql": f"""
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties)
-   WHERE key = 'organization_id') as org_id,
+   WHERE key = 'organisation') as organisation,
   event_name as screen,
   COUNT(*) as views,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as avg_ms,
-  ROUND(MIN(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as min_ms,
-  ROUND(MAX(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as max_ms
+  COUNT(DISTINCT user_pseudo_id) as unique_users
 FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
-WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') IS NOT NULL
-GROUP BY org_id, screen
-HAVING COUNT(*) >= 10
-ORDER BY org_id, avg_ms DESC
+WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 30
+  AND event_name = 'screen_view'
+GROUP BY organisation, screen
+HAVING COUNT(*) >= 5
+ORDER BY organisation, views DESC
 LIMIT 100
 """,
     },
@@ -187,35 +182,31 @@ LIMIT 100
 SELECT
   event_name as screen,
   (SELECT value.string_value FROM UNNEST(user_properties)
-   WHERE key = 'organization_id') as org_id,
+   WHERE key = 'organisation') as organisation,
   COUNT(*) as event_count,
-  COUNT(DISTINCT user_pseudo_id) as unique_users,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as avg_ms
+  COUNT(DISTINCT user_pseudo_id) as unique_users
 FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
-WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
-GROUP BY screen, org_id
+WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
+GROUP BY screen, organisation
 ORDER BY event_count DESC
 LIMIT 50
 """,
     },
     "offline": {
-        "title": "OFFLINE vs ONLINE PERFORMANCE (Last 7 Days)",
+        "title": "OFFLINE vs ONLINE PERFORMANCE (Last 7 Days) - Requires is_offline logging",
         "sql": f"""
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties)
-   WHERE key = 'organization_id') as org_id,
+   WHERE key = 'organisation') as organisation,
   IFNULL((SELECT value.string_value FROM UNNEST(event_params)
-   WHERE key = 'is_offline'), 'unknown') as is_offline,
+   WHERE key = 'is_offline'), 'not_specified') as is_offline,
   event_name as screen,
   COUNT(*) as events,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params)
-           WHERE key = 'time_taken') AS FLOAT64))) as avg_ms
+  COUNT(DISTINCT user_pseudo_id) as users
 FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
-WHERE event_timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken') IS NOT NULL
-GROUP BY org_id, is_offline, screen
-ORDER BY avg_ms DESC
+WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
+GROUP BY organisation, is_offline, screen
+ORDER BY organisation, events DESC
 LIMIT 50
 """,
     },
