@@ -341,6 +341,7 @@
     "locationPermissionRequired": "இருப்பிட அனுமதி தேவை",
     "openSettings": "அமைப்புகளைத் திறக்கவும்",
     "comments": "கருத்துகள்",
-    "whatsApp": "வாட்ஸ்அப்"
+    "whatsApp": "வாட்ஸ்அப்",
+    "registerButtonGuideMessage": "வணக்கம் {{userName}}, கீழே உள்ள \"பதிவு\" பொத்தானை தட்டி, உங்கள் தரவை உள்ளிடத் தொடங்குங்கள்."
   }
 }

@@ -79,6 +79,7 @@
     "react-native-background-worker": "0.0.5",
     "react-native-blob-util": "0.19.11",
     "react-native-charts-wrapper": "0.5.9",
+    "react-native-copilot": "^3.3.3",
     "react-native-deprecated-custom-components": "^0.1.2",
     "react-native-device-info": "14.1.1",
     "react-native-dropdown-picker": "5.4.2",

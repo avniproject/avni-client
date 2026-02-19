@@ -404,6 +404,7 @@
     "locationPermissionRequired": "लोकेशन की अनुमति आवश्यक है",
     "openSettings": "सेटिंग्स खोलें",
     "comments": "टिप्पणियाँ",
-    "whatsApp": "व्हाट्सऐप"
+    "whatsApp": "व्हाट्सऐप",
+    "registerButtonGuideMessage": "हइ {{userName}}, नीचे दिए गए \"रजिस्टर\" बटन पर टैप करके अपना डेटा दर्ज करना शुरू करें।"
   }
 }

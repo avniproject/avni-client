@@ -54,6 +54,15 @@ class LocalCacheService {
         return await LocalCacheService._storeData(CacheKeys.SELECTED_SUBJECT_TYPE, subjectType.uuid);
     }
 
+    static async hasRegisterButtonGuideBeenShown() {
+        const value = await LocalCacheService._getData(CacheKeys.REGISTER_BUTTON_GUIDE_SHOWN);
+        return value === 'true';
+    }
+
+    static async markRegisterButtonGuideAsShown() {
+        return await LocalCacheService._storeData(CacheKeys.REGISTER_BUTTON_GUIDE_SHOWN, 'true');
+    }
+
     static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
         if (!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
             return SubjectType.create("");
@@ -66,6 +75,7 @@ class LocalCacheService {
 
 const CacheKeys = {
     SELECTED_SUBJECT_TYPE: `dashboard#selectedSubjectType`,
+    REGISTER_BUTTON_GUIDE_SHOWN: `guide#registerButtonGuideShown`,
 };
 
 export default LocalCacheService;
