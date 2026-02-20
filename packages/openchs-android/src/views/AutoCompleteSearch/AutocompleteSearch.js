@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, Text, TextInput, TouchableOpacity, UIManager, View} from 'react-native';
+import {FlatList, Keyboard, Text, TextInput, TouchableOpacity, UIManager, View} from 'react-native';
 import PropTypes from 'prop-types';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -47,8 +47,23 @@ export default class AutocompleteSearch extends AbstractComponent {
         super(props, context);
         this.state = {
             selector: true,
-            searchTerm: ''
+            searchTerm: '',
+            isKeyboardOpen: false
         };
+    }
+
+    componentDidMount() {
+        this._keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            this.setState({isKeyboardOpen: true});
+        });
+        this._keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            this.setState({isKeyboardOpen: false});
+        });
+    }
+
+    componentWillUnmount() {
+        this._keyboardDidShowListener.remove();
+        this._keyboardDidHideListener.remove();
     }
 
     viewName() {
@@ -109,6 +124,9 @@ export default class AutocompleteSearch extends AbstractComponent {
         if (isMulti) {
             onSelectedItemsChange(item[uniqueKey]);
         } else {
+            if (!this._itemSelected(item)) {
+                Keyboard.dismiss();
+            }
             this._submitSelection();
             onSelectedItemsChange(item[uniqueKey]);
         }
@@ -185,12 +203,26 @@ export default class AutocompleteSearch extends AbstractComponent {
         );
     };
 
+    _renderDropdown() {
+        if (!this.state.searchTerm) return null;
+        const dropdownStyle = this.state.isKeyboardOpen
+            ? {flexDirection: 'column', backgroundColor: '#fafafa', position: 'absolute', bottom: '100%', left: 0, right: 0, zIndex: 1, elevation: 3}
+            : {flexDirection: 'column', backgroundColor: '#fafafa'};
+        return (
+            <View style={dropdownStyle}>
+                <View>
+                    {this._renderItems()}
+                </View>
+            </View>
+        );
+    }
+
     render() {
         const {selectedItems, isMulti} = this.props;
         const {searchTerm} = this.state;
         return (
             <View style={{flexDirection: 'column'}}>
-                <View style={styles.selectorView}>
+                <View style={[styles.selectorView, {position: 'relative'}]}>
                     <View style={styles.inputGroup}>
                         <Icon
                             name="magnify"
@@ -214,12 +246,7 @@ export default class AutocompleteSearch extends AbstractComponent {
                             />
                         </TouchableOpacity>}
                     </View>
-                    {this.state.searchTerm ?
-                        <View style={{flexDirection: 'column', backgroundColor: '#fafafa'}}>
-                            <View>
-                                {this._renderItems()}
-                            </View>
-                        </View> : null}
+                    {this._renderDropdown()}
                 </View>
                 {selectedItems.length ? (
                     <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
