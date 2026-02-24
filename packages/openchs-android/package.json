@@ -1,6 +1,6 @@
 {
   "name": "openchs-android",
-  "description": "Avni Data Collection app",
+  "description": "Avni Data Collection App",
   "version": "0.0.1",
   "private": false,
   "sideEffects": [
