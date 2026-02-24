@@ -129,18 +129,62 @@ class SqliteResultsProxy {
     }
 
     sorted(descriptor, reverse) {
+        const extraJoins = [];
+        const aliasOffset = this.joinClauses.length;
+        let aliasCounter = aliasOffset;
+
+        // Resolve a single property path (may contain dots) to a SQL column reference
+        const resolveOrderProp = (prop) => {
+            if (!prop.includes(".")) {
+                return `t0."${camelToSnake(prop)}"`;
+            }
+            // Dot-notation: resolve through schema relationships with JOINs
+            const parts = prop.split(".");
+            let currentSchema = this.schemaName;
+            let currentAlias = "t0";
+
+            for (let i = 0; i < parts.length - 1; i++) {
+                const partName = parts[i];
+                const schema = this.realmSchemaMap.get(currentSchema);
+                if (!schema) return `t0."${camelToSnake(prop.replace(/\./g, "_"))}"`;
+
+                const propSchema = schema.properties[partName];
+                if (!propSchema || (typeof propSchema === "object" ? propSchema.type : propSchema) !== "object") {
+                    return `${currentAlias}."${camelToSnake(partName)}"`;
+                }
+
+                const targetSchema = typeof propSchema === "object" ? propSchema.objectType : null;
+                if (!targetSchema) return `${currentAlias}."${camelToSnake(partName)}"`;
+
+                const newAlias = `t${++aliasCounter}`;
+                const targetTableName = schemaNameToTableName(targetSchema);
+                const fkColumn = `${camelToSnake(partName)}_uuid`;
+
+                extraJoins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
+                });
+
+                currentAlias = newAlias;
+                currentSchema = targetSchema;
+            }
+
+            const lastPart = parts[parts.length - 1];
+            return `${currentAlias}."${camelToSnake(lastPart)}"`;
+        };
+
         let orderBy;
         if (typeof descriptor === "string") {
-            const col = camelToSnake(descriptor);
+            const col = resolveOrderProp(descriptor);
             const dir = reverse ? "DESC" : "ASC";
-            orderBy = `t0."${col}" ${dir}`;
+            orderBy = `${col} ${dir}`;
         } else if (Array.isArray(descriptor)) {
-            // Array of [prop, reverse] pairs
             orderBy = descriptor.map(([prop, rev]) => {
-                return `t0."${camelToSnake(prop)}" ${rev ? "DESC" : "ASC"}`;
+                return `${resolveOrderProp(prop)} ${rev ? "DESC" : "ASC"}`;
             }).join(", ");
         } else {
-            orderBy = `t0."${camelToSnake(String(descriptor))}" ASC`;
+            orderBy = `${resolveOrderProp(String(descriptor))} ASC`;
         }
 
         return SqliteResultsProxy.create({
@@ -152,7 +196,7 @@ class SqliteResultsProxy {
             realmSchemaMap: this.realmSchemaMap,
             whereClauses: [...this.whereClauses],
             whereParams: [...this.whereParams],
-            joinClauses: [...this.joinClauses],
+            joinClauses: [...this.joinClauses, ...extraJoins],
             orderByClause: orderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
         });
@@ -195,10 +239,14 @@ class SqliteResultsProxy {
 
         // Hydrate rows into entity-compatible objects
         if (this.hydrator) {
-            this._entities = this._rows.map(row => {
-                const hydrated = this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 2});
-                return hydrated;
-            });
+            this.hydrator.beginHydrationSession();
+            try {
+                this._entities = this._rows.map(row =>
+                    this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 2})
+                );
+            } finally {
+                this.hydrator.endHydrationSession();
+            }
         } else {
             this._entities = this._rows;
         }

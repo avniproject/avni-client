@@ -169,6 +169,7 @@ class CustomDashboardCacheService extends BaseService {
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
             });
             dashboardCache.updatedAt = new Date();
+            this.saveOrUpdate(dashboardCache);
         });
     }
 
@@ -184,6 +185,7 @@ class CustomDashboardCacheService extends BaseService {
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);
             dashboardCache.updatedAt = new Date();
+            this.saveOrUpdate(dashboardCache);
         });
     }
 }

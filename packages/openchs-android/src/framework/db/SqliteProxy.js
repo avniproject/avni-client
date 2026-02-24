@@ -170,8 +170,16 @@ class SqliteProxy {
 
         let sql;
         if (shouldUpsert) {
-            // INSERT OR REPLACE for upsert behavior
-            sql = `INSERT OR REPLACE INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
+            // Use INSERT ... ON CONFLICT DO UPDATE with COALESCE to match
+            // Realm's UpdateMode.Modified: null values in the new data should
+            // NOT overwrite existing non-null values in the database.
+            const pk = tableMeta.primaryKey || "uuid";
+            const updateCols = columnsToInsert
+                .filter(c => c !== pk)
+                .map(c => `"${c}" = COALESCE(excluded."${c}", "${c}")`)
+                .join(", ");
+            sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
+                ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
         } else {
             // INSERT for strict create (will fail on duplicate PK)
             sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
@@ -230,10 +238,6 @@ class SqliteProxy {
         const deleteOne = (obj) => {
             // Determine what we're deleting
             const data = obj.that || obj;
-            if (!data.uuid) {
-                console.warn("SqliteProxy.delete: Object has no uuid, cannot delete", data);
-                return;
-            }
 
             // Find the schema name from the entity class or constructor
             const schemaName = this._findSchemaName(obj);
@@ -245,10 +249,44 @@ class SqliteProxy {
             const tableMeta = this.tableMetaMap.get(schemaName);
             if (!tableMeta) return;
 
-            this._executeRaw(
-                `DELETE FROM ${tableMeta.tableName} WHERE "uuid" = ?`,
-                [data.uuid]
-            );
+            if (tableMeta.primaryKey && data[tableMeta.primaryKey]) {
+                // Table has a primary key (e.g., uuid) — delete by PK
+                this._executeRaw(
+                    `DELETE FROM ${tableMeta.tableName} WHERE "${tableMeta.primaryKey}" = ?`,
+                    [data[tableMeta.primaryKey]]
+                );
+            } else if (data.uuid) {
+                // Fallback: try uuid even if not declared as PK
+                this._executeRaw(
+                    `DELETE FROM ${tableMeta.tableName} WHERE "uuid" = ?`,
+                    [data.uuid]
+                );
+            } else {
+                // No PK (e.g., EntityQueue) — delete by matching all column values
+                const realmSchema = this.realmSchemaMap.get(schemaName);
+                if (!realmSchema || !realmSchema.properties) {
+                    console.warn(`SqliteProxy.delete: No schema properties for ${schemaName}`, data);
+                    return;
+                }
+                const whereParts = [];
+                const params = [];
+                Object.keys(realmSchema.properties).forEach(propName => {
+                    const value = data[propName];
+                    if (value !== undefined && value !== null) {
+                        const colName = camelToSnake(propName);
+                        whereParts.push(`"${colName}" = ?`);
+                        params.push(value instanceof Date ? value.getTime() : value);
+                    }
+                });
+                if (whereParts.length === 0) {
+                    console.warn(`SqliteProxy.delete: No column values to match for ${schemaName}`, data);
+                    return;
+                }
+                this._executeRaw(
+                    `DELETE FROM ${tableMeta.tableName} WHERE ${whereParts.join(" AND ")}`,
+                    params
+                );
+            }
         };
 
         if (Array.isArray(objectOrObjects)) {
@@ -278,8 +316,13 @@ class SqliteProxy {
 
         if (!rows || rows.length === 0) return null;
 
-        const hydrated = this.hydrator.hydrate(type, rows[0], {skipLists: false, depth: 2});
-        return new entityClass(hydrated);
+        this.hydrator.beginHydrationSession();
+        try {
+            const hydrated = this.hydrator.hydrate(type, rows[0], {skipLists: false, depth: 2});
+            return new entityClass(hydrated);
+        } finally {
+            this.hydrator.endHydrationSession();
+        }
     }
 
     write(callback) {

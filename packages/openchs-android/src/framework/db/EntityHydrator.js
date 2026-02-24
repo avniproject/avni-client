@@ -25,6 +25,13 @@ class EntityHydrator {
         this.realmSchemaMap = realmSchemaMap;
         this.executeQuery = executeQuery;
         this.referenceDataCache = referenceDataCache;
+
+        // Session-scoped hydration cache: avoids re-hydrating the same entity at a
+        // shallower depth within a single hydration batch. Handles back-references:
+        // Individual (depth 2) → enrolments → ProgramEnrolment.individual back-ref
+        // returns the already-hydrated Individual instead of a depth-0 shallow copy.
+        // Created/destroyed per session via beginHydrationSession/endHydrationSession.
+        this._hydrationCache = null;
     }
 
     /**
@@ -45,6 +52,17 @@ class EntityHydrator {
         const skipLists = options.skipLists || false;
 
         const result = {};
+
+        // Pre-register in session cache so back-references during this hydration
+        // find the in-progress result object (prevents depth-0 shallow copies).
+        const rowUuid = row.uuid || row.UUID;
+        if (this._hydrationCache && depth >= 1 && rowUuid) {
+            const cacheKey = `${schemaName}:${rowUuid}`;
+            if (!this._hydrationCache.has(cacheKey)) {
+                this._hydrationCache.set(cacheKey, result);
+            }
+        }
+
         const properties = realmSchema.properties || {};
 
         Object.keys(properties).forEach(propName => {
@@ -100,18 +118,36 @@ class EntityHydrator {
             if (cached) return cached;
         }
 
+        // Try session hydration cache — returns a previously-hydrated version if available.
+        // Handles back-references: e.g., Individual→enrolments→ProgramEnrolment→individual
+        // would re-hydrate the same Individual at depth 0 without the cache.
+        const cacheKey = `${targetSchemaName}:${uuid}`;
+        if (this._hydrationCache) {
+            const cachedHydration = this._hydrationCache.get(cacheKey);
+            if (cachedHydration) return cachedHydration;
+        }
+
         // Query the database
         const tableMeta = this.tableMetaMap.get(targetSchemaName);
-        if (!tableMeta) return {uuid};
+        if (!tableMeta) {
+            return {uuid};
+        }
 
         const rows = this.executeQuery(
             `SELECT * FROM ${tableMeta.tableName} WHERE "uuid" = ?`,
             [uuid]
         );
 
-        if (!rows || rows.length === 0) return {uuid};
+        if (!rows || rows.length === 0) {
+            return {uuid};
+        }
 
         const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: true});
+
+        // Cache in session if hydrated at meaningful depth (has FK refs resolved)
+        if (this._hydrationCache && depth >= 1 && hydrated.uuid) {
+            this._hydrationCache.set(cacheKey, hydrated);
+        }
 
         // Cache reference data if applicable
         if (cache) {
@@ -175,6 +211,26 @@ class EntityHydrator {
     hydrateAll(schemaName, rows, options = {}) {
         if (!rows) return [];
         return rows.map(row => this.hydrate(schemaName, row, options));
+    }
+
+    /**
+     * Start a hydration session. Creates a temporary cache that lives only
+     * for the duration of the session, preventing unbounded memory growth.
+     * Nested calls are safe — only the outermost pair creates/destroys the cache.
+     */
+    beginHydrationSession() {
+        if (!this._hydrationCache) {
+            this._hydrationCache = new Map();
+        }
+        this._hydrationSessionDepth = (this._hydrationSessionDepth || 0) + 1;
+    }
+
+    endHydrationSession() {
+        this._hydrationSessionDepth = (this._hydrationSessionDepth || 1) - 1;
+        if (this._hydrationSessionDepth <= 0) {
+            this._hydrationCache = null;
+            this._hydrationSessionDepth = 0;
+        }
     }
 
     /**

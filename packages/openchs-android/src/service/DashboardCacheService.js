@@ -25,6 +25,7 @@ class DashboardCacheService extends BaseService {
         this.db.write(() => {
             const dashboardCache = this.getCache();
             dashboardCache.setCard(card);
+            this.db.create(DashboardCache.schema.name, dashboardCache, true);
         });
     }
 
@@ -32,6 +33,7 @@ class DashboardCacheService extends BaseService {
         this.db.write(() => {
             const dashboardCache = this.getCache();
             dashboardCache.setFilter(filter);
+            this.db.create(DashboardCache.schema.name, dashboardCache, true);
         });
     }
 

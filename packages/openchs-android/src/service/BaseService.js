@@ -88,8 +88,10 @@ class BaseService {
 
     getReturnValue(entities) {
         if (entities.length === 0) return undefined;
-        if (entities.length === 1) return entities[0];
-        return entities;
+        if (entities.length > 1) {
+            General.logWarn('BaseService', `getReturnValue: Expected 0 or 1 result but found ${entities.length}. Returning first.`);
+        }
+        return entities[0];
     }
 
     update(entity, schema) {
