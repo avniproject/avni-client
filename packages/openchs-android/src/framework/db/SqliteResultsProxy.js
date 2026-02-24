@@ -92,7 +92,9 @@ class SqliteResultsProxy {
     filtered(query, ...args) {
         if (this.logQueries) console.log("SqliteResultsProxy.filtered", this.schemaName, query, ...args);
 
-        const parseResult = RealmQueryParser.parse(query, args, this.schemaName, this.realmSchemaMap);
+        // Pass current join count so new aliases don't collide with existing ones
+        const aliasOffset = this.joinClauses.length;
+        const parseResult = RealmQueryParser.parse(query, args, this.schemaName, this.realmSchemaMap, aliasOffset);
 
         const newParams = {
             schemaName: this.schemaName,
@@ -117,13 +119,8 @@ class SqliteResultsProxy {
                 newParams.whereParams.push(...parseResult.params);
             }
             if (parseResult.joins) {
-                // Merge joins, avoiding duplicates by alias
-                const existingAliases = new Set(newParams.joinClauses.map(j => j.alias));
                 parseResult.joins.forEach(j => {
-                    if (!existingAliases.has(j.alias)) {
-                        newParams.joinClauses.push(j);
-                        existingAliases.add(j.alias);
-                    }
+                    newParams.joinClauses.push(j);
                 });
             }
         }

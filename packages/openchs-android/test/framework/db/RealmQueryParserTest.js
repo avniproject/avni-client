@@ -196,6 +196,59 @@ describe("RealmQueryParser", () => {
             expect(result.joins.length).toBe(2);
             expect(result.where).toContain('t2."uuid" = ?');
         });
+
+        it("should use aliasOffset to avoid collisions with existing JOINs from prior filtered() calls", () => {
+            // Simulates chained .filtered() calls on GroupPrivileges:
+            //   .filtered("group.uuid = $0", "g1")    → joins groups AS t1
+            //   .filtered("privilege.name = $0", "x")  → should join privilege AS t2 (not t1 again)
+            const groupPrivSchema = new Map();
+            groupPrivSchema.set("GroupPrivileges", {
+                name: "GroupPrivileges",
+                primaryKey: "uuid",
+                properties: {
+                    uuid: "string",
+                    group: {type: "object", objectType: "Groups"},
+                    privilege: {type: "object", objectType: "Privilege"},
+                    allow: {type: "bool", default: false},
+                }
+            });
+            groupPrivSchema.set("Groups", {
+                name: "Groups",
+                primaryKey: "uuid",
+                properties: {uuid: "string", name: "string"}
+            });
+            groupPrivSchema.set("Privilege", {
+                name: "Privilege",
+                primaryKey: "uuid",
+                properties: {uuid: "string", name: "string", entityType: "string"}
+            });
+
+            // First filtered() call — aliasOffset=0
+            const first = RealmQueryParser.parse(
+                "group.uuid = $0",
+                ["g1-uuid"],
+                "GroupPrivileges",
+                groupPrivSchema,
+                0
+            );
+            expect(first.joins.length).toBe(1);
+            expect(first.joins[0].alias).toBe("t1");
+            expect(first.joins[0].table).toBe("groups");
+
+            // Second filtered() call — aliasOffset=1 (one existing JOIN)
+            const second = RealmQueryParser.parse(
+                "privilege.name = $0 AND privilege.entityType = $1",
+                ["Register subject", "Subject"],
+                "GroupPrivileges",
+                groupPrivSchema,
+                1
+            );
+            expect(second.joins.length).toBe(1);
+            expect(second.joins[0].alias).toBe("t2");
+            expect(second.joins[0].table).toBe("privilege");
+            expect(second.where).toContain('t2."name"');
+            expect(second.where).toContain('t2."entity_type"');
+        });
     });
 
     describe("camelCase to snake_case", () => {

@@ -551,7 +551,7 @@ class RealmQueryParser {
      * @param {Map} schemaMap - Map<schemaName, schemaObject> for resolving relationships
      * @returns {{ where: string, params: Array, joins: Array<{table, alias, on}>, unsupported: boolean }}
      */
-    static parse(query, args = [], rootSchemaName = null, schemaMap = new Map()) {
+    static parse(query, args = [], rootSchemaName = null, schemaMap = new Map(), aliasOffset = 0) {
         if (!query || typeof query !== "string") {
             return {where: "1=1", params: [], joins: [], unsupported: false};
         }
@@ -576,6 +576,7 @@ class RealmQueryParser {
             const ast = parser.parse();
 
             const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+            generator.aliasCounter = aliasOffset;
             const result = generator.generate(ast);
 
             return {
