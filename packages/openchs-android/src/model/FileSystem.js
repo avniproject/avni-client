@@ -138,6 +138,11 @@ export default class FileSystem {
     }
 
     static async getRealmDBSize() {
-        return await fs.stat(`${fs.DocumentDirectoryPath}/default.realm`).then(fileInfo => fileInfo.size);
+        try {
+            return await fs.stat(`${fs.DocumentDirectoryPath}/default.realm`).then(fileInfo => fileInfo.size);
+        } catch (e) {
+            // SQLite mode — no Realm file
+            return 0;
+        }
     }
 }

@@ -1,0 +1,15 @@
+diff --git a/node_modules/openchs-models/dist/PersistedObject.js b/node_modules/openchs-models/dist/PersistedObject.js
+index 1111111..2222222 100644
+--- a/node_modules/openchs-models/dist/PersistedObject.js
++++ b/node_modules/openchs-models/dist/PersistedObject.js
+@@ -15,6 +15,10 @@ class PersistedObject {
+   toEntityList(property, listItemClass) {
+     const realmList = this.that[property];
+     if (realmList) {
++      if (Array.isArray(realmList) && realmList.constructor === Array) {
++        return realmList.map(item => new listItemClass(item));
++      }
++
+       const realmListProxy = new _RealmListProxy.default(realmList);
+       realmListProxy.pushAll(listItemClass);
+       return realmListProxy;
