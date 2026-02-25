@@ -205,7 +205,12 @@ class SqliteResultsProxy {
     // ──── Query execution ────
 
     _buildSql() {
-        let sql = `SELECT t0.* FROM ${this.tableName} AS t0`;
+        // Use DISTINCT when JOINs are present to avoid duplicate parent rows.
+        // In Realm, .filtered() on an object type always returns unique objects.
+        // With SQL JOINs, a parent with multiple matching children would appear
+        // multiple times without DISTINCT.
+        const distinct = this.joinClauses.length > 0 ? "DISTINCT " : "";
+        let sql = `SELECT ${distinct}t0.* FROM ${this.tableName} AS t0`;
 
         // JOINs
         for (const join of this.joinClauses) {

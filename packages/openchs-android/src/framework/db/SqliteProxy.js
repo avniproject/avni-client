@@ -168,6 +168,16 @@ class SqliteProxy {
         const placeholders = columnsToInsert.map(() => "?").join(", ");
         const colList = columnsToInsert.map(c => `"${c}"`).join(", ");
 
+        // For tables without a primary key (e.g., EntityQueue), Realm kept one row
+        // per logical key (entityUUID). Replicate this by deleting the existing row
+        // before inserting the new one.
+        if (!tableMeta.primaryKey && flatRow.entity_uuid) {
+            this._executeRaw(
+                `DELETE FROM ${tableMeta.tableName} WHERE "entity_uuid" = ?`,
+                [flatRow.entity_uuid]
+            );
+        }
+
         let sql;
         if (shouldUpsert) {
             // Use INSERT ... ON CONFLICT DO UPDATE with COALESCE to match

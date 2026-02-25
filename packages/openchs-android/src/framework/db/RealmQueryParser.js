@@ -539,6 +539,46 @@ function isUnsupportedQuery(query) {
     return UNSUPPORTED_PATTERNS.some(pattern => pattern.test(query));
 }
 
+/**
+ * Split a query string on top-level AND operators, respecting parentheses.
+ * e.g., "a = 1 AND SUBQUERY(b, $x, $x.c = 2).@count > 0 AND d = 3"
+ * → ["a = 1", "SUBQUERY(b, $x, $x.c = 2).@count > 0", "d = 3"]
+ */
+function splitTopLevelAnd(query) {
+    const clauses = [];
+    let depth = 0;
+    let start = 0;
+    const upper = query.toUpperCase();
+
+    for (let i = 0; i < query.length; i++) {
+        const ch = query[i];
+        if (ch === '(' || ch === '[') {
+            depth++;
+        } else if (ch === ')' || ch === ']') {
+            depth--;
+        } else if (depth === 0) {
+            // Check for top-level AND (word boundary)
+            if (upper.substring(i, i + 3) === 'AND' &&
+                (i === 0 || /\s/.test(query[i - 1])) &&
+                (i + 3 >= query.length || /\s/.test(query[i + 3]))) {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                start = i + 3;
+            }
+        }
+    }
+
+    // Last clause
+    const last = query.substring(start).trim();
+    if (last.length > 0) {
+        clauses.push(last);
+    }
+
+    return clauses;
+}
+
 // ──────────────── Public API ────────────────
 
 class RealmQueryParser {
@@ -560,6 +600,14 @@ class RealmQueryParser {
 
         // Check for unsupported patterns
         if (isUnsupportedQuery(trimmed)) {
+            // Try partial parsing: split on top-level AND, parse supported clauses as SQL,
+            // skip unsupported clauses (SUBQUERY, TRUEPREDICATE, etc.)
+            // This lets queries like "voided = false AND program.name = 'Pregnancy' AND SUBQUERY(...)"
+            // still produce SQL WHERE for the supported parts.
+            const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
+            if (partialResult) {
+                return partialResult;
+            }
             return {
                 where: null,
                 params: [],
@@ -596,6 +644,79 @@ class RealmQueryParser {
                 reason: `Parse error: ${e.message}`,
             };
         }
+    }
+
+    /**
+     * Attempt partial parsing of a query containing unsupported patterns.
+     * Splits on top-level AND, parses each clause independently, and combines
+     * the supported ones into SQL WHERE. Unsupported clauses are dropped
+     * (logged as warnings) rather than causing the entire query to fail.
+     *
+     * Returns a parse result if at least one clause was successfully parsed,
+     * or null if no clauses could be parsed.
+     */
+    static _parsePartial(query, args, rootSchemaName, schemaMap, aliasOffset) {
+        // Split on top-level AND — we need to handle parenthesized SUBQUERY() blocks
+        // by tracking paren depth so we don't split inside them.
+        const clauses = splitTopLevelAnd(query);
+        if (clauses.length <= 1) {
+            // Single clause that's unsupported — can't do partial parsing
+            return null;
+        }
+
+        const supportedWhere = [];
+        const supportedParams = [];
+        const supportedJoins = [];
+        const skippedClauses = [];
+        let currentAliasOffset = aliasOffset;
+
+        for (const clause of clauses) {
+            const trimmedClause = clause.trim();
+            if (isUnsupportedQuery(trimmedClause)) {
+                skippedClauses.push(trimmedClause);
+                continue;
+            }
+
+            try {
+                const tokens = tokenize(trimmedClause);
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+
+                const generator = new SqlGenerator(schemaMap, rootSchemaName, args);
+                generator.aliasCounter = currentAliasOffset;
+                const result = generator.generate(ast);
+
+                if (result.where) {
+                    supportedWhere.push(result.where);
+                    supportedParams.push(...result.params);
+                    supportedJoins.push(...result.joins);
+                    currentAliasOffset = generator.aliasCounter;
+                }
+            } catch (e) {
+                // This clause failed to parse — skip it
+                skippedClauses.push(trimmedClause);
+            }
+        }
+
+        if (supportedWhere.length === 0) {
+            return null; // No clauses could be parsed
+        }
+
+        if (skippedClauses.length > 0) {
+            console.warn(
+                `RealmQueryParser: Partial parse — ${skippedClauses.length} unsupported clause(s) skipped:`,
+                skippedClauses.map(c => c.substring(0, 80))
+            );
+        }
+
+        return {
+            where: supportedWhere.join(" AND "),
+            params: supportedParams,
+            joins: supportedJoins,
+            unsupported: false,
+            partialParse: true,
+            skippedClauses,
+        };
     }
 
     /**

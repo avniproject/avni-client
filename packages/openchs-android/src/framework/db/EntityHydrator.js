@@ -80,8 +80,13 @@ class EntityHydrator {
                     // Referenced entity — FK column is propName_uuid
                     const fkColName = `${snakeName}_uuid`;
                     const fkValue = row[fkColName];
-                    if (_.isNil(fkValue) || depth <= 0) {
+                    if (_.isNil(fkValue)) {
                         result[propName] = null;
+                    } else if (depth <= 0) {
+                        // At depth 0, resolve from caches instead of querying DB.
+                        // This provides richer objects for list items (e.g., ProgramEnrolment.program)
+                        // without additional DB queries or infinite recursion.
+                        result[propName] = this._resolveCachedReference(objectType, fkValue);
                     } else {
                         result[propName] = this.resolveReference(objectType, fkValue, depth - 1);
                     }
@@ -142,7 +147,7 @@ class EntityHydrator {
             return {uuid};
         }
 
-        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: true});
+        const hydrated = this.hydrate(targetSchemaName, rows[0], {depth, skipLists: false});
 
         // Cache in session if hydrated at meaningful depth (has FK refs resolved)
         if (this._hydrationCache && depth >= 1 && hydrated.uuid) {
@@ -155,6 +160,31 @@ class EntityHydrator {
         }
 
         return hydrated;
+    }
+
+    /**
+     * Resolve a FK reference from caches only (no DB query).
+     * Used at depth 0 to provide richer objects for list items without
+     * triggering additional queries or infinite recursion.
+     * Returns cached object if found, otherwise a minimal {uuid} stub.
+     */
+    _resolveCachedReference(targetSchemaName, uuid) {
+        // Check reference data cache (reference entities like Program, SubjectType, etc.)
+        const refCache = this.referenceDataCache[targetSchemaName];
+        if (refCache) {
+            const cached = refCache.get(uuid);
+            if (cached) return cached;
+        }
+
+        // Check session hydration cache (entities hydrated earlier in same session)
+        if (this._hydrationCache) {
+            const cacheKey = `${targetSchemaName}:${uuid}`;
+            const cached = this._hydrationCache.get(cacheKey);
+            if (cached) return cached;
+        }
+
+        // Fallback: minimal stub with just uuid
+        return {uuid};
     }
 
     /**
