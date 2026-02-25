@@ -75,8 +75,15 @@ export default class Router extends Component {
 
         this.onInitialScreen = this.props.initialRoute.path === route.path;
         const Element = this.state.routes[route.path];
-        const element = route.isTyped ? <Element {...route.queryParams}/> :
-            <Element params={route.queryParams}/>;
+        const refCallback = (ref) => {
+            if (ref) {
+                this.routeElementMap[route.path] = ref;
+            } else {
+                delete this.routeElementMap[route.path];
+            }
+        };
+        const element = route.isTyped ? <Element {...route.queryParams} ref={refCallback}/> :
+            <Element params={route.queryParams} ref={refCallback}/>;
         this.elementMap = {element: element, path: route.path};
         this.willChangeFocus(route);
         return element;
