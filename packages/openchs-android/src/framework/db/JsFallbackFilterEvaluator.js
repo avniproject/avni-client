@@ -3,10 +3,12 @@
  * patterns that can't be translated to SQL.
  *
  * Supported patterns:
- *   A. TRUEPREDICATE DISTINCT(field)
- *   B. SUBQUERY(listProp, $var, conditions).@count OP N
- *   C. listProp.@count OP N
- *   D. @links.@count (logs warning, returns empty)
+ *   - TRUEPREDICATE DISTINCT(field) — deduplication by field value
+ *   - SUBQUERY(listProp, $var, conds).@count OP N — sub-filtering on list properties
+ *   - listProp.@count OP N / listProp.@size OP N — collection size check
+ *   - ANY listProp.field OP value — quantifier over list elements
+ *   - limit(N) — inline result limit (applied as slice after other filters)
+ *   - @links.@count — inverse relationships (not evaluable, returns empty)
  */
 
 class JsFallbackFilterEvaluator {
@@ -30,33 +32,44 @@ class JsFallbackFilterEvaluator {
         const {query, args} = filter;
         const trimmed = query.trim();
 
-        // Pattern A: TRUEPREDICATE DISTINCT(field)
+        // TRUEPREDICATE DISTINCT(field)
         if (/TRUEPREDICATE/i.test(trimmed) && /DISTINCT\s*\(/i.test(trimmed)) {
             return this._applyDistinct(entities, trimmed, args);
         }
 
-        // Pattern D: @links.@count
+        // @links.@count — inverse relationships not evaluable without index
         if (/@links/i.test(trimmed)) {
             console.warn(`JsFallbackFilterEvaluator: @links.@count not evaluable — returning empty for ${schemaName}`);
             return [];
         }
 
-        // Pattern B: SUBQUERY(...).@count
+        // SUBQUERY(listProp, $var, conditions).@count OP N
         if (/SUBQUERY\s*\(/i.test(trimmed)) {
             return this._applySubqueryCount(entities, trimmed, args, schemaName);
         }
 
-        // Pattern C: listProp.@count OP N
-        const listCountMatch = trimmed.match(/^(\w+(?:\.\w+)*)\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)$/i);
+        // listProp.@count OP N  or  listProp.@size OP N
+        const listCountMatch = trimmed.match(/^(\w+(?:\.\w+)*)\.@(?:count|size)\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)$/i);
         if (listCountMatch) {
             return this._applyListCount(entities, listCountMatch[1], listCountMatch[2], parseInt(listCountMatch[3], 10));
+        }
+
+        // ANY listProp.field OP value
+        if (/^\s*ANY\b/i.test(trimmed)) {
+            return this._applyAnyQuantifier(entities, trimmed, args);
+        }
+
+        // limit(N) — inline result limit
+        const limitMatch = trimmed.match(/\blimit\s*\(\s*(\d+)\s*\)/i);
+        if (limitMatch) {
+            return this._applyLimit(entities, trimmed, args, limitMatch, schemaName);
         }
 
         console.warn(`JsFallbackFilterEvaluator: unrecognized fallback query for ${schemaName}: "${trimmed.substring(0, 120)}"`);
         return entities;
     }
 
-    // ──── Pattern A: TRUEPREDICATE DISTINCT(field) ────
+    // ──── TRUEPREDICATE DISTINCT(field) ────
 
     static _applyDistinct(entities, query, args) {
         // Extract DISTINCT(field) — field may contain dots
@@ -112,7 +125,7 @@ class JsFallbackFilterEvaluator {
         });
     }
 
-    // ──── Pattern B: SUBQUERY(...).@count OP N ────
+    // ──── SUBQUERY(listProp, $var, conditions).@count OP N ────
 
     static _applySubqueryCount(entities, query, args, schemaName) {
         // Parse: SUBQUERY(listProp, $var, conditions).@count OP N
@@ -224,7 +237,7 @@ class JsFallbackFilterEvaluator {
         return args;
     }
 
-    // ──── Pattern C: listProp.@count OP N ────
+    // ──── listProp.@count / @size OP N ────
 
     static _applyListCount(entities, field, operator, count) {
         return entities.filter(entity => {
@@ -232,6 +245,90 @@ class JsFallbackFilterEvaluator {
             const len = Array.isArray(list) ? list.length : 0;
             return this._compareCount(len, operator, count);
         });
+    }
+
+    // ──── ANY listProp.field OP value ────
+
+    static _applyAnyQuantifier(entities, query, args) {
+        // Parse: ANY listProp.field OP value
+        // Also handles: ANY listProp.field CONTAINS[c] value
+        const stringOpMatch = query.match(
+            /^\s*ANY\s+([\w]+)\.([\w.]+)\s+(CONTAINS|BEGINSWITH|ENDSWITH)\s*(?:\[c\])?\s+(.+)$/i
+        );
+        if (stringOpMatch) {
+            const listProp = stringOpMatch[1];
+            const fieldPath = stringOpMatch[2];
+            const op = stringOpMatch[3].toUpperCase();
+            const caseInsensitive = /\[c\]/i.test(query);
+            const rawValue = this._resolveConditionValue(stringOpMatch[4].trim(), args);
+
+            return entities.filter(entity => {
+                const list = this._resolveFieldValue(entity, listProp);
+                if (!Array.isArray(list) || list.length === 0) return false;
+
+                return list.some(item => {
+                    const fieldValue = this._resolveFieldValue(item, fieldPath);
+                    if (fieldValue == null) return false;
+                    let fv = String(fieldValue);
+                    let rv = String(rawValue);
+                    if (caseInsensitive) {
+                        fv = fv.toLowerCase();
+                        rv = rv.toLowerCase();
+                    }
+                    switch (op) {
+                        case "CONTAINS": return fv.includes(rv);
+                        case "BEGINSWITH": return fv.startsWith(rv);
+                        case "ENDSWITH": return fv.endsWith(rv);
+                        default: return false;
+                    }
+                });
+            });
+        }
+
+        // Comparison ops: ANY listProp.field OP value
+        const compMatch = query.match(
+            /^\s*ANY\s+([\w]+)\.([\w.]+)\s*(==|!=|<>|<=|>=|<|>|=)\s*(.+)$/i
+        );
+        if (compMatch) {
+            const listProp = compMatch[1];
+            const fieldPath = compMatch[2];
+            const op = compMatch[3];
+            const rawValue = this._resolveConditionValue(compMatch[4].trim(), args);
+
+            return entities.filter(entity => {
+                const list = this._resolveFieldValue(entity, listProp);
+                if (!Array.isArray(list) || list.length === 0) return false;
+
+                return list.some(item => {
+                    const fieldValue = this._resolveFieldValue(item, fieldPath);
+                    return this._compare(fieldValue, op, rawValue);
+                });
+            });
+        }
+
+        console.warn(`JsFallbackFilterEvaluator: could not parse ANY quantifier: "${query.substring(0, 120)}"`);
+        return entities;
+    }
+
+    // ──── limit(N) — inline result limit ────
+
+    static _applyLimit(entities, query, args, limitMatch, schemaName) {
+        const limitN = parseInt(limitMatch[1], 10);
+
+        // Strip the limit(N) from the query to check if there's a remaining filter
+        const remaining = query.replace(/\blimit\s*\(\s*\d+\s*\)/i, "").trim();
+
+        if (remaining.length === 0) {
+            // Pure limit — just slice
+            return entities.slice(0, limitN);
+        }
+
+        // There's a remaining filter clause — apply it first, then limit.
+        // This handles partial-parse scenarios where the SQL part was already applied
+        // and only the limit clause landed here. But if a compound clause came through
+        // as a single fallback (e.g. from a fully-unsupported query), evaluate remaining too.
+        const filteredFirst = this._applyOne(entities, {query: remaining, args}, schemaName);
+        return filteredFirst.slice(0, limitN);
     }
 
     // ──── Condition evaluation for SUBQUERY items ────

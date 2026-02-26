@@ -127,6 +127,52 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             expect(filtered.length).toBe(2);
             expect(filtered.map(e => e.uuid)).toEqual(["1", "3"]);
         });
+
+        it("listProp.@size filters by list length (same as @count)", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                media: row.uuid === "2" ? [{url: "http://a.com/1.jpg"}] : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Concept",
+                tableName: "concept",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("media.@size > 0");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("2");
+        });
+
+        it("ANY quantifier filters by list element property", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                media: row.uuid === "1"
+                    ? [{url: "http://example.com/photo.jpg"}]
+                    : row.uuid === "2"
+                        ? [{url: "http://example.com/doc.pdf"}]
+                        : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "PruneMedia",
+                tableName: "prune_media",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("ANY media.url CONTAINS[c] $0", "photo");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+        });
     });
 
     // ──── Partial parse → SQL + JS fallback ────
@@ -184,6 +230,37 @@ describe("SqliteResultsProxy fallback filter integration", () => {
 
             // Trigger execution to verify the filter is applied
             expect(filtered.length).toBe(1);
+        });
+
+        it("splits 'hasMigrated = false AND limit(1)' into SQL + JS limit", () => {
+            const rows = [
+                {uuid: "1", has_migrated: 0},
+                {uuid: "2", has_migrated: 0},
+                {uuid: "3", has_migrated: 0},
+            ];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                hasMigrated: row.has_migrated === 1,
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "SubjectMigration",
+                tableName: "subject_migration",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            const filtered = proxy.filtered("hasMigrated = false AND limit(1)");
+            expect(filtered.length).toBe(1);
+            expect(filtered[0].uuid).toBe("1");
+
+            // Verify SQL was generated for the supported part
+            const sqlCall = executeQuery.mock.calls[0];
+            expect(sqlCall[0]).toContain("has_migrated");
+            // The limit() part should NOT be in the SQL
+            expect(sqlCall[0]).not.toContain("limit");
         });
 
         it("handles mixed SQL + SUBQUERY fallback", () => {

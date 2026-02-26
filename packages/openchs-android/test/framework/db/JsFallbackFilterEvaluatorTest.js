@@ -487,7 +487,188 @@ describe("JsFallbackFilterEvaluator", () => {
         });
     });
 
-    // ──── Pattern D: @links.@count ────
+    // ──── listProp.@size (alias for @count) ────
+
+    describe("listProp.@size OP N", () => {
+        it("should filter by media.@size > 0", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://a.com/1.jpg"}]}),
+                makeEntity({uuid: "2", media: []}),
+                makeEntity({uuid: "3", media: [{url: "http://a.com/2.jpg"}, {url: "http://a.com/3.jpg"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "media.@size > 0", args: []}],
+                "Concept"
+            );
+            expect(result).toHaveLength(2);
+            expect(result.map(e => e.uuid)).toEqual(["1", "3"]);
+        });
+
+        it("should filter by media.@size == 0", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://a.com/1.jpg"}]}),
+                makeEntity({uuid: "2", media: []}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "media.@size == 0", args: []}],
+                "Concept"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("2");
+        });
+
+        it("should treat undefined/null list as size 0", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: undefined}),
+                makeEntity({uuid: "2", media: null}),
+                makeEntity({uuid: "3", media: [{url: "http://a.com/1.jpg"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "media.@size == 0", args: []}],
+                "Concept"
+            );
+            expect(result).toHaveLength(2);
+            expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
+        });
+    });
+
+    // ──── ANY quantifier ────
+
+    describe("ANY listProp.field OP value", () => {
+        it("should filter by ANY media.url CONTAINS[c] $0 — matching URL found", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://example.com/photo.jpg"}, {url: "http://other.com/vid.mp4"}]}),
+                makeEntity({uuid: "2", media: [{url: "http://example.com/doc.pdf"}]}),
+                makeEntity({uuid: "3", media: [{url: "http://elsewhere.com/file.txt"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "ANY media.url CONTAINS[c] $0", args: ["photo"]}],
+                "PruneMedia"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("1");
+        });
+
+        it("should filter by ANY media.url CONTAINS[c] $0 — no matching URL", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://example.com/photo.jpg"}]}),
+                makeEntity({uuid: "2", media: [{url: "http://example.com/doc.pdf"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "ANY media.url CONTAINS[c] $0", args: ["nonexistent"]}],
+                "PruneMedia"
+            );
+            expect(result).toHaveLength(0);
+        });
+
+        it("should return no matches for empty/missing list", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: []}),
+                makeEntity({uuid: "2", media: undefined}),
+                makeEntity({uuid: "3"}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "ANY media.url CONTAINS[c] $0", args: ["test"]}],
+                "PruneMedia"
+            );
+            expect(result).toHaveLength(0);
+        });
+
+        it("should be case-insensitive with [c] modifier", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "HTTP://EXAMPLE.COM/PHOTO.JPG"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "ANY media.url CONTAINS[c] $0", args: ["photo"]}],
+                "PruneMedia"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("1");
+        });
+
+        it("should filter by ANY with equality comparison", () => {
+            const entities = [
+                makeEntity({uuid: "1", tags: [{name: "urgent"}, {name: "review"}]}),
+                makeEntity({uuid: "2", tags: [{name: "done"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: 'ANY tags.name = "urgent"', args: []}],
+                "Task"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("1");
+        });
+
+        it("should filter by ANY with BEGINSWITH", () => {
+            const entities = [
+                makeEntity({uuid: "1", media: [{url: "http://s3.amazonaws.com/bucket/photo.jpg"}]}),
+                makeEntity({uuid: "2", media: [{url: "http://other.com/photo.jpg"}]}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: 'ANY media.url BEGINSWITH "http://s3"', args: []}],
+                "PruneMedia"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("1");
+        });
+    });
+
+    // ──── limit(N) ────
+
+    describe("limit(N)", () => {
+        it("should limit results to 1", () => {
+            const entities = [
+                makeEntity({uuid: "1"}),
+                makeEntity({uuid: "2"}),
+                makeEntity({uuid: "3"}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "limit(1)", args: []}],
+                "SubjectMigration"
+            );
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("1");
+        });
+
+        it("should limit results to 2", () => {
+            const entities = [
+                makeEntity({uuid: "1"}),
+                makeEntity({uuid: "2"}),
+                makeEntity({uuid: "3"}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "limit(2)", args: []}],
+                "SubjectMigration"
+            );
+            expect(result).toHaveLength(2);
+            expect(result.map(e => e.uuid)).toEqual(["1", "2"]);
+        });
+
+        it("should handle limit greater than entity count", () => {
+            const entities = [
+                makeEntity({uuid: "1"}),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{query: "limit(5)", args: []}],
+                "SubjectMigration"
+            );
+            expect(result).toHaveLength(1);
+        });
+    });
+
+    // ──── @links.@count ────
 
     describe("Pattern D: @links.@count", () => {
         it("should return empty array for @links.@count", () => {

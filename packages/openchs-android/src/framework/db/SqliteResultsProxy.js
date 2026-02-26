@@ -43,7 +43,7 @@ class SqliteResultsProxy {
      * @param {Array} params.whereParams - accumulated parameters
      * @param {Array} params.joinClauses - accumulated JOINs
      * @param {string|null} params.orderByClause - ORDER BY fragment
-     * @param {Array|null} params.jsFallbackFilters - Realm queries that couldn't be translated
+     * @param {Array|null} params.jsFallbackFilters - Realm queries routed to JS fallback filtering
      */
     static create(params) {
         return new Proxy(new SqliteResultsProxy(params), SqliteResultsProxyHandler);
@@ -112,7 +112,7 @@ class SqliteResultsProxy {
         };
 
         if (parseResult.unsupported) {
-            // Can't translate to SQL — store for JS fallback filtering
+            // Entire query needs JS fallback — store for post-hydration filtering
             newParams.jsFallbackFilters.push({query, args, reason: parseResult.reason});
         } else {
             if (parseResult.where) {
@@ -124,7 +124,7 @@ class SqliteResultsProxy {
                     newParams.joinClauses.push(j);
                 });
             }
-            // Capture skipped clauses from partial parse for JS fallback
+            // Capture clauses that partial parse couldn't translate — route to JS fallback
             if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
                 parseResult.skippedClauses.forEach(clause => {
                     newParams.jsFallbackFilters.push({query: clause, args, reason: "partial_parse_skip"});
@@ -263,7 +263,7 @@ class SqliteResultsProxy {
             this._entities = this._rows;
         }
 
-        // Apply JS fallback filters for unsupported queries
+        // Apply JS fallback filters for patterns that couldn't be translated to SQL
         if (this.jsFallbackFilters.length > 0) {
             this._entities = JsFallbackFilterEvaluator.apply(
                 this._entities, this.jsFallbackFilters, this.schemaName

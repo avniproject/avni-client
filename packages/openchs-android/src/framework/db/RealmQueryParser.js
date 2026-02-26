@@ -12,11 +12,14 @@
  * - String literals with single or double quotes
  * - Boolean literals: true, false
  *
- * Unsupported (flagged for JS fallback):
- * - SUBQUERY(...)
- * - TRUEPREDICATE DISTINCT(...)
- * - @links.@count, @count, @sum, @avg, @min, @max
- * - ANY, ALL, NONE quantifiers on lists
+ * Patterns routed to JS fallback (JsFallbackFilterEvaluator):
+ * - TRUEPREDICATE DISTINCT(field) — post-hydration deduplication
+ * - SUBQUERY(listProp, $var, conds).@count OP N — list sub-filtering
+ * - listProp.@count / @size OP N — collection size check
+ * - ANY listProp.field OP value — quantifier over list elements
+ * - limit(N) — inline result limit
+ * - @links.@count — inverse relationships (not evaluable, returns empty)
+ * - ALL, NONE quantifiers, @sum/@avg/@min/@max aggregates (unused in codebase)
  */
 
 import _ from "lodash";
@@ -519,24 +522,30 @@ function normalizeRealmType(realmType) {
     return realmType;
 }
 
-// ──────────────── Unsupported query detection ────────────────
+// ──────────────── JS fallback detection ────────────────
+//
+// Patterns that can't be translated to SQL directly.
+// When detected, the query (or clause) is routed to JsFallbackFilterEvaluator
+// for post-filtering on hydrated entities in JavaScript.
 
-const UNSUPPORTED_PATTERNS = [
-    /SUBQUERY\s*\(/i,
-    /TRUEPREDICATE/i,
-    /@links/i,
-    /@count/i,
-    /@sum/i,
+const JS_FALLBACK_PATTERNS = [
+    /SUBQUERY\s*\(/i,           // SUBQUERY(list, $var, conds).@count OP N
+    /TRUEPREDICATE/i,           // TRUEPREDICATE DISTINCT(field)
+    /@links/i,                  // @links.@count (inverse relationships — not evaluable)
+    /@count/i,                  // listProp.@count OP N
+    /@size/i,                   // listProp.@size OP N (same as @count)
+    /@sum/i,                    // collection aggregates (unused in codebase)
     /@avg/i,
     /@min/i,
     /@max/i,
-    /\bANY\b/i,
-    /\bALL\b/i,
+    /\bANY\b/i,                // ANY listProp.field OP value
+    /\bALL\b/i,                // ALL/NONE quantifiers (unused in codebase)
     /\bNONE\b/i,
+    /\blimit\s*\(/i,           // inline limit(N)
 ];
 
-function isUnsupportedQuery(query) {
-    return UNSUPPORTED_PATTERNS.some(pattern => pattern.test(query));
+function requiresJsFallback(query) {
+    return JS_FALLBACK_PATTERNS.some(pattern => pattern.test(query));
 }
 
 /**
@@ -598,12 +607,12 @@ class RealmQueryParser {
 
         const trimmed = query.trim();
 
-        // Check for unsupported patterns
-        if (isUnsupportedQuery(trimmed)) {
-            // Try partial parsing: split on top-level AND, parse supported clauses as SQL,
-            // skip unsupported clauses (SUBQUERY, TRUEPREDICATE, etc.)
-            // This lets queries like "voided = false AND program.name = 'Pregnancy' AND SUBQUERY(...)"
-            // still produce SQL WHERE for the supported parts.
+        // Check for patterns that need JS fallback
+        if (requiresJsFallback(trimmed)) {
+            // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
+            // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
+            // JsFallbackFilterEvaluator for post-hydration filtering.
+            // e.g. "voided = false AND SUBQUERY(...)" → SQL handles voided, JS handles SUBQUERY.
             const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
             if (partialResult) {
                 return partialResult;
@@ -614,7 +623,7 @@ class RealmQueryParser {
                 joins: [],
                 unsupported: true,
                 originalQuery: trimmed,
-                reason: "Query contains unsupported Realm-specific features (SUBQUERY, TRUEPREDICATE, @links, @count, etc.)",
+                reason: "Query requires JS fallback (SUBQUERY, TRUEPREDICATE, @links, @count, @size, ANY, limit, etc.)",
             };
         }
 
@@ -647,10 +656,10 @@ class RealmQueryParser {
     }
 
     /**
-     * Attempt partial parsing of a query containing unsupported patterns.
+     * Attempt partial parsing of a query containing JS-fallback patterns.
      * Splits on top-level AND, parses each clause independently, and combines
-     * the supported ones into SQL WHERE. Unsupported clauses are dropped
-     * (logged as warnings) rather than causing the entire query to fail.
+     * the SQL-translatable ones into a WHERE clause. JS-fallback clauses are
+     * collected as skippedClauses and later evaluated by JsFallbackFilterEvaluator.
      *
      * Returns a parse result if at least one clause was successfully parsed,
      * or null if no clauses could be parsed.
@@ -660,7 +669,7 @@ class RealmQueryParser {
         // by tracking paren depth so we don't split inside them.
         const clauses = splitTopLevelAnd(query);
         if (clauses.length <= 1) {
-            // Single clause that's unsupported — can't do partial parsing
+            // Single clause that needs JS fallback — can't do partial parsing
             return null;
         }
 
@@ -672,7 +681,7 @@ class RealmQueryParser {
 
         for (const clause of clauses) {
             const trimmedClause = clause.trim();
-            if (isUnsupportedQuery(trimmedClause)) {
+            if (requiresJsFallback(trimmedClause)) {
                 skippedClauses.push(trimmedClause);
                 continue;
             }
@@ -693,7 +702,7 @@ class RealmQueryParser {
                     currentAliasOffset = generator.aliasCounter;
                 }
             } catch (e) {
-                // This clause failed to parse — skip it
+                // This clause failed to parse — route to JS fallback
                 skippedClauses.push(trimmedClause);
             }
         }
@@ -704,7 +713,7 @@ class RealmQueryParser {
 
         if (skippedClauses.length > 0) {
             console.warn(
-                `RealmQueryParser: Partial parse — ${skippedClauses.length} unsupported clause(s) skipped:`,
+                `RealmQueryParser: Partial parse — ${skippedClauses.length} clause(s) routed to JS fallback:`,
                 skippedClauses.map(c => c.substring(0, 80))
             );
         }
