@@ -15,6 +15,7 @@
 
 import _ from "lodash";
 import RealmQueryParser, {camelToSnake, schemaNameToTableName} from "./RealmQueryParser";
+import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
 
 const SqliteResultsProxyHandler = {
     get: function (target, name) {
@@ -121,6 +122,12 @@ class SqliteResultsProxy {
             if (parseResult.joins) {
                 parseResult.joins.forEach(j => {
                     newParams.joinClauses.push(j);
+                });
+            }
+            // Capture skipped clauses from partial parse for JS fallback
+            if (parseResult.partialParse && parseResult.skippedClauses?.length > 0) {
+                parseResult.skippedClauses.forEach(clause => {
+                    newParams.jsFallbackFilters.push({query: clause, args, reason: "partial_parse_skip"});
                 });
             }
         }
@@ -258,14 +265,9 @@ class SqliteResultsProxy {
 
         // Apply JS fallback filters for unsupported queries
         if (this.jsFallbackFilters.length > 0) {
-            console.warn(
-                `SqliteResultsProxy: ${this.jsFallbackFilters.length} unsupported Realm query(s) ` +
-                `will be evaluated via JS fallback for ${this.schemaName}:`,
-                this.jsFallbackFilters.map(f => f.query)
+            this._entities = JsFallbackFilterEvaluator.apply(
+                this._entities, this.jsFallbackFilters, this.schemaName
             );
-            // For JS fallback, we materialize entities and filter in JS
-            // This is a performance compromise — acceptable for the spike
-            // The unsupported queries are logged for future migration to proper SQL
         }
 
         this._executed = true;
