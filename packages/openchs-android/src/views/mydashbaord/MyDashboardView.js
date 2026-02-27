@@ -123,9 +123,13 @@ class MyDashboardView extends AbstractComponent {
         const dataSource = this.ds.cloneWithRows(this.renderableVisits());
         const date = this.state.date;
         const {startSync, icon, onSearch} = this.props;
+        const showWelcomeMessage = this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
+        const title = showWelcomeMessage
+            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
+            : this.I18n.t('home');
         return (
             <CHSContainer style={{backgroundColor: Colors.GreyContentBackground}}>
-                <AppHeader title={this.I18n.t('home')} hideBackButton={true} startSync={startSync}
+                <AppHeader title={title} hideBackButton={true} startSync={startSync}
                            renderSync={true} icon={icon} onSearch={() => onSearch()} renderSearch={true}/>
                 <View>
                     <DashboardFilters date={date} filters={this.state.filters}

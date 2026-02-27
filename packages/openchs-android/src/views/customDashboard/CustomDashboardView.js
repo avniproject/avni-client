@@ -45,6 +45,7 @@ import Line from '../common/Line';
 import {CardTileView} from './CardTileView';
 import {CardListView} from './CardListView';
 import UserInfoService from "../../service/UserInfoService";
+import OrganisationConfigService from "../../service/OrganisationConfigService";
 import DashboardFilterService from '../../service/reports/DashboardFilterService';
 import DatePicker from '../primitives/DatePicker';
 import moment from 'moment';
@@ -326,7 +327,10 @@ class CustomDashboardView extends AbstractComponent {
 
         const settings = this.getService(UserInfoService).getUserSettingsObject();
         const {hideBackButton, startSync, renderSync, icon, customDashboardType, onSearch, showSearch} = this.props;
-        const title = this.props.title || 'dashboards';
+        const showWelcomeMessage = this.context.getService(OrganisationConfigService).isGuideUserToRegisterButtonOn();
+        const title = showWelcomeMessage
+            ? this.I18n.t('welcomeMessage', {userName: this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0]})
+            : this.I18n.t(this.props.title || 'dashboards');
         const {hasFiltersSet, loading} = this.state;
         const dashboardFilterService = this.getService(DashboardFilterService);
 
@@ -346,7 +350,7 @@ class CustomDashboardView extends AbstractComponent {
             <CHSContainer style={{
                 marginBottom: Styles.ContentDistanceFromEdge
             }}>
-                <AppHeader title={this.I18n.t(title)}
+                <AppHeader title={title}
                            hideBackButton={hideBackButton}
                            startSync={startSync}
                            renderSync={renderSync}

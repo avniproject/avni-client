@@ -362,7 +362,7 @@ class LandingView extends AbstractComponent {
         const screenWidth = Dimensions.get('window').width;
         const itemWidth = Math.max(screenWidth / bottomBarIcons.length, LandingView.layoutConstants.minItemWidth);
         const showGuide = this.state.showRegisterGuide && displayRegister;
-        const userName = this.context.getService(UserInfoService).getUserInfo().getDisplayUsername();
+        const userName = this.context.getService(UserInfoService).getUserInfo().getDisplayUsername()?.split(' ')[0];
         const guideMessage = this.I18n.t("registerButtonGuideMessage", {userName});
         General.logDebug('LandingView', `render - showGuide: ${showGuide}, showRegisterGuide: ${this.state.showRegisterGuide}, displayRegister: ${displayRegister}, registerButtonIndex: ${registerButtonIndex}, bottomBarCount: ${bottomBarIcons.length}, secondaryDashboard: ${!_.isNil(secondaryDashboard)}`);
         const bottomBarContent = (
