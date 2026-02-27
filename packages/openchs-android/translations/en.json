@@ -535,6 +535,6 @@
     "openSettings": "Open Settings",
     "comments": "Comments",
     "registerButtonGuideMessage": "Hi {{userName}}, Start entering your data by tapping on the Register button below",
-    "welcomeMessage": "Hi {{username}}, Welcome!"
+    "welcomeMessage": "Hi {{userName}}, Welcome!"
   }
 }
