@@ -79,11 +79,14 @@ class SettingsService extends BaseService {
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
         const languages = _.isEmpty(orgConfig) ? ['en'] : orgConfig.getSettings().languages;
         const OrgLocales = AvailableLocales.filter(localeMapping => languages.includes(localeMapping.locale));
+        General.logDebug("SettingsService", `initLanguages: languages=${JSON.stringify(languages)}, OrgLocales.length=${OrgLocales.length}`);
         this.db.write(() => {
             OrgLocales.forEach((localeMapping) => {
+                General.logDebug("SettingsService", `initLanguages: creating LocaleMapping for ${localeMapping.locale}`);
                 dbInScope.create('LocaleMapping', localeMapping, true);
             })
-        })
+        });
+        General.logDebug("SettingsService", `initLanguages: completed, verifying count=${this.getAll(LocaleMapping.schema.name).length}`);
     }
 }
 

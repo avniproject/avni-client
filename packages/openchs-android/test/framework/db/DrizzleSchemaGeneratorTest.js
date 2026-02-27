@@ -1,4 +1,5 @@
 import DrizzleSchemaGenerator, {EMBEDDED_SCHEMA_NAMES} from "../../../src/framework/db/DrizzleSchemaGenerator";
+import EntityMappingConfig from "openchs-models/dist/Schema";
 
 describe("DrizzleSchemaGenerator", () => {
     const mockEntityMappingConfig = {
@@ -237,6 +238,18 @@ describe("DrizzleSchemaGenerator", () => {
         it("should not include entities with primary keys", () => {
             expect(EMBEDDED_SCHEMA_NAMES.has("Individual")).toBe(false);
             expect(EMBEDDED_SCHEMA_NAMES.has("Concept")).toBe(false);
+        });
+
+        it("should include every schema marked embedded: true in the model layer", () => {
+            const allSchemas = EntityMappingConfig.getInstance().getRealmConfig().schema;
+            const embeddedFromModels = allSchemas
+                .filter(s => s.embedded === true)
+                .map(s => s.name);
+
+            expect(embeddedFromModels.length).toBeGreaterThan(0);
+
+            const missing = embeddedFromModels.filter(name => !EMBEDDED_SCHEMA_NAMES.has(name));
+            expect(missing).toEqual([]);
         });
     });
 });

@@ -78,9 +78,10 @@ class EntityHydrator {
 
             if (resolvedType === "object" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded object stored as JSON
+                    // Embedded object stored as JSON — resolve FK references within it
                     const jsonVal = row[snakeName];
-                    result[propName] = parseJsonSafe(jsonVal);
+                    const parsed = parseJsonSafe(jsonVal);
+                    result[propName] = parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
                 } else {
                     // Referenced entity — FK column is propName_uuid
                     const fkColName = `${snakeName}_uuid`;
@@ -98,9 +99,10 @@ class EntityHydrator {
                 }
             } else if (resolvedType === "list" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded list stored as JSON
+                    // Embedded list stored as JSON — resolve FK references within each item
                     const jsonVal = row[snakeName];
-                    result[propName] = parseJsonSafe(jsonVal) || [];
+                    const parsed = parseJsonSafe(jsonVal) || [];
+                    result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
                 } else if (!skipLists && depth > 0) {
                     // Referenced list — query child table
                     result[propName] = this.resolveList(schemaName, propName, objectType, row.uuid, depth - 1);
@@ -168,10 +170,13 @@ class EntityHydrator {
     }
 
     /**
-     * Resolve a FK reference from caches only (no DB query).
-     * Used at depth 0 to provide richer objects for list items without
-     * triggering additional queries or infinite recursion.
-     * Returns cached object if found, otherwise a minimal {uuid} stub.
+     * Resolve a FK reference from caches first, falling back to a depth-0
+     * DB query if no cache hit. Used at depth 0 to provide objects with
+     * scalar properties (name, datatype, etc.) populated — not just {uuid} stubs.
+     *
+     * Depth-0 hydration is safe from infinite recursion: it fills scalar fields,
+     * skips lists, and uses this same method for its own FKs (which will hit the
+     * session cache since the parent is pre-registered before processing children).
      */
     _resolveCachedReference(targetSchemaName, uuid) {
         // Check reference data cache (reference entities like Program, SubjectType, etc.)
@@ -188,8 +193,67 @@ class EntityHydrator {
             if (cached) return cached;
         }
 
-        // Fallback: minimal stub with just uuid
-        return {uuid};
+        // Fallback: resolve from DB at depth 0 (scalar properties only).
+        // This ensures FK-referenced entities at depth 0 have their scalar
+        // fields populated (e.g., Concept.datatype, Program.name) instead
+        // of returning bare {uuid} stubs.
+        return this.resolveReference(targetSchemaName, uuid, 0);
+    }
+
+    /**
+     * Resolve FK references within an embedded JSON object.
+     * Embedded objects (e.g., Observation) are stored as JSON but may contain
+     * references to other entities (e.g., Observation.concept → Concept).
+     * This method walks the embedded schema and resolves those references
+     * using resolveReference (which checks caches first, then queries DB).
+     */
+    _hydrateEmbedded(data, schemaName) {
+        if (_.isNil(data)) return null;
+        const schema = this.realmSchemaMap.get(schemaName);
+        if (!schema || !schema.properties) return data;
+
+        const result = {...data}; // shallow copy to avoid mutating stored JSON
+        const properties = schema.properties;
+
+        Object.keys(properties).forEach(propName => {
+            if (!(propName in result)) return;
+
+            const propDef = properties[propName];
+            const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
+            const objectType = typeof propDef === "object" ? propDef.objectType : null;
+
+            if (resolvedType === "object" && objectType) {
+                const val = result[propName];
+                if (_.isNil(val)) return;
+
+                if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                    // Nested embedded object — recurse
+                    result[propName] = this._hydrateEmbedded(val, objectType);
+                } else {
+                    // FK reference stored as {uuid: "..."} — resolve via DB/cache
+                    const uuid = val.uuid || (typeof val === "string" ? val : null);
+                    if (uuid) {
+                        result[propName] = this.resolveReference(objectType, uuid, 1);
+                    }
+                }
+            } else if (resolvedType === "list" && objectType) {
+                const list = result[propName];
+                if (!Array.isArray(list)) return;
+
+                if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                    result[propName] = list.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
+                } else {
+                    // List of FK references
+                    result[propName] = list.map(item => {
+                        if (_.isNil(item)) return null;
+                        const uuid = item.uuid || (typeof item === "string" ? item : null);
+                        return uuid ? this.resolveReference(objectType, uuid, 1) : item;
+                    });
+                }
+            }
+        });
+
+        return result;
     }
 
     /**
@@ -222,7 +286,7 @@ class EntityHydrator {
 
         if (rows.length === 0) return [];
 
-        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: depth > 0}));
+        return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: false}));
     }
 
     /**

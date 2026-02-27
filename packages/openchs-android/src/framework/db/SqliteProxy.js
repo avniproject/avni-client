@@ -328,7 +328,7 @@ class SqliteProxy {
 
         this.hydrator.beginHydrationSession();
         try {
-            const hydrated = this.hydrator.hydrate(type, rows[0], {skipLists: false, depth: 2});
+            const hydrated = this.hydrator.hydrate(type, rows[0], {skipLists: false, depth: 3});
             return new entityClass(hydrated);
         } finally {
             this.hydrator.endHydrationSession();

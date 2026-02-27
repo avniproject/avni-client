@@ -572,8 +572,8 @@ describe("SqliteResultsProxy — supported query types", () => {
             expect(hydrator.beginHydrationSession).toHaveBeenCalledTimes(1);
             expect(hydrator.endHydrationSession).toHaveBeenCalledTimes(1);
             expect(hydrator.hydrate).toHaveBeenCalledTimes(2);
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "1"}, {skipLists: false, depth: 2});
-            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "2"}, {skipLists: false, depth: 2});
+            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "1"}, {skipLists: false, depth: 3});
+            expect(hydrator.hydrate).toHaveBeenCalledWith("Individual", {uuid: "2"}, {skipLists: false, depth: 3});
         });
 
         it("should execute lazily — no SQL until data access", () => {

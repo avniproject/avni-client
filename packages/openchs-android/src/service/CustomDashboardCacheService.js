@@ -159,16 +159,19 @@ class CustomDashboardCacheService extends BaseService {
         const db = this.db;
         db.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
+            const cardIdsToReplace = results.map((_, index) => reportCard.getCardId(index));
+            const dashboardUuid = dashboardCache.dashboard.uuid;
+            const kept = dashboardCache.nestedReportCardResults.filter(
+                (x) => !(cardIdsToReplace.includes(x.reportCard) && x.dashboard === dashboardUuid)
+            );
             results.forEach((nestedReportCardResult, index) => {
-                const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
-                matching.forEach((x) => {
-                    dashboardCache.nestedReportCardResults.pop(x);
-                });
                 nestedReportCardResult.dashboard = dashboardUUID;
                 nestedReportCardResult.reportCard = reportCard.getCardId(index);
-                dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
+                kept.push(nestedReportCardResult);
             });
+            dashboardCache.nestedReportCardResults = kept;
             dashboardCache.updatedAt = new Date();
+            db.create(CustomDashboardCache.schema.name, dashboardCache, true);
         });
     }
 
@@ -176,14 +179,16 @@ class CustomDashboardCacheService extends BaseService {
         const db = this.db;
         db.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
-            const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
-            matching.forEach((x) => {
-                dashboardCache.reportCardResults.pop(x);
-            });
+            const dashboardUuid = dashboardCache.dashboard.uuid;
+            const kept = dashboardCache.reportCardResults.filter(
+                (x) => !(x.reportCard === reportCard.uuid && x.dashboard === dashboardUuid)
+            );
             reportCardResult.dashboard = dashboardUUID;
             reportCardResult.reportCard = reportCard.uuid;
-            dashboardCache.reportCardResults.push(reportCardResult);
+            kept.push(reportCardResult);
+            dashboardCache.reportCardResults = kept;
             dashboardCache.updatedAt = new Date();
+            db.create(CustomDashboardCache.schema.name, dashboardCache, true);
         });
     }
 }

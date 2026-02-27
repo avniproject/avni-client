@@ -22,8 +22,12 @@ const EMBEDDED_SCHEMA_NAMES = new Set([
     "Format",
     "EmbeddedFormat",
     "ChecklistItemStatus",
+    "EmbeddedChecklistItemStatus",
     "StringKeyNumericValue",
+    "EmbeddedStringKeyNumericValue",
     "ConceptMedia",
+    "ReportCardResult",
+    "NestedReportCardResult",
 ]);
 
 // Properties that are list-type relationships pointing to entities with PKs.

@@ -282,7 +282,7 @@ class SqliteResultsProxy {
                 }
 
                 this._entities = this._rows.map(row =>
-                    this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 2})
+                    this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 3})
                 );
             } finally {
                 this.hydrator.endHydrationSession();
