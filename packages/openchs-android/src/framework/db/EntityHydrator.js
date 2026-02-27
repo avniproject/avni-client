@@ -409,22 +409,40 @@ class EntityHydrator {
     /**
      * Build reference data cache from the database.
      * Call this after sync for reference entities.
+     *
+     * @param {Array} cacheConfigs - array of {schemaName, depth, skipLists} objects.
+     *   Processing order matters: schemas whose cached entities are referenced as FKs
+     *   by later schemas should come first (e.g., Concept before Form, so that
+     *   FormElement.concept resolves from the Concept cache during Form hydration).
      */
-    buildReferenceCache(referenceSchemaNames) {
-        referenceSchemaNames.forEach(schemaName => {
-            const tableMeta = this.tableMetaMap.get(schemaName);
-            if (!tableMeta) return;
+    buildReferenceCache(cacheConfigs) {
+        this.beginHydrationSession();
+        try {
+            cacheConfigs.forEach(({schemaName, depth = 1, skipLists = true}) => {
+                const tableMeta = this.tableMetaMap.get(schemaName);
+                if (!tableMeta) return;
 
-            const rows = this.executeQuery(`SELECT * FROM ${tableMeta.tableName}`, []);
-            const cache = new Map();
-            (rows || []).forEach(row => {
-                const hydrated = this.hydrate(schemaName, row, {skipLists: true, depth: 1});
-                if (hydrated.uuid) {
-                    cache.set(hydrated.uuid, hydrated);
+                const rows = this.executeQuery(`SELECT * FROM ${tableMeta.tableName}`, []);
+
+                // Batch-preload list properties to avoid N+1 queries
+                // (e.g., 5000 Concepts × 1 query each for answers → 1 batch query)
+                if (!skipLists && rows.length > 0) {
+                    const uuids = rows.map(r => r.uuid).filter(u => u != null);
+                    this.batchPreloadLists(schemaName, uuids);
                 }
+
+                const cache = new Map();
+                (rows || []).forEach(row => {
+                    const hydrated = this.hydrate(schemaName, row, {skipLists, depth});
+                    if (hydrated.uuid) {
+                        cache.set(hydrated.uuid, hydrated);
+                    }
+                });
+                this.referenceDataCache[schemaName] = cache;
             });
-            this.referenceDataCache[schemaName] = cache;
-        });
+        } finally {
+            this.endHydrationSession();
+        }
     }
 
     /**

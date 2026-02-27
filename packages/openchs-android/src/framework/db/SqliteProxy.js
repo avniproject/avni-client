@@ -394,9 +394,12 @@ class SqliteProxy {
     /**
      * Populate reference data cache for fast FK resolution.
      * Call this after sync completes.
+     *
+     * @param {Array} cacheConfigs - array of {schemaName, depth, skipLists} objects.
+     *   Order matters: cache dependencies first (e.g., Concept before Form).
      */
-    buildReferenceCache(referenceSchemaNames) {
-        this.hydrator.buildReferenceCache(referenceSchemaNames);
+    buildReferenceCache(cacheConfigs) {
+        this.hydrator.buildReferenceCache(cacheConfigs);
     }
 
     /**

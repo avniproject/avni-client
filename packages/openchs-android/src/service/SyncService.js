@@ -493,8 +493,44 @@ class SyncService extends BaseService {
             General.logInfo("Sync", "Full Sync completed, performing reset")
             this.reset(false);
             this.getService(SettingsService).initLanguages();
+            this._buildReferenceCacheIfSqlite();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
+    }
+
+    _buildReferenceCacheIfSqlite() {
+        if (typeof this.db.buildReferenceCache !== 'function') return;
+
+        const start = Date.now();
+        // Only cache entities needed for correctness or with high FK-hit frequency
+        // and small row count. Large entities (Concept 5K+, AddressLevel 5K+,
+        // FormElement 5K+, ConceptAnswer, LocationMapping) are NOT cached here —
+        // they resolve via depth-0 DB queries with session caching instead.
+        //
+        // Order matters: Concept must be cached before Form so that
+        // FormElement.concept resolves from the Concept cache during Form hydration.
+        const cacheConfigs = [
+            // Small reference entities (< 50 rows typically): depth 1, scalars only
+            {schemaName: 'Gender', depth: 1, skipLists: true},
+            {schemaName: 'SubjectType', depth: 1, skipLists: true},
+            {schemaName: 'Program', depth: 1, skipLists: true},
+            {schemaName: 'EncounterType', depth: 1, skipLists: true},
+            {schemaName: 'OrganisationConfig', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelation', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationGenderMapping', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationshipType', depth: 1, skipLists: true},
+            {schemaName: 'GroupRole', depth: 1, skipLists: true},
+            // Concept at depth 2: Concept → answers[](d1) → ConceptAnswer.concept(d0)
+            // Large (5K+) but essential — coded form elements need concept.answers
+            {schemaName: 'Concept', depth: 2, skipLists: false},
+            // ChecklistItemDetail: stateConfig is embedded, form FK from Form cache
+            {schemaName: 'ChecklistItemDetail', depth: 1, skipLists: false},
+            // Form at depth 3: Form → FEGs(d2) → FEs(d1) → concept from Concept cache(d0)
+            {schemaName: 'Form', depth: 3, skipLists: false},
+        ];
+
+        this.db.buildReferenceCache(cacheConfigs);
+        General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
     }
 
     reset(syncRequired: false) {
