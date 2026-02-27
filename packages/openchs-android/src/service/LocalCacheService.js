@@ -63,6 +63,16 @@ class LocalCacheService {
         return await LocalCacheService._storeData(CacheKeys.REGISTER_BUTTON_GUIDE_SHOWN, 'true');
     }
 
+    static async clearCache() {
+        try {
+            const keys = Object.values(CacheKeys);
+            await AsyncStorage.multiRemove(keys);
+        } catch (error) {
+            General.logDebug('LocalCacheService', 'Error while clearing cache');
+            General.logDebug('LocalCacheService', error);
+        }
+    }
+
     static getPreviouslySelectedSubjectType(allowedSubjectTypes, cachedSubjectTypeUUID) {
         if (!allowedSubjectTypes || _.isEmpty(allowedSubjectTypes)) {
             return SubjectType.create("");

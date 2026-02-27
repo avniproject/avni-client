@@ -42,6 +42,7 @@ import { AlertMessage } from "./common/AlertMessage";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
 import RNRestart from 'react-native-restart';
 import ProgressBarView from "./ProgressBarView";
+import LocalCacheService from "../service/LocalCacheService";
 
 @Path('/loginView')
 class LoginView extends AbstractComponent {
@@ -369,6 +370,7 @@ class LoginView extends AbstractComponent {
     clearDataAndLogin() {
         this.getService(AuthService).getAuthProviderService().logout()
             .then(() => this.getService(SyncService).clearData())
+            .then(() => LocalCacheService.clearCache())
             .then(() => this.getService(AuthService).fetchAuthSettingsFromServer())
             .catch(error => getAvniError(error, this.i18n).then(avniError => AlertMessage(this.i18n.t('Error'), avniError.getDisplayMessage())))
             .then(() => this.reset())
