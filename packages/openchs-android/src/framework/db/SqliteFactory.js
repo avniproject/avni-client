@@ -63,10 +63,7 @@ class SqliteFactory {
         // Enable WAL mode for better concurrent read/write performance
         // Note: op-sqlite's execute() is async; use executeSync() for synchronous operations
         db.executeSync("PRAGMA journal_mode = WAL");
-        // TODO: Re-enable foreign key enforcement once flat INSERT handling is resolved.
-        // FK enforcement temporarily disabled: Realm's db.create() auto-creates the entire
-        // referenced object graph recursively, but our flat INSERT only stores FK UUIDs.
-        db.executeSync("PRAGMA foreign_keys = OFF");
+        db.executeSync("PRAGMA foreign_keys = ON");
 
         // Create all tables
         const createStatements = DrizzleSchemaGenerator.generateCreateTableStatements(tableMetaMap);

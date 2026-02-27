@@ -10,8 +10,15 @@
  */
 
 import _ from "lodash";
+import {Individual} from "openchs-models";
 import {EMBEDDED_SCHEMA_NAMES} from "./DrizzleSchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./RealmQueryParser";
+
+// Dummy UUIDs used as placeholders in models — must be NULLified before INSERT
+// to avoid FK violations (these entities don't exist in the database).
+const DUMMY_UUIDS = new Set([
+    Individual.getAddressLevelDummyUUID(),
+]);
 
 class EntityHydrator {
     /**
@@ -476,13 +483,13 @@ class EntityHydrator {
                     // Referenced → extract UUID
                     const ref = data[propName];
                     const fkColName = `${camelToSnake(propName)}_uuid`;
+                    let fkUuid = null;
                     if (ref && ref.uuid) {
-                        result[fkColName] = ref.uuid;
+                        fkUuid = ref.uuid;
                     } else if (ref && typeof ref === "string") {
-                        result[fkColName] = ref;
-                    } else {
-                        result[fkColName] = null;
+                        fkUuid = ref;
                     }
+                    result[fkColName] = (fkUuid && DUMMY_UUIDS.has(fkUuid)) ? null : fkUuid;
                 }
             } else if (resolvedType === "list" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
