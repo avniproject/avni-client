@@ -83,6 +83,8 @@ class IndividualRelationshipService extends BaseService {
         let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
         individualA.addRelationship(savedRelationship);
         individualB.addRelationship(savedRelationship);
+        db.create(Individual.schema.name, individualA, true);
+        db.create(Individual.schema.name, individualB, true);
         db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
         General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
     }

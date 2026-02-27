@@ -20,6 +20,7 @@ class TaskUnAssignmentService extends BaseService {
             this.db.write(() => {
                 this.getService(TaskService).deleteTask(taskUnAssignment.taskUUID, db);
                 taskUnAssignment.hasMigrated = true;
+                db.create(TaskUnAssignment.schema.name, taskUnAssignment, true);
             });
         });
     }
