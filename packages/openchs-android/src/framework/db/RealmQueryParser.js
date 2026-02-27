@@ -374,7 +374,7 @@ class SqlGenerator {
             }
 
             const propSchema = schema.properties[propName];
-            if (!propSchema || propSchema.type !== "object") {
+            if (!propSchema || (propSchema.type !== "object" && propSchema.type !== "list")) {
                 // Not a relationship — treat as a nested column name
                 return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
             }
@@ -382,13 +382,24 @@ class SqlGenerator {
             const targetSchema = propSchema.objectType;
             const newAlias = `t${++this.aliasCounter}`;
             const targetTableName = schemaNameToTableName(targetSchema);
-            const fkColumn = `${camelToSnake(propName)}_uuid`;
 
-            this.joins.push({
-                table: targetTableName,
-                alias: newAlias,
-                on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
-            });
+            if (propSchema.type === "list") {
+                // List property: reverse JOIN — child table has FK pointing back to parent
+                const childFkColumn = this._findChildFkColumn(currentSchema, targetSchema);
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${newAlias}."${childFkColumn}" = ${currentAlias}."uuid"`,
+                });
+            } else {
+                // Object property: forward JOIN — parent has FK to child
+                const fkColumn = `${camelToSnake(propName)}_uuid`;
+                this.joins.push({
+                    table: targetTableName,
+                    alias: newAlias,
+                    on: `${currentAlias}."${fkColumn}" = ${newAlias}."uuid"`,
+                });
+            }
 
             this.joinAliases.set(pathSoFar, newAlias);
             currentAlias = newAlias;
@@ -397,6 +408,24 @@ class SqlGenerator {
 
         const lastPart = parts[parts.length - 1];
         return {column: `${currentAlias}."${camelToSnake(lastPart)}"`, needsJoin: true};
+    }
+
+    /**
+     * Find the FK column on a child table that references the parent schema.
+     * Looks at the child's schema for a property of type "object" whose objectType matches the parent.
+     * Falls back to convention: parent_schema_name_uuid.
+     */
+    _findChildFkColumn(parentSchemaName, childSchemaName) {
+        const childSchema = this.schemaMap.get(childSchemaName);
+        if (childSchema) {
+            for (const [propName, propDef] of Object.entries(childSchema.properties || {})) {
+                if (typeof propDef === "object" && propDef.type === "object" && propDef.objectType === parentSchemaName) {
+                    return `${camelToSnake(propName)}_uuid`;
+                }
+            }
+        }
+        // Fallback convention
+        return `${camelToSnake(parentSchemaName)}_uuid`;
     }
 
     resolveValue(valueToken) {

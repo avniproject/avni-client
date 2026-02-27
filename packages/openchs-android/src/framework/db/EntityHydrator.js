@@ -387,9 +387,9 @@ class EntityHydrator {
 
             if (resolvedType === "object" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded → serialize to JSON
+                    // Embedded → serialize to JSON (schema-aware to avoid cycles)
                     const val = data[propName];
-                    result[camelToSnake(propName)] = val != null ? JSON.stringify(unwrapThat(val)) : null;
+                    result[camelToSnake(propName)] = val != null ? JSON.stringify(flattenEmbedded(unwrapThat(val), objectType, this.realmSchemaMap)) : null;
                 } else {
                     // Referenced → extract UUID
                     const ref = data[propName];
@@ -404,11 +404,11 @@ class EntityHydrator {
                 }
             } else if (resolvedType === "list" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded list → JSON array
+                    // Embedded list → JSON array (schema-aware to avoid cycles)
                     const list = data[propName];
                     if (list) {
                         const arr = Array.isArray(list) ? list : (list.realmList ? Array.from(list) : []);
-                        result[camelToSnake(propName)] = JSON.stringify(arr.map(item => unwrapThat(item)));
+                        result[camelToSnake(propName)] = JSON.stringify(arr.map(item => flattenEmbedded(unwrapThat(item), objectType, this.realmSchemaMap)));
                     } else {
                         result[camelToSnake(propName)] = "[]";
                     }
@@ -474,6 +474,73 @@ function convertToSqliteValue(realmType, value) {
         default:
             return value;
     }
+}
+
+/**
+ * Schema-aware serialization of an embedded object.
+ * Processes each property according to the embedded schema so that
+ * object references (e.g. Observation.concept → Concept) are stored as
+ * UUIDs instead of full objects, avoiding cyclical JSON structures.
+ */
+function flattenEmbedded(data, schemaName, realmSchemaMap) {
+    if (_.isNil(data)) return null;
+    const schema = realmSchemaMap.get(schemaName);
+    if (!schema || !schema.properties) return data;
+
+    const result = {};
+    const properties = schema.properties;
+
+    Object.keys(properties).forEach(propName => {
+        const propDef = properties[propName];
+        const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
+        const objectType = typeof propDef === "object" ? propDef.objectType : null;
+        const val = data[propName];
+
+        if (resolvedType === "object" && objectType) {
+            if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                // Sub-embedded → recurse
+                result[propName] = val != null ? flattenEmbedded(unwrapThat(val), objectType, realmSchemaMap) : null;
+            } else {
+                // Referenced object → store UUID only
+                const ref = unwrapThat(val);
+                if (ref && ref.uuid) {
+                    result[propName] = {uuid: ref.uuid};
+                } else if (ref && typeof ref === "string") {
+                    result[propName] = {uuid: ref};
+                } else {
+                    result[propName] = null;
+                }
+            }
+        } else if (resolvedType === "list" && objectType) {
+            if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                // Sub-embedded list → recurse
+                const list = val;
+                if (list) {
+                    const arr = Array.isArray(list) ? list : Array.from(list);
+                    result[propName] = arr.map(item => flattenEmbedded(unwrapThat(item), objectType, realmSchemaMap));
+                } else {
+                    result[propName] = [];
+                }
+            } else {
+                // Referenced list → store UUIDs only
+                const list = val;
+                if (list) {
+                    const arr = Array.isArray(list) ? list : Array.from(list);
+                    result[propName] = arr.map(item => {
+                        const ref = unwrapThat(item);
+                        return ref && ref.uuid ? {uuid: ref.uuid} : null;
+                    }).filter(x => x != null);
+                } else {
+                    result[propName] = [];
+                }
+            }
+        } else {
+            // Scalar — keep as-is
+            result[propName] = val;
+        }
+    });
+
+    return result;
 }
 
 function unwrapThat(obj) {

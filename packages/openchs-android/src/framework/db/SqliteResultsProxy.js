@@ -18,11 +18,16 @@ import RealmQueryParser, {camelToSnake, schemaNameToTableName} from "./RealmQuer
 import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
 
 const SqliteResultsProxyHandler = {
-    get: function (target, name) {
+    get: function (target, name, receiver) {
         if (typeof name !== "symbol" && !isNaN(name) && !isNaN(parseInt(name))) {
             return target.getAt(Number.parseInt(name));
         } else if (name === "length") {
             return target.getLength();
+        } else if (name === "realmCollection") {
+            // Return the Proxy wrapper (receiver), not the raw target,
+            // so getUnderlyingRealmCollection() returns an object with
+            // Proxy-intercepted length/index access.
+            return receiver;
         }
         return Reflect.get(...arguments);
     },
