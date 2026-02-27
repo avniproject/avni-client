@@ -622,6 +622,59 @@ describe("SqliteResultsProxy — supported query types", () => {
         });
     });
 
+    // ──── SQL LIMIT ────
+
+    describe("SQL LIMIT propagation", () => {
+        it("should include LIMIT in SQL when query is fully SQL-translatable", () => {
+            const {proxy, executeQuery} = createProxy({rows: [{uuid: "1", first_name: "Alice"}]});
+            proxy.filtered("firstName = $0 limit(1)", "Alice").length;
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).toContain("LIMIT 1");
+            expect(sql).toContain('t0."first_name" = ?');
+        });
+
+        it("should NOT include LIMIT in SQL when JS fallback filters are present", () => {
+            const rows = [{uuid: "1"}, {uuid: "2"}, {uuid: "3"}];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                observations: row.uuid === "1" ? [{concept: {uuid: "c1"}}] : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            // SUBQUERY goes to JS fallback, limit should NOT be in SQL
+            const filtered = proxy.filtered(
+                'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0 limit(2)'
+            );
+            filtered.length; // trigger execution
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).not.toMatch(/LIMIT/i);
+        });
+
+        it("should propagate limitClause through sorted()", () => {
+            const {proxy, executeQuery} = createProxy({rows: [{uuid: "1", first_name: "Alice"}]});
+            proxy.filtered("voided = false limit(3)").sorted("firstName").length;
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).toContain("ORDER BY");
+            expect(sql).toContain("LIMIT 3");
+        });
+
+        it("standalone limit(N) with no other filter should produce LIMIT in SQL", () => {
+            const {proxy, executeQuery} = createProxy({rows: [{uuid: "1"}]});
+            proxy.filtered("limit(5)").length;
+            const sql = getExecutedSql(executeQuery);
+            expect(sql).toContain("WHERE 1=1");
+            expect(sql).toContain("LIMIT 5");
+        });
+    });
+
     // ──── Edge cases ────
 
     describe("edge cases", () => {

@@ -151,6 +151,134 @@ describe("EntityHydrator", () => {
         });
     });
 
+    describe("batch list loading", () => {
+        it("batchPreloadLists issues one query per list property, not per entity", () => {
+            // Encounter has "individual" FK → so Individual.encounters is a list property
+            // Two individuals → should be 1 batch query, not 2 individual queries
+            mockExecuteQuery.mockReturnValue([
+                {uuid: "e1", individual_uuid: "ind-1", voided: 0},
+                {uuid: "e2", individual_uuid: "ind-1", voided: 0},
+                {uuid: "e3", individual_uuid: "ind-2", voided: 0},
+            ]);
+
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", ["ind-1", "ind-2"]);
+
+            // Only 1 batch query for encounters (observations and registrationLocation are embedded, not FK)
+            expect(mockExecuteQuery).toHaveBeenCalledTimes(1);
+            const sql = mockExecuteQuery.mock.calls[0][0];
+            expect(sql).toContain("encounter");
+            expect(sql).toContain("IN");
+            expect(mockExecuteQuery.mock.calls[0][1]).toEqual(["ind-1", "ind-2"]);
+
+            hydrator.endHydrationSession();
+        });
+
+        it("resolveList uses batch cache when available", () => {
+            mockExecuteQuery.mockReturnValueOnce([
+                {uuid: "e1", individual_uuid: "ind-1", voided: 0},
+                {uuid: "e2", individual_uuid: "ind-2", voided: 0},
+            ]);
+
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", ["ind-1", "ind-2"]);
+
+            // Reset mock to verify resolveList doesn't make additional queries
+            const batchCallCount = mockExecuteQuery.mock.calls.length;
+            mockExecuteQuery.mockClear();
+            mockExecuteQuery.mockReturnValue([]); // no extra queries should happen
+
+            const list = hydrator.resolveList("Individual", "encounters", "Encounter", "ind-1", 0);
+            expect(list).toHaveLength(1);
+            expect(list[0].uuid).toBe("e1");
+
+            // No additional executeQuery calls for resolveList (used cache)
+            // (hydrate may call executeQuery for FK resolution, but the list itself should be from cache)
+            hydrator.endHydrationSession();
+        });
+
+        it("resolveList falls back to individual query when no batch cache", () => {
+            mockExecuteQuery.mockReturnValue([{uuid: "e1", individual_uuid: "ind-1", voided: 0}]);
+
+            // Don't call batchPreloadLists — no batch cache
+            hydrator.beginHydrationSession();
+            // But don't call batchPreloadLists
+
+            // Clear and set up for the individual query
+            mockExecuteQuery.mockClear();
+            mockExecuteQuery.mockReturnValue([{uuid: "e1", individual_uuid: "ind-1", voided: 0}]);
+
+            const list = hydrator.resolveList("Individual", "encounters", "Encounter", "ind-1", 0);
+            expect(list).toHaveLength(1);
+
+            // Should have called executeQuery with individual WHERE, not IN
+            const sql = mockExecuteQuery.mock.calls[0][0];
+            expect(sql).toContain('WHERE "individual_uuid" = ?');
+            expect(sql).not.toContain("IN");
+
+            hydrator.endHydrationSession();
+        });
+
+        it("deduplicates parent UUIDs before batching", () => {
+            mockExecuteQuery.mockReturnValue([]);
+
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", ["ind-1", "ind-1", "ind-2", "ind-1"]);
+
+            // Should deduplicate to ["ind-1", "ind-2"]
+            expect(mockExecuteQuery.mock.calls[0][1]).toEqual(["ind-1", "ind-2"]);
+
+            hydrator.endHydrationSession();
+        });
+
+        it("skips embedded list properties (Observation)", () => {
+            // Observation is in EMBEDDED_SCHEMA_NAMES — stored as JSON on parent row
+            // batchPreloadLists should NOT query for it
+            mockExecuteQuery.mockReturnValue([]);
+
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", ["ind-1"]);
+
+            // Should only query for encounters (the non-embedded list property)
+            if (mockExecuteQuery.mock.calls.length > 0) {
+                const sql = mockExecuteQuery.mock.calls[0][0];
+                expect(sql).toContain("encounter");
+                expect(sql).not.toContain("observation");
+            }
+
+            hydrator.endHydrationSession();
+        });
+
+        it("_listBatchCache is cleared on endHydrationSession", () => {
+            hydrator.beginHydrationSession();
+            expect(hydrator._listBatchCache).not.toBeNull();
+
+            hydrator.endHydrationSession();
+            expect(hydrator._listBatchCache).toBeNull();
+        });
+
+        it("handles empty parentUuids gracefully", () => {
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", []);
+            expect(mockExecuteQuery).not.toHaveBeenCalled();
+            hydrator.endHydrationSession();
+        });
+
+        it("handles null parentUuids in the array", () => {
+            mockExecuteQuery.mockReturnValue([]);
+
+            hydrator.beginHydrationSession();
+            hydrator.batchPreloadLists("Individual", [null, "ind-1", null]);
+
+            // Should filter out nulls, passing only ["ind-1"]
+            if (mockExecuteQuery.mock.calls.length > 0) {
+                expect(mockExecuteQuery.mock.calls[0][1]).toEqual(["ind-1"]);
+            }
+
+            hydrator.endHydrationSession();
+        });
+    });
+
     describe("flatten", () => {
         it("should convert entity to flat SQL row with snake_case keys", () => {
             const entity = {

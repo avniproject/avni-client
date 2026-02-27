@@ -346,6 +346,49 @@ describe("RealmQueryParser", () => {
         });
     });
 
+    describe("limit extraction", () => {
+        it("should extract limit(N) and return it separately from the parsed query", () => {
+            const result = RealmQueryParser.parse("hasMigrated = false limit(1)");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toContain('"has_migrated"');
+            expect(result.limit).toBe(1);
+        });
+
+        it("should return limit for standalone limit(N) with no other filter", () => {
+            const result = RealmQueryParser.parse("limit(5)");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe("1=1");
+            expect(result.limit).toBe(5);
+        });
+
+        it("should return limit alongside unsupported query", () => {
+            const result = RealmQueryParser.parse(
+                'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0 limit(5)'
+            );
+            expect(result.unsupported).toBe(true);
+            expect(result.limit).toBe(5);
+        });
+
+        it("should return null limit when no limit(N) is present", () => {
+            const result = RealmQueryParser.parse("voided = false");
+            expect(result.limit).toBeNull();
+        });
+
+        it("should handle limit with surrounding whitespace", () => {
+            const result = RealmQueryParser.parse("voided = false limit( 10 )");
+            expect(result.unsupported).toBe(false);
+            expect(result.limit).toBe(10);
+        });
+
+        it("should strip trailing AND left by limit removal", () => {
+            // "voided = false AND limit(1)" → after stripping → "voided = false AND" → strip trailing AND
+            const result = RealmQueryParser.parse("voided = false AND limit(1)");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toContain('"voided"');
+            expect(result.limit).toBe(1);
+        });
+    });
+
     describe("edge cases", () => {
         it("should handle empty query", () => {
             const result = RealmQueryParser.parse("");

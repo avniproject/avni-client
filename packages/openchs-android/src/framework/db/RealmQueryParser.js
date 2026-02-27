@@ -541,7 +541,7 @@ const JS_FALLBACK_PATTERNS = [
     /\bANY\b/i,                // ANY listProp.field OP value
     /\bALL\b/i,                // ALL/NONE quantifiers (unused in codebase)
     /\bNONE\b/i,
-    /\blimit\s*\(/i,           // inline limit(N)
+    // limit(N) is NOT here — it's stripped and handled by parse() directly
 ];
 
 function requiresJsFallback(query) {
@@ -602,10 +602,26 @@ class RealmQueryParser {
      */
     static parse(query, args = [], rootSchemaName = null, schemaMap = new Map(), aliasOffset = 0) {
         if (!query || typeof query !== "string") {
-            return {where: "1=1", params: [], joins: [], unsupported: false};
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: null};
         }
 
-        const trimmed = query.trim();
+        let trimmed = query.trim();
+
+        // Strip limit(N) before any processing — it's a result-set modifier,
+        // not a filter predicate. Extracted here so the remaining query can be
+        // parsed normally (e.g., "hasMigrated = false limit(1)" → parse "hasMigrated = false").
+        let limitValue = null;
+        const limitMatch = trimmed.match(/\blimit\s*\(\s*(\d+)\s*\)/i);
+        if (limitMatch) {
+            limitValue = parseInt(limitMatch[1], 10);
+            trimmed = trimmed.replace(/\blimit\s*\(\s*\d+\s*\)/i, "").trim();
+            // Clean up trailing/leading AND left after stripping
+            trimmed = trimmed.replace(/\bAND\s*$/i, "").replace(/^\s*AND\b/i, "").trim();
+        }
+
+        if (trimmed.length === 0) {
+            return {where: "1=1", params: [], joins: [], unsupported: false, limit: limitValue};
+        }
 
         // Check for patterns that need JS fallback
         if (requiresJsFallback(trimmed)) {
@@ -615,6 +631,7 @@ class RealmQueryParser {
             // e.g. "voided = false AND SUBQUERY(...)" → SQL handles voided, JS handles SUBQUERY.
             const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
             if (partialResult) {
+                partialResult.limit = limitValue;
                 return partialResult;
             }
             return {
@@ -623,7 +640,8 @@ class RealmQueryParser {
                 joins: [],
                 unsupported: true,
                 originalQuery: trimmed,
-                reason: "Query requires JS fallback (SUBQUERY, TRUEPREDICATE, @links, @count, @size, ANY, limit, etc.)",
+                reason: "Query requires JS fallback (SUBQUERY, TRUEPREDICATE, @links, @count, @size, ANY, etc.)",
+                limit: limitValue,
             };
         }
 
@@ -641,6 +659,7 @@ class RealmQueryParser {
                 params: result.params,
                 joins: result.joins,
                 unsupported: false,
+                limit: limitValue,
             };
         } catch (e) {
             // If parsing fails, flag as unsupported for JS fallback
@@ -651,6 +670,7 @@ class RealmQueryParser {
                 unsupported: true,
                 originalQuery: trimmed,
                 reason: `Parse error: ${e.message}`,
+                limit: limitValue,
             };
         }
     }

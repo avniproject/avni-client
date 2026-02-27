@@ -44,6 +44,7 @@ class SqliteResultsProxy {
      * @param {Array} params.joinClauses - accumulated JOINs
      * @param {string|null} params.orderByClause - ORDER BY fragment
      * @param {Array|null} params.jsFallbackFilters - Realm queries routed to JS fallback filtering
+     * @param {number|null} params.limitClause - SQL LIMIT value extracted from limit(N)
      */
     static create(params) {
         return new Proxy(new SqliteResultsProxy(params), SqliteResultsProxyHandler);
@@ -61,6 +62,7 @@ class SqliteResultsProxy {
                     joinClauses = [],
                     orderByClause = null,
                     jsFallbackFilters = [],
+                    limitClause = null,
                 }) {
         this.schemaName = schemaName;
         this.tableName = tableName || schemaNameToTableName(schemaName);
@@ -75,6 +77,7 @@ class SqliteResultsProxy {
         this.joinClauses = [...joinClauses];
         this.orderByClause = orderByClause;
         this.jsFallbackFilters = [...jsFallbackFilters];
+        this.limitClause = limitClause;
 
         // Cached results
         this._rows = null;
@@ -109,6 +112,7 @@ class SqliteResultsProxy {
             joinClauses: [...this.joinClauses],
             orderByClause: this.orderByClause,
             jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
         };
 
         if (parseResult.unsupported) {
@@ -130,6 +134,11 @@ class SqliteResultsProxy {
                     newParams.jsFallbackFilters.push({query: clause, args, reason: "partial_parse_skip"});
                 });
             }
+        }
+
+        // Capture limit from parse result (overrides any prior limit in chain)
+        if (parseResult.limit != null) {
+            newParams.limitClause = parseResult.limit;
         }
 
         return SqliteResultsProxy.create(newParams);
@@ -206,6 +215,7 @@ class SqliteResultsProxy {
             joinClauses: [...this.joinClauses, ...extraJoins],
             orderByClause: orderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
         });
     }
 
@@ -234,6 +244,13 @@ class SqliteResultsProxy {
             sql += ` ORDER BY ${this.orderByClause}`;
         }
 
+        // LIMIT — only when there are no JS fallback filters.
+        // If JS fallbacks exist, they may further reduce results,
+        // and the LIMIT should apply to the final set (Realm semantics).
+        if (this.limitClause != null && this.jsFallbackFilters.length === 0) {
+            sql += ` LIMIT ${this.limitClause}`;
+        }
+
         return {sql, params: this.whereParams};
     }
 
@@ -253,6 +270,12 @@ class SqliteResultsProxy {
         if (this.hydrator) {
             this.hydrator.beginHydrationSession();
             try {
+                // Batch-preload list properties to avoid N+1 queries
+                if (this._rows.length > 0 && this.hydrator.batchPreloadLists) {
+                    const parentUuids = this._rows.map(row => row.uuid).filter(u => u != null);
+                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids);
+                }
+
                 this._entities = this._rows.map(row =>
                     this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 2})
                 );
@@ -268,6 +291,12 @@ class SqliteResultsProxy {
             this._entities = JsFallbackFilterEvaluator.apply(
                 this._entities, this.jsFallbackFilters, this.schemaName
             );
+
+            // Apply limit after JS fallback (LIMIT was not in SQL because
+            // JS fallbacks need to filter the full set first, then limit)
+            if (this.limitClause != null) {
+                this._entities = this._entities.slice(0, this.limitClause);
+            }
         }
 
         this._executed = true;

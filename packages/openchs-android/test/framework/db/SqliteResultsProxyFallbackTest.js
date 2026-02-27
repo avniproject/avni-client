@@ -232,12 +232,10 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             expect(filtered.length).toBe(1);
         });
 
-        it("splits 'hasMigrated = false AND limit(1)' into SQL + JS limit", () => {
-            const rows = [
-                {uuid: "1", has_migrated: 0},
-                {uuid: "2", has_migrated: 0},
-                {uuid: "3", has_migrated: 0},
-            ];
+        it("pushes 'hasMigrated = false limit(1)' entirely into SQL with LIMIT", () => {
+            // limit(N) is now stripped pre-parse and pushed into SQL LIMIT clause
+            // since hasMigrated = false is fully SQL-translatable with no JS fallback
+            const rows = [{uuid: "1", has_migrated: 0}];
             const executeQuery = jest.fn(() => rows);
             const hydrator = createMockHydrator(row => ({
                 uuid: row.uuid,
@@ -252,15 +250,14 @@ describe("SqliteResultsProxy fallback filter integration", () => {
                 hydrator,
             });
 
-            const filtered = proxy.filtered("hasMigrated = false AND limit(1)");
+            const filtered = proxy.filtered("hasMigrated = false limit(1)");
             expect(filtered.length).toBe(1);
             expect(filtered[0].uuid).toBe("1");
 
-            // Verify SQL was generated for the supported part
+            // Verify SQL contains both WHERE and LIMIT
             const sqlCall = executeQuery.mock.calls[0];
             expect(sqlCall[0]).toContain("has_migrated");
-            // The limit() part should NOT be in the SQL
-            expect(sqlCall[0]).not.toContain("limit");
+            expect(sqlCall[0]).toContain("LIMIT 1");
         });
 
         it("handles mixed SQL + SUBQUERY fallback", () => {
@@ -287,6 +284,40 @@ describe("SqliteResultsProxy fallback filter integration", () => {
             );
             expect(filtered.length).toBe(1);
             expect(filtered[0].uuid).toBe("1");
+        });
+
+        it("applies limit after JS fallback when both are present", () => {
+            // SUBQUERY goes to JS fallback, limit should apply AFTER JS filtering
+            const rows = [
+                {uuid: "1"}, {uuid: "2"}, {uuid: "3"}, {uuid: "4"}, {uuid: "5"},
+            ];
+            const executeQuery = jest.fn(() => rows);
+            const hydrator = createMockHydrator(row => ({
+                uuid: row.uuid,
+                observations: ["1", "2", "3"].includes(row.uuid)
+                    ? [{concept: {uuid: "c1"}, valueJSON: ""}]
+                    : [],
+            }));
+
+            const proxy = SqliteResultsProxy.create({
+                schemaName: "Individual",
+                tableName: "individual",
+                entityClass: MockEntity,
+                executeQuery,
+                hydrator,
+            });
+
+            // SUBQUERY matches uuid 1,2,3. limit(2) should return only first 2.
+            const filtered = proxy.filtered(
+                'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count > 0 limit(2)'
+            );
+            expect(filtered.length).toBe(2);
+            expect(filtered[0].uuid).toBe("1");
+            expect(filtered[1].uuid).toBe("2");
+
+            // SQL should NOT have LIMIT (because JS fallback is present)
+            const sqlCall = executeQuery.mock.calls[0];
+            expect(sqlCall[0]).not.toMatch(/LIMIT/i);
         });
     });
 

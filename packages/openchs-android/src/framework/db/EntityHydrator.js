@@ -32,6 +32,11 @@ class EntityHydrator {
         // returns the already-hydrated Individual instead of a depth-0 shallow copy.
         // Created/destroyed per session via beginHydrationSession/endHydrationSession.
         this._hydrationCache = null;
+
+        // Session-scoped batch cache for list properties. Populated by
+        // batchPreloadLists() before hydration loop to avoid N+1 queries.
+        // Keyed by "${childSchemaName}:${fkColumnName}" → Map<parentUuid, rows[]>.
+        this._listBatchCache = null;
     }
 
     /**
@@ -200,14 +205,84 @@ class EntityHydrator {
         const fkColumnName = this.findChildFkColumn(parentSchemaName, childSchemaName, childTableMeta);
         if (!fkColumnName) return [];
 
-        const rows = this.executeQuery(
-            `SELECT * FROM ${childTableMeta.tableName} WHERE "${fkColumnName}" = ?`,
-            [parentUuid]
-        );
+        // Check batch cache first (populated by batchPreloadLists)
+        let rows;
+        const cacheKey = `${childSchemaName}:${fkColumnName}`;
+        if (this._listBatchCache && this._listBatchCache.has(cacheKey)) {
+            const grouped = this._listBatchCache.get(cacheKey);
+            rows = grouped.get(parentUuid) || [];
+        } else {
+            // Fallback to individual query (when not in a batch session)
+            rows = this.executeQuery(
+                `SELECT * FROM ${childTableMeta.tableName} WHERE "${fkColumnName}" = ?`,
+                [parentUuid]
+            );
+            if (!rows || rows.length === 0) return [];
+        }
 
-        if (!rows || rows.length === 0) return [];
+        if (rows.length === 0) return [];
 
         return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: depth > 0}));
+    }
+
+    /**
+     * Batch-preload all FK-referenced list properties for a set of parent UUIDs.
+     * Replaces N individual queries per list property with one batch IN query.
+     *
+     * @param {string} schemaName - parent schema name (e.g., "Individual")
+     * @param {Array<string>} parentUuids - UUIDs of all parent rows to preload for
+     */
+    batchPreloadLists(schemaName, parentUuids) {
+        if (!this._listBatchCache || !parentUuids || parentUuids.length === 0) return;
+
+        const realmSchema = this.realmSchemaMap.get(schemaName);
+        if (!realmSchema) return;
+
+        const uniqueUuids = [...new Set(parentUuids.filter(u => u != null))];
+        if (uniqueUuids.length === 0) return;
+
+        const properties = realmSchema.properties || {};
+
+        Object.keys(properties).forEach(propName => {
+            const propDef = properties[propName];
+            const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
+            const objectType = typeof propDef === "object" ? propDef.objectType : null;
+
+            if (resolvedType !== "list" || !objectType) return;
+            if (EMBEDDED_SCHEMA_NAMES.has(objectType)) return; // JSON on parent row
+
+            const childTableMeta = this.tableMetaMap.get(objectType);
+            if (!childTableMeta) return;
+
+            const fkColumnName = this.findChildFkColumn(schemaName, objectType, childTableMeta);
+            if (!fkColumnName) return;
+
+            const cacheKey = `${objectType}:${fkColumnName}`;
+            if (this._listBatchCache.has(cacheKey)) return; // already preloaded
+
+            // Batch fetch with chunking for >999 params (SQLite limit)
+            const CHUNK_SIZE = 999;
+            const allRows = [];
+            for (let i = 0; i < uniqueUuids.length; i += CHUNK_SIZE) {
+                const chunk = uniqueUuids.slice(i, i + CHUNK_SIZE);
+                const placeholders = chunk.map(() => "?").join(", ");
+                const rows = this.executeQuery(
+                    `SELECT * FROM ${childTableMeta.tableName} WHERE "${fkColumnName}" IN (${placeholders})`,
+                    chunk
+                );
+                if (rows) allRows.push(...rows);
+            }
+
+            // Group by parent UUID
+            const grouped = new Map();
+            for (const row of allRows) {
+                const parentId = row[fkColumnName];
+                if (!grouped.has(parentId)) grouped.set(parentId, []);
+                grouped.get(parentId).push(row);
+            }
+
+            this._listBatchCache.set(cacheKey, grouped);
+        });
     }
 
     /**
@@ -252,6 +327,9 @@ class EntityHydrator {
         if (!this._hydrationCache) {
             this._hydrationCache = new Map();
         }
+        if (!this._listBatchCache) {
+            this._listBatchCache = new Map();
+        }
         this._hydrationSessionDepth = (this._hydrationSessionDepth || 0) + 1;
     }
 
@@ -259,6 +337,7 @@ class EntityHydrator {
         this._hydrationSessionDepth = (this._hydrationSessionDepth || 1) - 1;
         if (this._hydrationSessionDepth <= 0) {
             this._hydrationCache = null;
+            this._listBatchCache = null;
             this._hydrationSessionDepth = 0;
         }
     }
