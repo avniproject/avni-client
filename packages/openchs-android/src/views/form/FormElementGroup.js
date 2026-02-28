@@ -42,6 +42,7 @@ import RepeatableFormElement from "./formElement/RepeatableFormElement";
 import SingleSelectEncounterFormElement from "./formElement/SingleSelectEncounterFormElement";
 import MultiSelectEncounterFormElement from "./formElement/MultiSelectEncounterFormElement";
 import MediaV2FormElement from "./formElement/MediaV2FormElement";
+import AIObservationFormElement from "./formElement/AIObservationFormElement";
 import Colors from "../primitives/Colors";
 
 class FormElementGroup extends AbstractComponent {
@@ -139,7 +140,13 @@ class FormElementGroup extends AbstractComponent {
                         const validationResult = ValidationResult.findByFormIdentifier(this.props.validationResults, formElement.uuid);
                         const allowedValues = this.allowedValues(formElement.concept);
                         const uniqueKey = formElement.uuid;
-                        if (formElement.concept.datatype === Concept.dataType.Numeric) {
+                        if (formElement.concept.additionalInfo?.aiConfig?.enabled) {
+                            return this.wrap(<AIObservationFormElement
+                                element={formElement}
+                                actionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}
+                                value={this.getSelectedAnswer(formElement.concept, new PrimitiveValue())}
+                                validationResult={validationResult}/>, uniqueKey, formElement.uuid === erroredUUID);
+                        } else if (formElement.concept.datatype === Concept.dataType.Numeric) {
                             return this.wrap(<NumericFormElement
                                 element={formElement}
                                 inputChangeActionName={this.props.actions["PRIMITIVE_VALUE_CHANGE"]}

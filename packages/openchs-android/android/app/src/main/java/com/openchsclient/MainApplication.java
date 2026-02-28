@@ -42,6 +42,8 @@ public class MainApplication extends Application implements ReactApplication {
             List<ReactPackage> packages = new PackageList(this).getPackages();
             // Add our custom ConfigPackage
             packages.add(new ConfigPackage());
+            // Add AI native modules package
+            packages.add(new com.openchsclient.ai.AIPackage());
             
             // for some reason, checking for the class in a separate method is throwing ClassNotFoundException,
             // so moved it here
