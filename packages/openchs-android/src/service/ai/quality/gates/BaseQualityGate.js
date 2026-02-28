@@ -1,5 +1,5 @@
 // @flow
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * BaseQualityGate - Abstract base class for all quality gates.

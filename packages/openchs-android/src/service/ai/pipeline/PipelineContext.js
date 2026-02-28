@@ -1,6 +1,6 @@
 // @flow
 import _ from 'lodash';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * PipelineContext - Shared mutable state passed through every stage of the AI pipeline.

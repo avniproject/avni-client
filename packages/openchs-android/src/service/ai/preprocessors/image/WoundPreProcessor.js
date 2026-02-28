@@ -1,6 +1,6 @@
 // @flow
 import ImagePreProcessor from './ImagePreProcessor';
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * WoundPreProcessor - Specialized preprocessor for wound images.

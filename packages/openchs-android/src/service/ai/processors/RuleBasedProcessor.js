@@ -1,7 +1,7 @@
 // @flow
 import BaseProcessor from './BaseProcessor';
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * RuleBasedProcessor - Rule-based processor for deterministic analysis.

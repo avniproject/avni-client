@@ -1,7 +1,7 @@
 // @flow
 import BaseProcessor from './BaseProcessor';
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * ONNXProcessor - ONNX Runtime processor for on-device ML inference.
@@ -40,7 +40,7 @@ class ONNXProcessor extends BaseProcessor {
             const startTime = Date.now();
             
             // Call native ONNX module
-            const { ONNXInferenceModule } = require('../../../../framework/NativeModules');
+            const { ONNXInferenceModule } = require('../../../framework/NativeModules');
             
             const inferenceResult = await ONNXInferenceModule.runModel(modelFile, modelInput.data, {
                 inputShape: modelInput.shape,
@@ -317,7 +317,7 @@ class ONNXProcessor extends BaseProcessor {
      */
     async getModelInfo(modelFile) {
         try {
-            const { ONNXInferenceModule } = require('../../../../framework/NativeModules');
+            const { ONNXInferenceModule } = require('../../../framework/NativeModules');
             
             const modelInfo = await ONNXInferenceModule.getModelInfo(modelFile);
             
@@ -347,7 +347,7 @@ class ONNXProcessor extends BaseProcessor {
      */
     async isModelAvailable(modelFile) {
         try {
-            const { ONNXInferenceModule } = require('../../../../framework/NativeModules');
+            const { ONNXInferenceModule } = require('../../../framework/NativeModules');
             return await ONNXInferenceModule.isModelAvailable(modelFile);
         } catch (error) {
             return false;

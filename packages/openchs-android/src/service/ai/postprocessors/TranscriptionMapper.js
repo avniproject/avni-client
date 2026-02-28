@@ -1,6 +1,6 @@
 // @flow
 import ObservationMapper from './ObservationMapper';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * TranscriptionMapper - Specialized mapper for audio transcription observations.

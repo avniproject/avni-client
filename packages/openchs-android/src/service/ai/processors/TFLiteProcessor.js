@@ -1,7 +1,7 @@
 // @flow
 import BaseProcessor from './BaseProcessor';
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * TFLiteProcessor - TensorFlow Lite processor for on-device ML inference.
@@ -40,7 +40,7 @@ class TFLiteProcessor extends BaseProcessor {
             const startTime = Date.now();
             
             // Call native TFLite module
-            const { TFLiteInferenceModule } = require('../../../../framework/NativeModules');
+            const { TFLiteInferenceModule } = require('../../../framework/NativeModules');
             
             const inferenceResult = await TFLiteInferenceModule.runModel(modelFile, modelInput.data, {
                 inputShape: modelInput.shape,
@@ -316,7 +316,7 @@ class TFLiteProcessor extends BaseProcessor {
      */
     async getModelInfo(modelFile) {
         try {
-            const { TFLiteInferenceModule } = require('../../../../framework/NativeModules');
+            const { TFLiteInferenceModule } = require('../../../framework/NativeModules');
             
             const modelInfo = await TFLiteInferenceModule.getModelInfo(modelFile);
             
@@ -344,7 +344,7 @@ class TFLiteProcessor extends BaseProcessor {
      */
     async isModelAvailable(modelFile) {
         try {
-            const { TFLiteInferenceModule } = require('../../../../framework/NativeModules');
+            const { TFLiteInferenceModule } = require('../../../framework/NativeModules');
             return await TFLiteInferenceModule.isModelAvailable(modelFile);
         } catch (error) {
             return false;

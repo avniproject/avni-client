@@ -1,5 +1,5 @@
 // @flow
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * PreProcessorRegistry - Registry for managing preprocessor classes.

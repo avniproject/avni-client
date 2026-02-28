@@ -1,6 +1,6 @@
 // @flow
 import _ from 'lodash';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * PipelineResult - Typed result builder for AI pipeline operations.

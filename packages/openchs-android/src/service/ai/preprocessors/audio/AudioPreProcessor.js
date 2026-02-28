@@ -1,7 +1,7 @@
 // @flow
 import BasePreProcessor from '../BasePreProcessor';
 import PipelineStageError from '../../pipeline/PipelineStageError';
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * AudioPreProcessor - Base preprocessor for all audio types.
@@ -61,7 +61,7 @@ class AudioPreProcessor extends BasePreProcessor {
     async normalizeAudio(rawMedia) {
         try {
             // Use native AudioAnalysisModule for normalization
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const normalizedAudio = await AudioAnalysisModule.normalize(rawMedia.uri, {
                 sampleRate: 16000, // Standard for speech models
@@ -93,7 +93,7 @@ class AudioPreProcessor extends BasePreProcessor {
     async extractAudioMetadata(audioMedia) {
         try {
             // Use native AudioAnalysisModule for metadata extraction
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const metadata = await AudioAnalysisModule.getMetadata(audioMedia.uri);
             
@@ -150,7 +150,7 @@ class AudioPreProcessor extends BasePreProcessor {
      */
     async extractAudioSegment(audioMedia, startTime, duration) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const segment = await AudioAnalysisModule.extractSegment(audioMedia.uri, startTime, duration);
             

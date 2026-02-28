@@ -1,5 +1,5 @@
 // @flow
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * QualityScore - Weighted composite scorer for media quality assessment.

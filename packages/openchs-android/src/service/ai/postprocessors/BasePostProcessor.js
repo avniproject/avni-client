@@ -1,6 +1,6 @@
 // @flow
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * BasePostProcessor - Abstract base class for all post-processors.

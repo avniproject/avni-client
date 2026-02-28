@@ -20,7 +20,7 @@ import './src/service/application/MenuItemService';
 import './src/service/EntityService';
 
 // import App from './integrationTest/RealmIssuesApp';
-// import App from "./src/Playground";
+import App from "./src/Playground";
 // import App from "./integrationTest/IntegrationTestApp";
-import App from "./src/Avni";
+// import App from "./src/Avni";
 AppRegistry.registerComponent('Avni', () => App);

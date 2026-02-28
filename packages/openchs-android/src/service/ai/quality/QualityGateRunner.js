@@ -2,7 +2,7 @@
 import PipelineStageError from '../pipeline/PipelineStageError';
 import PipelineResult from '../pipeline/PipelineResult';
 import QualityScore from './QualityScore';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * QualityGateRunner - Runs quality gate sets for specific preprocessor types.

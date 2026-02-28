@@ -13,7 +13,7 @@ import FormElementLabelWithDocumentation from "../../common/FormElementLabelWith
 import ExpandableMedia from "../../common/ExpandableMedia";
 import FileSystem from "../../../model/FileSystem";
 import fs from "react-native-fs";
-import {launchCamera} from "react-native-image-picker";
+import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 import DeviceInfo from "react-native-device-info";
 import AIPipeline from "../../../service/ai/pipeline/AIPipeline";
 import ConjunctivaGuide from "./ai/ConjunctivaGuide";
@@ -76,6 +76,7 @@ class AIObservationFormElement extends AbstractFormElement {
 
     async isPermissionGranted() {
         const apiLevel = await DeviceInfo.getApiLevel();
+        General.logDebug('AIObservationFormElement', `API level: ${apiLevel}, storage deprecated level: ${General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL}`);
         const permissions = [PermissionsAndroid.PERMISSIONS.CAMERA];
 
         if (apiLevel < General.STORAGE_PERMISSIONS_DEPRECATED_API_LEVEL) {
@@ -89,12 +90,90 @@ class AIObservationFormElement extends AbstractFormElement {
             permissions.push(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
         }
 
+        General.logDebug('AIObservationFormElement', `Requesting permissions: ${JSON.stringify(permissions)}`);
         const permissionRequest = await PermissionsAndroid.requestMultiple(permissions);
-        return _.every(permissionRequest, p => p === PermissionsAndroid.RESULTS.GRANTED);
+        General.logDebug('AIObservationFormElement', `Permission results: ${JSON.stringify(permissionRequest)}`);
+        const granted = _.every(permissionRequest, p => p === PermissionsAndroid.RESULTS.GRANTED);
+        General.logDebug('AIObservationFormElement', `All permissions granted: ${granted}`);
+        return granted;
+    }
+
+    async pickFromGallery() {
+        General.logDebug('AIObservationFormElement', 'pickFromGallery: checking permissions');
+        if (!(await this.isPermissionGranted())) {
+            General.logError('AIObservationFormElement', 'pickFromGallery: permissions denied, aborting');
+            return;
+        }
+
+        this.setState({pipelineState: PipelineState.CAPTURING});
+
+        const options = {
+            mediaType: 'photo',
+            maxWidth: 1280,
+            maxHeight: 960,
+            quality: 1,
+            includeBase64: true,
+            selectionLimit: 1,
+        };
+
+        General.logDebug('AIObservationFormElement', `launchImageLibrary options: ${JSON.stringify(options)}`);
+
+        launchImageLibrary(options, (response) => {
+            General.logDebug('AIObservationFormElement', `launchImageLibrary response: didCancel=${response.didCancel}, errorCode=${response.errorCode}, errorMessage=${response.errorMessage}, assetCount=${response.assets?.length}`);
+
+            if (response.didCancel) {
+                General.logDebug('AIObservationFormElement', 'launchImageLibrary: user cancelled');
+                this.setState({pipelineState: PipelineState.IDLE});
+                return;
+            }
+
+            if (response.errorCode) {
+                General.logError('AIObservationFormElement', `launchImageLibrary error: [${response.errorCode}] ${response.errorMessage}`);
+                this.setState({pipelineState: PipelineState.IDLE});
+                return;
+            }
+
+            const asset = _.get(response, 'assets[0]');
+            if (!asset) {
+                General.logError('AIObservationFormElement', 'launchImageLibrary: no asset in response');
+                this.setState({pipelineState: PipelineState.IDLE});
+                return;
+            }
+
+            General.logDebug('AIObservationFormElement', `asset: uri=${asset.uri}, width=${asset.width}, height=${asset.height}, fileSize=${asset.fileSize}, hasBase64=${!!asset.base64}`);
+
+            const ext = asset.uri.split('.').pop();
+            const fileName = `${General.randomUUID()}.${ext}`;
+            const directory = FileSystem.getImagesDir();
+            const destPath = `${directory}/${fileName}`;
+
+            General.logDebug('AIObservationFormElement', `copyFile: src=${asset.uri} -> dest=${destPath}`);
+
+            fs.copyFile(asset.uri, destPath)
+                .then(() => {
+                    General.logDebug('AIObservationFormElement', `copyFile success: ${destPath}`);
+                    this.setState({
+                        capturedMediaUri: destPath,
+                        capturedMediaFileName: fileName,
+                    });
+                    this.runPipeline(asset.base64, fileName);
+                })
+                .catch((error) => {
+                    General.logError('AIObservationFormElement', `copyFile failed: src=${asset.uri}, dest=${destPath}, error=${error.message}`);
+                    this.setState({
+                        pipelineState: PipelineState.ERROR,
+                        errorMessage: `Failed to save image: ${error.message}`,
+                    });
+                });
+        });
     }
 
     async captureImage() {
-        if (!(await this.isPermissionGranted())) return;
+        General.logDebug('AIObservationFormElement', 'captureImage: checking permissions');
+        if (!(await this.isPermissionGranted())) {
+            General.logError('AIObservationFormElement', 'captureImage: permissions denied, aborting');
+            return;
+        }
 
         this.setState({pipelineState: PipelineState.CAPTURING});
 
@@ -110,41 +189,60 @@ class AIObservationFormElement extends AbstractFormElement {
             saveToPhotos: false,
         };
 
+        General.logDebug('AIObservationFormElement', `launchCamera options: ${JSON.stringify(options)}`);
+
         launchCamera(options, (response) => {
-            if (response.didCancel || response.errorCode) {
+            General.logDebug('AIObservationFormElement', `launchCamera response: didCancel=${response.didCancel}, errorCode=${response.errorCode}, errorMessage=${response.errorMessage}, assetCount=${response.assets?.length}`);
+
+            if (response.didCancel) {
+                General.logDebug('AIObservationFormElement', 'launchCamera: user cancelled');
+                this.setState({pipelineState: PipelineState.IDLE});
+                return;
+            }
+
+            if (response.errorCode) {
+                General.logError('AIObservationFormElement', `launchCamera error: [${response.errorCode}] ${response.errorMessage}`);
                 this.setState({pipelineState: PipelineState.IDLE});
                 return;
             }
 
             const asset = _.get(response, 'assets[0]');
             if (!asset) {
+                General.logError('AIObservationFormElement', 'launchCamera: no asset in response');
                 this.setState({pipelineState: PipelineState.IDLE});
                 return;
             }
 
+            General.logDebug('AIObservationFormElement', `asset: uri=${asset.uri}, width=${asset.width}, height=${asset.height}, fileSize=${asset.fileSize}, hasBase64=${!!asset.base64}`);
+
             const ext = asset.uri.split('.').pop();
             const fileName = `${General.randomUUID()}.${ext}`;
             const directory = FileSystem.getImagesDir();
+            const destPath = `${directory}/${fileName}`;
 
-            fs.moveFile(asset.uri, `${directory}/${fileName}`)
+            General.logDebug('AIObservationFormElement', `moveFile: src=${asset.uri} -> dest=${destPath}`);
+
+            fs.moveFile(asset.uri, destPath)
                 .then(() => {
+                    General.logDebug('AIObservationFormElement', `moveFile success: ${destPath}`);
                     this.setState({
-                        capturedMediaUri: `${directory}/${fileName}`,
+                        capturedMediaUri: destPath,
                         capturedMediaFileName: fileName,
                     });
                     this.runPipeline(asset.base64, fileName);
                 })
                 .catch((error) => {
-                    General.logError('AIObservationFormElement', `Failed to save captured image: ${error.message}`);
+                    General.logError('AIObservationFormElement', `moveFile failed: src=${asset.uri}, dest=${destPath}, error=${error.message}`);
                     this.setState({
                         pipelineState: PipelineState.ERROR,
-                        errorMessage: 'Failed to save captured image. Please try again.',
+                        errorMessage: `Failed to save captured image: ${error.message}`,
                     });
                 });
         });
     }
 
     async runPipeline(base64Data, fileName) {
+        General.logDebug('AIObservationFormElement', `runPipeline: fileName=${fileName}, hasBase64=${!!base64Data}, base64Length=${base64Data?.length}`);
         this.setState({
             pipelineState: PipelineState.PROCESSING,
             processingMessage: 'Analyzing...',
@@ -159,9 +257,15 @@ class AIObservationFormElement extends AbstractFormElement {
                 fileName: fileName,
             };
 
+            General.logDebug('AIObservationFormElement', `runPipeline: concept.name=${concept.name}, mediaType=${this.getMimeType()}, uri=${rawMedia.uri}`);
+            General.logDebug('AIObservationFormElement', `runPipeline: aiConfig=${JSON.stringify(concept.additionalInfo?.aiConfig)}`);
+
             const result = await this.pipeline.runPipeline(concept, rawMedia);
 
+            General.logDebug('AIObservationFormElement', `runPipeline: result.status=${result.status}, isSuccess=${result.isSuccess()}, errorCode=${result.errorCode}`);
+
             if (result.isSuccess()) {
+                General.logDebug('AIObservationFormElement', `runPipeline success: estimatedValues=${JSON.stringify(result.estimatedValues)}, confidence=${result.confidence}`);
                 this.setState({
                     pipelineState: PipelineState.RESULTS_READY,
                     pipelineResult: result,
@@ -169,6 +273,7 @@ class AIObservationFormElement extends AbstractFormElement {
                 });
             } else {
                 const userMessage = result.userMessage || 'Analysis failed. Please try again.';
+                General.logError('AIObservationFormElement', `runPipeline non-success: errorCode=${result.errorCode}, userMessage=${userMessage}`);
                 this.setState({
                     pipelineState: PipelineState.ERROR,
                     errorMessage: userMessage,
@@ -176,10 +281,10 @@ class AIObservationFormElement extends AbstractFormElement {
                 });
             }
         } catch (error) {
-            General.logError('AIObservationFormElement', `Pipeline failed: ${error.message}`);
+            General.logError('AIObservationFormElement', `runPipeline exception: ${error.message}\n${error.stack}`);
             this.setState({
                 pipelineState: PipelineState.ERROR,
-                errorMessage: error.userMessage || 'Analysis failed. Please try again.',
+                errorMessage: error.userMessage || `Analysis failed: ${error.message}`,
             });
         }
     }
@@ -245,12 +350,22 @@ class AIObservationFormElement extends AbstractFormElement {
         return (
             <View>
                 {showGuide && this.renderCaptureGuide()}
-                <TouchableOpacity
-                    style={styles.captureButton}
-                    onPress={() => this.captureImage()}>
-                    <Icon name={iconName} style={styles.captureIcon}/>
-                    <Text style={styles.captureButtonText}>{this.I18n.t(label)}</Text>
-                </TouchableOpacity>
+                <View style={styles.captureRow}>
+                    <TouchableOpacity
+                        style={[styles.captureButton, {flex: 1, marginRight: this.isImageCapture() ? 8 : 0}]}
+                        onPress={() => this.captureImage()}>
+                        <Icon name={iconName} style={styles.captureIcon}/>
+                        <Text style={styles.captureButtonText}>{this.I18n.t(label)}</Text>
+                    </TouchableOpacity>
+                    {this.isImageCapture() && (
+                        <TouchableOpacity
+                            style={[styles.captureButton, {flex: 1, backgroundColor: '#607D8B'}]}
+                            onPress={() => this.pickFromGallery()}>
+                            <Icon name="folder-open" style={styles.captureIcon}/>
+                            <Text style={styles.captureButtonText}>Gallery</Text>
+                        </TouchableOpacity>
+                    )}
+                </View>
             </View>
         );
     }
@@ -423,15 +538,18 @@ const styles = StyleSheet.create({
     container: {
         marginVertical: 16,
     },
+    captureRow: {
+        flexDirection: 'row',
+        marginTop: 8,
+    },
     captureButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: Colors.ActionButtonColor,
         paddingVertical: 12,
-        paddingHorizontal: 24,
+        paddingHorizontal: 16,
         borderRadius: 4,
-        marginTop: 8,
     },
     captureIcon: {
         color: '#FFFFFF',

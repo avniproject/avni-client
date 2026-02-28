@@ -1,6 +1,6 @@
 // @flow
 import ObservationMapper from './ObservationMapper';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * HbObservationMapper - Specialized mapper for hemoglobin observations.

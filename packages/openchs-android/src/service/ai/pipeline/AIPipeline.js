@@ -6,7 +6,7 @@ import preProcessorRegistry from '../preprocessors/PreProcessorRegistry';
 import processorRegistry from '../processors/ProcessorRegistry';
 import postProcessorRegistry from '../postprocessors/PostProcessorRegistry';
 import QualityGateRunner from '../quality/QualityGateRunner';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 import ImagePreProcessor from '../preprocessors/image/ImagePreProcessor';
 import ConjunctivaPreProcessor from '../preprocessors/image/ConjunctivaPreProcessor';
 import WoundPreProcessor from '../preprocessors/image/WoundPreProcessor';

@@ -1,5 +1,5 @@
 // @flow
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * PipelineStageError - Typed errors for different pipeline stages.

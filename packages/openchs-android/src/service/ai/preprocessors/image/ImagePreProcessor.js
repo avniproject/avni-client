@@ -1,6 +1,6 @@
 // @flow
 import BasePreProcessor from '../BasePreProcessor';
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * ImagePreProcessor - Base preprocessor for all image types.
@@ -51,7 +51,7 @@ class ImagePreProcessor extends BasePreProcessor {
     async normalizeImage(rawMedia) {
         try {
             // Use native ImageAnalysisModule for normalization
-            const { ImageAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
             
             const normalizedImage = await ImageAnalysisModule.normalize(rawMedia.base64, {
                 autoRotate: true,
@@ -79,7 +79,7 @@ class ImagePreProcessor extends BasePreProcessor {
     async extractImageMetadata(imageMedia) {
         try {
             // Use native ImageAnalysisModule for metadata extraction
-            const { ImageAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
             
             const metadata = await ImageAnalysisModule.getMetadata(imageMedia.base64);
             
@@ -110,7 +110,7 @@ class ImagePreProcessor extends BasePreProcessor {
     async resizeForQualityGates(imageMedia) {
         try {
             // Use native ImageAnalysisModule for resizing
-            const { ImageAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
             
             // Standard working resolution for quality analysis
             const workingResolution = {

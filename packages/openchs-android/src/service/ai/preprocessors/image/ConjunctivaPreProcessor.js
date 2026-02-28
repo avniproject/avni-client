@@ -1,7 +1,7 @@
 // @flow
 import ImagePreProcessor from './ImagePreProcessor';
 import PipelineStageError from '../../pipeline/PipelineStageError';
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * ConjunctivaPreProcessor - Specialized preprocessor for conjunctiva (eye) images.
@@ -180,7 +180,7 @@ class ConjunctivaPreProcessor extends ImagePreProcessor {
      */
     async cropToEyeRegion(imageMedia, boundingBox) {
         try {
-            const { ImageAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
             
             const croppedImage = await ImageAnalysisModule.crop(imageMedia.base64, boundingBox);
             

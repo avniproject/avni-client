@@ -1,7 +1,7 @@
 // @flow
 import BasePostProcessor from './BasePostProcessor';
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * ObservationMapper - Generic config-driven observation mapper.

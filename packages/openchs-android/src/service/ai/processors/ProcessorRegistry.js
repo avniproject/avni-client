@@ -1,5 +1,5 @@
 // @flow
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * ProcessorRegistry - Registry for managing processor classes.

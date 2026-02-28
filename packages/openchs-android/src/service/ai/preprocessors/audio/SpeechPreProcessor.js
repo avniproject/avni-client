@@ -1,6 +1,6 @@
 // @flow
 import AudioPreProcessor from './AudioPreProcessor';
-import General from "../../../../../utility/General";
+import General from "../../../../utility/General";
 
 /**
  * SpeechPreProcessor - Specialized preprocessor for speech audio.
@@ -123,7 +123,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async applySpeechOptimizations(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const optimizedAudio = await AudioAnalysisModule.processForSpeech(audioMedia.uri, {
                 bandpassFilter: {
@@ -151,7 +151,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async applyNoiseReduction(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const denoisedAudio = await AudioAnalysisModule.reduceNoise(audioMedia.uri, {
                 spectralSubtraction: true,
@@ -176,7 +176,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async applyLevelNormalization(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const normalizedAudio = await AudioAnalysisModule.normalizeLevels(audioMedia.uri, {
                 targetLevel: -16,  // Standard speech level in dB
@@ -201,7 +201,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async detectSpeechSegments(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const segments = await AudioAnalysisModule.detectSpeechSegments(audioMedia.uri);
             
@@ -223,7 +223,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async calculateAverageSpeechLevel(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const speechLevel = await AudioAnalysisModule.calculateSpeechLevel(audioMedia.uri);
             
@@ -240,7 +240,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async calculateNoiseLevel(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const noiseLevel = await AudioAnalysisModule.estimateNoiseLevel(audioMedia.uri);
             
@@ -257,7 +257,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async calculateRMSLevel(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const rmsLevel = await AudioAnalysisModule.calculateRMSLevel(audioMedia.uri);
             
@@ -321,7 +321,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async detectVoiceActivity(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const vadResult = await AudioAnalysisModule.detectVoiceActivity(audioMedia.uri);
             
@@ -342,7 +342,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async estimateSpeechRate(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const speechRate = await AudioAnalysisModule.estimateSpeechRate(audioMedia.uri);
             
@@ -359,7 +359,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async analyzePitchRange(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const pitchAnalysis = await AudioAnalysisModule.analyzePitch(audioMedia.uri);
             
@@ -381,7 +381,7 @@ class SpeechPreProcessor extends AudioPreProcessor {
      */
     async extractFormants(audioMedia) {
         try {
-            const { AudioAnalysisModule } = require('../../../../../framework/NativeModules');
+            const { AudioAnalysisModule } = require('../../../../framework/NativeModules');
             
             const formants = await AudioAnalysisModule.extractFormants(audioMedia.uri);
             

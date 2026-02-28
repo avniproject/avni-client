@@ -1,6 +1,6 @@
 // @flow
 import PipelineStageError from '../pipeline/PipelineStageError';
-import General from "../../../../utility/General";
+import General from "../../../utility/General";
 
 /**
  * BaseProcessor - Abstract base class for all AI processors.
@@ -128,7 +128,7 @@ class BaseProcessor {
         }
         
         try {
-            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../framework/NativeModules');
             
             const resizedImage = await ImageAnalysisModule.resize(media.base64, {
                 width,
@@ -159,7 +159,7 @@ class BaseProcessor {
         const normalization = processorConfig.normalization || 'standard';
         
         try {
-            const { ImageAnalysisModule } = require('../../../../framework/NativeModules');
+            const { ImageAnalysisModule } = require('../../../framework/NativeModules');
             
             let normalizedData;
             
