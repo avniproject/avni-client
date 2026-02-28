@@ -42,19 +42,30 @@ class ConjunctivaPreProcessor extends ImagePreProcessor {
             
             General.logDebug('ConjunctivaPreProcessor', 'Starting eye detection...');
             
-            // Use TFLite processor with eye detector model
-            const TFLiteProcessor = require('../../processors/TFLiteProcessor').default;
-            const eyeDetector = new TFLiteProcessor();
-            
-            // Run eye detection
-            const detectionResult = await eyeDetector.runModel(
+            // Run eye detection via native TFLite module directly
+            const { TFLiteInferenceModule } = require('../../../../framework/NativeModules');
+            const rawOutput = await TFLiteInferenceModule.runModel(
                 'eye_detector_v1.tflite',
                 processedMedia.base64,
                 {
                     inputShape: [1, 224, 224, 3],
-                    outputType: 'classification'
+                    outputType: 'classification',
+                    labels: ['eye_conjunctiva', 'not_eye'],
+                    confidenceThreshold: 0.5
                 }
             );
+
+            // Parse probabilities into eye detection info
+            const probabilities = rawOutput.probabilities || [];
+            const labels = ['eye_conjunctiva', 'not_eye'];
+            const maxIdx = probabilities.indexOf(Math.max(...probabilities));
+            const detectionResult = {
+                output: {
+                    confidence: probabilities[maxIdx] || 0,
+                    label: labels[maxIdx] || 'not_eye',
+                    predictions: labels.map((l, i) => ({ label: l, probability: probabilities[i] || 0 }))
+                }
+            };
 
             // Parse detection results
             const eyeInfo = this.parseEyeDetectionResult(detectionResult);

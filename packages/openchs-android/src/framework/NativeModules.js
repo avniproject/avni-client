@@ -17,19 +17,38 @@ const {
  * TFLiteInferenceModule - Runs TensorFlow Lite models on-device.
  * Supports classification, regression, and segmentation model types.
  */
+function mockTFLiteOutput(modelFile) {
+    console.log('[NativeModules][Prototype] TFLiteInferenceModule mock output for model:', modelFile);
+    if (modelFile && modelFile.includes('eye_detector')) {
+        // eye detection classification: labels are ['eye_conjunctiva', 'not_eye']
+        return { probabilities: [0.92, 0.08] };
+    }
+    if (modelFile && modelFile.includes('hb')) {
+        // Hb regression model: values array
+        return { values: [10.5] };
+    }
+    if (modelFile && modelFile.includes('wound')) {
+        // wound severity classification: ['none','mild','moderate','severe']
+        return { probabilities: [0.05, 0.15, 0.55, 0.25] };
+    }
+    return { probabilities: [0.8, 0.2], values: [0.8] };
+}
+
 const TFLiteInferenceModule = {
     async runModel(modelFile, inputData, options = {}) {
-        if (!NativeTFLiteInferenceModule) {
-            throw new Error('TFLiteInferenceModule is not available. Ensure the native module is properly linked.');
-        }
-        return NativeTFLiteInferenceModule.runModel(modelFile, inputData, options);
+        console.warn('[NativeModules][Prototype] TFLiteInferenceModule mock output for model:', modelFile);
+        return mockTFLiteOutput(modelFile);
     },
 
     async getModelInfo(modelFile) {
         if (!NativeTFLiteInferenceModule) {
-            throw new Error('TFLiteInferenceModule is not available.');
+            return { modelFile, inputShape: [1, 224, 224, 3], outputShape: [1, 1], prototype: true };
         }
-        return NativeTFLiteInferenceModule.getModelInfo(modelFile);
+        try {
+            return await NativeTFLiteInferenceModule.getModelInfo(modelFile);
+        } catch (error) {
+            return { modelFile, inputShape: [1, 224, 224, 3], outputShape: [1, 1], prototype: true };
+        }
     },
 
     async isModelAvailable(modelFile) {
@@ -81,45 +100,27 @@ const ONNXInferenceModule = {
  */
 const ImageAnalysisModule = {
     async resize(base64Image, options = {}) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.resize(base64Image, options);
+        throw new Error('[Prototype] ImageAnalysisModule.resize: native bypass - use fallback');
     },
 
     async crop(base64Image, region) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.crop(base64Image, region);
+        throw new Error('[Prototype] ImageAnalysisModule.crop: native bypass - use fallback');
     },
 
     async normalize(base64Image, options = {}) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.normalize(base64Image, options);
+        throw new Error('[Prototype] ImageAnalysisModule.normalize: native bypass - use fallback');
     },
 
     async getMetadata(base64Image) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.getMetadata(base64Image);
+        throw new Error('[Prototype] ImageAnalysisModule.getMetadata: native bypass - use fallback');
     },
 
     async calculateLaplacianVariance(base64Image) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.calculateLaplacianVariance(base64Image);
+        throw new Error('[Prototype] ImageAnalysisModule.calculateLaplacianVariance: native bypass - use fallback');
     },
 
     async calculateBrightnessStats(base64Image) {
-        if (!NativeImageAnalysisModule) {
-            throw new Error('ImageAnalysisModule is not available.');
-        }
-        return NativeImageAnalysisModule.calculateBrightnessStats(base64Image);
+        throw new Error('[Prototype] ImageAnalysisModule.calculateBrightnessStats: native bypass - use fallback');
     },
 };
 

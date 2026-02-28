@@ -38,13 +38,10 @@ class EyeDetectionGate extends BaseQualityGate {
         const eyeDetection = context.mediaMetadata.eyeDetection;
         
         if (!eyeDetection) {
-            return this.createFailResult(
-                PipelineResult.ErrorCodes.NOT_EYE,
-                'No eye detected in the image. Please position the camera correctly.',
-                'Eye detection metadata not found',
-                true,
-                0,
-                { issue: 'no_detection' }
+            return this.createWarningResult(
+                '[Prototype] Eye detection skipped - native module not available.',
+                50,
+                { issue: 'no_detection_native_unavailable' }
             );
         }
         

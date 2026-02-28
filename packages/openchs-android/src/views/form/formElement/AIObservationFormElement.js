@@ -2,7 +2,7 @@
 import PropTypes from 'prop-types';
 import React from "react";
 import AbstractFormElement from "./AbstractFormElement";
-import {ActivityIndicator, PermissionsAndroid, StyleSheet, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
+import {ActivityIndicator, Image, PermissionsAndroid, StyleSheet, TouchableNativeFeedback, TouchableOpacity, View} from "react-native";
 import {Text} from "native-base";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -417,7 +417,7 @@ class AIObservationFormElement extends AbstractFormElement {
             <View style={styles.resultsContainer}>
                 {capturedMediaUri && (
                     <View style={styles.mediaPreview}>
-                        <ExpandableMedia source={capturedMediaUri.replace(/^.*[\\\/]/, '')} type="Image"/>
+                        <Image source={{uri: `file://${capturedMediaUri}`}} style={{width: '100%', height: 180, borderRadius: 8}} resizeMode="cover"/>
                     </View>
                 )}
 

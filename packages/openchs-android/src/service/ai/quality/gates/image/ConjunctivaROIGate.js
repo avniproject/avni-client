@@ -38,13 +38,10 @@ class ConjunctivaROIGate extends BaseQualityGate {
         const extractedROI = context.extractedROI;
         
         if (!extractedROI) {
-            return this.createFailResult(
-                PipelineResult.ErrorCodes.INSUFFICIENT_CONJUNCTIVA_EXPOSED,
-                'No eye region extracted for conjunctiva analysis.',
-                'Extracted ROI not found in context',
-                true,
-                0,
-                { issue: 'no_roi' }
+            return this.createWarningResult(
+                '[Prototype] Conjunctiva ROI skipped - native module not available.',
+                50,
+                { issue: 'no_roi_native_unavailable' }
             );
         }
         
@@ -54,6 +51,15 @@ class ConjunctivaROIGate extends BaseQualityGate {
             
             // Analyze segmentation results
             const analysis = this.analyzeSegmentationResult(segmentationResult);
+            
+            // If segmentation returned no pixel data (prototype/mock), skip checks
+            if (analysis.totalPixels === 0) {
+                return this.createWarningResult(
+                    '[Prototype] Conjunctiva ROI check skipped - no segmentation data from mock.',
+                    60,
+                    { issue: 'no_segmentation_data_prototype' }
+                );
+            }
             
             // Calculate quality score
             const score = this.calculateROIScore(analysis);
@@ -104,12 +110,9 @@ class ConjunctivaROIGate extends BaseQualityGate {
             );
             
         } catch (error) {
-            return this.createFailResult(
-                'SEGMENTATION_FAILED',
-                'Failed to analyze conjunctiva region. Please try again.',
-                error.message,
-                true,
-                0,
+            return this.createWarningResult(
+                '[Prototype] Conjunctiva segmentation skipped - native module not available.',
+                50,
                 { issue: 'segmentation_error', error: error.message }
             );
         }
@@ -122,11 +125,8 @@ class ConjunctivaROIGate extends BaseQualityGate {
      */
     async runConjunctivaSegmentation(roiImage) {
         try {
-            // Use TFLite processor with conjunctiva segmentation model
-            const TFLiteProcessor = require('../../../processors/TFLiteProcessor').default;
-            const segmenter = new TFLiteProcessor();
-            
-            const result = await segmenter.runModel(
+            const { TFLiteInferenceModule } = require('../../../../../framework/NativeModules');
+            const result = await TFLiteInferenceModule.runModel(
                 'conjunctiva_segmentation_v1.tflite',
                 roiImage.base64,
                 {
@@ -134,9 +134,7 @@ class ConjunctivaROIGate extends BaseQualityGate {
                     outputType: 'segmentation'
                 }
             );
-            
             return result.output || {};
-            
         } catch (error) {
             throw new Error(`Conjunctiva segmentation failed: ${error.message}`);
         }

@@ -23,6 +23,13 @@ class ResolutionGate extends BaseQualityGate {
      */
     async checkQuality(context) {
         const metadata = context.mediaMetadata;
+        if (!metadata || metadata.width == null || metadata.width === 0) {
+            return this.createWarningResult(
+                '[Prototype] Resolution check skipped - metadata not available.',
+                75,
+                { issue: 'no_metadata_native_unavailable' }
+            );
+        }
         const width = metadata.width || 0;
         const height = metadata.height || 0;
         
@@ -37,15 +44,13 @@ class ResolutionGate extends BaseQualityGate {
         // Calculate resolution score
         const score = this.calculateResolutionScore(width, height);
         
-        // Check for blocking issues
-        if (width < MIN_RESOLUTION || height < MIN_RESOLUTION) {
-            return this.createFailResult(
-                PipelineResult.ErrorCodes.LOW_RESOLUTION,
-                `Image resolution is too low (${width}x${height}). Minimum required: ${MIN_RESOLUTION}x${MIN_RESOLUTION}.`,
-                `Resolution: ${width}x${height}, Megapixels: ${megapixels.toFixed(2)}`,
-                true,
+        // Check for blocking issues (use min dimension, warn instead of hard-fail for prototype)
+        const minDim = Math.min(width, height);
+        if (minDim < MIN_RESOLUTION) {
+            return this.createWarningResult(
+                `[Prototype] Image resolution low (${width}x${height}) but proceeding. Recommended: ${MIN_RESOLUTION}x${MIN_RESOLUTION}+.`,
                 score,
-                { width, height, megapixels, issue: 'too_low' }
+                { width, height, megapixels, issue: 'too_low_prototype' }
             );
         }
         

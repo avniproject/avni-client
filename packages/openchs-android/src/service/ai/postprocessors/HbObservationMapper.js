@@ -17,18 +17,31 @@ class HbObservationMapper extends ObservationMapper {
      * @returns {Promise<Observation[]>} Array of observations
      */
     async mapToObservations(context) {
-        // Get base observations from generic mapper
-        const baseObservations = await super.mapToObservations(context);
+        const rawOutput = context.rawInferenceOutput;
         
-        // Add Hb-specific enrichments
-        const enrichedObservations = await this.addHbEnrichments(context, baseObservations);
+        // Extract Hb value from regression output
+        const hbValue = rawOutput.primaryValue || (rawOutput.predictions && rawOutput.predictions[0] && rawOutput.predictions[0].value) || 0;
         
-        // Add clinical interpretation
-        const interpretedObservations = await this.addClinicalInterpretation(context, enrichedObservations);
+        General.logDebug('HbObservationMapper', `Hb value from model: ${hbValue} g/dL`);
         
-        General.logDebug('HbObservationMapper', `Created ${interpretedObservations.length} Hb observations with enrichments`);
+        // Store mapped values directly for prototype display
+        context.mappedValues = {
+            hemoglobin: hbValue,
+            anemiaRisk: this.classifyAnemiaRisk(hbValue),
+            anemiaSeverity: this.classifyAnemiaSeverity(hbValue),
+            clinicalRecommendation: this.generateClinicalRecommendation(hbValue),
+        };
         
-        return interpretedObservations;
+        General.logDebug('HbObservationMapper', `Mapped values: ${JSON.stringify(context.mappedValues)}`);
+        
+        // Return plain observation-like objects for prototype (no Realm/Observation.create needed)
+        return [{
+            concept: { name: 'Hemoglobin', uuid: 'hb-value-uuid', datatype: 'Numeric' },
+            getValue: () => hbValue,
+            hbValue,
+            anemiaRisk: context.mappedValues.anemiaRisk,
+            clinicalRecommendation: context.mappedValues.clinicalRecommendation,
+        }];
     }
 
     /**

@@ -23,9 +23,16 @@ class BrightnessGate extends BaseQualityGate {
      */
     async checkQuality(context) {
         const metadata = context.mediaMetadata;
-        const brightnessStats = metadata.brightnessStats || {};
+        if (!metadata || !metadata.brightnessStats || metadata.brightnessStats.mean == null) {
+            return this.createWarningResult(
+                '[Prototype] Brightness check skipped - native module not available.',
+                75,
+                { issue: 'no_metadata_native_unavailable' }
+            );
+        }
+        const brightnessStats = metadata.brightnessStats;
         
-        const mean = brightnessStats.mean || 0;
+        const mean = brightnessStats.mean;
         const std = brightnessStats.std || 0;
         
         // Thresholds for brightness and contrast

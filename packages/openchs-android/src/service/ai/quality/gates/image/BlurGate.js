@@ -23,6 +23,13 @@ class BlurGate extends BaseQualityGate {
      */
     async checkQuality(context) {
         const metadata = context.mediaMetadata;
+        if (!metadata || metadata.laplacianVariance == null) {
+            return this.createWarningResult(
+                '[Prototype] Blur check skipped - native module not available.',
+                75,
+                { issue: 'no_metadata_native_unavailable' }
+            );
+        }
         const laplacianVariance = metadata.laplacianVariance || 0;
         
         // Thresholds for blur detection

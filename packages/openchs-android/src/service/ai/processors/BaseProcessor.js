@@ -127,13 +127,18 @@ class BaseProcessor {
             throw new Error(`Batch size must be 1, got ${batch}`);
         }
         
+        if (!media.base64) {
+            General.logWarn('BaseProcessor', 'No base64 data available for resize - using media as-is (prototype mode)');
+            return media;
+        }
+        
         try {
             const { ImageAnalysisModule } = require('../../../framework/NativeModules');
             
             const resizedImage = await ImageAnalysisModule.resize(media.base64, {
                 width,
                 height,
-                maintainAspectRatio: false, // Force exact dimensions
+                maintainAspectRatio: false,
                 interpolation: 'bilinear'
             });
             
@@ -145,7 +150,8 @@ class BaseProcessor {
             };
             
         } catch (error) {
-            throw new Error(`Failed to resize image to model input: ${error.message}`);
+            General.logWarn('BaseProcessor', `Resize failed, using original: ${error.message}`);
+            return media;
         }
     }
 

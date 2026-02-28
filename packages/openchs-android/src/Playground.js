@@ -139,10 +139,17 @@ const HB_AI_CONFIG = {
         preProcessor: 'ConjunctivaPreProcessor',
         processor: 'TFLiteProcessor',
         postProcessor: 'HbObservationMapper',
+        processorConfig: {
+            modelFile: 'hb_regression_v1.tflite',
+            inputShape: [1, 224, 224, 3],
+            outputType: 'regression',
+            labels: ['hemoglobin'],
+            confidenceThreshold: 0.5,
+        },
     },
     captureConfig: {showGuide: true},
     outputMapping: [{conceptUuid: 'hb-value-uuid', outputKey: 'hemoglobin'}],
-    qualityGates: {},
+    qualityGates: {allowLowQualityWithWarning: true},
     qualityMetaConcepts: {},
 };
 
@@ -153,10 +160,17 @@ const WOUND_AI_CONFIG = {
         preProcessor: 'WoundPreProcessor',
         processor: 'TFLiteProcessor',
         postProcessor: 'WoundSeverityMapper',
+        processorConfig: {
+            modelFile: 'wound_severity_v1.tflite',
+            inputShape: [1, 224, 224, 3],
+            outputType: 'classification',
+            labels: ['none', 'mild', 'moderate', 'severe'],
+            confidenceThreshold: 0.5,
+        },
     },
     captureConfig: {showGuide: true},
     outputMapping: [{conceptUuid: 'wound-severity-uuid', outputKey: 'woundSeverity'}],
-    qualityGates: {},
+    qualityGates: {allowLowQualityWithWarning: true},
     qualityMetaConcepts: {},
 };
 
@@ -170,7 +184,7 @@ const TRANSCRIPTION_AI_CONFIG = {
     },
     captureConfig: {showGuide: false},
     outputMapping: [{conceptUuid: 'transcription-uuid', outputKey: 'transcription'}],
-    qualityGates: {},
+    qualityGates: {allowLowQualityWithWarning: true},
     qualityMetaConcepts: {},
 };
 
