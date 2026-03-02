@@ -113,9 +113,11 @@ class SqliteProxy {
      * @param {string} schemaName
      * @param {Object} object - entity or plain object
      * @param {string|boolean} updateMode - "never", "modified", "all", true, false, or Realm.UpdateMode enum
+     * @param {Object} [options] - additional options
+     * @param {boolean} [options.skipHydration=false] - skip post-INSERT re-read and hydration (use during bulk sync when return value is discarded)
      * @returns entity wrapped in entityClass
      */
-    create(schemaName, object, updateMode = "never") {
+    create(schemaName, object, updateMode = "never", options = {}) {
         const entityClass = this.entityMappingConfig.getEntityClass(schemaName);
         const tableMeta = this.tableMetaMap.get(schemaName);
 
@@ -228,6 +230,10 @@ class SqliteProxy {
         }
 
         // Return entity wrapped in entity class
+        if (options.skipHydration) {
+            return new entityClass(rawObject);
+        }
+
         // Re-read from DB to get the canonical stored form
         if (tableMeta.primaryKey && rawObject.uuid) {
             const rows = this._executeQuery(

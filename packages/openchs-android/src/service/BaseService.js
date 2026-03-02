@@ -113,8 +113,9 @@ class BaseService {
     }
 
     getCreateEntityFunctions(schema, entities) {
+        const skipHydration = this.db.isSqlite ? {skipHydration: true} : undefined;
         return entities.map((entity) => () => {
-            this.db.create(schema, entity, Realm.UpdateMode.Modified)
+            this.db.create(schema, entity, Realm.UpdateMode.Modified, skipHydration)
         });
     }
 
