@@ -78,8 +78,26 @@ class BaseService {
     }
 
     findByKey(keyName, value, schemaName = this.getSchema()) {
+        if (this._syncCache && keyName === "uuid" && value) {
+            const cacheKey = `${schemaName}:${value}`;
+            if (this._syncCache.has(cacheKey)) {
+                return this._syncCache.get(cacheKey);
+            }
+            const entities = this.findAllByKey(keyName, value, schemaName);
+            const result = this.getReturnValue(entities);
+            this._syncCache.set(cacheKey, result);
+            return result;
+        }
         const entities = this.findAllByKey(keyName, value, schemaName);
         return this.getReturnValue(entities);
+    }
+
+    enableSyncCache() {
+        this._syncCache = new Map();
+    }
+
+    disableSyncCache() {
+        this._syncCache = null;
     }
 
     findByFiltered(filter, value, schema = this.getSchema()) {

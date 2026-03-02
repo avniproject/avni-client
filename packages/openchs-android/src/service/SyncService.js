@@ -411,6 +411,15 @@ class SyncService extends BaseService {
 
     persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
+        if (this.db.isSqlite) this.entityService.enableSyncCache();
+        try {
+            this._persistAllInner(entityMetaData, entityResources);
+        } finally {
+            if (this.db.isSqlite) this.entityService.disableSyncCache();
+        }
+    }
+
+    _persistAllInner(entityMetaData, entityResources) {
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
