@@ -28,6 +28,7 @@ class SqliteProxy {
         this.entityMappingConfig = entityMappingConfig;
         this.tableMetaMap = tableMetaMap;
         this.realmSchemaMap = realmSchemaMap;
+        this.isSqlite = true;
         this._inTransaction = false;
         this.logQueries = false;
 
