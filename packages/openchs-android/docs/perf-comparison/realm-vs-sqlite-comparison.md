@@ -3,27 +3,87 @@
 Test date: 2026-03-02
 Dataset: ~8,051 entities synced from server (fresh sync, `lastModifiedDateTime=1900-01-01`)
 
+## Version History
+
+- **SQLite v1** (baseline): Initial SQLite implementation with full hydration on every `db.create()` and `associateParent` call
+- **SQLite v2** (skipHydration): Added `skipHydration` flag to skip re-hydration after INSERT during sync; `SqliteProxy.create()` returns the flattened row instead of re-reading + hydrating
+- **SQLite v3** (+ sync cache): Added in-memory sync entity cache so `associateParent` resolves parent references from cache instead of DB queries + hydration; `fromResource` entity construction uses cached parents
+
 ## Overall Summary
 
-| Area | Realm | SQLite | Winner | Delta |
-|---|---|---|---|---|
-| **Reference data sync** | 51.9s | 23.4s | **SQLite** | 55% faster |
-| **Transactional data sync** | 32.0s | 64.1s | **Realm** | 2x faster |
-| **Total sync duration** | ~86.8s | ~98.0s | **Realm** | 13% faster |
-| **Dashboard load (first)** | 1,187ms | 3,157ms | **Realm** | 2.7x faster |
-| **Dashboard refresh (avg)** | 582ms | 2,349ms | **Realm** | 4x faster |
-| **Search (1026 results)** | 5ms | 1,392ms | **Realm** | 278x faster |
-| **Search (33 results)** | 2ms | 70ms | **Realm** | 35x faster |
-| **Ref data cache build** | N/A | 230ms | N/A | SQLite-only |
-| **Database size** | 9.0 MB | 11.4 MB | **Realm** | 27% smaller |
+| Area | Realm | SQLite v1 | SQLite v2 | SQLite v3 | Best SQLite vs Realm |
+|---|---|---|---|---|---|
+| **Total sync duration** | ~86.8s | ~98.0s | ~75.4s | **~54.5s** | **37% faster** |
+| **Reference data sync** | 51.9s | 23.4s | ~19.8s | ~20.3s | **55-61% faster** |
+| **Txn data sync (batch processing)** | 32.0s | 64.1s | 13.9s | **3.5s** | **89% faster** |
+| **Dashboard refresh (REFRESH_COUNT)** | 582ms | 2,349ms | 2,554ms | 2,248ms | 3.9x slower |
+| **Dashboard load (first)** | 1,187ms | 3,157ms | 3,096ms | 2,839ms | 2.4x slower |
+| **Search (1026 results)** | 5ms | 1,392ms | 1,457ms | 1,413ms | 283x slower |
+| **Search (33 results)** | 2ms | 70ms | 79ms | 76ms | 35-38x slower |
+| **Ref data cache build** | N/A | 230ms | 244ms | 253ms | SQLite-only |
+| **Database size** | 9.0 MB | 11.4 MB | 11.4 MB | 11.4 MB | 27% larger |
 
 ---
 
-## 1. Entity-Level Sync Performance
+## 1. Transactional Data Sync -- The Big Win
 
-### Reference Data Entities
+This is where the v2 and v3 optimizations had the most dramatic impact.
 
-| Entity | Count | Realm (ms) | SQLite (ms) | SQLite vs Realm |
+### Batch Processing Time (Before filter -> ENTITY_PULL_COMPLETED)
+
+| Entity | Count | Realm (ms) | SQLite v1 (ms) | SQLite v2 (ms) | SQLite v3 (ms) | v3 vs Realm |
+|---|---:|---:|---:|---:|---:|---|
+| Individual (3 batches) | 1,076 | 7,975 | 10,547 | 725 | 704 | **91% faster** |
+| ProgramEnrolment (2 batches) | 962 | 5,803 | 23,864 | 4,570 | 903 | **84% faster** |
+| ProgramEncounter (6 batches) | 2,145 | 17,531 | 27,683 | 7,551 | 1,797 | **90% faster** |
+| IndividualRelationship | 46 | 678 | 2,051 | 271 | 46 | **93% faster** |
+| GroupSubject | 74 | -- | -- | 822 | 91 | -- |
+| **Txn Total** | **4,303** | **31,987** | **64,145** | **13,939** | **3,541** | **89% faster** |
+
+### What Changed at Each Version
+
+**v1 -> v2 (skipHydration): 64.1s -> 13.9s (78% reduction)**
+- `SqliteProxy.create()` no longer re-reads and hydrates every entity after INSERT during sync
+- But `associateParent` still performed full DB queries + hydration to resolve parent references
+
+**v2 -> v3 (sync cache): 13.9s -> 3.5s (75% reduction)**
+- In-memory sync entity cache eliminates all `associateParent` DB lookups
+- `fromResource` resolves parent references from the cache instead of querying the DB
+- The "Before filter -> Syncing" gap (which measures `fromResource` + `associateParent` time) dropped from seconds to milliseconds
+
+### fromResource + associateParent Gap Analysis
+
+The "Before filter -> Syncing" gap shows how long it takes to run `fromResource()` and `associateParent()` for each batch before the actual persist begins:
+
+| Batch | Count | v2 Gap (ms) | v3 Gap (ms) | Reduction |
+|---|---:|---:|---:|---|
+| Individual (1000) | 1,000 | 1 | 1 | ~same (no parent) |
+| ProgramEnrolment (958) | 958 | 3,674 | 45 | **99% faster** |
+| ProgramEncounter (952) | 952 | 3,256 | 38 | **99% faster** |
+| ProgramEncounter (1000) | 1,000 | 2,106 | 43 | **98% faster** |
+
+Individual has no `associateParent` call (it is a root entity), so the gap was already minimal. ProgramEnrolment and ProgramEncounter have FK references to parent entities (Individual, ProgramEnrolment) that previously required DB queries + hydration for every entity in the batch. The sync cache eliminated this entirely.
+
+### Progression Summary
+
+```
+Transactional data sync batch processing:
+
+  SQLite v1:  64,145ms  |||||||||||||||||||||||||||||||||||||||||||||||||||  (2.0x slower than Realm)
+  Realm:      31,987ms  |||||||||||||||||||||||||
+  SQLite v2:  13,939ms  |||||||||||                                          (56% faster than Realm)
+  SQLite v3:   3,541ms  |||                                                  (89% faster than Realm)
+```
+
+---
+
+## 2. Reference Data Sync Performance
+
+Reference data sync was already faster than Realm in v1 and remains stable across versions.
+
+### Reference Data Entities (v1 timings -- includes network + parse + persist)
+
+| Entity | Count | Realm (ms) | SQLite v1 (ms) | SQLite vs Realm |
 |---|---:|---:|---:|---|
 | ResetSync | 2 | 10,202 | 2,823 | **72% faster** |
 | UserInfo | 2 | 986 | 852 | 14% faster |
@@ -60,62 +120,67 @@ Dataset: ~8,051 entities synced from server (fresh sync, `lastModifiedDateTime=1
 | SubjectMigration | 12 | 454 | 186 | 59% faster |
 | **Ref Data Total** | **3,727** | **51,896** | **23,373** | **55% faster** |
 
-### Transactional Data Entities
-
-| Entity | Count | Realm (ms) | SQLite (ms) | SQLite vs Realm |
-|---|---:|---:|---:|---|
-| Individual (3 batches) | 1,076 | 7,975 | 10,547 | **32% slower** |
-| ProgramEnrolment (2 batches) | 962 | 5,803 | 23,864 | **311% slower** |
-| ProgramEncounter (6 batches) | 2,145 | 17,531 | 27,683 | **58% slower** |
-| IndividualRelationship | 46 | 678 | 2,051 | **202% slower** |
-| **Txn Data Total** | **4,303** | **31,987** | **64,145** | **100% slower** |
-
-**Key finding**: SQLite is dramatically faster for reference data (simple schemas, few FKs) but dramatically slower for transactional data (complex FK relationships). ProgramEnrolment is the worst at 4.1x slower — it has FKs to Individual, Program, and other entities that require expensive resolution during persist.
+Reference data timings are dominated by network latency and JSON parsing (not DB persist), so v2/v3 optimizations had minimal impact here. The pure persist time for reference data is ~915-938ms across all SQLite versions.
 
 ---
 
-## 2. Dashboard Load Times
+## 3. Total Sync Duration
+
+| Phase | Realm | SQLite v1 | SQLite v2 | SQLite v3 |
+|---|---:|---:|---:|---:|
+| PRE_SYNC -> POST_SYNC | ~86.8s | ~98.0s | ~75.4s | **~54.5s** |
+| Post-sync overhead | -- | -- | ~9.1s | ~9.2s |
+| Ref data cache build | N/A | 230ms | 244ms | 253ms |
+
+**SQLite v3 is 37% faster than Realm for total sync.** The progression:
+
+| Version | Total Sync | vs Realm |
+|---|---:|---|
+| Realm | 86.8s | baseline |
+| SQLite v1 | 98.0s | 13% slower |
+| SQLite v2 | 75.4s | **13% faster** |
+| SQLite v3 | 54.5s | **37% faster** |
+
+The v3 sync cache turned SQLite from 13% slower than Realm to 37% faster.
+
+---
+
+## 4. Dashboard Load Times
 
 Dashboard has 2 report cards: "Scheduled visits at community level" and "Anemic follow up overdue at community level".
 
 ### REFRESH_COUNT Timings
 
-| Metric | Realm | SQLite | SQLite vs Realm |
-|---|---:|---:|---|
-| 1st REFRESH_COUNT | 565ms | 2,280ms | 4.0x slower |
-| 2nd REFRESH_COUNT | 585ms | 2,418ms | 4.1x slower |
-| 3rd REFRESH_COUNT | 596ms | N/A | — |
-| **Average** | **582ms** | **2,349ms** | **4.0x slower** |
-
-### Per-Card Breakdown
-
-| Card | Realm (avg) | SQLite (avg) | SQLite vs Realm |
-|---|---:|---:|---|
-| "Scheduled visits" | ~19ms | ~24ms | ~same |
-| "Anemic follow up overdue" | **527ms** | **2,294ms** | **4.4x slower** |
+| Metric | Realm | SQLite v1 | SQLite v2 | SQLite v3 |
+|---|---:|---:|---:|---:|
+| REFRESH_COUNT | 582ms | 2,349ms | 2,554ms | 2,248ms |
+| Scheduled visits card | ~19ms | ~24ms | 37ms | 42ms |
+| Anemic follow up overdue card | **527ms** | **2,294ms** | **2,509ms** | **2,198ms** |
 
 ### Time to First Dashboard Content
 
-| Metric | Realm | SQLite |
-|---|---:|---:|
-| ON_LOAD → first REFRESH_COUNT complete | **1,187ms** | **3,157ms** |
+| Metric | Realm | SQLite v1 | SQLite v2 | SQLite v3 |
+|---|---:|---:|---:|---:|
+| ON_LOAD -> first REFRESH_COUNT complete | 1,187ms | 3,157ms | 3,096ms | 2,839ms |
 
-The "Anemic follow up overdue" card is the bottleneck — it involves complex cross-entity queries (ProgramEncounter/ProgramEnrolment/Individual with overdue filters) that are expensive in SQL with hydration vs Realm's lazy object graph traversal.
+Dashboard performance is essentially unchanged across SQLite versions. The bottleneck is the "Anemic follow up overdue" card which requires cross-entity JOINs (ProgramEncounter -> ProgramEnrolment -> Individual) with complex filters and entity hydration. This is a query-time cost, not a sync-time cost, so the sync cache has no impact.
 
----
-
-## 3. Search Performance
-
-| Search | Results | Realm | SQLite | SQLite vs Realm |
-|---|---:|---:|---:|---|
-| All subjects (no filter) | 1,026 | **5ms** | **1,392ms** | **278x slower** |
-| Filtered search | 33 | **2ms** | **70ms** | **35x slower** |
-
-**This is the largest performance gap.** Realm returns lazy `Realm.Results` objects — data is only materialized when accessed. SQLite must execute the full SQL query and hydrate all matching entities upfront. For 1,026 results, this creates a 278x gap.
+**Realm is still 3.9x faster for dashboard** due to lazy object graph traversal vs. explicit SQL JOINs + hydration.
 
 ---
 
-## 4. Data Integrity: Entity Count Comparison
+## 5. Search Performance
+
+| Search | Results | Realm | SQLite v1 | SQLite v2 | SQLite v3 |
+|---|---:|---:|---:|---:|---:|
+| All subjects (no filter) | 1,026 | **5ms** | 1,392ms | 1,457ms | 1,413ms |
+| Filtered search | 33 | **2ms** | 70ms | 79ms | 76ms |
+
+Search performance is unchanged across SQLite versions. **Realm is 283x faster for unfiltered search** because `Realm.Results` is a lazy proxy that only materializes visible items in the FlatList, while SQLite must execute the full SQL query and hydrate all matching entities upfront.
+
+---
+
+## 6. Data Integrity: Entity Count Comparison
 
 ### Reference Data (all match exactly)
 
@@ -172,9 +237,9 @@ All 33 reference data entity types match exactly.
 
 ### WAL Extraction Caveat
 
-The SQLite DB was pulled from the device using `adb exec-out run-as ... cat databases/avni_sqlite.db`. This only copies the main `.db` file — not the `.db-wal` (Write-Ahead Log) or `.db-shm` (shared memory) files. In WAL journal mode, committed transactions accumulate in the WAL file and are only merged into the main `.db` during a "checkpoint" (triggered automatically when WAL reaches ~1000 pages or when the last connection closes).
+The SQLite DB was pulled from the device using `adb exec-out run-as ... cat databases/avni_sqlite.db`. This only copies the main `.db` file -- not the `.db-wal` (Write-Ahead Log) or `.db-shm` (shared memory) files. In WAL journal mode, committed transactions accumulate in the WAL file and are only merged into the main `.db` during a "checkpoint" (triggered automatically when WAL reaches ~1000 pages or when the last connection closes).
 
-Entities synced after the last automatic checkpoint appear missing from the extracted `.db` but are fully committed in the WAL. The `entity_sync_status` table confirms the cutoff — entities synced before a certain point have updated timestamps, while later ones still show epoch values.
+Entities synced after the last automatic checkpoint appear missing from the extracted `.db` but are fully committed in the WAL. The `entity_sync_status` table confirms the cutoff -- entities synced before a certain point have updated timestamps, while later ones still show epoch values.
 
 **To extract a complete SQLite DB from the device**, either:
 1. Pull all three files: `.db` + `.db-wal` + `.db-shm`
@@ -193,60 +258,64 @@ Expected due to SQLite's normalized relational format, explicit column storage, 
 
 ---
 
-## 5. Reference Data Cache (SQLite-only)
+## 7. Reference Data Cache (SQLite-only)
 
-| Metric | Value |
-|---|---|
-| Cache build time | **230ms** |
-| When | After sync completion, before POST_SYNC |
-| Purpose | Pre-populate in-memory cache for FK resolution during hydration |
+| Metric | v1 | v2 | v3 |
+|---|---|---|---|
+| Cache build time | 230ms | 244ms | 253ms |
+| When | After sync, before POST_SYNC | same | same |
+| Purpose | FK resolution during hydration at query time | same | same |
 
----
-
-## 6. Performance Bottleneck Analysis
-
-### Why SQLite is slower for transactional data sync
-
-During `db.create()` in SQLite mode, the `EntityHydrator.flatten()` must:
-1. Walk all FK properties and extract UUIDs
-2. Serialize embedded objects (observations) to JSON
-3. Execute the INSERT/UPSERT SQL statement
-
-Then when reading back (for `associateParent`), `EntityHydrator.hydrate()` must:
-1. Resolve all FK columns to full objects (DB queries or cache lookups)
-2. Parse embedded JSON back to objects
-3. Query child tables for list properties
-
-In contrast, Realm's `db.create()` just passes the object graph to Realm's native C++ engine which handles FK resolution and storage natively.
-
-### Why search is 278x slower
-
-Realm's `.filtered()` returns a lazy `Realm.Results` proxy — the query is registered but data is only fetched when individual items are accessed. The search screen renders a `FlatList` which only materializes visible items.
-
-SQLite's `SqliteResultsProxy` must execute the full SQL query and hydrate ALL matching entities before any can be returned. For 1,026 results this means 1,026 hydration operations upfront.
-
-### Why dashboard cards are 4x slower
-
-The "Anemic follow up overdue" card requires:
-- Cross-entity JOINs (ProgramEncounter → ProgramEnrolment → Individual)
-- Filter evaluation on encounter dates and observations
-- Entity hydration for each matched row
-
-Realm traverses its object graph lazily; SQLite must execute explicit JOIN queries and hydrate results.
+The reference data cache is a fixed ~250ms cost that enables fast FK resolution during entity hydration (dashboard, search, etc.). It is separate from the sync cache introduced in v3.
 
 ---
 
-## 7. Recommendations for Production
+## 8. Performance Bottleneck Analysis
 
-### High Priority
-1. **Lazy search results** — implement pagination/lazy loading in `SqliteResultsProxy` to avoid hydrating all 1,026 results upfront (278x gap)
-2. **Batch INSERT during sync** — use multi-row `INSERT INTO ... VALUES (...), (...), (...)` instead of row-by-row for transactional entities
+### Sync: SOLVED -- SQLite now 37% faster than Realm
+
+The two key optimizations that made SQLite faster than Realm for sync:
+
+1. **skipHydration (v2)**: During sync, `SqliteProxy.create()` no longer re-reads and hydrates the entity after INSERT. The raw flattened row is returned instead. This eliminated the biggest per-entity cost.
+
+2. **Sync entity cache (v3)**: An in-memory cache stores entities as they are synced. When `associateParent` needs to resolve a parent reference (e.g., ProgramEnrolment -> Individual), it looks up the parent from the cache instead of querying the DB + hydrating. This eliminated the `fromResource + associateParent` overhead that was 3-4 seconds per large batch.
+
+The combined effect: **64.1s -> 3.5s** for transactional data batch processing (94.5% reduction).
+
+### Dashboard: Still 3.9x slower than Realm
+
+The "Anemic follow up overdue" card requires cross-entity JOINs with complex filters. Realm traverses its object graph lazily; SQLite must execute explicit JOIN queries and hydrate results. This is a query-time cost unaffected by sync optimizations.
+
+### Search: Still 283x slower for unfiltered, 38x for filtered
+
+Realm's `.filtered()` returns a lazy `Realm.Results` proxy -- data is only materialized when individual items are accessed by the FlatList. SQLite must execute the full SQL query and hydrate ALL matching entities upfront.
+
+---
+
+## 9. Remaining Optimization Opportunities
+
+### High Priority (Dashboard + Search)
+1. **Lazy SqliteResultsProxy** -- return a cursor-like proxy that hydrates on demand (closer to Realm's lazy behavior). Would dramatically reduce search times for large result sets.
+2. **FTS5 for text search** -- op-sqlite supports FTS5 which would speed up `LIKE '%term%'` search patterns.
+3. **Materialized dashboard cache** -- pre-compute report card counts at sync time, invalidate on data change.
 
 ### Medium Priority
-4. **Reduce hydration depth during sync persist** — sync doesn't need depth-3 hydration; depth-0 or depth-1 suffices for the `fromResource` → `create` path
-5. **Skip re-hydration after INSERT** — `SqliteProxy.create()` re-reads and hydrates the entity after INSERT; during bulk sync this is wasteful
-6. **Optimize dashboard card queries** — the "Anemic follow up overdue" card could benefit from a materialized view or pre-computed cache
+4. **Batch INSERT during sync** -- use multi-row `INSERT INTO ... VALUES (...), (...), (...)` instead of row-by-row. Currently each of the 2,145 ProgramEncounters is a separate SQL statement.
+5. **Optimize "Anemic follow up overdue" query** -- this single card accounts for ~2.2s of the ~2.3s dashboard refresh. Consider a SQL VIEW or denormalized index.
 
 ### Lower Priority
-7. **Lazy SqliteResultsProxy** — for search/listing, return a cursor-like proxy that hydrates on demand (closer to Realm's lazy behavior)
-8. **FTS5 for text search** — op-sqlite supports FTS5 which would dramatically speed up `LIKE '%term%'` search patterns
+6. **Reduce reference data sync overhead** -- the ~20s reference data sync is dominated by sequential HTTP requests and JSON parsing. Parallel fetching or differential sync could help.
+7. **WAL checkpoint strategy** -- tune checkpoint frequency to balance write performance vs. DB extraction ease.
+
+---
+
+## 10. Log File References
+
+| Version | Log File | PID | Server |
+|---|---|---|---|
+| Realm | `realm-logs.txt` | -- | staging.rwb.avniproject.org |
+| SQLite v1 | `sqlite-logs.txt` | -- | staging.rwb.avniproject.org |
+| SQLite v2 | `sqlite-logs-v2.txt` | PID 4547 | server.avniproject.org |
+| SQLite v3 | `sqlite-logs-v3.txt` | PID 5821 | server.avniproject.org |
+
+Note: v1 used staging server, v2/v3 used production server. Network latency differences may affect total sync time comparisons but do not affect batch processing time measurements (which exclude network waits).
