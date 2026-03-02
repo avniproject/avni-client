@@ -419,5 +419,32 @@ describe("RealmQueryParser", () => {
             expect(result.params).toEqual(["abc", "def", "ghi"]);
             expect(result.unsupported).toBe(false);
         });
+
+        it("should handle && as AND operator (Realm compatibility)", () => {
+            const result = RealmQueryParser.parse("entityName = 'Individual' && entityTypeUuid = 'abc-123'");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe('(t0."entity_name" = ? AND t0."entity_type_uuid" = ?)');
+            expect(result.params).toEqual(["Individual", "abc-123"]);
+        });
+
+        it("should handle || as OR operator (Realm compatibility)", () => {
+            const result = RealmQueryParser.parse("uuid = 'a' || uuid = 'b'");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe('(t0."uuid" = ? OR t0."uuid" = ?)');
+            expect(result.params).toEqual(["a", "b"]);
+        });
+
+        it("should handle mixed && and || with parentheses", () => {
+            const result = RealmQueryParser.parse("entityName = 'Individual' && ( entityTypeUuid = '' || entityTypeUuid = 'abc')");
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBe('(t0."entity_name" = ? AND (t0."entity_type_uuid" = ? OR t0."entity_type_uuid" = ?))');
+            expect(result.params).toEqual(["Individual", "", "abc"]);
+        });
+
+        it("should handle && in real resetSync query pattern", () => {
+            const result = RealmQueryParser.parse("entityName = 'Individual' && ( entityTypeUuid = '' OR entityTypeUuid = 'uuid1' OR entityTypeUuid = 'uuid2')");
+            expect(result.unsupported).toBe(false);
+            expect(result.params).toEqual(["Individual", "", "uuid1", "uuid2"]);
+        });
     });
 });

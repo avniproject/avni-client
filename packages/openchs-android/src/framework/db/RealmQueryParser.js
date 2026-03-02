@@ -114,9 +114,21 @@ function tokenize(query) {
             continue;
         }
 
-        // Two-character comparison operators
+        // Two-character logical operators (Realm accepts && and || as AND/OR)
         if (i + 1 < len) {
             const two = query[i] + query[i + 1];
+            if (two === "&&") {
+                tokens.push(new Token(TOKEN_TYPES.AND, "AND"));
+                i += 2;
+                continue;
+            }
+            if (two === "||") {
+                tokens.push(new Token(TOKEN_TYPES.OR, "OR"));
+                i += 2;
+                continue;
+            }
+
+            // Two-character comparison operators
             if (two === "<=" || two === ">=" || two === "!=" || two === "<>" || two === "==") {
                 tokens.push(new Token(TOKEN_TYPES.COMPARISON, two === "==" ? "=" : two));
                 i += 2;
@@ -604,6 +616,15 @@ function splitTopLevelAnd(query) {
                     clauses.push(clause);
                 }
                 start = i + 3;
+            }
+            // Check for top-level && (Realm also accepts && as AND)
+            if (query[i] === '&' && i + 1 < query.length && query[i + 1] === '&') {
+                const clause = query.substring(start, i).trim();
+                if (clause.length > 0) {
+                    clauses.push(clause);
+                }
+                i += 1; // skip second &, loop will increment past it
+                start = i + 1;
             }
         }
     }
