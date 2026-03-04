@@ -1,5 +1,6 @@
 import StubbedBaseService from "../StubbedBaseService";
 import {CustomDashboardCache} from 'openchs-models';
+import _ from "lodash";
 
 class StubbedCustomDashboardCacheService extends StubbedBaseService {
 
@@ -9,7 +10,7 @@ class StubbedCustomDashboardCacheService extends StubbedBaseService {
 
     fetchCachedData(dashboardUUID) {
         const cache = this.findByUUID(dashboardUUID);
-        if (cache === undefined) {
+        if (_.isNil(cache)) {
             return CustomDashboardCache.newInstance();
         }
         return cache;
