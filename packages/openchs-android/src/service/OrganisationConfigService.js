@@ -39,7 +39,7 @@ class OrganisationConfigService extends BaseService {
     }
 
     hasHomeScreen() {
-        return this.getHomeScreen() !== undefined;
+        return !_.isNil(this.getHomeScreen());
     }
 
     getHomeScreen() {

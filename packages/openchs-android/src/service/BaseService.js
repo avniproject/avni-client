@@ -87,7 +87,7 @@ class BaseService {
     }
 
     getReturnValue(entities) {
-        if (entities.length === 0) return undefined;
+        if (entities.length === 0) return null;
         if (entities.length === 1) return entities[0];
         return entities;
     }
