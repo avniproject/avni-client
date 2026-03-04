@@ -1,5 +1,6 @@
 import {UserInfo} from 'openchs-models';
 import analytics from '@react-native-firebase/analytics';
+import NetInfo from "@react-native-community/netinfo";
 import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
@@ -39,19 +40,20 @@ export const logEvent = (name, params) => {
     }
 };
 
-// Track screen load time
-let screenLoadStartTime = Date.now();
+export const screenRenderStart = () => Date.now();
 
-export const logScreenEvent = (screenName) => {
+export const logScreenEvent = (screenName, startTime) => {
     if (logAnalytics) {
-        const timeTaken = Date.now() - screenLoadStartTime;
-        setUserProperties()
-            .then(() => firebaseAnalytics.logScreenView({
-                screen_name: screenName, 
-                screen_class: screenName,
-                time_taken_ms: timeTaken  // ADD THIS
-            }));
-        screenLoadStartTime = Date.now(); // reset for next screen
+        const timeTaken = startTime ? Date.now() - startTime : undefined;
+        NetInfo.fetch().then(({isConnected}) =>
+            setUserProperties()
+                .then(() => firebaseAnalytics.logScreenView({
+                    screen_name: screenName,
+                    screen_class: screenName,
+                    is_offline: (!isConnected).toString(),
+                    ...(timeTaken !== undefined && {time_taken_ms: timeTaken})
+                }))
+        );
     }
 };
 

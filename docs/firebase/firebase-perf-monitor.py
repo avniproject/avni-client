@@ -115,15 +115,15 @@ def cmd_check():
         q = f"""
         SELECT
           (SELECT value.string_value FROM UNNEST(user_properties)
-           WHERE key = 'organization_id') as org_id,
+           WHERE key = 'organisation') as organisation,
           COUNT(*) as cnt
         FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
-        GROUP BY org_id ORDER BY cnt DESC LIMIT 10
+        GROUP BY organisation ORDER BY cnt DESC LIMIT 10
         """
         rows = list(client.query(q).result())
         print("\nOrganizations in data:")
         for r in rows:
-            print(f"  {r['org_id'] or '[NO ORG_ID]'}: {r['cnt']:,} events")
+            print(f"  {r['organisation'] or '[NO ORGANISATION]'}: {r['cnt']:,} events")
     except Exception as e:
         print(f"\nCould not check org data: {e}")
 

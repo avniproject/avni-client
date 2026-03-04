@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React, {Component, Text, View} from "react";
-import {Alert, StyleSheet, Keyboard} from "react-native";
+import {Alert, StyleSheet, Keyboard, InteractionManager} from "react-native";
 import _ from "lodash";
 import MessageService from "../../service/MessageService";
 import General from "../../utility/General";
 import DGS from '../../views/primitives/DynamicGlobalStyles';
 import TypedTransition from "../routing/TypedTransition";
-import {logScreenEvent} from "../../utility/Analytics";
+import {logScreenEvent, screenRenderStart} from "../../utility/Analytics";
 import {JSONStringify} from "../../utility/JsonStringify";
 import ServiceContext from "../context/ServiceContext";
 
@@ -90,9 +90,12 @@ class AbstractComponent extends Component {
 
     UNSAFE_componentWillMount() {
         if (_.isNil(this.topLevelStateVariable)) return;
+        const startTime = screenRenderStart();
         this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
         this.refreshState();
-        logScreenEvent(this.viewName())
+        InteractionManager.runAfterInteractions(() => {
+            logScreenEvent(this.viewName(), startTime);
+        });
     }
 
     refreshState() {

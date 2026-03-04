@@ -148,6 +148,8 @@ class LandingView extends AbstractComponent {
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
             bugsnag.setUser(username, username, username);
+            const organisationName = this.context.getService(UserInfoService).getUserInfo()?.organisationName;
+            if (organisationName) bugsnag.addMetadata('organisation', {name: organisationName});
         });
 
         const result = super.UNSAFE_componentWillMount();
