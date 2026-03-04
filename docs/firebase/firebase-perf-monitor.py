@@ -145,10 +145,9 @@ SELECT
   COUNT(*) as views,
   ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params)
            WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms,
-  ROUND(PERCENTILE_CONT(
+  ROUND(APPROX_QUANTILES(
     CAST((SELECT value.int_value FROM UNNEST(event_params)
-          WHERE key = 'time_taken_ms') AS FLOAT64), 0.95)
-    OVER(PARTITION BY event_name)) as p95_ms
+          WHERE key = 'time_taken_ms') AS FLOAT64), 100)[OFFSET(95)]) as p95_ms
 FROM `{PROJECT_ID}.{DATASET_ID}.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL

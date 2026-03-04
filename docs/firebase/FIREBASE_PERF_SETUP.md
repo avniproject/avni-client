@@ -69,7 +69,7 @@ SELECT
   event_name as screen,
   COUNT(*) as views,
   ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms,
-  ROUND(PERCENTILE_CONT(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64), 0.95) OVER(PARTITION BY event_name)) as p95_ms
+  ROUND(APPROX_QUANTILES(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64), 100)[OFFSET(95)]) as p95_ms
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
