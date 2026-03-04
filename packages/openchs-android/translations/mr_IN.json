@@ -330,6 +330,7 @@
     "openSettings": "सेटिंग्ज उघडा",
     "comments": "टिप्पण्या",
     "whatsApp": "व्हॉट्सअॅप",
-    "registerButtonGuideMessage": "हाय {{userName}}, खाली \"कृपया नोंद करा\" बटण टॅप करून डाटा भरा."
+    "registerButtonGuideMessage": "हाय {{userName}}, खाली \"कृपया नोंद करा\" बटण टॅप करून डाटा भरा.",
+    "welcomeMessage": "हाय  {{userName}}, स्वागत।"
   }
 }
