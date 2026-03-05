@@ -2,15 +2,55 @@
 
 Track usage hotspots, stability, and performance for Avni Client (offline-first app) via Firebase Analytics → BigQuery → Metabase.
 
+## Firebase Projects
+
+Analytics data is collected in two Firebase projects:
+
+| Firebase Project | Build Flavors | Package Names |
+|-----------------|---------------|---------------|
+| **avni-be4b7** | generic, gramin, sakhi | com.openchsclient, com.openchsclient.gramin, org.sakhi.openchsclient |
+| **lfe-teach** | lfe, lfeTeachNagaland, lfeTeachNagalandSecurity | org.lfeteach.openchsclient, com.openchsclient.lfeteach.nagaland |
+
+Each project has separate BigQuery datasets for analytics export.
+
+**Note:** When querying analytics data, replace `avni-be4b7` with `lfe-teach` for LFE/TEACH analytics.
+
+## Analytics Segregation
+
+To prevent development/testing data from polluting production insights, all analytics events include these user properties:
+
+- **`build_type`**: "debug" or "release" (from ConfigModule.BUILD_TYPE)
+- **`environment`**: "prod", "dev", "staging", "uat" (from Config.ENV)
+- **`is_production`**: "true" or "false" (derived from build_type)
+- **`organisation`**: Organization name
+
+### Production Data Filter
+
+**Add this to all production queries to filter out development/testing data:**
+
+```sql
+WHERE (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
+```
+
+This follows the same pattern as Bugsnag's environment-based configuration, where ConfigModule provides build information similar to how BugsnagInitializer provides environment configuration.
+
 ## One-Time Setup
 
 ### 1. Enable BigQuery Export in Firebase Console
 
-For each project (`avni-be4b7`, `lfe-teach`):
+For each project:
 
+**For avni-be4b7:**
 1. Open https://console.firebase.google.com/project/avni-be4b7/settings/integrations
 2. Link Google Analytics (if not already linked)
 3. Enable "Export to BigQuery" → dataset: `analytics_259495760`
+4. Wait 24-48 hours for first data batch
+
+**For lfe-teach:**
+1. Open https://console.firebase.google.com/project/lfe-teach/settings/integrations
+2. Link Google Analytics (if not already linked)
+3. Enable "Export to BigQuery" (use appropriate dataset name)
 4. Wait 24-48 hours for first data batch
 
 ### 2. Create GCP Service Account
@@ -51,6 +91,7 @@ Once Metabase is connected to BigQuery, create these dashboard cards:
 
 ### Usage / Traffic Hotspots
 ```sql
+-- Production data only (filters out debug builds and non-prod environments)
 SELECT
   event_name as screen,
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
@@ -58,12 +99,15 @@ SELECT
   COUNT(DISTINCT user_pseudo_id) as unique_users
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
 GROUP BY screen, organisation
 ORDER BY event_count DESC
 ```
 
 ### Slowest Screens by Organization
 ```sql
+-- Production data only (filters out debug builds and non-prod environments)
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
   event_name as screen,
@@ -73,6 +117,8 @@ SELECT
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
 GROUP BY organisation, screen
 HAVING COUNT(*) >= 5
 ORDER BY avg_ms DESC
@@ -80,6 +126,7 @@ ORDER BY avg_ms DESC
 
 ### Performance Trend (30 days)
 ```sql
+-- Production data only (filters out debug builds and non-prod environments)
 SELECT
   DATE(TIMESTAMP_MICROS(event_timestamp)) as date,
   event_name as screen,
@@ -87,12 +134,15 @@ SELECT
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 30
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
 GROUP BY date, screen
 ORDER BY date DESC, avg_ms DESC
 ```
 
 ### Offline vs Online Performance
 ```sql
+-- Production data only (filters out debug builds and non-prod environments)
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
   IFNULL((SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'is_offline'), 'false') as is_offline,
@@ -102,6 +152,8 @@ SELECT
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
   AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
+  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
 GROUP BY organisation, is_offline, screen
 ORDER BY organisation, avg_ms DESC
 ```
@@ -115,6 +167,10 @@ ORDER BY organisation, avg_ms DESC
 | "Permission denied" | Ensure service account has BigQuery Admin role |
 | Data exists but no `time_taken_ms` | Deploy latest app version — `time_taken_ms` added in Analytics.js |
 | No `organisation` data | Ensure app calls `analytics.setUserProperty("organisation", orgName)` |
+| Missing `build_type`, `environment`, or `is_production` | Deploy latest app version with updated Analytics.js and ConfigModule |
+| Queries return no data after adding production filter | Verify app is running release builds with `environment=prod` in Config.ENV |
+| Development data appearing in reports | Ensure production filter is applied: `is_production='true' AND environment='prod'` |
+| Need to analyze development data | Remove production filter or change to `is_production='false'` OR `environment!='prod'` |
 
 ## Cost
 

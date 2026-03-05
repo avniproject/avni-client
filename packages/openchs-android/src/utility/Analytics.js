@@ -5,6 +5,9 @@ import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import _ from "lodash";
+import {NativeModules} from 'react-native';
+
+const {ConfigModule} = NativeModules;
 
 let db;
 const firebaseAnalytics = analytics();
@@ -30,7 +33,16 @@ const getUserInfo = () => {
 
 const setUserProperties = () => {
     let organisationName = _.get(getUserInfo(), 'organisationName', 'Unknown');
-    return firebaseAnalytics.setUserProperty("organisation", organisationName);
+    const buildType = ConfigModule?.BUILD_TYPE || 'unknown';
+    const environment = Config.ENV || 'unknown';
+    const isProductionBuild = ConfigModule?.IS_PRODUCTION_BUILD || false;
+    
+    return Promise.all([
+        firebaseAnalytics.setUserProperty("organisation", organisationName),
+        firebaseAnalytics.setUserProperty("build_type", buildType),
+        firebaseAnalytics.setUserProperty("environment", environment),
+        firebaseAnalytics.setUserProperty("is_production", isProductionBuild.toString())
+    ]);
 };
 
 export const logEvent = (name, params) => {
@@ -45,12 +57,17 @@ export const screenRenderStart = () => Date.now();
 export const logScreenEvent = (screenName, startTime) => {
     if (logAnalytics) {
         const timeTaken = startTime ? Date.now() - startTime : undefined;
+        const buildType = ConfigModule?.BUILD_TYPE || 'unknown';
+        const environment = Config.ENV || 'unknown';
+        
         NetInfo.fetch().then(({isConnected}) =>
             setUserProperties()
                 .then(() => firebaseAnalytics.logScreenView({
                     screen_name: screenName,
                     screen_class: screenName,
                     is_offline: (!isConnected).toString(),
+                    build_type: buildType,
+                    environment: environment,
                     ...(timeTaken !== undefined && {time_taken_ms: timeTaken})
                 }))
         );
