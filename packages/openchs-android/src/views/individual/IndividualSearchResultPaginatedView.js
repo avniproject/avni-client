@@ -43,7 +43,7 @@ class IndividualSearchResultPaginatedView extends AbstractComponent {
         return 'IndividualSearchResultPaginatedView';
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.indicatorActionName) {
             setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
         }

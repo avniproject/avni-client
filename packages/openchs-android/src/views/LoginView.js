@@ -57,7 +57,7 @@ class LoginView extends AbstractComponent {
         };
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         this.dispatchAction(Actions.ON_LOAD);
     }
 

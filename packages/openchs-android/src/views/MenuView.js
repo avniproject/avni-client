@@ -77,7 +77,7 @@ class MenuView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         this.dispatchAction(MenuActionNames.ON_LOAD);
     }
 

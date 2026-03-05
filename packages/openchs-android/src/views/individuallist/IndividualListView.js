@@ -39,7 +39,7 @@ class IndividualListView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.indicatorActionName) {
             setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
         }

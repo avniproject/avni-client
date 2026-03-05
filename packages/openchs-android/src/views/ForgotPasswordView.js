@@ -44,7 +44,7 @@ class ForgotPasswordView extends AbstractComponent {
         )
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         this.context.getService(AuthService).getAuthProviderService().getUser().then(user => {
             if (user !== null) {
                 this.setState(() => {

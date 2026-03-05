@@ -49,7 +49,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return super.UNSAFE_componentWillMount();
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         this.dispatchOnLoad();
     }
 

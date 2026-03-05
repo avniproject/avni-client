@@ -38,7 +38,7 @@ class ApprovalListingView extends AbstractComponent {
         return 'ApprovalListingView';
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.indicatorActionName) {
             setTimeout(() => {
                 this.dispatchAction(this.props.indicatorActionName, {loading: false});

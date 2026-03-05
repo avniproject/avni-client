@@ -147,7 +147,7 @@ class IndividualProfile extends AbstractComponent {
     }, 1000, {leading: true, trailing: false});
 
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.displayOnly) return;
 
         const individual = this.props.individual;

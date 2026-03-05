@@ -32,7 +32,7 @@ class VideoListView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         this.dispatchOnLoad();
     }
 

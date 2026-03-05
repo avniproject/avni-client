@@ -28,7 +28,7 @@ class CommentListView extends AbstractComponent {
         return 'CommentListView';
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.indicatorActionName) {
             setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
         }

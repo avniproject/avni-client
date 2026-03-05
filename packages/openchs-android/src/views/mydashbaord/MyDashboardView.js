@@ -46,7 +46,7 @@ class MyDashboardView extends AbstractComponent {
         super.UNSAFE_componentWillMount();
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.state.fetchFromDB) {
             this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         }

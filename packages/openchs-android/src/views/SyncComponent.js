@@ -133,7 +133,7 @@ class SyncComponent extends AbstractComponent {
         }
     }
 
-    componentDidMount() {
+    onViewDidMount() {
         if (this.props.startSync) {
             this.sync();
         }
