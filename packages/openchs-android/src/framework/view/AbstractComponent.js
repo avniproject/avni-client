@@ -100,8 +100,6 @@ class AbstractComponent extends Component {
     UNSAFE_componentWillMount() {
         if (_.isNil(this.topLevelStateVariable)) return;
         this.screenRenderStartTime = screenRenderStart();
-        const screenName = this.viewName();
-        General.logDebug('Analytics', `Screen render started: ${screenName} at ${this.screenRenderStartTime}`);
         this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
         this.refreshState();
     }
@@ -109,25 +107,13 @@ class AbstractComponent extends Component {
     componentDidMount() {
         // Analytics timing (only for components with topLevelStateVariable)
         if (!_.isNil(this.topLevelStateVariable) && this.screenRenderStartTime) {
-            const screenName = this.viewName();
-            
-            // Log UI render completion (after layout)
-            requestAnimationFrame(() => {
-                const uiRenderTime = Date.now() - this.screenRenderStartTime;
-                General.logDebug('Analytics', `Screen UI render completed: ${screenName}, time: ${uiRenderTime}ms`);
-            });
-            
             // Log JS interactions completion and send to Firebase
-            // This represents when all processing is done and screen is fully ready
             InteractionManager.runAfterInteractions(() => {
-                const interactionTime = Date.now() - this.screenRenderStartTime;
-                General.logDebug('Analytics', `Screen JS interactions completed: ${screenName}, time: ${interactionTime}ms`);
-                logScreenEvent(screenName, this.screenRenderStartTime);
+                logScreenEvent(this.viewName(), this.screenRenderStartTime);
             });
         }
         
         // Call subclass hook if defined (Template Method Pattern)
-        // This runs for ALL components, not just those with analytics
         if (this.onViewDidMount) {
             this.onViewDidMount();
         }

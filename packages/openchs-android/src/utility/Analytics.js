@@ -38,23 +38,12 @@ const setUserProperties = () => {
     const environment = Config.ENV || 'unknown';
     const isProductionBuild = ConfigModule?.IS_PRODUCTION_BUILD || false;
     
-    const userProps = {
-        organisation: organisationName,
-        build_type: buildType,
-        environment: environment,
-        is_production: isProductionBuild.toString()
-    };
-    
-    General.logDebug('Analytics', 'Setting Firebase user properties:', userProps);
-    
     return Promise.all([
         firebaseAnalytics.setUserProperty("organisation", organisationName),
         firebaseAnalytics.setUserProperty("build_type", buildType),
         firebaseAnalytics.setUserProperty("environment", environment),
         firebaseAnalytics.setUserProperty("is_production", isProductionBuild.toString())
-    ]).then(() => {
-        General.logDebug('Analytics', 'Firebase user properties set successfully');
-    }).catch(error => {
+    ]).catch(error => {
         General.logError('Analytics', 'Failed to set Firebase user properties:', error);
         throw error;
     });
@@ -62,20 +51,11 @@ const setUserProperties = () => {
 
 export const logEvent = (name, params) => {
     if (logAnalytics) {
-        General.logDebug('Analytics', `Logging custom event: ${name}`, params);
         setUserProperties()
-            .then(() => {
-                General.logDebug('Analytics', `Sending custom event to Firebase: ${name}`);
-                return firebaseAnalytics.logEvent(name, params);
-            })
-            .then(() => {
-                General.logDebug('Analytics', `✓ Firebase custom event sent successfully: ${name}`);
-            })
+            .then(() => firebaseAnalytics.logEvent(name, params))
             .catch(error => {
                 General.logError('Analytics', `Failed to log custom event ${name}:`, error);
             });
-    } else {
-        General.logDebug('Analytics', `Analytics logging disabled - skipping custom event: ${name}`);
     }
 };
 
@@ -87,8 +67,6 @@ export const logScreenEvent = (screenName, startTime) => {
         const buildType = ConfigModule?.BUILD_TYPE || 'unknown';
         const environment = Config.ENV || 'unknown';
         
-        General.logDebug('Analytics', `Logging screen event: ${screenName}`);
-        
         NetInfo.fetch().then(({isConnected}) => {
             const eventParams = {
                 screen_name: screenName,
@@ -99,25 +77,14 @@ export const logScreenEvent = (screenName, startTime) => {
                 ...(timeTaken !== undefined && {time_taken_ms: timeTaken})
             };
             
-            General.logDebug('Analytics', 'Firebase screen event params:', eventParams);
-            General.logDebug('Analytics', `Network status: ${isConnected ? 'online' : 'offline'}`);
-            
             return setUserProperties()
-                .then(() => {
-                    General.logDebug('Analytics', `Sending screen_view event to Firebase for: ${screenName}`);
-                    return firebaseAnalytics.logScreenView(eventParams);
-                })
-                .then(() => {
-                    General.logDebug('Analytics', `✓ Firebase screen_view event sent successfully for: ${screenName}`);
-                })
+                .then(() => firebaseAnalytics.logScreenView(eventParams))
                 .catch(error => {
                     General.logError('Analytics', `Failed to log screen event for ${screenName}:`, error);
                 });
         }).catch(error => {
             General.logError('Analytics', 'Failed to fetch network info:', error);
         });
-    } else {
-        General.logDebug('Analytics', `Analytics logging disabled - skipping event for: ${screenName}`);
     }
 };
 
