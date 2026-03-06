@@ -32,7 +32,7 @@ class ChecklistView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         this.dispatchAction(Actions.ON_LOAD, this.props);
         this.backFunction = () => this.goBack();
-        BackHandler.addEventListener('backPress', this.backFunction);
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.backFunction);
         return super.UNSAFE_componentWillMount();
     }
 
@@ -44,7 +44,7 @@ class ChecklistView extends AbstractComponent {
 
     componentWillUnmount() {
         super.componentWillUnmount();
-        BackHandler.removeEventListener('backPress', this.backFunction);
+        this.backHandler.remove();
     }
 
     goBack() {
