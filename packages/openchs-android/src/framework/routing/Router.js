@@ -28,7 +28,7 @@ export default class Router extends Component {
     }
 
     componentDidMount = () => {
-        BackHandler.addEventListener('backPress', () => {
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
             const element = this.routeElementMap[this.path];
             if (element && element.onHardwareBackPress) {
                 return element.onHardwareBackPress();
@@ -47,7 +47,7 @@ export default class Router extends Component {
     };
 
     componentWillUnmount = () => {
-        BackHandler.removeEventListener('backPress');
+        this.backHandler.remove();
     };
 
     configureScene(route) {
