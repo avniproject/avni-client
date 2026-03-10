@@ -61,6 +61,16 @@ export const logEvent = (name, params) => {
 
 export const screenRenderStart = () => Date.now();
 
+/**
+ * Logs screen view events to Firebase Analytics.
+ * Sends TWO events for each screen:
+ * 1. screen_view - Standard Firebase event for automatic tracking and Console reports, Ignores timeTaken info
+ * 2. screen_load_time - Custom event for detailed performance analysis in BigQuery, retains timeTaken info
+ * 
+ * Both events contain identical parameters including timing data, ensuring consistency
+ * across Firebase Console reports and custom analytics dashboards,
+ * but only screen_load_time retains timeTaken details that can be used for filtering and analysis.
+ */
 export const logScreenEvent = (screenName, startTime) => {
     if (logAnalytics) {
         const timeTaken = startTime ? Date.now() - startTime : undefined;
@@ -78,7 +88,22 @@ export const logScreenEvent = (screenName, startTime) => {
             };
             
             return setUserProperties()
-                .then(() => firebaseAnalytics.logScreenView(eventParams))
+                .then(() => {
+                    // Send both events in parallel with independent failure handling
+                    return Promise.allSettled([
+                        firebaseAnalytics.logScreenView(eventParams),
+                        firebaseAnalytics.logEvent('screen_load_time', eventParams)
+                    ]);
+                })
+                .then((results) => {
+                    // Log any failures without blocking the other event
+                    results.forEach((result, index) => {
+                        if (result.status === 'rejected') {
+                            const eventType = index === 0 ? 'screen_view' : 'screen_load_time';
+                            General.logError('Analytics', `Failed to log ${eventType} for ${screenName}:`, result.reason);
+                        }
+                    });
+                })
                 .catch(error => {
                     General.logError('Analytics', `Failed to log screen event for ${screenName}:`, error);
                 });
