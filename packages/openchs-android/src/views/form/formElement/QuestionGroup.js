@@ -26,6 +26,7 @@ import LocationHierarchyFormElement from "./LocationHierarchyFormElement";
 import SingleSelectFormElement from "./SingleSelectFormElement";
 import MultiSelectFormElement from "./MultiSelectFormElement";
 import SingleSelectFileFormElement from "./SingleSelectFileFormElement";
+import MultiSelectFileFormElement from "./MultiSelectFileFormElement";
 import DurationDateFormElement from "./DurationDateFormElement";
 import DurationFormElement from "./DurationFormElement";
 import MultiSelectMediaFormElement from "./MultiSelectMediaFormElement";
@@ -148,7 +149,6 @@ class QuestionGroup extends AbstractFormElement {
                     const concept = fe.concept;
                     const validationResult = this.getValidationResultForFormElement(fe);
                     const commonProps = {
-                        key: fe.uuid,
                         element: fe,
                         actionName: this.props.actionName,
                         validationResult: validationResult,
@@ -159,68 +159,72 @@ class QuestionGroup extends AbstractFormElement {
                     const dataType = concept.datatype;
                     const dataTypes = Concept.dataType;
                     if (dataType === dataTypes.Numeric) {
-                        return <NumericFormElement value={this.getSelectedAnswer(concept, new PrimitiveValue())}
+                        return <NumericFormElement key={fe.uuid} value={this.getSelectedAnswer(concept, new PrimitiveValue())}
                                                    inputChangeActionName={this.props.actionName} {...commonProps}/>
                     }
                     if (_.includes([dataTypes.Text, dataTypes.Notes], dataType)) {
-                        return <TextFormElement value={this.getSelectedAnswer(concept, new PrimitiveValue())}
+                        return <TextFormElement key={fe.uuid} value={this.getSelectedAnswer(concept, new PrimitiveValue())}
                                                 multiline={dataType === dataTypes.Notes} {...commonProps}/>
                     }
                     if (dataType === dataTypes.Coded && fe.isSingleSelect()) {
-                        return <SingleSelectFormElement
+                        return <SingleSelectFormElement key={fe.uuid}
                             singleCodedValue={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Coded && fe.isMultiSelect()) {
-                        return <MultiSelectFormElement
+                        return <MultiSelectFormElement key={fe.uuid}
                             multipleCodeValues={this.getSelectedAnswer(fe.concept, new MultipleCodedValues())} {...commonProps}/>;
                     }
                     if ((dataType === dataTypes.Date && _.isNil(fe.durationOptions)) || dataType === dataTypes.DateTime) {
-                        return <DateFormElement
+                        return <DateFormElement key={fe.uuid}
                             dateValue={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.File && fe.isSingleSelect()) {
-                        return <SingleSelectFileFormElement
+                        return <SingleSelectFileFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
+                    if (dataType === dataTypes.File && fe.isMultiSelect()) {
+                        return <MultiSelectFileFormElement key={fe.uuid}
+                            value={this.getSelectedAnswer(fe.concept, new MultipleCodedValues())} {...commonProps}/>;
+                    }
                     if (dataType === dataTypes.Audio) {
-                        return <AudioFormElement
+                        return <AudioFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Time) {
-                        return <TimeFormElement
+                        return <TimeFormElement key={fe.uuid}
                             timeValue={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                     }
                     if (_.includes([dataTypes.Image, dataTypes.Video], dataType) && fe.isSingleSelect()) {
-                        return <SingleSelectMediaFormElement
+                        return <SingleSelectMediaFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new SingleCodedValue())} {...commonProps}/>;
                     }
                     if (_.includes([dataTypes.Image, dataTypes.Video], dataType) && fe.isMultiSelect()) {
-                        return <MultiSelectMediaFormElement
+                        return <MultiSelectMediaFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new MultipleCodedValues())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Id) {
-                        return <IdFormElement
+                        return <IdFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new Identifier())}
                             multiline={false} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Location) {
-                        return <LocationHierarchyFormElement
+                        return <LocationHierarchyFormElement key={fe.uuid}
                             value={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>;
                     }
                     if (dataType === dataTypes.Date && !_.isNil(fe.durationOptions)) {
-                        return <DurationDateFormElement
+                        return <DurationDateFormElement key={fe.uuid}
                             label={fe.name}
                             durationOptions={fe.durationOptions}
                             duration={this.getDuration(fe.concept, this.props.formElementsUserState[`${fe.uuid}-${this.props.questionGroupIndex}`], fe)}
                             dateValue={this.getSelectedAnswer(fe.concept, new PrimitiveValue())} {...commonProps}/>
                     }
                     if (dataType === dataTypes.Duration && !_.isNil(fe.durationOptions)) {
-                        return <DurationFormElement
+                        return <DurationFormElement key={fe.uuid}
                             compositeDuration={this.getCompositeDuration(fe.concept, fe)}
                             noDateMessageKey='chooseADate' {...commonProps}/>
                     }
                     if (dataType === dataTypes.PhoneNumber) {
-                        return <PhoneNumberFormElement
+                        return <PhoneNumberFormElement key={fe.uuid}
                             inputChangeActionName={this.props.actionName}
                             successVerificationActionName={this.props.actions["ON_SUCCESS_OTP_VERIFICATION"]}
                             skipVerificationActionName={this.props.actions["ON_SKIP_VERIFICATION"]}
@@ -229,7 +233,7 @@ class QuestionGroup extends AbstractFormElement {
                             {...commonProps}/>
                     }
                     if (dataType === dataTypes.Subject && fe.isSingleSelect()) {
-                        return <SingleSelectSubjectLandingFormElement
+                        return <SingleSelectSubjectLandingFormElement key={fe.uuid}
                           subjectUUID={this.props.subjectUUID}
                           element={fe}
                           value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new SingleCodedValue())}
@@ -237,7 +241,7 @@ class QuestionGroup extends AbstractFormElement {
                         />
                     }
                     if (dataType === dataTypes.Subject && fe.isMultiSelect()) {
-                        return <MultiSelectSubjectLandingFormElement
+                        return <MultiSelectSubjectLandingFormElement key={fe.uuid}
                           subjectUUID={this.props.subjectUUID}
                           element={fe}
                           value={this.getSelectedAnswerFromObservationHolder(fe.concept, this.props.element, this.props.questionGroupIndex, new MultipleCodedValues())}

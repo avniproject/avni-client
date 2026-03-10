@@ -43,6 +43,8 @@ class MultiSelectFileFormElement extends FileFormElement {
         this.dismissKeyboard();
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
+            parentFormElement: this.props.parentElement,
+            questionGroupIndex: this.props.questionGroupIndex,
             answerUUID: allAnswers[index],
         });
         this.setState(({mediaCount}) => ({mediaCount: _.max([1, mediaCount - 1])}))
@@ -51,6 +53,8 @@ class MultiSelectFileFormElement extends FileFormElement {
     onUpdateObservations(fileName) {
         this.dispatchAction(this.props.actionName, {
             formElement: this.props.element,
+            parentFormElement: this.props.parentElement,
+            questionGroupIndex: this.props.questionGroupIndex,
             answerUUID: fileName
         });
         this.setState({mediaCount: _.size(this.mediaUris)});
