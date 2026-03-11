@@ -91,70 +91,88 @@ Once Metabase is connected to BigQuery, create these dashboard cards:
 
 ### Usage / Traffic Hotspots
 ```sql
--- Production data only (filters out debug builds and non-prod environments)
 SELECT
-  event_name as screen,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'screen_name') as screen,
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') as environment,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'build_type') as build_type,
   COUNT(*) as event_count,
   COUNT(DISTINCT user_pseudo_id) as unique_users
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
-GROUP BY screen, organisation
+  AND event_name = 'screen_load_time'
+GROUP BY screen, organisation, environment, build_type
 ORDER BY event_count DESC
+```
+
+### All Recent Events (Testing/Debug)
+```sql
+-- Simple query to see all recent screen_load_time events
+SELECT
+  TIMESTAMP_MICROS(event_timestamp) as timestamp,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'screen_name') as screen,
+  (SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') as time_ms,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') as environment,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'build_type') as build_type,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'is_offline') as is_offline
+FROM `avni-be4b7.analytics_259495760.events_*`
+WHERE event_name = 'screen_load_time'
+  AND _TABLE_SUFFIX >= FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY))
+ORDER BY event_timestamp DESC
+LIMIT 100
 ```
 
 ### Slowest Screens by Organization
 ```sql
--- Production data only (filters out debug builds and non-prod environments)
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
-  event_name as screen,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') as environment,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'build_type') as build_type,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'screen_name') as screen,
   COUNT(*) as views,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms,
-  ROUND(APPROX_QUANTILES(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64), 100)[OFFSET(95)]) as p95_ms
+  ROUND(AVG((SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms'))) as avg_ms,
+  ROUND(APPROX_QUANTILES((SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms'), 100)[OFFSET(95)]) as p95_ms
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
-GROUP BY organisation, screen
-HAVING COUNT(*) >= 5
+  AND event_name = 'screen_load_time'
+  AND (SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+GROUP BY organisation, environment, build_type, screen
+HAVING COUNT(*) >= 5  -- Remove this line for testing with fresh data
 ORDER BY avg_ms DESC
 ```
 
 ### Performance Trend (30 days)
 ```sql
--- Production data only (filters out debug builds and non-prod environments)
 SELECT
   DATE(TIMESTAMP_MICROS(event_timestamp)) as date,
-  event_name as screen,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'screen_name') as screen,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') as environment,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'build_type') as build_type,
+  ROUND(AVG((SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms'))) as avg_ms
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 30
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
-GROUP BY date, screen
+  AND event_name = 'screen_load_time'
+  AND (SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+GROUP BY date, screen, environment, build_type
 ORDER BY date DESC, avg_ms DESC
 ```
 
 ### Offline vs Online Performance
 ```sql
--- Production data only (filters out debug builds and non-prod environments)
 SELECT
   (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'organisation') as organisation,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') as environment,
+  (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'build_type') as build_type,
   IFNULL((SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'is_offline'), 'false') as is_offline,
-  event_name as screen,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'screen_name') as screen,
   COUNT(*) as views,
-  ROUND(AVG(CAST((SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') AS FLOAT64))) as avg_ms
+  ROUND(AVG((SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms'))) as avg_ms
 FROM `avni-be4b7.analytics_259495760.events_*`
 WHERE DATE(TIMESTAMP_MICROS(event_timestamp)) >= CURRENT_DATE() - 7
-  AND (SELECT value.int_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'is_production') = 'true'
-  AND (SELECT value.string_value FROM UNNEST(user_properties) WHERE key = 'environment') = 'prod'
-GROUP BY organisation, is_offline, screen
+  AND event_name = 'screen_load_time'
+  AND (SELECT value.double_value FROM UNNEST(event_params) WHERE key = 'time_taken_ms') IS NOT NULL
+GROUP BY organisation, environment, build_type, is_offline, screen
 ORDER BY organisation, avg_ms DESC
 ```
 

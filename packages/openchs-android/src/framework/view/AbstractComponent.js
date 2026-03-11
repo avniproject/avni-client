@@ -30,6 +30,11 @@ class AbstractComponent extends Component {
         this.scrollToPosition = this.scrollToPosition.bind(this);
         this.scrollToBottom = this.scrollToBottom.bind(this);
         
+        // Initialize screen render start time for analytics (if topLevelStateVariable is set)
+        if (!_.isNil(topLevelStateVariable)) {
+            this.screenRenderStartTime = screenRenderStart();
+        }
+        
         // Warn if subclass (not AbstractComponent itself) overrides componentDidMount
         if (this.constructor !== AbstractComponent && 
             this.constructor.prototype.hasOwnProperty('componentDidMount')) {
@@ -99,7 +104,6 @@ class AbstractComponent extends Component {
 
     UNSAFE_componentWillMount() {
         if (_.isNil(this.topLevelStateVariable)) return;
-        this.screenRenderStartTime = screenRenderStart();
         this.unsubscribe = this.context.getStore().subscribe(this.refreshState.bind(this));
         this.refreshState();
     }
@@ -107,7 +111,7 @@ class AbstractComponent extends Component {
     componentDidMount() {
         // Analytics timing (only for components with topLevelStateVariable)
         if (!_.isNil(this.topLevelStateVariable) && this.screenRenderStartTime) {
-            // Log JS interactions completion and send to Firebase
+            // Send analytics event after all JS interactions complete
             InteractionManager.runAfterInteractions(() => {
                 logScreenEvent(this.viewName(), this.screenRenderStartTime);
             });
