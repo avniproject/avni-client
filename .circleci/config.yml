@@ -90,7 +90,12 @@ commands:
               echo "Using cached autolinking configuration"
             else
               echo "Generating fresh autolinking configuration..."
-              cd packages/openchs-android && npm run prebuild:android
+              if [ ! -d packages/openchs-android/node_modules/react-native ]; then
+                echo "node_modules not found (cache miss), installing dependencies..."
+                cd packages/openchs-android && npm install --legacy-peer-deps && npm run prebuild:android
+              else
+                cd packages/openchs-android && npm run prebuild:android
+              fi
             fi
   run_with_retry:
     description: "Run a command with retry logic"
