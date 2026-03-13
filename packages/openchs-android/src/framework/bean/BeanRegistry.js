@@ -1,10 +1,12 @@
 import Registry from '../Registry';
 import _ from 'lodash';
 import General from "../../utility/General";
+import RepositoryFactory from "../../repository/RepositoryFactory";
 
 class BeanRegistry extends Registry {
     init(db) {
         General.logDebug("BeanRegistry", `Initialising registry with ${this._beanClasses.size} bean classes. ${_.isNil(this._beans)}`);
+        this._repositoryFactory = new RepositoryFactory(db);
         this._beans = [];
         this._beansMap = Array.from(this._beanClasses).reduce((map, [name, beanClass]) => {
             const beanInstance = new beanClass(db, this);
@@ -19,7 +21,12 @@ class BeanRegistry extends Registry {
     }
 
     updateDatabase(db) {
+        this._repositoryFactory.updateDatabase(db);
         this._beans.forEach(bean => bean.updateDatabase(db));
+    }
+
+    getRepositoryFactory() {
+        return this._repositoryFactory;
     }
 
     setReduxStore(reduxStore) {
