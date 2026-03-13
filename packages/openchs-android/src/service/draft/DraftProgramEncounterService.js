@@ -68,13 +68,11 @@ class DraftProgramEncounterService extends BaseService {
      * @returns {DraftProgramEncounter}
      */
     saveDraft(programEncounter) {
-        const db = this.db;
-        
         // Find existing draft - handles both scheduled and unscheduled encounters
         const existingDraft = this.findDraftFor(programEncounter);
-        
+
         let draftProgramEncounter = DraftProgramEncounter.create(programEncounter);
-        
+
         // If existing draft found, use its UUID to update instead of creating new
         if (existingDraft) {
             draftProgramEncounter.uuid = existingDraft.uuid;
@@ -88,8 +86,8 @@ class DraftProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(draftProgramEncounter.observations);
         ObservationsHolder.convertObsForSave(draftProgramEncounter.cancelObservations);
 
-        return this.db.write(() => {
-            return db.create(DraftProgramEncounter.schema.name, draftProgramEncounter, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftProgramEncounter, Realm.UpdateMode.Modified);
         });
     }
 
@@ -98,17 +96,16 @@ class DraftProgramEncounterService extends BaseService {
      * @param {string} programEncounterUUID
      */
     deleteDraftByUUID(programEncounterUUID) {
-        const db = this.db;
         const draft = this.findByUUID(programEncounterUUID);
         if (draft) {
-            db.write(() => {
-                db.delete(draft.observations);
-                db.delete(draft.cancelObservations);
+            this.transactionManager.write(() => {
+                this.db.delete(draft.observations);
+                this.db.delete(draft.cancelObservations);
 
                 this.safeDelete(draft.encounterLocation);
                 this.safeDelete(draft.cancelLocation);
 
-                db.delete(draft);
+                this.db.delete(draft);
             });
         }
     }

@@ -39,7 +39,7 @@ class IndividualRelationshipService extends BaseService {
         this.saveOrUpdate(individualRelationship);
     }
 
-    addOrUpdateRelative(individualRelative, db) {
+    addOrUpdateRelative(individualRelative) {
         const relatives = this.getRelatives(individualRelative.individual);
         const oldRelationWithRelative = relatives.filter(({relative}) => relative.uuid === individualRelative.relative.uuid);
         if (!_.isEmpty(oldRelationWithRelative)) {
@@ -48,11 +48,11 @@ class IndividualRelationshipService extends BaseService {
                 return;
             }
             const voidedRelative = this.voidRelative(oldRelation);
-            this.writeRecord(db, voidedRelative)
+            this.writeRecord(voidedRelative)
         }
         const relationshipType = this.getService(IndividualRelationshipTypeService).getRelationshipType(individualRelative);
         const individualRelationship = IndividualRelationship.create(individualRelative, relationshipType);
-        this.writeRecord(db, individualRelationship);
+        this.writeRecord(individualRelationship);
     }
 
     deleteRelative(individualRelative) {
@@ -69,21 +69,20 @@ class IndividualRelationshipService extends BaseService {
     }
 
     saveOrUpdate(relationship) {
-        const db = this.db;
-        this.db.write(() => {
-            this.writeRecord(db, relationship);
+        this.transactionManager.write(() => {
+            this.writeRecord(relationship);
         });
 
         return relationship;
     }
 
-    writeRecord(db, relationship) {
-        const savedRelationship = db.create(IndividualRelationship.schema.name, relationship, true);
+    writeRecord(relationship) {
+        const savedRelationship = this.repository.create(relationship, true);
         let individualA = this.getService(EntityService).findByUUID(relationship.individualA.uuid, Individual.schema.name);
         let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
         individualA.addRelationship(savedRelationship);
         individualB.addRelationship(savedRelationship);
-        db.create(EntityQueue.schema.name, EntityQueue.create(relationship, IndividualRelationship.schema.name));
+        this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(relationship, IndividualRelationship.schema.name));
         General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
     }
 

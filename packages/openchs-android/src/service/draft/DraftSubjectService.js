@@ -16,23 +16,21 @@ class DraftSubjectService extends BaseService {
     }
 
     saveDraftSubject(subject) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(subject.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(subject.subjectType);
-        this.db.write(() => {
-            const saved = db.create(DraftSubject.schema.name, subject, Realm.UpdateMode.Modified);
+        this.transactionManager.write(() => {
+            this.repository.create(subject, Realm.UpdateMode.Modified);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, subject.observations);
         });
     }
 
     deleteDraftSubjectByUUID(subjectUUID) {
-        const db = this.db;
         const draftSubject = this.findByUUID(subjectUUID);
         if (draftSubject) {
-            db.write(() => {
-                db.delete(draftSubject.observations);
+            this.transactionManager.write(() => {
+                this.db.delete(draftSubject.observations);
                 this.safeDelete(draftSubject.registrationLocation);
-                db.delete(draftSubject);
+                this.db.delete(draftSubject);
             });
         }
     }

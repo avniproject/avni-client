@@ -224,48 +224,45 @@ class IndividualService extends BaseService {
     }
 
     register(individual, nextScheduledVisits, skipCreatingPendingStatus, groupSubjectObservations) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(individual.observations);
         const formMappingService = this.getService(FormMappingService);
         const registrationForm = formMappingService.findRegistrationForm(individual.subjectType);
         const isApprovalEnabled = formMappingService.isApprovalEnabledForRegistrationForm(individual.subjectType);
         const isNew = this.isNew(individual);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, db, individual.subjectType.uuid);
+                this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, individual.subjectType.uuid);
             individual.updateAudit(this.getUserInfo(), isNew);
-            const saved = db.create(Individual.schema.name, individual, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            const saved = this.repository.create(individual, Realm.UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, saved);
-            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved, db));
-            this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, db, saved.registrationDate);
+            _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(saved));
+            this.encounterService.saveScheduledVisits(saved, nextScheduledVisits, saved.registrationDate);
         });
     }
 
     updateObservations(individual) {
-        const db = this.db;
         individual.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             ObservationsHolder.convertObsForSave(individual.observations);
-            db.create(Individual.schema.name, {
+            this.repository.create({
                 uuid: individual.uuid,
                 observations: individual.observations,
                 profilePicture: individual.profilePicture
             }, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }
 
     updateSubjectLocation(individual) {
-        const db = this.db;
         individual.updateAudit(this.getUserInfo(), false);
-        this.db.write(() => {
-            db.create(Individual.schema.name, {
+        this.transactionManager.write(() => {
+            this.repository.create({
                 uuid: individual.uuid,
                 subjectLocation: individual.subjectLocation
             }, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(individual, Individual.schema.name));
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }
 

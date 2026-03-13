@@ -56,7 +56,7 @@ class MediaQueueService extends BaseService {
         General.logInfo('MediaQueueService', `Adding ${fileName} to queue`);
         if (this.fileExistsInQueue(fileName)) return;
         this.runInTransaction(() => {
-            this.db.create(MediaQueue.schema.name,
+            this.repository.create(
                 MediaQueue.create(entity.uuid, schemaName, fileName, datatype, entityTargetField, conceptUUID));
         });
     }
@@ -81,7 +81,7 @@ class MediaQueueService extends BaseService {
     popItem(mediaQueueItem) {
         General.logDebug("MediaQueueService", `Deleting Media QueueItem ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
         const itemToBeDeleted = this.findByUUID(mediaQueueItem.uuid, MediaQueue.schema.name);
-        this.db.write(() => this.db.delete(itemToBeDeleted));
+        this.transactionManager.write(() => this.db.delete(itemToBeDeleted));
     }
 
     getDirByType(mediaQueueItem) {

@@ -56,13 +56,11 @@ class DraftEncounterService extends BaseService {
     }
 
     saveDraft(encounter) {
-        const db = this.db;
-        
         // Find existing draft - handles both scheduled and unscheduled encounters
         const existingDraft = this.findDraftFor(encounter);
-        
+
         let draftEncounter = DraftEncounter.create(encounter);
-        
+
         // If existing draft found, use its UUID to update instead of creating new
         if (existingDraft) {
             draftEncounter.uuid = existingDraft.uuid;
@@ -73,23 +71,22 @@ class DraftEncounterService extends BaseService {
 
         ObservationsHolder.convertObsForSave(draftEncounter.observations);
 
-        return this.db.write(() => {
-            return db.create(DraftEncounter.schema.name, draftEncounter, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftEncounter, Realm.UpdateMode.Modified);
         });
     }
 
     deleteDraftByUUID(encounterUUID) {
-        const db = this.db;
         const draft = this.findByUUID(encounterUUID);
         if (draft) {
-            db.write(() => {
-                    db.delete(draft.observations);
-                    db.delete(draft.cancelObservations);
+            this.transactionManager.write(() => {
+                    this.db.delete(draft.observations);
+                    this.db.delete(draft.cancelObservations);
 
                     this.safeDelete(draft.encounterLocation);
                     this.safeDelete(draft.cancelLocation);
 
-                    db.delete(draft);
+                    this.db.delete(draft);
                 }
             );
         }

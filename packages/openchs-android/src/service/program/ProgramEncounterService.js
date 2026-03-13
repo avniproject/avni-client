@@ -28,17 +28,17 @@ class ProgramEncounterService extends BaseService {
         return ProgramEncounter.schema.name;
     }
 
-    _saveEncounter(programEncounter, db) {
-        const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(db, this.getSchema(), programEncounter)
+    _saveEncounter(programEncounter) {
+        const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(this.repository, programEncounter)
         programEncounter.updateAudit(this.getUserInfo(), this.isNew(programEncounter), isGettingFilled);
-        programEncounter = db.create(ProgramEncounter.schema.name, programEncounter, Realm.UpdateMode.Modified);
+        programEncounter = this.repository.create(programEncounter, Realm.UpdateMode.Modified);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
-        db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+        this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         this.getService(MediaQueueService).addMediaToQueue(programEncounter, ProgramEncounter.schema.name);
     }
 
-    saveScheduledVisit(programEnrolment, nextScheduledVisit, db, schedulerDate) {
+    saveScheduledVisit(programEnrolment, nextScheduledVisit, schedulerDate) {
         const {encounterType: encounterTypeName, visitCreationStrategy = 'default'} = nextScheduledVisit;
 
         let encountersToUpdate = programEnrolment.scheduledEncountersOfType(encounterTypeName);
@@ -49,24 +49,24 @@ class ProgramEncounterService extends BaseService {
             if (isProgramEncounter) {
                 encountersToUpdate = [ProgramEncounter.createScheduled(encounterType, programEnrolment)];
             } else {
-                this.getService(EncounterService).saveScheduledVisit(programEnrolment.individual, nextScheduledVisit, db, schedulerDate);
+                this.getService(EncounterService).saveScheduledVisit(programEnrolment.individual, nextScheduledVisit, schedulerDate);
             }
         }
-        _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit), db));
+        _.forEach(encountersToUpdate, enc => this._saveEncounter(enc.updateSchedule(nextScheduledVisit)));
     }
 
-    saveScheduledVisits(enrolment, nextScheduledVisits = [], db, schedulerDate) {
+    saveScheduledVisits(enrolment, nextScheduledVisits = [], schedulerDate) {
         return nextScheduledVisits.map(nSV =>{
             if (nSV.programEnrolment) {
                 enrolment = this.findByUUID(nSV.programEnrolment.uuid, ProgramEnrolment.schema.name);
-                return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
+                return this.saveScheduledVisit(enrolment, nSV, schedulerDate);
             }
 
             enrolment = this.findByUUID(enrolment.uuid, ProgramEnrolment.schema.name);
             if (this.getService(IndividualService).determineSubjectForVisitToBeScheduled(enrolment.individual, nSV).uuid !== enrolment.individual.uuid) {
-                return this.getService(EncounterService).saveScheduledVisit(nSV.subject, nSV, db, schedulerDate);
+                return this.getService(EncounterService).saveScheduledVisit(nSV.subject, nSV, schedulerDate);
             }
-            return this.saveScheduledVisit(enrolment, nSV, db, schedulerDate);
+            return this.saveScheduledVisit(enrolment, nSV, schedulerDate);
         });
     }
 
@@ -78,12 +78,11 @@ class ProgramEncounterService extends BaseService {
         const isCancelFlow = _.isNil(programEncounter.encounterDateTime);
         const isApprovalEnabled = this.getService(FormMappingService).isApprovalEnabledForProgramEncounterForm(_.get(programEncounter, 'individual.subjectType'), _.get(programEncounter, 'programEnrolment.program'), programEncounter.encounterType, isCancelFlow);
 
-        const db = this.db;
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
-                entityApprovalStatusService.createPendingStatus(programEncounter, ProgramEncounter.schema.name, db, programEncounter.encounterType.uuid);
-            this._saveEncounter(programEncounter, db);
-            this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, db, programEncounter.encounterDateTime);
+                entityApprovalStatusService.createPendingStatus(programEncounter, ProgramEncounter.schema.name, programEncounter.encounterType.uuid);
+            this._saveEncounter(programEncounter);
+            this.saveScheduledVisits(programEncounter.programEnrolment, nextScheduledVisits, programEncounter.encounterDateTime);
         });
         return programEncounter;
     }
@@ -92,10 +91,9 @@ class ProgramEncounterService extends BaseService {
     updateObservations(programEncounter) {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
-        const db = this.db;
-        this.db.write(() => {
-            db.create(ProgramEncounter.schema.name, {uuid: programEncounter.uuid, observations: programEncounter.observations, cancelObservations: programEncounter.cancelObservations}, Realm.UpdateMode.Modified);
-            db.create(EntityQueue.schema.name, EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
+        this.transactionManager.write(() => {
+            this.repository.create({uuid: programEncounter.uuid, observations: programEncounter.observations, cancelObservations: programEncounter.cancelObservations}, Realm.UpdateMode.Modified);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         });
     }
 

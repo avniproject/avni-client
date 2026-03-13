@@ -62,23 +62,22 @@ class TaskService extends BaseService {
         return tasks;
     }
 
-    deleteTask(taskUUID, db) {
+    deleteTask(taskUUID) {
         const task = this.findByUUID(taskUUID);
         if (!_.isNil(task)) {
-            db.delete(task);
+            this.db.delete(task);
         }
     }
 
     saveOrUpdate(task) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(task.observations);
         ObservationsHolder.convertObsForSave(task.metadata);
         if (task.taskStatus.isTerminal) {
             task.setCompletedOn(new Date());
         }
-        this.db.write(() => {
-            db.create(Task.schema.name, task, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(task, Task.schema.name));
+        this.transactionManager.write(() => {
+            this.repository.create(task, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(task, Task.schema.name));
         });
     }
 

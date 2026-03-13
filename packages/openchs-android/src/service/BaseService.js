@@ -111,7 +111,7 @@ class BaseService {
 
     getCreateEntityFunctions(schema, entities) {
         return entities.map((entity) => () => {
-            this.db.create(schema, entity, Realm.UpdateMode.Modified)
+            this.getRepository(schema).create(entity, Realm.UpdateMode.Modified)
         });
     }
 

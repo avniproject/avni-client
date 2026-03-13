@@ -46,12 +46,12 @@ class EntityApprovalStatusService extends BaseService {
         return EntityApprovalStatus.schema.name;
     }
 
-    saveStatus(entityUUID, entityType, status, db, approvalStatusComment, entityTypeUuid) {
+    saveStatus(entityUUID, entityType, status, approvalStatusComment, entityTypeUuid) {
         const entityService = this.getService(EntityService);
         const approvalStatus = entityService.findByKey("status", status, ApprovalStatus.schema.name);
         const entityApprovalStatus = EntityApprovalStatus.create(entityUUID, entityType, approvalStatus, approvalStatusComment, false, entityTypeUuid);
-        const savedStatus = db.create(this.getSchema(), entityApprovalStatus);
-        db.create(EntityQueue.schema.name, EntityQueue.create(savedStatus, this.getSchema()));
+        const savedStatus = this.repository.create(entityApprovalStatus);
+        this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedStatus, this.getSchema()));
         return savedStatus;
     }
 
@@ -116,19 +116,18 @@ class EntityApprovalStatusService extends BaseService {
         this.saveEntityWithStatus(entity, schema, ApprovalStatus.statuses.Rejected, comment);
     }
 
-    createPendingStatus(entity, schema, db, entityTypeUuid) {
-        const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, db, null, entityTypeUuid);
+    createPendingStatus(entity, schema, entityTypeUuid) {
+        const entityApprovalStatus = this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), ApprovalStatus.statuses.Pending, null, entityTypeUuid);
         this._addUpdateApprovalStatus(entity, entityApprovalStatus);
     }
 
     saveEntityWithStatus(entity, schema, status, comment) {
-        const db = this.db;
         const entityTypeUuid = this._getEntityTypeUuid(entity, schema);
 
-        this.db.write(() => {
-            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, db, comment, entityTypeUuid));
-            db.create(schema, entity, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
+        this.transactionManager.write(() => {
+            this._addUpdateApprovalStatus(entity, this.saveStatus(entity.uuid, this._getEntityTypeForSchema(schema), status, comment, entityTypeUuid));
+            this.getRepository(schema).create(entity, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(entity, schema));
         });
     }
 
