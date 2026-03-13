@@ -65,23 +65,40 @@ this.transactionManager.runInTransaction(() => {
 
 ## Migration Checklist
 
-### Phase 1: Read-only methods (current)
+### Phase 1: Repository abstraction layer (complete)
 
 1. Identify `this.db.objects(SchemaName)` calls in your service
 2. Replace with `this.repository.findAll()` (same schema) or `this.getRepository(SchemaName).findAll()` (cross-schema)
 3. Chained `.filtered()` / `.sorted()` calls work unchanged — `findAll()` returns the same `RealmResults`
 4. Replace `this.db.objectForPrimaryKey(schema, key)` with `this.repository.objectForPrimaryKey(key)`
 
-### Phase 2: Write methods (future)
+### Phase 2: BaseService & remaining read-only services (complete)
+
+BaseService read and write methods now delegate to the repository/transactionManager layer. This means all 52+ child services that call inherited methods like `findAll()`, `getAllNonVoided()`, `existsByUuid()`, `saveOrUpdate()`, `save()`, `delete()`, `runInTransaction()` automatically go through the repository abstraction.
+
+**BaseService methods migrated:**
+- **Reads:** `findAll()`, `getAll()`, `getAllNonVoided()`, `existsByUuid()`, `filtered()` — delegate to `this.getRepository(schema)`
+- **Writes:** `saveOrUpdate()`, `save()`, `bulkSaveOrUpdate()`, `delete()`, `deleteAll()`, `clearDataIn()`, `runInTransaction()` — use `this.transactionManager`
+- **Skipped:** `getCreateEntityFunctions()` — closure captures `this.db.create` for SyncService batch (Phase 3), `safeDelete()` — called inside existing transactions
+
+**Read-only services migrated (10):** DashboardFilterService, FormMappingService, CustomFilterService, FamilyService, PrivilegeService, RuleService, MetricsService, EntitySyncStatusService, IndividualRelationshipTypeService, SyncTelemetryService
+
+**Mixed services — reads migrated (4):** EncounterService, EntityQueueService, ProgramEnrolmentService, IndividualRelationshipService
+
+Inherited methods (`findAllByCriteria()`, `findAllByKey()`, `findByKey()`, `findByUUID()`, `findByCriteria()`, `findByFiltered()`, `findOnly()`, `loadAll()`, `loadAllNonVoided()`, `getCount()`, `filterBy()`, `findUniqBy()`) no longer need per-service migration — they delegate through the migrated base methods.
+
+### Phase 3: Write methods in child services (future)
 
 1. Replace `this.db.write(() => db.create(...))` with `this.transactionManager.write(() => this.repository.create(entity, updateMode))`
-2. For methods using `this.runInTransaction()`, switch to `this.transactionManager.runInTransaction()`
-3. Cross-schema writes within a single transaction: use `this.transactionManager.write()` and call `.create()` on multiple repositories
+2. Cross-schema writes within a single transaction: use `this.transactionManager.write()` and call `.create()` on multiple repositories
+3. Migrate `getCreateEntityFunctions()` for SyncService batch pattern
 
 ### Do NOT migrate yet
 
-- Methods with complex cross-schema writes (e.g., `register()` in IndividualService)
-- Methods using `Realm.UpdateMode.Modified` — wait for TransactionManager patterns to stabilize
+- Methods with complex cross-schema writes (e.g., `register()` in IndividualService, FamilyService)
+- Methods using `Realm.UpdateMode.Modified` in `getCreateEntityFunctions()` — SyncService batch pattern
+- EntityService — dynamic schema throughout, needs special handling
+- BackupRestoreRealmService / EncryptionService — use `writeCopyTo()`, Realm-specific
 
 ## Creating Custom Repositories
 

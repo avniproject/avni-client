@@ -143,19 +143,19 @@ class FormMappingService extends BaseService {
     findFormForEncounterType(encounterType: EncounterType, formType: string = Form.formTypes.ProgramEncounter, subjectType: SubjectType): Form {
         let criteria = "voided = false AND observationsTypeEntityUUID = $0 AND form.formType = $1 and subjectType.uuid = $2";
         let params = [encounterType.uuid, formType, subjectType.uuid];
-        const formMapping = this.db.objects(FormMapping.schema.name)
+        const formMapping = this.repository.findAll()
             .filtered(criteria, ...params)[0];
         return _.get(formMapping, 'form');
     }
 
     allFormMappings() {
-        const formMappings = this.db.objects(this.getSchema());
+        const formMappings = this.repository.findAll();
         return new FormQueryResult(formMappings);
     }
 
     getRegistrationFormMapping(subjectType) {
         let criteria = `voided = false AND form.formType = "${Form.formTypes.IndividualProfile}" and subjectType.uuid = "${subjectType.uuid}"`;
-        return this.db.objects(FormMapping.schema.name).filtered(criteria)[0];
+        return this.repository.findAll().filtered(criteria)[0];
     }
 
     findRegistrationForm(subjectType: SubjectType) {
@@ -257,7 +257,7 @@ class FormMappingService extends BaseService {
 
     getTaskFormMapping(taskType) {
         let criteria = `voided = false AND form.formType = "${Form.formTypes.Task}" and taskType.uuid = "${taskType.uuid}"`;
-        return this.db.objects(FormMapping.schema.name).filtered(criteria)[0];
+        return this.repository.findAll().filtered(criteria)[0];
     }
 
     getManualEnrolmentEligibilityForm(subjectType, program) {

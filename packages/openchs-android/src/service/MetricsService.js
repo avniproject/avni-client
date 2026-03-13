@@ -20,6 +20,6 @@ export default class MetricsService extends BaseService {
     }
 
     getDanglingCount(schemaName) {
-        return this.db.objects(schemaName).filtered("@links.@count == 0").length;
+        return this.getRepository(schemaName).findAll().filtered("@links.@count == 0").length;
     }
 }

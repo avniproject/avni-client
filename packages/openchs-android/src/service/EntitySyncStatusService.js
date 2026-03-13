@@ -37,14 +37,14 @@ class EntitySyncStatusService extends BaseService {
     }
 
     get(entityName, entityTypeUuid) {
-        return this.db.objects(EntitySyncStatus.schema.name)
+        return this.repository.findAll()
             .filtered("entityName = $0", entityName)
             .filtered(_.isEmpty(entityTypeUuid) ? 'uuid<>null' : 'entityTypeUuid = $0', entityTypeUuid)
             .slice()[0];
     }
 
     getAllByEntityName(entityName, entityTypeUuid) {
-        return this.db.objects(EntitySyncStatus.schema.name)
+        return this.repository.findAll()
             .filtered("entityName = $0", entityName)
             .filtered(_.isEmpty(entityTypeUuid) ? 'uuid<>null' : 'entityTypeUuid = $0', entityTypeUuid);
     }

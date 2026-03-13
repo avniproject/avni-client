@@ -28,7 +28,7 @@ class DashboardFilterService extends BaseService {
     }
 
     getFilters(dashboardUUID) {
-        return this.db.objects(this.getSchema()).filtered("dashboard.uuid = $0 and voided = false", dashboardUUID);
+        return this.repository.findAll().filtered("dashboard.uuid = $0 and voided = false", dashboardUUID);
     }
 
     getFilterConfigsForDashboard(dashboardUUID) {

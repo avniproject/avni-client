@@ -21,8 +21,7 @@ class EncounterService extends BaseService {
     }
 
     getEncounters(individual) {
-        const db = this.db;
-        return this.db.objects(Encounter.schema.name).filtered(`individual.uuid="${individual.uuid}"`);
+        return this.repository.findAll().filtered(`individual.uuid="${individual.uuid}"`);
     }
 
     isEncounterTypeCancellable(encounter) {
