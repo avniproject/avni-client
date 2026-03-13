@@ -57,7 +57,7 @@ class BaseService {
     }
 
     findAll(schema = this.getSchema()) {
-        return this.db.objects(schema);
+        return this.getRepository(schema).findAll();
     }
 
     findOnly(schema = this.getSchema()) {
@@ -99,13 +99,12 @@ class BaseService {
     saveOrUpdate(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
-        const db = this.db;
-        this.db.write(() => db.create(schema, entity, true));
+        this.transactionManager.write(() => this.getRepository(schema).create(entity, true));
         return entity;
     }
 
     bulkSaveOrUpdate(entities) {
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             entities.map((entity) => entity());
         });
     }
@@ -119,14 +118,13 @@ class BaseService {
     save(entity, schema) {
         if (schema === undefined) schema = this.getSchema();
 
-        const db = this.db;
-        this.db.write(() => db.create(schema, entity));
+        this.transactionManager.write(() => this.getRepository(schema).create(entity));
         return entity;
     }
 
     getAll(schema) {
         if (schema === undefined) schema = this.getSchema();
-        return this.db.objects(schema);
+        return this.getRepository(schema).findAll();
     }
 
     loadAll(schema = this.getSchema()) {
@@ -141,7 +139,7 @@ class BaseService {
      Loads all objects without materialising them into model. Ideal for displaying large list or for further filtering
      **/
     getAllNonVoided(schema = this.getSchema()) {
-        return this.db.objects(schema).filtered("voided = false");
+        return this.getRepository(schema).getAllNonVoided();
     }
 
     /**
@@ -156,12 +154,11 @@ class BaseService {
     }
 
     clearDataIn(entityTypes) {
-        const db = this.db;
-
         entityTypes.forEach((entityType) => {
             General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
-            db.write(() => {
-                db.delete(db.objects(entityType.schema.name));
+            const repo = this.getRepository(entityType.schema.name);
+            this.transactionManager.write(() => {
+                this.db.delete(repo.findAll());
             });
         });
     }
@@ -171,14 +168,11 @@ class BaseService {
     }
 
     runInTransaction(fn) {
-        if (this.db.isInTransaction) {
-            return fn();
-        }
-        return this.db.write(fn);
+        return this.transactionManager.runInTransaction(fn);
     }
 
     existsByUuid(uuid, schema = this.getSchema()) {
-        return _.isEmpty(uuid) ? false : this.db.objects(schema).filtered('uuid = $0', uuid).length > 0;
+        return this.getRepository(schema).existsByUuid(uuid);
     }
 
     isNew(entity) {
@@ -186,7 +180,7 @@ class BaseService {
     }
 
     filtered(...args) {
-        return this.db.objects(this.getSchema()).filtered(...args);
+        return this.repository.filtered(...args);
     }
 
     filterBy(fn) {
@@ -225,17 +219,15 @@ class BaseService {
     }
 
     delete(objectOrObjects) {
-        const db = this.db;
-        this.db.write(() => {
-            db.delete(objectOrObjects);
+        this.transactionManager.write(() => {
+            this.db.delete(objectOrObjects);
         });
     }
 
     deleteAll() {
-        const db = this.db;
         const all = this.findAll(this.getSchema());
-        this.db.write(() => {
-            db.delete(all);
+        this.transactionManager.write(() => {
+            this.db.delete(all);
         });
     }
     

@@ -17,7 +17,7 @@ class EntityQueueService extends BaseService {
     }
 
     getAllQueuedItems(entityMetaData: EntityMetaData) {
-        const items = _.uniqBy(this.db.objects(EntityQueue.schema.name)
+        const items = _.uniqBy(this.repository.findAll()
             .filtered("entity = $0", entityMetaData.entityName)
             .sorted("savedAt")
             .slice(), 'entityUUID');
@@ -42,17 +42,17 @@ class EntityQueueService extends BaseService {
     }
 
     getPresentEntities() {
-        return this.db.objects(EntityQueue.schema.name).filtered("TRUEPREDICATE DISTINCT(entity)");
+        return this.repository.findAll().filtered("TRUEPREDICATE DISTINCT(entity)");
     }
 
     getQueuedItemCount(entityName) {
-        const allItems = this.db.objects(EntityQueue.schema.name);
+        const allItems = this.repository.findAll();
         const entityItems = (entityName && allItems.filtered("entity = $0", entityName)) || allItems;
         return _.uniqBy(entityItems, 'entityUUID').length;
     }
 
     getTotalQueueCount() {
-        return this.getQueuedItemCount() + this.db.objects(MediaQueue.schema.name).length;
+        return this.getQueuedItemCount() + this.getRepository(MediaQueue.schema.name).findAll().length;
     }
 
     popItem(uuid) {

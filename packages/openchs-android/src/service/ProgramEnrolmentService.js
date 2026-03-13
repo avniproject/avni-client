@@ -128,7 +128,7 @@ class ProgramEnrolmentService extends BaseService {
     }
 
     getAllEnrolments(programUUID) {
-        return this.db.objects(ProgramEnrolment.schema.name).filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
+        return this.repository.findAll().filtered(`program.uuid == \"${programUUID}\"`).sorted('enrolmentDateTime', true);
     }
 
     reJoinProgram(programEnrolment, oldExitObservations) {

@@ -11,18 +11,18 @@ export default class SyncTelemetryService extends BaseService {
     }
 
     atLeastOneSyncCompleted() {
-        let results = this.db.objects(SyncTelemetry.schema.name).filtered("syncStatus = $0", "complete");
+        let results = this.repository.findAll().filtered("syncStatus = $0", "complete");
         return !_.isEmpty(results);
     }
 
     getLatestCompletedSync() {
-        return this.db.objects(SyncTelemetry.schema.name)
+        return this.repository.findAll()
           .filtered("syncStatus = $0", "complete")
           .sorted('syncEndTime', true)[0];
     }
 
     getLatestCompletedFullSync() {
-        return this.db.objects(SyncTelemetry.schema.name)
+        return this.repository.findAll()
           .filtered("syncStatus = $0 AND syncSource <> $1", "complete", SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB)
           .sorted('syncEndTime', true)[0];
     }

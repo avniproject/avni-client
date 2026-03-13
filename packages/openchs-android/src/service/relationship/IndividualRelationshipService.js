@@ -19,7 +19,7 @@ class IndividualRelationshipService extends BaseService {
     }
 
     getRelatives(individual) {
-        const relationshipsWithIndividual = this.db.objects(IndividualRelationship.schema.name).filtered(`voided = false AND (individualA.uuid="${individual.uuid}" OR individualB.uuid="${individual.uuid}")`);
+        const relationshipsWithIndividual = this.repository.findAll().filtered(`voided = false AND (individualA.uuid="${individual.uuid}" OR individualB.uuid="${individual.uuid}")`);
         const relatives = [];
         relationshipsWithIndividual.forEach((relationship) => {
             if (relationship.individualA.uuid === individual.uuid) {
