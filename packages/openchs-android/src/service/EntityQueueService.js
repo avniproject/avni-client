@@ -27,7 +27,7 @@ class EntityQueueService extends BaseService {
             const entity = getEntity(item);
             if (_.isNil(entity)) {
                 ErrorUtil.notifyBugsnag(new Error(`Entity in EntityQueue can\'t be found. Details: ${JSON.stringify(item)}`), "EntityQueueService");
-                this.db.write(() => this.db.delete(item));
+                this.transactionManager.write(() => this.db.delete(item));
                 return undefined;
             }
             return entity.toResource;
@@ -61,7 +61,7 @@ class EntityQueueService extends BaseService {
             if (_.isNil(itemToDelete)) {
                 ErrorUtil.notifyBugsnag(new Error(`Item to delete is undefined in entityQueue. Details: ${uuid}`), "EntityQueryService");
             } else {
-                this.db.write(() => this.db.delete(itemToDelete));
+                this.transactionManager.write(() => this.db.delete(itemToDelete));
             }
         };
     }

@@ -43,13 +43,11 @@ class DraftEnrolmentService extends BaseService {
      * @returns {DraftEnrolment}
      */
     saveDraft(enrolment) {
-        const db = this.db;
-        
         // Find existing draft for same individual + program to update it
         const existingDraft = this.findByIndividualAndProgram(enrolment.individual, enrolment.program);
-        
+
         let draftEnrolment = DraftEnrolment.create(enrolment);
-        
+
         // If existing draft found, use its UUID to update instead of creating new
         if (existingDraft) {
             draftEnrolment.uuid = existingDraft.uuid;
@@ -66,8 +64,8 @@ class DraftEnrolmentService extends BaseService {
         ObservationsHolder.convertObsForSave(draftEnrolment.observations);
         ObservationsHolder.convertObsForSave(draftEnrolment.programExitObservations);
 
-        return this.db.write(() => {
-            return db.create(DraftEnrolment.schema.name, draftEnrolment, Realm.UpdateMode.Modified);
+        return this.transactionManager.write(() => {
+            return this.repository.create(draftEnrolment, Realm.UpdateMode.Modified);
         });
     }
 
@@ -76,17 +74,16 @@ class DraftEnrolmentService extends BaseService {
      * @param {string} enrolmentUUID
      */
     deleteDraftByUUID(enrolmentUUID) {
-        const db = this.db;
         const draft = this.findByUUID(enrolmentUUID);
         if (draft) {
-            db.write(() => {
-                db.delete(draft.observations);
-                db.delete(draft.programExitObservations);
+            this.transactionManager.write(() => {
+                this.db.delete(draft.observations);
+                this.db.delete(draft.programExitObservations);
 
                 this.safeDelete(draft.enrolmentLocation);
                 this.safeDelete(draft.exitLocation);
 
-                db.delete(draft);
+                this.db.delete(draft);
             });
         }
     }

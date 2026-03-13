@@ -18,12 +18,11 @@ class CommentService extends BaseService {
     }
 
     saveOrUpdate(comment) {
-        const db = this.db;
-        this.db.write(() => {
-            const savedComment = db.create(this.getSchema(), comment, true);
+        this.transactionManager.write(() => {
+            const savedComment = this.repository.create(comment, true);
             let individual = this.getService(EntityService).findByUUID(comment.subject.uuid, Individual.schema.name);
             individual.addComment(savedComment);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedComment, this.getSchema()));
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedComment, this.getSchema()));
             General.logDebug('CommentService', 'Comment Saved');
         });
         return comment;

@@ -24,11 +24,10 @@ class FamilyService extends BaseService {
     }
 
     register(family) {
-        const db = this.db;
         ObservationsHolder.convertObsForSave(family.observations);
-        this.db.write(() => {
-            db.create(Family.schema.name, family, true);
-            db.create(EntityQueue.schema.name, EntityQueue.create(family, Family.schema.name));
+        this.transactionManager.write(() => {
+            this.repository.create(family, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(family, Family.schema.name));
         });
 
     }

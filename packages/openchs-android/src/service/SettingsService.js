@@ -20,9 +20,8 @@ class SettingsService extends BaseService {
 
     async init() {
         let url = Config.allowServerURLConfig ? await AsyncStorage.getItem('serverUrl') : Config.SERVER_URL;
-        const dbInScope = this.db;
         General.logDebug("SettingsService", `Config.ENV: ${Config.ENV}`);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             let settings = this.getSettings();
             General.logDebug("SettingsService", `Settings is initialised? ${!_.isNil(settings)}`);
             if (_.isNil(settings)) {
@@ -47,9 +46,9 @@ class SettingsService extends BaseService {
 
             if (_.isNil(settings.locale)) {
                 settings.locale = this.findByKey('locale', InitialSettings.locale, LocaleMapping.schema.name);
-                dbInScope.create('Settings', settings, true);
+                this.getRepository(Settings.schema.name).create(settings, true);
             }
-            dbInScope.create('Settings', settings, true);
+            this.getRepository(Settings.schema.name).create(settings, true);
         });
         let level = this.getSettings().logLevel;
         General.logDebug("SettingsService", `Log level: ${level}`);
@@ -75,13 +74,12 @@ class SettingsService extends BaseService {
 
     initLanguages() {
         this.clearDataIn([LocaleMapping]);
-        const dbInScope = this.db;
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
         const languages = _.isEmpty(orgConfig) ? ['en'] : orgConfig.getSettings().languages;
         const OrgLocales = AvailableLocales.filter(localeMapping => languages.includes(localeMapping.locale));
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             OrgLocales.forEach((localeMapping) => {
-                dbInScope.create('LocaleMapping', localeMapping, true);
+                this.getRepository(LocaleMapping.schema.name).create(localeMapping, true);
             })
         })
     }

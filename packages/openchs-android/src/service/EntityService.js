@@ -14,26 +14,24 @@ class EntityService extends BaseService {
     }
 
     deleteObjects(uuid, schema, objectKey) {
-        const db = this.db;
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             const entity = this.findByKey("uuid", uuid, schema);
             if (!_.isNil(entity) && !_.isEmpty(entity)) {
-                db.delete(entity[objectKey]);
+                this.db.delete(entity[objectKey]);
             }
         });
     }
 
     saveAndPushToEntityQueue(entity, schema) {
-        this.db.write(() => {
-            this.db.create(schema, entity, true);
-            this.db.create(EntityQueue.schema.name, EntityQueue.create(entity, schema));
+        this.transactionManager.write(() => {
+            this.getRepository(schema).create(entity, true);
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(entity, schema));
         });
     }
 
     deleteEntities(objects) {
-        const db = this.db;
-        this.db.write(() => {
-            db.delete(objects);
+        this.transactionManager.write(() => {
+            this.db.delete(objects);
         });
     }
 }

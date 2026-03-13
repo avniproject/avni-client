@@ -15,10 +15,9 @@ class TaskUnAssignmentService extends BaseService {
     }
 
     deleteUnassignedTasks(taskUnAssignments) {
-        const db = this.db;
         _.forEach(taskUnAssignments, (taskUnAssignment) => {
-            this.db.write(() => {
-                this.getService(TaskService).deleteTask(taskUnAssignment.taskUUID, db);
+            this.transactionManager.write(() => {
+                this.getService(TaskService).deleteTask(taskUnAssignment.taskUUID);
                 taskUnAssignment.hasMigrated = true;
             });
         });

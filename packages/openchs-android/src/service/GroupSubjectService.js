@@ -25,7 +25,6 @@ class GroupSubjectService extends BaseService {
     }
 
     addMember(groupSubject, addRelative, individualRelative) {
-        const db = this.db;
         const entityService = this.getService(EntityService);
         const freshMember = {
             uuid: groupSubject.uuid,
@@ -36,11 +35,11 @@ class GroupSubjectService extends BaseService {
             membershipEndDate: groupSubject.membershipEndDate,
         };
         const groupSubjectEntity = GroupSubject.create(freshMember);
-        this.db.write(() => {
+        this.transactionManager.write(() => {
             if (addRelative && individualRelative.isRelationPresent()) {
-                this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative, db)
+                this.getService(IndividualRelationshipService).addOrUpdateRelative(individualRelative)
             }
-            this.saveGroupSubject(db, groupSubjectEntity);
+            this.saveGroupSubject(groupSubjectEntity);
         });
     }
 
@@ -53,22 +52,21 @@ class GroupSubjectService extends BaseService {
     }
 
     saveOrUpdate(groupSubject) {
-        const db = this.db;
-        this.db.write(() => {
-            this.saveGroupSubject(db, groupSubject);
+        this.transactionManager.write(() => {
+            this.saveGroupSubject(groupSubject);
         });
         return groupSubject;
     }
 
-    saveGroupSubject(db, groupSubject) {
+    saveGroupSubject(groupSubject) {
         const alreadyAMember = !_.isEmpty(this.getGroupSubjects(groupSubject.groupSubject).filter(gs => gs.memberSubject.uuid === groupSubject.memberSubject.uuid));
         if (groupSubject.voided || !alreadyAMember) {
-            const savedGroupSubject = db.create(GroupSubject.schema.name, groupSubject, true);
+            const savedGroupSubject = this.repository.create(groupSubject, true);
             let groupSubjectInd = this.getService(EntityService).findByUUID(groupSubject.groupSubject.uuid, Individual.schema.name);
             let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
             groupSubjectInd.addGroupSubject(savedGroupSubject);
             memberSubjectInd.addGroup(savedGroupSubject);
-            db.create(EntityQueue.schema.name, EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
+            this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
             General.logDebug('GroupSubjectService', 'Member Saved');
         } else {
             General.logDebug('GroupSubjectService', 'Member already exists. Not creating duplicate.');
@@ -104,13 +102,13 @@ class GroupSubjectService extends BaseService {
         })
     }
 
-    addSubjectToGroup(subject, db) {
+    addSubjectToGroup(subject) {
         return ({groupSubject}) => {
             groupSubject.memberSubject = subject;
             if (groupSubject.voided) {
                 groupSubject.membershipEndDate = new Date();
             }
-            this.saveGroupSubject(db, groupSubject);
+            this.saveGroupSubject(groupSubject);
         };
     }
 
