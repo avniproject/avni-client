@@ -19,16 +19,15 @@ class ConceptService extends BaseService {
     }
 
     getConceptByUUID(conceptUUID) {
-        return this.db.objectForPrimaryKey(Concept.schema.name, conceptUUID);
+        return this.repository.objectForPrimaryKey(conceptUUID);
     }
 
     getConceptByName(conceptName) {
-        return this.db.objects(Concept.schema.name).filtered(`name = \"${conceptName}\"`)[0];
+        return this.repository.findAllByCriteria(`name = "${conceptName}"`)[0];
     }
 
     saveConcept(concept) {
-        const db = this.db;
-        this.db.write(() => db.create(Concept.schema.name, concept, true));
+        this.transactionManager.write(() => this.repository.create(concept, true));
         return concept;
     }
 
@@ -40,7 +39,7 @@ class ConceptService extends BaseService {
     }
 
     getAllConceptsWithIcon() {
-        return this.getAllNonVoided().filtered('media.@size > 0').map(_.identity);
+        return this.repository.getAllNonVoided().filtered('media.@size > 0').map(_.identity);
     }
 
     addDecisions(observations, decisions) {

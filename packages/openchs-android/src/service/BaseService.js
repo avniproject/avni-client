@@ -204,6 +204,18 @@ class BaseService {
         return entities.map((x) => `${path} = "${x.uuid}"`).join(" OR ");
     }
 
+    getRepository(schemaName) {
+        return this.context.getRepositoryFactory().getRepository(schemaName || this.getSchema());
+    }
+
+    get repository() {
+        return this.getRepository();
+    }
+
+    get transactionManager() {
+        return this.context.getRepositoryFactory().transactionManager;
+    }
+
     getActualSchemaVersion() {
         return this.db.schemaVersion;
     }
