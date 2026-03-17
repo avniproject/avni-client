@@ -1,11 +1,16 @@
 import _ from 'lodash';
 import BaseRepository from './BaseRepository';
+import RealmQueryBuilder from './RealmQueryBuilder';
 
 class RealmRepository extends BaseRepository {
     constructor(db, schemaName) {
         super();
         this.db = db;
         this.schemaName = schemaName;
+    }
+
+    query() {
+        return new RealmQueryBuilder(this.findAll());
     }
 
     findAll() {

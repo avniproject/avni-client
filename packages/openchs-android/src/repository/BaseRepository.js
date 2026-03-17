@@ -1,4 +1,8 @@
 class BaseRepository {
+    query() {
+        throw new Error("query() not implemented");
+    }
+
     findAll() {
         throw new Error("findAll() not implemented");
     }
