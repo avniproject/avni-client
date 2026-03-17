@@ -58,18 +58,22 @@ class AttendanceFormElement extends AbstractFormElement {
         const isNeedOperation = !selected;
         
         this.setState({ selected: isNeedOperation }, () => {
+            const uuidsToToggle = [];
             _.forEach(groupsSubjects, ({ memberSubject }) => {
                 const isMemberSubjectSelected = subjectUUIDs.includes(memberSubject.uuid);
                 
                 if ((isNeedOperation && !isMemberSubjectSelected) || (!isNeedOperation && isMemberSubjectSelected)) {
-                    this.dispatchAction(this.props.actionName, {
-                        formElement: this.props.element,
-                        answerUUID: memberSubject.uuid,
-                        parentFormElement: this.props.parentElement,
-                        questionGroupIndex: this.props.questionGroupIndex
-                    });
+                    uuidsToToggle.push(memberSubject.uuid);
                 }
             });
+            if (!_.isEmpty(uuidsToToggle)) {
+                this.dispatchAction(this.props.actionName, {
+                    formElement: this.props.element,
+                    answerUUIDs: uuidsToToggle,
+                    parentFormElement: this.props.parentElement,
+                    questionGroupIndex: this.props.questionGroupIndex
+                });
+            }
         });
     };
 
