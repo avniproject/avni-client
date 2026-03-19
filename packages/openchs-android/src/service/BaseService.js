@@ -2,6 +2,7 @@
 import _ from "lodash";
 import General from "../utility/General";
 import RealmQueryService from "./query/RealmQueryService";
+import UpdateMode from "../repository/UpdateMode";
 
 /*
 All methods with entity/entities in their name are to be used for disconnected objects. The ones without these terms are for connected objects.
@@ -111,7 +112,7 @@ class BaseService {
 
     getCreateEntityFunctions(schema, entities) {
         return entities.map((entity) => () => {
-            this.getRepository(schema).create(entity, Realm.UpdateMode.Modified)
+            this.getRepository(schema).create(entity, UpdateMode.Modified)
         });
     }
 
@@ -158,7 +159,7 @@ class BaseService {
             General.logDebug("BaseService", `Deleting all data from ${entityType.schema.name}`);
             const repo = this.getRepository(entityType.schema.name);
             this.transactionManager.write(() => {
-                this.db.delete(repo.findAll());
+                repo.deleteInTransaction(repo.findAll());
             });
         });
     }
@@ -220,19 +221,20 @@ class BaseService {
 
     delete(objectOrObjects) {
         this.transactionManager.write(() => {
-            this.db.delete(objectOrObjects);
+            this.repository.deleteInTransaction(objectOrObjects);
         });
     }
 
     deleteAll() {
         const all = this.findAll(this.getSchema());
         this.transactionManager.write(() => {
-            this.db.delete(all);
+            this.repository.deleteInTransaction(all);
         });
     }
-    
+
+    // Must be called within an existing transaction
     safeDelete(object) {
-        if(!_.isNil(object)) this.db.delete(object);
+        if(!_.isNil(object)) this.repository.deleteInTransaction(object);
     }
 }
 

@@ -3,6 +3,7 @@ import Service from "../../framework/bean/Service";
 import {DraftSubject, ObservationsHolder} from "avni-models";
 import FormMappingService from "../FormMappingService";
 import IdentifierAssignmentService from "../IdentifierAssignmentService";
+import UpdateMode from "../../repository/UpdateMode";
 
 @Service("draftSubjectService")
 class DraftSubjectService extends BaseService {
@@ -19,7 +20,7 @@ class DraftSubjectService extends BaseService {
         ObservationsHolder.convertObsForSave(subject.observations);
         const registrationForm = this.getService(FormMappingService).findRegistrationForm(subject.subjectType);
         this.transactionManager.write(() => {
-            this.repository.create(subject, Realm.UpdateMode.Modified);
+            this.repository.create(subject, UpdateMode.Modified);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, subject.observations);
         });
     }

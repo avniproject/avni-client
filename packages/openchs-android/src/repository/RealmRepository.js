@@ -72,6 +72,10 @@ class RealmRepository extends BaseRepository {
         });
     }
 
+    deleteInTransaction(objectOrObjects) {
+        this.db.delete(objectOrObjects);
+    }
+
     objectForPrimaryKey(key) {
         return this.db.objectForPrimaryKey(this.schemaName, key);
     }

@@ -7,7 +7,7 @@ class ConceptRepository extends RealmRepository {
     }
 
     findByName(conceptName) {
-        const results = this.findAllByCriteria(`name = "${conceptName}"`);
+        const results = this.findAll().filtered('name = $0', conceptName);
         return results.length > 0 ? results[0] : null;
     }
 

@@ -15,6 +15,7 @@ describe('BaseService repository delegation', () => {
             existsByUuid: jest.fn(),
             filtered: jest.fn(),
             create: jest.fn(),
+            deleteInTransaction: jest.fn(),
         };
 
         mockTransactionManager = {
@@ -135,23 +136,23 @@ describe('BaseService repository delegation', () => {
             expect(mockRepository.create).toHaveBeenCalledWith(entity);
         });
 
-        it('delete() uses transactionManager and db.delete()', () => {
+        it('delete() uses transactionManager and repository.deleteInTransaction()', () => {
             const entity = {uuid: 'abc'};
 
             service.delete(entity);
 
             expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.delete).toHaveBeenCalledWith(entity);
+            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(entity);
         });
 
-        it('deleteAll() uses transactionManager', () => {
+        it('deleteAll() uses transactionManager and repository.deleteInTransaction()', () => {
             const mockResults = [{uuid: '1'}, {uuid: '2'}];
             mockRepository.findAll.mockReturnValue(mockResults);
 
             service.deleteAll();
 
             expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.delete).toHaveBeenCalledWith(mockResults);
+            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(mockResults);
         });
 
         it('bulkSaveOrUpdate() uses transactionManager', () => {
@@ -188,7 +189,7 @@ describe('BaseService repository delegation', () => {
             expect(mockTransactionManager.write).toHaveBeenCalledTimes(2);
             expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith('TypeA');
             expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith('TypeB');
-            expect(mockDb.delete).toHaveBeenCalledTimes(2);
+            expect(mockRepository.deleteInTransaction).toHaveBeenCalledTimes(2);
         });
     });
 });

@@ -13,6 +13,7 @@ import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import GroupSubjectService from "./GroupSubjectService";
 import RuleEvaluationService from "./RuleEvaluationService";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import UpdateMode from "../repository/UpdateMode";
 
 @Service("ProgramEnrolmentService")
 class ProgramEnrolmentService extends BaseService {
@@ -68,7 +69,7 @@ class ProgramEnrolmentService extends BaseService {
                 uuid: programEnrolment.uuid,
                 observations: programEnrolment.observations,
                 programExitObservations: programEnrolment.programExitObservations
-            }, Realm.UpdateMode.Modified);
+            }, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }
@@ -84,7 +85,7 @@ class ProgramEnrolmentService extends BaseService {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
-            programEnrolment = this.repository.create(programEnrolment, Realm.UpdateMode.Modified);
+            programEnrolment = this.repository.create(programEnrolment, UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), isNew);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
@@ -117,7 +118,7 @@ class ProgramEnrolmentService extends BaseService {
         this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
-            this.repository.create(programEnrolment, Realm.UpdateMode.Modified);
+            this.repository.create(programEnrolment, UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), false);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual));
@@ -133,7 +134,7 @@ class ProgramEnrolmentService extends BaseService {
         programEnrolment.updateAudit(this.getUserInfo(), false);
         this.transactionManager.write(() => {
             this.db.delete(oldExitObservations);
-            this.repository.create(programEnrolment, Realm.UpdateMode.Modified);
+            this.repository.create(programEnrolment, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });
     }

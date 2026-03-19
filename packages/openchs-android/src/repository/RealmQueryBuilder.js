@@ -74,8 +74,7 @@ class RealmQueryBuilder extends BaseQueryBuilder {
             this._filters.push({type: 'literal', filter: 'uuid = "___never_match___"'});
             return this;
         }
-        const clauses = values.map(v => `${field} = "${v}"`);
-        this._filters.push({type: 'literal', filter: `( ${clauses.join(' OR ')} )`});
+        this._filters.push({type: 'literal', filter: `${field} IN {${values.map(v => `"${v}"`).join(',')}}`});
         return this;
     }
 
@@ -141,18 +140,22 @@ class RealmQueryBuilder extends BaseQueryBuilder {
                 parts.push(f.filter);
             } else {
                 // For the combined filter string used in OR groups,
-                // inline the parameter values
+                // inline the parameter values. Replace in reverse order
+                // to avoid $1 matching inside $10, $11, etc.
                 let s = f.filter;
-                f.params.forEach((val, i) => {
+                for (let i = f.params.length - 1; i >= 0; i--) {
+                    const val = f.params[i];
                     const placeholder = `$${i}`;
+                    let replacement;
                     if (typeof val === 'string') {
-                        s = s.replace(placeholder, `"${val}"`);
+                        replacement = `"${val}"`;
                     } else if (val instanceof Date) {
-                        s = s.replace(placeholder, val.toISOString());
+                        replacement = val.toISOString();
                     } else {
-                        s = s.replace(placeholder, String(val));
+                        replacement = String(val);
                     }
-                });
+                    s = s.split(placeholder).join(replacement);
+                }
                 parts.push(s);
             }
         }

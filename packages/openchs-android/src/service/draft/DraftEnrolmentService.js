@@ -2,6 +2,7 @@ import BaseService from '../BaseService';
 import Service from '../../framework/bean/Service';
 import {DraftEnrolment} from 'avni-models';
 import {Individual, ObservationsHolder, Program} from 'openchs-models';
+import UpdateMode from "../../repository/UpdateMode";
 
 @Service("draftEnrolmentService")
 class DraftEnrolmentService extends BaseService {
@@ -65,7 +66,7 @@ class DraftEnrolmentService extends BaseService {
         ObservationsHolder.convertObsForSave(draftEnrolment.programExitObservations);
 
         return this.transactionManager.write(() => {
-            return this.repository.create(draftEnrolment, Realm.UpdateMode.Modified);
+            return this.repository.create(draftEnrolment, UpdateMode.Modified);
         });
     }
 
