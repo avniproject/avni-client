@@ -47,6 +47,10 @@ class BaseRepository {
         throw new Error("delete() not implemented");
     }
 
+    deleteInTransaction(objectOrObjects) {
+        throw new Error("deleteInTransaction() not implemented");
+    }
+
     objectForPrimaryKey(key) {
         throw new Error("objectForPrimaryKey() not implemented");
     }

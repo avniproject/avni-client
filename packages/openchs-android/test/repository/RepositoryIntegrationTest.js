@@ -87,6 +87,7 @@ function createMockRepository() {
         existsByUuid: jest.fn().mockReturnValue(false),
         filtered: jest.fn().mockReturnValue([]),
         create: jest.fn((entity) => entity),
+        deleteInTransaction: jest.fn(),
     };
 }
 

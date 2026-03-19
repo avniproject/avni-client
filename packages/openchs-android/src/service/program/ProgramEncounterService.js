@@ -17,6 +17,7 @@ import EncounterService from "../EncounterService";
 import EntityApprovalStatusService from "../EntityApprovalStatusService";
 import FormMappingService from "../FormMappingService";
 import EncounterServiceUtil from "../EncounterServiceUtil";
+import UpdateMode from "../../repository/UpdateMode";
 
 @Service("ProgramEncounterService")
 class ProgramEncounterService extends BaseService {
@@ -31,7 +32,7 @@ class ProgramEncounterService extends BaseService {
     _saveEncounter(programEncounter) {
         const isGettingFilled = programEncounter.isFilled() && EncounterServiceUtil.isNotFilled(this.repository, programEncounter)
         programEncounter.updateAudit(this.getUserInfo(), this.isNew(programEncounter), isGettingFilled);
-        programEncounter = this.repository.create(programEncounter, Realm.UpdateMode.Modified);
+        programEncounter = this.repository.create(programEncounter, UpdateMode.Modified);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
@@ -92,7 +93,7 @@ class ProgramEncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(programEncounter.observations);
         ObservationsHolder.convertObsForSave(programEncounter.cancelObservations);
         this.transactionManager.write(() => {
-            this.repository.create({uuid: programEncounter.uuid, observations: programEncounter.observations, cancelObservations: programEncounter.cancelObservations}, Realm.UpdateMode.Modified);
+            this.repository.create({uuid: programEncounter.uuid, observations: programEncounter.observations, cancelObservations: programEncounter.cancelObservations}, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         });
     }

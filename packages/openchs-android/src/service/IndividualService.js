@@ -29,6 +29,7 @@ import OrganisationConfigService from './OrganisationConfigService';
 import RealmQueryService from "./query/RealmQueryService";
 import {DashboardReportFilter} from "../model/DashboardReportFilter";
 import CustomFilterService from "./CustomFilterService";
+import UpdateMode from "../repository/UpdateMode";
 
 function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
     const permissionAllowed = individualWithVisit.visitInfo.allow;
@@ -233,7 +234,7 @@ class IndividualService extends BaseService {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 this.entityApprovalStatusService.createPendingStatus(individual, Individual.schema.name, individual.subjectType.uuid);
             individual.updateAudit(this.getUserInfo(), isNew);
-            const saved = this.repository.create(individual, Realm.UpdateMode.Modified);
+            const saved = this.repository.create(individual, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(individual, Individual.schema.name);
             this.getService(IdentifierAssignmentService).assignPopulatedIdentifiersFromObservations(registrationForm, individual.observations, saved);
@@ -250,7 +251,7 @@ class IndividualService extends BaseService {
                 uuid: individual.uuid,
                 observations: individual.observations,
                 profilePicture: individual.profilePicture
-            }, Realm.UpdateMode.Modified);
+            }, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }
@@ -261,7 +262,7 @@ class IndividualService extends BaseService {
             this.repository.create({
                 uuid: individual.uuid,
                 subjectLocation: individual.subjectLocation
-            }, Realm.UpdateMode.Modified);
+            }, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(individual, Individual.schema.name));
         });
     }

@@ -2,10 +2,8 @@ import RealmRepository from './RealmRepository';
 import TransactionManager from './TransactionManager';
 import IndividualRepository from './IndividualRepository';
 import ConceptRepository from './ConceptRepository';
-import GenderRepository from './GenderRepository';
 import AddressLevelRepository from './AddressLevelRepository';
-import FormElementRepository from './FormElementRepository';
-import {Individual, Concept, Gender, AddressLevel, FormElement} from 'openchs-models';
+import {Individual, Concept, AddressLevel} from 'openchs-models';
 
 class RepositoryFactory {
     constructor(db) {
@@ -18,9 +16,7 @@ class RepositoryFactory {
     _registerPilotRepositories(db) {
         this._cache.set(Individual.schema.name, new IndividualRepository(db));
         this._cache.set(Concept.schema.name, new ConceptRepository(db));
-        this._cache.set(Gender.schema.name, new GenderRepository(db));
         this._cache.set(AddressLevel.schema.name, new AddressLevelRepository(db));
-        this._cache.set(FormElement.schema.name, new FormElementRepository(db));
     }
 
     getRepository(schemaName) {

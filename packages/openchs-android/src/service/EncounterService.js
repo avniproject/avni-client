@@ -9,6 +9,7 @@ import IndividualService from "./IndividualService";
 import ProgramEncounterService from "./program/ProgramEncounterService";
 import EntityApprovalStatusService from "./EntityApprovalStatusService";
 import EncounterServiceUtil from "./EncounterServiceUtil";
+import UpdateMode from "../repository/UpdateMode";
 
 @Service("EncounterService")
 class EncounterService extends BaseService {
@@ -52,7 +53,7 @@ class EncounterService extends BaseService {
         // Checks whether unsaved encounter is filled but saved encounter is not filled
         const isGettingFilled = encounter.isFilled() && EncounterServiceUtil.isNotFilled(this.repository, encounter)
         encounter.updateAudit(this.getUserInfo(), this.isNew(encounter), isGettingFilled);
-        encounter = this.repository.create(encounter, Realm.UpdateMode.Modified);
+        encounter = this.repository.create(encounter, UpdateMode.Modified);
         const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         individual.addEncounter(encounter);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(encounter, Encounter.schema.name));
@@ -105,7 +106,7 @@ class EncounterService extends BaseService {
         ObservationsHolder.convertObsForSave(encounter.observations);
         ObservationsHolder.convertObsForSave(encounter.cancelObservations);
         this.transactionManager.write(() => {
-            this.repository.create({uuid: encounter.uuid, observations: encounter.observations, cancelObservations: encounter.cancelObservations}, Realm.UpdateMode.Modified);
+            this.repository.create({uuid: encounter.uuid, observations: encounter.observations, cancelObservations: encounter.cancelObservations}, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(encounter, Encounter.schema.name));
         });
     }

@@ -1,8 +1,6 @@
 import BaseService from '../../src/service/BaseService';
 import EncounterServiceUtil from '../../src/service/EncounterServiceUtil';
 
-global.Realm = {UpdateMode: {Modified: 'modified'}};
-
 describe('Phase 1c: Service write migration to repository layer', () => {
     let mockDb;
     let mockRepository;
@@ -16,6 +14,7 @@ describe('Phase 1c: Service write migration to repository layer', () => {
             existsByUuid: jest.fn(),
             filtered: jest.fn(),
             create: jest.fn((entity) => entity),
+            deleteInTransaction: jest.fn(),
         };
     }
 
@@ -71,8 +70,8 @@ describe('Phase 1c: Service write migration to repository layer', () => {
             fns.forEach(fn => fn());
 
             expect(mockRepository.create).toHaveBeenCalledTimes(2);
-            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '1'}, 'modified');
-            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '2'}, 'modified');
+            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '1'}, true);
+            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '2'}, true);
             expect(mockDb.create).not.toHaveBeenCalled();
         });
     });
@@ -121,13 +120,13 @@ describe('Phase 1c: Service write migration to repository layer', () => {
             expect(mockDb.create).not.toHaveBeenCalled();
         });
 
-        it('services still use db.delete() for deletes', () => {
+        it('services use repository.deleteInTransaction() for deletes', () => {
             const service = createServiceWithSchema();
             const entity = {uuid: 'abc'};
 
             service.delete(entity);
 
-            expect(mockDb.delete).toHaveBeenCalledWith(entity);
+            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(entity);
         });
     });
 });

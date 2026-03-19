@@ -97,10 +97,10 @@ describe('RealmQueryBuilder', () => {
     });
 
     describe('in()', () => {
-        it('applies OR-based in-list filter', () => {
+        it('applies Realm IN filter', () => {
             new RealmQueryBuilder(mockResults).in('uuid', ['a', 'b', 'c']).all();
             expect(mockResults.filtered).toHaveBeenCalledWith(
-                '( uuid = "a" OR uuid = "b" OR uuid = "c" )'
+                'uuid IN {"a","b","c"}'
             );
         });
 
@@ -112,7 +112,7 @@ describe('RealmQueryBuilder', () => {
         it('supports relationship paths in field', () => {
             new RealmQueryBuilder(mockResults).in('subjectType.uuid', ['st-1', 'st-2']).all();
             expect(mockResults.filtered).toHaveBeenCalledWith(
-                '( subjectType.uuid = "st-1" OR subjectType.uuid = "st-2" )'
+                'subjectType.uuid IN {"st-1","st-2"}'
             );
         });
     });
@@ -332,7 +332,7 @@ describe('RealmQueryBuilder', () => {
                 .all();
 
             expect(mockResults.filtered).toHaveBeenCalledWith(
-                '( uuid = "priv-1" OR uuid = "priv-2" OR uuid = "priv-3" )'
+                'uuid IN {"priv-1","priv-2","priv-3"}'
             );
         });
 
