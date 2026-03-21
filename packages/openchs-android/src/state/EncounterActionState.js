@@ -88,8 +88,8 @@ class EncounterActionState extends AbstractDataEntryState {
         return ruleService.validateAgainstRule(this.encounter, this.formElementGroup.form, 'Encounter');
     }
 
-    executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.encounter, 'Encounter');
+    async executeRule(ruleService, context) {
+        let decisions = await ruleService.getDecisions(this.encounter, 'Encounter');
         context.get(ConceptService).addDecisions(this.encounter.observations, decisions.encounterDecisions);
 
         const individual = this.encounter.individual.cloneForEdit();

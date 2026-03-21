@@ -108,7 +108,16 @@ export class EncounterActions {
 
     static onNext(state, action, context) {
         const newState = state.clone();
-        newState.handleNext(action, context);
+        if (newState.wizard.isLastPage()) {
+            // Last page may run async decision rules (e.g. edge model inference).
+            // Fire handleNextAsync in the background; action.completed handles navigation when ready.
+            // Non-last pages stay on the sync path so Redux state updates immediately.
+            newState.handleNextAsync(action, context).catch(e =>
+                console.error('EncounterActions.onNext async error', e)
+            );
+        } else {
+            newState.handleNext(action, context);
+        }
         if (state.saveDrafts) {
             EncounterActions.saveDraftEncounter(newState.encounter, newState.validationResults, context)
         }

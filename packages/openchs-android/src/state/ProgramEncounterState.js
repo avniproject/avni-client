@@ -87,8 +87,8 @@ class ProgramEncounterState extends AbstractDataEntryState {
         return ruleService.validateAgainstRule(this.programEncounter, this.formElementGroup.form, ProgramEncounter.schema.name);
     }
 
-    executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.programEncounter, ProgramEncounter.schema.name);
+    async executeRule(ruleService, context) {
+        let decisions = await ruleService.getDecisions(this.programEncounter, ProgramEncounter.schema.name);
         context.get(ConceptService).addDecisions(this.programEncounter.observations, decisions.encounterDecisions);
 
         const enrolment = this.programEncounter.programEnrolment.cloneForEdit();

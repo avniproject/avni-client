@@ -77,13 +77,13 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         };
     }
 
-    executeRule(ruleService, context) {
+    async executeRule(ruleService, context) {
         return _.isNil(this.programEncounter.programEnrolment) ? this.getEncounterDecisions(ruleService, context) :
             this.getProgramEncounterDecisions(ruleService, context);
     }
 
-    getProgramEncounterDecisions(ruleService, context) {
-        const decisions = this.getEncounterDecisions(ruleService, context);
+    async getProgramEncounterDecisions(ruleService, context) {
+        const decisions = await this.getEncounterDecisions(ruleService, context);
         const enrolment = this.programEncounter.programEnrolment.cloneForEdit();
         if (!_.isEmpty(decisions.enrolmentDecisions)) {
             context.get(ConceptService).addDecisions(enrolment.observations, decisions.enrolmentDecisions);
@@ -99,8 +99,8 @@ class ProgramEncounterCancelState extends AbstractDataEntryState {
         return decisions;
     }
 
-    getEncounterDecisions(ruleService, context) {
-        const decisions = ruleService.getDecisions(this.programEncounter, this.getEntityType());
+    async getEncounterDecisions(ruleService, context) {
+        const decisions = await ruleService.getDecisions(this.programEncounter, this.getEntityType());
         context.get(ConceptService).addDecisions(this.programEncounter.cancelObservations, decisions.encounterDecisions);
         return decisions;
     }

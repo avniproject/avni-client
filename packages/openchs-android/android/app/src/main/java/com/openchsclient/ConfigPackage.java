@@ -21,6 +21,7 @@ public class ConfigPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new ConfigModule(reactContext));
         modules.add(new BugsnagInitializer(reactContext));
+        modules.add(new TFLiteModule(reactContext));
         return modules;
     }
 }

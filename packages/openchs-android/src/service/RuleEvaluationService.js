@@ -48,6 +48,8 @@ import {JSONStringify} from "../utility/JsonStringify";
 import UserInfoService from "./UserInfoService";
 import PrivilegeService from './PrivilegeService';
 import AuthService from "./AuthService";
+import EdgeModelService from "./EdgeModelService";
+import MediaService from "./MediaService";
 
 const GlobalRuleUUID = "8ae72815-5670-40a4-b8b6-e457d0dff8ad";
 
@@ -117,6 +119,8 @@ class RuleEvaluationService extends BaseService {
         this.services = {
             individualService: individualServiceFacade,
             addressLevelService: addressLevelServiceFacade,
+            edgeModelService: this.getService(EdgeModelService),
+            mediaService: this.getService(MediaService),
         };
         this.globalRuleFunction = getGlobalRuleFunction(this);
     }
@@ -138,7 +142,7 @@ class RuleEvaluationService extends BaseService {
         }
     };
 
-    getEntityDecision(form, entity, context, entityName, entityContext) {
+    async getEntityDecision(form, entity, context, entityName, entityContext) {
         const defaultDecisions = {
             "enrolmentDecisions": [],
             "encounterDecisions": [],
@@ -160,7 +164,8 @@ class RuleEvaluationService extends BaseService {
             try {
                 let ruleServiceLibraryInterfaceForSharingModules = this.getRuleServiceLibraryInterfaceForSharingModules();
                 const ruleFunc = eval(form.decisionRule);
-                const ruleDecisions = ruleFunc({
+                // Rule may be async (e.g. when it calls params.services.edgeModelService.runInference)
+                const ruleDecisions = await ruleFunc({
                     params: _.merge({decisions: defaultDecisions, entity, entityContext}, this.getCommonParams()),
                     imports: getImports(this.globalRuleFunction)
                 });
@@ -223,10 +228,10 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    getDecisions(entity, entityName, context, entityContext = {}) {
+    async getDecisions(entity, entityName, context, entityContext = {}) {
         const formMapKey = _.get(context, 'usage') === 'Exit' ? 'ProgramExit' : entityName;
         const form = this.entityFormMap.get(formMapKey)(entity);
-        return this.getEntityDecision(form, entity, context, entityName, entityContext);
+        return await this.getEntityDecision(form, entity, context, entityName, entityContext);
     }
 
     updateWorkLists(workLists, context, entityName) {
@@ -1016,7 +1021,7 @@ class RuleEvaluationService extends BaseService {
         }
     }
 
-    runOnAll(rulesToRun) {
+    async runOnAll(rulesToRun) {
         const conceptService = this.getService(ConceptService);
         const programEnrolmentService = this.getService(ProgramEnrolmentService);
         const individualService = this.getService(IndividualService);
@@ -1034,14 +1039,15 @@ class RuleEvaluationService extends BaseService {
             "ProgramEnrolment": (enrolment, nextScheduledVisits) => programEnrolmentService.enrol(enrolment, this.getChecklists(enrolment, "ProgramEnrolment"), nextScheduledVisits),
             "ProgramEncounter": (entity, nextScheduledVisits) => programEncounterService.saveOrUpdate(entity, nextScheduledVisits)
         };
-        rulesToRun.map(([schema, type]) => {
-            let allEntities = getAllEntitiesOfType[schema]().map(e => e.cloneForEdit());
-            allEntities.forEach((entity, idx) => {
+        for (const [schema, type] of rulesToRun) {
+            const allEntities = getAllEntitiesOfType[schema]().map(e => e.cloneForEdit());
+            for (let idx = 0; idx < allEntities.length; idx++) {
+                const entity = allEntities[idx];
                 let nextScheduledVisits = [];
                 switch (type) {
                     case Rule.types.Decision: {
                         General.logDebug('RuleEvaluationService', `${schema} - Running ${Rule.types.Decision} on ${idx + 1}/${allEntities.length}`);
-                        const decisions = this.getDecisions(entity, schema);
+                        const decisions = await this.getDecisions(entity, schema);
                         conceptService.addDecisions(entity.observations, decisions.enrolmentDecisions);
                         conceptService.addDecisions(entity.observations, decisions.encounterDecisions);
                         conceptService.addDecisions(entity.observations, decisions.registrationDecisions);
@@ -1056,8 +1062,8 @@ class RuleEvaluationService extends BaseService {
                         break;
                 }
                 saveEntityOfType[schema](entity, nextScheduledVisits);
-            });
-        });
+            }
+        }
     }
 
     evaluateLinkFunction(linkFunction, menuItem, user, authToken) {

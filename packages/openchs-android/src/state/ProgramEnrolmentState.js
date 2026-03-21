@@ -108,8 +108,8 @@ class ProgramEnrolmentState extends AbstractDataEntryState {
         return ruleService.validateAgainstRule(this.enrolment, this.formElementGroup.form, ProgramEnrolment.schema.name);
     }
 
-    executeRule(ruleService, context) {
-        let decisions = ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name, {usage: this.usage});
+    async executeRule(ruleService, context) {
+        let decisions = await ruleService.getDecisions(this.enrolment, ProgramEnrolment.schema.name, {usage: this.usage});
         if (this.usage === ProgramEnrolmentState.UsageKeys.Enrol) {
             context.get(ConceptService).addDecisions(this.enrolment.observations, decisions.enrolmentDecisions);
         } else {

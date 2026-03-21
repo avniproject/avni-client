@@ -243,6 +243,7 @@ dependencies {
     // Autolinking handles all React Native packages automatically
     // Keep Avni-specific native dependencies if any
     
+    implementation 'com.google.ai.edge.litert:litert:1.0.1'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01'

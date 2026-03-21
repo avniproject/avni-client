@@ -125,6 +125,9 @@ import './KeycloakAuthService';
 import './StubbedAuthService';
 import './BaseAuthProviderService';
 
+// Edge model (on-device TFLite inference)
+import './EdgeModelService';
+
 // Other services
 import './AnonymizeRealmService';
 import './BackupRestoreRealmService'; // Note: File named BackupRestoreRealmService.js, class is BackupRestoreRealmService
