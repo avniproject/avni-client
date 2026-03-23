@@ -1,6 +1,7 @@
 import BeanRegistry from "./framework/bean/BeanRegistry";
 import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
+import General from "./utility/General";
 
 let singleton;
 
@@ -27,6 +28,16 @@ class GlobalContext {
 
     async initialiseGlobalContext(appStore, realmFactory) {
         this.db =  await realmFactory.createRealm();
+
+        // Initialize SQLite DB alongside Realm (Phase 2 — both coexist)
+        try {
+            const SqliteFactory = require("./framework/db/SqliteFactory").default;
+            this.sqliteDb = await SqliteFactory.createSqliteDb();
+            General.logInfo("GlobalContext", "SQLite database initialized");
+        } catch (e) {
+            General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
+        }
+
         this.beanRegistry.init(this.db);
         
         // Runtime validation: Verify critical services are registered
@@ -66,6 +77,21 @@ class GlobalContext {
         this.db = await realmFactory.createRealm();
         this.beanRegistry.updateDatabase(this.db);
         updateAnalyticsDatabase(this.db);
+
+        // Recreate SQLite DB alongside Realm
+        if (this.sqliteDb) {
+            try {
+                this.sqliteDb.close();
+            } catch (e) {
+                General.logWarn("GlobalContext", `SQLite close error: ${e.message}`);
+            }
+        }
+        try {
+            const SqliteFactory = require("./framework/db/SqliteFactory").default;
+            this.sqliteDb = await SqliteFactory.createSqliteDb();
+        } catch (e) {
+            General.logWarn("GlobalContext", `SQLite reinit skipped: ${e.message}`);
+        }
     }
 }
 

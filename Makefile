@@ -347,7 +347,20 @@ open-db: open_db
 open_db_only:
 	$(call _open_resource,../db/default.realm)
 open-db-only: open_db_only
+get_sqlite_db: ## Get SQLite db from device
+	mkdir -p ../db; adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db > ../db/avni_sqlite.db
 # </db>
+
+# <sqlite-migrations>
+migration_generate: ## Generate a new SQLite migration after schema changes (name=<migration-name>)
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && npx drizzle-kit generate --name $(if $(name),$(name),auto) && node scripts/bundle-migrations.js'
+
+migration_bundle: ## Re-bundle existing drizzle migrations into JS module
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && node scripts/bundle-migrations.js'
+
+migration_export_schema: ## Print current SQLite schema table count
+	cd packages/openchs-android && bash -c '. $$HOME/.nvm/nvm.sh && nvm use 20 && node -e "const t = require(\"./src/framework/db/DrizzleSchemaExport\"); console.log(Object.keys(t).length + \" tables exported\")"'
+# </sqlite-migrations>
 
 local_deploy_apk:
 	cp packages/openchs-android/android/app/build/outputs/apk/release/app-release.apk ../openchs-server/external/app.apk
