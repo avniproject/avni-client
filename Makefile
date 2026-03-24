@@ -347,8 +347,12 @@ open-db: open_db
 open_db_only:
 	$(call _open_resource,../db/default.realm)
 open-db-only: open_db_only
-get_sqlite_db: ## Get SQLite db from device
-	mkdir -p ../db; adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db > ../db/avni_sqlite.db
+get_sqlite_db: ## Get SQLite db and WAL from device
+	mkdir -p ../db
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db > ../db/avni_sqlite.db
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-wal > ../db/avni_sqlite.db-wal 2>/dev/null || true
+	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-shm > ../db/avni_sqlite.db-shm 2>/dev/null || true
+	sqlite3 ../db/avni_sqlite.db "PRAGMA wal_checkpoint(TRUNCATE)" && rm -f ../db/avni_sqlite.db-wal ../db/avni_sqlite.db-shm
 # </db>
 
 # <sqlite-migrations>
