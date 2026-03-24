@@ -1,4 +1,5 @@
 import RealmRepository from './RealmRepository';
+import SqliteRepository from './SqliteRepository';
 import TransactionManager from './TransactionManager';
 import IndividualRepository from './IndividualRepository';
 import ConceptRepository from './ConceptRepository';
@@ -8,20 +9,24 @@ import {Individual, Concept, AddressLevel} from 'openchs-models';
 class RepositoryFactory {
     constructor(db) {
         this.db = db;
+        this._isSqlite = !!db.isSqlite;
         this._cache = new Map();
         this._transactionManager = new TransactionManager(db);
         this._registerPilotRepositories(db);
     }
 
     _registerPilotRepositories(db) {
-        this._cache.set(Individual.schema.name, new IndividualRepository(db));
-        this._cache.set(Concept.schema.name, new ConceptRepository(db));
-        this._cache.set(AddressLevel.schema.name, new AddressLevelRepository(db));
+        if (!this._isSqlite) {
+            this._cache.set(Individual.schema.name, new IndividualRepository(db));
+            this._cache.set(Concept.schema.name, new ConceptRepository(db));
+            this._cache.set(AddressLevel.schema.name, new AddressLevelRepository(db));
+        }
     }
 
     getRepository(schemaName) {
         if (!this._cache.has(schemaName)) {
-            this._cache.set(schemaName, new RealmRepository(this.db, schemaName));
+            const Repository = this._isSqlite ? SqliteRepository : RealmRepository;
+            this._cache.set(schemaName, new Repository(this.db, schemaName));
         }
         return this._cache.get(schemaName);
     }

@@ -15,6 +15,7 @@ import SqliteResultsProxy from "./SqliteResultsProxy";
 import EntityHydrator from "./EntityHydrator";
 import {schemaNameToTableName, camelToSnake} from "./SqliteUtils";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+import General from "../../utility/General";
 
 class SqliteProxy {
     /**
@@ -31,6 +32,7 @@ class SqliteProxy {
         this.isSqlite = true;
         this._inTransaction = false;
         this.logQueries = false;
+        this.slowQueryThreshold = 100; // ms
 
         // Bind executeQuery for passing to child objects
         this._executeQuery = this._executeQuery.bind(this);
@@ -52,10 +54,15 @@ class SqliteProxy {
 
     _executeQuery(sql, params = []) {
         try {
+            const start = Date.now();
             const result = this.db.executeSync(sql, params);
+            const elapsed = Date.now() - start;
             const rows = result?.rows || [];
+            if (elapsed > this.slowQueryThreshold) {
+                General.logWarn("SqliteProxy", `Slow query (${elapsed}ms, ${rows.length} rows): ${sql.substring(0, 120)}`);
+            }
             if (this.logQueries) {
-                console.log(`SqliteProxy._executeQuery: ${sql.substring(0, 80)}... → ${rows.length} rows`);
+                console.log(`SqliteProxy._executeQuery (${elapsed}ms): ${sql.substring(0, 80)}... → ${rows.length} rows`);
             }
             return rows;
         } catch (e) {
