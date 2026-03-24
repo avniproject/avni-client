@@ -500,8 +500,32 @@ class SyncService extends BaseService {
             General.logInfo("Sync", "Full Sync completed, performing reset")
             this.reset(false);
             this.getService(SettingsService).initLanguages();
+            this._buildReferenceCacheIfSqlite();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
+    }
+
+    _buildReferenceCacheIfSqlite() {
+        if (typeof this.db.buildReferenceCache !== 'function') return;
+
+        const start = Date.now();
+        const cacheConfigs = [
+            {schemaName: 'Gender', depth: 1, skipLists: true},
+            {schemaName: 'SubjectType', depth: 1, skipLists: true},
+            {schemaName: 'Program', depth: 1, skipLists: true},
+            {schemaName: 'EncounterType', depth: 1, skipLists: true},
+            {schemaName: 'OrganisationConfig', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelation', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationGenderMapping', depth: 1, skipLists: true},
+            {schemaName: 'IndividualRelationshipType', depth: 1, skipLists: true},
+            {schemaName: 'GroupRole', depth: 1, skipLists: true},
+            {schemaName: 'Concept', depth: 2, skipLists: false},
+            {schemaName: 'ChecklistItemDetail', depth: 1, skipLists: false},
+            {schemaName: 'Form', depth: 3, skipLists: false},
+        ];
+
+        this.db.buildReferenceCache(cacheConfigs);
+        General.logDebug("Sync", `SQLite reference cache built in ${Date.now() - start} ms`);
     }
 
     reset(syncRequired: false) {

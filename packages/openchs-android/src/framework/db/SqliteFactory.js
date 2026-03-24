@@ -8,9 +8,12 @@
  * 4. Provide UserInfo seeding for post-login initialization
  */
 
+import {EntityMappingConfig} from "openchs-models";
 import EncryptionService from "../../service/EncryptionService";
 import _ from "lodash";
 import MigrationRunner from "./MigrationRunner";
+import SchemaGenerator from "./SchemaGenerator";
+import SqliteProxy from "./SqliteProxy";
 import Config from "../Config";
 import InitialSettings from "../../../config/initialSettings.json";
 import General from "../../utility/General";
@@ -90,6 +93,14 @@ class SqliteFactory {
             );
             General.logInfo("SqliteFactory", "Seeded UserInfo row");
         }
+    }
+
+    static async createSqliteProxy() {
+        const db = await SqliteFactory.createSqliteDb();
+        const entityMappingConfig = EntityMappingConfig.getInstance();
+        const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
+        const realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);
+        return new SqliteProxy(db, entityMappingConfig, tableMetaMap, realmSchemaMap);
     }
 
     static getDbPath() {

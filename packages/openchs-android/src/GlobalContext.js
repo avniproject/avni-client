@@ -3,10 +3,13 @@ import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
 import General from "./utility/General";
 
+const USE_SQLITE = false;
+
 let singleton;
 
 class GlobalContext {
     db;
+    sqliteDb;
     beanRegistry;
     routes;
     reduxStore;
@@ -27,19 +30,22 @@ class GlobalContext {
     }
 
     async initialiseGlobalContext(appStore, realmFactory) {
-        this.db =  await realmFactory.createRealm();
+        // Always initialize Realm (needed during transition for unsynced data verification)
+        this.db = await realmFactory.createRealm();
 
-        // Initialize SQLite DB alongside Realm (Phase 2 — both coexist)
+        // Initialize SQLite alongside Realm
         try {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
-            this.sqliteDb = await SqliteFactory.createSqliteDb();
+            this.sqliteDb = await SqliteFactory.createSqliteProxy();
             General.logInfo("GlobalContext", "SQLite database initialized");
         } catch (e) {
             General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
         }
 
-        this.beanRegistry.init(this.db);
-        
+        // RepositoryFactory and services use the active backend
+        const activeDb = USE_SQLITE ? this.sqliteDb : this.db;
+        this.beanRegistry.init(activeDb);
+
         // Runtime validation: Verify critical services are registered
         const criticalServices = [
             'entityService',
@@ -48,18 +54,18 @@ class GlobalContext {
             'customDashboardService',
             'dashboardSectionCardMappingService'
         ];
-        
+
         const missingServices = criticalServices.filter(
             serviceName => !this.beanRegistry.getService(serviceName)
         );
-        
+
         if (missingServices.length > 0) {
             const errorMsg = `CRITICAL: Services not registered: ${missingServices.join(', ')}. ` +
                            `Ensure src/service/AllServices.js is imported in App.js`;
             console.error(errorMsg);
             throw new Error(errorMsg);
         }
-        
+
         this.reduxStore = appStore.create(this.beanRegistry.beansMap);
         this.beanRegistry.setReduxStore(this.reduxStore);
         const restoreRealmService = this.beanRegistry.getService("backupRestoreRealmService");
@@ -75,10 +81,9 @@ class GlobalContext {
 
     async reinitializeDatabase(realmFactory) {
         this.db = await realmFactory.createRealm();
-        this.beanRegistry.updateDatabase(this.db);
         updateAnalyticsDatabase(this.db);
 
-        // Recreate SQLite DB alongside Realm
+        // Recreate SQLite DB
         if (this.sqliteDb) {
             try {
                 this.sqliteDb.close();
@@ -88,10 +93,13 @@ class GlobalContext {
         }
         try {
             const SqliteFactory = require("./framework/db/SqliteFactory").default;
-            this.sqliteDb = await SqliteFactory.createSqliteDb();
+            this.sqliteDb = await SqliteFactory.createSqliteProxy();
         } catch (e) {
             General.logWarn("GlobalContext", `SQLite reinit skipped: ${e.message}`);
         }
+
+        const activeDb = USE_SQLITE ? this.sqliteDb : this.db;
+        this.beanRegistry.updateDatabase(activeDb);
     }
 }
 
