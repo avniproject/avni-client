@@ -84,6 +84,35 @@ node packages/openchs-android/src/utility/compareRealmDatabases.js <realmFileA> 
 
 Must be run from the repo root so that the `realm` module resolves correctly.
 
+#### Compare Realm and SQLite Databases
+
+Compare a Realm database with a SQLite database for row count differences, sync status, and missing data:
+
+```
+source ~/.nvm/nvm.sh && nvm use 20
+node packages/openchs-android/src/utility/compareRealmAndSqlite.js <realmFile> <sqliteFile>
+```
+
+Example:
+```
+node packages/openchs-android/src/utility/compareRealmAndSqlite.js ../db/default.realm ../db/avni_sqlite.db
+```
+
+To pull both databases from device:
+```
+make get_db                    # Realm → ../db/default.realm
+make get_sqlite_db             # SQLite → ../db/avni_sqlite.db
+```
+
+### SQLite Migrations
+
+| Command | Description |
+|---|---|
+| `make migration_generate name=X` | Generate a new migration after schema changes |
+| `make migration_bundle` | Re-bundle drizzle migrations into JS module |
+| `make migration_export_schema` | Verify DrizzleSchemaExport table count |
+| `make get_sqlite_db` | Pull SQLite DB from device to `../db/` |
+
 ### Cleanup
 
 | Command | Description |
