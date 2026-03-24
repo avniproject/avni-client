@@ -332,5 +332,99 @@ describe("EntityHydrator", () => {
             expect(result.gender_uuid).toBeNull();
             expect(result.voided).toBe(1);
         });
+
+        it("should skip properties not present on source object (partial object upsert parity)", () => {
+            // Simulates what happens during sync's associateChild:
+            // Individual.associateChild uses General.pick to create a partial object
+            // with only uuid + list fields, omitting observations, firstName, etc.
+            // The flatten output must NOT include omitted properties — otherwise
+            // the upsert would overwrite existing DB values with empty defaults.
+            const partialEntity = {
+                that: {
+                    uuid: "ind-uuid",
+                    encounters: [{uuid: "enc-1"}],
+                    // observations, firstName, lastName, dateOfBirth, voided,
+                    // gender, subjectType, registrationLocation are all ABSENT
+                }
+            };
+
+            const result = hydrator.flatten("Individual", partialEntity);
+
+            // uuid should be present (it IS on the object)
+            expect(result.uuid).toBe("ind-uuid");
+
+            // These properties are absent from the source — they must NOT appear
+            // in the flattened output, so the upsert skips them
+            expect(result).not.toHaveProperty("observations");
+            expect(result).not.toHaveProperty("first_name");
+            expect(result).not.toHaveProperty("last_name");
+            expect(result).not.toHaveProperty("date_of_birth");
+            expect(result).not.toHaveProperty("voided");
+            expect(result).not.toHaveProperty("gender_uuid");
+            expect(result).not.toHaveProperty("subject_type_uuid");
+            expect(result).not.toHaveProperty("registration_location");
+        });
+
+        it("should include properties that are present but null or empty", () => {
+            // Properties that ARE on the object but have null/empty values
+            // should still be included — only truly absent properties are skipped
+            const entityWithNulls = {
+                that: {
+                    uuid: "ind-uuid",
+                    firstName: null,
+                    observations: [],
+                    voided: false,
+                    gender: null,
+                    subjectType: {uuid: "st-uuid"},
+                    registrationLocation: null,
+                    encounters: [],
+                }
+            };
+
+            const result = hydrator.flatten("Individual", entityWithNulls);
+
+            expect(result.uuid).toBe("ind-uuid");
+            expect(result).toHaveProperty("first_name");
+            expect(result.first_name).toBeNull();
+            expect(result).toHaveProperty("observations");
+            expect(result.observations).toBe("[]");
+            expect(result).toHaveProperty("voided");
+            expect(result.voided).toBe(0);
+            expect(result).toHaveProperty("gender_uuid");
+            expect(result.gender_uuid).toBeNull();
+            expect(result).toHaveProperty("registration_location");
+            expect(result.registration_location).toBeNull();
+        });
+
+        it("should preserve observations when flattening a full entity", () => {
+            // Ensures that a full entity (as created during direct Individual sync)
+            // correctly serializes observations to JSON
+            const observationsData = [
+                {concept: {uuid: "concept-1"}, valueJSON: '{"value":"Reached"}'},
+                {concept: {uuid: "concept-2"}, valueJSON: '{"value":"Active"}'},
+            ];
+            const entity = {
+                that: {
+                    uuid: "ind-uuid",
+                    firstName: "Test",
+                    lastName: "User",
+                    dateOfBirth: new Date(2000, 0, 1),
+                    voided: false,
+                    gender: {uuid: "gender-uuid"},
+                    subjectType: {uuid: "st-uuid"},
+                    observations: observationsData,
+                    registrationLocation: null,
+                    encounters: [],
+                }
+            };
+
+            const result = hydrator.flatten("Individual", entity);
+
+            expect(result).toHaveProperty("observations");
+            const parsed = JSON.parse(result.observations);
+            expect(parsed).toHaveLength(2);
+            expect(parsed[0].concept.uuid).toBe("concept-1");
+            expect(parsed[1].concept.uuid).toBe("concept-2");
+        });
     });
 });

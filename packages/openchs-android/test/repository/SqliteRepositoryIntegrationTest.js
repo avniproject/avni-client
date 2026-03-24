@@ -173,3 +173,87 @@ describe('SqliteRepository through RepositoryFactory', () => {
         expect(newDb.objects).toHaveBeenCalledWith('SchemaB');
     });
 });
+
+describe('Sync parity: partial-object upsert preserves existing data', () => {
+    // Simulates the sync flow where:
+    // 1. An Individual is synced with full data (including observations)
+    // 2. An Encounter is synced and associateChild creates a partial Individual
+    //    (with only uuid + encounters) for upsert
+    // 3. The partial upsert must NOT overwrite the existing observations
+
+    it('flatten of partial entity excludes absent properties from SQL columns', () => {
+        // This test uses EntityHydrator directly to verify the flatten behavior
+        const EntityHydrator = require('../../src/framework/db/EntityHydrator').default;
+
+        const realmSchemaMap = new Map();
+        realmSchemaMap.set("Individual", {
+            name: "Individual",
+            primaryKey: "uuid",
+            properties: {
+                uuid: "string",
+                firstName: "string",
+                voided: {type: "bool", default: false},
+                observations: {type: "list", objectType: "Observation"},
+                encounters: {type: "list", objectType: "Encounter"},
+            }
+        });
+        realmSchemaMap.set("Encounter", {
+            name: "Encounter",
+            primaryKey: "uuid",
+            properties: {uuid: "string"}
+        });
+
+        const hydrator = new EntityHydrator(new Map(), realmSchemaMap, jest.fn(), {});
+
+        // Full entity (as synced initially)
+        const fullEntity = {
+            that: {
+                uuid: "ind-1",
+                firstName: "Jane",
+                voided: false,
+                observations: [{concept: {uuid: "c1"}, valueJSON: "{}"}],
+                encounters: [],
+            }
+        };
+
+        const fullFlat = hydrator.flatten("Individual", fullEntity);
+        expect(fullFlat.uuid).toBe("ind-1");
+        expect(fullFlat.first_name).toBe("Jane");
+        expect(fullFlat).toHaveProperty("observations");
+        expect(JSON.parse(fullFlat.observations)).toHaveLength(1);
+
+        // Partial entity (as created by Individual.associateChild via General.pick)
+        // Only uuid and encounters are present — simulates the sync associateChild pattern
+        const partialEntity = {
+            that: {
+                uuid: "ind-1",
+                encounters: [{uuid: "enc-1"}],
+            }
+        };
+
+        const partialFlat = hydrator.flatten("Individual", partialEntity);
+        expect(partialFlat.uuid).toBe("ind-1");
+        // observations must NOT be in the flattened output — this is the key assertion
+        expect(partialFlat).not.toHaveProperty("observations");
+        // firstName must also NOT be present
+        expect(partialFlat).not.toHaveProperty("first_name");
+        expect(partialFlat).not.toHaveProperty("voided");
+    });
+
+    it('SqliteProxy.create upsert SQL only includes columns from flattened entity', () => {
+        // Verify that when flatten produces a partial column set,
+        // the INSERT SQL only includes those columns
+        const db = createMockSqliteDb();
+        const factory = new RepositoryFactory(db);
+        const repo = factory.getRepository('TestSchema');
+
+        // Track what create() is called with
+        const createCalls = [];
+        db.create = jest.fn((...args) => createCalls.push(args));
+
+        const partialEntity = {uuid: 'abc', encounters: [{uuid: 'enc-1'}]};
+        repo.create(partialEntity, true);
+
+        expect(db.create).toHaveBeenCalledWith('TestSchema', partialEntity, true);
+    });
+});

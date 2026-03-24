@@ -470,6 +470,14 @@ class EntityHydrator {
         const properties = realmSchema.properties || {};
 
         Object.keys(properties).forEach(propName => {
+            // Skip properties not present on the source object.
+            // Realm's upsert with a partial object only updates fields that are
+            // present — omitted fields keep their existing DB values. We match
+            // this by excluding undefined properties from the flattened output,
+            // so the INSERT column list won't include them and ON CONFLICT UPDATE
+            // won't overwrite them.
+            if (!(propName in data)) return;
+
             const propDef = properties[propName];
             const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
             const objectType = typeof propDef === "object" ? propDef.objectType : null;
