@@ -198,8 +198,13 @@ class SqliteProxy {
                 .filter(c => c !== pk)
                 .map(c => `"${c}" = COALESCE(excluded."${c}", "${c}")`)
                 .join(", ");
-            sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
-                ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
+            if (updateCols.length === 0) {
+                // Partial object with only PK — nothing to update, use INSERT OR IGNORE
+                sql = `INSERT OR IGNORE INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
+            } else {
+                sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
+                    ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
+            }
         } else {
             // INSERT for strict create (will fail on duplicate PK)
             sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})`;
