@@ -260,6 +260,7 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
         let syncDetailsWithPrivileges;
+        this._disableForeignKeysIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
@@ -273,6 +274,7 @@ class SyncService extends BaseService {
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
             .then(() => this.downloadIcons())
+            .finally(() => this._enableForeignKeysIfSqlite())
     }
 
     downloadExtensions() {
@@ -503,6 +505,18 @@ class SyncService extends BaseService {
             this._buildReferenceCacheIfSqlite();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
+    }
+
+    _disableForeignKeysIfSqlite() {
+        if (!this.db.isSqlite) return;
+        this.db._executeRaw("PRAGMA foreign_keys = OFF");
+        General.logDebug("SyncService", "SQLite foreign keys disabled for sync");
+    }
+
+    _enableForeignKeysIfSqlite() {
+        if (!this.db.isSqlite) return;
+        this.db._executeRaw("PRAGMA foreign_keys = ON");
+        General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
     }
 
     _buildReferenceCacheIfSqlite() {
