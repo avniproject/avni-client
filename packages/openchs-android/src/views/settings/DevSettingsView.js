@@ -1,4 +1,4 @@
-import {Text, TouchableNativeFeedback, View, TextInput, ScrollView} from "react-native";
+import {Alert, Text, TouchableNativeFeedback, View, TextInput, ScrollView} from "react-native";
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
@@ -22,6 +22,7 @@ import moment from "moment";
 import DashboardCacheService from "../../service/DashboardCacheService";
 import {MyDashboardActionNames} from "../../action/mydashboard/MyDashboardActions";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
+import PerformanceBenchmarkService from "../../service/PerformanceBenchmarkService";
 
 @Path('/devSettingsView')
 class DevSettingsView extends AbstractComponent {
@@ -65,6 +66,19 @@ class DevSettingsView extends AbstractComponent {
 
     runRules() {
         this.context.getService(RuleEvaluationService).runOnAll(this.state.rulesToRun.map((r) => [r.name, r.rule]));
+    }
+
+    runPerformanceBenchmark() {
+        const service = this.context.getService(PerformanceBenchmarkService);
+        const results = service.runAll();
+        const failed = results.filter(r => r.target != null && r.elapsed > r.target);
+        const passed = results.filter(r => r.target != null && r.elapsed <= r.target);
+        const summary = `Passed: ${passed.length}, Failed: ${failed.length}\n\n` +
+            results.map(r => {
+                const status = r.target == null ? "" : (r.elapsed <= r.target ? " ✓" : " ✗");
+                return `${r.name}: ${r.elapsed}ms (${r.rows} rows)${status}`;
+            }).join("\n");
+        Alert.alert("Benchmark Results", summary);
     }
 
     clearDashboardCache() {
@@ -116,6 +130,17 @@ class DevSettingsView extends AbstractComponent {
                         }}>Clear Dashboard Cache (make restart-app after)</Text>
                     </View>
                 </TouchableNativeFeedback>
+
+                <View style={{marginTop: 10}}>
+                    <TouchableNativeFeedback onPress={() => this.runPerformanceBenchmark()}>
+                        <View style={Styles.basicPrimaryButtonView}>
+                            <Text style={{
+                                fontSize: Fonts.Medium,
+                                color: Colors.TextOnPrimaryColor
+                            }}>Run Performance Benchmark</Text>
+                        </View>
+                    </TouchableNativeFeedback>
+                </View>
             </View>);
         }
     }
