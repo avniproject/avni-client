@@ -1,7 +1,7 @@
 import React from "react";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import PropTypes from "prop-types";
-import {Text, View} from "react-native";
+import {Text, TouchableNativeFeedback, View} from "react-native";
 import Colors from "../primitives/Colors";
 import Styles from "../primitives/Styles";
 import SubjectProfilePicture from "./SubjectProfilePicture";
@@ -47,6 +47,36 @@ const styles = {
         fontStyle: 'normal',
         color: Styles.grey,
         paddingRight: 8
+    },
+    iconContainer: {
+        marginLeft: 5,
+        minHeight: 72,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'flex-start'
+    },
+    cardContainer: {
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        alignItems: 'center',
+        alignSelf: 'center',
+        minHeight: 72,
+        paddingHorizontal: 8,
+        paddingVertical: 2
+    },
+    cardContent: {
+        marginLeft: 20,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        flex: 1
+    },
+    addressContainer: {
+        justifyContent: 'flex-start'
+    },
+    enrolmentsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        flexWrap: 'wrap'
     }
 }
 
@@ -61,6 +91,14 @@ class SubjectInfoCard extends AbstractComponent {
         this.encounterService = context.getService(EncounterService);
         this.subjectService = context.getService(IndividualService);
         this.addressLevelService = context.getService(AddressLevelService);
+        this.conceptService = context.getService(ConceptService);
+        this.orgConfigService = context.getService(OrganisationConfigService);
+    }
+
+    shouldComponentUpdate(nextProps) {
+        return nextProps.individual.uuid !== this.props.individual.uuid
+            || nextProps.hideEnrolments !== this.props.hideEnrolments
+            || nextProps.renderDraftString !== this.props.renderDraftString;
     }
 
     renderProgram(program, index) {
@@ -92,80 +130,65 @@ class SubjectInfoCard extends AbstractComponent {
         </View>
     }
 
-    renderCustomSearchResultFields(i18n, conceptService) {
-        const searchResultConcepts = this.getService(OrganisationConfigService).getCustomSearchResultConceptsForSubjectType(this.props.individual.subjectType);
+    renderCustomSearchResultFields(i18n) {
+        const searchResultConcepts = this.orgConfigService.getCustomSearchResultConceptsForSubjectType(this.props.individual.subjectType);
         return _.map(searchResultConcepts, ({name, uuid}) => {
             const observation = this.props.individual.findObservation(name);
             if (_.isNil(observation)) return null;
-            const displayable = Observation.valueForDisplay({observation, conceptService,
+            const displayable = Observation.valueForDisplay({observation, conceptService: this.conceptService,
                 subjectService:this.subjectService, addressLevelService:this.addressLevelService, i18n, encounterService:this.encounterService});
             return <Text style={[{opacity: 0.6}, Styles.userProfileSubtext]}>{displayable.displayValue}</Text>
-        })
+        });
     }
 
     render() {
         const i18n = this.I18n;
         const {individual, hideEnrolments, renderDraftString} = this.props;
-        const conceptService = this.getService(ConceptService);
-        const iconContainerStyle = {marginLeft: 5, minHeight: 72, alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start'};
+
         const enrolledPrograms = _.filter(individual.nonVoidedEnrolments(), (enrolment) => enrolment.isActive)
             .map((x: ProgramEnrolment) => x.program);
 
-      const subjectAddressText = individual.lowestTwoLevelAddress(i18n);
-        return (
-            <View style={{
-                flexDirection: 'row',
-                flexWrap: 'nowrap',
-                alignItems: 'center',
-                alignSelf: 'center',
-                minHeight: 72,
-                backgroundColor: Styles.greyBackground,
-                paddingHorizontal: 8,
-                paddingVertical: 2
-            }}>
+        const subjectAddressText = individual.lowestTwoLevelAddress(i18n);
+        const cardView = (
+            <View style={[styles.cardContainer, {backgroundColor: Styles.greyBackground}]}>
                 <SubjectProfilePicture
                     size={32}
                     subjectType={individual.subjectType}
                     round={true}
                     individual={individual}
-                    containerStyle={iconContainerStyle}
+                    containerStyle={styles.iconContainer}
                 />
-                <View
-                    style={{
-                        marginLeft: 20,
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        flex: 1
-                    }}>
+                <View style={styles.cardContent}>
                     <Text style={styles.subjectName}>
-                        {individual.getTranslatedNameString(this.I18n)}
+                        {individual.getTranslatedNameString(i18n)}
                         {individual.voided &&
                         <Text style={{color: Styles.redColor}}>
-                            {` ${this.I18n.t("voidedLabel")}`}
+                            {` ${i18n.t("voidedLabel")}`}
                         </Text>
                         }
                         {renderDraftString &&
                         <Text style={{color: Styles.redColor}}>
-                            {` (${this.I18n.t("draft")})`}
+                            {` (${i18n.t("draft")})`}
                         </Text>
                         }
                     </Text>
                     {individual.isPerson() ? this.renderAgeAndGender(i18n) : null}
-                    <View style={{justifyContent: 'flex-start'}}>
-                        <Text
-                            style={styles.subjectAddress}>{subjectAddressText}</Text>
+                    <View style={styles.addressContainer}>
+                        <Text style={styles.subjectAddress}>{subjectAddressText}</Text>
                     </View>
-                    {this.renderCustomSearchResultFields(i18n, conceptService)}
-                        {!hideEnrolments &&
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'flex-start',
-                            flexWrap: 'wrap',
-                        }}>
-                            {_.uniqBy(enrolledPrograms, (x) => x.name).map((program, index) => this.renderProgram(program, index))}
-                        </View>}
+                    {this.renderCustomSearchResultFields(i18n)}
+                    {!hideEnrolments &&
+                    <View style={styles.enrolmentsContainer}>
+                        {_.uniqBy(enrolledPrograms, (x) => x.name).map((program, index) => this.renderProgram(program, index))}
+                    </View>}
                 </View>
             </View>
+        );
+        if (!this.props.onPress) return cardView;
+        return (
+            <TouchableNativeFeedback onPress={this.props.onPress} background={TouchableNativeFeedback.Ripple('rgba(0,0,0,0.15)', false)}>
+                {cardView}
+            </TouchableNativeFeedback>
         );
     }
 }

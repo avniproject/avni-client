@@ -55,8 +55,14 @@ class OrganisationConfigService extends BaseService {
     }
 
     getCustomSearchResultConceptsForSubjectType(subjectType) {
+        if (!this._searchResultConceptsCache) this._searchResultConceptsCache = new Map();
+        if (this._searchResultConceptsCache.has(subjectType.uuid)) {
+            return this._searchResultConceptsCache.get(subjectType.uuid);
+        }
         const searchResultField = _.find(this.getSettings().searchResultFields, ({subjectTypeUUID}) => subjectTypeUUID === subjectType.uuid);
-        return _.sortBy(_.get(searchResultField, 'searchResultConcepts', []), 'displayOrder');
+        const result = _.sortBy(_.get(searchResultField, 'searchResultConcepts', []), 'displayOrder');
+        this._searchResultConceptsCache.set(subjectType.uuid, result);
+        return result;
     }
 
     getMaxAddressDisplayInlineCount() {
