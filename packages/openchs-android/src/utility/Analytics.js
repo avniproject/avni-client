@@ -1,12 +1,12 @@
 import {UserInfo} from 'openchs-models';
 import analytics from '@react-native-firebase/analytics';
-import NetInfo from "@react-native-community/netinfo";
 import {defaultTo} from 'lodash';
 import Config from '../framework/Config';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import _ from "lodash";
 import {NativeModules} from 'react-native';
 import General from './General';
+import {getConnectionInfo} from "./ConnectionInfo";
 
 const {ConfigModule} = NativeModules;
 
@@ -77,7 +77,7 @@ export const logScreenEvent = (screenName, startTime) => {
         const buildType = ConfigModule?.BUILD_TYPE || 'unknown';
         const environment = Config.ENV || 'unknown';
         
-        NetInfo.fetch().then(({isConnected}) => {
+        getConnectionInfo().then(({isConnected}) => {
             const eventParams = {
                 screen_name: screenName,
                 screen_class: screenName,

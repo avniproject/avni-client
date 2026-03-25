@@ -1,7 +1,6 @@
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import React from 'react';
 import {Button, ScrollView, Text, ToastAndroid, TouchableOpacity, View} from "react-native";
-import NetInfo from "@react-native-community/netinfo";
 import OrganisationConfigService from "../../service/OrganisationConfigService";
 import AppHeader from "./AppHeader";
 import Styles from "../primitives/Styles";
@@ -13,6 +12,7 @@ import CHSContainer from "./CHSContainer";
 import CHSContent from "./CHSContent";
 import PhoneVerificationService from "../../service/PhoneVerificationService";
 import SettingsService from "../../service/SettingsService";
+import {getConnectionInfo} from "../../utility/ConnectionInfo";
 
 @Path('/phoneNumberVerificationView')
 class PhoneNumberVerificationView extends AbstractComponent {
@@ -63,7 +63,7 @@ class PhoneNumberVerificationView extends AbstractComponent {
     }
 
     checkInternetConnection() {
-        NetInfo.fetch().then(x => this.setState({...this.state, isConnected: x.isConnected}));
+        getConnectionInfo().then(({isConnected}) => this.setState({...this.state, isConnected}));
     }
 
     getInterval() {

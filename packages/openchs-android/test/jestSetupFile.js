@@ -3,6 +3,20 @@ import mockRNDeviceInfo from 'react-native-device-info/jest/react-native-device-
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock')
 );
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: {
+    fetch: jest.fn(() => Promise.resolve({
+      type: 'wifi',
+      effectiveType: '4g',
+      isConnected: true,
+      isInternetReachable: true,
+      isWifiEnabled: true,
+      details: {},
+    })),
+    addEventListener: jest.fn(() => jest.fn()),
+  },
+}));
 jest.mock('react-native-device-info', () => mockRNDeviceInfo);
 jest.mock("../src/utility/Analytics", () => {});
 jest.mock("@react-native-cookies/cookies", () => {});
