@@ -28,7 +28,6 @@ class StatusCountRow extends AbstractComponent {
     });
 
     onPressHandler(title, count, backFunction, cardTitle) {
-        this.dispatchAction(Actions.LOAD_INDICATOR, {status: true});
         if (title === "dueChecklist") {
             setTimeout(() => TypedTransition.from(this).with({
                 total: count,

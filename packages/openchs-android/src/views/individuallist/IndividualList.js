@@ -1,4 +1,5 @@
 import React from "react";
+import {InteractionManager} from "react-native";
 import AbstractComponent from "../../framework/view/AbstractComponent";
 import Path from "../../framework/routing/Path";
 import Reducers from "../../reducer";
@@ -21,8 +22,11 @@ class IndividualList extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         General.logDebug("IndividualList", "Component Will Mount");
-        this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+        this.dispatchAction(Actions.RESET_LIST);
         super.UNSAFE_componentWillMount();
+        InteractionManager.runAfterInteractions(() => {
+            this.dispatchAction(Actions.ON_LIST_LOAD, {...this.props.params});
+        });
     }
 
     onHardwareBackPress() {
