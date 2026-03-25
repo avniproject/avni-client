@@ -109,6 +109,13 @@ class LandingViewActions {
             secondaryDashboardSelected: true
         }
     }
+
+    static onCachedSubjectTypeLoaded(state, action) {
+        return {
+            ...state,
+            previouslySelectedSubjectTypeUUID: action.cachedSubjectTypeUUID
+        };
+    }
 }
 
 const LandingViewActionsNames = {
@@ -118,7 +125,8 @@ const LandingViewActionsNames = {
     ON_DASHBOARD_CLICK: 'LVA.ON_DASHBOARD_CLICK',
     ON_REGISTER_CLICK: 'LVA.ON_REGISTER_CLICK',
     ON_MENU_CLICK: 'LVA.ON_MENU_CLICK',
-    ON_SECONDARY_DASHBOARD_CLICK: 'LVA.ON_SECONDARY_DASHBOARD_CLICK'
+    ON_SECONDARY_DASHBOARD_CLICK: 'LVA.ON_SECONDARY_DASHBOARD_CLICK',
+    ON_CACHED_SUBJECT_TYPE_LOADED: 'LVA.ON_CACHED_SUBJECT_TYPE_LOADED'
 };
 
 const LandingViewActionsMap = new Map([
@@ -128,7 +136,8 @@ const LandingViewActionsMap = new Map([
     [LandingViewActionsNames.ON_REGISTER_CLICK, LandingViewActions.onRegisterClick],
     [LandingViewActionsNames.ON_MENU_CLICK, LandingViewActions.onMenuClick],
     [LandingViewActionsNames.ON_DASHBOARD_CLICK, LandingViewActions.onDashboardClick],
-    [LandingViewActionsNames.ON_SECONDARY_DASHBOARD_CLICK, LandingViewActions.onSecondaryDashboardClick]
+    [LandingViewActionsNames.ON_SECONDARY_DASHBOARD_CLICK, LandingViewActions.onSecondaryDashboardClick],
+    [LandingViewActionsNames.ON_CACHED_SUBJECT_TYPE_LOADED, LandingViewActions.onCachedSubjectTypeLoaded]
 ]);
 
 export {

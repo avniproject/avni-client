@@ -139,11 +139,12 @@ class LandingView extends AbstractComponent {
     UNSAFE_componentWillMount() {
         const componentMountTime = new Date();
         General.logDebug('LandingView', 'UNSAFE_componentWillMount started');
+        this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID: null});
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
             General.logDebug('LandingView', `Retrieved cached subject type UUID: ${cachedSubjectTypeUUID}, took ${new Date() - componentMountTime} ms`);
-            General.logDebug('LandingView', `About to dispatch ON_LOAD action with cachedSubjectTypeUUID: ${cachedSubjectTypeUUID}`);
-            this.dispatchAction(Actions.ON_LOAD, {cachedSubjectTypeUUID});
-            General.logDebug('LandingView', 'ON_LOAD action dispatched successfully');
+            if (cachedSubjectTypeUUID) {
+                this.dispatchAction(Actions.ON_CACHED_SUBJECT_TYPE_LOADED, {cachedSubjectTypeUUID});
+            }
         });
         const authService = this.context.getService(AuthService);
         authService.getAuthProviderService().getUserName().then(username => {
