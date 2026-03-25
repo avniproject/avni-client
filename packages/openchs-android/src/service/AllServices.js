@@ -125,6 +125,9 @@ import './KeycloakAuthService';
 import './StubbedAuthService';
 import './BaseAuthProviderService';
 
+// Performance
+import './PerformanceBenchmarkService';
+
 // Other services
 import './AnonymizeRealmService';
 import './BackupRestoreRealmService'; // Note: File named BackupRestoreRealmService.js, class is BackupRestoreRealmService

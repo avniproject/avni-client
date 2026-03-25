@@ -10,6 +10,10 @@ export default class SyncTelemetryService extends BaseService {
         super(db, beanStore);
     }
 
+    getSchema() {
+        return SyncTelemetry.schema.name;
+    }
+
     atLeastOneSyncCompleted() {
         let results = this.repository.findAll().filtered("syncStatus = $0", "complete");
         return !_.isEmpty(results);

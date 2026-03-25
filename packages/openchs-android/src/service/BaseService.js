@@ -151,7 +151,7 @@ class BaseService {
     }
 
     getSchema() {
-        throw "getSchema should be overridden";
+        throw new Error(`getSchema should be overridden in ${this.constructor.name}`);
     }
 
     clearDataIn(entityTypes) {
