@@ -28,6 +28,9 @@
     ]
   },
   "license": "AGPL-3.0",
+  "op-sqlite": {
+    "sqlcipher": true
+  },
   "scripts": {
     "start": "npx react-native start",
     "test": "jest",
