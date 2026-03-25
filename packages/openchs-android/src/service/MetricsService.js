@@ -14,8 +14,6 @@ export default class MetricsService extends BaseService {
         appInfo.dbSize = await FileSystem.getRealmDBSize();
         appInfo.observationCount = this.getCount(Observation.schema.name);
         appInfo.pointCount = this.getCount(Point.schema.name);
-        appInfo.danglingPointCount = this.getDanglingCount(Point.schema.name);
-        appInfo.danglingObservationCount = this.getDanglingCount(Observation.schema.name);
         return appInfo;
     }
 
