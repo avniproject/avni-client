@@ -15,8 +15,8 @@ import PropTypes from "prop-types";
 import FormElementLabelWithDocumentation from "../../common/FormElementLabelWithDocumentation";
 import ValidationErrorMessage from "../ValidationErrorMessage";
 import DeviceInfo from "react-native-device-info";
-import NetInfo from "@react-native-community/netinfo";
 import DeviceLocation from "../../../utility/DeviceLocation";
+import {getConnectionInfo} from "../../../utility/ConnectionInfo";
 
 const styles = StyleSheet.create({
     icon: {
@@ -66,7 +66,7 @@ export default class MediaV2FormElement extends AbstractFormElement {
             });
         DeviceInfo.getAvailableLocationProviders()
             .then((availableLocationProviders) => this.setState(state => ({...state, availableLocationProviders})));
-        NetInfo.fetch().then(({type, isWifiEnabled, details}) => this.setState(state => ({
+        getConnectionInfo().then(({type, isWifiEnabled, details}) => this.setState(state => ({
             ...state, connectionType: type, isWifiEnabled, cellularGeneration: _.get(details, 'cellularGeneration')
         })));
     }

@@ -1,7 +1,6 @@
 import {EntityMetaData} from "avni-models";
 import SyncService from "../service/SyncService";
 import General from "../utility/General";
-import NetInfo from "@react-native-community/netinfo";
 import BaseTask from "./BaseTask";
 import ErrorHandler from "../utility/ErrorHandler";
 import AuthenticationError, {NO_USER} from "../service/AuthenticationError";
@@ -12,6 +11,7 @@ import SettingsService from '../service/SettingsService';
 import EnvironmentConfig from "../framework/EnvironmentConfig";
 import {SyncActionNames as SyncActions} from '../action/SyncActions';
 import moment from 'moment';
+import {getConnectionInfo} from "../utility/ConnectionInfo";
 
 function dispatchAction(action, params) {
     const type = action instanceof Function ? action.Id : action;
@@ -53,19 +53,16 @@ class Sync extends BaseTask {
             try {
                 dispatchAction(SyncActions.ON_BACKGROUND_SYNC_STATUS_CHANGE, {backgroundSyncInProgress: true});
                 General.logInfo("Sync", "Getting connection info");
-                let connectionInfo;
-                await NetInfo.fetch().then((state) => connectionInfo = state);
+                const connectionInfo = await getConnectionInfo();
                 General.logInfo("Sync", "Calling syncService.sync");
-                return syncService.sync(lockId, EntityMetaData.model(), (progress) => {
+                await syncService.sync(lockId, EntityMetaData.model(), (progress) => {
                       General.logInfo("Sync", progress);
                   },
                   (message) => {
                   }, connectionInfo, Date.now(), SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB, null)
-                  .then(this.performPostBackgroundSyncActions(globalContext))
-                  .catch((e) => {
-                      ErrorHandler.postScheduledJobError(e);
-                  })
-                  .finally(syncService.releaseLock(lockId));
+                  .then(this.performPostBackgroundSyncActions(globalContext));
+            } catch (e) {
+                ErrorHandler.postScheduledJobError(e);
             } finally {
                 syncService.releaseLock(lockId);
             }

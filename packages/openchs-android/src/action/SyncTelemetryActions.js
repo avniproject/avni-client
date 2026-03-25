@@ -3,6 +3,7 @@ import _ from "lodash";
 import EntityService from "../service/EntityService";
 import DeviceInfo from 'react-native-device-info';
 import moment from "moment";
+import {getUnknownConnectionInfo} from "../utility/ConnectionInfo";
 
 class SyncTelemetryActions {
     static getInitialState() {
@@ -19,7 +20,7 @@ class SyncTelemetryActions {
         const newState = SyncTelemetryActions.getInitialState();
         const syncTelemetry = newState.syncTelemetry;
         const deviceInfo = SyncTelemetryActions.getDeviceInfo();
-        const {type, effectiveType} = action.connectionInfo;
+        const {type, effectiveType} = action.connectionInfo || getUnknownConnectionInfo();
         deviceInfo.connectionType = type;
         deviceInfo.effectiveConnectionType = effectiveType;
         syncTelemetry.deviceInfo = JSON.stringify(deviceInfo);

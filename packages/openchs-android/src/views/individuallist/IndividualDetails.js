@@ -20,6 +20,12 @@ class IndividualDetails extends AbstractComponent {
         backFunction: PropTypes.func.isRequired
     };
 
+    shouldComponentUpdate(nextProps) {
+        return nextProps.individualWithMetadata.individual.uuid !== this.props.individualWithMetadata.individual.uuid
+            || nextProps.header !== this.props.header
+            || nextProps.cardType !== this.props.cardType;
+    }
+
     renderVisits(type, color) {
         return type.map((info, i) => {
             const row = info.visit.map((item, index) => {
@@ -39,7 +45,7 @@ class IndividualDetails extends AbstractComponent {
             });
             return (
                 <TouchableNativeFeedback
-                    onPress={() => this.proceed(info.encounter)}
+                    onPress={() => { if (this.props.isScrolling && this.props.isScrolling()) return; this.proceed(info.encounter); }}
                     key={i}
                     background={TouchableNativeFeedback.SelectableBackground()}
                 >
@@ -92,23 +98,18 @@ class IndividualDetails extends AbstractComponent {
                 marginLeft: Distances.ScaledContentDistanceFromEdge
             }}
             >
-                <TouchableNativeFeedback
-                    onPress={() =>
-                        CHSNavigator.navigateToProgramEnrolmentDashboardView(
-                            this,
-                            this.props.individualWithMetadata.individual.uuid,
-                            "",
-                            false,
-                            this.props.backFunction
-                        )
-                    }
-                    background={TouchableNativeFeedback.SelectableBackground()}
-                >
-                    <View>
-                        <SubjectInfoCard individual={this.props.individualWithMetadata.individual}
-                                         hideEnrolments={hideEnrolments}/>
-                    </View>
-                </TouchableNativeFeedback>
+                <SubjectInfoCard individual={this.props.individualWithMetadata.individual}
+                                 hideEnrolments={hideEnrolments}
+                                 onPress={() => {
+                                     if (this.props.isScrolling && this.props.isScrolling()) return;
+                                     CHSNavigator.navigateToProgramEnrolmentDashboardView(
+                                         this,
+                                         this.props.individualWithMetadata.individual.uuid,
+                                         "",
+                                         false,
+                                         this.props.backFunction
+                                     );
+                                 }}/>
                 {this.renderVisits(sameDateVisits, "rgba(0, 0, 0, 0.87)")}
                 {this.renderVisits(diffDateVisits, Styles.greyText)}
                 <Separator height={cardSpacing} backgroundColor={backgroundColor}/>

@@ -21,6 +21,7 @@ import AvniError from "../framework/errorHandling/AvniError";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import {IgnorableSyncError} from "openchs-models";
 import IssueUploadUtil from "../utility/IssueUploadUtil";
+import {getConnectionInfo} from "../utility/ConnectionInfo";
 
 class SyncComponent extends AbstractComponent {
     unsubscribe;
@@ -138,7 +139,7 @@ class SyncComponent extends AbstractComponent {
             this.sync();
         }
         this.unsubscribe = NetInfo.addEventListener(this._handleConnectivityChange);
-        NetInfo.fetch().then((connection) => {
+        getConnectionInfo().then((connection) => {
             this.onConnectionChange(connection.isConnected)
         });
     }
@@ -187,8 +188,7 @@ class SyncComponent extends AbstractComponent {
                 const onError = this._onError.bind(this);
                 this._preSync();
                 //sending connection info like this because this returns promise and not possible in the action
-                let connectionInfo;
-                await NetInfo.fetch().then((x) => connectionInfo = x);
+                const connectionInfo = await getConnectionInfo();
                 syncService.sync(
                   lockId,
                   EntityMetaData.model(),

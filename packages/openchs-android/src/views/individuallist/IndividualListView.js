@@ -1,6 +1,6 @@
 import Path from "../../framework/routing/Path";
 import AbstractComponent from "../../framework/view/AbstractComponent";
-import {SectionList, StyleSheet, Text} from "react-native";
+import {ActivityIndicator, InteractionManager, SectionList, StyleSheet, Text} from "react-native";
 import _ from "lodash";
 import IndividualDetails from "./IndividualDetails";
 import React, {Fragment} from "react";
@@ -14,6 +14,8 @@ import Colors from "../primitives/Colors";
 import Distances from "../primitives/Distances";
 import Styles from '../primitives/Styles';
 import {View} from 'native-base';
+
+const BATCH_SIZE = 30;
 
 @Path('/IndividualListView')
 class IndividualListView extends AbstractComponent {
@@ -29,6 +31,8 @@ class IndividualListView extends AbstractComponent {
 
     constructor(props, context) {
         super(props, context);
+        this.state = {listReady: false, items: [], loadingMore: false};
+        this._isScrolling = false;
     }
 
     viewName() {
@@ -40,9 +44,46 @@ class IndividualListView extends AbstractComponent {
     }
 
     onViewDidMount() {
-        if (this.props.indicatorActionName) {
-            setTimeout(() => this.dispatchAction(this.props.indicatorActionName, {loading: false}), 0);
+        if (this.props.results.length > 0) {
+            this._initBatch();
         }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (!this.state.listReady && prevProps.results.length === 0 && this.props.results.length > 0) {
+            this._initBatch();
+        }
+    }
+
+    _initBatch() {
+        if (this.state.listReady) return;
+        const batch = this.sliceBatch(0);
+        this.setState({listReady: true, items: batch});
+        if (this.props.indicatorActionName) {
+            this.dispatchAction(this.props.indicatorActionName, {loading: false});
+        }
+    }
+
+    sliceBatch(offset) {
+        const results = this.props.results;
+        const end = Math.min(offset + BATCH_SIZE, results.length);
+        const batch = [];
+        for (let i = offset; i < end; i++) batch.push(results[i]);
+        return batch;
+    }
+
+    loadBatch(offset) {
+        const batch = this.sliceBatch(offset);
+        this.setState(prev => ({items: [...prev.items, ...batch], loadingMore: false}));
+    }
+
+    onEndReached = () => {
+        if (this.state.loadingMore) return;
+        const nextOffset = this.state.items.length;
+        if (nextOffset >= this.props.results.length) return;
+        this.setState({loadingMore: true}, () => {
+            InteractionManager.runAfterInteractions(() => this.loadBatch(nextOffset));
+        });
     }
 
     renderHeader = ({section: {title, data}}) => (_.isEmpty(title) ? null :
@@ -62,23 +103,25 @@ class IndividualListView extends AbstractComponent {
                 individualWithMetadata={individualWithMetadata}
                 header={section.title}
                 backFunction={this.goBack.bind(this)}
-                cardType={cardType}/>
+                cardType={cardType}
+                isScrolling={() => this._isScrolling}/>
         );
     };
 
-    getDataWithVisitInfo(){
-        const allUniqueGroups = _.uniqBy(_.map(this.props.results, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
+    getDataWithVisitInfo() {
+        const results = this.state.items;
+        const allUniqueGroups = _.uniqBy(_.map(results, ({visitInfo}) => ({groupingBy: visitInfo.groupingBy})), 'groupingBy');
         const data = allUniqueGroups.map(({groupingBy}) => {
             return {
                 title: groupingBy,
-                data: _.get(_.groupBy(this.props.results, 'visitInfo.groupingBy'), groupingBy, [])
+                data: _.get(_.groupBy(results, 'visitInfo.groupingBy'), groupingBy, [])
             }
         });
         return {data, allUniqueGroups};
     }
 
     getDataForTotal() {
-        return {data: [{title: '', data: this.props.results}], allUniqueGroups: ''}
+        return {data: [{title: '', data: this.state.items}], allUniqueGroups: ''};
     }
 
     render() {
@@ -94,19 +137,33 @@ class IndividualListView extends AbstractComponent {
                     iconFunc={this.props.iconFunction}/>
                 <SearchResultsHeader
                     totalCount={this.props.totalSearchResultsCount}
-                    displayedCount={this.props.results.length}/>
-                <SectionList
-                    style={{marginBottom: 16}}
-                    keyExtractor={(item, index) => item.uuid || item.individual.uuid}
-                    sections={data}
-                    renderItem={({item, section}) => this.renderItems(item, section, this.props.listType, this.props.headerTitle)}
-                    renderSectionHeader={this.renderHeader}
-                    SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
-                        <Separator style={{alignSelf: 'stretch', margin: 6}} height={2} backgroundColor={Colors.GreyBackground}/>) : null}
-                    initialNumToRender={15}
-                    updateCellsBatchingPeriod={500}
-                    maxToRenderPerBatch={30}
-                />
+                    displayedCount={this.props.totalSearchResultsCount}/>
+                {this.state.listReady ? (
+                    <SectionList
+                        style={{marginBottom: 16, flex: 1}}
+                        keyExtractor={(item, index) => item.uuid || item.individual.uuid}
+                        sections={data}
+                        renderItem={({item, section}) => this.renderItems(item, section, this.props.listType, this.props.headerTitle)}
+                        renderSectionHeader={this.renderHeader}
+                        SectionSeparatorComponent={({trailingItem}) => allUniqueGroups.length > 1 && !trailingItem ? (
+                            <Separator style={{alignSelf: 'stretch', margin: 6}} height={2} backgroundColor={Colors.GreyBackground}/>) : null}
+                        initialNumToRender={10}
+                        windowSize={5}
+                        updateCellsBatchingPeriod={100}
+                        maxToRenderPerBatch={5}
+                        onScrollBeginDrag={() => { this._isScrolling = true; }}
+                        onScrollEndDrag={() => { setTimeout(() => { this._isScrolling = false; }, 150); }}
+                        onMomentumScrollEnd={() => { this._isScrolling = false; }}
+                        onEndReached={this.onEndReached}
+                        onEndReachedThreshold={0.5}
+                    />
+                ) : (
+                    <ActivityIndicator
+                        size="large"
+                        color={Colors.DarkPrimaryColor}
+                        style={{flex: 1, justifyContent: 'center', alignSelf: 'center'}}
+                    />
+                )}
             </CHSContainer>
         );
     }
