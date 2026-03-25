@@ -86,7 +86,11 @@ class ObservationsHolderActions {
 
     static toggleMultiSelectAnswer(state, action, context) {
         const newState = state.clone();
-        const observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, action.answerUUID);
+        const answerUUIDs = action.answerUUIDs || [action.answerUUID];
+        let observation;
+        for (const uuid of answerUUIDs) {
+            observation = newState.observationsHolder.toggleMultiSelectAnswer(action.formElement.concept, uuid);
+        }
         const formElementStatuses = ObservationsHolderActions._getFormElementStatuses(newState, context);
         const ruleValidationErrors = ObservationsHolderActions.getRuleValidationErrors(formElementStatuses);
         const hiddenFormElementStatus = _.filter(formElementStatuses, (form) => form.visibility === false);
