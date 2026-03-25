@@ -41,6 +41,9 @@ class SqliteFactory {
             } else if (typeof encryptionKey === "string") {
                 dbOptions.encryptionKey = encryptionKey;
             }
+            General.logInfo("SqliteFactory", `Opening database with encryption (key length: ${dbOptions.encryptionKey.length} chars)`);
+        } else {
+            General.logInfo("SqliteFactory", "Opening database without encryption (no key found)");
         }
 
         const db = open(dbOptions);
