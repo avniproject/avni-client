@@ -44,6 +44,10 @@ The application is not meant to be used in USA.
 **Technical Note**
 This application is a work application provided by organisations to their staff. Our current android version doesn't require READ_PHONE_STATE version but Play Store doesn't understand this logic and is asking for this because older version of apk had that permission requirement.
 
+**Data retention and deletion**
+
+Your data is retained for as long as your organisation maintains an active account with Avni. If you wish to have your personal data deleted, you can request your organisation's administrator to remove your data from the system.
+
 **Contacting Us**
 
 If there are any questions regarding this privacy policy, you may contact us using the information below.
@@ -51,4 +55,4 @@ If there are any questions regarding this privacy policy, you may contact us usi
 avniproject.org
 hello@samanvayfoundation.org
 
-Last Edited on 2020-05-06
+Last Edited on 2026-03-27
