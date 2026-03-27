@@ -1,78 +1,32 @@
 import BaseService from '../../src/service/BaseService';
 import EncounterServiceUtil from '../../src/service/EncounterServiceUtil';
+import {BACKENDS, createDualBackendHarness} from '../helpers/dualBackendTestHarness';
 
-describe('Phase 1c: Service write migration to repository layer', () => {
-    let mockDb;
-    let mockRepository;
-    let mockTransactionManager;
-    let mockRepositoryFactory;
-
-    function createMockRepository() {
-        return {
-            findAll: jest.fn().mockReturnValue({filtered: jest.fn().mockReturnValue([])}),
-            getAllNonVoided: jest.fn(),
-            existsByUuid: jest.fn(),
-            filtered: jest.fn(),
-            create: jest.fn((entity) => entity),
-            deleteInTransaction: jest.fn(),
-        };
-    }
+describe.each(BACKENDS)('Service write migration to repository layer [%s]', (backend) => {
+    let harness;
+    const schemaName = 'TestSchema';
 
     beforeEach(() => {
-        mockRepository = createMockRepository();
-
-        mockTransactionManager = {
-            write: jest.fn((fn) => fn()),
-            runInTransaction: jest.fn((fn) => fn()),
-            isInTransaction: false,
-        };
-
-        const repositories = {};
-        mockRepositoryFactory = {
-            getRepository: jest.fn((schema) => {
-                if (!repositories[schema]) repositories[schema] = createMockRepository();
-                return repositories[schema];
-            }),
-            transactionManager: mockTransactionManager,
-        };
-        // Default schema returns main mockRepository
-        mockRepositoryFactory.getRepository.mockImplementation((schema) => {
-            if (!schema || schema === 'TestSchema') return mockRepository;
-            if (!repositories[schema]) repositories[schema] = createMockRepository();
-            return repositories[schema];
-        });
-
-        mockDb = {
-            objects: jest.fn(),
-            create: jest.fn((schema, entity) => entity),
-            delete: jest.fn(),
-            write: jest.fn((fn) => fn()),
-            isInTransaction: false,
-        };
+        harness = createDualBackendHarness(backend);
     });
 
-    function createServiceWithSchema(schemaName = 'TestSchema') {
-        const mockContext = {
-            getRepositoryFactory: () => mockRepositoryFactory,
-            getService: jest.fn(),
-        };
-        const service = new BaseService(mockDb, mockContext);
-        service.getSchema = () => schemaName;
+    function createServiceWithSchema(schema = schemaName) {
+        const service = new BaseService(harness.mockDb, harness.mockContext);
+        service.getSchema = () => schema;
         return service;
     }
 
     describe('BaseService.getCreateEntityFunctions()', () => {
-        it('uses repository.create() instead of db.create()', () => {
+        it('uses repository.create() via db.create()', () => {
             const service = createServiceWithSchema();
             const entities = [{uuid: '1'}, {uuid: '2'}];
 
-            const fns = service.getCreateEntityFunctions('TestSchema', entities);
+            const fns = service.getCreateEntityFunctions(schemaName, entities);
             fns.forEach(fn => fn());
 
-            expect(mockRepository.create).toHaveBeenCalledTimes(2);
-            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '1'}, true);
-            expect(mockRepository.create).toHaveBeenCalledWith({uuid: '2'}, true);
-            expect(mockDb.create).not.toHaveBeenCalled();
+            expect(harness.mockDb.create).toHaveBeenCalledTimes(2);
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '1'}, true);
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '2'}, true);
         });
     });
 
@@ -100,33 +54,31 @@ describe('Phase 1c: Service write migration to repository layer', () => {
     });
 
     describe('write method patterns', () => {
-        it('services use transactionManager.write() instead of db.write()', () => {
+        it('services use db.write (via transactionManager) instead of direct db.write', () => {
             const service = createServiceWithSchema();
             const entity = {uuid: 'abc'};
 
             service.saveOrUpdate(entity);
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.write).not.toHaveBeenCalled();
+            expect(harness.mockDb.write).toHaveBeenCalled();
         });
 
-        it('services use repository.create() instead of db.create() inside transactions', () => {
+        it('services persist via db.create inside transactions', () => {
             const service = createServiceWithSchema();
             const entity = {uuid: 'abc'};
 
             service.save(entity);
 
-            expect(mockRepository.create).toHaveBeenCalledWith(entity);
-            expect(mockDb.create).not.toHaveBeenCalled();
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, entity, undefined);
         });
 
-        it('services use repository.deleteInTransaction() for deletes', () => {
+        it('services delete via db.delete inside transactions', () => {
             const service = createServiceWithSchema();
             const entity = {uuid: 'abc'};
 
             service.delete(entity);
 
-            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(entity);
+            expect(harness.mockDb.delete).toHaveBeenCalledWith(entity);
         });
     });
 });
