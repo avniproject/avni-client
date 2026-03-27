@@ -19,9 +19,7 @@ class TaskUnAssignmentService extends BaseService {
             this.transactionManager.write(() => {
                 this.getService(TaskService).deleteTask(taskUnAssignment.taskUUID);
                 taskUnAssignment.hasMigrated = true;
-                if (this.db.isSqlite) {
-                    this.repository.create(taskUnAssignment, true);
-                }
+                this.repository.create(taskUnAssignment, true);
             });
         });
     }

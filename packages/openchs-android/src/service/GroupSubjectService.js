@@ -66,6 +66,8 @@ class GroupSubjectService extends BaseService {
             let memberSubjectInd = this.getService(EntityService).findByUUID(groupSubject.memberSubject.uuid, Individual.schema.name);
             groupSubjectInd.addGroupSubject(savedGroupSubject);
             memberSubjectInd.addGroup(savedGroupSubject);
+            this.getRepository(Individual.schema.name).create(groupSubjectInd, true);
+            this.getRepository(Individual.schema.name).create(memberSubjectInd, true);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedGroupSubject, GroupSubject.schema.name));
             General.logDebug('GroupSubjectService', 'Member Saved');
         } else {

@@ -126,9 +126,9 @@ class SubjectMigrationService extends BaseService {
 
     deleteSubjectAndChildren(subject) {
         General.logDebug('SubjectMigrationService', `Deleting all entities for subject with UUID ${subject.uuid}`);
-        const db = this.db;
+        const deleteInTxn = (objects) => this.repository.deleteInTransaction(objects);
 
-        db.write(() => {
+        this.transactionManager.write(() => {
             // SUBJECT children (program enrolments)
             _.forEach(subject.enrolments, (enrolment) => {
                 // ENROLMENT
@@ -141,15 +141,15 @@ class SubjectMigrationService extends BaseService {
                 _.forEach(enrolment.encounters, (programEncounter) => {
                     // PROGRAM ENCOUNTER
                     // PROGRAM ENCOUNTER children (others)
-                    db.delete(programEncounter.observations);
-                    db.delete(programEncounter.cancelObservations);
+                    deleteInTxn(programEncounter.observations);
+                    deleteInTxn(programEncounter.cancelObservations);
 
                     this.safeDelete(programEncounter.encounterLocation);
                     this.safeDelete(programEncounter.cancelLocation);
 
-                    db.delete(programEncounter.approvalStatuses);
+                    deleteInTxn(programEncounter.approvalStatuses);
                 });
-                db.delete(enrolment.encounters);
+                deleteInTxn(enrolment.encounters);
 
                 // ENROLMENT children (checklists)
                 _.forEach(enrolment.checklists, (checklist) => {
@@ -157,44 +157,44 @@ class SubjectMigrationService extends BaseService {
                     if (_.isNil(checklist)) {
                         return;
                     }
-                    db.delete(checklist.items);
+                    deleteInTxn(checklist.items);
                 });
                 // ENROLMENT children (others)
-                db.delete(enrolment.observations);
-                db.delete(enrolment.programExitObservations);
+                deleteInTxn(enrolment.observations);
+                deleteInTxn(enrolment.programExitObservations);
 
                 this.safeDelete(enrolment.enrolmentLocation);
                 this.safeDelete(enrolment.exitLocation);
 
-                db.delete(enrolment.checklists);
-                db.delete(enrolment.approvalStatuses);
+                deleteInTxn(enrolment.checklists);
+                deleteInTxn(enrolment.approvalStatuses);
             });
-            db.delete(subject.enrolments);
+            deleteInTxn(subject.enrolments);
 
             _.forEach(subject.encounters, (encounter) => {
                 // ENCOUNTER
                 // ENCOUNTER children (others)
-                db.delete(encounter.observations);
-                db.delete(encounter.cancelObservations);
+                deleteInTxn(encounter.observations);
+                deleteInTxn(encounter.cancelObservations);
 
                 this.safeDelete(encounter.encounterLocation);
                 this.safeDelete(encounter.cancelLocation);
 
-                db.delete(encounter.approvalStatuses);
+                deleteInTxn(encounter.approvalStatuses);
             });
-            db.delete(subject.encounters);
+            deleteInTxn(subject.encounters);
 
             // SUBJECT children (others)
-            db.delete(this.getService(IndividualRelationshipService).findBySubject(subject));
-            db.delete(subject.observations);
+            deleteInTxn(this.getService(IndividualRelationshipService).findBySubject(subject));
+            deleteInTxn(subject.observations);
             this.safeDelete(subject.registrationLocation);
-            db.delete(subject.comments);
-            db.delete(subject.groupSubjects);
-            db.delete(subject.groups);
-            db.delete(subject.approvalStatuses);
+            deleteInTxn(subject.comments);
+            deleteInTxn(subject.groupSubjects);
+            deleteInTxn(subject.groups);
+            deleteInTxn(subject.approvalStatuses);
 
             // SUBJECT root
-            db.delete(subject);
+            deleteInTxn(subject);
         });
     }
 
@@ -222,11 +222,8 @@ class SubjectMigrationService extends BaseService {
     }
 
     markMigrated(subjectMigration) {
-        const db = this.db;
-        db.write(() => {
-            subjectMigration.hasMigrated = true;
-            db.create(this.getSchema(), subjectMigration, true);
-        });
+        subjectMigration.hasMigrated = true;
+        this.saveOrUpdate(subjectMigration);
     }
 
     getSchema() {

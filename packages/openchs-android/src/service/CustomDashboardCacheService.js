@@ -177,8 +177,7 @@ class CustomDashboardCacheService extends BaseService {
     }
 
     updateNestedCardResults(dashboardUUID, reportCard, results) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             results.forEach((nestedReportCardResult, index) => {
                 const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === reportCard.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
@@ -190,15 +189,16 @@ class CustomDashboardCacheService extends BaseService {
                 dashboardCache.nestedReportCardResults.push(nestedReportCardResult);
             });
             dashboardCache.updatedAt = new Date();
-            if (db.isSqlite) {
-                db.create(CustomDashboardCache.schema.name, dashboardCache, true);
+            // Realm persists list mutations on live objects automatically;
+            // SQLite requires an explicit save since objects are plain JS copies.
+            if (this.db.isSqlite) {
+                this.repository.create(dashboardCache, true);
             }
         });
     }
 
     updateReportCardResult(dashboardUUID, reportCard, reportCardResult) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
             const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === reportCard.uuid && x.dashboard === dashboardCache.dashboard.uuid);
             matching.forEach((x) => {
@@ -208,8 +208,8 @@ class CustomDashboardCacheService extends BaseService {
             reportCardResult.reportCard = reportCard.uuid;
             dashboardCache.reportCardResults.push(reportCardResult);
             dashboardCache.updatedAt = new Date();
-            if (db.isSqlite) {
-                db.create(CustomDashboardCache.schema.name, dashboardCache, true);
+            if (this.db.isSqlite) {
+                this.repository.create(dashboardCache, true);
             }
         });
     }

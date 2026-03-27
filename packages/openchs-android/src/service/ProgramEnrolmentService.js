@@ -85,8 +85,8 @@ class ProgramEnrolmentService extends BaseService {
             ProgramEnrolmentService.convertObsForSave(programEnrolment);
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
-            programEnrolment = this.repository.create(programEnrolment, UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), isNew);
+            programEnrolment = this.repository.create(programEnrolment, UpdateMode.Modified);
             entityQueueItems.push(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             this.getService(MediaQueueService).addMediaToQueue(programEnrolment, ProgramEnrolment.schema.name);
             programEncounterService.saveScheduledVisits(programEnrolment, nextScheduledVisits, programEnrolment.enrolmentDateTime);
@@ -99,6 +99,7 @@ class ProgramEnrolmentService extends BaseService {
             General.logDebug('ProgramEnrolmentService', 'Checklist added to ProgramEnrolment');
 
             individual.addEnrolment(programEnrolment);
+            this.getRepository(Individual.schema.name).create(individual, true);
             General.logDebug('ProgramEnrolmentService', 'ProgramEnrolment added to Individual');
 
             const enrolmentForm = this.getService(FormMappingService).findFormForProgramEnrolment(programEnrolment.program, individual.subjectType);
@@ -118,8 +119,8 @@ class ProgramEnrolmentService extends BaseService {
         this.transactionManager.write(() => {
             if (!skipCreatingPendingStatus && isApprovalEnabled)
                 entityApprovalStatusService.createPendingStatus(programEnrolment, ProgramEnrolment.schema.name, programEnrolment.program.uuid);
-            this.repository.create(programEnrolment, UpdateMode.Modified);
             programEnrolment.updateAudit(this.getUserInfo(), false);
+            this.repository.create(programEnrolment, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
             _.forEach(groupSubjectObservations, this.getService(GroupSubjectService).addSubjectToGroup(individual));
         });
@@ -133,7 +134,7 @@ class ProgramEnrolmentService extends BaseService {
         ProgramEnrolmentService.convertObsForSave(programEnrolment);
         programEnrolment.updateAudit(this.getUserInfo(), false);
         this.transactionManager.write(() => {
-            this.db.delete(oldExitObservations);
+            this.repository.deleteInTransaction(oldExitObservations);
             this.repository.create(programEnrolment, UpdateMode.Modified);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEnrolment, ProgramEnrolment.schema.name));
         });

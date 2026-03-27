@@ -78,13 +78,13 @@ class DraftEnrolmentService extends BaseService {
         const draft = this.findByUUID(enrolmentUUID);
         if (draft) {
             this.transactionManager.write(() => {
-                this.db.delete(draft.observations);
-                this.db.delete(draft.programExitObservations);
+                this.repository.deleteInTransaction(draft.observations);
+                this.repository.deleteInTransaction(draft.programExitObservations);
 
                 this.safeDelete(draft.enrolmentLocation);
                 this.safeDelete(draft.exitLocation);
 
-                this.db.delete(draft);
+                this.repository.deleteInTransaction(draft);
             });
         }
     }

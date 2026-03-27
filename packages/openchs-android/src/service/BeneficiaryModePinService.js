@@ -27,14 +27,9 @@ class BeneficiaryModePinService extends BaseService {
     }
 
     _setPin(pin) {
-        const db = this.db;
-        const schema = this.getSchema();
         const newPin = new BeneficiaryModePin();
         newPin.pin = pin;
-
-        db.write(() => {
-            db.create(schema, newPin);
-        });
+        this.save(newPin);
     }
 
     pinMatches(pin) {
@@ -46,12 +41,7 @@ class BeneficiaryModePinService extends BaseService {
     }
 
     resetPin() {
-        const db = this.db;
-        const schema = this.getSchema();
-        db.write(() => {
-            const existingPins = db.objects(schema);
-            db.delete(existingPins);
-        });
+        this.deleteAll();
     }
 }
 

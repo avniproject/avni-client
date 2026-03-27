@@ -81,13 +81,13 @@ class DraftEncounterService extends BaseService {
         const draft = this.findByUUID(encounterUUID);
         if (draft) {
             this.transactionManager.write(() => {
-                    this.db.delete(draft.observations);
-                    this.db.delete(draft.cancelObservations);
+                    this.repository.deleteInTransaction(draft.observations);
+                    this.repository.deleteInTransaction(draft.cancelObservations);
 
                     this.safeDelete(draft.encounterLocation);
                     this.safeDelete(draft.cancelLocation);
 
-                    this.db.delete(draft);
+                    this.repository.deleteInTransaction(draft);
                 }
             );
         }

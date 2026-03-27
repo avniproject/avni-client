@@ -25,6 +25,7 @@ class DashboardCacheService extends BaseService {
         this.transactionManager.write(() => {
             const dashboardCache = this.getCache();
             dashboardCache.setCard(card);
+            this.repository.create(dashboardCache, true);
         });
     }
 
@@ -32,6 +33,7 @@ class DashboardCacheService extends BaseService {
         this.transactionManager.write(() => {
             const dashboardCache = this.getCache();
             dashboardCache.setFilter(filter);
+            this.repository.create(dashboardCache, true);
         });
     }
 
@@ -39,7 +41,7 @@ class DashboardCacheService extends BaseService {
         this.transactionManager.write(() => {
             const dashboardCache = this.findOnly();
             if (!_.isNil(dashboardCache))
-                this.db.delete(dashboardCache);
+                this.repository.deleteInTransaction(dashboardCache);
         });
     }
 }

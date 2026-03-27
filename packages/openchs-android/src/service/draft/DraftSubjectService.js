@@ -29,9 +29,9 @@ class DraftSubjectService extends BaseService {
         const draftSubject = this.findByUUID(subjectUUID);
         if (draftSubject) {
             this.transactionManager.write(() => {
-                this.db.delete(draftSubject.observations);
+                this.repository.deleteInTransaction(draftSubject.observations);
                 this.safeDelete(draftSubject.registrationLocation);
-                this.db.delete(draftSubject);
+                this.repository.deleteInTransaction(draftSubject);
             });
         }
     }
