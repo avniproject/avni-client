@@ -17,7 +17,7 @@ class EntityService extends BaseService {
         this.transactionManager.write(() => {
             const entity = this.findByKey("uuid", uuid, schema);
             if (!_.isNil(entity) && !_.isEmpty(entity)) {
-                this.db.delete(entity[objectKey]);
+                this.getRepository(schema).deleteInTransaction(entity[objectKey]);
             }
         });
     }
@@ -29,9 +29,9 @@ class EntityService extends BaseService {
         });
     }
 
-    deleteEntities(objects) {
+    deleteEntities(objects, schema) {
         this.transactionManager.write(() => {
-            this.db.delete(objects);
+            this.getRepository(schema).deleteInTransaction(objects);
         });
     }
 }

@@ -82,10 +82,8 @@ class IndividualRelationshipService extends BaseService {
         let individualB = this.getService(EntityService).findByUUID(relationship.individualB.uuid, Individual.schema.name);
         individualA.addRelationship(savedRelationship);
         individualB.addRelationship(savedRelationship);
-        if (this.db.isSqlite) {
-            this.getRepository(Individual.schema.name).create(individualA, true);
-            this.getRepository(Individual.schema.name).create(individualB, true);
-        }
+        this.getRepository(Individual.schema.name).create(individualA, true);
+        this.getRepository(Individual.schema.name).create(individualB, true);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(relationship, IndividualRelationship.schema.name));
         General.logDebug('IndividualRelationshipService', 'Saved IndividualRelationship');
     }

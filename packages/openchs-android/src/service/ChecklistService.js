@@ -6,7 +6,8 @@ import {
     ChecklistItem,
     ChecklistItemDetail,
     EntityQueue,
-    ObservationsHolder
+    ObservationsHolder,
+    ProgramEnrolment
 } from 'avni-models';
 import _ from 'lodash';
 import General from '../utility/General';
@@ -36,6 +37,7 @@ class ChecklistService extends BaseService {
         let existingChecklist = programEnrolment.getChecklists().find(c => c.detail.uuid === checklist.detail.uuid);
         if (!_.isNil(existingChecklist)) {
             existingChecklist.baseDate = checklist.baseDate;
+            this.getRepository(Checklist.schema.name).create(existingChecklist, true);
             entityQueueItems.push(EntityQueue.create(existingChecklist, Checklist.schema.name));
             return entityQueueItems;
         }
@@ -59,8 +61,10 @@ class ChecklistService extends BaseService {
             return savedChecklistItem;
         });
         checklistItems.forEach(ci => savedChecklist.items.push(ci));
-        programEnrolment.addChecklist(savedChecklist);
         savedChecklist.programEnrolment = programEnrolment;
+        this.getRepository(Checklist.schema.name).create(savedChecklist, true);
+        programEnrolment.addChecklist(savedChecklist);
+        this.getRepository(ProgramEnrolment.schema.name).create(programEnrolment, true);
         return entityQueueItems;
     }
 

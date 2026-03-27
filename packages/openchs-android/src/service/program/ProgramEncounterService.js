@@ -35,6 +35,7 @@ class ProgramEncounterService extends BaseService {
         programEncounter = this.repository.create(programEncounter, UpdateMode.Modified);
         const enrolment = this.findByUUID(programEncounter.programEnrolment.uuid, ProgramEnrolment.schema.name);
         enrolment.addEncounter(programEncounter);
+        this.getRepository(ProgramEnrolment.schema.name).create(enrolment, true);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(programEncounter, ProgramEncounter.schema.name));
         this.getService(MediaQueueService).addMediaToQueue(programEncounter, ProgramEncounter.schema.name);
     }

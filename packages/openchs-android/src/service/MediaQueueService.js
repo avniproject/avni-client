@@ -81,7 +81,7 @@ class MediaQueueService extends BaseService {
     popItem(mediaQueueItem) {
         General.logDebug("MediaQueueService", `Deleting Media QueueItem ${mediaQueueItem.uuid} - ${mediaQueueItem.fileName}`);
         const itemToBeDeleted = this.findByUUID(mediaQueueItem.uuid, MediaQueue.schema.name);
-        this.transactionManager.write(() => this.db.delete(itemToBeDeleted));
+        this.transactionManager.write(() => this.getRepository(MediaQueue.schema.name).deleteInTransaction(itemToBeDeleted));
     }
 
     getDirByType(mediaQueueItem) {

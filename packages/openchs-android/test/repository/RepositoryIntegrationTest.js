@@ -149,7 +149,7 @@ describe('Repository Integration Tests', () => {
             expect(mockDb.write).not.toHaveBeenCalled();
         });
 
-        it('deleteObjects uses transactionManager and db.delete', () => {
+        it('deleteObjects uses transactionManager and repository.deleteInTransaction', () => {
             const {mockDb, mockTransactionManager, mockContext, repositories} = createTestHarness();
             const service = new EntityService(mockDb, mockContext);
 
@@ -163,18 +163,20 @@ describe('Repository Integration Tests', () => {
             service.deleteObjects('e-1', 'TestSchema', 'children');
 
             expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.delete).toHaveBeenCalledWith(childObjects);
+            expect(repositories['TestSchema'].deleteInTransaction).toHaveBeenCalledWith(childObjects);
+            expect(mockDb.delete).not.toHaveBeenCalled();
         });
 
-        it('deleteEntities uses transactionManager and db.delete', () => {
-            const {mockDb, mockTransactionManager, mockContext} = createTestHarness();
+        it('deleteEntities uses transactionManager and repository.deleteInTransaction', () => {
+            const {mockDb, mockTransactionManager, mockContext, repositories} = createTestHarness();
             const service = new EntityService(mockDb, mockContext);
 
             const objects = [{uuid: '1'}, {uuid: '2'}];
-            service.deleteEntities(objects);
+            service.deleteEntities(objects, 'TestSchema');
 
             expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.delete).toHaveBeenCalledWith(objects);
+            expect(repositories['TestSchema'].deleteInTransaction).toHaveBeenCalledWith(objects);
+            expect(mockDb.delete).not.toHaveBeenCalled();
         });
     });
 
@@ -258,7 +260,7 @@ describe('Repository Integration Tests', () => {
             expect(mockCache.setFilter).toHaveBeenCalledWith({id: 'filter-1'});
         });
 
-        it('clear uses transactionManager.write and db.delete', () => {
+        it('clear uses transactionManager.write and repository.deleteInTransaction', () => {
             const {mockDb, mockTransactionManager, mockContext, repositories} = createTestHarness();
             const service = new DashboardCacheService(mockDb, mockContext);
 
@@ -275,7 +277,8 @@ describe('Repository Integration Tests', () => {
             service.clear();
 
             expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockDb.delete).toHaveBeenCalledWith(cache);
+            expect(repositories['DashboardCache'].deleteInTransaction).toHaveBeenCalledWith(cache);
+            expect(mockDb.delete).not.toHaveBeenCalled();
         });
     });
 
@@ -293,8 +296,8 @@ describe('Repository Integration Tests', () => {
             expect(mockDb.create).not.toHaveBeenCalled();
         });
 
-        it('deleteTask uses db.delete directly (called inside parent transaction)', () => {
-            const {mockDb, mockContext, repositories} = createTestHarness();
+        it('deleteTask uses transactionManager and repository.deleteInTransaction', () => {
+            const {mockDb, mockTransactionManager, mockContext, repositories} = createTestHarness();
             const service = new TaskService(mockDb, mockContext);
 
             const task = {uuid: 't-1'};
@@ -306,7 +309,9 @@ describe('Repository Integration Tests', () => {
 
             service.deleteTask('t-1');
 
-            expect(mockDb.delete).toHaveBeenCalledWith(task);
+            expect(mockTransactionManager.write).toHaveBeenCalled();
+            expect(repositories['Task'].deleteInTransaction).toHaveBeenCalledWith(task);
+            expect(mockDb.delete).not.toHaveBeenCalled();
         });
     });
 

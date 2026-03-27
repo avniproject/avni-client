@@ -22,6 +22,7 @@ class CommentService extends BaseService {
             const savedComment = this.repository.create(comment, true);
             let individual = this.getService(EntityService).findByUUID(comment.subject.uuid, Individual.schema.name);
             individual.addComment(savedComment);
+            this.getRepository(Individual.schema.name).create(individual, true);
             this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(savedComment, this.getSchema()));
             General.logDebug('CommentService', 'Comment Saved');
         });

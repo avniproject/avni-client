@@ -91,11 +91,10 @@ class PrivilegeService extends BaseService {
     }
 
     deleteEntity(entityName, filterQuery) {
-        const db = this.db;
-        db.write(() => {
-            const objects = db.objects(entityName)
+        this.transactionManager.write(() => {
+            const objects = this.getRepository(entityName).findAll()
                 .filtered(filterQuery);
-            db.delete(objects);
+            this.getRepository(entityName).deleteInTransaction(objects);
         })
     }
 

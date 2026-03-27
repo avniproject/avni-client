@@ -124,10 +124,9 @@ class EntitySyncStatusService extends BaseService {
     }
 
     deleteEntries(criteriaQuery) {
-        const db = this.db;
-        db.write(() => {
+        this.transactionManager.write(() => {
             const objects = this.findAllByCriteria(criteriaQuery);
-            db.delete(objects);
+            this.repository.deleteInTransaction(objects);
         });
     }
 

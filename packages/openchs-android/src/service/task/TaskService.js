@@ -65,7 +65,7 @@ class TaskService extends BaseService {
     deleteTask(taskUUID) {
         const task = this.findByUUID(taskUUID);
         if (!_.isNil(task)) {
-            this.db.delete(task);
+            this.delete(task);
         }
     }
 

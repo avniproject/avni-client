@@ -56,6 +56,7 @@ class EncounterService extends BaseService {
         encounter = this.repository.create(encounter, UpdateMode.Modified);
         const individual = this.findByUUID(encounter.individual.uuid, Individual.schema.name);
         individual.addEncounter(encounter);
+        this.getRepository(Individual.schema.name).create(individual, true);
         this.getRepository(EntityQueue.schema.name).create(EntityQueue.create(encounter, Encounter.schema.name));
         this.getService(MediaQueueService).addMediaToQueue(encounter, Encounter.schema.name);
     }

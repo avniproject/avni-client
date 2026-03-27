@@ -350,7 +350,7 @@ export default class BackupRestoreRealmService extends BaseService {
             .filtered(`entityName = '${schemaName}'`)
             .map(_.identity);
         this.transactionManager.write(() => {
-            this.db.delete(this.getRepository(schemaName).findAll());
+            this.getRepository(schemaName).deleteInTransaction(this.getRepository(schemaName).findAll());
             syncStatuses.forEach(({uuid, entityName, entityTypeUuid}) => {
                 const updatedEntity = EntitySyncStatus.create(entityName, EntitySyncStatus.REALLY_OLD_DATE, uuid, entityTypeUuid);
                 this.getRepository(EntitySyncStatus.schema.name).create(updatedEntity, true);
