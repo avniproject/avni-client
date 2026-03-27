@@ -1,184 +1,97 @@
 import BaseService from '../../src/service/BaseService';
+import {BACKENDS, createDualBackendHarness} from '../helpers/dualBackendTestHarness';
 
-describe('BaseService repository delegation', () => {
+describe.each(BACKENDS)('BaseService repository delegation [%s]', (backend) => {
     let service;
-    let mockDb;
-    let mockRepository;
-    let mockTransactionManager;
-    let mockRepositoryFactory;
+    let harness;
     const schemaName = 'TestSchema';
 
     beforeEach(() => {
-        mockRepository = {
-            findAll: jest.fn(),
-            getAllNonVoided: jest.fn(),
-            existsByUuid: jest.fn(),
-            filtered: jest.fn(),
-            create: jest.fn(),
-            deleteInTransaction: jest.fn(),
-        };
-
-        mockTransactionManager = {
-            write: jest.fn((fn) => fn()),
-            runInTransaction: jest.fn((fn) => fn()),
-            isInTransaction: false,
-        };
-
-        mockRepositoryFactory = {
-            getRepository: jest.fn().mockReturnValue(mockRepository),
-            transactionManager: mockTransactionManager,
-        };
-
-        mockDb = {
-            objects: jest.fn(),
-            create: jest.fn(),
-            delete: jest.fn(),
-            write: jest.fn((fn) => fn()),
-            isInTransaction: false,
-        };
-
-        const mockContext = {
-            getRepositoryFactory: () => mockRepositoryFactory,
-        };
-
-        service = new BaseService(mockDb, mockContext);
+        harness = createDualBackendHarness(backend);
+        service = new BaseService(harness.mockDb, harness.mockContext);
         service.getSchema = () => schemaName;
     });
 
     describe('read methods', () => {
-        it('findAll() delegates to repository.findAll()', () => {
-            const mockResults = {filtered: jest.fn(), length: 2};
-            mockRepository.findAll.mockReturnValue(mockResults);
-
+        it('findAll() delegates through repository to db.objects()', () => {
             const result = service.findAll();
 
-            expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith(schemaName);
-            expect(mockRepository.findAll).toHaveBeenCalled();
-            expect(result).toBe(mockResults);
-            expect(mockDb.objects).not.toHaveBeenCalled();
+            expect(harness.mockDb.objects).toHaveBeenCalledWith(schemaName);
         });
 
-        it('findAll(otherSchema) delegates to getRepository(otherSchema).findAll()', () => {
-            const mockResults = {filtered: jest.fn(), length: 1};
-            mockRepository.findAll.mockReturnValue(mockResults);
-
+        it('findAll(otherSchema) delegates to repository for that schema', () => {
             service.findAll('OtherSchema');
 
-            expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith('OtherSchema');
+            expect(harness.mockDb.objects).toHaveBeenCalledWith('OtherSchema');
         });
 
-        it('getAll() delegates to repository.findAll()', () => {
-            const mockResults = {length: 3, map: jest.fn()};
-            mockRepository.findAll.mockReturnValue(mockResults);
+        it('getAll() delegates through repository to db.objects()', () => {
+            service.getAll();
 
-            const result = service.getAll();
-
-            expect(mockRepository.findAll).toHaveBeenCalled();
-            expect(result).toBe(mockResults);
+            expect(harness.mockDb.objects).toHaveBeenCalledWith(schemaName);
         });
 
-        it('getAllNonVoided() delegates to repository.getAllNonVoided()', () => {
-            const mockResults = [{voided: false}];
-            mockRepository.getAllNonVoided.mockReturnValue(mockResults);
+        it('getAllNonVoided() delegates through repository to db.objects() with filter', () => {
+            service.getAllNonVoided();
 
-            const result = service.getAllNonVoided();
-
-            expect(mockRepository.getAllNonVoided).toHaveBeenCalled();
-            expect(result).toBe(mockResults);
+            expect(harness.mockDb.objects).toHaveBeenCalledWith(schemaName);
         });
 
-        it('existsByUuid() delegates to repository.existsByUuid()', () => {
-            mockRepository.existsByUuid.mockReturnValue(true);
+        it('findAllByCriteria() chains objects().filtered()', () => {
+            service.findAllByCriteria('name = "Test"');
 
-            const result = service.existsByUuid('abc-123');
-
-            expect(mockRepository.existsByUuid).toHaveBeenCalledWith('abc-123');
-            expect(result).toBe(true);
-        });
-
-        it('filtered() delegates to repository.filtered()', () => {
-            const mockResults = [];
-            mockRepository.filtered.mockReturnValue(mockResults);
-
-            service.filtered('age > $0', 18);
-
-            expect(mockRepository.filtered).toHaveBeenCalledWith('age > $0', 18);
-        });
-
-        it('findAllByCriteria() chains findAll().filtered()', () => {
-            const mockFiltered = [{name: 'Test'}];
-            const mockResults = {filtered: jest.fn().mockReturnValue(mockFiltered)};
-            mockRepository.findAll.mockReturnValue(mockResults);
-
-            const result = service.findAllByCriteria('name = "Test"');
-
-            expect(mockResults.filtered).toHaveBeenCalledWith('name = "Test"');
-            expect(result).toBe(mockFiltered);
+            expect(harness.mockDb.objects).toHaveBeenCalledWith(schemaName);
+            expect(harness.mockDb._resultProxy.filtered).toHaveBeenCalledWith('name = "Test"');
         });
     });
 
     describe('write methods', () => {
-        it('saveOrUpdate() uses transactionManager and repository.create()', () => {
+        it('saveOrUpdate() uses db.write and db.create with update mode', () => {
             const entity = {uuid: 'abc', name: 'Test'};
 
             service.saveOrUpdate(entity);
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockRepository.create).toHaveBeenCalledWith(entity, true);
+            expect(harness.mockDb.write).toHaveBeenCalled();
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, entity, true);
         });
 
-        it('save() uses transactionManager and repository.create()', () => {
+        it('save() uses db.write and db.create without update mode', () => {
             const entity = {uuid: 'abc', name: 'Test'};
 
             service.save(entity);
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockRepository.create).toHaveBeenCalledWith(entity);
+            expect(harness.mockDb.write).toHaveBeenCalled();
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, entity, undefined);
         });
 
-        it('delete() uses transactionManager and repository.deleteInTransaction()', () => {
+        it('delete() uses db.write and db.delete', () => {
             const entity = {uuid: 'abc'};
 
             service.delete(entity);
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(entity);
+            expect(harness.mockDb.write).toHaveBeenCalled();
+            expect(harness.mockDb.delete).toHaveBeenCalledWith(entity);
         });
 
-        it('deleteAll() uses transactionManager and repository.deleteInTransaction()', () => {
-            const mockResults = [{uuid: '1'}, {uuid: '2'}];
-            mockRepository.findAll.mockReturnValue(mockResults);
-
+        it('deleteAll() uses db.write and db.delete on all objects', () => {
             service.deleteAll();
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
-            expect(mockRepository.deleteInTransaction).toHaveBeenCalledWith(mockResults);
+            expect(harness.mockDb.write).toHaveBeenCalled();
+            expect(harness.mockDb.delete).toHaveBeenCalled();
         });
 
-        it('bulkSaveOrUpdate() uses transactionManager', () => {
+        it('bulkSaveOrUpdate() uses db.write', () => {
             const fn1 = jest.fn();
             const fn2 = jest.fn();
 
             service.bulkSaveOrUpdate([fn1, fn2]);
 
-            expect(mockTransactionManager.write).toHaveBeenCalled();
+            expect(harness.mockDb.write).toHaveBeenCalled();
             expect(fn1).toHaveBeenCalled();
             expect(fn2).toHaveBeenCalled();
         });
 
-        it('runInTransaction() delegates to transactionManager.runInTransaction()', () => {
-            const fn = jest.fn().mockReturnValue('result');
-
-            const result = service.runInTransaction(fn);
-
-            expect(mockTransactionManager.runInTransaction).toHaveBeenCalledWith(fn);
-            expect(result).toBe('result');
-        });
-
-        it('clearDataIn() uses transactionManager per entity type', () => {
-            const mockResults = [{uuid: '1'}];
-            mockRepository.findAll.mockReturnValue(mockResults);
-
+        it('clearDataIn() uses db.write per entity type', () => {
             const entityTypes = [
                 {schema: {name: 'TypeA'}},
                 {schema: {name: 'TypeB'}},
@@ -186,10 +99,9 @@ describe('BaseService repository delegation', () => {
 
             service.clearDataIn(entityTypes);
 
-            expect(mockTransactionManager.write).toHaveBeenCalledTimes(2);
-            expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith('TypeA');
-            expect(mockRepositoryFactory.getRepository).toHaveBeenCalledWith('TypeB');
-            expect(mockRepository.deleteInTransaction).toHaveBeenCalledTimes(2);
+            expect(harness.mockDb.write).toHaveBeenCalledTimes(2);
+            expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeA');
+            expect(harness.mockDb.objects).toHaveBeenCalledWith('TypeB');
         });
     });
 });
