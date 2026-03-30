@@ -357,8 +357,24 @@ class SqliteResultsProxy {
         return _.isNil(obj) ? null : this.createEntity(obj);
     }
 
+    /**
+     * Return count using SELECT COUNT(*) without hydrating any rows.
+     * Use this when only the count is needed (e.g., dashboard card counts).
+     * Falls back to full execution if JS fallback filters are present.
+     */
+    count() {
+        if (this.jsFallbackFilters.length > 0) {
+            // JS fallbacks need hydrated entities to filter — can't shortcut
+            this._execute();
+            return this._entities.length;
+        }
+        const {sql, params} = this._buildSql();
+        const countSql = sql.replace(/^SELECT\s+(DISTINCT\s+)?t0\.\*/i, 'SELECT COUNT($1t0."uuid")');
+        const rows = this.executeQuery(countSql, params);
+        return (rows && rows.length > 0) ? Object.values(rows[0])[0] : 0;
+    }
+
     getLength() {
-        // For length, we can optimize with a COUNT query if not yet executed
         if (!this._executed) {
             this._execute();
         }

@@ -245,8 +245,13 @@ describe('Performance Benchmark (synthetic data)', () => {
     function bench(label, fn, target = null) {
         const {elapsed, result} = timeIt(label, () => {
             const r = fn();
-            // Force materialization — proxy is lazy until .length is accessed
-            if (r && typeof r.length === 'number') { const _ = r.length; }
+            if (typeof r === 'number') return r;
+            if (r && typeof r.length === 'number') {
+                // Force full hydration by accessing first entity
+                const len = r.length;
+                if (len > 0) { const _ = r[0]; }
+                return r;
+            }
             return r;
         });
         const rows = typeof result === 'number' ? result : (result?.length ?? '?');
@@ -323,6 +328,35 @@ describe('Performance Benchmark (synthetic data)', () => {
                 'earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND individual.voided = false AND voided = false',
                 dateMidnight, dateMorning
             );
+        }, TARGETS.dashboardMs);
+    });
+
+    it('dashboard: scheduled visits SHALLOW', () => {
+        const now = new Date();
+        const dateMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        const dateMorning = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+        bench('dashboard: scheduled visits SHALLOW', () => {
+            return proxy.objects('ProgramEncounter')
+                .withHydration({skipLists: true, depth: 1})
+                .filtered(
+                    'earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND voided = false',
+                    dateMidnight, dateMorning
+                );
+        }, TARGETS.dashboardMs);
+    });
+
+    it('dashboard: scheduled visits COUNT', () => {
+        const now = new Date();
+        const dateMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        const dateMorning = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+        bench('dashboard: scheduled visits COUNT', () => {
+            return proxy.objects('ProgramEncounter')
+                .filtered(
+                    'earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND voided = false',
+                    dateMidnight, dateMorning
+                ).count();
         }, TARGETS.dashboardMs);
     });
 
