@@ -191,8 +191,14 @@ class IndividualService extends BaseService {
         const filterCriteria = criteria.getFilterCriteria();
         let searchResults, finalSearchResults = [];
 
+        // Use shallow hydration for search results (skipLists + depth 1).
+        // Search UI only needs name, subjectType, gender, address — all in referenceDataCache.
+        const shallowOpts = {skipLists: true, depth: 1};
+        const allResults = this.repository.findAll();
+        const base = allResults.withHydration ? allResults.withHydration(shallowOpts) : allResults;
+
         if (_.isEmpty(filterCriteria)) {
-            searchResults = this.repository.findAll().sorted("name");
+            searchResults = base.sorted("name");
             finalSearchResults = getUnderlyingRealmCollection(searchResults);
         } else {
             function filterIndividualsByChunks(baseResult) {
@@ -206,7 +212,7 @@ class IndividualService extends BaseService {
                 }
             }
 
-            const baseResult = this.repository.findAll()
+            const baseResult = base
                 .filtered(
                     filterCriteria,
                     criteria.getMinDateOfBirth(),
