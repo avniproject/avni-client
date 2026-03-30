@@ -82,7 +82,31 @@ class SqliteProxy {
 
     // ──── RealmProxy contract ────
 
+    static DEFAULT_REFERENCE_CACHE_CONFIGS = [
+        {schemaName: 'Gender', depth: 1, skipLists: true},
+        {schemaName: 'SubjectType', depth: 1, skipLists: true},
+        {schemaName: 'Program', depth: 1, skipLists: true},
+        {schemaName: 'EncounterType', depth: 1, skipLists: true},
+        {schemaName: 'AddressLevel', depth: 1, skipLists: true},
+    ];
+
+    ensureReferenceCacheBuilt() {
+        if (this._referenceCacheBuilt) return;
+        const cache = this.hydrator.referenceDataCache;
+        if (cache && Object.keys(cache).length > 0) {
+            this._referenceCacheBuilt = true;
+            return;
+        }
+        try {
+            this.buildReferenceCache(SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS);
+        } catch (e) {
+            // Tables may not exist yet (before first sync)
+        }
+        this._referenceCacheBuilt = true;
+    }
+
     objects(schemaName) {
+        this.ensureReferenceCacheBuilt();
         const entityClass = this.entityMappingConfig.getEntityClass(schemaName);
         const tableMeta = this.tableMetaMap.get(schemaName);
 
