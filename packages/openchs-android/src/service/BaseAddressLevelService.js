@@ -5,6 +5,38 @@ import RealmQueryService from "./query/RealmQueryService";
 class BaseAddressLevelService extends BaseService {
     constructor(db, beanStore) {
         super(db, beanStore);
+        this._hierarchyCache = null;
+    }
+
+    // Lazily build an in-memory lookup of the full address hierarchy.
+    // Avoids repeated DB queries during recursive traversal (getDescendantsOfNode, isTypeUUIDPresent).
+    // Cache is invalidated on database update (sync).
+    _getHierarchyCache() {
+        if (this._hierarchyCache) return this._hierarchyCache;
+
+        const allAddresses = this.findAll(this.getSchema()).filtered('voided = false');
+        const childrenByParent = new Map(); // parentUuid → [addressLevel, ...]
+        const byUuid = new Map();
+
+        for (let i = 0; i < allAddresses.length; i++) {
+            const al = allAddresses[i];
+            byUuid.set(al.uuid, al);
+            const parentKey = al.parentUuid || '__root__';
+            if (!childrenByParent.has(parentKey)) childrenByParent.set(parentKey, []);
+            childrenByParent.get(parentKey).push(al);
+        }
+
+        this._hierarchyCache = {childrenByParent, byUuid};
+        return this._hierarchyCache;
+    }
+
+    clearHierarchyCache() {
+        this._hierarchyCache = null;
+    }
+
+    updateDatabase(db) {
+        super.updateDatabase(db);
+        this.clearHierarchyCache();
     }
 
     getAllRootParents() {
@@ -80,12 +112,15 @@ class BaseAddressLevelService extends BaseService {
     }
 
     getParent(parentUUID) {
-        return this.findAllByCriteria(`uuid = '${parentUUID}'`);
+        const cache = this._getHierarchyCache();
+        const parent = cache.byUuid.get(parentUUID);
+        return parent ? [parent] : [];
     }
 
     getChildren(parentUUID) {
         if (_.isEmpty(parentUUID)) return [];
-        return [...this.findAllByCriteria(`parentUuid = '${parentUUID}' AND voided = false`, this.getSchema())];
+        const cache = this._getHierarchyCache();
+        return cache.childrenByParent.get(parentUUID) || [];
     }
 
     isLeaf(child) {
