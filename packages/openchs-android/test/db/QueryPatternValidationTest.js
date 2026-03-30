@@ -125,9 +125,9 @@ const PARTIAL_PARSE = [
     'voided = false and locationMappings.@count == 0',
 ];
 
-// ── Queries through embedded list properties that parse to SQL but rely on
-//    SqliteProxy's runtime fallback when the generated JOINs fail ──
-const RUNTIME_FALLBACK = [
+// ── Queries through embedded list properties that resolve to the parent JSON column ──
+const EMBEDDED_JSON_SEARCH = [
+    'observations.valueJSON contains[c] "keyword"',
     '(observations.concept.keyValues.key = "PrimaryContact" or observations.concept.keyValues.key = "ContactNumber") and (observations.valueJSON CONTAINS "1234")',
 ];
 
@@ -163,12 +163,11 @@ describe('Query pattern validation against RealmQueryParser', () => {
         });
     });
 
-    describe('Runtime-fallback queries (parsed to SQL, caught at runtime by SqliteProxy)', () => {
-        test.each(RUNTIME_FALLBACK)('%s', (query) => {
+    describe('Embedded JSON column queries (observations.valueJSON → parent JSON column)', () => {
+        test.each(EMBEDDED_JSON_SEARCH)('%s', (query) => {
             const result = RealmQueryParser.parse(query, DUMMY_ARGS);
-            // Parser translates these to SQL (dot-paths through embedded lists generate JOINs),
-            // but the JOINs fail at runtime since embedded objects are stored as JSON.
-            // SqliteProxy catches the SQL error and re-evaluates via JS fallback.
+            // Parser recognizes embedded list properties and resolves to the parent's JSON column,
+            // enabling SQL-level search within JSON text instead of JS fallback.
             expect(result.unsupported).toBe(false);
             expect(result.where).toBeTruthy();
         });
@@ -176,7 +175,7 @@ describe('Query pattern validation against RealmQueryParser', () => {
 
     it('summary', () => {
         let sqlOk = 0, jsFallback = 0, partial = 0, errors = 0;
-        const allQueries = [...SQL_TRANSLATABLE, ...JS_FALLBACK, ...PARTIAL_PARSE, ...RUNTIME_FALLBACK];
+        const allQueries = [...SQL_TRANSLATABLE, ...JS_FALLBACK, ...PARTIAL_PARSE, ...EMBEDDED_JSON_SEARCH];
         const failedQueries = [];
 
         for (const q of SQL_TRANSLATABLE) {
@@ -204,7 +203,7 @@ describe('Query pattern validation against RealmQueryParser', () => {
             }
         }
         // Runtime fallback queries are counted as SQL (parser accepts them)
-        for (const q of RUNTIME_FALLBACK) {
+        for (const q of EMBEDDED_JSON_SEARCH) {
             const r = RealmQueryParser.parse(q, DUMMY_ARGS);
             if (!r.unsupported) sqlOk++;
             else {
