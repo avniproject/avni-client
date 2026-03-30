@@ -350,6 +350,21 @@ describe('Performance Benchmark (synthetic data)', () => {
         }, TARGETS.searchMs);
     });
 
+    it('search: observation keyword search', () => {
+        bench('search(observations.valueJSON contains[c])', () => {
+            return proxy.objects('Individual')
+                .filtered('observations.valueJSON contains[c] $0', 'obs_50');
+        }, TARGETS.searchMs);
+    });
+
+    it('search: observation keyword search SHALLOW', () => {
+        bench('search(obs contains[c]) SHALLOW', () => {
+            return proxy.objects('Individual')
+                .withHydration({skipLists: true, depth: 1})
+                .filtered('observations.valueJSON contains[c] $0', 'obs_50');
+        }, TARGETS.searchMs);
+    });
+
     it('search: findAll with shallow hydration', () => {
         bench('findAll(Individual).sorted(name) SHALLOW', () => {
             return proxy.objects('Individual')

@@ -24,6 +24,7 @@
 
 import _ from "lodash";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
+import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 
 const TOKEN_TYPES = {
     STRING: "STRING",
@@ -393,6 +394,14 @@ class SqlGenerator {
             }
 
             const targetSchema = propSchema.objectType;
+
+            // Embedded list/object (Observation, Point, etc.) stored as JSON column on parent table.
+            // e.g., "observations.valueJSON" → search within the parent's "observations" JSON text column.
+            // Remaining path parts (e.g., "valueJSON") are ignored since the JSON is searched as text.
+            if (targetSchema && EMBEDDED_SCHEMA_NAMES.has(targetSchema)) {
+                return {column: `${currentAlias}."${camelToSnake(propName)}"`, needsJoin: false};
+            }
+
             const newAlias = `t${++this.aliasCounter}`;
             const targetTableName = schemaNameToTableName(targetSchema);
 
@@ -538,6 +547,7 @@ class SqlGenerator {
                 throw new Error(`Unknown string operator: ${node.op}`);
         }
     }
+
 }
 
 // ──────────────── JS fallback detection ────────────────
