@@ -222,8 +222,10 @@ class SubjectMigrationService extends BaseService {
     }
 
     markMigrated(subjectMigration) {
-        subjectMigration.hasMigrated = true;
-        this.saveOrUpdate(subjectMigration);
+        this.transactionManager.write(() => {
+            subjectMigration.hasMigrated = true;
+            this.repository.create(subjectMigration, true);
+        });
     }
 
     getSchema() {
