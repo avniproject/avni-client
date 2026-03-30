@@ -114,7 +114,29 @@ class ReportCardService extends BaseService {
     }
 
     getCountForDefaultCardsType(reportFilters, reportCard) {
-        return ReportCardResult.create(this.getResultForDefaultCardsType(reportFilters, reportCard).result.length, null, true);
+        const individualService = this.getService(IndividualService);
+        const standardReportCardTypeName = reportCard.standardReportCardType.type;
+        const formMetaData = DashboardReportFilter.getFormMetaDataFilterValues(reportFilters);
+        const date = DashboardReportFilter.getAsOnDate(reportFilters);
+
+        let count;
+        if (standardReportCardTypeName === StandardReportCardType.types.ScheduledVisits) {
+            count = individualService.countScheduledVisits(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData));
+        } else if (standardReportCardTypeName === StandardReportCardType.types.OverdueVisits) {
+            count = individualService.countOverdueVisits(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData));
+        } else if (standardReportCardTypeName === StandardReportCardType.types.Total) {
+            count = individualService.countAllIn(date, reportFilters, getSubjectCriteria(reportCard, formMetaData));
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentRegistrations) {
+            count = individualService.countRecentlyRegistered(date, reportFilters, getSubjectCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentEnrolments) {
+            count = individualService.countRecentlyEnrolled(date, reportFilters, getProgramEnrolmentCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
+        } else if (standardReportCardTypeName === StandardReportCardType.types.RecentVisits) {
+            count = individualService.countRecentlyCompletedVisits(date, reportFilters, getProgramEncounterCriteria(reportCard, formMetaData), getGeneralEncounterCriteria(reportCard, formMetaData), reportCard.getStandardReportCardInputRecentDuration());
+        } else {
+            // DueChecklist and other types — fall back to full result
+            count = this.getResultForDefaultCardsType(reportFilters, reportCard).result.length;
+        }
+        return ReportCardResult.create(count, null, true);
     }
 
     getResultForChecklistCardType(type, reportFilters) {
