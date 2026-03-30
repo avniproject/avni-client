@@ -407,6 +407,64 @@ describe('Performance Benchmark (synthetic data)', () => {
         });
     });
 
+    it('location: hierarchy traversal (DB queries vs cached)', () => {
+        // Seed a 4-level hierarchy: 5 states × 10 districts × 10 blocks × 4 villages = 2,225 nodes
+        const stateUuids = [];
+        proxy.write(() => {
+            for (let s = 0; s < 5; s++) {
+                const stateUuid = uuid();
+                stateUuids.push(stateUuid);
+                proxy.create('AddressLevel', {uuid: stateUuid, title: `State_${s}`, level: 4, voided: false, type: uuid(), parentUuid: null}, true, {skipHydration: true});
+                for (let d = 0; d < 10; d++) {
+                    const distUuid = uuid();
+                    proxy.create('AddressLevel', {uuid: distUuid, title: `District_${s}_${d}`, level: 3, voided: false, type: uuid(), parentUuid: stateUuid}, true, {skipHydration: true});
+                    for (let b = 0; b < 10; b++) {
+                        const blockUuid = uuid();
+                        proxy.create('AddressLevel', {uuid: blockUuid, title: `Block_${s}_${d}_${b}`, level: 2, voided: false, type: uuid(), parentUuid: distUuid}, true, {skipHydration: true});
+                        for (let v = 0; v < 4; v++) {
+                            proxy.create('AddressLevel', {uuid: uuid(), title: `Village_${s}_${d}_${b}_${v}`, level: 1, voided: false, type: uuid(), parentUuid: blockUuid}, true, {skipHydration: true});
+                        }
+                    }
+                }
+            }
+        });
+
+        // Old: DB query per getChildren call (recursive)
+        bench('location: getDescendants DB queries (2K nodes)', () => {
+            function getDescendantsViaDb(parentUuid) {
+                const children = [...proxy.objects('AddressLevel').filtered(`parentUuid = "${parentUuid}" AND voided = false`)];
+                let result = [...children];
+                for (const child of children) {
+                    result = result.concat(getDescendantsViaDb(child.uuid));
+                }
+                return result;
+            }
+            return getDescendantsViaDb(stateUuids[0]).length;
+        });
+
+        // New: build cache once, traverse in memory
+        bench('location: getDescendants cached (2K nodes)', () => {
+            // Build lookup map (done once)
+            const all = proxy.objects('AddressLevel').filtered('voided = false');
+            const childrenByParent = new Map();
+            for (let i = 0; i < all.length; i++) {
+                const al = all[i];
+                const key = al.parentUuid || '__root__';
+                if (!childrenByParent.has(key)) childrenByParent.set(key, []);
+                childrenByParent.get(key).push(al);
+            }
+            function getDescendantsCached(parentUuid) {
+                const children = childrenByParent.get(parentUuid) || [];
+                let result = [...children];
+                for (const child of children) {
+                    result = result.concat(getDescendantsCached(child.uuid));
+                }
+                return result;
+            }
+            return getDescendantsCached(stateUuids[0]).length;
+        });
+    });
+
     it('filtered: active enrolments', () => {
         bench('active enrolments', () => {
             return proxy.objects('ProgramEnrolment')
