@@ -54,6 +54,14 @@ function uniqSubjectWithVisitName(individualsWithVisits, individualWithVisit) {
     return individualsWithVisits;
 }
 
+function countAfterFilters(entities, criteria, reportFilters, schema, customFilterService) {
+    entities = applyConfiguredFilters(entities, criteria);
+    entities = applyUserFilters(entities, reportFilters, schema, customFilterService);
+    // SQLite proxy has count() which uses SELECT COUNT(*) without hydration.
+    // Realm.Results only has .length (which is already O(1) internally).
+    return (typeof entities.count === 'function') ? entities.count() : entities.length;
+}
+
 function filterSubjects(subjects, subjectCriteria, reportFilters, customFilterService) {
     subjects = applyConfiguredFilters(subjects, subjectCriteria);
     subjects = applyUserFilters(subjects, reportFilters, Individual.schema.name, customFilterService);
@@ -185,6 +193,80 @@ class IndividualService extends BaseService {
         this.entityApprovalStatusService = this.getService(EntityApprovalStatusService);
         this.hideTotalForProgram = this.getService(OrganisationConfigService).hasHideTotalForProgram;
         this.showDueChecklistOnDashboard = this.getService(OrganisationConfigService).hasShowDueChecklistOnDashboard();
+    }
+
+    // ── Count-only methods for dashboard cards (no hydration) ──
+
+    countScheduledVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+        const {dateMidnight, dateMorning} = get24HoursDateRange(date);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                dateMidnight, dateMorning);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('earliestVisitDateTime <= $0 AND maxVisitDateTime >= $1 AND encounterDateTime = null AND cancelDateTime = null AND individual.voided = false AND voided = false',
+                dateMidnight, dateMorning);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
+    }
+
+    countOverdueVisits(date, reportFilters, programEncounterCriteria, encounterCriteria) {
+        const {dateMorning} = get24HoursDateRange(date);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND programEnrolment.programExitDateTime = null AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                dateMorning);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('maxVisitDateTime < $0 AND cancelDateTime = null AND encounterDateTime = null AND individual.voided = false AND voided = false',
+                dateMorning);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
+    }
+
+    countAllIn(date, reportFilters, subjectCriteria) {
+        const {dateMidnight} = get24HoursDateRange(date);
+        let subjects = this.repository.findAll()
+            .filtered('voided = false AND registrationDate <= $0', dateMidnight);
+        return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyRegistered(date, reportFilters, subjectCriteria, duration) {
+        const {tillDate, fromDate} = getDateRange(date, duration);
+        let subjects = this.repository.findAll()
+            .filtered('voided = false AND registrationDate <= $0 AND registrationDate >= $1', tillDate, fromDate);
+        return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyEnrolled(date, reportFilters, programEnrolmentCriteria, duration = new Duration(1, Duration.Day)) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
+        let enrolments = this.getRepository(ProgramEnrolment.schema.name).findAll()
+            .filtered('voided = false AND individual.voided = false AND enrolmentDateTime <= $0 AND enrolmentDateTime >= $1', tillDate, fromDate);
+        return countAfterFilters(enrolments, programEnrolmentCriteria, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
+    }
+
+    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration) {
+        const {fromDate, tillDate} = getDateRange(date, duration);
+        const customFilterService = this.getService(CustomFilterService);
+
+        let peQuery = this.getRepository(ProgramEncounter.schema.name).findAll()
+            .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND programEnrolment.voided = false AND programEnrolment.individual.voided = false AND voided = false',
+                tillDate, fromDate);
+        const peCount = countAfterFilters(peQuery, programEncounterCriteria, reportFilters, ProgramEncounter.schema.name, customFilterService);
+
+        let encQuery = this.getRepository(Encounter.schema.name).findAll()
+            .filtered('encounterDateTime <= $0 AND encounterDateTime >= $1 AND individual.voided = false AND voided = false',
+                tillDate, fromDate);
+        const encCount = countAfterFilters(encQuery, encounterCriteria, reportFilters, Encounter.schema.name, customFilterService);
+
+        return peCount + encCount;
     }
 
     search(criteria, individualUUIDs) {
