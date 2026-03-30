@@ -180,51 +180,47 @@ class CustomDashboardActions {
         const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
         General.logDebug('CustomDashboardActions', `Filter processing took ${new Date() - filterProcessingStart} ms, filters: ${selectedFilterValues?.length || 0}`);
         
+        // Phase 1: Compute all card results (no DB writes yet)
+        const pendingSingleResults = [];
+        const pendingNestedResults = [];
+
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
             const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
             if (rcm.card.nested) {
-                const cacheCheckStart = new Date();
                 let reportCardResults = dashboardCache.getNestedReportCardResults(rcm.card);
                 let hasError = reportCardResults && reportCardResults.length !== rcm.card.countOfCards;
-                const cacheHit = !_.isEmpty(reportCardResults);
-                General.logDebug('CustomDashboardActions', `Nested card cache ${cacheHit ? 'HIT' : 'MISS'} for ${rcm.card.name}, autoRefresh: ${userSettings.autoRefreshEnabled}, hasError: ${hasError}, check took ${new Date() - cacheCheckStart} ms`);
-                
+
                 if (userSettings.autoRefreshEnabled || _.isEmpty(reportCardResults)) {
-                    const countCalculationStart = new Date();
                     reportCardResults = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
-                    General.logDebug('CustomDashboardActions', `Nested card count calculation for ${rcm.card.name} took ${new Date() - countCalculationStart} ms`);
                     if (!hasError)
-                        customDashboardCacheService.updateNestedCardResults(state.activeDashboardUUID, rcm.card, reportCardResults);
+                        pendingNestedResults.push({card: rcm.card, results: reportCardResults});
                 }
 
                 if (reportCardResults && reportCardResults.length === rcm.card.countOfCards) {
                     _.forEach(reportCardResults, (reportCardResult, index) => {
-                        const itemKey = rcm.card.getCardId(index);
-                        newState.cardToCountResultMap[itemKey] = reportCardResult;
+                        newState.cardToCountResultMap[rcm.card.getCardId(index)] = reportCardResult;
                     });
                 } else if (hasError) {
                     rcm.card.createNestedErrorResults(I18n.t("Error"), I18n.t("nestedReportCardsCountMismatch")).forEach((result, index) => {
-                        const itemKey = rcm.card.getCardId(index);
-                        newState.cardToCountResultMap[itemKey] = result;
+                        newState.cardToCountResultMap[rcm.card.getCardId(index)] = result;
                     });
                 }
             } else {
-                const cacheCheckStart = new Date();
                 let reportCardResult = dashboardCache.getReportCardResult(rcm.card);
-                const cacheHit = !_.isNil(reportCardResult);
-                General.logDebug('CustomDashboardActions', `Single card cache ${cacheHit ? 'HIT' : 'MISS'} for ${rcm.card.name}, autoRefresh: ${userSettings.autoRefreshEnabled}, check took ${new Date() - cacheCheckStart} ms`);
-                
+
                 if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
-                    const countCalculationStart = new Date();
                     reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
-                    General.logDebug('CustomDashboardActions', `Single card count calculation for ${rcm.card.name} took ${new Date() - countCalculationStart} ms`);
-                    customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
+                    pendingSingleResults.push({card: rcm.card, result: reportCardResult});
                 }
                 newState.cardToCountResultMap[rcm.card.getCardId()] = reportCardResult;
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
+
+        // Phase 2: Batch-write all cache updates in a single transaction
+        customDashboardCacheService.batchUpdateResults(state.activeDashboardUUID, pendingSingleResults, pendingNestedResults);
+
         const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
         newState.resultUpdatedAt = dashboardCache.updatedAt;
         newState.hasFiltersSet = dashboardCache.filterApplied;
