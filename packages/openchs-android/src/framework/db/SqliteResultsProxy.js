@@ -69,6 +69,7 @@ class SqliteResultsProxy {
                     orderByClause = null,
                     jsFallbackFilters = [],
                     limitClause = null,
+                    hydrationOptions = null,
                 }) {
         this.schemaName = schemaName;
         this.tableName = tableName || schemaNameToTableName(schemaName);
@@ -84,6 +85,8 @@ class SqliteResultsProxy {
         this.orderByClause = orderByClause;
         this.jsFallbackFilters = [...jsFallbackFilters];
         this.limitClause = limitClause;
+        // Hydration options: {skipLists, depth} — default is full hydration
+        this.hydrationOptions = hydrationOptions || {skipLists: false, depth: 3};
 
         // Cached results
         this._rows = null;
@@ -98,6 +101,29 @@ class SqliteResultsProxy {
     }
 
     // ──── Chainable query builders ────
+
+    /**
+     * Set hydration options for this query. Controls how deeply entities are hydrated.
+     * Use {skipLists: true, depth: 1} for search results that only need scalar + reference FK fields.
+     * Default is {skipLists: false, depth: 3} for full hydration.
+     */
+    withHydration(options) {
+        return SqliteResultsProxy.create({
+            schemaName: this.schemaName,
+            tableName: this.tableName,
+            entityClass: this.entityClass,
+            executeQuery: this.executeQuery,
+            hydrator: this.hydrator,
+            realmSchemaMap: this.realmSchemaMap,
+            whereClauses: [...this.whereClauses],
+            whereParams: [...this.whereParams],
+            joinClauses: [...this.joinClauses],
+            orderByClause: this.orderByClause,
+            jsFallbackFilters: [...this.jsFallbackFilters],
+            limitClause: this.limitClause,
+            hydrationOptions: options,
+        });
+    }
 
     filtered(query, ...args) {
         if (this.logQueries) console.log("SqliteResultsProxy.filtered", this.schemaName, query, ...args);
@@ -119,6 +145,7 @@ class SqliteResultsProxy {
             orderByClause: this.orderByClause,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
+            hydrationOptions: this.hydrationOptions,
         };
 
         if (parseResult.unsupported) {
@@ -222,6 +249,7 @@ class SqliteResultsProxy {
             orderByClause: orderBy,
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
+            hydrationOptions: this.hydrationOptions,
         });
     }
 
@@ -274,16 +302,17 @@ class SqliteResultsProxy {
 
         // Hydrate rows into entity-compatible objects
         if (this.hydrator) {
+            const opts = this.hydrationOptions;
             this.hydrator.beginHydrationSession();
             try {
-                // Batch-preload list properties to avoid N+1 queries
-                if (this._rows.length > 0 && this.hydrator.batchPreloadLists) {
+                // Batch-preload list properties to avoid N+1 queries (skip when lists aren't needed)
+                if (!opts.skipLists && this._rows.length > 0 && this.hydrator.batchPreloadLists) {
                     const parentUuids = this._rows.map(row => row.uuid).filter(u => u != null);
                     this.hydrator.batchPreloadLists(this.schemaName, parentUuids);
                 }
 
                 this._entities = this._rows.map(row =>
-                    this.hydrator.hydrate(this.schemaName, row, {skipLists: false, depth: 3})
+                    this.hydrator.hydrate(this.schemaName, row, opts)
                 );
             } finally {
                 this.hydrator.endHydrationSession();
