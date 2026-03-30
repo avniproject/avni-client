@@ -43,6 +43,28 @@ it('should filter program encounters to include only active enrolments', functio
     assert.include(result, "encounterType.uuid = \"et1\"");
 });
 
+it('should only match subjects with the encounter when encounterTypes specified but no programs', function () {
+    const reportCard = TestReportCardFactory.create({
+        standardReportCardInputSubjectTypes: [TestSubjectTypeFactory.createWithDefaults({uuid: "st1"})],
+        standardReportCardInputPrograms: [],
+        standardReportCardInputEncounterTypes: [TestEncounterTypeFactory.create({uuid: "et1"})]
+    });
+    const result = ReportCardQueryBuilder.getSubjectCriteriaForReportCard(reportCard);
+    assert.include(result, 'subquery(encounters, $encounter, $encounter.voided = false');
+    assert.include(result, '$encounter.encounterType.uuid = "et1"');
+    assert.equal(result, `( ( ( subjectType.uuid = "st1" ) AND subquery(encounters, $encounter, $encounter.voided = false and (( $encounter.encounterType.uuid = "et1" ))).@count > 0 ) )`);
+});
+
+it('should return all subjects when only subjectType specified with no programs or encounterTypes', function () {
+    const reportCard = TestReportCardFactory.create({
+        standardReportCardInputSubjectTypes: [TestSubjectTypeFactory.createWithDefaults({uuid: "st1"})],
+        standardReportCardInputPrograms: [],
+        standardReportCardInputEncounterTypes: []
+    });
+    const result = ReportCardQueryBuilder.getSubjectCriteriaForReportCard(reportCard);
+    assert.equal(result, `( ( ( subjectType.uuid = "st1" ) ) )`);
+});
+
 it('should handle empty programs list without active enrolment filtering', function () {
     const subjectTypes = [TestSubjectTypeFactory.createWithDefaults({uuid: "st1"})];
     const programs = [];

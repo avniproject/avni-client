@@ -51,7 +51,8 @@ class ReportCardQueryBuilder {
         const uptoGeneralEncounterCriteria = [];
 
         const subjectCriteria = RealmQueryService.orKeyValueQuery("subjectType.uuid", subjectTypes.map((x) => x.uuid));
-        if (subjectTypes.length > 0) uptoProgramEncounterCriteria.push(subjectCriteria);
+        if (subjectTypes.length > 0 && (programs.length > 0 || encounterTypes.length === 0))
+            uptoProgramEncounterCriteria.push(subjectCriteria);
 
         const programMatch = RealmQueryService.orKeyValueQuery("$enrolment.program.uuid", programs.map((x) => x.uuid));
         const encounterTypeMatch = RealmQueryService.orKeyValueQuery("$encounter.encounterType.uuid", encounterTypes.map((x) => x.uuid));
