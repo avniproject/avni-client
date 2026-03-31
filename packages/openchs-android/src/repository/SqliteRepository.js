@@ -61,8 +61,10 @@ class SqliteRepository extends BaseRepository {
         });
     }
 
-    create(entity, updateMode) {
-        return this.db.create(this.schemaName, entity, updateMode);
+    create(entity, updateMode, options) {
+        return options
+            ? this.db.create(this.schemaName, entity, updateMode, options)
+            : this.db.create(this.schemaName, entity, updateMode);
     }
 
     delete(objectOrObjects) {
