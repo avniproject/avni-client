@@ -57,7 +57,7 @@ class ReportCardQueryBuilder {
         const programMatch = RealmQueryService.orKeyValueQuery("$enrolment.program.uuid", programs.map((x) => x.uuid));
         const encounterTypeMatch = RealmQueryService.orKeyValueQuery("$encounter.encounterType.uuid", encounterTypes.map((x) => x.uuid));
 
-        const programEnrolmentWithEncounterTypeCriteria = `subquery(enrolments, $enrolment, $enrolment.voided = false and $enrolment.programExitDateTime = null and (${programMatch}) and (subquery($enrolment.encounters, $encounter, $encounter.voided = false and (${encounterTypeMatch})).@count > 0)).@count > 0`;
+        const programEnrolmentWithEncounterTypeCriteria = `subquery(enrolments, $enrolment, $enrolment.voided = false and $enrolment.programExitDateTime = null and (${programMatch}) and (subquery($enrolment.encounters, $encounter, $encounter.voided = false and $encounter.encounterDateTime != null and (${encounterTypeMatch})).@count > 0)).@count > 0`;
         const programEnrolmentWithoutEncounterTypeCriteria = `subquery(enrolments, $enrolment, $enrolment.voided = false and $enrolment.programExitDateTime = null and (${programMatch})).@count > 0`;
         if (programs.length > 0 && encounterTypes.length > 0)
             uptoProgramEncounterCriteria.push(programEnrolmentWithEncounterTypeCriteria);
@@ -66,7 +66,7 @@ class ReportCardQueryBuilder {
 
         if (encounterTypes.length > 0) {
             uptoGeneralEncounterCriteria.push(subjectCriteria);
-            uptoGeneralEncounterCriteria.push(`subquery(encounters, $encounter, $encounter.voided = false and (${encounterTypeMatch})).@count > 0`);
+            uptoGeneralEncounterCriteria.push(`subquery(encounters, $encounter, $encounter.voided = false and $encounter.encounterDateTime != null and (${encounterTypeMatch})).@count > 0`);
         }
 
         return RealmQueryService.orQuery([RealmQueryService.andQuery(uptoProgramEncounterCriteria), RealmQueryService.andQuery(uptoGeneralEncounterCriteria)]);
