@@ -14,7 +14,7 @@ import _ from "lodash";
 import SqliteResultsProxy from "./SqliteResultsProxy";
 import EntityHydrator from "./EntityHydrator";
 import {schemaNameToTableName, camelToSnake} from "./SqliteUtils";
-import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
+import SchemaGenerator, {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import General from "../../utility/General";
 
 class SqliteProxy {
@@ -430,6 +430,28 @@ class SqliteProxy {
         if (this.db.close) {
             this.db.close();
         }
+    }
+
+    // ──── Index management for sync optimization ────
+
+    dropIndexes() {
+        const start = Date.now();
+        const rows = this._executeQuery(
+            "SELECT name FROM sqlite_master WHERE type='index' AND name LIKE 'idx_%'", []
+        );
+        for (const row of rows) {
+            this._executeRaw(`DROP INDEX IF EXISTS "${row.name}"`);
+        }
+        General.logInfo("SqliteProxy", `Dropped ${rows.length} indexes in ${Date.now() - start} ms`);
+    }
+
+    recreateIndexes() {
+        const start = Date.now();
+        const statements = SchemaGenerator.generateIndexStatements(this.tableMetaMap);
+        for (const sql of statements) {
+            this._executeRaw(sql);
+        }
+        General.logInfo("SqliteProxy", `Recreated ${statements.length} indexes in ${Date.now() - start} ms`);
     }
 
     // ──── Reference data cache ────

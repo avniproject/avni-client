@@ -107,12 +107,19 @@ class SyncTelemetryActions {
 
         const entityService = context.get(EntityService);
 
+        // Use count() (SELECT COUNT) when available to avoid hydrating entire tables.
+        // Realm's getCount() uses .length on lazy results which is already O(1).
+        const countFor = (schema) => {
+            const all = entityService.getAll(schema);
+            return (typeof all.count === 'function') ? all.count() : all.length;
+        };
+
         const entityStatus = syncTelemetry.getEntityStatus();
         entityStatus.totalCounts = {
-            subjects: entityService.getCount(Individual.schema.name),
-            programEnrolments: entityService.getCount(ProgramEnrolment.schema.name),
-            programEncounters: entityService.getCount(ProgramEncounter.schema.name),
-            encounters: entityService.getCount(Encounter.schema.name)
+            subjects: countFor(Individual.schema.name),
+            programEnrolments: countFor(ProgramEnrolment.schema.name),
+            programEncounters: countFor(ProgramEncounter.schema.name),
+            encounters: countFor(Encounter.schema.name)
         };
         syncTelemetry.setEntityStatus(entityStatus);
 
