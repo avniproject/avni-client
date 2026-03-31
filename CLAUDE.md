@@ -67,11 +67,12 @@ Flavors: `generic`, `lfe`, `sakhi`, `gramin`, `lfeTeachNagaland`, `lfeTeachNagal
 
 ### Database
 
-| Command | Description |
-|---|---|
-| `make get_db` | Pull Realm DB from device to `../db/` |
-| `make put_db` | Push Realm DB from `../db/default.realm` to device |
-| `make rm_db` | Remove local copy of the DB |
+| Command              | Description |
+|----------------------|---|
+| `make get_db_force`  | Pull Realm DB from device to `../db/` |
+| `make put_db`        | Push Realm DB from `../db/default.realm` to device |
+| `make rm_db`         | Remove local copy of the DB |
+| `make get_sqlite_db` | Pull SQLite DB (+ WAL/SHM) from device to `../db/avni_sqlite.db` |
 
 #### Compare Realm Databases
 
