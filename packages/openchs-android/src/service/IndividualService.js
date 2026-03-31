@@ -238,7 +238,7 @@ class IndividualService extends BaseService {
         return countAfterFilters(subjects, subjectCriteria, reportFilters, Individual.schema.name, this.getService(CustomFilterService));
     }
 
-    countRecentlyRegistered(date, reportFilters, subjectCriteria, duration) {
+    countRecentlyRegistered(date, reportFilters, subjectCriteria, duration = new Duration(1, Duration.Day)) {
         const {tillDate, fromDate} = getDateRange(date, duration);
         let subjects = this.repository.findAll()
             .filtered('voided = false AND registrationDate <= $0 AND registrationDate >= $1', tillDate, fromDate);
@@ -252,7 +252,7 @@ class IndividualService extends BaseService {
         return countAfterFilters(enrolments, programEnrolmentCriteria, reportFilters, ProgramEnrolment.schema.name, this.getService(CustomFilterService));
     }
 
-    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration) {
+    countRecentlyCompletedVisits(date, reportFilters, programEncounterCriteria, encounterCriteria, duration = new Duration(1, Duration.Day)) {
         const {fromDate, tillDate} = getDateRange(date, duration);
         const customFilterService = this.getService(CustomFilterService);
 

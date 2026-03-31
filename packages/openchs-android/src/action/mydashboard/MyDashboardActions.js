@@ -143,6 +143,22 @@ class MyDashboardActions {
         const queryGeneralEncounter = MyDashboardActions.shouldQueryGeneralEncounter(state);
         const dueChecklistWithChecklistItem = individualService.dueChecklistForDefaultDashboard(dashboardCacheFilter.filterDate, dashboardCacheFilter.dueChecklistFilter);
 
+        // On initial load (fetchFromDB), compute counts first using fast SQL COUNT path,
+        // then defer full entity hydration. This avoids hydrating 100K+ rows just to show
+        // card numbers on the dashboard.
+        if (!state.returnEmpty && fetchFromDB) {
+            const card = {
+                scheduled: individualService.countScheduledVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                overdue: individualService.countOverdueVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                recentlyCompletedVisits: individualService.countRecentlyCompletedVisits(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.encountersFilters, dashboardCacheFilter.generalEncountersFilters),
+                recentlyCompletedRegistration: individualService.countRecentlyRegistered(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
+                recentlyCompletedEnrolment: individualService.countRecentlyEnrolled(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.enrolmentFilters),
+                total: individualService.countAllIn(dashboardCacheFilter.filterDate, [], dashboardCacheFilter.individualFilters),
+                dueChecklist: 0,
+            };
+            dashboardCacheService.updateCard(card);
+        }
+
         const [
             allIndividualsWithScheduledVisits,
             allIndividualsWithOverDueVisits,
@@ -175,7 +191,7 @@ class MyDashboardActions {
             dueChecklistWithChecklistItem: dueChecklistWithChecklistItem
         };
 
-        if (state.returnEmpty || fetchFromDB) {
+        if (state.returnEmpty) {
             const card = _.mapValues(queryResult, v => v && v.length || 0);
             dashboardCacheService.updateCard(card);
         }
