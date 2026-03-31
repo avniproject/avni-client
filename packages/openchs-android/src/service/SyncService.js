@@ -18,6 +18,7 @@ import RuleEvaluationService from "./RuleEvaluationService";
 import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
+import SyncTelemetryService from "./SyncTelemetryService";
 import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
@@ -261,6 +262,7 @@ class SyncService extends BaseService {
 
         let syncDetailsWithPrivileges;
         this._disableForeignKeysIfSqlite();
+        this._dropIndexesIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
@@ -274,7 +276,10 @@ class SyncService extends BaseService {
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
             .then(() => this.downloadIcons())
-            .finally(() => this._enableForeignKeysIfSqlite())
+            .finally(() => {
+                this._recreateIndexesIfSqlite();
+                this._enableForeignKeysIfSqlite();
+            })
     }
 
     downloadExtensions() {
@@ -517,6 +522,23 @@ class SyncService extends BaseService {
         if (!this.db.isSqlite) return;
         this.db._executeRaw("PRAGMA foreign_keys = ON");
         General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+    }
+
+    _dropIndexesIfSqlite() {
+        if (!this.db.isSqlite || typeof this.db.dropIndexes !== 'function') return;
+        // Only drop indexes on fresh sync — the overhead isn't worth it for incremental syncs
+        if (this.getService(SyncTelemetryService).atLeastOneSyncCompleted()) {
+            General.logDebug("SyncService", "Incremental sync — skipping index drop");
+            return;
+        }
+        this._indexesDropped = true;
+        this.db.dropIndexes();
+    }
+
+    _recreateIndexesIfSqlite() {
+        if (!this._indexesDropped) return;
+        this._indexesDropped = false;
+        this.db.recreateIndexes();
     }
 
     _buildReferenceCacheIfSqlite() {
