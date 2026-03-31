@@ -8,6 +8,7 @@ import SettingsService from "./SettingsService";
 import {
     EntityMetaData,
     EntitySyncStatus,
+    Individual,
     RuleFailureTelemetry,
     SyncTelemetry,
     IgnorableSyncError
@@ -18,7 +19,6 @@ import RuleEvaluationService from "./RuleEvaluationService";
 import MediaQueueService from "./MediaQueueService";
 import ProgressbarStatus from "./ProgressbarStatus";
 import {SyncTelemetryActionNames as SyncTelemetryActions} from "../action/SyncTelemetryActions";
-import SyncTelemetryService from "./SyncTelemetryService";
 import _ from "lodash";
 import RuleService from "./RuleService";
 import PrivilegeService from "./PrivilegeService";
@@ -519,9 +519,13 @@ class SyncService extends BaseService {
 
     _dropIndexesIfSqlite() {
         if (!this.db.isSqlite || typeof this.db.dropIndexes !== 'function') return;
-        // Only drop indexes on fresh sync — the overhead isn't worth it for incremental syncs
-        if (this.getService(SyncTelemetryService).atLeastOneSyncCompleted()) {
-            General.logDebug("SyncService", "Incremental sync — skipping index drop");
+        // Only drop indexes on fresh sync — the overhead isn't worth it for incremental syncs.
+        // Check if Individual table has data: if empty, this is a fresh sync.
+        // We don't use SyncTelemetry because those records are synced from the server
+        // and may include completed records from Realm syncs.
+        const individualCount = this.getRepository(Individual.schema.name).findAll().count();
+        if (individualCount > 0) {
+            General.logDebug("SyncService", `Incremental sync (${individualCount} individuals) — skipping index drop`);
             return;
         }
         this._indexesDropped = true;
