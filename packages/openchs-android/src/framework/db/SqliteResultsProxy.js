@@ -364,14 +364,16 @@ class SqliteResultsProxy {
      */
     count() {
         if (this.jsFallbackFilters.length > 0) {
-            // JS fallbacks need hydrated entities to filter — can't shortcut
             this._execute();
             return this._entities.length;
         }
         const {sql, params} = this._buildSql();
-        const countSql = sql.replace(/^SELECT\s+(DISTINCT\s+)?t0\.\*/i, 'SELECT COUNT($1t0."uuid")');
+        // Wrap in SELECT COUNT(*) FROM (...) to avoid assumptions about _buildSql format.
+        // Strip LIMIT — count should return total matching rows, not capped by pagination.
+        const innerSql = sql.replace(/\s+LIMIT\s+\d+$/i, '');
+        const countSql = `SELECT COUNT(*) AS cnt FROM (${innerSql})`;
         const rows = this.executeQuery(countSql, params);
-        return (rows && rows.length > 0) ? Object.values(rows[0])[0] : 0;
+        return (rows && rows.length > 0) ? rows[0].cnt : 0;
     }
 
     getLength() {

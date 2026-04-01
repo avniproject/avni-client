@@ -32,6 +32,7 @@ import MetricsService from "./MetricsService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
 import SubjectMigrationService from "./SubjectMigrationService";
+import AddressLevelService from "./AddressLevelService";
 import ResetSyncService from "./ResetSyncService";
 import TaskUnAssignmentService from "./task/TaskUnAssignmentService";
 import UserSubjectAssignmentService from "./UserSubjectAssignmentService";
@@ -516,6 +517,7 @@ class SyncService extends BaseService {
             General.logInfo("Sync", "Full Sync completed, performing reset")
             this.reset(false);
             this.getService(SettingsService).initLanguages();
+            this.getService(AddressLevelService).clearHierarchyCache();
             this._buildReferenceCacheIfSqlite();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
