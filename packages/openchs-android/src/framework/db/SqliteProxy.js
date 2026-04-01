@@ -432,6 +432,66 @@ class SqliteProxy {
         }
     }
 
+    // ──── Bulk operations for sync optimization ────
+
+    /**
+     * Build a reusable UPSERT SQL template for a schema. Same SQL for all entities.
+     * @returns {{ sql: string, columnNames: string[] }}
+     */
+    _buildUpsertTemplate(schemaName) {
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta) throw new Error(`No table metadata for schema "${schemaName}"`);
+
+        const columnNames = tableMeta.getColumnNames();
+        const colList = columnNames.map(c => `"${c}"`).join(", ");
+        const placeholders = columnNames.map(() => "?").join(", ");
+        const pk = tableMeta.primaryKey || "uuid";
+        const updateCols = columnNames
+            .filter(c => c !== pk)
+            .map(c => `"${c}" = COALESCE(excluded."${c}", "${c}")`)
+            .join(", ");
+
+        const sql = `INSERT INTO ${tableMeta.tableName} (${colList}) VALUES (${placeholders})` +
+            ` ON CONFLICT("${pk}") DO UPDATE SET ${updateCols}`;
+
+        return {sql, columnNames};
+    }
+
+    /**
+     * Extract ordered param array from a flat row matching the template's column order.
+     */
+    _extractParams(flatRow, columnNames) {
+        return columnNames.map(col => flatRow.hasOwnProperty(col) ? flatRow[col] : null);
+    }
+
+    /**
+     * Batch create/upsert entities using op-sqlite's executeBatch — ONE native call
+     * for all entities instead of one per entity.
+     *
+     * @param {string} schemaName
+     * @param {Array} entities - plain entity objects
+     * @returns {Promise}
+     */
+    async bulkCreate(schemaName, entities) {
+        if (!entities || entities.length === 0) return;
+
+        const {sql, columnNames} = this._buildUpsertTemplate(schemaName);
+
+        const commands = entities.map(entity => {
+            const rawObject = (entity && entity.that) ? entity.that : entity;
+            const flatRow = this.hydrator.flatten(schemaName, {that: rawObject});
+            return [sql, this._extractParams(flatRow, columnNames)];
+        });
+
+        const start = Date.now();
+        await this.db.executeBatch(commands);
+        const elapsed = Date.now() - start;
+
+        if (elapsed > this.slowQueryThreshold) {
+            General.logWarn("SqliteProxy", `bulkCreate ${schemaName}: ${entities.length} entities in ${elapsed}ms (${Math.round(elapsed / entities.length * 10) / 10}ms/entity)`);
+        }
+    }
+
     // ──── Index management for sync optimization ────
 
     dropIndexes() {
