@@ -73,6 +73,10 @@ class SettingsService extends BaseService {
     }
 
     initLanguages() {
+        // Clear settings.locale FK before deleting locale_mapping rows to avoid FK constraint error
+        if (this.db.isSqlite) {
+            this.db._executeRaw(`UPDATE settings SET "locale_uuid" = NULL`);
+        }
         this.clearDataIn([LocaleMapping]);
         const orgConfig = this.findOnly(OrganisationConfig.schema.name);
         const languages = _.isEmpty(orgConfig) ? ['en'] : orgConfig.getSettings().languages;
