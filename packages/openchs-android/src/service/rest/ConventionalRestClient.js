@@ -83,9 +83,10 @@ class ConventionalRestClient {
     }
 
     fireRequest(onGetOfAnEntity, entityMetadata, afterGetOfEntity, settings, resourceEndpoint, params, onGetOfFirstPage) {
-        //Response from controller do not have the page number in the response
-        const processResponse = (resp, pageNumber) => {
-            onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
+        const processResponse = async (resp, pageNumber) => {
+            // persistAll may be async (SQLite bulkCreate path) — await it to ensure
+            // the current page is fully persisted before the next page is fetched.
+            await onGetOfAnEntity(entityMetadata, _.get(resp, `_embedded.${entityMetadata.resourceName}`, []));
 
             const pageElement = resp["page"];
             const contentElement = resp["content"];
@@ -97,10 +98,10 @@ class ConventionalRestClient {
         };
 
         const endpoint = (page = 0, size = settings.pageSize) => `${resourceEndpoint}?${params(page, size)}`;
-        return getJSON(endpoint()).then((response) => {
+        return getJSON(endpoint()).then(async (response) => {
             //first page
             const page = response["page"];
-            processResponse(response, 0);
+            await processResponse(response, 0);
             onGetOfFirstPage(entityMetadata.entityName, page);
 
             //rest pages
