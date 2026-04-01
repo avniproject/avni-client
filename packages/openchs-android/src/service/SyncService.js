@@ -41,13 +41,7 @@ import moment from "moment";
 import AllSyncableEntityMetaData from "../model/AllSyncableEntityMetaData";
 import {IndividualSearchActionNames as IndividualSearchActions} from '../action/individual/IndividualSearchActions';
 import {LandingViewActionsNames as LandingViewActions} from '../action/LandingViewActions';
-import {MyDashboardActionNames} from '../action/mydashboard/MyDashboardActions';
-import {
-    CustomDashboardActionNames,
-    performCustomDashboardActionAndClearRefresh,
-} from '../action/customDashboard/CustomDashboardActions';
 import LocalCacheService from "./LocalCacheService";
-import CustomDashboardService, {CustomDashboardType} from './customDashboard/CustomDashboardService';
 import DeviceInfo from "react-native-device-info";
 import {pruneConceptMedia} from "../task/PruneMedia";
 import FileSystem from "../model/FileSystem";
@@ -423,25 +417,65 @@ class SyncService extends BaseService {
         return _.values(_.groupBy(parentEntities, 'uuid')).map(entities => entityMetaData.parent.entityClass.mergeMultipleParents(entityMetaData.entityClass.schema.name, entities));
     }
 
-    persistAll(entityMetaData, entityResources) {
+    async persistAll(entityMetaData, entityResources) {
         if (_.isEmpty(entityResources)) return;
         entityResources = _.sortBy(entityResources, 'lastModifiedDateTime');
         const loadedSince = _.last(entityResources).lastModifiedDateTime;
 
         const entities = entityResources.reduce(transformResourceToEntity.call(this, entityMetaData, entityResources), []);
         const initialLength = entityResources.length;
-        //Filtering out the entityResources which were not converted into entities due to IgnorableSyncErrors
         entityResources = _.filter(entityResources, (resource) => !resource.excludeFromPersist);
         General.logDebug("SyncService", `Before filter entityResources length: ${initialLength}, after filter entityResources length: ${entityResources.length}, entities length  ${entities.length}`);
-        General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
-        let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
+
         if (entityMetaData.nameTranslated) {
             entityResources.map((entity) => this.messageService.addTranslation('en', entity.translatedFieldValue, entity.translatedFieldValue));
         }
-        //most avni-models are designed to have oneToMany relations
-        //Each model has a static method `associateChild` implemented in manyToOne fashion
-        //`<A Model>.associateChild()` method takes childInformation, finds the parent, assigns the child to the parent and returns the parent
-        //`<A Model>.associateChild()` called many times as many children
+
+        // Handle special entity types
+        if (entityMetaData.entityName === "TaskUnAssignment") {
+            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
+        }
+        if (entityMetaData.entityName === 'UserSubjectAssignment') {
+            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
+        }
+
+        General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
+
+        // Use batch path for SQLite — one native call for all entities via executeBatch
+        if (this.db.isSqlite && typeof this.db.bulkCreate === 'function') {
+            await this._persistAllBatch(entityMetaData, entityResources, entities, loadedSince);
+        } else {
+            this._persistAllSync(entityMetaData, entityResources, entities, loadedSince);
+        }
+
+        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
+            entityName: entityMetaData.entityName,
+            numberOfPulledEntities: entities.length
+        });
+    }
+
+    // Batch path: uses executeBatch for main entities.
+    // Skips parent association — in SQLite, parent-child relationships are expressed via FK
+    // columns (e.g., program_enrolment_uuid on program_encounter), so updating the parent
+    // entity is unnecessary. In Realm, associateParent updates in-memory live objects.
+    async _persistAllBatch(entityMetaData, entityResources, entities, loadedSince) {
+        await this.db.bulkCreate(entityMetaData.schemaName, entities);
+
+        // Update sync status (1 row)
+        const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
+        const entitySyncStatus = new EntitySyncStatus();
+        entitySyncStatus.entityName = entityMetaData.entityName;
+        entitySyncStatus.entityTypeUuid = entityMetaData.syncStatus.entityTypeUuid;
+        entitySyncStatus.uuid = currentEntitySyncStatus.uuid;
+        entitySyncStatus.loadedSince = new Date(loadedSince);
+        this.bulkSaveOrUpdate(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus]));
+    }
+
+    // Original sync path for Realm (synchronous)
+    _persistAllSync(entityMetaData, entityResources, entities, loadedSince) {
+        General.logDebug("SyncService", `Creating entity create functions for schema ${entityMetaData.schemaName}`);
+        let entitiesToCreateFns = this.getCreateEntityFunctions(entityMetaData.schemaName, entities);
+
         if (!_.isEmpty(entityMetaData.parent)) {
             if (entityMetaData.hasMoreThanOneAssociation) {
                 const mergedParentEntities = this.associateMultipleParents(entityResources, entities, entityMetaData);
@@ -454,15 +488,6 @@ class SyncService extends BaseService {
             }
         }
 
-        if (entityMetaData.entityName === "TaskUnAssignment") {
-            this.getService(TaskUnAssignmentService).deleteUnassignedTasks(entities);
-        }
-
-        if (entityMetaData.entityName === 'UserSubjectAssignment') {
-            this.getService(UserSubjectAssignmentService).deleteUnassignedSubjectsAndDependents(entities);
-        }
-
-        General.logDebug("SyncService", `Syncing - ${entityMetaData.entityName} with subType: ${entityMetaData.syncStatus.entityTypeUuid}`);
         const currentEntitySyncStatus = this.entitySyncStatusService.get(entityMetaData.entityName, entityMetaData.syncStatus.entityTypeUuid);
         const entitySyncStatus = new EntitySyncStatus();
         entitySyncStatus.entityName = entityMetaData.entityName;
@@ -471,10 +496,6 @@ class SyncService extends BaseService {
         entitySyncStatus.loadedSince = new Date(loadedSince);
         General.logDebug("SyncService", `Creating entity create functions for ${currentEntitySyncStatus}`);
         this.bulkSaveOrUpdate(entitiesToCreateFns.concat(this.getCreateEntityFunctions(EntitySyncStatus.schema.name, [entitySyncStatus])));
-        this.dispatchAction(SyncTelemetryActions.ENTITY_PULL_COMPLETED, {
-            entityName: entityMetaData.entityName,
-            numberOfPulledEntities: entities.length
-        });
     }
 
     pushData(allTxEntityMetaData, afterEachEntityTypePushed) {
@@ -579,13 +600,10 @@ class SyncService extends BaseService {
         LocalCacheService.getPreviouslySelectedSubjectTypeUuid().then(cachedSubjectTypeUUID => {
             this.dispatchAction(LandingViewActions.ON_LOAD, {syncRequired, cachedSubjectTypeUUID});
         });
-        const customDashboardService = this.context.getService(CustomDashboardService);
-        const renderCustomDashboard = customDashboardService.isCustomDashboardMarkedPrimary();
-        if (renderCustomDashboard) {
-            performCustomDashboardActionAndClearRefresh(this, CustomDashboardActionNames.ON_LOAD, {customDashboardType: CustomDashboardType.None});
-        } else {
-            this.dispatchAction(MyDashboardActionNames.ON_LOAD);
-        }
+        // Skip dashboard data loading during post-sync reset.
+        // Dashboard views will load their data when the user navigates to them.
+        // This avoids hydrating 100K+ entities (34-40s delay) before the sync
+        // complete screen can be dismissed.
     }
 }
 
