@@ -130,17 +130,8 @@ function persistPageProduction(proxy, entities) {
     });
 }
 
-// Optimized: skip post-INSERT SELECT + hydrate (return value is discarded during sync)
-function persistPageOptimized(proxy, entities) {
-    proxy.write(() => {
-        for (const entity of entities) {
-            proxy.create('ProgramEncounter', entity, true, {skipHydration: true});
-        }
-    });
-}
-
 describe('Sync Persist Benchmark', () => {
-    it('production path WITH indexes (current behavior)', () => {
+    it('per-entity create (Realm path baseline)', () => {
         const {rawDb, proxy} = createDbWithTables(true);
         const refs = seedReferenceData(proxy);
         const pageTimes = [];
@@ -154,95 +145,9 @@ describe('Sync Persist Benchmark', () => {
         }
 
         const total = pageTimes.reduce((a, b) => a + b, 0);
-        console.log(`\n=== WITH INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
+        console.log(`\n=== PER-ENTITY CREATE (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
         pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
         console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        rawDb.close();
-    });
-
-    it('persist without indexes (optimized fresh sync)', () => {
-        const {rawDb, proxy} = createDbWithTables(false);
-        const refs = seedReferenceData(proxy);
-        const pageTimes = [];
-
-        for (let page = 0; page < TOTAL_PAGES; page++) {
-            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
-            const start = performance.now();
-            persistPageProduction(proxy, entities);
-            const elapsed = Math.round(performance.now() - start);
-            pageTimes.push(elapsed);
-        }
-
-        const total = pageTimes.reduce((a, b) => a + b, 0);
-        console.log(`\n=== WITHOUT INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
-        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
-        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        // Now recreate indexes and time it
-        const entityMappingConfig = EntityMappingConfig.getInstance();
-        const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
-        const indexStatements = SchemaGenerator.generateIndexStatements(tableMetaMap);
-        const idxStart = performance.now();
-        for (const sql of indexStatements) {
-            rawDb.executeSync(sql);
-        }
-        const idxTime = Math.round(performance.now() - idxStart);
-        console.log(`  Index recreation: ${idxTime}ms (${indexStatements.length} indexes)`);
-        console.log(`  Total with index recreation: ${total + idxTime}ms`);
-
-        rawDb.close();
-    });
-
-    it('skipHydration WITH indexes', () => {
-        const {rawDb, proxy} = createDbWithTables(true);
-        const refs = seedReferenceData(proxy);
-        const pageTimes = [];
-
-        for (let page = 0; page < TOTAL_PAGES; page++) {
-            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
-            const start = performance.now();
-            persistPageOptimized(proxy, entities);
-            const elapsed = Math.round(performance.now() - start);
-            pageTimes.push(elapsed);
-        }
-
-        const total = pageTimes.reduce((a, b) => a + b, 0);
-        console.log(`\n=== skipHydration WITH INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
-        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
-        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        rawDb.close();
-    });
-
-    it('skipHydration WITHOUT indexes (best case)', () => {
-        const {rawDb, proxy} = createDbWithTables(false);
-        const refs = seedReferenceData(proxy);
-        const pageTimes = [];
-
-        for (let page = 0; page < TOTAL_PAGES; page++) {
-            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
-            const start = performance.now();
-            persistPageOptimized(proxy, entities);
-            const elapsed = Math.round(performance.now() - start);
-            pageTimes.push(elapsed);
-        }
-
-        const total = pageTimes.reduce((a, b) => a + b, 0);
-        console.log(`\n=== skipHydration WITHOUT INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
-        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
-        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        const entityMappingConfig = EntityMappingConfig.getInstance();
-        const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
-        const indexStatements = SchemaGenerator.generateIndexStatements(tableMetaMap);
-        const idxStart = performance.now();
-        for (const sql of indexStatements) {
-            rawDb.executeSync(sql);
-        }
-        const idxTime = Math.round(performance.now() - idxStart);
-        console.log(`  Index recreation: ${idxTime}ms`);
-        console.log(`  Total with index recreation: ${total + idxTime}ms`);
 
         rawDb.close();
     });
@@ -264,38 +169,6 @@ describe('Sync Persist Benchmark', () => {
         console.log(`\n=== bulkCreate (executeBatch) WITH INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
         pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
         console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        rawDb.close();
-    });
-
-    it('bulkCreate (executeBatch) WITHOUT indexes', async () => {
-        const {rawDb, proxy} = createDbWithTables(false);
-        const refs = seedReferenceData(proxy);
-        const pageTimes = [];
-
-        for (let page = 0; page < TOTAL_PAGES; page++) {
-            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
-            const start = performance.now();
-            await proxy.bulkCreate('ProgramEncounter', entities);
-            const elapsed = Math.round(performance.now() - start);
-            pageTimes.push(elapsed);
-        }
-
-        const total = pageTimes.reduce((a, b) => a + b, 0);
-        console.log(`\n=== bulkCreate (executeBatch) WITHOUT INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
-        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
-        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
-
-        const entityMappingConfig = EntityMappingConfig.getInstance();
-        const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
-        const indexStatements = SchemaGenerator.generateIndexStatements(tableMetaMap);
-        const idxStart = performance.now();
-        for (const sql of indexStatements) {
-            rawDb.executeSync(sql);
-        }
-        const idxTime = Math.round(performance.now() - idxStart);
-        console.log(`  Index recreation: ${idxTime}ms`);
-        console.log(`  Total with index recreation: ${total + idxTime}ms`);
 
         rawDb.close();
     });
