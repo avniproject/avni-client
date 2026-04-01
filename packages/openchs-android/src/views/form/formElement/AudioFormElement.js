@@ -154,9 +154,9 @@ class AudioFormElement extends AbstractFormElement {
         const {start, stop} = this.state;
         return !this.mediaUri && (
             <View style={[styles.contentRow, {justifyContent: 'flex-end', alignItems: 'flex-end'}]}>
-                <TouchableOpacity disabled={stop} onPress={() => this.uploadFromFileSystem()}>
+                {!this.props.element.restrictGalleryUpload && <TouchableOpacity disabled={stop} onPress={() => this.uploadFromFileSystem()}>
                     <Icon name={'folder-open'} style={[styles.icon, stop ? disabledColor : {}, {marginRight: 3}]}/>
-                </TouchableOpacity>
+                </TouchableOpacity>}
                 <View style={styles.audioContainer}>
                     <Text style={styles.txtRecordCounter}>{this.state.recordTime}</Text>
                     <View style={[styles.contentRow, {justifyContent: 'flex-end', marginTop: -5}]}>

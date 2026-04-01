@@ -213,12 +213,12 @@ export default class MediaV2FormElement extends AbstractFormElement {
 
     showInputOptions(onUpdateObservations) {
         return (<View style={[styles.contentRow, {justifyContent: 'flex-end'}]}>
-            <TouchableNativeFeedback onPress={() => {
+            {!this.props.element.restrictGalleryUpload && <TouchableNativeFeedback onPress={() => {
                 this.launchMediaLibrary(onUpdateObservations)
             }}
                                      background={TouchableNativeFeedback.SelectableBackground()}>
                 <Icon name={'folder-open'} style={styles.icon}/>
-            </TouchableNativeFeedback>
+            </TouchableNativeFeedback>}
             <TouchableNativeFeedback onPress={() => {
                 this.launchCamera(onUpdateObservations)
             }}
