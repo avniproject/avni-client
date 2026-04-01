@@ -247,7 +247,63 @@ describe('Sync Persist Benchmark', () => {
         rawDb.close();
     });
 
+    it('bulkCreate (executeBatch) WITH indexes', async () => {
+        const {rawDb, proxy} = createDbWithTables(true);
+        const refs = seedReferenceData(proxy);
+        const pageTimes = [];
+
+        for (let page = 0; page < TOTAL_PAGES; page++) {
+            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
+            const start = performance.now();
+            await proxy.bulkCreate('ProgramEncounter', entities);
+            const elapsed = Math.round(performance.now() - start);
+            pageTimes.push(elapsed);
+        }
+
+        const total = pageTimes.reduce((a, b) => a + b, 0);
+        console.log(`\n=== bulkCreate (executeBatch) WITH INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
+        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
+        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
+
+        rawDb.close();
+    });
+
+    it('bulkCreate (executeBatch) WITHOUT indexes', async () => {
+        const {rawDb, proxy} = createDbWithTables(false);
+        const refs = seedReferenceData(proxy);
+        const pageTimes = [];
+
+        for (let page = 0; page < TOTAL_PAGES; page++) {
+            const entities = generatePage(page, refs.enrolmentUuids, refs.encounterTypeUuids);
+            const start = performance.now();
+            await proxy.bulkCreate('ProgramEncounter', entities);
+            const elapsed = Math.round(performance.now() - start);
+            pageTimes.push(elapsed);
+        }
+
+        const total = pageTimes.reduce((a, b) => a + b, 0);
+        console.log(`\n=== bulkCreate (executeBatch) WITHOUT INDEXES (${TOTAL_PROGRAM_ENCOUNTERS} ProgramEncounters, ${PAGE_SIZE}/page) ===`);
+        pageTimes.forEach((t, i) => console.log(`  Page ${i}: ${t}ms`));
+        console.log(`  Total: ${total}ms, Avg: ${Math.round(total / TOTAL_PAGES)}ms/page`);
+
+        const entityMappingConfig = EntityMappingConfig.getInstance();
+        const tableMetaMap = SchemaGenerator.generateAll(entityMappingConfig);
+        const indexStatements = SchemaGenerator.generateIndexStatements(tableMetaMap);
+        const idxStart = performance.now();
+        for (const sql of indexStatements) {
+            rawDb.executeSync(sql);
+        }
+        const idxTime = Math.round(performance.now() - idxStart);
+        console.log(`  Index recreation: ${idxTime}ms`);
+        console.log(`  Total with index recreation: ${total + idxTime}ms`);
+
+        rawDb.close();
+    });
+
     afterAll(() => {
-        console.log(`\nNote: On mobile device, multiply times by ~3-5x for realistic estimates.\n`);
+        console.log(`\nNote: On mobile device, multiply times by ~3-5x for realistic estimates.`);
+        console.log(`Jest uses better-sqlite3 (direct V8 binding) which is faster than op-sqlite (JSI bridge).`);
+        console.log(`The bulkCreate improvement on device will be MORE dramatic than in Jest because`);
+        console.log(`it eliminates per-entity JSI marshalling overhead that better-sqlite3 doesn't have.\n`);
     });
 });

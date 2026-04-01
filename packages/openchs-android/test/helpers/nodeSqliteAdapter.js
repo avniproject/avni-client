@@ -51,6 +51,19 @@ function open(options = {}) {
             return Promise.resolve(this.executeSync(sql, params));
         },
 
+        // Match op-sqlite's executeBatch: run all commands in a single transaction
+        executeBatch(commands) {
+            const transaction = db.transaction((cmds) => {
+                for (const cmd of cmds) {
+                    const sql = cmd[0];
+                    const params = cmd[1] || [];
+                    db.prepare(sql).run(...params);
+                }
+            });
+            transaction(commands);
+            return Promise.resolve({rowsAffected: commands.length});
+        },
+
         close() {
             db.close();
             if (dbPath !== ':memory:' && fs.existsSync(dbPath)) {
