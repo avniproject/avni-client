@@ -25,14 +25,8 @@ describe.each(BACKENDS)('Service write migration to repository layer [%s]', (bac
             fns.forEach(fn => fn());
 
             expect(harness.mockDb.create).toHaveBeenCalledTimes(2);
-            // SQLite path passes skipHydration option; Realm ignores extra args
-            if (backend === 'sqlite') {
-                expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '1'}, true, {skipHydration: true});
-                expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '2'}, true, {skipHydration: true});
-            } else {
-                expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '1'}, true);
-                expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '2'}, true);
-            }
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '1'}, true);
+            expect(harness.mockDb.create).toHaveBeenCalledWith(schemaName, {uuid: '2'}, true);
         });
     });
 

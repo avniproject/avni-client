@@ -8,7 +8,6 @@ import SettingsService from "./SettingsService";
 import {
     EntityMetaData,
     EntitySyncStatus,
-    Individual,
     RuleFailureTelemetry,
     SyncTelemetry,
     IgnorableSyncError
@@ -254,7 +253,6 @@ class SyncService extends BaseService {
 
         let syncDetailsWithPrivileges;
         this._disableForeignKeysIfSqlite();
-        this._dropIndexesIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
@@ -267,10 +265,7 @@ class SyncService extends BaseService {
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
-            .finally(() => {
-                this._recreateIndexesIfSqlite();
-                this._enableForeignKeysIfSqlite();
-            })
+            .finally(() => this._enableForeignKeysIfSqlite())
     }
 
     downloadExtensions() {
@@ -536,27 +531,6 @@ class SyncService extends BaseService {
         if (!this.db.isSqlite) return;
         this.db._executeRaw("PRAGMA foreign_keys = ON");
         General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
-    }
-
-    _dropIndexesIfSqlite() {
-        if (!this.db.isSqlite || typeof this.db.dropIndexes !== 'function') return;
-        // Only drop indexes on fresh sync — the overhead isn't worth it for incremental syncs.
-        // Check if Individual table has data: if empty, this is a fresh sync.
-        // We don't use SyncTelemetry because those records are synced from the server
-        // and may include completed records from Realm syncs.
-        const individualCount = this.getRepository(Individual.schema.name).findAll().count();
-        if (individualCount > 0) {
-            General.logDebug("SyncService", `Incremental sync (${individualCount} individuals) — skipping index drop`);
-            return;
-        }
-        this._indexesDropped = true;
-        this.db.dropIndexes();
-    }
-
-    _recreateIndexesIfSqlite() {
-        if (!this._indexesDropped) return;
-        this._indexesDropped = false;
-        this.db.recreateIndexes();
     }
 
     _buildReferenceCacheIfSqlite() {
