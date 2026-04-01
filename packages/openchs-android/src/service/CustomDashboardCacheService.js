@@ -189,8 +189,7 @@ class CustomDashboardCacheService extends BaseService {
             let dashboardCache = this.findByFiltered("dashboard.uuid", dashboardUUID, CustomDashboardCache.schema.name);
 
             for (const {card, result} of singleCardResults) {
-                const matching = _.filter(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
-                matching.forEach((x) => dashboardCache.reportCardResults.pop(x));
+                _.remove(dashboardCache.reportCardResults, (x) => x.reportCard === card.uuid && x.dashboard === dashboardCache.dashboard.uuid);
                 result.dashboard = dashboardUUID;
                 result.reportCard = card.uuid;
                 dashboardCache.reportCardResults.push(result);
@@ -198,8 +197,7 @@ class CustomDashboardCacheService extends BaseService {
 
             for (const {card, results} of nestedCardResults) {
                 results.forEach((nestedResult, index) => {
-                    const matching = _.filter(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
-                    matching.forEach((x) => dashboardCache.nestedReportCardResults.pop(x));
+                    _.remove(dashboardCache.nestedReportCardResults, (x) => x.reportCard === card.getCardId(index) && x.dashboard === dashboardCache.dashboard.uuid);
                     nestedResult.dashboard = dashboardUUID;
                     nestedResult.reportCard = card.getCardId(index);
                     dashboardCache.nestedReportCardResults.push(nestedResult);

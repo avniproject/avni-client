@@ -101,6 +101,9 @@ class SqliteProxy {
             this.buildReferenceCache(SqliteProxy.DEFAULT_REFERENCE_CACHE_CONFIGS);
         } catch (e) {
             // Tables may not exist yet (before first sync)
+            if (!e.message || !e.message.includes('no such table')) {
+                General.logWarn("SqliteProxy", `Reference cache build failed: ${e.message}`);
+            }
         }
         this._referenceCacheBuilt = true;
     }
