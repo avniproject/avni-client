@@ -102,6 +102,11 @@ const SQL_TRANSLATABLE = [
     "parentUuid = 'abc' AND voided = false",
     "uuid = 'abc'",
     "voided = false and level = 2",
+    // IN clause (Realm syntax used by server-defined rules)
+    'uuid IN {"abc", "def", "ghi"}',
+    'uuid IN {"single"}',
+    'lowestAddressLevel.uuid IN {"a", "b", "c"}',
+    "subjectType.name = 'Distribution' AND voided = false AND lowestAddressLevel.uuid IN {'uuid1', 'uuid2'}",
 ];
 
 // ── Queries that should route to JS fallback (handled by JsFallbackFilterEvaluator) ──
