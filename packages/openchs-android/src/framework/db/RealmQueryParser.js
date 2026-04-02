@@ -37,6 +37,10 @@ const TOKEN_TYPES = {
     COMPARISON: "COMPARISON",
     LPAREN: "LPAREN",
     RPAREN: "RPAREN",
+    LBRACE: "LBRACE",
+    RBRACE: "RBRACE",
+    COMMA: "COMMA",
+    IN: "IN",
     AND: "AND",
     OR: "OR",
     NOT: "NOT",
@@ -81,6 +85,21 @@ function tokenize(query) {
         }
         if (query[i] === ")") {
             tokens.push(new Token(TOKEN_TYPES.RPAREN, ")"));
+            i++;
+            continue;
+        }
+        if (query[i] === "{") {
+            tokens.push(new Token(TOKEN_TYPES.LBRACE, "{"));
+            i++;
+            continue;
+        }
+        if (query[i] === "}") {
+            tokens.push(new Token(TOKEN_TYPES.RBRACE, "}"));
+            i++;
+            continue;
+        }
+        if (query[i] === ",") {
+            tokens.push(new Token(TOKEN_TYPES.COMMA, ","));
             i++;
             continue;
         }
@@ -181,6 +200,11 @@ function tokenize(query) {
                     i += ciMatch[0].length;
                 }
                 tokens.push(new Token(TOKEN_TYPES.STRING_OP, {op: upper, caseInsensitive}));
+                continue;
+            }
+
+            if (upper === "IN") {
+                tokens.push(new Token(TOKEN_TYPES.IN, "IN"));
                 continue;
             }
 
@@ -292,6 +316,21 @@ class Parser {
                 return {type: "STRING_OP", field, op, value, caseInsensitive};
             }
 
+            // field IN {value1, value2, ...}  — Realm IN syntax
+            if (opToken?.type === TOKEN_TYPES.IN) {
+                this.consume(); // consume IN
+                this.consume(TOKEN_TYPES.LBRACE);
+                const values = [];
+                while (this.peek()?.type !== TOKEN_TYPES.RBRACE) {
+                    values.push(this.parseValue());
+                    if (this.peek()?.type === TOKEN_TYPES.COMMA) {
+                        this.consume();
+                    }
+                }
+                this.consume(TOKEN_TYPES.RBRACE);
+                return {type: "IN", field, values};
+            }
+
             throw new Error(`Unexpected token after identifier "${field}": ${opToken?.type} ${opToken?.value}`);
         }
 
@@ -348,6 +387,8 @@ class SqlGenerator {
                 return this.visitComparison(node);
             case "STRING_OP":
                 return this.visitStringOp(node);
+            case "IN":
+                return this.visitIn(node);
             default:
                 throw new Error(`Unknown AST node type: ${node.type}`);
         }
@@ -546,6 +587,15 @@ class SqlGenerator {
             default:
                 throw new Error(`Unknown string operator: ${node.op}`);
         }
+    }
+
+    visitIn(node) {
+        const {column} = this.resolveField(node.field);
+        if (node.values.length === 0) {
+            return "1=0"; // empty IN → always false
+        }
+        const placeholders = node.values.map(v => this.resolveValue(v)).join(", ");
+        return `${column} IN (${placeholders})`;
     }
 
 }
