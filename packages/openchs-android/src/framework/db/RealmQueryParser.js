@@ -712,13 +712,25 @@ class RealmQueryParser {
 
         // Check for patterns that need JS fallback
         if (requiresJsFallback(trimmed)) {
-            // Try direct SUBQUERY → SQL IN translation for single-clause queries
+            // Try direct SUBQUERY → SQL translation for single-clause queries
             if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+                // Referenced lists (enrolments, encounters) → IN subquery
                 const inResult = this._tryTranslateSubqueryToIn(trimmed, rootSchemaName, schemaMap, args);
                 if (inResult) {
                     return {
                         where: inResult.where,
                         params: inResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+                // Embedded lists (observations) → json_each EXISTS
+                const jsonResult = this._tryTranslateObservationSubquery(trimmed, rootSchemaName, schemaMap);
+                if (jsonResult) {
+                    return {
+                        where: jsonResult.where,
+                        params: jsonResult.params,
                         joins: [],
                         unsupported: false,
                         limit: limitValue,
@@ -949,6 +961,207 @@ class RealmQueryParser {
     }
 
     /**
+     * Translate a SUBQUERY on an embedded list (observations) to SQL using json_each().
+     * Converts Realm observation queries to:
+     *   EXISTS (SELECT 1 FROM json_each(t0."observations") AS jobs WHERE ...)
+     *
+     * Supported condition patterns within the SUBQUERY:
+     *   $obs.concept.uuid = "uuid"       → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   $obs.valueJSON contains "text"    → jobs.value LIKE '%text%'
+     *   $obs.concept.name = "name"        → json_extract(jobs.value, '$.concept.name') = ?
+     *   Combined with AND/OR
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _tryTranslateObservationSubquery(clause, rootSchemaName, schemaMap) {
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        // Verify this is an embedded list
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        const colName = camelToSnake(listProp);
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Translate conditions to json_each WHERE clauses
+        const translated = this._translateObservationConditions(strippedConditions);
+        if (!translated) return null;
+
+        const innerWhere = translated.where;
+        const params = translated.params;
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            where = `NOT EXISTS (SELECT 1 FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM json_each(t0."${colName}") AS jobs WHERE ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params};
+    }
+
+    /**
+     * Translate observation SUBQUERY conditions to json_each WHERE clause.
+     * Handles AND/OR combinations and parentheses.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _translateObservationConditions(conditions) {
+        const params = [];
+
+        // Split on top-level AND/OR while preserving operator and parentheses
+        const result = this._translateObsExpr(conditions.trim(), params);
+        if (!result) return null;
+
+        return {where: result, params};
+    }
+
+    /**
+     * Recursively translate an observation condition expression.
+     * Handles: AND, OR, parenthesized groups, and leaf conditions.
+     */
+    static _translateObsExpr(expr, params) {
+        const trimmed = expr.trim();
+
+        // Handle parenthesized expression
+        if (trimmed.startsWith('(') && this._findMatchingParen(trimmed, 0) === trimmed.length - 1) {
+            const inner = this._translateObsExpr(trimmed.substring(1, trimmed.length - 1).trim(), params);
+            return inner ? `(${inner})` : null;
+        }
+
+        // Split on top-level OR first (lower precedence)
+        const orParts = this._splitTopLevelLogical(trimmed, 'OR');
+        if (orParts.length > 1) {
+            const translated = orParts.map(p => this._translateObsExpr(p.trim(), params));
+            if (translated.some(t => t === null)) return null;
+            return `(${translated.join(' OR ')})`;
+        }
+
+        // Split on top-level AND
+        const andParts = this._splitTopLevelLogical(trimmed, 'AND');
+        if (andParts.length > 1) {
+            const translated = andParts.map(p => this._translateObsExpr(p.trim(), params));
+            if (translated.some(t => t === null)) return null;
+            return translated.join(' AND ');
+        }
+
+        // Leaf condition — translate single observation condition
+        return this._translateSingleObsCondition(trimmed, params);
+    }
+
+    /**
+     * Split expression on top-level logical operator (AND or OR),
+     * respecting parentheses depth.
+     */
+    static _splitTopLevelLogical(expr, op) {
+        const parts = [];
+        let depth = 0;
+        let current = '';
+        const opUpper = op.toUpperCase();
+        const opLen = opUpper.length;
+
+        for (let i = 0; i < expr.length; i++) {
+            const ch = expr[i];
+            if (ch === '(') { depth++; current += ch; }
+            else if (ch === ')') { depth--; current += ch; }
+            else if (depth === 0) {
+                // Check for " AND " or " OR " (with word boundaries)
+                const ahead = expr.substring(i, i + opLen + 2).toUpperCase();
+                if (ahead.startsWith(' ' + opUpper + ' ') || ahead.startsWith(' ' + opUpper.toLowerCase() + ' ')) {
+                    const before = current.trim();
+                    if (before) parts.push(before);
+                    current = '';
+                    i += opLen + 1; // skip past " OP "
+                    continue;
+                }
+                current += ch;
+            } else {
+                current += ch;
+            }
+        }
+        const last = current.trim();
+        if (last) parts.push(last);
+        return parts;
+    }
+
+    /**
+     * Find matching closing parenthesis position.
+     */
+    static _findMatchingParen(str, openIdx) {
+        let depth = 0;
+        for (let i = openIdx; i < str.length; i++) {
+            if (str[i] === '(') depth++;
+            else if (str[i] === ')') {
+                depth--;
+                if (depth === 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Translate a single observation condition to json_each SQL.
+     *
+     * Patterns:
+     *   concept.uuid = "uuid"          → json_extract(jobs.value, '$.concept.uuid') = ?
+     *   concept.name = "name"          → json_extract(jobs.value, '$.concept.name') = ?
+     *   valueJSON contains "text"      → jobs.value LIKE ?
+     *   valueJSON CONTAINS[c] "text"   → jobs.value LIKE ?
+     */
+    static _translateSingleObsCondition(condition, params) {
+        const trimmed = condition.trim();
+
+        // Pattern: dotPath OP value  (e.g., concept.uuid = "abc-123")
+        const eqMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\3$/);
+        if (eqMatch) {
+            const [, fieldPath, op, , value] = eqMatch;
+            const jsonPath = '$.' + fieldPath;
+            const sqlOp = (op === '==' || op === '=') ? '=' : (op === '!=' || op === '<>') ? '!=' : op;
+            params.push(value);
+            return `json_extract(jobs.value, '${jsonPath}') ${sqlOp} ?`;
+        }
+
+        // Pattern: field CONTAINS[c] value or field contains value
+        const containsMatch = trimmed.match(/^([\w.]+)\s+contains(?:\[c\])?\s+(['"])(.*?)\2$/i);
+        if (containsMatch) {
+            const [, fieldPath, , value] = containsMatch;
+            if (fieldPath.toLowerCase() === 'valuejson') {
+                // valueJSON contains "text" → search in the raw JSON value
+                params.push(`%${value}%`);
+                return `jobs.value LIKE ?`;
+            } else {
+                // Other field contains → json_extract + LIKE
+                const jsonPath = '$.' + fieldPath;
+                params.push(`%${value}%`);
+                return `json_extract(jobs.value, '${jsonPath}') LIKE ?`;
+            }
+        }
+
+        // Pattern: field = null / field = nil
+        const nullMatch = trimmed.match(/^([\w.]+)\s*(==|=|!=|<>)\s*null$/i);
+        if (nullMatch) {
+            const [, fieldPath, op] = nullMatch;
+            const jsonPath = '$.' + fieldPath;
+            const isNull = (op === '=' || op === '==');
+            return `json_extract(jobs.value, '${jsonPath}') IS ${isNull ? 'NULL' : 'NOT NULL'}`;
+        }
+
+        // Unrecognized pattern — bail out
+        return null;
+    }
+
+    /**
      * Extract LIKE pre-filter from a SUBQUERY on an embedded list (observations).
      * Pulls string literals from conditions and adds them as SQL LIKE clauses
      * on the parent JSON column to narrow rows before hydration.
@@ -1013,17 +1226,25 @@ class RealmQueryParser {
         for (const clause of clauses) {
             const trimmedClause = clause.trim();
             if (requiresJsFallback(trimmedClause)) {
-                // Try SUBQUERY → SQL IN translation for referenced lists
+                // Try SUBQUERY → SQL translation
                 if (/SUBQUERY\s*\(/i.test(trimmedClause)) {
+                    // Referenced lists → IN subquery
                     const inResult = this._tryTranslateSubqueryToIn(trimmedClause, rootSchemaName, schemaMap, args);
                     if (inResult) {
                         supportedWhere.push(inResult.where);
                         supportedParams.push(...inResult.params);
                         continue;
                     }
+                    // Embedded lists (observations) → json_each EXISTS
+                    const jsonResult = this._tryTranslateObservationSubquery(trimmedClause, rootSchemaName, schemaMap);
+                    if (jsonResult) {
+                        supportedWhere.push(jsonResult.where);
+                        supportedParams.push(...jsonResult.params);
+                        continue;
+                    }
                 }
-                // For SUBQUERY on embedded lists (observations), extract string literals
-                // and add as SQL LIKE pre-filters to narrow rows before hydration.
+                // For observation SUBQUERYs that couldn't be fully translated,
+                // add LIKE pre-filters to narrow rows before hydration.
                 const preFilter = this._extractObservationPreFilter(trimmedClause, rootSchemaName, schemaMap);
                 if (preFilter) {
                     supportedWhere.push(preFilter.where);
