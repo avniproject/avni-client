@@ -87,7 +87,9 @@ class EntityHydrator {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded object stored as JSON — resolve eagerly (no DB query)
                     const jsonVal = row[snakeName];
+                    const _jt0 = this._profileCounters ? Date.now() : 0;
                     const parsed = parseJsonSafe(jsonVal);
+                    if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt0; }
                     result[propName] = parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
                 } else {
                     // Referenced entity — FK column is propName_uuid
@@ -105,7 +107,9 @@ class EntityHydrator {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
                     // Embedded list stored as JSON — resolve eagerly (no DB query)
                     const jsonVal = row[snakeName];
+                    const _jt1 = this._profileCounters ? Date.now() : 0;
                     const parsed = parseJsonSafe(jsonVal) || [];
+                    if (this._profileCounters) { this._profileCounters.jsonParseCalls++; this._profileCounters.jsonParseMs += Date.now() - _jt1; }
                     result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);
                 } else if (!skipLists && depth > 0) {
                     // Referenced list — query child table
@@ -127,11 +131,16 @@ class EntityHydrator {
      * Resolve a FK reference to a full nested object.
      */
     resolveReference(targetSchemaName, uuid, depth) {
+        if (this._profileCounters) this._profileCounters.resolveRefCalls++;
+
         // Try reference data cache first
         const cache = this.referenceDataCache[targetSchemaName];
         if (cache) {
             const cached = cache.get(uuid);
-            if (cached) return cached;
+            if (cached) {
+                if (this._profileCounters) this._profileCounters.resolveRefCacheHits++;
+                return cached;
+            }
         }
 
         // Try session hydration cache — returns a previously-hydrated version if available.
@@ -140,8 +149,13 @@ class EntityHydrator {
         const cacheKey = `${targetSchemaName}:${uuid}`;
         if (this._hydrationCache) {
             const cachedHydration = this._hydrationCache.get(cacheKey);
-            if (cachedHydration) return cachedHydration;
+            if (cachedHydration) {
+                if (this._profileCounters) this._profileCounters.resolveRefCacheHits++;
+                return cachedHydration;
+            }
         }
+
+        if (this._profileCounters) this._profileCounters.resolveRefDbQueries++;
 
         // Query the database
         const tableMeta = this.tableMetaMap.get(targetSchemaName);
@@ -212,6 +226,7 @@ class EntityHydrator {
      * using resolveReference (which checks caches first, then queries DB).
      */
     _hydrateEmbedded(data, schemaName) {
+        if (this._profileCounters) this._profileCounters.hydrateEmbeddedCalls++;
         if (_.isNil(data)) return null;
         const schema = this.realmSchemaMap.get(schemaName);
         if (!schema || !schema.properties) return data;
@@ -264,6 +279,7 @@ class EntityHydrator {
      * Resolve a list property by querying the child table for matching FK.
      */
     resolveList(parentSchemaName, propName, childSchemaName, parentUuid, depth) {
+        if (this._profileCounters) this._profileCounters.resolveListCalls++;
         if (_.isNil(parentUuid)) return [];
 
         const childTableMeta = this.tableMetaMap.get(childSchemaName);
@@ -290,18 +306,22 @@ class EntityHydrator {
 
         if (rows.length === 0) return [];
 
+        if (this._profileCounters) this._profileCounters.resolveListHydrations += rows.length;
         return rows.map(row => this.hydrate(childSchemaName, row, {depth, skipLists: false}));
     }
 
     /**
      * Batch-preload all FK-referenced list properties for a set of parent UUIDs.
      * Replaces N individual queries per list property with one batch IN query.
+     * Recurses into child schemas up to the given depth to preload grandchild
+     * lists and FK references at all levels.
      *
      * @param {string} schemaName - parent schema name (e.g., "Individual")
      * @param {Array<string>} parentUuids - UUIDs of all parent rows to preload for
+     * @param {number} depth - how many levels deep to preload (default 3)
      */
-    batchPreloadLists(schemaName, parentUuids) {
-        if (!this._listBatchCache || !parentUuids || parentUuids.length === 0) return;
+    batchPreloadLists(schemaName, parentUuids, depth = 3) {
+        if (!this._listBatchCache || !parentUuids || parentUuids.length === 0 || depth <= 0) return;
 
         const realmSchema = this.realmSchemaMap.get(schemaName);
         if (!realmSchema) return;
@@ -310,6 +330,8 @@ class EntityHydrator {
         if (uniqueUuids.length === 0) return;
 
         const properties = realmSchema.properties || {};
+        const profileEntries = [];
+        const profileStart = Date.now();
 
         Object.keys(properties).forEach(propName => {
             const propDef = properties[propName];
@@ -329,6 +351,7 @@ class EntityHydrator {
             if (this._listBatchCache.has(cacheKey)) return; // already preloaded
 
             // Batch fetch with chunking for >999 params (SQLite limit)
+            const tListStart = Date.now();
             const CHUNK_SIZE = 999;
             const allRows = [];
             for (let i = 0; i < uniqueUuids.length; i += CHUNK_SIZE) {
@@ -350,7 +373,124 @@ class EntityHydrator {
             }
 
             this._listBatchCache.set(cacheKey, grouped);
+            profileEntries.push({list: `${propName}(${objectType})`, rows: allRows.length, ms: Date.now() - tListStart});
+
+            // Recurse: preload grandchild lists for this child schema
+            if (depth > 1 && allRows.length > 0) {
+                const childUuids = allRows.map(r => r.uuid).filter(u => u != null);
+                if (childUuids.length > 0) {
+                    this.batchPreloadLists(objectType, childUuids, depth - 1);
+                }
+            }
         });
+
+        // Phase 2: Pre-fetch FK-referenced entities from the child rows we just loaded.
+        // This eliminates the 147K individual SELECT queries during hydration by
+        // batch-loading referenced entities (Concept, EncounterType, Form, etc.)
+        // into the session cache up front.
+        const tFkStart = Date.now();
+        const fkPreloadEntries = this._batchPreloadFkReferences(schemaName, parentUuids);
+        const tFkEnd = Date.now();
+        if (tFkEnd - tFkStart > 500) {
+            const fkBreakdown = fkPreloadEntries.map(e => `${e.schema}=${e.loaded}/${e.total}uuids/${e.ms}ms`).join(', ');
+            profileEntries.push({list: `fkRefs`, rows: fkPreloadEntries.reduce((s, e) => s + e.loaded, 0), ms: tFkEnd - tFkStart});
+            console.warn(`[HydrationProfile] batchPreloadFKs ${schemaName}: ${fkBreakdown} | total=${tFkEnd - tFkStart}ms`);
+        }
+
+        const totalMs = Date.now() - profileStart;
+        if (totalMs > 2000) {
+            const breakdown = profileEntries.map(e => `${e.list}=${e.rows}rows/${e.ms}ms`).join(', ');
+            console.warn(`[HydrationProfile] batchPreload ${schemaName} (${uniqueUuids.length} parents): ${breakdown} | total=${totalMs}ms`);
+        }
+    }
+
+    /**
+     * Scan all batch-preloaded child rows and the parent rows for FK columns,
+     * collect unique referenced UUIDs per schema, and batch-fetch them into
+     * the session hydration cache.
+     *
+     * This turns 147K individual SELECT queries into a handful of batch IN queries.
+     */
+    _batchPreloadFkReferences(parentSchemaName, parentUuids) {
+        if (!this._hydrationCache || !this._listBatchCache) return [];
+
+        // Collect FK UUIDs from parent schema and all child schemas that have preloaded rows
+        // fkTargets: Map<targetSchemaName, Set<uuid>>
+        const fkTargets = new Map();
+
+        const collectFksFromSchema = (schemaName, rows) => {
+            const schema = this.realmSchemaMap.get(schemaName);
+            if (!schema) return;
+            const props = schema.properties || {};
+
+            // Identify FK columns (object-type properties that aren't embedded)
+            const fkProps = [];
+            for (const [propName, propDef] of Object.entries(props)) {
+                const resolvedType = normalizeRealmType(typeof propDef === "string" ? propDef : propDef.type);
+                const objectType = typeof propDef === "object" ? propDef.objectType : null;
+                if (resolvedType === "object" && objectType && !EMBEDDED_SCHEMA_NAMES.has(objectType)) {
+                    // Skip if already in reference data cache (Gender, SubjectType, etc.)
+                    if (this.referenceDataCache[objectType]) continue;
+                    fkProps.push({col: `${camelToSnake(propName)}_uuid`, targetSchema: objectType});
+                }
+            }
+
+            if (fkProps.length === 0) return;
+
+            for (const row of rows) {
+                for (const {col, targetSchema} of fkProps) {
+                    const uuid = row[col];
+                    if (uuid && !this._hydrationCache.has(`${targetSchema}:${uuid}`)) {
+                        if (!fkTargets.has(targetSchema)) fkTargets.set(targetSchema, new Set());
+                        fkTargets.get(targetSchema).add(uuid);
+                    }
+                }
+            }
+        };
+
+        // Collect from all preloaded child row sets
+        for (const [cacheKey, grouped] of this._listBatchCache.entries()) {
+            const childSchemaName = cacheKey.split(':')[0];
+            // Flatten grouped rows
+            const allChildRows = [];
+            for (const rows of grouped.values()) {
+                for (const row of rows) allChildRows.push(row);
+            }
+            collectFksFromSchema(childSchemaName, allChildRows);
+        }
+
+        // Batch-fetch each target schema
+        const profileEntries = [];
+        for (const [targetSchema, uuidSet] of fkTargets.entries()) {
+            const tableMeta = this.tableMetaMap.get(targetSchema);
+            if (!tableMeta) continue;
+
+            const uuids = [...uuidSet];
+            const tStart = Date.now();
+            const CHUNK_SIZE = 999;
+
+            for (let i = 0; i < uuids.length; i += CHUNK_SIZE) {
+                const chunk = uuids.slice(i, i + CHUNK_SIZE);
+                const placeholders = chunk.map(() => "?").join(", ");
+                const rows = this.executeQuery(
+                    `SELECT * FROM ${tableMeta.tableName} WHERE "uuid" IN (${placeholders})`,
+                    chunk
+                );
+                if (rows) {
+                    for (const row of rows) {
+                        if (row.uuid) {
+                            // Hydrate at depth 0 (scalars + cached refs only) and cache
+                            const hydrated = this.hydrate(targetSchema, row, {depth: 0, skipLists: true});
+                            this._hydrationCache.set(`${targetSchema}:${row.uuid}`, hydrated);
+                        }
+                    }
+                }
+            }
+
+            profileEntries.push({schema: targetSchema, total: uuids.length, loaded: uuids.length, ms: Date.now() - tStart});
+        }
+
+        return profileEntries;
     }
 
     /**
@@ -399,14 +539,28 @@ class EntityHydrator {
             this._listBatchCache = new Map();
         }
         this._hydrationSessionDepth = (this._hydrationSessionDepth || 0) + 1;
+        // Session-level profiling counters
+        if (this._hydrationSessionDepth === 1) {
+            this._profileCounters = {
+                resolveRefCalls: 0, resolveRefDbQueries: 0, resolveRefCacheHits: 0,
+                hydrateEmbeddedCalls: 0, resolveListCalls: 0, resolveListHydrations: 0,
+                jsonParseCalls: 0, jsonParseMs: 0,
+            };
+        }
     }
 
     endHydrationSession() {
         this._hydrationSessionDepth = (this._hydrationSessionDepth || 1) - 1;
         if (this._hydrationSessionDepth <= 0) {
+            // Log profile counters if significant work was done
+            const c = this._profileCounters;
+            if (c && (c.resolveRefCalls > 100 || c.resolveListHydrations > 100)) {
+                console.warn(`[HydrationProfile] session: refCalls=${c.resolveRefCalls} (db=${c.resolveRefDbQueries}, cache=${c.resolveRefCacheHits}), embedded=${c.hydrateEmbeddedCalls}, lists=${c.resolveListCalls} (childHydrations=${c.resolveListHydrations}), jsonParse=${c.jsonParseCalls}/${c.jsonParseMs}ms`);
+            }
             this._hydrationCache = null;
             this._listBatchCache = null;
             this._hydrationSessionDepth = 0;
+            this._profileCounters = null;
         }
     }
 

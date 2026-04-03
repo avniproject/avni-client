@@ -70,6 +70,7 @@ class SqliteResultsProxy {
                     jsFallbackFilters = [],
                     limitClause = null,
                     hydrationOptions = null,
+                    queryCache = null,
                 }) {
         this.schemaName = schemaName;
         this.tableName = tableName || schemaNameToTableName(schemaName);
@@ -87,6 +88,9 @@ class SqliteResultsProxy {
         this.limitClause = limitClause;
         // Hydration options: {skipLists, depth} — default is full hydration
         this.hydrationOptions = hydrationOptions || {skipLists: false, depth: 3};
+
+        // Cross-query cache (shared across proxy instances within a dashboard refresh)
+        this._queryCache = queryCache;
 
         // Cached results
         this._rows = null;
@@ -122,6 +126,7 @@ class SqliteResultsProxy {
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: options,
+            queryCache: this._queryCache,
         });
     }
 
@@ -146,6 +151,7 @@ class SqliteResultsProxy {
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
+            queryCache: this._queryCache,
         };
 
         if (parseResult.unsupported) {
@@ -250,6 +256,7 @@ class SqliteResultsProxy {
             jsFallbackFilters: [...this.jsFallbackFilters],
             limitClause: this.limitClause,
             hydrationOptions: this.hydrationOptions,
+            queryCache: this._queryCache,
         });
     }
 
@@ -297,8 +304,31 @@ class SqliteResultsProxy {
             console.log("SqliteResultsProxy SQL:", sql, "params:", params);
         }
 
+        // Check query cache — reuse hydrated entities from an identical prior query
+        const opts = this.hydrator ? this.hydrationOptions : null;
+        const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|${opts?.depth}|${opts?.skipLists}` : null;
+        if (cacheKey && this._queryCache.has(cacheKey)) {
+            const cached = this._queryCache.get(cacheKey);
+            this._rows = cached.rows;
+            this._entities = [...cached.entities]; // shallow copy so JS filters don't mutate cache
+            console.warn(`[HydrationProfile] CACHE HIT ${this.schemaName} (${this._entities.length} entities)`);
+            // Still apply JS fallback filters on the copy
+            if (this.jsFallbackFilters.length > 0) {
+                this._entities = JsFallbackFilterEvaluator.apply(
+                    this._entities, this.jsFallbackFilters, this.schemaName
+                );
+                if (this.limitClause != null) {
+                    this._entities = this._entities.slice(0, this.limitClause);
+                }
+            }
+            this._executed = true;
+            return;
+        }
+
+        const t0 = Date.now();
         const rows = this.executeQuery(sql, params);
         this._rows = rows || [];
+        const tQuery = Date.now();
 
         // Hydrate rows into entity-compatible objects
         if (this.hydrator) {
@@ -306,14 +336,22 @@ class SqliteResultsProxy {
             this.hydrator.beginHydrationSession();
             try {
                 // Batch-preload list properties to avoid N+1 queries (skip when lists aren't needed)
+                let tPreload = tQuery;
                 if (!opts.skipLists && this._rows.length > 0 && this.hydrator.batchPreloadLists) {
                     const parentUuids = this._rows.map(row => row.uuid).filter(u => u != null);
-                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids);
+                    this.hydrator.batchPreloadLists(this.schemaName, parentUuids, opts.depth || 3);
+                    tPreload = Date.now();
                 }
 
                 this._entities = this._rows.map(row =>
                     this.hydrator.hydrate(this.schemaName, row, opts)
                 );
+                const tHydrate = Date.now();
+
+                const total = tHydrate - t0;
+                if (total > 2000 && this._rows.length > 0) {
+                    console.warn(`[HydrationProfile] ${this.schemaName} (${this._rows.length} rows, depth=${opts.depth}, skipLists=${opts.skipLists}): query=${tQuery - t0}ms, preload=${tPreload - tQuery}ms, hydrate=${tHydrate - tPreload}ms, total=${total}ms`);
+                }
             } finally {
                 this.hydrator.endHydrationSession();
             }
@@ -321,11 +359,23 @@ class SqliteResultsProxy {
             this._entities = this._rows;
         }
 
+        // Store in query cache (before JS fallback, so cached entities are the full
+        // hydrated set that JS filters can be applied to independently per card)
+        if (cacheKey && this._queryCache) {
+            this._queryCache.set(cacheKey, {rows: this._rows, entities: this._entities});
+        }
+
         // Apply JS fallback filters for patterns that couldn't be translated to SQL
         if (this.jsFallbackFilters.length > 0) {
+            const tFallbackStart = Date.now();
             this._entities = JsFallbackFilterEvaluator.apply(
                 this._entities, this.jsFallbackFilters, this.schemaName
             );
+            const tFallbackEnd = Date.now();
+
+            if (tFallbackEnd - tFallbackStart > 1000) {
+                console.warn(`[HydrationProfile] ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+            }
 
             // Apply limit after JS fallback (LIMIT was not in SQL because
             // JS fallbacks need to filter the full set first, then limit)

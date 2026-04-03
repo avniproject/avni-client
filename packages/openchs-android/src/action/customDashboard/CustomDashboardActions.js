@@ -298,6 +298,12 @@ class CustomDashboardActions {
         General.logDebug('CustomDashboardActions', `Filter processing took ${new Date() - filterProcessingStart} ms, filters: ${selectedFilterValues?.length || 0}`);
         
         // Phase 1: Compute all card results (no DB writes yet)
+        // Enable query cache across cards — identical queries (e.g., loading all
+        // Individuals) are hydrated once and reused by subsequent cards.
+        const db = reportCardService.db;
+        if (db && db.isSqlite && db.beginQueryCache) {
+            db.beginQueryCache();
+        }
         const pendingSingleResults = [];
         const pendingNestedResults = [];
 
@@ -343,6 +349,11 @@ class CustomDashboardActions {
             }
             General.logDebug('CustomDashboardActions', `${rcm.card.name} took ${new Date() - start} ms`);
         });
+
+        // Disable query cache — release hydrated entities
+        if (db && db.isSqlite && db.endQueryCache) {
+            db.endQueryCache();
+        }
 
         // Phase 2: Batch-write all cache updates in a single transaction
         customDashboardCacheService.batchUpdateResults(state.activeDashboardUUID, pendingSingleResults, pendingNestedResults);
