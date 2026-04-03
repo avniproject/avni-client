@@ -353,6 +353,13 @@ get_sqlite_db: ## Get SQLite db and WAL from device
 	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-wal > ../db/avni_sqlite.db-wal 2>/dev/null || true
 	adb exec-out run-as ${app_android_package_name} cat databases/avni_sqlite.db-shm > ../db/avni_sqlite.db-shm 2>/dev/null || true
 	sqlite3 ../db/avni_sqlite.db "PRAGMA wal_checkpoint(TRUNCATE)" && rm -f ../db/avni_sqlite.db-wal ../db/avni_sqlite.db-shm
+sqlitedb:=$(if $(sqlitedb),$(sqlitedb),../db/avni_sqlite.db)
+put_sqlite_db: ## Push SQLite db to device (sqlitedb=path, default ../db/avni_sqlite.db)
+	adb shell am force-stop ${app_android_package_name}
+	adb push $(sqlitedb) /data/local/tmp/avni_sqlite.db
+	adb shell "run-as ${app_android_package_name} cp /data/local/tmp/avni_sqlite.db /data/data/${app_android_package_name}/databases/avni_sqlite.db"
+	adb shell "run-as ${app_android_package_name} rm -f /data/data/${app_android_package_name}/databases/avni_sqlite.db-wal /data/data/${app_android_package_name}/databases/avni_sqlite.db-shm"
+	adb shell rm /data/local/tmp/avni_sqlite.db
 # </db>
 
 # <sqlite-migrations>
