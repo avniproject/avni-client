@@ -1022,13 +1022,18 @@ class RuleEvaluationService extends BaseService {
     getDashboardCardResult(reportCard, ruleInput) {
         const queryResult = this.executeDashboardCardRule(reportCard, ruleInput);
         if (!queryResult.hasErrorMsg && this.isOldStyleQueryResult(queryResult)) {
+            General.logInfo("CardCount", `${reportCard.name} = ${queryResult.length}`);
             return ReportCardResult.create(queryResult.length, null, true);
         } else if (reportCard.nested) {
-            return _.map(queryResult.reportCards, (result, index) => {
+            const nestedResults = _.map(queryResult.reportCards, (result, index) => {
                 return NestedReportCardResult.fromQueryResult(result, reportCard, index);
             });
+            General.logInfo("CardCount", `${reportCard.name} [nested] = ${nestedResults.map(r => r.primaryValue).join(',')}`);
+            return nestedResults;
         } else {
-            return ReportCardResult.fromQueryResult(queryResult);
+            const result = ReportCardResult.fromQueryResult(queryResult);
+            General.logInfo("CardCount", `${reportCard.name} = ${result.primaryValue}`);
+            return result;
         }
     }
 

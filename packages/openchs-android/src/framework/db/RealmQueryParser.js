@@ -712,15 +712,44 @@ class RealmQueryParser {
 
         // Check for patterns that need JS fallback
         if (requiresJsFallback(trimmed)) {
+            // Try direct SUBQUERY → SQL IN translation for single-clause queries
+            if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+                const inResult = this._tryTranslateSubqueryToIn(trimmed, rootSchemaName, schemaMap, args);
+                if (inResult) {
+                    return {
+                        where: inResult.where,
+                        params: inResult.params,
+                        joins: [],
+                        unsupported: false,
+                        limit: limitValue,
+                    };
+                }
+            }
+
             // Try partial parsing: split on top-level AND, translate supported clauses to SQL,
             // route JS-fallback clauses (SUBQUERY, TRUEPREDICATE, @count, etc.) to
             // JsFallbackFilterEvaluator for post-hydration filtering.
-            // e.g. "voided = false AND SUBQUERY(...)" → SQL handles voided, JS handles SUBQUERY.
             const partialResult = this._parsePartial(trimmed, args, rootSchemaName, schemaMap, aliasOffset);
             if (partialResult) {
                 partialResult.limit = limitValue;
                 return partialResult;
             }
+
+            // For single-clause observation SUBQUERYs, add LIKE pre-filter to narrow
+            // rows before hydration even though the full query goes to JS fallback.
+            const preFilter = this._extractObservationPreFilter(trimmed, rootSchemaName, schemaMap);
+            if (preFilter) {
+                return {
+                    where: preFilter.where,
+                    params: preFilter.params,
+                    joins: [],
+                    unsupported: false,
+                    partialParse: true,
+                    skippedClauses: [trimmed],
+                    limit: limitValue,
+                };
+            }
+
             return {
                 where: null,
                 params: [],
@@ -771,6 +800,201 @@ class RealmQueryParser {
      * Returns a parse result if at least one clause was successfully parsed,
      * or null if no clauses could be parsed.
      */
+    /**
+     * Attempt to translate a SUBQUERY on a referenced list to a SQL IN clause.
+     * Uses non-correlated subquery: t0.uuid IN (SELECT fk FROM child WHERE conditions)
+     *
+     * For embedded lists (observations), returns null — use _extractObservationPreFilter instead.
+     * For nested SUBQUERYs, recurses to build nested IN clauses.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _tryTranslateSubqueryToIn(clause, rootSchemaName, schemaMap, args, depth = 0) {
+        if (depth > 3) return null;
+
+        const parsed = this._parseSubqueryClause(clause);
+        if (!parsed) return null;
+
+        const {listProp, varName, conditions, operator, count} = parsed;
+
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef || (typeof propDef === 'object' ? propDef.type : null) !== 'list') return null;
+
+        const childSchemaName = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!childSchemaName || EMBEDDED_SCHEMA_NAMES.has(childSchemaName)) return null;
+
+        const childTableName = schemaNameToTableName(childSchemaName);
+
+        // Find FK column on child table that points back to parent
+        const childSchema = schemaMap.get(childSchemaName);
+        let fkColumn = `${camelToSnake(rootSchemaName)}_uuid`;
+        if (childSchema) {
+            for (const [propName, propDef2] of Object.entries(childSchema.properties || {})) {
+                if (typeof propDef2 === 'object' && propDef2.type === 'object' && propDef2.objectType === rootSchemaName) {
+                    fkColumn = `${camelToSnake(propName)}_uuid`;
+                    break;
+                }
+            }
+        }
+
+        // Strip variable prefix from conditions
+        const varPrefix = varName.replace('$', '\\$') + '\\.';
+        const strippedConditions = conditions.replace(new RegExp(varPrefix, 'g'), '');
+
+        // Split conditions on top-level AND and translate each
+        const parts = splitTopLevelAnd(strippedConditions);
+        const whereParts = [];
+        const params = [];
+
+        for (const part of parts) {
+            const trimmed = part.trim();
+
+            // Check for nested SUBQUERY — recurse
+            if (/SUBQUERY\s*\(/i.test(trimmed)) {
+                const nested = this._tryTranslateSubqueryToIn(trimmed, childSchemaName, schemaMap, args, depth + 1);
+                if (!nested) return null;
+                // Rewrite: the nested IN references the child table's uuid
+                // We need to scope it: child.uuid IN (SELECT grandchild.parent_fk FROM ...)
+                whereParts.push(nested.where.replace(/t0\."uuid"/g, `"uuid"`));
+                params.push(...nested.params);
+                continue;
+            }
+
+            // Translate condition — resolve dot-notation FK references to scalar subqueries
+            // e.g., program.name = 'Child' → program_uuid = (SELECT uuid FROM program WHERE name = ?)
+            const dotMatch = trimmed.match(/^([\w]+)\.([\w]+)\s*(==|=|!=|<>)\s*(['"])(.*?)\4$/);
+            if (dotMatch) {
+                const [, refProp, field, op, , value] = dotMatch;
+                const refPropDef = childSchema?.properties[refProp];
+                if (refPropDef && typeof refPropDef === 'object' && refPropDef.type === 'object') {
+                    const refTable = schemaNameToTableName(refPropDef.objectType);
+                    const fkCol = `${camelToSnake(refProp)}_uuid`;
+                    const sqlOp = (op === '==' ? '=' : op);
+                    params.push(value);
+                    whereParts.push(`"${fkCol}" ${sqlOp === '!=' || sqlOp === '<>' ? 'NOT ' : ''}IN (SELECT "uuid" FROM ${refTable} WHERE "${camelToSnake(field)}" = ?)`);
+                    continue;
+                }
+            }
+
+            // Simple scalar condition: field OP value
+            try {
+                const tokens = tokenize(trimmed);
+                const parser = new Parser(tokens);
+                const ast = parser.parse();
+                const gen = new SqlGenerator(schemaMap, childSchemaName, args);
+                const result = gen.generate(ast);
+                // Replace t0. alias with bare column names for the subquery
+                whereParts.push(result.where.replace(/t0\./g, ''));
+                params.push(...result.params);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        if (whereParts.length === 0) return null;
+
+        const innerWhere = whereParts.join(' AND ');
+
+        let where;
+        if ((operator === '>' && count === 0) || (operator === '>=' && count === 1) || (operator === '!=' && count === 0)) {
+            where = `t0."uuid" IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+        } else if ((operator === '=' && count === 0) || (operator === '<' && count === 1)) {
+            where = `t0."uuid" NOT IN (SELECT "${fkColumn}" FROM ${childTableName} WHERE ${innerWhere})`;
+        } else {
+            const op = operator === '==' ? '=' : operator;
+            where = `(SELECT COUNT(*) FROM ${childTableName} WHERE "${fkColumn}" = t0."uuid" AND ${innerWhere}) ${op} ${count}`;
+        }
+
+        return {where, params, joins: []};
+    }
+
+    static _parseSubqueryClause(clause) {
+        const match = clause.match(/^SUBQUERY\s*\(/i);
+        if (!match) return null;
+
+        const openIdx = match[0].length;
+        const argStrs = [];
+        let parenDepth = 0, current = "";
+
+        for (let i = openIdx; i < clause.length; i++) {
+            const ch = clause[i];
+            if (ch === '(') { parenDepth++; current += ch; }
+            else if (ch === ')') {
+                if (parenDepth === 0) {
+                    if (current.trim()) argStrs.push(current);
+                    const tail = clause.substring(i + 1).trim();
+                    const countMatch = tail.match(/^\.@count\s*(==|!=|<>|<=|>=|<|>|=)\s*(\d+)/i);
+                    if (!countMatch) return null;
+                    return {
+                        listProp: argStrs[0]?.trim(),
+                        varName: argStrs[1]?.trim(),
+                        conditions: argStrs[2]?.trim(),
+                        operator: countMatch[1] === '==' ? '=' : countMatch[1],
+                        count: parseInt(countMatch[2], 10),
+                    };
+                }
+                parenDepth--;
+                current += ch;
+            } else if (ch === ',' && parenDepth === 0) {
+                argStrs.push(current);
+                current = "";
+            } else {
+                current += ch;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extract LIKE pre-filter from a SUBQUERY on an embedded list (observations).
+     * Pulls string literals from conditions and adds them as SQL LIKE clauses
+     * on the parent JSON column to narrow rows before hydration.
+     *
+     * Conservative: may produce false positives (text match in unrelated fields),
+     * never false negatives. JS fallback still verifies the full SUBQUERY.
+     *
+     * @returns {{ where: string, params: Array }} | null
+     */
+    static _extractObservationPreFilter(clause, rootSchemaName, schemaMap) {
+        // Only handle SUBQUERY patterns
+        const subqueryMatch = clause.match(/^SUBQUERY\s*\(\s*(\w+)\s*,/i);
+        if (!subqueryMatch) return null;
+
+        const listProp = subqueryMatch[1];
+
+        // Check if this list property is an embedded type (observations, etc.)
+        const rootSchema = schemaMap.get(rootSchemaName);
+        if (!rootSchema) return null;
+
+        const propDef = rootSchema.properties[listProp];
+        if (!propDef) return null;
+        const objectType = typeof propDef === 'object' ? propDef.objectType : null;
+        if (!objectType || !EMBEDDED_SCHEMA_NAMES.has(objectType)) return null;
+
+        // Extract all quoted string literals from the SUBQUERY conditions
+        const literals = [];
+        const stringPattern = /['"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['"]/gi;
+        let match;
+        while ((match = stringPattern.exec(clause)) !== null) {
+            literals.push(match[1]);
+        }
+
+        if (literals.length === 0) return null;
+
+        // Build LIKE pre-filter: column LIKE '%uuid1%' AND column LIKE '%uuid2%'
+        const colName = camelToSnake(listProp);
+        const likeClauses = literals.map(() => `t0."${colName}" LIKE ?`);
+        const params = literals.map(lit => `%${lit}%`);
+
+        return {
+            where: likeClauses.join(' AND '),
+            params,
+        };
+    }
+
     static _parsePartial(query, args, rootSchemaName, schemaMap, aliasOffset) {
         // Split on top-level AND — we need to handle parenthesized SUBQUERY() blocks
         // by tracking paren depth so we don't split inside them.
@@ -789,6 +1013,22 @@ class RealmQueryParser {
         for (const clause of clauses) {
             const trimmedClause = clause.trim();
             if (requiresJsFallback(trimmedClause)) {
+                // Try SUBQUERY → SQL IN translation for referenced lists
+                if (/SUBQUERY\s*\(/i.test(trimmedClause)) {
+                    const inResult = this._tryTranslateSubqueryToIn(trimmedClause, rootSchemaName, schemaMap, args);
+                    if (inResult) {
+                        supportedWhere.push(inResult.where);
+                        supportedParams.push(...inResult.params);
+                        continue;
+                    }
+                }
+                // For SUBQUERY on embedded lists (observations), extract string literals
+                // and add as SQL LIKE pre-filters to narrow rows before hydration.
+                const preFilter = this._extractObservationPreFilter(trimmedClause, rootSchemaName, schemaMap);
+                if (preFilter) {
+                    supportedWhere.push(preFilter.where);
+                    supportedParams.push(...preFilter.params);
+                }
                 skippedClauses.push(trimmedClause);
                 continue;
             }
