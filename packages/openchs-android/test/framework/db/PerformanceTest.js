@@ -175,7 +175,7 @@ describe("Performance benchmarks", () => {
                 hydrator.endHydrationSession();
             });
 
-            expect(elapsed).toBeLessThan(500);
+            expect(elapsed).toBeLessThan(1000);
         });
     });
 

@@ -1,4 +1,6 @@
 import RealmQueryParser from '../../src/framework/db/RealmQueryParser';
+import {EntityMappingConfig} from 'openchs-models';
+import {SchemaGenerator} from '../../src/framework/db/SchemaGenerator';
 
 const DUMMY_ARGS = ['arg0', 'arg1', 'arg2', 'arg3', 'arg4'];
 
@@ -122,12 +124,20 @@ const JS_FALLBACK = [
     '@links.@count > 0',
     'media.@size > 0',
     'ANY media.url CONTAINS[c] $0',
-    'SUBQUERY(observations, $observation, $observation.concept.uuid = "abc").@count > 0',
 ];
 
 // ── Partial-parse queries: SQL handles some clauses, JS handles the rest ──
 const PARTIAL_PARSE = [
     'voided = false and locationMappings.@count == 0',
+];
+
+// ── SUBQUERY on embedded lists (observations) → json_each SQL ──
+const OBSERVATION_SUBQUERY_SQL = [
+    'SUBQUERY(observations, $observation, $observation.concept.uuid = "abc").@count > 0',
+    'SUBQUERY(observations, $obs, $obs.valueJSON contains "phoneNumber").@count > 0',
+    'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1" and $obs.valueJSON contains "test").@count > 0',
+    'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1").@count = 0',
+    'SUBQUERY(observations, $obs, $obs.concept.uuid = "c1" and ($obs.valueJSON contains "42" OR $obs.valueJSON contains "43")).@count > 0',
 ];
 
 // ── Queries through embedded list properties that resolve to the parent JSON column ──
@@ -137,6 +147,13 @@ const EMBEDDED_JSON_SEARCH = [
 ];
 
 describe('Query pattern validation against RealmQueryParser', () => {
+    let realmSchemaMap;
+
+    beforeAll(() => {
+        const entityMappingConfig = EntityMappingConfig.getInstance();
+        realmSchemaMap = SchemaGenerator.buildRealmSchemaMap(entityMappingConfig);
+    });
+
     describe('SQL-translatable queries', () => {
         test.each(SQL_TRANSLATABLE)('%s', (query) => {
             const result = RealmQueryParser.parse(query, DUMMY_ARGS);
@@ -168,6 +185,16 @@ describe('Query pattern validation against RealmQueryParser', () => {
         });
     });
 
+    describe('Observation SUBQUERY → json_each SQL', () => {
+        test.each(OBSERVATION_SUBQUERY_SQL)('%s', (query) => {
+            const result = RealmQueryParser.parse(query, DUMMY_ARGS, 'Individual', realmSchemaMap, 0);
+            expect(result.unsupported).toBe(false);
+            expect(result.where).toBeTruthy();
+            expect(result.where).toContain('json_each');
+            expect(result.partialParse).toBeFalsy();
+        });
+    });
+
     describe('Embedded JSON column queries (observations.valueJSON → parent JSON column)', () => {
         test.each(EMBEDDED_JSON_SEARCH)('%s', (query) => {
             const result = RealmQueryParser.parse(query, DUMMY_ARGS);
@@ -180,7 +207,7 @@ describe('Query pattern validation against RealmQueryParser', () => {
 
     it('summary', () => {
         let sqlOk = 0, jsFallback = 0, partial = 0, errors = 0;
-        const allQueries = [...SQL_TRANSLATABLE, ...JS_FALLBACK, ...PARTIAL_PARSE, ...EMBEDDED_JSON_SEARCH];
+        const allQueries = [...SQL_TRANSLATABLE, ...OBSERVATION_SUBQUERY_SQL, ...JS_FALLBACK, ...PARTIAL_PARSE, ...EMBEDDED_JSON_SEARCH];
         const failedQueries = [];
 
         for (const q of SQL_TRANSLATABLE) {
@@ -189,6 +216,14 @@ describe('Query pattern validation against RealmQueryParser', () => {
             else {
                 errors++;
                 failedQueries.push({query: q, reason: r.reason || 'unexpected fallback'});
+            }
+        }
+        for (const q of OBSERVATION_SUBQUERY_SQL) {
+            const r = RealmQueryParser.parse(q, DUMMY_ARGS, 'Individual', realmSchemaMap, 0);
+            if (!r.unsupported && !r.partialParse && r.where && r.where.includes('json_each')) sqlOk++;
+            else {
+                errors++;
+                failedQueries.push({query: q, reason: 'expected json_each SQL but got: ' + (r.reason || r.where || 'unknown')});
             }
         }
         for (const q of JS_FALLBACK) {
@@ -218,7 +253,7 @@ describe('Query pattern validation against RealmQueryParser', () => {
         }
 
         console.log('\n=== QUERY VALIDATION SUMMARY ===');
-        console.log(`SQL translated:    ${sqlOk}/${SQL_TRANSLATABLE.length}`);
+        console.log(`SQL translated:    ${sqlOk}/${SQL_TRANSLATABLE.length + OBSERVATION_SUBQUERY_SQL.length}`);
         console.log(`JS fallback:       ${jsFallback}/${JS_FALLBACK.length}`);
         console.log(`Partial (SQL+JS):  ${partial}/${PARTIAL_PARSE.length}`);
         console.log(`Total validated:   ${allQueries.length}`);
