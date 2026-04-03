@@ -85,7 +85,7 @@ class EntityHydrator {
 
             if (resolvedType === "object" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded object stored as JSON — resolve FK references within it
+                    // Embedded object stored as JSON — resolve eagerly (no DB query)
                     const jsonVal = row[snakeName];
                     const parsed = parseJsonSafe(jsonVal);
                     result[propName] = parsed != null ? this._hydrateEmbedded(parsed, objectType) : null;
@@ -96,9 +96,6 @@ class EntityHydrator {
                     if (_.isNil(fkValue)) {
                         result[propName] = null;
                     } else if (depth <= 0) {
-                        // At depth 0, resolve from caches instead of querying DB.
-                        // This provides richer objects for list items (e.g., ProgramEnrolment.program)
-                        // without additional DB queries or infinite recursion.
                         result[propName] = this._resolveCachedReference(objectType, fkValue);
                     } else {
                         result[propName] = this.resolveReference(objectType, fkValue, depth - 1);
@@ -106,7 +103,7 @@ class EntityHydrator {
                 }
             } else if (resolvedType === "list" && objectType) {
                 if (EMBEDDED_SCHEMA_NAMES.has(objectType)) {
-                    // Embedded list stored as JSON — resolve FK references within each item
+                    // Embedded list stored as JSON — resolve eagerly (no DB query)
                     const jsonVal = row[snakeName];
                     const parsed = parseJsonSafe(jsonVal) || [];
                     result[propName] = parsed.map(item => item != null ? this._hydrateEmbedded(item, objectType) : null);

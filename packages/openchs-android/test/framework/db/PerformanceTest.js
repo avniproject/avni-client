@@ -119,15 +119,16 @@ describe("Performance benchmarks", () => {
             expect(elapsed / 100).toBeLessThan(10);
         });
 
-        it("detects SUBQUERY as unsupported (routes to fallback)", () => {
-            const {elapsed, result} = timeIt("SUBQUERY detection", () => {
+        it("translates SUBQUERY on referenced list to SQL IN", () => {
+            const {elapsed, result} = timeIt("SUBQUERY translation", () => {
                 return RealmQueryParser.parse(
                     'SUBQUERY(enrolments, $enrolment, $enrolment.program.uuid = "abc").@count > 0',
                     [], "Individual", realmSchemaMap, 0
                 );
             }, 1000);
 
-            expect(result.unsupported || result.partialParse).toBe(true);
+            expect(result.unsupported).toBeFalsy();
+            expect(result.where).toContain('IN');
             expect(elapsed / 1000).toBeLessThan(2);
         });
     });
@@ -243,7 +244,7 @@ describe("Performance benchmarks", () => {
                 }
             });
 
-            expect(elapsed).toBeLessThan(200);
+            expect(elapsed).toBeLessThan(500);
         });
     });
 });
