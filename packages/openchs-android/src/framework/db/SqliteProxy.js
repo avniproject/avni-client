@@ -44,6 +44,26 @@ class SqliteProxy {
             this._executeQuery,
             {} // referenceDataCache — populated after sync
         );
+
+        // Query result cache — when active, caches hydrated entity arrays across
+        // identical queries within a dashboard refresh cycle. Keyed by SQL+params+opts.
+        this._queryCache = null;
+    }
+
+    /**
+     * Enable query result caching. Identical queries (same SQL, params, hydration
+     * options) within the same cache session return the same hydrated entities.
+     * Call before a batch of rule evaluations (e.g., dashboard card loop).
+     */
+    beginQueryCache() {
+        this._queryCache = new Map();
+    }
+
+    /**
+     * Disable query result caching and release cached entities.
+     */
+    endQueryCache() {
+        this._queryCache = null;
     }
 
     setLogQueries(value) {
@@ -136,6 +156,7 @@ class SqliteProxy {
             executeQuery: this._executeQuery,
             hydrator: this.hydrator,
             realmSchemaMap: this.realmSchemaMap,
+            queryCache: this._queryCache,
         });
         resultsProxy.setLogQueries(this.logQueries);
         return resultsProxy;
