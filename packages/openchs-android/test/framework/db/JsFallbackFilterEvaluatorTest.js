@@ -948,10 +948,55 @@ describe("JsFallbackFilterEvaluator", () => {
                 }],
                 "Individual"
             );
-            // uuid=1: enrolment.voided=false passes, nested SUBQUERY permissive → passes
+            // uuid=1: enrolment.voided=false passes, nested SUBQUERY evaluates encounters → passes
             // uuid=2: enrolment.voided=true fails → excluded
             expect(result).toHaveLength(1);
             expect(result[0].uuid).toBe("1");
+        });
+
+        it("should evaluate nested SUBQUERY on embedded list (not permissive)", () => {
+            // Simulates maternal deaths rule: nested SUBQUERY on programExitObservations
+            const entities = [
+                makeEntity({
+                    uuid: "match",
+                    enrolments: [{
+                        voided: false,
+                        program: {name: "Pregnancy"},
+                        programExitObservations: [
+                            {concept: {uuid: "death-uuid"}, valueJSON: '{"value":"death-reason"}'},
+                        ],
+                    }],
+                }),
+                makeEntity({
+                    uuid: "no-match-obs",
+                    enrolments: [{
+                        voided: false,
+                        program: {name: "Pregnancy"},
+                        programExitObservations: [
+                            {concept: {uuid: "other-uuid"}, valueJSON: '{"value":"other"}'},
+                        ],
+                    }],
+                }),
+                makeEntity({
+                    uuid: "no-match-empty",
+                    enrolments: [{
+                        voided: false,
+                        program: {name: "Pregnancy"},
+                        programExitObservations: [],
+                    }],
+                }),
+            ];
+            const result = JsFallbackFilterEvaluator.apply(
+                entities,
+                [{
+                    query: "SUBQUERY(enrolments, $enrolment, $enrolment.program.name = 'Pregnancy' and SUBQUERY($enrolment.programExitObservations, $observation, $observation.concept.uuid = 'death-uuid' and ($observation.valueJSON contains 'death-reason')).@count > 0 and $enrolment.voided = false).@count > 0",
+                    args: [],
+                }],
+                "Individual"
+            );
+            // Only "match" has programExitObservations with the right concept + value
+            expect(result).toHaveLength(1);
+            expect(result[0].uuid).toBe("match");
         });
 
         it("should handle $N parameter substitution in conditions", () => {

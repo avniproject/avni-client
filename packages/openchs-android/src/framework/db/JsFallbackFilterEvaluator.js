@@ -338,26 +338,45 @@ class JsFallbackFilterEvaluator {
      * Handles AND/OR, comparisons, string ops, null checks, $N params, nested SUBQUERY.
      */
     static _evaluateConditionString(item, conditions, varName, args) {
-        // Check for nested SUBQUERY — warn and return permissive
+        // Check for nested SUBQUERY — evaluate it recursively
         if (/SUBQUERY\s*\(/i.test(conditions)) {
-            // Try to split on top-level AND/OR and evaluate non-SUBQUERY parts
             const parts = this._splitTopLevel(conditions, "AND");
-            let allNonSubqueryPass = true;
-            let hasNonSubquery = false;
             for (const part of parts) {
-                const trimmed = part.trim();
-                if (/SUBQUERY\s*\(/i.test(trimmed)) {
-                    // Nested SUBQUERY — skip (permissive)
-                    continue;
+                let trimmed = part.trim();
+                // Strip outer parens that may wrap a SUBQUERY: (SUBQUERY(...)) → SUBQUERY(...)
+                const unwrapped = this._stripParens(trimmed);
+                if (unwrapped !== trimmed && /^SUBQUERY\s*\(/i.test(unwrapped)) {
+                    trimmed = unwrapped;
                 }
-                hasNonSubquery = true;
-                if (!this._evaluateConditionString(item, trimmed, varName, args)) {
-                    allNonSubqueryPass = false;
+                if (/^SUBQUERY\s*\(/i.test(trimmed)) {
+                    // Parse and evaluate the nested SUBQUERY against the current item
+                    const nestedParsed = this._parseSubquery(trimmed);
+                    if (!nestedParsed) {
+                        // Can't parse — permissive fallback
+                        continue;
+                    }
+                    const {listProp, varName: nestedVarName, conditions: nestedConditions, operator, count} = nestedParsed;
+                    // Resolve the list property on the current item (e.g., $enrolment.programExitObservations)
+                    const listPath = listProp.startsWith(varName + '.') ? listProp.substring(varName.length + 1) : listProp;
+                    const list = this._resolveFieldValue(item, listPath);
+                    if (!Array.isArray(list)) {
+                        if (!this._compareCount(0, operator, count)) return false;
+                        continue;
+                    }
+                    let matchCount = 0;
+                    for (const nestedItem of list) {
+                        if (this._evaluateConditionString(nestedItem, nestedConditions, nestedVarName, args)) {
+                            matchCount++;
+                        }
+                    }
+                    if (!this._compareCount(matchCount, operator, count)) return false;
+                } else {
+                    if (!this._evaluateConditionString(item, trimmed, varName, args)) {
+                        return false;
+                    }
                 }
             }
-            // If all non-SUBQUERY conditions pass (and there were some), return true
-            // If there were none (everything was SUBQUERY), return true (permissive)
-            return !hasNonSubquery || allNonSubqueryPass;
+            return true;
         }
 
         // Split on top-level OR first (lower precedence)
