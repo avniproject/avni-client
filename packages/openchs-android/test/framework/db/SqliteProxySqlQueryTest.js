@@ -282,4 +282,58 @@ describe('SqliteProxy SQL-native query API', () => {
             expect(execCount).toBe(hydratedCount);
         });
     });
+
+    // ──── execReport ────
+
+    describe('execReport', () => {
+        it('returns primaryValue and lineListFunction', () => {
+            const result = proxy.execReport(
+                'SELECT COUNT(*) FROM individual WHERE voided = 0', [],
+                'SELECT uuid FROM individual WHERE voided = 0', [],
+                'Individual'
+            );
+            expect(result.primaryValue).toBe(9);
+            expect(typeof result.lineListFunction).toBe('function');
+        });
+
+        it('lineListFunction returns hydrated entities', () => {
+            const result = proxy.execReport(
+                'SELECT COUNT(*) FROM individual WHERE voided = 0', [],
+                'SELECT uuid FROM individual WHERE voided = 0', [],
+                'Individual'
+            );
+            const entities = result.lineListFunction();
+            expect(entities.length).toBe(9);
+            // Entities should have properties accessible (hydrated at depth 1)
+            expect(entities[0].uuid).toBeDefined();
+        });
+
+        it('lineListFunction returns empty array for zero count', () => {
+            const result = proxy.execReport(
+                "SELECT COUNT(*) FROM individual WHERE first_name = 'nobody'", [],
+                "SELECT uuid FROM individual WHERE first_name = 'nobody'", [],
+                'Individual'
+            );
+            expect(result.primaryValue).toBe(0);
+            expect(result.lineListFunction()).toEqual([]);
+        });
+
+        it('count matches lineListFunction length', () => {
+            const countSql = `
+                SELECT COUNT(DISTINCT pe.individual_uuid)
+                FROM program_enrolment pe
+                JOIN program p ON p.uuid = pe.program_uuid
+                WHERE p.name = 'Child' AND pe.voided = 0 AND pe.program_exit_date_time IS NULL
+            `;
+            const listSql = `
+                SELECT DISTINCT pe.individual_uuid AS uuid
+                FROM program_enrolment pe
+                JOIN program p ON p.uuid = pe.program_uuid
+                WHERE p.name = 'Child' AND pe.voided = 0 AND pe.program_exit_date_time IS NULL
+            `;
+            const result = proxy.execReport(countSql, [], listSql, [], 'Individual');
+            const entities = result.lineListFunction();
+            expect(result.primaryValue).toBe(entities.length);
+        });
+    });
 });
