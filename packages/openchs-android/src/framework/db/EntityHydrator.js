@@ -13,6 +13,7 @@ import _ from "lodash";
 import {Individual} from "openchs-models";
 import {EMBEDDED_SCHEMA_NAMES} from "./SchemaGenerator";
 import {camelToSnake, schemaNameToTableName, normalizeRealmType} from "./SqliteUtils";
+import General from "../../utility/General";
 
 // Dummy UUIDs used as placeholders in models — must be NULLified before INSERT
 // to avoid FK violations (these entities don't exist in the database).
@@ -394,13 +395,13 @@ class EntityHydrator {
         if (tFkEnd - tFkStart > 500) {
             const fkBreakdown = fkPreloadEntries.map(e => `${e.schema}=${e.loaded}/${e.total}uuids/${e.ms}ms`).join(', ');
             profileEntries.push({list: `fkRefs`, rows: fkPreloadEntries.reduce((s, e) => s + e.loaded, 0), ms: tFkEnd - tFkStart});
-            console.warn(`[HydrationProfile] batchPreloadFKs ${schemaName}: ${fkBreakdown} | total=${tFkEnd - tFkStart}ms`);
+            General.logDebug("HydrationProfile", ` batchPreloadFKs ${schemaName}: ${fkBreakdown} | total=${tFkEnd - tFkStart}ms`);
         }
 
         const totalMs = Date.now() - profileStart;
         if (totalMs > 2000) {
             const breakdown = profileEntries.map(e => `${e.list}=${e.rows}rows/${e.ms}ms`).join(', ');
-            console.warn(`[HydrationProfile] batchPreload ${schemaName} (${uniqueUuids.length} parents): ${breakdown} | total=${totalMs}ms`);
+            General.logDebug("HydrationProfile", ` batchPreload ${schemaName} (${uniqueUuids.length} parents): ${breakdown} | total=${totalMs}ms`);
         }
     }
 
@@ -555,7 +556,7 @@ class EntityHydrator {
             // Log profile counters if significant work was done
             const c = this._profileCounters;
             if (c && (c.resolveRefCalls > 100 || c.resolveListHydrations > 100)) {
-                console.warn(`[HydrationProfile] session: refCalls=${c.resolveRefCalls} (db=${c.resolveRefDbQueries}, cache=${c.resolveRefCacheHits}), embedded=${c.hydrateEmbeddedCalls}, lists=${c.resolveListCalls} (childHydrations=${c.resolveListHydrations}), jsonParse=${c.jsonParseCalls}/${c.jsonParseMs}ms`);
+                General.logDebug("HydrationProfile", ` session: refCalls=${c.resolveRefCalls} (db=${c.resolveRefDbQueries}, cache=${c.resolveRefCacheHits}), embedded=${c.hydrateEmbeddedCalls}, lists=${c.resolveListCalls} (childHydrations=${c.resolveListHydrations}), jsonParse=${c.jsonParseCalls}/${c.jsonParseMs}ms`);
             }
             this._hydrationCache = null;
             this._listBatchCache = null;
