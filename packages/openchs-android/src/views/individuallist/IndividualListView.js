@@ -46,6 +46,11 @@ class IndividualListView extends AbstractComponent {
     onViewDidMount() {
         if (this.props.results.length > 0) {
             this._initBatch();
+        } else {
+            this.setState({listReady: true});
+            if (this.props.indicatorActionName) {
+                this.dispatchAction(this.props.indicatorActionName, {loading: false});
+            }
         }
     }
 
