@@ -17,6 +17,7 @@ import _ from "lodash";
 import RealmQueryParser from "./RealmQueryParser";
 import {camelToSnake, schemaNameToTableName} from "./SqliteUtils";
 import JsFallbackFilterEvaluator from "./JsFallbackFilterEvaluator";
+import General from "../../utility/General";
 
 const SqliteResultsProxyHandler = {
     get: function (target, name, receiver) {
@@ -311,7 +312,7 @@ class SqliteResultsProxy {
             const cached = this._queryCache.get(cacheKey);
             this._rows = cached.rows;
             this._entities = [...cached.entities]; // shallow copy so JS filters don't mutate cache
-            console.warn(`[HydrationProfile] CACHE HIT ${this.schemaName} (${this._entities.length} entities)`);
+            General.logDebug("HydrationProfile", ` CACHE HIT ${this.schemaName} (${this._entities.length} entities)`);
             // Still apply JS fallback filters on the copy
             if (this.jsFallbackFilters.length > 0) {
                 this._entities = JsFallbackFilterEvaluator.apply(
@@ -350,7 +351,7 @@ class SqliteResultsProxy {
 
                 const total = tHydrate - t0;
                 if (total > 2000 && this._rows.length > 0) {
-                    console.warn(`[HydrationProfile] ${this.schemaName} (${this._rows.length} rows, depth=${opts.depth}, skipLists=${opts.skipLists}): query=${tQuery - t0}ms, preload=${tPreload - tQuery}ms, hydrate=${tHydrate - tPreload}ms, total=${total}ms`);
+                    General.logDebug("HydrationProfile", ` ${this.schemaName} (${this._rows.length} rows, depth=${opts.depth}, skipLists=${opts.skipLists}): query=${tQuery - t0}ms, preload=${tPreload - tQuery}ms, hydrate=${tHydrate - tPreload}ms, total=${total}ms`);
                 }
             } finally {
                 this.hydrator.endHydrationSession();
@@ -374,7 +375,7 @@ class SqliteResultsProxy {
             const tFallbackEnd = Date.now();
 
             if (tFallbackEnd - tFallbackStart > 1000) {
-                console.warn(`[HydrationProfile] ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
+                General.logDebug("HydrationProfile", ` ${this.schemaName} JS fallback: ${tFallbackEnd - tFallbackStart}ms (${this.jsFallbackFilters.map(f => f.query?.substring(0, 60)).join('; ')})`);
             }
 
             // Apply limit after JS fallback (LIMIT was not in SQL because
