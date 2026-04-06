@@ -260,6 +260,51 @@ class SqliteProxy {
         }
     }
 
+    /**
+     * Execute a report card query: returns {primaryValue, lineListFunction}.
+     * Count executes immediately via SQL. Line list is deferred — only hydrates
+     * when the user taps the card.
+     *
+     * @param {string} countSql - SQL that returns a COUNT (e.g., "SELECT COUNT(*) FROM ...")
+     * @param {Array} countParams - params for countSql
+     * @param {string} listSql - SQL that returns uuid column (e.g., "SELECT i.uuid FROM ...")
+     * @param {Array} listParams - params for listSql
+     * @param {string} schemaName - Realm schema name for hydration (e.g., "Individual")
+     * @returns {{primaryValue: number, lineListFunction: Function}}
+     */
+    execReport(countSql, countParams, listSql, listParams, schemaName) {
+        const count = this.execCount(countSql, countParams);
+        const self = this;
+        return {
+            primaryValue: count,
+            lineListFunction: () => {
+                const uuids = self.execQuery(listSql, listParams).map(r => {
+                    const keys = Object.keys(r);
+                    return r.uuid || r[keys[0]];
+                });
+                if (uuids.length === 0) return [];
+                const CHUNK = 500;
+                if (uuids.length <= CHUNK) {
+                    const inClause = uuids.map(u => `"${u}"`).join(',');
+                    return self.objects(schemaName)
+                        .filtered(`uuid IN {${inClause}}`)
+                        .withHydration({skipLists: true, depth: 1});
+                }
+                // For large result sets, chunk the IN clause to avoid SQLite limits
+                let results = [];
+                for (let i = 0; i < uuids.length; i += CHUNK) {
+                    const chunk = uuids.slice(i, i + CHUNK);
+                    const inClause = chunk.map(u => `"${u}"`).join(',');
+                    const batch = self.objects(schemaName)
+                        .filtered(`uuid IN {${inClause}}`)
+                        .withHydration({skipLists: true, depth: 1});
+                    results.push(...batch);
+                }
+                return results;
+            }
+        };
+    }
+
     // ──── Entity CRUD operations ────
 
     /**
