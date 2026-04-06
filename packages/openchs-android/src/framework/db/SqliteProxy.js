@@ -162,6 +162,106 @@ class SqliteProxy {
         return resultsProxy;
     }
 
+    // ──── SQL-native query API (available to all rules via params.db) ────
+    // All methods prefixed with "exec" to distinguish from the Realm-compatible API.
+    // Usage in rules: if (params.db.isSqlite) { params.db.execQuery(...) }
+
+    /**
+     * Execute a raw SQL SELECT query and return plain row objects.
+     * No entity hydration — returns flat objects with snake_case column names.
+     * Only SELECT statements are allowed (prevents mutations from eval'd rules).
+     *
+     * @param {string} sql - SQL SELECT statement with ? placeholders
+     * @param {Array} params - parameter values for ? placeholders
+     * @returns {Array<Object>} - array of plain row objects
+     */
+    execQuery(sql, params = []) {
+        const trimmed = sql.trim();
+        if (!/^SELECT\b/i.test(trimmed)) {
+            throw new Error('SqliteProxy.execQuery: Only SELECT statements are allowed');
+        }
+        return this._executeQuery(sql, params);
+    }
+
+    /**
+     * Execute a SQL COUNT query and return the count as a number.
+     * Convenience wrapper around execQuery for the common count pattern.
+     *
+     * @param {string} sql - SQL SELECT COUNT(*) statement
+     * @param {Array} params - parameter values
+     * @returns {number}
+     */
+    execCount(sql, params = []) {
+        const rows = this.execQuery(sql, params);
+        if (!rows || rows.length === 0) return 0;
+        const firstRow = rows[0];
+        const keys = Object.keys(firstRow);
+        return Number(firstRow[keys[0]]) || 0;
+    }
+
+    /**
+     * Count entities in a schema with an optional SQL WHERE clause.
+     * Translates schema name to table name automatically.
+     *
+     * @param {string} schemaName - Realm schema name (e.g., "Individual")
+     * @param {string} whereSql - SQL WHERE clause fragment (without "WHERE"), or empty
+     * @param {Array} params - parameter values for ? placeholders
+     * @returns {number}
+     */
+    execCountEntities(schemaName, whereSql = '', params = []) {
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta) {
+            throw new Error(`SqliteProxy.execCountEntities: No table metadata for "${schemaName}"`);
+        }
+        const where = whereSql.trim() ? ` WHERE ${whereSql}` : '';
+        const sql = `SELECT COUNT(*) AS cnt FROM ${tableMeta.tableName}${where}`;
+        const rows = this._executeQuery(sql, params);
+        return (rows && rows.length > 0) ? Number(rows[0].cnt) || 0 : 0;
+    }
+
+    /**
+     * Look up an observation value from a JSON observations column.
+     * Uses json_each() to search by concept UUID or name without hydration.
+     *
+     * @param {string} schemaName - Schema with observations column (e.g., "ProgramEnrolment")
+     * @param {string} entityUuid - UUID of the entity row
+     * @param {string} conceptNameOrUuid - concept name or UUID to find
+     * @returns {*} parsed observation answer value, or null if not found
+     */
+    execFindObservationValue(schemaName, entityUuid, conceptNameOrUuid) {
+        const tableMeta = this.tableMetaMap.get(schemaName);
+        if (!tableMeta) {
+            throw new Error(`SqliteProxy.execFindObservationValue: No table for "${schemaName}"`);
+        }
+        // Try as UUID first, then resolve name via concept table
+        let conceptUuid = conceptNameOrUuid;
+        const conceptRows = this._executeQuery(
+            'SELECT "uuid" FROM concept WHERE "uuid" = ? OR "name" = ? LIMIT 1',
+            [conceptNameOrUuid, conceptNameOrUuid]
+        );
+        if (conceptRows && conceptRows.length > 0) {
+            conceptUuid = conceptRows[0].uuid;
+        }
+        const sql = `
+            SELECT json_extract(obs.value, '$.valueJSON') AS value_json
+            FROM ${tableMeta.tableName} AS t0,
+                 json_each(t0."observations") AS obs
+            WHERE t0."uuid" = ?
+              AND json_extract(obs.value, '$.concept.uuid') = ?
+            LIMIT 1
+        `;
+        const rows = this._executeQuery(sql, [entityUuid, conceptUuid]);
+        if (!rows || rows.length === 0) return null;
+        try {
+            const parsed = JSON.parse(rows[0].value_json);
+            return parsed.answer !== undefined ? parsed.answer : parsed;
+        } catch (e) {
+            return rows[0].value_json;
+        }
+    }
+
+    // ──── Entity CRUD operations ────
+
     /**
      * Create or update an entity in the database.
      *
