@@ -123,6 +123,10 @@ make get_sqlite_db             # SQLite → ../db/avni_sqlite.db
 | `make clean_packager_cache` | Clear Metro/watchman caches |
 | `make renew_env` | Full clean + fresh dependency install |
 
+## Workflow
+
+- **Do not commit eagerly.** Wait for the user to test changes on-device and confirm correctness before creating commits. Only commit when explicitly asked.
+
 ## Key Technical Details
 
 - React Native 0.77.3, React 18.3.1
