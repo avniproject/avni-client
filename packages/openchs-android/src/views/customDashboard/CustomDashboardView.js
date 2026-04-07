@@ -287,11 +287,15 @@ class CustomDashboardView extends AbstractComponent {
                     reportFilters: reportFilters
                 }).to(TaskListView);
             },
-            onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard) => TypedTransition.from(this).with({
+            onShowSubjectAction: (individual) => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
+            },
+            onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => TypedTransition.from(this).with({
                 reportFilters: reportFilters,
                 approvalStatus_status: approvalStatus_status,
                 indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: _.truncate(reportCard.name, {'length': 30}) || status,
+                headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}) || status,
                 results: results,
                 totalSearchResultsCount: results.length,
                 reportCardUUID,

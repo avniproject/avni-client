@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from "lodash";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
@@ -6,7 +6,7 @@ import {ReportCard} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
-import MessageService from '../../service/MessageService';
+import MessageService from "../../service/MessageService";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import UserInfoService from "../../service/UserInfoService";
 
@@ -130,10 +130,18 @@ class CustomDashboardActions {
 
             const standardReportCardType = reportCard.standardReportCardType;
             const viewName = getViewName(standardReportCardType);
+            const countResult = state.cardToCountResultMap[itemKey];
+            const displayName = (countResult && countResult.cardName) || reportCard.name;
             if (!_.isNil(result)) {
-                General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
-                setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                    standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard), 0);
+                const singleSubject = result.length === 1 ? (result[0].individual || result[0]) : null;
+                if (singleSubject && singleSubject.uuid) {
+                    General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
+                    setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
+                } else {
+                    General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
+                    setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
+                        standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                }
             }
         }
         General.logDebug('CustomDashboardActions', `onCardPress completed for ${reportCard.name}, total time: ${new Date() - cardPressStartTime} ms`);
