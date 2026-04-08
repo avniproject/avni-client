@@ -171,7 +171,9 @@ class CustomDashboardActions {
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             if (!_.isNil(result)) {
                 if (reportCard.isActionDoVisit()) {
-                    let doVisitResult = result.map(item => item.individual || item).filter(ind => ind && ind.uuid);
+                    let doVisitResult = result.map(item => item.individual || item)
+                        .filter(ind => ind && ind.uuid)
+                        .filter(ind => getEnrolmentOrIndividual(ind, reportCard));
                     if (reportCard.isScheduledVisitType()) {
                         const actionEncounterType = reportCard.actionDetailEncounterType;
                         doVisitResult = doVisitResult.filter(ind => {
