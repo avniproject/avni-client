@@ -249,7 +249,7 @@ class Observations extends AbstractComponent {
     }
 
     observationTable(groupUUID, groupName, observations, groupStyles, quickFormEdit) {
-        const initialFlex = quickFormEdit ? 1 : 0.9;
+        const initialFlex = quickFormEdit ? 0.85 : 0.9;
         return <View style={{flexDirection: 'column'}} key={groupUUID}>
             <View style={[{
                 flexDirection: 'row',
@@ -258,11 +258,11 @@ class Observations extends AbstractComponent {
                 padding: 4,
                 backgroundColor: 'rgba(0, 0, 0, 0.12)'
             }, this.styles.observationRow, this.styles.observationColumn, groupStyles]}>
-                <View style={{flex: initialFlex, flexWrap: 'wrap'}}>
-                    <Text style={[{fontWeight: 'bold'}, groupStyles]}>{this.I18n.t(groupName)}</Text>
+                <View style={{flex: initialFlex}}>
+                    <Text style={[{fontWeight: 'bold'}, groupStyles]} numberOfLines={2} ellipsizeMode="tail">{this.I18n.t(groupName)}</Text>
                 </View>
                 {groupUUID && quickFormEdit &&
-                <View style={{flex: 0.1, minWidth: 5}}>
+                <View style={{flex: 0.15, minWidth: 5}}>
                     <TouchableOpacity
                         onPress={() => this.onFEGEdit(groupUUID)}>
                         <Text style={{color: Colors.ActionButtonColor,}}>{this.I18n.t('edit')}</Text>
