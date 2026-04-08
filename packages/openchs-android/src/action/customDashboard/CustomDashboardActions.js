@@ -2,13 +2,50 @@ import _ from "lodash";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard} from "openchs-models";
+import {ReportCard, Encounter, ProgramEncounter} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import MessageService from "../../service/MessageService";
 import CustomDashboardCacheService from "../../service/CustomDashboardCacheService";
 import UserInfoService from "../../service/UserInfoService";
+import Colors from "../../views/primitives/Colors";
+
+function findScheduledEncounters(enrolmentOrIndividual, encounterType) {
+    return _.filter(enrolmentOrIndividual.encounters, enc =>
+        !enc.voided && enc.encounterType.uuid === encounterType.uuid &&
+        !_.isNil(enc.earliestVisitDateTime) && _.isNil(enc.encounterDateTime) && _.isNil(enc.cancelDateTime));
+}
+
+function getEnrolmentOrIndividual(individual, reportCard) {
+    const actionProgram = reportCard.actionDetailProgram;
+    if (actionProgram) {
+        return _.find(individual.enrolments, e => !e.voided && e.program.uuid === actionProgram.uuid);
+    }
+    return individual;
+}
+
+function findOrCreateEncounter(enrolmentOrIndividual, individual, actionEncounterType, isScheduled) {
+    if (!enrolmentOrIndividual) return null;
+    if (isScheduled) {
+        const scheduled = findScheduledEncounters(enrolmentOrIndividual, actionEncounterType);
+        return scheduled.length > 0 ? scheduled[0] : null;
+    }
+    const isProgramEncounter = enrolmentOrIndividual.uuid !== individual.uuid;
+    return isProgramEncounter
+        ? ProgramEncounter.createScheduled(actionEncounterType, enrolmentOrIndividual)
+        : Encounter.createScheduled(actionEncounterType, enrolmentOrIndividual);
+}
+
+function buildVisitInfo(individual, encounter, actionEncounterType) {
+    const visitName = encounter
+        ? [{visit: [actionEncounterType.name], encounter: encounter, color: Colors.AccentColor}]
+        : [];
+    return {
+        individual: individual,
+        visitInfo: {uuid: individual.uuid, visitName: visitName, sortingBy: encounter ? encounter.earliestVisitDateTime : null}
+    };
+}
 
 function getReportsCards(dashboardUUID, context) {
     return context.get(DashboardSectionCardMappingService).getAllCardsForDashboard(dashboardUUID);
@@ -133,14 +170,42 @@ class CustomDashboardActions {
             const countResult = state.cardToCountResultMap[itemKey];
             const displayName = (countResult && countResult.cardName) || reportCard.name;
             if (!_.isNil(result)) {
-                const singleSubject = result.length === 1 ? (result[0].individual || result[0]) : null;
-                if (singleSubject && singleSubject.uuid) {
-                    General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
-                    setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
+                if (reportCard.isActionDoVisit()) {
+                    let doVisitResult = result.map(item => item.individual || item).filter(ind => ind && ind.uuid);
+                    if (reportCard.isScheduledVisitType()) {
+                        const actionEncounterType = reportCard.actionDetailEncounterType;
+                        doVisitResult = doVisitResult.filter(ind => {
+                            const enrolmentOrIndividual = getEnrolmentOrIndividual(ind, reportCard);
+                            return enrolmentOrIndividual && findScheduledEncounters(enrolmentOrIndividual, actionEncounterType).length > 0;
+                        });
+                    }
+                    if (doVisitResult.length === 1) {
+                        General.logDebug('CustomDashboardActions', `onCardPress - Single subject with DoVisit, navigating to encounter form`);
+                        setTimeout(() => action.onDoVisitAction(doVisitResult[0], reportCard), 0);
+                    } else if (doVisitResult.length > 0) {
+                        General.logDebug('CustomDashboardActions', `onCardPress - Multiple subjects with DoVisit, showing list`);
+                        const actionEncounterType = reportCard.actionDetailEncounterType;
+                        const isScheduled = reportCard.isScheduledVisitType();
+                        const doVisitListResult = doVisitResult.map(ind => {
+                            const enrolmentOrIndividual = getEnrolmentOrIndividual(ind, reportCard);
+                            const encounter = findOrCreateEncounter(enrolmentOrIndividual, ind, actionEncounterType, isScheduled);
+                            return buildVisitInfo(ind, encounter, actionEncounterType);
+                        });
+                        setTimeout(() => action.onDoVisitListResults(doVisitListResult, reportCard, displayName), 0);
+                    } else {
+                        General.logDebug('CustomDashboardActions', `onCardPress - DoVisit: no matching subjects found`);
+                        setTimeout(() => action.onDismissLoading(), 0);
+                    }
                 } else {
-                    General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
-                    setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
-                        standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                    const singleSubject = result.length === 1 ? (result[0].individual || result[0]) : null;
+                    if (singleSubject && singleSubject.uuid) {
+                        General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
+                        setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
+                    } else {
+                        General.logDebug('CustomDashboardActions', `onCardPress - Setting timeout for navigation to ${viewName}`);
+                        setTimeout(() => action.onCustomRecordCardResults(result, status, viewName,
+                            standardReportCardType && standardReportCardType.getApprovalStatusForType(), ruleInputArray, reportCard, displayName), 0);
+                    }
                 }
             }
         }
