@@ -473,9 +473,26 @@ class EntityHydrator {
             collectFksFromSchema(childSchemaName, allChildRows);
         }
 
-        // Batch-fetch each target schema
+        // Batch-fetch each target schema. Skip schemas that are already batch-
+        // preloaded as children in _listBatchCache — they will be hydrated at a
+        // deeper depth during the parent's main hydration. Caching them here at
+        // depth 0 would pollute the session cache with shallow stubs that lack
+        // list properties (e.g., FormElementGroup without formElements), causing
+        // back-references from child entities to find the stub instead of the
+        // properly-hydrated version.
+        const batchPreloadedSchemas = new Set();
+        if (this._listBatchCache) {
+            for (const cacheKey of this._listBatchCache.keys()) {
+                batchPreloadedSchemas.add(cacheKey.split(':')[0]);
+            }
+        }
+
         const profileEntries = [];
         for (const [targetSchema, uuidSet] of fkTargets.entries()) {
+            // Skip if this schema is already being batch-loaded as part of the
+            // current preload chain — it will get hydrated deeper later.
+            if (batchPreloadedSchemas.has(targetSchema)) continue;
+
             const tableMeta = this.tableMetaMap.get(targetSchema);
             if (!tableMeta) continue;
 
@@ -493,9 +510,11 @@ class EntityHydrator {
                 if (rows) {
                     for (const row of rows) {
                         if (row.uuid) {
-                            // Hydrate at depth 0 (scalars + cached refs only) and cache
-                            const hydrated = this.hydrate(targetSchema, row, {depth: 0, skipLists: true});
-                            this._hydrationCache.set(`${targetSchema}:${row.uuid}`, hydrated);
+                            const cacheKey = `${targetSchema}:${row.uuid}`;
+                            if (!this._hydrationCache.has(cacheKey)) {
+                                const hydrated = this.hydrate(targetSchema, row, {depth: 0, skipLists: true});
+                                this._hydrationCache.set(cacheKey, hydrated);
+                            }
                         }
                     }
                 }

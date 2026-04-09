@@ -40,9 +40,20 @@ class RepositoryFactory {
     }
 
     updateDatabase(db) {
+        const wasSqlite = this._isSqlite;
         this.db = db;
+        this._isSqlite = !!db.isSqlite;
         this._transactionManager.updateDatabase(db);
-        this._cache.forEach(repository => repository.updateDatabase(db));
+
+        if (wasSqlite !== this._isSqlite) {
+            // Backend type changed (Realm ↔ SQLite). Cached repositories were
+            // created for the old backend type and can't be reused — clear the
+            // cache so getRepository() creates the right type on next access.
+            this._cache.clear();
+            this._registerPilotRepositories(db);
+        } else {
+            this._cache.forEach(repository => repository.updateDatabase(db));
+        }
     }
 }
 
