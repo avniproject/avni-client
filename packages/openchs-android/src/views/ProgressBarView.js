@@ -18,6 +18,7 @@ class ProgressBarView extends AbstractComponent {
         message: PropTypes.string,
         syncing: PropTypes.bool.isRequired,
         notifyUserOnCompletion: PropTypes.bool.isRequired,
+        showOkButton: PropTypes.bool,
         currentPageNumber: PropTypes.number,
         totalNumberOfPages: PropTypes.number
     };
@@ -79,20 +80,8 @@ class ProgressBarView extends AbstractComponent {
                     <View style={this.syncBackground}>
                         <View style={{flex: .9}}>
                             <View>
-                                {this.props.progress < 1 ?
+                                {this.props.showOkButton ?
                                     (<View>
-                                        <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
-                                            {_.isNil(this.props.message) ? this.I18n.t("doingNothing") : displayMessage}
-                                        </Text>
-                                        <ProgressBar styleAttr="Horizontal" progress={this.props.progress}
-                                                            indeterminate={false} color="white"/>
-                                        <Text
-                                            style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
-                                            {((this.props.progress) * 100).toFixed(0)}%
-                                        </Text>
-                                    </View>)
-                                    :
-                                    (this.props.notifyUserOnCompletion ? <View>
                                         <View style={this.container}>
                                             <Text
                                                 style={[Fonts.typography("paperFontSubhead"), {color: Colors.TextOnPrimaryColor}]}>
@@ -106,7 +95,19 @@ class ProgressBarView extends AbstractComponent {
                                                 color={Colors.ActionButtonColor}
                                                 onPress={() => this.props.onPress()}/>
                                         </View>
-                                    </View> : <View/>)}
+                                    </View>)
+                                    :
+                                    (<View>
+                                        <Text style={[this.syncTextContent, Fonts.typography("paperFontSubhead")]}>
+                                            {_.isNil(this.props.message) ? this.I18n.t("doingNothing") : displayMessage}
+                                        </Text>
+                                        <ProgressBar styleAttr="Horizontal" progress={this.props.progress}
+                                                            indeterminate={false} color="white"/>
+                                        <Text
+                                            style={[this.percentageText, {textAlign: 'center'}, Fonts.typography("paperFontSubhead")]}>
+                                            {((this.props.progress) * 100).toFixed(0)}%
+                                        </Text>
+                                    </View>)}
                             </View>
                         </View>
                     </View>
