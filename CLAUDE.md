@@ -101,7 +101,7 @@ node packages/openchs-android/src/utility/compareRealmAndSqlite.js ../db/default
 
 To pull both databases from device:
 ```
-make get_db                    # Realm → ../db/default.realm
+make get_db_force              # Realm → ../db/default.realm
 make get_sqlite_db             # SQLite → ../db/avni_sqlite.db
 ```
 
