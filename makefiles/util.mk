@@ -1,3 +1,22 @@
+# Board card movement: make pickup issue=1866  |  make done issue=1861 1862
+# Actions: pickup, done, review, cr-comments, qa-ready, or any status slug
+board:
+ifndef action
+	@echo "Usage: make board action=<action> issue=<num> [issue2=<num> ...]"
+	@echo "Actions: pickup | done | review | cr-comments | qa-ready | <status-slug>"
+	exit 1
+else
+	./scripts/board.sh $(action) $(issue) $(issue2) $(issue3) $(issue4) $(issue5) $(issue6)
+endif
+
+pickup:
+ifndef issue
+	@echo "Usage: make pickup issue=<num> [issue2=<num> ...]"
+	exit 1
+else
+	./scripts/board.sh pickup $(issue) $(issue2) $(issue3) $(issue4) $(issue5) $(issue6)
+endif
+
 open-ci-page:
 	open https://app.circleci.com/pipelines/github/avniproject/avni-client
 

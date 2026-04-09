@@ -93,6 +93,32 @@ Must be run from the repo root so that the `realm` module resolves correctly.
 | `make clean_packager_cache` | Clear Metro/watchman caches |
 | `make renew_env` | Full clean + fresh dependency install |
 
+## GitHub Board
+
+Board: https://github.com/orgs/avniproject/projects/2 (Avni Product, project #2)
+
+Move cards with `scripts/board.sh <action> <issue> [issue2 ...]`. When the user says things like "pickup 1866" or "mark 1861 as done", use this script.
+
+| Action | Transition |
+|---|---|
+| `pickup` | Ready → In Progress |
+| `submit` | In Progress → Code Review Ready |
+| `review` | Code Review Ready → In Code Review |
+| `cr-comments` | In Code Review → Code Review with Comments |
+| `qa-ready` | In Code Review → QA Ready |
+| `done` | → Done |
+
+Any status slug works directly too (e.g. `qa-failed`, `hold`, `in-qa`).
+
+Multiple issues: `./scripts/board.sh pickup 1861 1862 1863`
+
+Requires `project` scope on the gh token — if the mutation fails with a scope error, ask the user to run `gh auth refresh -s project`.
+
+## Workflow
+
+- **Do not commit eagerly.** Wait for the user to test changes on-device and confirm correctness before creating commits. Only commit when explicitly asked.
+- **Commit message format:** `#<card-number> | One-line summary`, followed by optional details. Always ask for the card number if not clear from context.
+- **Always ask before pushing.** Never push to remote without explicit confirmation.
 ## Key Technical Details
 
 - React Native 0.77.3, React 18.3.1
