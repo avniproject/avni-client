@@ -3,7 +3,9 @@ import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
 import General from "./utility/General";
 
-const USE_SQLITE = false;
+// Backend constants — duplicated from SqliteMigrationService to avoid a circular import
+// (GlobalContext is loaded before any @Service module due to the @Service decorator).
+const BACKENDS = {REALM: 'realm', SQLITE: 'sqlite'};
 
 let singleton;
 
@@ -13,6 +15,7 @@ class GlobalContext {
     beanRegistry;
     routes;
     reduxStore;
+    _activeBackend;
 
     static getInstance() {
         if (_.isNil(singleton)) {
@@ -42,8 +45,29 @@ class GlobalContext {
             General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
         }
 
-        // RepositoryFactory and services use the active backend
-        const activeDb = USE_SQLITE ? this.sqliteDb : this.db;
+        // Read persisted active backend from migration state. The username is not yet
+        // available (services not initialised), so we read with a null username key —
+        // this returns the default ('realm') unless we previously stored a global override.
+        // After services initialise, SqliteMigrationService.resumeIfPending() will
+        // re-read with the actual username and trigger a backend switch if needed.
+        // Inlined AsyncStorage read to avoid a circular import with SqliteMigrationService.
+        let initialBackend = BACKENDS.REALM;
+        try {
+            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+            const raw = await AsyncStorage.getItem('avni.sqliteMigration.unknown');
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && parsed.activeBackend === BACKENDS.SQLITE) {
+                    initialBackend = BACKENDS.SQLITE;
+                }
+            }
+        } catch (e) {
+            General.logWarn("GlobalContext", `Failed to read persisted backend: ${e.message}`);
+        }
+        this._activeBackend = (initialBackend === BACKENDS.SQLITE && this.sqliteDb)
+            ? BACKENDS.SQLITE : BACKENDS.REALM;
+        const activeDb = this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
+        General.logInfo("GlobalContext", `Initialising bean registry with activeBackend=${this._activeBackend}`);
         this.beanRegistry.init(activeDb);
 
         // Runtime validation: Verify critical services are registered
@@ -72,6 +96,39 @@ class GlobalContext {
         restoreRealmService.subscribeOnRestore(async () => await this.onDatabaseRecreated(realmFactory));
         restoreRealmService.subscribeOnRestoreFailure(async () => await this.reinitializeDatabase(realmFactory));
         await initAnalytics(this.db);
+
+        // After services are wired up, if a migration was interrupted previously,
+        // resume it. Fire-and-forget — failures are reported by the migration service itself.
+        try {
+            const migrationService = this.beanRegistry.getService('sqliteMigrationService');
+            if (migrationService) {
+                Promise.resolve(migrationService.resumeIfPending()).catch(e => {
+                    General.logError("GlobalContext", `resumeIfPending failed: ${e.message}`);
+                });
+            }
+        } catch (e) {
+            General.logError("GlobalContext", `Failed to start migration resume: ${e.message}`);
+        }
+    }
+
+    /**
+     * Switch the active backend at runtime. Used by SqliteMigrationService when
+     * a user is added to or removed from the SQLite Migration server group.
+     * Source backend is left intact (not closed) so failed migrations can fall back.
+     */
+    switchBackend(targetBackend) {
+        if (targetBackend === this._activeBackend) return;
+        if (targetBackend === BACKENDS.SQLITE && !this.sqliteDb) {
+            throw new Error("Cannot switch to SQLite — sqliteDb not initialised");
+        }
+        const targetDb = targetBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
+        General.logInfo("GlobalContext", `Switching backend ${this._activeBackend} → ${targetBackend}`);
+        this.beanRegistry.updateDatabase(targetDb);
+        this._activeBackend = targetBackend;
+    }
+
+    getActiveBackend() {
+        return this._activeBackend;
     }
 
     async onDatabaseRecreated(realmFactory) {
@@ -98,7 +155,8 @@ class GlobalContext {
             General.logWarn("GlobalContext", `SQLite reinit skipped: ${e.message}`);
         }
 
-        const activeDb = USE_SQLITE ? this.sqliteDb : this.db;
+        // Re-apply the previously active backend choice (preserved across re-init)
+        const activeDb = (this._activeBackend === BACKENDS.SQLITE && this.sqliteDb) ? this.sqliteDb : this.db;
         this.beanRegistry.updateDatabase(activeDb);
     }
 }

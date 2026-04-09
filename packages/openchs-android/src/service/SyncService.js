@@ -523,6 +523,25 @@ class SyncService extends BaseService {
         }
     }
 
+    /**
+     * Check if a SQLite backend migration is needed and run it to completion.
+     * Awaited from the SyncComponent's post-sync handler so the user sees a
+     * continuous sync experience instead of a stale dashboard while the migration
+     * sync runs in the background. The migration service has its own re-entrancy
+     * guard so concurrent calls are safe.
+     */
+    async checkAndRunSqliteMigration() {
+        try {
+            const migrationService = this.getService('sqliteMigrationService');
+            if (!migrationService) return;
+            await migrationService.checkAndMaybeMigrate();
+        } catch (e) {
+            General.logError("SyncService", `Sqlite migration check failed: ${e.message}`);
+            // Don't rethrow — the migration service has reported the failure via
+            // Bugsnag and logs. Surfacing it here would break the sync UI flow.
+        }
+    }
+
     _disableForeignKeysIfSqlite() {
         if (!this.db.isSqlite) return;
         this.db._executeRaw("PRAGMA foreign_keys = OFF");

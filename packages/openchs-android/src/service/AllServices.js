@@ -67,6 +67,7 @@ import './ResetSyncService';
 import './RuleEvaluationService';
 import './RuleService';
 import './SettingsService';
+import './SqliteMigrationService';
 import './SubjectMigrationService';
 import './SubjectTypeService';
 import './SyncService';
