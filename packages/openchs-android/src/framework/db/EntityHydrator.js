@@ -21,6 +21,19 @@ const DUMMY_UUIDS = new Set([
     Individual.getAddressLevelDummyUUID(),
 ]);
 
+// Overrides for parent.listProp pairs where the child schema has multiple FKs back
+// to the same parent type and convention can't disambiguate which FK is the back-reference.
+//
+// AddressLevel.locationMappings: LocationMapping has both `parent` and `child` of type
+// AddressLevel. The `locationMappings` list on an AddressLevel semantically holds mappings
+// where THIS AddressLevel is the CHILD of the relationship — so the back-reference FK
+// is `child_uuid`, not the default first-match `parent_uuid`. Without this override,
+// AddressLevel.getParent() returns this AddressLevel itself, causing infinite recursion
+// in appendLineage().
+const EXPLICIT_LIST_FK_OVERRIDES = {
+    'AddressLevel.locationMappings': 'child_uuid',
+};
+
 class EntityHydrator {
     /**
      * @param {Map<string, TableMeta>} tableMetaMap - schema metadata
@@ -287,7 +300,7 @@ class EntityHydrator {
         if (!childTableMeta) return [];
 
         // Determine the FK column on the child table that points back to the parent
-        const fkColumnName = this.findChildFkColumn(parentSchemaName, childSchemaName, childTableMeta);
+        const fkColumnName = this.findChildFkColumn(parentSchemaName, childSchemaName, childTableMeta, propName);
         if (!fkColumnName) return [];
 
         // Check batch cache first (populated by batchPreloadLists)
@@ -345,7 +358,7 @@ class EntityHydrator {
             const childTableMeta = this.tableMetaMap.get(objectType);
             if (!childTableMeta) return;
 
-            const fkColumnName = this.findChildFkColumn(schemaName, objectType, childTableMeta);
+            const fkColumnName = this.findChildFkColumn(schemaName, objectType, childTableMeta, propName);
             if (!fkColumnName) return;
 
             const cacheKey = `${objectType}:${fkColumnName}`;
@@ -496,11 +509,33 @@ class EntityHydrator {
 
     /**
      * Find the FK column on a child table that references the parent.
-     * Convention: the column is named after the parent schema in snake_case + "_uuid"
-     * e.g., Individual's encounters -> encounter table has "individual_uuid" column
+     *
+     * Resolution order (most specific first):
+     *   1. EXPLICIT_LIST_FK_OVERRIDES — for parent.listProp pairs where the child schema
+     *      has multiple FKs back to the same parent type and convention can't disambiguate.
+     *   2. The child schema's first property of type {object, parentSchemaName}.
+     *   3. Fallback: column named `${snake_case(parentSchemaName)}_uuid`.
+     *
+     * Example needing override: AddressLevel.locationMappings → LocationMapping.child_uuid.
+     * LocationMapping has both `parent` and `child` of type AddressLevel; the parent's
+     * `locationMappings` list semantically holds mappings where this AddressLevel is the
+     * CHILD of the relationship (i.e. its row appears as `child_uuid`).
+     *
+     * @param {string} parentSchemaName
+     * @param {string} childSchemaName
+     * @param {Object} childTableMeta
+     * @param {string} [parentListPropName] - the name of the list property on the parent
+     *     schema that resolves to this child. Used to disambiguate multi-FK back-references.
      */
-    findChildFkColumn(parentSchemaName, childSchemaName, childTableMeta) {
-        // First, look at the child's Realm schema to find a property that references the parent
+    findChildFkColumn(parentSchemaName, childSchemaName, childTableMeta, parentListPropName) {
+        // 1. Explicit overrides for known multi-FK back-references.
+        if (parentListPropName) {
+            const overrideKey = `${parentSchemaName}.${parentListPropName}`;
+            const overrideFk = EXPLICIT_LIST_FK_OVERRIDES[overrideKey];
+            if (overrideFk) return overrideFk;
+        }
+
+        // 2. First property on the child schema that references the parent type.
         const childRealmSchema = this.realmSchemaMap.get(childSchemaName);
         if (childRealmSchema) {
             for (const [propName, propDef] of Object.entries(childRealmSchema.properties || {})) {
@@ -510,7 +545,7 @@ class EntityHydrator {
             }
         }
 
-        // Fallback: try parent_schema_name_uuid
+        // 3. Fallback: try parent_schema_name_uuid
         const candidateCol = `${camelToSnake(parentSchemaName)}_uuid`;
         if (childTableMeta.getColumn(candidateCol)) {
             return candidateCol;
