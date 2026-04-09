@@ -515,10 +515,15 @@ class SyncService extends BaseService {
     resetServicesAfterFullSyncCompletion(updatedSyncSource) {
         if (updatedSyncSource !== SyncService.syncSources.ONLY_UPLOAD_BACKGROUND_JOB) {
             General.logInfo("Sync", "Full Sync completed, performing reset")
+            // Build the SQLite reference cache BEFORE reset(). The reset() call
+            // dispatches RESET → LandingViewActions.ON_LOAD which triggers async
+            // view reloads. If any of those reloads query forms/concepts before the
+            // cache is ready, hydration falls back to uncached DB queries that may
+            // return incomplete results (e.g., empty formElements).
+            this._buildReferenceCacheIfSqlite();
             this.reset(false);
             this.getService(SettingsService).initLanguages();
             this.getService(AddressLevelService).clearHierarchyCache();
-            this._buildReferenceCacheIfSqlite();
             General.logInfo("Sync", 'Full Sync completed, reset completed');
         }
     }
