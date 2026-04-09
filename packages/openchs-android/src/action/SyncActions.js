@@ -11,17 +11,22 @@ class SyncActions {
             message: '',
             syncMessage: '',
             startSync: false,
-            backgroundSyncInProgress: false
+            backgroundSyncInProgress: false,
+            showOkButton: false,
         };
     }
 
     static preSync(state) {
         const startTime = Date.now();
-        return {...state, syncing: true, syncMessage: "syncingData", startTime};
+        return {...state, syncing: true, syncMessage: "syncingData", startTime, showOkButton: false};
     }
 
     static postSync(state) {
-        return {...state, syncing: false, startSync: false};
+        return {...state, syncing: false, startSync: false, showOkButton: false};
+    }
+
+    static setShowOkButton(state, action) {
+        return {...state, showOkButton: !!action.show};
     }
 
     static onError(state) {
@@ -75,7 +80,8 @@ const SyncActionNames = {
     ON_CONNECTION_CHANGE: `${ActionPrefix}.ON_CONNECTION_CHANGE`,
     ON_UPDATE: `${ActionPrefix}.ON_UPDATE`,
     ON_MESSAGE_CALLBACK: `${ActionPrefix}.ON_MESSAGE_CALLBACK`,
-    ON_BACKGROUND_SYNC_STATUS_CHANGE: `${ActionPrefix}.ON_BACKGROUND_SYNC_STATUS_CHANGE`
+    ON_BACKGROUND_SYNC_STATUS_CHANGE: `${ActionPrefix}.ON_BACKGROUND_SYNC_STATUS_CHANGE`,
+    SET_SHOW_OK_BUTTON: `${ActionPrefix}.SET_SHOW_OK_BUTTON`,
 };
 
 const SyncActionMap = new Map([
@@ -86,6 +92,7 @@ const SyncActionMap = new Map([
     [SyncActionNames.ON_UPDATE, SyncActions.onUpdate],
     [SyncActionNames.ON_MESSAGE_CALLBACK, SyncActions.onMessageCallback],
     [SyncActionNames.ON_BACKGROUND_SYNC_STATUS_CHANGE, SyncActions.onBackgroundSyncStatusChange],
+    [SyncActionNames.SET_SHOW_OK_BUTTON, SyncActions.setShowOkButton],
 ]);
 
 export {
