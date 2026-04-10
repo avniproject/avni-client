@@ -294,21 +294,9 @@ class CustomDashboardView extends AbstractComponent {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
                 CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
             },
-            onDoVisitAction: (individual, reportCard) => {
+            onDoVisitAction: (encounter, enrolmentOrIndividual) => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
-                const actionEncounterType = reportCard.actionDetailEncounterType;
-                const actionProgram = reportCard.actionDetailProgram;
-                const enrolmentOrIndividual = actionProgram
-                    ? _.find(individual.enrolments, e => !e.voided && e.program.uuid === actionProgram.uuid)
-                    : individual;
-                if (reportCard.isScheduledVisitType() && enrolmentOrIndividual) {
-                    const scheduled = _.find(enrolmentOrIndividual.encounters, enc =>
-                        !enc.voided && enc.encounterType.uuid === actionEncounterType.uuid &&
-                        !_.isNil(enc.earliestVisitDateTime) && _.isNil(enc.encounterDateTime) && _.isNil(enc.cancelDateTime));
-                    CHSNavigator.proceedEncounter(scheduled || actionEncounterType, enrolmentOrIndividual, null, this);
-                } else if (enrolmentOrIndividual) {
-                    CHSNavigator.proceedEncounter(actionEncounterType, enrolmentOrIndividual, null, this);
-                }
+                CHSNavigator.proceedEncounter(encounter, enrolmentOrIndividual, null, this);
             },
             onDoVisitListResults: (results, reportCard, displayName) => TypedTransition.from(this).with({
                 indicatorActionName: Actions.LOAD_INDICATOR,
@@ -317,21 +305,6 @@ class CustomDashboardView extends AbstractComponent {
                 totalSearchResultsCount: results.length,
                 reportCardUUID,
                 backFunction: this.onBackPress.bind(this),
-                onIndividualSelection: (source, individual) => {
-                    const actionEncounterType = reportCard.actionDetailEncounterType;
-                    const actionProgram = reportCard.actionDetailProgram;
-                    const enrolmentOrIndividual = actionProgram
-                        ? _.find(individual.enrolments, e => !e.voided && e.program.uuid === actionProgram.uuid)
-                        : individual;
-                    if (reportCard.isScheduledVisitType() && enrolmentOrIndividual) {
-                        const scheduled = _.find(enrolmentOrIndividual.encounters, enc =>
-                            !enc.voided && enc.encounterType.uuid === actionEncounterType.uuid &&
-                            !_.isNil(enc.earliestVisitDateTime) && _.isNil(enc.encounterDateTime) && _.isNil(enc.cancelDateTime));
-                        CHSNavigator.proceedEncounter(scheduled || actionEncounterType, enrolmentOrIndividual, null, source);
-                    } else if (enrolmentOrIndividual) {
-                        CHSNavigator.proceedEncounter(actionEncounterType, enrolmentOrIndividual, null, source);
-                    }
-                },
             }).to(viewNameMap['IndividualListView'], true),
             onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => TypedTransition.from(this).with({
                 reportFilters: reportFilters,

@@ -43,7 +43,7 @@ function buildVisitInfo(individual, encounter, actionEncounterType) {
         : [];
     return {
         individual: individual,
-        visitInfo: {uuid: individual.uuid, visitName: visitName, sortingBy: encounter ? encounter.earliestVisitDateTime : null}
+        visitInfo: {uuid: individual.uuid, visitName: visitName, sortingBy: encounter ? (encounter.earliestVisitDateTime || new Date(0)) : null}
     };
 }
 
@@ -183,7 +183,10 @@ class CustomDashboardActions {
                     }
                     if (doVisitResult.length === 1) {
                         General.logDebug('CustomDashboardActions', `onCardPress - Single subject with DoVisit, navigating to encounter form`);
-                        setTimeout(() => action.onDoVisitAction(doVisitResult[0], reportCard), 0);
+                        const ind = doVisitResult[0];
+                        const enrolmentOrIndividual = getEnrolmentOrIndividual(ind, reportCard);
+                        const encounter = findOrCreateEncounter(enrolmentOrIndividual, ind, reportCard.actionDetailEncounterType, reportCard.isScheduledVisitType());
+                        setTimeout(() => action.onDoVisitAction(encounter, enrolmentOrIndividual), 0);
                     } else if (doVisitResult.length > 0) {
                         General.logDebug('CustomDashboardActions', `onCardPress - Multiple subjects with DoVisit, showing list`);
                         const actionEncounterType = reportCard.actionDetailEncounterType;
