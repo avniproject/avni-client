@@ -2,7 +2,7 @@ import _ from "lodash";
 import CustomDashboardService from "../../service/customDashboard/CustomDashboardService";
 import DashboardSectionCardMappingService from "../../service/customDashboard/DashboardSectionCardMappingService";
 import EntityService from "../../service/EntityService";
-import {ReportCard, Encounter, ProgramEncounter} from "openchs-models";
+import {ReportCard, Encounter, ProgramEncounter, ReportCardResult} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
@@ -45,6 +45,24 @@ function buildVisitInfo(individual, encounter, actionEncounterType) {
         individual: individual,
         visitInfo: {uuid: individual.uuid, visitName: visitName, sortingBy: encounter ? (encounter.earliestVisitDateTime || new Date(0)) : null}
     };
+}
+
+function getDoVisitFilteredCount(reportCard, result, countResult) {
+    if (!result) return countResult;
+    let doVisitResult = result.map(item => item.individual || item).filter(ind => ind && ind.uuid);
+    doVisitResult = doVisitResult.filter(ind => getEnrolmentOrIndividual(ind, reportCard));
+    if (reportCard.isScheduledVisitType()) {
+        const actionEncounterType = reportCard.actionDetailEncounterType;
+        doVisitResult = doVisitResult.filter(ind => {
+            const enrolmentOrIndividual = getEnrolmentOrIndividual(ind, reportCard);
+            return enrolmentOrIndividual && findScheduledEncounters(enrolmentOrIndividual, actionEncounterType).length > 0;
+        });
+    }
+    const filteredCount = ReportCardResult.create(doVisitResult.length, null, doVisitResult.length > 0);
+    filteredCount.cardName = countResult.cardName;
+    filteredCount.cardColor = countResult.cardColor;
+    filteredCount.textColor = countResult.textColor;
+    return filteredCount;
 }
 
 function getReportsCards(dashboardUUID, context) {
@@ -296,6 +314,10 @@ class CustomDashboardActions {
                 if (userSettings.autoRefreshEnabled || _.isNil(reportCardResult)) {
                     const countCalculationStart = new Date();
                     reportCardResult = reportCardService.getReportCardCount(rcm.card, ruleInputArray);
+                    if (rcm.card.isActionDoVisit()) {
+                        const {result} = reportCardService.getReportCardResult(rcm.card, ruleInputArray);
+                        reportCardResult = getDoVisitFilteredCount(rcm.card, result, reportCardResult);
+                    }
                     General.logDebug('CustomDashboardActions', `Single card count calculation for ${rcm.card.name} took ${new Date() - countCalculationStart} ms`);
                     customDashboardCacheService.updateReportCardResult(state.activeDashboardUUID, rcm.card, reportCardResult);
                 }
