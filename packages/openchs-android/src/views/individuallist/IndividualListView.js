@@ -55,13 +55,13 @@ class IndividualListView extends AbstractComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (!this.state.listReady && prevProps.results.length === 0 && this.props.results.length > 0) {
+        if (this.state.items.length === 0 && prevProps.results.length === 0 && this.props.results.length > 0) {
             this._initBatch();
         }
     }
 
     _initBatch() {
-        if (this.state.listReady) return;
+        if (this.state.items.length > 0) return;
         const batch = this.sliceBatch(0);
         this.setState({listReady: true, items: batch});
         if (this.props.indicatorActionName) {
