@@ -31,7 +31,6 @@ import OrganisationConfigService from "../service/OrganisationConfigService";
 import UserInfoService from "../service/UserInfoService";
 import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-native-copilot";
 import CopilotTooltip from "./common/CopilotTooltip";
-import DeepLinkHandler from "../utility/DeepLinkHandler";
 import GlobalContext from "../GlobalContext";
 
 const WalkthroughableView = walkthroughable(View);
@@ -151,9 +150,17 @@ class LandingView extends AbstractComponent {
         // If ID is provided, navigate to specific encounter
         // Otherwise, navigate to encounter selection
         if (id) {
-            // Navigate to encounter details or edit screen
-            // This would require fetching the encounter from database
-            General.logDebug('LandingView', `Navigate to encounter: ${id}`);
+            try {
+                // Navigate to encounter details or edit screen
+                // The encounter UUID is passed - user can search for it or it can be fetched
+                General.logDebug('LandingView', `Navigate to encounter: ${id}`);
+                // For now, navigate to search where user can find the individual
+                // TODO: Implement direct encounter navigation by fetching from DB
+                this.dispatchAction(Actions.ON_SEARCH_CLICK);
+            } catch (error) {
+                General.logError('LandingView', 'Error handling encounter deep link', error);
+                this.dispatchAction(Actions.ON_SEARCH_CLICK);
+            }
         } else {
             // Navigate to search to find the individual first
             this.dispatchAction(Actions.ON_SEARCH_CLICK);
@@ -164,7 +171,8 @@ class LandingView extends AbstractComponent {
         General.logDebug('LandingView', 'Handling registration deep link', { id, entityType, rawParams });
         
         // Navigate to registration view
-        // If entityType is specified, pre-select that subject type
+        // Note: entityType is available for future pre-selection feature
+        // Current implementation shows all available registration types
         this.dispatchAction(Actions.ON_REGISTER_CLICK);
     }
 

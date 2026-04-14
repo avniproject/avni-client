@@ -1,6 +1,5 @@
 import { Linking } from 'react-native';
 import General from './General';
-import _ from 'lodash';
 
 class DeepLinkHandler {
   static DEEP_LINK_SCHEME = 'avni://';
@@ -9,34 +8,40 @@ class DeepLinkHandler {
   /**
    * Initialize deep link listeners
    * Should be called when app is ready to handle deep links
+   * @param {Function} onHandleDeepLink - Callback to handle parsed deep link
+   * @returns {Promise<string|null>} The cold start URL if app was opened via deep link
    */
-  static initialize(onHandleDeepLink) {
+  static async initialize(onHandleDeepLink) {
+    // Prevent duplicate listener registration
+    if (this._deepLinkListenerRegistered) {
+      General.logDebug('DeepLinkHandler', 'Deep link listener already registered, skipping');
+      // Still return the pending URL if available
+      const pendingUrl = this.pendingDeepLink;
+      this.pendingDeepLink = null;
+      return pendingUrl;
+    }
+
     // Handle deep link when app is already running
-    Linking.addEventListener('url', (event) => {
+    this._urlSubscription = Linking.addEventListener('url', (event) => {
       const { url } = event;
       General.logDebug('DeepLinkHandler', `Received deep link while app running: ${url}`);
       this.handleDeepLink(url, onHandleDeepLink);
     });
 
+    this._deepLinkListenerRegistered = true;
+
     // Handle deep link when app is opened from cold start
-    Linking.getInitialURL().then((url) => {
+    try {
+      const url = await Linking.getInitialURL();
       if (url) {
         General.logDebug('DeepLinkHandler', `App opened with deep link: ${url}`);
-        // Store the URL to be processed after app initialization
-        this.pendingDeepLink = url;
+        return url;
       }
-    }).catch((err) => {
+    } catch (err) {
       General.logError('DeepLinkHandler', 'Error getting initial URL', err);
-    });
-  }
+    }
 
-  /**
-   * Check if there's a pending deep link from cold start
-   */
-  static getPendingDeepLink() {
-    const url = this.pendingDeepLink;
-    this.pendingDeepLink = null; // Clear after reading
-    return url;
+    return null;
   }
 
   /**
@@ -146,6 +151,10 @@ class DeepLinkHandler {
 
     // Add any extra parameters
     for (const [key, value] of Object.entries(extraParams)) {
+      // Skip undefined or null values to avoid encoding them as strings
+      if (value === undefined || value === null) {
+        continue;
+      }
       queryString += `&${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
     }
 

@@ -64,25 +64,27 @@ const messageTemplates = {
   }
 };
 
-// Example generated links:
-console.log('Enrollment Link:', generateEnrollmentLink('12345-abcde', 'Maternal Health'));
-// Output: avni://form?type=enrollment&id=12345-abcde&entityType=Maternal%20Health
+// Example generated links (only in development mode):
+if (typeof __DEV__ !== 'undefined' && __DEV__) {
+  console.log('Enrollment Link:', generateEnrollmentLink('12345-abcde', 'Maternal Health'));
+  // Output: avni://form?type=enrollment&id=12345-abcde&entityType=Maternal%20Health
 
-console.log('Encounter Link:', generateEncounterLink('enc-uuid-123', 'Monthly Visit'));
-// Output: avni://form?type=encounter&id=enc-uuid-123&entityType=Monthly%20Visit
+  console.log('Encounter Link:', generateEncounterLink('enc-uuid-123', 'Monthly Visit'));
+  // Output: avni://form?type=encounter&id=enc-uuid-123&entityType=Monthly%20Visit
 
-console.log('Registration Link:', generateRegistrationLink('Person'));
-// Output: avni://form?type=registration&entityType=Person
+  console.log('Registration Link:', generateRegistrationLink('Person'));
+  // Output: avni://form?type=registration&entityType=Person
 
-// Example WhatsApp message:
-console.log('\nWhatsApp Message Example:');
-console.log(messageTemplates.enrollment('user-123-uuid', 'Water Pump Inspection'));
-// Output:
-// Hello! Please complete your Water Pump Inspection enrollment by clicking this link:
-//
-// avni://form?type=enrollment&id=user-123-uuid&entityType=Water%20Pump%20Inspection
-//
-// Thank you!
+  // Example WhatsApp message:
+  console.log('\nWhatsApp Message Example:');
+  console.log(messageTemplates.enrollment('user-123-uuid', 'Water Pump Inspection'));
+  // Output:
+  // Hello! Please complete your Water Pump Inspection enrollment by clicking this link:
+  //
+  // avni://form?type=enrollment&id=user-123-uuid&entityType=Water%20Pump%20Inspection
+  //
+  // Thank you!
+}
 
 export {
   generateEnrollmentLink,

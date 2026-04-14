@@ -24,7 +24,6 @@ import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 import ServiceContext from "./framework/context/ServiceContext";
 import DeepLinkHandler from "./utility/DeepLinkHandler";
-import CHSNavigator from "./utility/CHSNavigator";
 
 const {TamperCheckModule} = NativeModules;
 
@@ -104,22 +103,18 @@ class App extends Component {
         }
     }
 
-    initializeDeepLinks() {
-        // Set up deep link handler
-        DeepLinkHandler.initialize((parsedLink) => {
+    async initializeDeepLinks() {
+        // Set up deep link handler and get cold start URL if any
+        const coldStartUrl = await DeepLinkHandler.initialize((parsedLink) => {
             this.handleDeepLinkNavigation(parsedLink);
         });
 
-        // Check if app was opened via deep link
-        const pendingDeepLink = DeepLinkHandler.getPendingDeepLink();
-        if (pendingDeepLink) {
+        // Handle cold start deep link if app was opened via deep link
+        if (coldStartUrl) {
             General.logDebug("App", "Processing pending deep link from cold start");
-            // Delay processing to ensure app is fully loaded
-            setTimeout(() => {
-                DeepLinkHandler.handleDeepLink(pendingDeepLink, (parsedLink) => {
-                    this.handleDeepLinkNavigation(parsedLink);
-                });
-            }, 1000);
+            DeepLinkHandler.handleDeepLink(coldStartUrl, (parsedLink) => {
+                this.handleDeepLinkNavigation(parsedLink);
+            });
         }
     }
 
@@ -132,7 +127,7 @@ class App extends Component {
         switch (type) {
             case 'enrollment':
             case 'encounter':
-            case 'registration':
+            case 'registration': {
                 // Navigate to the appropriate form
                 // The actual navigation will be handled by the current view
                 // Store the deep link info in global context for the view to use
@@ -143,6 +138,7 @@ class App extends Component {
                 // The login screen can handle redirecting after authentication
                 General.logDebug("App", `Deep link stored for ${type} form. Type: ${type}, ID: ${id}`);
                 break;
+            }
             
             default:
                 General.logDebug("App", `Unknown deep link type: ${type}`);
