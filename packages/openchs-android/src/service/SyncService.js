@@ -31,6 +31,7 @@ import SubjectTypeService from "./SubjectTypeService";
 import MetricsService from "./MetricsService";
 import {post} from "../framework/http/requests";
 import General from "../utility/General";
+import ErrorUtil from "../framework/errorHandling/ErrorUtil";
 import SubjectMigrationService from "./SubjectMigrationService";
 import AddressLevelService from "./AddressLevelService";
 import ResetSyncService from "./ResetSyncService";
@@ -274,7 +275,10 @@ class SyncService extends BaseService {
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
-            .finally(() => this._enableForeignKeysIfSqlite())
+            .finally(() => {
+                this._enableForeignKeysIfSqlite();
+                this._checkForeignKeyIntegrityIfSqlite();
+            })
     }
 
     downloadExtensions() {
@@ -651,6 +655,29 @@ class SyncService extends BaseService {
         if (!this.db.isSqlite) return;
         this.db._executeRaw("PRAGMA foreign_keys = ON");
         General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+    }
+
+    /**
+     * Post-sync FK integrity check. Runs PRAGMA foreign_key_check which scans
+     * all FK columns and reports violations — without failing the sync or rolling
+     * back any data. Violations indicate a server-side ordering bug and are
+     * reported via Bugsnag + logs for investigation.
+     */
+    _checkForeignKeyIntegrityIfSqlite() {
+        if (!this.db.isSqlite) return;
+        try {
+            const violations = this.db._executeQuery("PRAGMA foreign_key_check");
+            if (violations && violations.length > 0) {
+                const summary = violations.slice(0, 10).map(v =>
+                    `${v.table}.rowid=${v.rowid}→${v.parent}`
+                ).join(', ');
+                const message = `${violations.length} FK violation(s) after sync: ${summary}`;
+                General.logError("SyncService", message);
+                ErrorUtil.notifyBugsnag(new Error(message), "SyncService::FKIntegrityCheck");
+            }
+        } catch (e) {
+            General.logWarn("SyncService", `FK integrity check failed: ${e.message}`);
+        }
     }
 
     _buildReferenceCacheIfSqlite() {
