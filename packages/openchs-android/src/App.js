@@ -23,6 +23,8 @@ import AvniErrorBoundary from "./framework/errorHandling/AvniErrorBoundary";
 import UnhandledErrorView from "./framework/errorHandling/UnhandledErrorView";
 import ErrorUtil from "./framework/errorHandling/ErrorUtil";
 import ServiceContext from "./framework/context/ServiceContext";
+import DeepLinkHandler from "./utility/DeepLinkHandler";
+import CHSNavigator from "./utility/CHSNavigator";
 
 const {TamperCheckModule} = NativeModules;
 
@@ -92,10 +94,58 @@ class App extends Component {
 
             RegisterAndScheduleJobs();
             this.setState(state => ({...state, isInitialisationDone: true}));
+
+            // Initialize deep link handling after app is ready
+            this.initializeDeepLinks();
         } catch (e) {
             console.log("App", e);
             this.handleError(ErrorUtil.getAvniErrorSync(e));
             ErrorUtil.notifyBugsnag(e, "App");
+        }
+    }
+
+    initializeDeepLinks() {
+        // Set up deep link handler
+        DeepLinkHandler.initialize((parsedLink) => {
+            this.handleDeepLinkNavigation(parsedLink);
+        });
+
+        // Check if app was opened via deep link
+        const pendingDeepLink = DeepLinkHandler.getPendingDeepLink();
+        if (pendingDeepLink) {
+            General.logDebug("App", "Processing pending deep link from cold start");
+            // Delay processing to ensure app is fully loaded
+            setTimeout(() => {
+                DeepLinkHandler.handleDeepLink(pendingDeepLink, (parsedLink) => {
+                    this.handleDeepLinkNavigation(parsedLink);
+                });
+            }, 1000);
+        }
+    }
+
+    handleDeepLinkNavigation(parsedLink) {
+        General.logDebug("App", "Handling deep link navigation:", parsedLink);
+        
+        const { type, id, entityType, rawParams } = parsedLink;
+        
+        // Navigate based on deep link type
+        switch (type) {
+            case 'enrollment':
+            case 'encounter':
+            case 'registration':
+                // Navigate to the appropriate form
+                // The actual navigation will be handled by the current view
+                // Store the deep link info in global context for the view to use
+                const globalContext = GlobalContext.getInstance();
+                globalContext.pendingDeepLink = parsedLink;
+                
+                // If user is not logged in, they should be on login screen
+                // The login screen can handle redirecting after authentication
+                General.logDebug("App", `Deep link stored for ${type} form. Type: ${type}, ID: ${id}`);
+                break;
+            
+            default:
+                General.logDebug("App", `Unknown deep link type: ${type}`);
         }
     }
 
