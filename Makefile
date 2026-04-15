@@ -331,8 +331,10 @@ endif
 	adb push $(dbPath) /data/data/${app_android_package_name}/files/default.realm
 
 put_db_force:
-	adb push $(appdb) /product/default.realm
-	adb shell "run-as ${app_android_package_name} mv /product/default.realm /data/data/${app_android_package_name}/files/default.realm"
+	adb push $(appdb) /data/local/tmp/default.realm
+	adb shell "chmod 666 /data/local/tmp/default.realm"
+	adb shell "run-as ${app_android_package_name} cp /data/local/tmp/default.realm /data/data/${app_android_package_name}/files/default.realm"
+	adb shell "rm /data/local/tmp/default.realm"
 
 rm_db:
 	rm -rf ../db
