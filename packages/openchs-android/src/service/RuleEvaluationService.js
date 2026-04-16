@@ -967,6 +967,23 @@ class RuleEvaluationService extends BaseService {
         return true;
     }
 
+    executeCustomCardDataRule(customCardConfig, ruleInput) {
+        if (!customCardConfig.dataRule) return {};
+        try {
+            const ruleFunc = eval(customCardConfig.dataRule);
+            return ruleFunc({
+                params: _.merge({ruleInput: ruleInput}, this.getCommonParams()),
+                imports: getImports(this.globalRuleFunction)
+            });
+        } catch (error) {
+            General.logError("Rule-Failure", `CustomCardConfig data rule failed for uuid: ${customCardConfig.uuid}, name: ${customCardConfig.name}`);
+            General.logError("Rule-Failure", error);
+            this.saveFailedRules(error, customCardConfig.uuid, '',
+                'CustomCardConfig', customCardConfig.uuid, null, null);
+            return {};
+        }
+    }
+
     executeDashboardCardRule(reportCard, ruleInput) {
         try {
             const ruleFunc = eval(reportCard.query);

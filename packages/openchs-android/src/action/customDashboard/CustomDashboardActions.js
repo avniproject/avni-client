@@ -4,6 +4,7 @@ import DashboardSectionCardMappingService from "../../service/customDashboard/Da
 import EntityService from "../../service/EntityService";
 import {ReportCard, Encounter, ProgramEncounter, ReportCardResult} from "openchs-models";
 import ReportCardService from "../../service/customDashboard/ReportCardService";
+import RuleEvaluationService from "../../service/RuleEvaluationService";
 import General from "../../utility/General";
 import DashboardFilterService from "../../service/reports/DashboardFilterService";
 import MessageService from "../../service/MessageService";
@@ -187,7 +188,12 @@ class CustomDashboardActions {
         const ruleInputArray = context.get(DashboardFilterService).toRuleInputObjects(state.activeDashboardUUID, selectedFilterValues);
 
         reportCard.itemKey = itemKey;
-        if (reportCard.isStandardTaskType()) {
+        if (reportCard.isFullyCustom()) {
+            General.logDebug('CustomDashboardActions', `onCardPress - Fully custom card tapped: ${reportCard.name}`);
+            const countResult = state.cardToCountResultMap[itemKey];
+            const displayName = (countResult && countResult.cardName) || reportCard.name;
+            setTimeout(() => action.onFullyCustomCardPress(reportCard, ruleInputArray, displayName), 0);
+        } else if (reportCard.isStandardTaskType()) {
             General.logDebug('CustomDashboardActions', `onCardPress - Navigating to task lists for ${reportCard.name}, took ${new Date() - cardPressStartTime} ms`);
             action.goToTaskLists(reportCard.standardReportCardType.getTaskTypeType(), ruleInputArray);
         } else {
@@ -284,7 +290,20 @@ class CustomDashboardActions {
         reportCardSectionMappings.forEach(rcm => {
             const start = new Date();
             const {dashboardCache} = customDashboardCacheService.getDashboardCache(state.activeDashboardUUID);
-            if (rcm.card.nested) {
+            if (rcm.card.isFullyCustom()) {
+                const data = context.get(RuleEvaluationService)
+                    .executeCustomCardDataRule(rcm.card.customCardConfig, ruleInputArray) || {};
+                const hasPrimary = !_.isNil(data.primaryValue);
+                const result = ReportCardResult.create(
+                    hasPrimary ? data.primaryValue : "",
+                    _.isNil(data.secondaryValue) ? "" : data.secondaryValue,
+                    true
+                );
+                if (!_.isNil(data.name)) result.cardName = data.name;
+                if (data.colors && !_.isNil(data.colors.background)) result.cardColor = data.colors.background;
+                if (data.colors && !_.isNil(data.colors.text)) result.textColor = data.colors.text;
+                newState.cardToCountResultMap[rcm.card.getCardId()] = result;
+            } else if (rcm.card.nested) {
                 const cacheCheckStart = new Date();
                 let reportCardResults = dashboardCache.getNestedReportCardResults(rcm.card);
                 let hasError = reportCardResults && reportCardResults.length !== rcm.card.countOfCards;

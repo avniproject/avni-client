@@ -33,6 +33,7 @@ import EntityService from "../../service/EntityService";
 import CommentListView from "../comment/CommentListView";
 import Path from "../../framework/routing/Path";
 import TaskListView from "../task/TaskListView";
+import CustomCardDetailView from "./CustomCardDetailView";
 import FiltersViewV2 from "../filter/FiltersViewV2";
 import ChecklistListingView from "../checklist/ChecklistListingView";
 import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
@@ -318,7 +319,16 @@ class CustomDashboardView extends AbstractComponent {
                 backFunction: this.onBackPress.bind(this),
                 onIndividualSelection: (source, individual) => CHSNavigator.navigateToProgramEnrolmentDashboardView(source, individual.uuid),
                 onApprovalSelection: (source, entity) => CHSNavigator.navigateToApprovalDetailsView(source, entity),
-            }).to(viewNameMap[viewName], true)
+            }).to(viewNameMap[viewName], true),
+            onFullyCustomCardPress: (reportCard, ruleInputArray, displayName) => {
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                TypedTransition.from(this).with({
+                    reportCard,
+                    customCardConfig: reportCard.customCardConfig,
+                    ruleInputArray,
+                    displayName,
+                }).to(CustomCardDetailView, true);
+            }
         }), 0);
     }
 
