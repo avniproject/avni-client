@@ -132,6 +132,7 @@ import './BeneficiaryModePinService';
 import './CallService';
 import './EncryptionService';
 import './ExtensionService';
+import './CustomCardConfigService';
 import './GlificService';
 import './MetricsService';
 import './PhoneVerificationService';
