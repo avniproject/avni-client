@@ -6,6 +6,7 @@ import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from '../../framework/routing/Path';
 import CHSContainer from '../common/CHSContainer';
 import AppHeader from '../common/AppHeader';
+import _ from 'lodash';
 import CustomCardConfigService from '../../service/CustomCardConfigService';
 import RuleEvaluationService from '../../service/RuleEvaluationService';
 import General from '../../utility/General';
@@ -28,8 +29,11 @@ class CustomCardDetailView extends AbstractComponent {
         const {customCardConfig, ruleInputArray} = this.props;
         try {
             const template = await this.getService(CustomCardConfigService).readHtmlTemplate(customCardConfig);
-            const data = this.getService(RuleEvaluationService)
+            const ruleResult = this.getService(RuleEvaluationService)
                 .executeCustomCardDataRule(customCardConfig, ruleInputArray) || {};
+            const data = _.isFunction(ruleResult.lineListFunction)
+                ? ruleResult.lineListFunction()
+                : ruleResult;
             const body = new Function('data', 'translations', `return \`${template}\``)(data, {});
             this.setState({html: body});
         } catch (e) {
