@@ -139,7 +139,11 @@ class FiltersViewV2 extends AbstractComponent {
     }
 
     onHardwareBackPress() {
-        this.props.onBack();
+        if (_.isNil(this.props.onBack)) {
+            TypedTransition.from(this).goBack();
+        } else {
+            this.props.onBack();
+        }
         return true;
     }
 
