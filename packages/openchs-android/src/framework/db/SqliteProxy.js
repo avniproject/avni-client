@@ -540,7 +540,7 @@ class SqliteProxy {
 
         this.hydrator.beginHydrationSession();
         try {
-            const hydrated = this.hydrator.hydrate(type, rows[0], {skipLists: false, depth: 3});
+            const hydrated = this.hydrator.hydrate(type, rows[0], this.hydrator.getDefaultHydrationOptions());
             return new entityClass(hydrated);
         } finally {
             this.hydrator.endHydrationSession();
@@ -679,6 +679,35 @@ class SqliteProxy {
      */
     clearReferenceCache() {
         this.hydrator.referenceDataCache = {};
+    }
+
+    /**
+     * Toggle shallow hydration for all queries on this connection. Used by
+     * SyncService to bypass the deep batchPreload that would otherwise fire on
+     * every findByKey("uuid", parentUuid) call from openchs-models'
+     * fromResource. See EntityHydrator.setShallowMode for details.
+     */
+    setShallowMode(enabled) {
+        this.hydrator.setShallowMode(enabled);
+    }
+
+    /**
+     * Look up an entity by uuid from the in-memory reference data cache.
+     * Returns the cached hydrated entity, or undefined if the schema has no
+     * cache or the uuid isn't cached. Used by BaseService.findByKey to avoid
+     * DB round-trips for reference entities (Concept, EncounterType, etc.)
+     * during sync's fromResource calls (~15K concept lookups per 1000-entity page).
+     */
+    getCachedEntity(schemaName, uuid) {
+        const cache = this.hydrator.referenceDataCache[schemaName];
+        if (!cache) return undefined;
+        const hydrated = cache.get(uuid);
+        if (hydrated === undefined) return undefined;
+        // Wrap in entity class — the cache stores plain hydrated objects from
+        // buildReferenceCache, but callers expect class instances with methods
+        // (e.g., Concept.isQuestionGroup used by assignObsFields in fromResource).
+        const entityClass = this.entityMappingConfig.getEntityClass(schemaName);
+        return entityClass ? new entityClass(hydrated) : hydrated;
     }
 
     // ──── Internal helpers ────

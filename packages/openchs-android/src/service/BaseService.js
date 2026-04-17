@@ -79,6 +79,14 @@ class BaseService {
     }
 
     findByKey(keyName, value, schemaName = this.getSchema()) {
+        // For uuid lookups, check the in-memory reference data cache first.
+        // During sync, fromResource calls findByKey("uuid", conceptUuid, "Concept")
+        // ~15K times per 1000-entity page. Without this, each call executes a
+        // SQL query + hydration. With the cache, reference entity lookups are free.
+        if (keyName === "uuid" && this.db.getCachedEntity) {
+            const cached = this.db.getCachedEntity(schemaName, value);
+            if (cached !== undefined) return cached;
+        }
         const entities = this.findAllByKey(keyName, value, schemaName);
         return this.getReturnValue(entities);
     }

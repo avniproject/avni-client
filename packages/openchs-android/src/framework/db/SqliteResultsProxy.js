@@ -105,6 +105,20 @@ class SqliteResultsProxy {
         this.logQueries = value;
     }
 
+    /**
+     * Resolve hydration options at execution time, honoring the hydrator's
+     * shallow mode if it's enabled and the caller hasn't explicitly opted in to
+     * deep hydration via withHydration(). When shallow mode is on (e.g., during
+     * sync), all queries return shallow entities to avoid deep-loading parents'
+     * full subtrees on every findByKey call.
+     */
+    _effectiveHydrationOptions() {
+        if (this.hydrator && typeof this.hydrator.isShallowMode === "function" && this.hydrator.isShallowMode()) {
+            return this.hydrator.getDefaultHydrationOptions();
+        }
+        return this.hydrationOptions;
+    }
+
     // ──── Chainable query builders ────
 
     /**
@@ -306,7 +320,7 @@ class SqliteResultsProxy {
         }
 
         // Check query cache — reuse hydrated entities from an identical prior query
-        const opts = this.hydrator ? this.hydrationOptions : null;
+        const opts = this.hydrator ? this._effectiveHydrationOptions() : null;
         const cacheKey = this._queryCache ? `${sql}|${JSON.stringify(params)}|${opts?.depth}|${opts?.skipLists}` : null;
         if (cacheKey && this._queryCache.has(cacheKey)) {
             const cached = this._queryCache.get(cacheKey);
@@ -333,7 +347,7 @@ class SqliteResultsProxy {
 
         // Hydrate rows into entity-compatible objects
         if (this.hydrator) {
-            const opts = this.hydrationOptions;
+            const opts = this._effectiveHydrationOptions();
             this.hydrator.beginHydrationSession();
             try {
                 // Batch-preload list properties to avoid N+1 queries (skip when lists aren't needed)
