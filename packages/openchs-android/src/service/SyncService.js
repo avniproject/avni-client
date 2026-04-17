@@ -257,6 +257,7 @@ class SyncService extends BaseService {
 
         let syncDetailsWithPrivileges;
         this._disableForeignKeysIfSqlite();
+        this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
             .then(() => this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime))
             .then(() => this.getRefData(referenceEntityMetadata, onProgressPerEntity, now, endDateTime))
@@ -268,17 +269,29 @@ class SyncService extends BaseService {
                     endDateTime = result.endDateTime;
                 }
             })
+            .then(() => this._buildReferenceCacheIfSqlite())
             .then(() => this.getService(EncryptionService).encryptOrDecryptDbIfRequired())
             .then(() => syncDetailsWithPrivileges = this.updateAsPerNewPrivilege(allEntitiesMetaData, updateProgressSteps, currentVersionEntitySyncDetails))
             .then(() => statusMessageCallBack("downloadNewDataFromServer"))
             .then(() => this.getTxData(subjectMigrationMetadata, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
-            .then(() => this.getService(SubjectMigrationService).migrateSubjects(onProgressPerEntity))
+            .then(async () => {
+                // Subject migration walks subject.enrolments → enrolment.encounters →
+                // observation arrays etc. to delete an entire subject subtree, so it
+                // needs deep hydration. Disable shallow mode just for this step.
+                this._disableShallowHydrationIfSqlite();
+                try {
+                    return await this.getService(SubjectMigrationService).migrateSubjects(onProgressPerEntity);
+                } finally {
+                    this._enableShallowHydrationIfSqlite();
+                }
+            })
             .then(() => this.getTxData(filteredTxData, onProgressPerEntity, syncDetailsWithPrivileges, endDateTime))
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadCustomCardHtmlFiles())
             .then(() => this.downloadIcons())
             .finally(() => {
+                this._disableShallowHydrationIfSqlite();
                 this._enableForeignKeysIfSqlite();
                 this._checkForeignKeyIntegrityIfSqlite();
             })
@@ -572,8 +585,10 @@ class SyncService extends BaseService {
         const currentVersionDetails = this.retainEntitiesPresentInCurrentVersion(syncDetails, allEntitiesMetaData);
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionDetails);
         this._disableForeignKeysIfSqlite();
+        this._enableShallowHydrationIfSqlite();
         await this.getTxData(userInfoData, onProgressPerEntity, syncDetails, endDateTime);
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
+        this._buildReferenceCacheIfSqlite();
 
         // Re-persist migration state now that UserInfo is available on SQLite.
         // The initial persist in _checkAndSwitchBackendMidSync used a null username
@@ -609,11 +624,13 @@ class SyncService extends BaseService {
      */
     async _checkAndSwitchBackendMidSync(statusMessageCallBack) {
         try {
+            const GlobalContext = require('../GlobalContext').default;
+            if (GlobalContext.isBackendForced()) return false;
+
             const migrationService = this.getService('sqliteMigrationService');
             if (!migrationService) return false;
 
             const desired = migrationService.computeDesiredBackend();
-            const GlobalContext = require('../GlobalContext').default;
             const globalContext = GlobalContext.getInstance();
 
             if (desired === 'sqlite' && globalContext.getActiveBackend() !== 'sqlite') {
@@ -662,6 +679,26 @@ class SyncService extends BaseService {
         if (!this.db.isSqlite) return;
         this.db._executeRaw("PRAGMA foreign_keys = ON");
         General.logDebug("SyncService", "SQLite foreign keys re-enabled after sync");
+    }
+
+    /**
+     * During sync, openchs-models' fromResource calls findByKey("uuid", parentUuid,
+     * ParentSchema) for every synced child entity. Without shallow mode, each call
+     * triggers SqliteResultsProxy's deep batchPreload — fetching the parent's
+     * entire 3-level subtree (e.g., an Individual's 400 encounters + their concept
+     * refs) on every sync entity. The result is only used for its uuid (to populate
+     * a FK column via bulkCreate), so the deep hydration is wasted work.
+     */
+    _enableShallowHydrationIfSqlite() {
+        if (!this.db.isSqlite || typeof this.db.setShallowMode !== "function") return;
+        this.db.setShallowMode(true);
+        General.logDebug("SyncService", "SQLite shallow hydration enabled for sync");
+    }
+
+    _disableShallowHydrationIfSqlite() {
+        if (!this.db.isSqlite || typeof this.db.setShallowMode !== "function") return;
+        this.db.setShallowMode(false);
+        General.logDebug("SyncService", "SQLite shallow hydration disabled after sync");
     }
 
     /**

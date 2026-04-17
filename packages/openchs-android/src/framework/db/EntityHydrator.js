@@ -58,6 +58,33 @@ class EntityHydrator {
         // batchPreloadLists() before hydration loop to avoid N+1 queries.
         // Keyed by "${childSchemaName}:${fkColumnName}" -> Map<parentUuid, rows[]>.
         this._listBatchCache = null;
+
+        // When true, hydration paths that would normally deep-load (lists +
+        // recursive FK preload) instead return shallow entities (scalar fields
+        // + depth-0 cached refs, lists empty). Toggled by SyncService for the
+        // duration of a sync, since openchs-models' fromResource calls
+        // findByKey("uuid", ...) per child entity — and during sync the caller
+        // only needs the parent's uuid for the FK column, not its full subtree.
+        this._shallowMode = false;
+    }
+
+    setShallowMode(enabled) {
+        this._shallowMode = !!enabled;
+    }
+
+    isShallowMode() {
+        return this._shallowMode;
+    }
+
+    /**
+     * Default hydration options used by point-lookup paths
+     * (objectForPrimaryKey, SqliteResultsProxy when not overridden).
+     * Returns shallow options when shallow mode is on.
+     */
+    getDefaultHydrationOptions() {
+        return this._shallowMode
+            ? {skipLists: true, depth: 1}
+            : {skipLists: false, depth: 3};
     }
 
     /**
