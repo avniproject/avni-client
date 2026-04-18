@@ -31,6 +31,7 @@ import OrganisationConfigService from "../service/OrganisationConfigService";
 import UserInfoService from "../service/UserInfoService";
 import {CopilotProvider, CopilotStep, walkthroughable, useCopilot} from "react-native-copilot";
 import CopilotTooltip from "./common/CopilotTooltip";
+import GlobalContext from "../GlobalContext";
 
 const WalkthroughableView = walkthroughable(View);
 
@@ -87,6 +88,92 @@ class LandingView extends AbstractComponent {
 
     viewName() {
         return "LandingView";
+    }
+
+    didFocus() {
+        // Check for pending deep link when view gains focus
+        this.handlePendingDeepLink();
+    }
+
+    handlePendingDeepLink() {
+        const globalContext = GlobalContext.getInstance();
+        const pendingDeepLink = globalContext.pendingDeepLink;
+        
+        if (pendingDeepLink) {
+            General.logDebug('LandingView', 'Handling pending deep link in LandingView', pendingDeepLink);
+            
+            // Clear the pending deep link to prevent re-processing
+            globalContext.pendingDeepLink = null;
+            
+            const { type, id, entityType, rawParams } = pendingDeepLink;
+            
+            // Handle different form types
+            switch (type) {
+                case 'enrollment':
+                    // Navigate to program enrollment form
+                    this.handleEnrollmentDeepLink(id, entityType, rawParams);
+                    break;
+                
+                case 'encounter':
+                    // Navigate to encounter form
+                    this.handleEncounterDeepLink(id, entityType, rawParams);
+                    break;
+                
+                case 'registration':
+                    // Navigate to registration form
+                    this.handleRegistrationDeepLink(id, entityType, rawParams);
+                    break;
+                
+                default:
+                    General.logDebug('LandingView', `Unknown deep link type: ${type}`);
+            }
+        }
+    }
+
+    handleEnrollmentDeepLink(id, entityType, rawParams) {
+        General.logDebug('LandingView', 'Handling enrollment deep link', { id, entityType, rawParams });
+        
+        // If ID is provided, navigate to specific enrollment
+        // Otherwise, navigate to enrollment selection
+        if (id) {
+            // Navigate to specific enrollment dashboard
+            CHSNavigator.navigateToProgramEnrolmentDashboardView(this, id, null, false, null, null, 2);
+        } else {
+            // Navigate to search or enrollment list
+            this.dispatchAction(Actions.ON_SEARCH_CLICK);
+        }
+    }
+
+    handleEncounterDeepLink(id, entityType, rawParams) {
+        General.logDebug('LandingView', 'Handling encounter deep link', { id, entityType, rawParams });
+        
+        // If ID is provided, navigate to specific encounter
+        // Otherwise, navigate to encounter selection
+        if (id) {
+            try {
+                // Navigate to encounter details or edit screen
+                // The encounter UUID is passed - user can search for it or it can be fetched
+                General.logDebug('LandingView', `Navigate to encounter: ${id}`);
+                // For now, navigate to search where user can find the individual
+                // TODO: Implement direct encounter navigation by fetching from DB
+                this.dispatchAction(Actions.ON_SEARCH_CLICK);
+            } catch (error) {
+                General.logError('LandingView', 'Error handling encounter deep link', error);
+                this.dispatchAction(Actions.ON_SEARCH_CLICK);
+            }
+        } else {
+            // Navigate to search to find the individual first
+            this.dispatchAction(Actions.ON_SEARCH_CLICK);
+        }
+    }
+
+    handleRegistrationDeepLink(id, entityType, rawParams) {
+        General.logDebug('LandingView', 'Handling registration deep link', { id, entityType, rawParams });
+        
+        // Navigate to registration view
+        // Note: entityType is available for future pre-selection feature
+        // Current implementation shows all available registration types
+        this.dispatchAction(Actions.ON_REGISTER_CLICK);
     }
 
     componentDidUpdate(prevProps, prevState) {
