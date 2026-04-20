@@ -1,7 +1,7 @@
 import React from 'react';
-import {SafeAreaView, Dimensions, Text} from 'react-native';
+import {SafeAreaView, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
-import AutoHeightWebView from 'react-native-autoheight-webview';
+import {WebView} from 'react-native-webview';
 import AbstractComponent from '../../framework/view/AbstractComponent';
 import Path from '../../framework/routing/Path';
 import CHSContainer from '../common/CHSContainer';
@@ -43,7 +43,6 @@ class CustomCardDetailView extends AbstractComponent {
     }
 
     render() {
-        const {width} = Dimensions.get('window');
         const title = this.props.displayName || this.props.reportCard.name;
         return (
             <CHSContainer>
@@ -51,12 +50,15 @@ class CustomCardDetailView extends AbstractComponent {
                 <SafeAreaView style={{flex: 1}}>
                     {this.state.error && <Text style={{padding: 16, color: 'red'}}>{this.state.error}</Text>}
                     {this.state.html && (
-                        <AutoHeightWebView
-                            style={{width}}
-                            source={{html: this.state.html}}
-                            scalesPageToFit={false}
-                            viewportContent={'width=device-width, initial-scale=1, maximum-scale=1'}
-                        />
+                        <View style={{flex: 1, paddingHorizontal: 12, paddingVertical: 12}}>
+                            <WebView
+                                source={{html: this.state.html}}
+                                style={{flex: 1}}
+                                scalesPageToFit={false}
+                                originWhitelist={['*']}
+                                javaScriptEnabled={true}
+                            />
+                        </View>
                     )}
                 </SafeAreaView>
             </CHSContainer>
