@@ -33,7 +33,7 @@ class CustomCardDetailView extends AbstractComponent {
                 .executeCustomCardDataRule(customCardConfig, ruleInputArray) || {};
             const data = _.isFunction(ruleResult.lineListFunction)
                 ? ruleResult.lineListFunction()
-                : ruleResult;
+                : {};
             const body = new Function('data', 'translations', `return \`${template}\``)(data, {});
             this.setState({html: body});
         } catch (e) {
