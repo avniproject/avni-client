@@ -3,6 +3,7 @@
   "language": "hi_IN",
   "translations": {
     "____COMMENT____": "Hindi translation for the application labels",
+    "Any": "कोई भी",
     "next": "अगला >>",
     "previous": "<< पिछला",
     "deleteConfirmation": "आपका डाटा डिलीट करना है?",

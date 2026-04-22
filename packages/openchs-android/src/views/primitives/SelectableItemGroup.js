@@ -10,6 +10,7 @@ import ValidationErrorMessage from "../form/ValidationErrorMessage";
 import SelectableItem from "./SelectableItem";
 import SubjectInfoCard from '../common/SubjectInfoCard';
 import MediaContent from '../common/MediaContent';
+import AnyChip from './AnyChip';
 
 class SelectableItemGroup extends React.Component {
     static defaultProps = {
@@ -39,7 +40,10 @@ class SelectableItemGroup extends React.Component {
         allowUnselect: PropTypes.bool,
         locale: PropTypes.string.isRequired,
         disabled: PropTypes.bool,
-        hasMediaContent: PropTypes.bool
+        hasMediaContent: PropTypes.bool,
+        headerChipLabel: PropTypes.string,
+        headerChipActive: PropTypes.bool,
+        onHeaderChipPress: PropTypes.func,
     };
 
     onItemPressed(value, checked, label) {
@@ -118,12 +122,17 @@ class SelectableItemGroup extends React.Component {
     }
 
     render() {
-        const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError} = this.props;
+        const {mandatory, labelValuePairs, skipLabel, labelKey, borderStyle, inPairs, validationError, headerChipLabel, headerChipActive, onHeaderChipPress} = this.props;
         const mandatoryText = mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
+        const showHeaderChip = !!headerChipLabel && _.isFunction(onHeaderChipPress);
         return (
             <View>
                 {!skipLabel &&
-                <Text style={Styles.formLabel}>{this.props.I18n.t(labelKey)}{mandatoryText}</Text>}
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <Text style={Styles.formLabel}>{this.props.I18n.t(labelKey)}{mandatoryText}</Text>
+                    {showHeaderChip &&
+                        <AnyChip label={headerChipLabel} active={!!headerChipActive} onPress={onHeaderChipPress}/>}
+                </View>}
                 {labelValuePairs.length > 0 ? labelValuePairs.length === 1 && mandatory === true ?
                     <View style={[style.radioStyle, borderStyle]}>
                         {this.renderSingleValue()}

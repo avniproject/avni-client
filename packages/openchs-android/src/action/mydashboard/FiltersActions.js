@@ -67,7 +67,8 @@ class FiltersActions {
             addressLevelState: action.addressLevelState
         };
         const addressLevelService = beans.get(AddressLevelService);
-        const toMatchAddresses = [...action.addressLevelState.selectedAddresses].concat(addressLevelService.getAllDescendants(action.addressLevelState.selectedAddresses));
+        const effectiveAddresses = action.addressLevelState.effectiveAddresses;
+        const toMatchAddresses = [...effectiveAddresses].concat(addressLevelService.getAllDescendants(effectiveAddresses));
         newState.locationSearchCriteria.toggleLowestAddresses(toMatchAddresses);
         return newState;
     }

@@ -13,7 +13,10 @@ class AddressLevel extends AbstractComponent {
         levelType: PropTypes.string,
         validationError: PropTypes.object,
         mandatory: PropTypes.bool,
-        onToggle: PropTypes.func
+        onToggle: PropTypes.func,
+        headerChipLabel: PropTypes.string,
+        headerChipActive: PropTypes.bool,
+        onHeaderChipPress: PropTypes.func,
     };
 
     viewName() {
@@ -45,6 +48,9 @@ class AddressLevel extends AbstractComponent {
                 selectionFn={(selectedUUID) => this.props.levels.some(l => l.uuid === selectedUUID && l.isSelected)}
                 labelKey={this.props.levelType}
                 mandatory={this.props.mandatory}
+                headerChipLabel={this.props.headerChipLabel}
+                headerChipActive={this.props.headerChipActive}
+                onHeaderChipPress={this.props.onHeaderChipPress}
                 labelValuePairs={valueLabelPairs}/>
         );
     }

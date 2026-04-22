@@ -1,11 +1,12 @@
 import BaseService from "./BaseService";
 import Service from "../framework/bean/Service";
-import {CustomDashboardCache, Dashboard, DashboardFilterConfig, EncounterType, Program, Range, SubjectType} from "openchs-models";
+import {CustomDashboardCache, CustomFilter, Dashboard, DashboardFilterConfig, EncounterType, Program, Range, SubjectType} from "openchs-models";
 import _ from "lodash";
 import EntityService from "./EntityService";
 import DashboardFilterService from "./reports/DashboardFilterService";
 import General from "../utility/General";
 import FormMetaDataSelection from "../model/FormMetaDataSelection";
+import AddressFilterValue from "../model/AddressFilterValue";
 import Hashes from 'jshashes';
 
 function getDashboardCache(service, dashboardUUID) {
@@ -60,6 +61,18 @@ class CustomDashboardCacheService extends BaseService {
                         entityService.findAllByUUID(selectedSerialisedValue.programs, Program.schema.name),
                         entityService.findAllByUUID(selectedSerialisedValue.encounterTypes, EncounterType.schema.name)
                     );
+                } else if (dashboardFilterConfig.type === CustomFilter.type.Address) {
+                    if (_.isArray(selectedSerialisedValue)) {
+                        selectedFilterValues[filterUuid] = new AddressFilterValue(
+                            entityService.findAllByUUID(selectedSerialisedValue, dashboardFilterConfig.getEntityType()),
+                            []
+                        );
+                    } else {
+                        selectedFilterValues[filterUuid] = new AddressFilterValue(
+                            entityService.findAllByUUID(selectedSerialisedValue.selectedAddresses || [], dashboardFilterConfig.getEntityType()),
+                            selectedSerialisedValue.anyActiveTypes || []
+                        );
+                    }
                 } else if (dashboardFilterConfig.isMultiEntityType()) {
                     selectedFilterValues[filterUuid] = entityService.findAllByUUID(selectedSerialisedValue, dashboardFilterConfig.getEntityType());
                 } else if (dashboardFilterConfig.isDateLikeFilterType()) {
@@ -114,6 +127,14 @@ class CustomDashboardCacheService extends BaseService {
                         subjectTypes: selectedFilterValue.subjectTypes.map(x => x.uuid),
                         programs: selectedFilterValue.programs.map(x => x.uuid),
                         encounterTypes: selectedFilterValue.encounterTypes.map(x => x.uuid)
+                    };
+                }
+            } else if (dashboardFilterConfig.type === CustomFilter.type.Address) {
+                const addrFilterValue = AddressFilterValue.from(selectedFilterValue);
+                if (!addrFilterValue.isEmpty()) {
+                    serialisedSelectedValues[filterUuid] = {
+                        selectedAddresses: addrFilterValue.selectedAddresses.map(x => x.uuid),
+                        anyActiveTypes: addrFilterValue.anyActiveTypes,
                     };
                 }
             } else if (dashboardFilterConfig.isMultiEntityType()) {

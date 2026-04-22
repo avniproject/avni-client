@@ -8,6 +8,7 @@ import {FilterActionNames} from '../../action/mydashboard/FiltersActionsV2';
 import _ from 'lodash';
 import Styles from "../primitives/Styles";
 import Colors from '../primitives/Colors';
+import AddressFilterValue from "../../model/AddressFilterValue";
 
 function MultiValueFilterDisplay({labelTexts, filter}) {
     return <View key={filter.name} style={{display: "flex", flexDirection: "row", flexWrap: "wrap"}}>
@@ -52,7 +53,10 @@ function getFiltersToDisplay(selectedFilterValues, filterUUIDsToIgnore, dashboar
             General.logDebug("AppliedFiltersV2", "getFiltersToDisplay", inputDataType, filter.name, filterType);
 
             if (filterType === CustomFilter.type.Address) {
-                const labelTexts = selectedFilterValue.map((x) => {return {label: x.type, text: x.name}});
+                const addrFilterValue = AddressFilterValue.from(selectedFilterValue);
+                const concrete = addrFilterValue.concreteSelections();
+                if (_.isEmpty(concrete)) return null;
+                const labelTexts = concrete.map((x) => {return {label: x.type, text: x.name}});
                 return <MultiValueFilterDisplay filter={filter} labelTexts={labelTexts}/>;
             }
 

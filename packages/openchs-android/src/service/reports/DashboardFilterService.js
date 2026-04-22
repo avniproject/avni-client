@@ -16,6 +16,7 @@ import _ from "lodash";
 import AddressLevelService from "../AddressLevelService";
 import General from "../../utility/General";
 import {JSONStringify} from "../../utility/JsonStringify";
+import AddressFilterValue from "../../model/AddressFilterValue";
 
 @Service("dashboardFilterService")
 class DashboardFilterService extends BaseService {
@@ -88,12 +89,13 @@ class DashboardFilterService extends BaseService {
             };
         }
         if (filterConfig.type === CustomFilter.type.Address) {
-            if (_.isEmpty(filterValue)) {
-                dashboardReportFilter.filterValue = filterValue;
+            const addrFilterValue = AddressFilterValue.from(filterValue);
+            if (addrFilterValue.isEmpty()) {
+                dashboardReportFilter.filterValue = [];
             } else {
                 const addressLevelService = this.getService(AddressLevelService);
-                const addressFilterValues = [...filterValue];
-                const descendants = addressLevelService.getAllDescendants(filterValue);
+                const addressFilterValues = [...addrFilterValue.selectedAddresses];
+                const descendants = addressLevelService.getAllDescendants(addressFilterValues);
                 dashboardReportFilter.filterValue = addressFilterValues.concat(descendants
                   .map(addressLevel => _.pick(addressLevel, ['uuid', 'name', 'level', 'type', 'parentUuid'])));
                 General.logDebug('DashboardFilterService', `Effective address filters: ${JSON.stringify(_.countBy(dashboardReportFilter.filterValue, "type"))}`);

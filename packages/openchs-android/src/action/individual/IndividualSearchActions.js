@@ -113,8 +113,7 @@ export class IndividualSearchActions {
     static toggleAddressLevelCriteria(state, action, beans) {
         const newState = IndividualSearchActions.clone(state);
         const addressLevelState = action.values;
-        const lowestSelectedAddressLevels = addressLevelState.lowestSelectedAddresses;
-        newState.searchCriteria.toggleLowestAddresses(lowestSelectedAddressLevels);
+        newState.searchCriteria.toggleLowestAddresses(addressLevelState.lowestEffectiveAddresses);
         newState.addressLevelState = addressLevelState;
         return newState;
     };
@@ -131,7 +130,7 @@ export class IndividualSearchActions {
         const lowestSelectedAddressLevels = newState.searchCriteria.lowestAddressLevels;
         const searchAddressLevels = lowestSelectedAddressLevels
             .reduce((acc, parent) => acc.concat(addressLevelService.getDescendantsOfNode(parent)), [])
-            .concat(newState.addressLevelState.selectedAddresses);
+            .concat(newState.addressLevelState.effectiveAddresses);
         newState.searchCriteria.toggleSearchAddresses(searchAddressLevels);
         const selectedCustomFilterForSubjectType = _.mapValues(newState.searchCriteria.selectedCustomFilters, selectedFilters => {
             const s = selectedFilters.filter(filter => filter.subjectTypeUUID === state.searchCriteria.subjectType.uuid);
