@@ -980,7 +980,12 @@ class RuleEvaluationService extends BaseService {
             General.logError("Rule-Failure", error);
             this.saveFailedRules(error, customCardConfig.uuid, '',
                 'CustomCardConfig', customCardConfig.uuid, null, null);
-            return {};
+            return {
+                hasErrorMsg: true,
+                errorMsg: this.I18n.t("queryExecutionError"),
+                primaryValue: this.I18n.t("Error"),
+                secondaryValue: this.I18n.t("queryExecutionError"),
+            };
         }
     }
 

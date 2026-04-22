@@ -126,10 +126,24 @@ class ReportCardService extends BaseService {
         return ReportCardResult.create(this.getResultForChecklistCardType(type, reportFilters).result.individual.length, null, true);
     }
 
+    getCountForFullyCustomCard(reportCard, reportFilters) {
+        const data = this.getService(RuleEvaluationService)
+            .executeCustomCardDataRule(reportCard.customCardConfig, reportFilters) || {};
+        const primaryValue = _.isNil(data.primaryValue) ? "" : data.primaryValue;
+        const secondaryValue = _.isNil(data.secondaryValue) ? "" : data.secondaryValue;
+        const result = ReportCardResult.create(primaryValue, secondaryValue, true, !!data.hasErrorMsg);
+        if (!_.isNil(data.name)) result.cardName = data.name;
+        if (data.colors && !_.isNil(data.colors.background)) result.cardColor = data.colors.background;
+        if (data.colors && !_.isNil(data.colors.text)) result.textColor = data.colors.text;
+        return result;
+    }
+
     getReportCardCount(reportCard, reportFilters) {
         General.logDebug("ReportCardService", `Executing report card: ${reportCard.name}`);
         const standardReportCardType = reportCard.standardReportCardType;
         switch (true) {
+            case reportCard.isFullyCustom() :
+                return this.getCountForFullyCustomCard(reportCard, reportFilters);
             case _.isNil(standardReportCardType) :
                 return this.getService(RuleEvaluationService).getDashboardCardResult(reportCard, reportFilters);
             case standardReportCardType.isApprovalType() :

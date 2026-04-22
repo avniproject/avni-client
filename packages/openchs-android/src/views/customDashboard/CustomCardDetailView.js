@@ -23,23 +23,33 @@ class CustomCardDetailView extends AbstractComponent {
     constructor(props, context) {
         super(props, context);
         this.state = {html: null, error: null};
+        this._isMounted = false;
     }
 
     async componentDidMount() {
+        this._isMounted = true;
         const {customCardConfig, ruleInputArray} = this.props;
         try {
             const template = await this.getService(CustomCardConfigService).readHtmlTemplate(customCardConfig);
             const ruleResult = this.getService(RuleEvaluationService)
                 .executeCustomCardDataRule(customCardConfig, ruleInputArray) || {};
+            if (ruleResult.hasErrorMsg) {
+                if (this._isMounted) this.setState({error: ruleResult.errorMsg || 'Data rule failed'});
+                return;
+            }
             const data = _.isFunction(ruleResult.lineListFunction)
                 ? ruleResult.lineListFunction()
                 : {};
             const body = new Function('data', 'translations', `return \`${template}\``)(data, {});
-            this.setState({html: body});
+            if (this._isMounted) this.setState({html: body});
         } catch (e) {
             General.logError('CustomCardDetailView', e);
-            this.setState({error: e.message || String(e)});
+            if (this._isMounted) this.setState({error: e.message || String(e)});
         }
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     render() {
@@ -57,6 +67,9 @@ class CustomCardDetailView extends AbstractComponent {
                                 scalesPageToFit={false}
                                 originWhitelist={['*']}
                                 javaScriptEnabled={true}
+                                allowFileAccess={false}
+                                allowFileAccessFromFileURLs={false}
+                                allowUniversalAccessFromFileURLs={false}
                             />
                         </View>
                     )}
