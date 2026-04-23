@@ -168,7 +168,10 @@ android {
             applicationId "com.openchsclient"
             resValue "string", "app_name", "Avni"
             signingConfig signingConfigs.generic
-            manifestPlaceholders = [bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy"]
+            manifestPlaceholders = [
+                bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy",
+                appLinkHost  : "app.avniproject.org"
+            ]
         }
         lfe {
             applicationId "org.lfeteach.openchsclient"
@@ -204,7 +207,10 @@ android {
             applicationId "com.openchsclient.gramin"
             resValue "string", "app_name", "Avni Gramin"
             signingConfig signingConfigs.sakhi
-            manifestPlaceholders = [bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy"]
+            manifestPlaceholders = [
+                bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy",
+                appLinkHost  : "app.rwb.avniproject.org"
+            ]
         }
     }
     namespace 'com.openchsclient'
