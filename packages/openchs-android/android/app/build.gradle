@@ -170,7 +170,7 @@ android {
             signingConfig signingConfigs.generic
             manifestPlaceholders = [
                 bugsnagAPIKey: System.getenv("OPENCHS_CLIENT_BUGSNAG_API_KEY") ?: "dummy",
-                appLinkHost  : "app.avniproject.org"
+                appLinkHost  : System.getenv("APP_LINK_HOST") ?: "app.avniproject.org"
             ]
         }
         lfe {
@@ -209,7 +209,7 @@ android {
             signingConfig signingConfigs.sakhi
             manifestPlaceholders = [
                 bugsnagAPIKey: System.getenv("GRAMIN_BUGSNAG_API_KEY") ?: "dummy",
-                appLinkHost  : "app.rwb.avniproject.org"
+                appLinkHost  : System.getenv("APP_LINK_HOST") ?: "app.rwb.avniproject.org"
             ]
         }
     }

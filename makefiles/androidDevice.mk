@@ -56,11 +56,16 @@ _run_app:
 _run_app_release:
 	make metro_config flavor=$(flavor)
 	cd packages/openchs-android && npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
+_run_app_release_staging:
+	make metro_config flavor=$(flavor)
+	cd packages/openchs-android && APP_LINK_HOST=staging.avniproject.org npx react-native run-android --mode "$(flavor)Release" --appId "$(app_android_package_name)"
 
 run_app: setup_hosts as_dev _run_app
 run-app: run_app
 
 run_app_release: as_dev _run_app_release
+run_app_release_staging: as_staging _run_app_release_staging
+run-app-release-staging: run_app_release_staging
 
 run_app_staging: as_staging _run_app
 run-app-staging: run_app_staging
