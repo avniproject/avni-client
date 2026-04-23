@@ -160,7 +160,7 @@ export default class AutocompleteSearch extends AbstractComponent {
         const filteredItems = [];
         items.forEach(item => {
             const tokens = searchTerm.trim().split(/[ \-:]+/);
-            const tokenWiseReExps = tokens.map(token => new RegExp(`${token}`, 'ig'));
+            const tokenWiseReExps = tokens.map(token => new RegExp(_.escapeRegExp(token), 'ig'));
             const displayValue = get(item, displayKey);
             const i18nDisplayValue = displayValue ? this.I18n.t(displayValue) : displayValue;
             if ( _.every(tokenWiseReExps, regEx => regEx.test(i18nDisplayValue))) {

@@ -75,6 +75,24 @@ class AddressLevels extends AbstractComponent {
         this._invokeCallbacks(oldState, newState);
     }
 
+    onToggleAny(levelType) {
+        const data = this.state.data.isAnyActive(levelType)
+            ? this.state.data.deactivateAny(levelType)
+            : (() => {
+                const itemsAtLevel = new Map(this.state.data.levels).get(levelType) || [];
+                const descendants = _.uniqBy(
+                    _.flatMap(itemsAtLevel, i => this.addressLevelService.getDescendantsOfParent(i.uuid, this.props.minLevelTypeUUIDs)),
+                    'uuid'
+                );
+                return this.state.data.activateAny(levelType, descendants);
+            })();
+        const onLowest = !_.isEmpty(data.lowestSelectedAddresses)
+            && this.addressLevelService.isOnLowestLevel(data.lowestSelectedAddresses, this.props.minLevelTypeUUIDs);
+        const newState = {data, onLowest};
+        this.setState(newState);
+        this._invokeCallbacks(this.state, newState);
+    }
+
     onLoad(lowestSelectedLevel) {
         const addressLevelState = this.defaultState();
         if (_.isNil(lowestSelectedLevel)) {
@@ -87,7 +105,8 @@ class AddressLevels extends AbstractComponent {
 
     UNSAFE_componentWillMount() {
         if (this.props.addressLevelState && this.props.multiSelect) {
-            if (this.props.addressLevelState.selectedAddresses.length > 0) {
+            if (this.props.addressLevelState.selectedAddresses.length > 0
+                || (this.props.addressLevelState.anyActiveTypes && this.props.addressLevelState.anyActiveTypes.size > 0)) {
                 const onLowest = !_.isEmpty(this.props.addressLevelState.lowestSelectedAddresses)
                     && this.addressLevelService.isOnLowestLevel(this.props.addressLevelState.lowestSelectedAddresses);
                 this.setState({
@@ -130,8 +149,17 @@ class AddressLevels extends AbstractComponent {
         General.logDebug(this.viewName(), 'render');
         const mandatoryText = this.props.mandatory ? <Text style={{color: Colors.ValidationError}}> * </Text> : <Text/>;
         const userHint = ` ${this.props.userHintText}`;
-        let addressLevels = this.state.data.levels.map(([levelType, levels], idx) =>
-            _.size(levels) > this.getMaxInlineDisplayCount() ?
+        const renderedLevels = this.state.data.levels;
+        const lastIdx = renderedLevels.length - 1;
+        const anyLabel = this.I18n.t('Any');
+        let addressLevels = renderedLevels.map(([levelType, levels], idx) => {
+            const isLeaf = idx === lastIdx;
+            const isLowestInHierarchy = this.addressLevelService.isOnLowestLevel(levels, this.props.minLevelTypeUUIDs);
+            const showAny = !isLowestInHierarchy;
+            const anyActive = this.state.data.isAnyActive(levelType);
+            const onHeaderChipPress = showAny ? () => this.onToggleAny(levelType) : undefined;
+            const headerChipLabel = showAny ? anyLabel : undefined;
+            const block = _.size(levels) > this.getMaxInlineDisplayCount() ?
                 <AutocompleteSearchWithLabel
                     key={idx}
                     options={levels}
@@ -139,6 +167,9 @@ class AddressLevels extends AbstractComponent {
                     selectionFn={level => level.isSelected}
                     multiSelect={this.props.multiSelect}
                     labelKey={levelType}
+                    headerChipLabel={headerChipLabel}
+                    headerChipActive={anyActive}
+                    onHeaderChipPress={onHeaderChipPress}
                 /> :
                 <AddressLevel
                     onToggle={(addressLevelUUID) => this.onSelect(levelType, addressLevelUUID, !this.props.multiSelect)}
@@ -146,7 +177,17 @@ class AddressLevels extends AbstractComponent {
                     validationError={this.props.validationError}
                     levelType={levelType}
                     multiSelect={this.props.multiSelect}
-                    levels={levels}/>);
+                    headerChipLabel={headerChipLabel}
+                    headerChipActive={anyActive}
+                    onHeaderChipPress={onHeaderChipPress}
+                    levels={levels}/>;
+            return (
+                <View key={idx}>
+                    {block}
+                    {!isLeaf && <View style={{height: 1, backgroundColor: Colors.InputBorderNormal, marginTop: 4, marginBottom: 12}}/>}
+                </View>
+            );
+        });
 
         return (
             <View style={{

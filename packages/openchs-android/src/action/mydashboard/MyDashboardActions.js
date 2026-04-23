@@ -10,8 +10,6 @@ import {firebaseEvents, logEvent} from "../../utility/Analytics";
 import RealmQueryService from "../../service/query/RealmQueryService";
 import SubjectTypeService from "../../service/SubjectTypeService";
 import {DashboardCacheFilter} from "openchs-models";
-import General from "../../utility/General";
-import {JSONStringify} from "../../utility/JsonStringify";
 
 function getApplicableEncounterTypes(holder) {
     return _.isEmpty(holder.selectedGeneralEncounterTypes) ? holder.selectedEncounterTypes : holder.selectedGeneralEncounterTypes;
@@ -198,7 +196,7 @@ class MyDashboardActions {
             itemsToDisplay: [],
             fetchFromDB: false,
             loading: false,
-            addressLevelState: new AddressLevelState(dashboardCacheFilter.selectedAddressesInfo),
+            addressLevelState: new AddressLevelState(dashboardCacheFilter.selectedAddressesInfo, new Set(dashboardCacheFilter.anyActiveTypes || [])),
             selectedAddressesInfo: dashboardCacheFilter.selectedAddressesInfo,
             selectedLocations: dashboardCacheFilter.selectedLocations,
             selectedCustomFilters: dashboardCacheFilter.selectedCustomFilters,
@@ -416,7 +414,8 @@ class MyDashboardActions {
                 parentUuid,
                 isSelected
             }));
-        updateCachedFilterFields({selectedAddressesInfo, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
+        const anyActiveTypes = newState.addressLevelState.anyActiveTypesArray;
+        updateCachedFilterFields({selectedAddressesInfo, anyActiveTypes, selectedSubjectTypeUUID: newState.selectedSubjectType.uuid, filterDate: action.filterDate}, context);
         const updatedState = _.isNil(action.listType) ? MyDashboardActions.onLoad(newState, {}, context) : MyDashboardActions.onListLoad(newState, action, context);
         logEvent(firebaseEvents.MY_DASHBOARD_FILTER, {time_taken: Date.now() - startTime, applied_filters: selectedFilterTypes});
         return updatedState;

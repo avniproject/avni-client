@@ -30,6 +30,7 @@ import FormMetaDataSelect from "../common/formMetaData/FormMetaDataSelect";
 import AddressLevelService from "../../service/AddressLevelService";
 import NamedSelectableEntities from "../../model/NamedSelectableEntities";
 import CustomFilterService from '../../service/CustomFilterService';
+import AddressFilterValue from "../../model/AddressFilterValue";
 
 class GroupSubjectFilter extends AbstractComponent {
     constructor(props, context) {
@@ -182,13 +183,14 @@ class FiltersViewV2 extends AbstractComponent {
                                                              deprecatedUsage={false}
                                                              onSelect={(gender) => this.dispatchFilterUpdate(filter, gender)}/>;
                                     case CustomFilter.type.Address:
-                                        const userVisibleAddresses = addressLevelService.getAllDisplayAddresses(filterValue);
-                                        let addressLevelState = new AddressLevelState(userVisibleAddresses);
-                                        addressLevelState.setSelectedAddresses(filterValue);
+                                        const addrFilterValue = AddressFilterValue.from(filterValue);
+                                        const userVisibleAddresses = addressLevelService.getAllDisplayAddresses(addrFilterValue.selectedAddresses);
+                                        let addressLevelState = new AddressLevelState(userVisibleAddresses, new Set(addrFilterValue.anyActiveTypes));
+                                        addressLevelState.setSelectedAddresses(addrFilterValue.concreteSelections());
                                         return <AddressLevels addressLevelState={addressLevelState}
                                                               fieldLabel={this.I18n.t(filter.name)}
                                                               key={index}
-                                                              onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, updatedAddressLevelState.selectedAddresses)}
+                                                              onSelect={(updatedAddressLevelState) => this.dispatchFilterUpdate(filter, new AddressFilterValue(updatedAddressLevelState.effectiveAddresses, updatedAddressLevelState.anyActiveTypesArray))}
                                                               multiSelect={true}
                                                               userHintText={this.I18n.t('addressFilterImplicitBehaviorHint')}/>;
                                     case CustomFilter.type.RegistrationDate:
