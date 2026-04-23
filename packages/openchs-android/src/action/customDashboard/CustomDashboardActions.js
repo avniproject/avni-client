@@ -238,8 +238,9 @@ class CustomDashboardActions {
                     }
                 }
             } else if (isArrayLike) {
+                const isApprovalCard = standardReportCardType && standardReportCardType.isApprovalType();
                 const singleSubject = result.length === 1 ? (result[0].individual || result[0]) : null;
-                if (singleSubject && singleSubject.uuid) {
+                if (!isApprovalCard && singleSubject && singleSubject.uuid) {
                     General.logDebug('CustomDashboardActions', `onCardPress - Single subject, navigating directly to subject profile`);
                     setTimeout(() => action.onShowSubjectAction(singleSubject), 0);
                 } else {
