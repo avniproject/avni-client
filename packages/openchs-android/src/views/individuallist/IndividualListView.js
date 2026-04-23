@@ -109,7 +109,8 @@ class IndividualListView extends AbstractComponent {
                 header={section.title}
                 backFunction={this.goBack.bind(this)}
                 cardType={cardType}
-                isScrolling={() => this._isScrolling}/>
+                isScrolling={() => this._isScrolling}
+                onSaveCallback={this.props.onSaveCallback}/>
         );
     };
 

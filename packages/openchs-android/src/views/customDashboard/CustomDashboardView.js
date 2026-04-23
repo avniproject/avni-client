@@ -291,22 +291,46 @@ class CustomDashboardView extends AbstractComponent {
             onDismissLoading: () => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
             },
+            onGoToSourceScreen: () => {
+                General.logDebug('CustomDashboardView', 'onGoToSourceScreen - navigating home');
+                this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
+                CHSNavigator.goHome(this);
+            },
             onShowSubjectAction: (individual) => {
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
                 CHSNavigator.navigateToProgramEnrolmentDashboardView(this, individual.uuid);
             },
-            onDoVisitAction: (encounter, enrolmentOrIndividual) => {
+            onDoVisitAction: (encounter, enrolmentOrIndividual, onActionCompletion) => {
+                General.logDebug('CustomDashboardView', `onDoVisitAction - onActionCompletion=${onActionCompletion}, encounter=${encounter?.uuid}`);
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
-                CHSNavigator.proceedEncounter(encounter, enrolmentOrIndividual, null, this);
+                const onSaveCallback = onActionCompletion === 'goToSourceScreen'
+                    ? (source) => {
+                        General.logDebug('CustomDashboardView', 'onDoVisitAction - save callback: navigating home (goToSourceScreen)');
+                        CHSNavigator.goHome(source);
+                    }
+                    : null;
+                General.logDebug('CustomDashboardView', `onDoVisitAction - onSaveCallback is ${onSaveCallback ? 'custom (goHome)' : 'null (default subject profile)'}`);
+                CHSNavigator.proceedEncounter(encounter, enrolmentOrIndividual, onSaveCallback, this);
             },
-            onDoVisitListResults: (results, reportCard, displayName) => TypedTransition.from(this).with({
-                indicatorActionName: Actions.LOAD_INDICATOR,
-                headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}),
-                results: results,
-                totalSearchResultsCount: results.length,
-                reportCardUUID,
-                backFunction: this.onBackPress.bind(this),
-            }).to(viewNameMap['IndividualListView'], true),
+            onDoVisitListResults: (results, reportCard, displayName, onActionCompletion) => {
+                General.logDebug('CustomDashboardView', `onDoVisitListResults - ${results.length} results, onActionCompletion=${onActionCompletion}`);
+                const onSaveCallback = onActionCompletion === 'goToSourceScreen'
+                    ? (source) => {
+                        General.logDebug('CustomDashboardView', 'onDoVisitListResults - save callback: navigating back to listing screen (goToSourceScreen)');
+                        CHSNavigator.navigateBackAfterDoVisit(source);
+                    }
+                    : null;
+                General.logDebug('CustomDashboardView', `onDoVisitListResults - onSaveCallback is ${onSaveCallback ? 'custom (back to list)' : 'null (default subject profile)'}`);
+                TypedTransition.from(this).with({
+                    indicatorActionName: Actions.LOAD_INDICATOR,
+                    headerTitle: _.truncate(displayName || reportCard.name, {'length': 30}),
+                    results: results,
+                    totalSearchResultsCount: results.length,
+                    reportCardUUID,
+                    backFunction: this.onBackPress.bind(this),
+                    onSaveCallback,
+                }).to(viewNameMap['IndividualListView'], true);
+            },
             onCustomRecordCardResults: (results, status, viewName, approvalStatus_status, reportFilters, reportCard, displayName) => TypedTransition.from(this).with({
                 reportFilters: reportFilters,
                 approvalStatus_status: approvalStatus_status,

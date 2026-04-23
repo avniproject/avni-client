@@ -604,6 +604,14 @@ class CHSNavigator {
         }
     }
 
+    static navigateBackAfterDoVisit(source) {
+        General.logDebug('CHSNavigator', 'navigateBackAfterDoVisit - popping encounter views to return to listing screen');
+        TypedTransition.from(source).resetStack(
+            [SystemRecommendationView, ProgramEncounterView, ProgramEncounterCancelView, IndividualEncounterView],
+            []
+        );
+    }
+
     static proceedEncounter(typeorencounter, parent, onSaveCallback, source) {
         const selectedEncounter = typeorencounter instanceof EncounterType
             ? parent instanceof Individual

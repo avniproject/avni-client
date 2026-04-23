@@ -66,7 +66,8 @@ class IndividualDetails extends AbstractComponent {
         encounter.encounterDateTime = moment().toDate();
         CHSNavigator.navigateToEncounterView(this, {
             encounter,
-            backFunction: this.props.backFunction
+            backFunction: this.props.backFunction,
+            onSaveCallback: this.props.onSaveCallback,
         });
     }
 
