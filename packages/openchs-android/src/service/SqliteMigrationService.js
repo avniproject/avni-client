@@ -4,6 +4,7 @@ import Service from "../framework/bean/Service";
 import BaseService from "./BaseService";
 import General from "../utility/General";
 import ErrorUtil from "../framework/errorHandling/ErrorUtil";
+import {BACKENDS} from "../framework/BackendTypes";
 
 // Note: Other services are looked up via this.getService(name) (string-based) to avoid
 // circular import chains during module load. EntityMetaData and SyncService are required
@@ -36,10 +37,9 @@ export const MIGRATION_PHASES = {
     COMPLETING: 'completing',
 };
 
-export const BACKENDS = {
-    REALM: 'realm',
-    SQLITE: 'sqlite',
-};
+// BACKENDS re-exported so existing importers continue to work. Canonical definition
+// lives in framework/BackendTypes to avoid circular imports with GlobalContext.
+export {BACKENDS};
 
 const ASYNC_STORAGE_KEY_PREFIX = 'avni.sqliteMigration.';
 
@@ -181,11 +181,28 @@ class SqliteMigrationService extends BaseService {
     }
 
     /**
-     * Entry point from app startup. If a migration was in progress, resume it.
+     * Entry point from app startup. Two jobs:
+     *   1. Reconcile the active backend for already-migrated users. GlobalContext
+     *      always boots on Realm because it doesn't know the per-user migration
+     *      state at init time. If the persisted state says we finished migrating
+     *      to SQLite, flip the bean registry's active backend here.
+     *   2. If a migration was in progress, resume it.
      */
     async resumeIfPending() {
         const state = await this.getState();
-        if (state.phase === MIGRATION_PHASES.IDLE) return;
+        const GlobalContext = require('../GlobalContext').default;
+        const globalContext = GlobalContext.getInstance();
+
+        if (state.phase === MIGRATION_PHASES.IDLE) {
+            if (state.activeBackend === BACKENDS.SQLITE
+                && globalContext.getActiveBackend() !== BACKENDS.SQLITE) {
+                General.logInfo("SqliteMigrationService",
+                    "Reconciling backend on launch: state=sqlite but active=realm — switching to SQLite");
+                globalContext.switchBackend(BACKENDS.SQLITE);
+            }
+            return;
+        }
+
         General.logInfo("SqliteMigrationService",
             `Resuming pending migration on launch: phase=${state.phase} active=${state.activeBackend} desired=${state.desiredBackend}`);
         return this.resume(state);
@@ -357,11 +374,9 @@ class SqliteMigrationService extends BaseService {
     async _runSync(syncSource, callbacks) {
         // Late require to avoid circular dependency at module load time
         const SyncService = require('./SyncService').default;
-        const GlobalContext = require('../GlobalContext').default;
         const {EntityMetaData} = require('openchs-models');
 
-        const globalContext = GlobalContext.getInstance();
-        const syncService = globalContext.beanRegistry.getService('syncService');
+        const syncService = this.getService('syncService');
 
         const lockId = syncService.acquireLock();
         if (!lockId) {
