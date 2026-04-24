@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import _ from "lodash";
 import CustomDashboardTab from "./CustomDashboardTab";
-import {DashboardSection} from 'openchs-models';
+import {DashboardSection, ReportCard} from "openchs-models";
 import TypedTransition from "../../framework/routing/TypedTransition";
 import CHSNavigator from "../../utility/CHSNavigator";
 import Colors from "../primitives/Colors";
@@ -303,7 +303,7 @@ class CustomDashboardView extends AbstractComponent {
             onDoVisitAction: (encounter, enrolmentOrIndividual, onActionCompletion) => {
                 General.logDebug('CustomDashboardView', `onDoVisitAction - onActionCompletion=${onActionCompletion}, encounter=${encounter?.uuid}`);
                 this.dispatchAction(Actions.LOAD_INDICATOR, {loading: false});
-                const onSaveCallback = onActionCompletion === 'goToSourceScreen'
+                const onSaveCallback = onActionCompletion === ReportCard.onActionCompletionTypes.goToSourceScreen
                     ? (source) => {
                         General.logDebug('CustomDashboardView', 'onDoVisitAction - save callback: navigating home (goToSourceScreen)');
                         CHSNavigator.goHome(source);
@@ -314,7 +314,7 @@ class CustomDashboardView extends AbstractComponent {
             },
             onDoVisitListResults: (results, reportCard, displayName, onActionCompletion) => {
                 General.logDebug('CustomDashboardView', `onDoVisitListResults - ${results.length} results, onActionCompletion=${onActionCompletion}`);
-                const onSaveCallback = onActionCompletion === 'goToSourceScreen'
+                const onSaveCallback = onActionCompletion === ReportCard.onActionCompletionTypes.goToSourceScreen
                     ? (source) => {
                         General.logDebug('CustomDashboardView', 'onDoVisitListResults - save callback: navigating back to listing screen (goToSourceScreen)');
                         CHSNavigator.navigateBackAfterDoVisit(source);
