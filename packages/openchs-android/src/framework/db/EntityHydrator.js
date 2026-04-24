@@ -30,8 +30,34 @@ const DUMMY_UUIDS = new Set([
 // is `child_uuid`, not the default first-match `parent_uuid`. Without this override,
 // AddressLevel.getParent() returns this AddressLevel itself, causing infinite recursion
 // in appendLineage().
-const EXPLICIT_LIST_FK_OVERRIDES = {
+// Every entry here covers a list property whose child schema declares more than
+// one FK column back to the parent schema — the convention-based first-match
+// fallback in findChildFkColumn cannot disambiguate, and picks a column that is
+// either semantically wrong or coincidentally right. Keep one entry per
+// (parentSchema.listProperty) pair. `SchemaFkOverrideSweepTest` enforces that
+// every such ambiguous list has an entry here.
+//
+// - AddressLevel.locationMappings → LocationMapping has both `parent` and `child`
+//   of type AddressLevel. The list holds mappings where this AddressLevel is the
+//   CHILD; first-match would return this AddressLevel itself, causing infinite
+//   recursion in appendLineage().
+// - Individual.relationships → IndividualRelationship has individualA + individualB.
+//   Back-reference goes via individualA (per openchs-models getParentEntity using
+//   "individualAUUID"). First-match happens to pick individualA; this entry
+//   documents the contract so a future property-order change in the upstream
+//   schema doesn't silently break hydration.
+// - Individual.groupSubjects → GroupSubject has groupSubject + memberSubject. The
+//   list holds GroupSubject rows where THIS individual IS the group, so the
+//   back-reference is group_subject_uuid. First-match is correct here; entry
+//   documents the contract.
+// - Individual.groups → GroupSubject has groupSubject + memberSubject. The list
+//   holds GroupSubject rows where THIS individual IS the member; first-match
+//   would wrongly pick group_subject_uuid. Override to member_subject_uuid.
+export const EXPLICIT_LIST_FK_OVERRIDES = {
     'AddressLevel.locationMappings': 'child_uuid',
+    'Individual.relationships': 'individual_a_uuid',
+    'Individual.groupSubjects': 'group_subject_uuid',
+    'Individual.groups': 'member_subject_uuid',
 };
 
 class EntityHydrator {

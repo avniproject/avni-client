@@ -254,6 +254,13 @@ class SyncService extends BaseService {
         this.entitySyncStatusService.updateAsPerSyncDetails(currentVersionEntitySyncDetails);
 
         let syncDetailsWithPrivileges;
+        // Tracks whether a mid-sync backend switch happened in this sync, and whether
+        // the download pipeline finished successfully. Both are read in the final .then
+        // (to flip migration state to IDLE) and the .finally (to gate the FK integrity
+        // check on a successful sync — a half-populated DB after a network drop would
+        // otherwise produce spurious FK violation reports).
+        let migrationSwitched = false;
+        let syncSucceeded = false;
         this._disableForeignKeysIfSqlite();
         this._enableShallowHydrationIfSqlite();
         return Promise.resolve(statusMessageCallBack("downloadForms"))
@@ -265,6 +272,7 @@ class SyncService extends BaseService {
                 if (result) {
                     syncDetails = result.syncDetails;
                     endDateTime = result.endDateTime;
+                    migrationSwitched = true;
                 }
             })
             .then(() => this._buildReferenceCacheIfSqlite())
@@ -287,11 +295,43 @@ class SyncService extends BaseService {
             .then(() => this.downloadNewsImages())
             .then(() => this.downloadExtensions())
             .then(() => this.downloadIcons())
+            .then(async () => {
+                syncSucceeded = true;
+                // Only now is it safe to record the migration as complete. If we persisted
+                // phase=idle earlier (e.g. immediately after the switchBackend call), a crash
+                // between then and here would leave AsyncStorage saying the migration finished
+                // while the SQLite DB is only partially populated — and resumeIfPending would
+                // not re-enter because phase is IDLE.
+                if (migrationSwitched) {
+                    await this._finalizeMigrationState();
+                }
+            })
             .finally(() => {
                 this._disableShallowHydrationIfSqlite();
                 this._enableForeignKeysIfSqlite();
-                this._checkForeignKeyIntegrityIfSqlite();
+                if (syncSucceeded) this._checkForeignKeyIntegrityIfSqlite();
             })
+    }
+
+    /**
+     * Flip migration state from PENDING_TARGET_SYNC to IDLE after the full download
+     * pipeline completes successfully. Called from the final .then of downloadSyncData
+     * when a mid-sync switch happened in this sync.
+     */
+    async _finalizeMigrationState() {
+        try {
+            const migrationService = this.getService('sqliteMigrationService');
+            if (!migrationService) return;
+            const state = await migrationService.getState();
+            state.activeBackend = 'sqlite';
+            state.desiredBackend = 'sqlite';
+            state.phase = 'idle';
+            state.lastError = null;
+            await migrationService.persistState(state);
+            General.logInfo("SyncService", "Mid-sync migration finalised — state=idle, activeBackend=sqlite");
+        } catch (e) {
+            General.logWarn("SyncService", `Finalise migration state failed: ${e.message}`);
+        }
     }
 
     downloadExtensions() {
@@ -583,19 +623,20 @@ class SyncService extends BaseService {
         await this.getRefData(refMetadata, onProgressPerEntity, now, endDateTime);
         this._buildReferenceCacheIfSqlite();
 
-        // Re-persist migration state now that UserInfo is available on SQLite.
-        // The initial persist in _checkAndSwitchBackendMidSync used a null username
-        // (UserInfo wasn't on SQLite yet), so the state was stored under the wrong
-        // AsyncStorage key. Without this re-persist, isMigrationPending reads the
-        // correct username key, finds no state, defaults to activeBackend='realm',
-        // and triggers a redundant second migration sync.
+        // Re-persist migration state now that UserInfo is available on SQLite so
+        // subsequent reads find the state under the SQLite-backed username key
+        // (which should match the Realm-backed key, but this write is cheap insurance
+        // against any drift). Phase stays at PENDING_TARGET_SYNC — the final flip to
+        // IDLE happens in downloadSyncData's success .then after the tx data sync
+        // completes. Persisting IDLE here would re-introduce the crash window the
+        // PENDING_TARGET_SYNC state exists to close.
         try {
             const migrationService = this.getService('sqliteMigrationService');
             if (migrationService) {
                 const state = await migrationService.getState();
                 state.activeBackend = 'sqlite';
                 state.desiredBackend = 'sqlite';
-                state.phase = 'idle';
+                state.phase = 'pending_target_sync';
                 state.lastError = null;
                 await migrationService.persistState(state);
             }
@@ -616,50 +657,54 @@ class SyncService extends BaseService {
      * @returns {boolean} true if the backend was switched
      */
     async _checkAndSwitchBackendMidSync(statusMessageCallBack) {
-        try {
-            const GlobalContext = require('../GlobalContext').default;
-            if (GlobalContext.isBackendForced()) return false;
+        const GlobalContext = require('../GlobalContext').default;
+        if (GlobalContext.isBackendForced()) return false;
 
-            const migrationService = this.getService('sqliteMigrationService');
-            if (!migrationService) return false;
+        const migrationService = this.getService('sqliteMigrationService');
+        if (!migrationService) return false;
 
-            const desired = migrationService.computeDesiredBackend();
-            const globalContext = GlobalContext.getInstance();
+        const desired = migrationService.computeDesiredBackend();
+        const globalContext = GlobalContext.getInstance();
 
-            if (desired === 'sqlite' && globalContext.getActiveBackend() !== 'sqlite') {
-                General.logInfo("SyncService",
-                    "Mid-sync migration: switching to SQLite before transactional data sync");
-                statusMessageCallBack('switchingBackendMessage');
-
-                // Capture auth state from Realm Settings before switching
-                const authState = migrationService._captureAuthState();
-
-                // Switch backend
-                globalContext.switchBackend('sqlite');
-
-                // Seed entitySyncStatus on SQLite so sync can continue
-                this.entitySyncStatusService.setup();
-
-                // Bootstrap Settings (serverURL, auth tokens) on SQLite
-                await migrationService._bootstrapTargetSettings(authState);
-
-                // Mark migration as complete in AsyncStorage
-                const state = await migrationService.getState();
-                state.activeBackend = 'sqlite';
-                state.desiredBackend = 'sqlite';
-                state.phase = 'idle';
-                state.lastError = null;
-                await migrationService.persistState(state);
-
-                General.logInfo("SyncService",
-                    "Mid-sync migration complete — continuing sync on SQLite");
-                return true;
-            }
-        } catch (e) {
-            General.logError("SyncService",
-                `Mid-sync migration check failed: ${e.message}. Continuing on current backend.`);
+        if (desired !== 'sqlite' || globalContext.getActiveBackend() === 'sqlite') {
+            return false;
         }
-        return false;
+
+        General.logInfo("SyncService",
+            "Mid-sync migration: switching to SQLite before transactional data sync");
+        statusMessageCallBack('switchingBackendMessage');
+
+        // Capture auth state from Realm Settings BEFORE the switch, and persist
+        // migration state BEFORE switching. Persisting pre-switch uses the Realm
+        // UserInfo (the real username) for the AsyncStorage key, so a resume after
+        // any mid-switch failure finds the correct per-user state. The phase stays
+        // at PENDING_TARGET_SYNC until downloadSyncData's final .then — until then,
+        // any crash/failure is recoverable by resumeIfPending/resume().
+        const authState = migrationService._captureAuthState();
+        const state = await migrationService.getState();
+        state.activeBackend = 'sqlite';
+        state.desiredBackend = 'sqlite';
+        state.phase = 'pending_target_sync';
+        state.lastError = null;
+        await migrationService.persistState(state);
+
+        try {
+            globalContext.switchBackend('sqlite');
+            this.entitySyncStatusService.setup();
+            await migrationService._bootstrapTargetSettings(authState);
+        } catch (e) {
+            // The backend has already been switched to SQLite, so "continue on current
+            // backend" would mean continuing on SQLite without seeded sync status or
+            // auth — not safe. Propagate the failure so the sync fails visibly; state
+            // is already PENDING_TARGET_SYNC so resume() can retry from here.
+            General.logError("SyncService",
+                `Mid-sync migration switch failed after backend swap: ${e.message}`);
+            throw e;
+        }
+
+        General.logInfo("SyncService",
+            "Mid-sync migration switch complete — continuing sync on SQLite");
+        return true;
     }
 
     _disableForeignKeysIfSqlite() {

@@ -2,14 +2,16 @@ import BeanRegistry from "./framework/bean/BeanRegistry";
 import _ from 'lodash';
 import {initAnalytics, updateAnalyticsDatabase} from "./utility/Analytics";
 import General from "./utility/General";
-
-// Backend constants — duplicated from SqliteMigrationService to avoid a circular import
-// (GlobalContext is loaded before any @Service module due to the @Service decorator).
-const BACKENDS = {REALM: 'realm', SQLITE: 'sqlite'};
+import {BACKENDS} from "./framework/BackendTypes";
 
 let singleton;
 
 class GlobalContext {
+    // INVARIANT: `this.db` is always the Realm instance and is never reassigned by
+    // switchBackend(). The active database handed to the bean registry is selected
+    // via _activeBackend + sqliteDb. Code that needs the Realm instance directly
+    // (e.g., SqliteMigrationService._captureAuthStateFromSource during resume)
+    // relies on this invariant.
     db;
     sqliteDb;
     beanRegistry;
@@ -45,30 +47,14 @@ class GlobalContext {
             General.logWarn("GlobalContext", `SQLite init skipped: ${e.message}`);
         }
 
-        // Read persisted active backend from migration state. The username is not yet
-        // available (services not initialised), so we read with a null username key —
-        // this returns the default ('realm') unless we previously stored a global override.
-        // After services initialise, SqliteMigrationService.resumeIfPending() will
-        // re-read with the actual username and trigger a backend switch if needed.
-        // Inlined AsyncStorage read to avoid a circular import with SqliteMigrationService.
-        let initialBackend = BACKENDS.REALM;
-        try {
-            const AsyncStorage = require('@react-native-async-storage/async-storage').default;
-            const raw = await AsyncStorage.getItem('avni.sqliteMigration.unknown');
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (parsed && parsed.activeBackend === BACKENDS.SQLITE) {
-                    initialBackend = BACKENDS.SQLITE;
-                }
-            }
-        } catch (e) {
-            General.logWarn("GlobalContext", `Failed to read persisted backend: ${e.message}`);
-        }
-        this._activeBackend = (initialBackend === BACKENDS.SQLITE && this.sqliteDb)
-            ? BACKENDS.SQLITE : BACKENDS.REALM;
-        const activeDb = this._activeBackend === BACKENDS.SQLITE ? this.sqliteDb : this.db;
+        // Always boot the bean registry on Realm. Migration state is keyed per-username
+        // in AsyncStorage, so we cannot know which backend to use before services are
+        // wired up and UserInfo is readable. SqliteMigrationService.resumeIfPending()
+        // runs after services initialise and reconciles the active backend to whatever
+        // the per-user migration state records.
+        this._activeBackend = BACKENDS.REALM;
         General.logInfo("GlobalContext", `Initialising bean registry with activeBackend=${this._activeBackend}`);
-        this.beanRegistry.init(activeDb);
+        this.beanRegistry.init(this.db);
 
         // Runtime validation: Verify critical services are registered
         const criticalServices = [
