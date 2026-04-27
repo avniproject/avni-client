@@ -665,7 +665,6 @@ class SyncService extends BaseService {
      */
     async _checkAndSwitchBackendMidSync(statusMessageCallBack) {
         const GlobalContext = require('../GlobalContext').default;
-        if (GlobalContext.isBackendForced()) return false;
 
         const migrationService = this.getService('sqliteMigrationService');
         if (!migrationService) return false;
