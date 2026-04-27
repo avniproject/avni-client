@@ -41,6 +41,7 @@ import GroupSubjectService from "../../service/GroupSubjectService";
 import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
+import FormPDFService from "../../service/FormPDFService";
 
 class SubjectDashboardProfileTab extends AbstractComponent {
     static propTypes = {
@@ -282,13 +283,15 @@ class SubjectDashboardProfileTab extends AbstractComponent {
         this.voidUnVoidAlert('unVoidIndividualConfirmationTitle', 'unVoidIndividualConfirmationMessage', false)
     }
 
-    renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege) {
+    renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege, hasSharePrivilege) {
         const form = this.formMappingService.findRegistrationForm(this.state.individual.subjectType);
         const requiredActions = [];
         if (hasVoidPrivilege)
             requiredActions.push(new ContextAction('void', () => this.voidIndividual(), Colors.CancelledVisitColor));
         if (hasEditPrivilege)
             requiredActions.push(new ContextAction('edit', () => this.editProfile()));
+        if (hasSharePrivilege)
+            requiredActions.push(new ContextAction('share', () => this.getService(FormPDFService).shareSubjectForm(this.state.individual)));
         return _.isEmpty(form) ? <View/> :
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <ObservationsSectionOptions
@@ -304,8 +307,10 @@ class SubjectDashboardProfileTab extends AbstractComponent {
 
         const editProfileCriteria = `privilege.name = '${Privilege.privilegeName.editSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const voidProfileCriteria = `privilege.name = '${Privilege.privilegeName.voidSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
+        const shareSubjectCriteria = `privilege.name = '${Privilege.privilegeName.shareSubject}' AND privilege.entityType = '${Privilege.privilegeEntityType.subject}' AND subjectTypeUuid = '${this.state.individual.subjectType.uuid}'`;
         const hasEditPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(editProfileCriteria, 'subjectTypeUuid');
         const hasVoidPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(voidProfileCriteria, 'subjectTypeUuid');
+        const hasSharePrivilege = this.privilegeService.hasActionPrivilegeForCriteria(shareSubjectCriteria, 'subjectTypeUuid');
         return registrationForm ? (<View>
             <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_TOGGLE, {keyName: 'expand'})}>
                 <View style={{flexDirection: 'column'}}>
@@ -327,7 +332,7 @@ class SubjectDashboardProfileTab extends AbstractComponent {
                                   onFormElementGroupEdit={(pageNumber) => this.editSubjectByFEG(pageNumber)}
                     />
                 </View> : <View/>}
-                {this.renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege)}
+                {this.renderSelectionOptions(hasEditPrivilege, hasVoidPrivilege, hasSharePrivilege)}
             </View>
         </View>) : (<View style={{flexDirection: 'column'}}>
             <Text style={{fontSize: Fonts.Medium, color: Colors.DefaultPrimaryColor}}>

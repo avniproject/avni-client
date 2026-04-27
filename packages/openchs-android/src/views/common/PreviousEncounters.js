@@ -23,6 +23,7 @@ import CollapsibleEncounter from './CollapsibleEncounter';
 import PrivilegeService from '../../service/PrivilegeService';
 import ListViewHelper from '../../utility/ListViewHelper';
 import UserInfoService from "../../service/UserInfoService";
+import FormPDFService from "../../service/FormPDFService";
 
 class PreviousEncounters extends AbstractComponent {
     static propTypes = {
@@ -30,6 +31,7 @@ class PreviousEncounters extends AbstractComponent {
         allowedEncounterTypeUuidsForPerformVisit: PropTypes.array,
         allowedEncounterTypeUuidsForEditVisit: PropTypes.array,
         allowedEncounterTypeUuidsForCancelVisit: PropTypes.array,
+        allowedEncounterTypeUuidsForShareEncounter: PropTypes.array,
         formType: PropTypes.string.isRequired,
         cancelFormType: PropTypes.string,
         style: PropTypes.object,
@@ -84,6 +86,10 @@ class PreviousEncounters extends AbstractComponent {
         return this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForEditVisit, encounter.encounterType.uuid);
     }
 
+    hasSharePrivilege(encounter) {
+        return this.privilegeService.hasAllPrivileges() || _.includes(this.props.allowedEncounterTypeUuidsForShareEncounter, encounter.encounterType.uuid);
+    }
+
     isEditAllowed(encounter) {
         return this.hasEditPrivilege(encounter) && !encounter.encounterType.immutable;
     }
@@ -103,8 +109,15 @@ class PreviousEncounters extends AbstractComponent {
             
             return actions;
         }
-        
-        return this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
+
+        const actions = this.isEditAllowed(encounter) ? [new ContextAction('edit', () => this.editEncounter(encounter))] : [];
+        if (!encounter.isScheduled() && this.hasSharePrivilege(encounter)) {
+            actions.push(new ContextAction('share', () => this.getService(FormPDFService).shareEncounterForm(
+                encounter,
+                {formType: this.props.formType, cancelFormType: this.props.cancelFormType}
+            )));
+        }
+        return actions;
     }
 
     addScheduledEncounterActions(encounter, actionName, textColor, actions, isDraftEncounter) {
