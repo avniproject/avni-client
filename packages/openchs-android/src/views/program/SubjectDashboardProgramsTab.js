@@ -29,6 +29,7 @@ import UserInfoService from "../../service/UserInfoService";
 import AvniToast from "../common/AvniToast";
 import {SubjectType} from "openchs-models";
 import ProgramEnrolmentService from "../../service/ProgramEnrolmentService";
+import FormPDFService from "../../service/FormPDFService";
 
 class SubjectDashboardProgramsTab extends AbstractComponent {
     static propTypes = {
@@ -139,9 +140,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         return formMappingService.findFormForProgramExit(this.state.enrolment.program, this.state.enrolment.individual.subjectType);
     }
 
-    getEnrolmentContextActions(isExit, hasEditPrivilege) {
-        return hasEditPrivilege ?
+    getEnrolmentContextActions(isExit, hasEditPrivilege, hasSharePrivilege) {
+        const actions = hasEditPrivilege ?
             [new ContextAction('edit', () => isExit ? this.editExit() : this.editEnrolment())] : [];
+        if (hasSharePrivilege)
+            actions.push(new ContextAction('share', () => this.getService(FormPDFService).shareEnrolmentForm(this.state.enrolment, {isExit})));
+        return actions;
     }
 
     joinProgram() {
@@ -213,9 +217,12 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
         const programEnrolment = this.state.enrolment;
         const actualEncounters = this.state.completedEncounters;
         const visitEditCriteria = `privilege.name = '${Privilege.privilegeName.editVisit}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${this.state.enrolment.program.uuid}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}'`;
+        const visitShareCriteria = `privilege.name = '${Privilege.privilegeName.shareEncounter}' AND privilege.entityType = '${Privilege.privilegeEntityType.encounter}' AND programUuid = '${this.state.enrolment.program.uuid}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}'`;
         const allowedEncounterTypeUuidsForEditVisit = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitEditCriteria, 'programEncounterTypeUuid');
+        const allowedEncounterTypeUuidsForShareEncounter = this.privilegeService.allowedEntityTypeUUIDListForCriteria(visitShareCriteria, 'programEncounterTypeUuid');
         return (<PreviousEncounters encounters={actualEncounters}
                                     allowedEncounterTypeUuidsForEditVisit={allowedEncounterTypeUuidsForEditVisit}
+                                    allowedEncounterTypeUuidsForShareEncounter={allowedEncounterTypeUuidsForShareEncounter}
                                     formType={Form.formTypes.ProgramEncounter}
                                     cancelFormType={Form.formTypes.ProgramEncounterCancellation}
                                     showCount={this.state.showCount}
@@ -231,7 +238,9 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
     renderExitObservations() {
         const editPrivilegeCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
+        const sharePrivilegeCriteria = `privilege.name = '${Privilege.privilegeName.shareEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${this.state.enrolment.program.uuid}'`;
         const hasEditPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(editPrivilegeCriteria, 'programUuid');
+        const hasSharePrivilege = this.privilegeService.hasActionPrivilegeForCriteria(sharePrivilegeCriteria, 'programUuid');
         const enrolmentIsActive = this.state.enrolment.isActive;
         return enrolmentIsActive ? (<View/>) :
             (<View style={{
@@ -248,7 +257,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                               quickFormEdit={hasEditPrivilege}
                               onFormElementGroupEdit={(pageNumber) => this.editExit(pageNumber)}
                 />
-                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true, hasEditPrivilege)}/>
+                <ObservationsSectionOptions contextActions={this.getEnrolmentContextActions(true, hasEditPrivilege, hasSharePrivilege)}/>
             </View>);
     }
 
@@ -273,8 +282,10 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
 
         const exitPrivilegeCriteria = `privilege.name = '${Privilege.privilegeName.exitEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${enrolment.program.uuid}'`;
         const editPrivilegeCriteria = `privilege.name = '${Privilege.privilegeName.editEnrolmentDetails}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${enrolment.program.uuid}'`;
+        const sharePrivilegeCriteria = `privilege.name = '${Privilege.privilegeName.shareEnrolment}' AND privilege.entityType = '${Privilege.privilegeEntityType.enrolment}' AND subjectTypeUuid = '${this.state.enrolment.individual.subjectType.uuid}' AND programUuid = '${enrolment.program.uuid}'`;
         const hasExitPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(exitPrivilegeCriteria, 'programUuid');
         const hasEditPrivilege = this.privilegeService.hasActionPrivilegeForCriteria(editPrivilegeCriteria, 'programUuid');
+        const hasSharePrivilege = this.privilegeService.hasActionPrivilegeForCriteria(sharePrivilegeCriteria, 'programUuid');
 
         const createdBy = this.getService(UserInfoService).getCreatedBy(enrolment, this.I18n);
         const createdByMessage = _.isEmpty(createdBy) ? "" : this.I18n.t("by", {user: createdBy});
@@ -312,7 +323,7 @@ class SubjectDashboardProgramsTab extends AbstractComponent {
                 <TouchableOpacity onPress={() => this.dispatchAction(Actions.ON_ENROLMENT_TOGGLE)}>
                     <View style={{paddingTop: 20}}>
                         <ObservationsSectionOptions
-                            contextActions={this.getEnrolmentContextActions(false, hasEditPrivilege)}
+                            contextActions={this.getEnrolmentContextActions(false, hasEditPrivilege, hasSharePrivilege)}
                             primaryAction={this.getPrimaryEnrolmentContextAction(hasExitPrivilege)}/>
                     </View>
                 </TouchableOpacity>
