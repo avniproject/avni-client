@@ -148,11 +148,6 @@ Multiple issues: `./scripts/board.sh pickup 1861 1862 1863`
 
 Requires `project` scope on the gh token — if the mutation fails with a scope error, ask the user to run `gh auth refresh -s project`.
 
-## Workflow
-
-- **Do not commit eagerly.** Wait for the user to test changes on-device and confirm correctness before creating commits. Only commit when explicitly asked.
-- **Commit message format:** `#<card-number> | One-line summary`, followed by optional details. Always ask for the card number if not clear from context.
-- **Always ask before pushing.** Never push to remote without explicit confirmation.
 ## Key Technical Details
 
 - React Native 0.77.3, React 18.3.1
